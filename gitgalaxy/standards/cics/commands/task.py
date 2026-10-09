@@ -84,6 +84,8 @@ ASKTIME = Command(
     key="ASKTIME",
     ibm=ibm("EXEC CICS ASKTIME", "summary-asktime"),
     status="modelled",
+    # #4737: ABSTIME is optional (IBM: ASKTIME "updates the date (EIBDATE) and ... time-of-day clock (EIBTIME) fields in the
+    # EIB", which the region keeps as dispatched, X4); NOHANDLE has no condition to suppress: ASKTIME lists none
     options={"ABSTIME": Arg("area_out", width=8), **_NOHANDLE},
     outcomes=(Outcome("NORMAL", 0, "", writes=("ABSTIME",)),),
     state=("virtual_clock",),
@@ -99,9 +101,15 @@ FORMATTIME = Command(
         "TIME": Arg("area_out", width=6),
         "DATESEP": Arg("value"),  # no value: IBM's default '/'
         "TIMESEP": Arg("value"),  # no value: IBM's default ':'
-        **_NOHANDLE,
+        **RESP_OPTIONS,
     },
-    outcomes=(Outcome("NORMAL", 0, "", writes=(*DATE_FORMS, "TIME")),),
+    # #4737 (register X28): IBM lists INVREQ RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal
+    # format" and RESP2 2 (invalid STRINGFORMAT CVDA; STRINGFORMAT is not an option here, so it is refused by name).
+    # "Not packed-decimal" is the declared storage's business (the port reads ABSTIME by its declared usage)
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=(*DATE_FORMS, "TIME")),
+        Outcome("INVREQ", 1, "ABSTIME is less than zero"),
+    ),
 )
 
 INQUIRE_PROGRAM = Command(

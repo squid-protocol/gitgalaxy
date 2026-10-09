@@ -687,6 +687,25 @@ def test_a_case_csd_defines_the_programs_and_no_csd_defines_all(tmp_path):
     # the Java side (CicsTask.withPrograms) is proven by carddemo-adminmenu: options 5 and 6 are PGMIDERR on both
 
 
+def test_formattime_resp_asktime_nohandle_readq_length_of_and_receive_map_asis():
+    """#4737 (X28): FORMATTIME is INVREQ RESP2 1 below zero, then RESP / the handlers; ASKTIME NOHANDLE with no ABSTIME
+    changes nothing; READQ TS LENGTH(LENGTH OF x) is not set back; RECEIVE MAP ASIS is accepted."""
+    fmt = ec.translate_command("FORMATTIME ABSTIME(T) DDMMYYYY(D) RESP(R)")
+    assert fmt[:6] == ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2", "IF T < 0", "    MOVE 16 TO GG-RESP",
+                       "    MOVE 1 TO GG-RESP2", "ELSE"]  # fmt: skip
+    assert "MOVE GG-RESP TO R" in fmt and not any("GGCCOND" in x for x in fmt)
+    plain = ec.translate_command("FORMATTIME ABSTIME(T) TIME(D)")  # no RESP: an ABSTIME below zero is refused
+    assert plain[:2] == ["IF T < 0", "    DISPLAY 'FORMATTIME ABSTIME < 0 NO RESP: not modelled'"]
+    assert not any("GG-RESP" in x for x in plain)
+    assert ec.translate_command("ASKTIME NOHANDLE") == ["CONTINUE"]
+    out = ec.translate_command("READQ TS QUEUE(Q) INTO(A) LENGTH(LENGTH OF A) RESP(R)")
+    assert "MOVE LENGTH OF A TO GG-LEN" in out and not any(x.endswith("TO LENGTH OF A") for x in out)
+    assert "    MOVE GG-LEN TO L" in ec.translate_command("READQ TS QUEUE(Q) INTO(A) LENGTH(L) RESP(R)")
+    assert "CALL 'GGCRECV' USING GG-CICS" in ec.translate_command(
+        "RECEIVE MAP('MAP') MAPSET('MS') INTO(MAPI) ASIS RESP(R)"
+    )
+
+
 def test_browse_delete_and_time_commands_translate():
     assert ec.translate_command("STARTBR DATASET(F) RIDFLD(K) EQUAL RESP(R)")[:3] == [
         "MOVE F TO GG-NAME1",

@@ -1775,10 +1775,11 @@ def test_cics_task_uctranst_and_deedit_as_the_stub_does(tmp_path):
         } catch (IllegalStateException e) {
             System.out.println("unstated");
         }
-        System.out.println(CicsTask.deeditResp(0) + " " + CicsTask.deeditResp(1));""",
+        System.out.println(CicsTask.deeditResp(0) + " " + CicsTask.deeditResp(1));
+        System.out.println(java.util.Arrays.toString(CicsTask.formattimeCheck(-1)) + java.util.Arrays.toString(CicsTask.formattimeCheck(0)));""",
     )
     assert out.splitlines() == ["[0, 0, 450]", "[0, 0]", "[0, 0, 451]", "[16, 43]", "[11, 1, 0][11, 23]", "refused",
-                                "unstated", "22 0"]  # fmt: skip
+                                "unstated", "22 0", "[16, 1][0, 0]"]  # fmt: skip
 
 
 def test_scheduler_states_each_tasks_startcode():
@@ -1889,8 +1890,12 @@ def test_the_stub_return_immediate_is_ibms(tmp_path):
     (tmp_path / "out").mkdir()
 
     def run(env, *args):
-        return subprocess.run([str(exe), *args], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
-                                                      **env}, capture_output=True, text=True)  # noqa: S603
+        return subprocess.run(
+            [str(exe), *args],
+            env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"), **env},
+            capture_output=True,
+            text=True,
+        )  # noqa: S603
 
     term = {"GGCICS_FACILITY": "T001"}
     ok = run(term, "x", "8")

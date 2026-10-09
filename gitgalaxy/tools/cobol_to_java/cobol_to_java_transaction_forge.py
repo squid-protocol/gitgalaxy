@@ -673,6 +673,19 @@ public class CicsTask {
         return resp;
     }
 
+    /** EXEC CICS FORMATTIME's condition (IBM): INVREQ (16) RESP2 1 when the ABSTIME value is less than zero ("or not in
+     *  packed-decimal format": the port reads the field by its declared usage). {resp, resp2}. */
+    public static int[] formattimeCheck(long abstime) {
+        return abstime < 0 ? new int[] {16, 1} : new int[] {0, 0};
+    }
+
+    /** FORMATTIME with no RESP on an ABSTIME below zero: INVREQ's HANDLE CONDITION / default abend is not modelled (X28). */
+    private static void refuseNegativeAbstime(long abstime) {
+        if (abstime < 0) {
+            throw new UnsupportedOperationException("FORMATTIME ABSTIME below zero without RESP: INVREQ's handling is not modelled");
+        }
+    }
+
     private static final LocalDateTime ABSTIME_EPOCH = LocalDateTime.of(1900, 1, 1, 0, 0);
 
     /** ASKTIME ABSTIME (IBM CICS TS): milliseconds since 00:00 on 1 January 1900, at the task's clock. */
@@ -683,6 +696,7 @@ public class CicsTask {
     /** FORMATTIME ABSTIME(t) YYYYMMDD / MMDDYYYY / DDMMYYYY / YYMMDD / MMDDYY / DDMMYY: the date of t in that form,
      *  its parts joined by `datesep` ("" for no DATESEP; DATESEP with no value is "/"). */
     public static String formatDate(long abstime, String form, String datesep) {
+        refuseNegativeAbstime(abstime);
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
         String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
         String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
@@ -700,6 +714,7 @@ public class CicsTask {
 
     /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
     public static String formatTime(long abstime, String timesep) {
+        refuseNegativeAbstime(abstime);
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
         return String.join(timesep, String.format(java.util.Locale.ROOT, "%02d", t.getHour()), String.format(java.util.Locale.ROOT, "%02d", t.getMinute()),
                 String.format(java.util.Locale.ROOT, "%02d", t.getSecond()));

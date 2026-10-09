@@ -41,7 +41,9 @@ RECEIVE_MAP = Command(
     key="RECEIVE MAP",
     ibm=ibm("EXEC CICS RECEIVE MAP", "summary-receive-map"),
     status="modelled",
-    options={**_MAP, "INTO": Arg("area_out"), **RESP_OPTIONS},
+    # #4737 (X28): ASIS -- IBM: "lowercase characters in the 3270 input data stream are not translated to uppercase". The
+    # region delivers the operator's input as typed, so ASIS changes nothing
+    options={**_MAP, "INTO": Arg("area_out"), "ASIS": Arg("flag"), **RESP_OPTIONS},
     refused={"SET": SET_POINTER},
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO",)),

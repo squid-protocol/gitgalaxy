@@ -53,6 +53,12 @@
    "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+  },
+  {
+   "area": "CICS",
+   "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+   "id": "X27",
+   "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -1333,7 +1339,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -1348,6 +1361,7 @@
      "covered": 0,
      "total": 4
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -1357,6 +1371,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1413,6 +1429,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1476,7 +1493,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1575,7 +1594,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1589,7 +1610,9 @@
    ],
    "program": "base/src/lgacvs01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 4,
     "commands": 6,
     "commands_backed": 3,
@@ -1603,6 +1626,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -1618,7 +1643,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -1633,6 +1665,7 @@
      "covered": 5,
      "total": 9
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -1642,6 +1675,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1705,7 +1740,7 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
        "oracle_matches_pin": true,
        "records_compared": 16,
        "records_equal": 16,
@@ -1803,7 +1838,7 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
       "oracle_matches_pin": true,
       "records_compared": 16,
       "records_equal": 16,
@@ -1818,6 +1853,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1862,7 +1898,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1961,7 +1999,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1975,7 +2015,9 @@
    ],
    "program": "base/src/lgapvs01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 2,
@@ -1989,6 +2031,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2004,7 +2048,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -2019,6 +2070,7 @@
      "covered": 0,
      "total": 4
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2028,6 +2080,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2136,6 +2190,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2188,7 +2243,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2287,13 +2344,17 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgdpvs01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 2,
@@ -2307,6 +2368,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2334,6 +2397,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2350,6 +2419,7 @@
      "covered": 0,
      "total": 4
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2359,6 +2429,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2415,6 +2487,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2478,7 +2551,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2588,7 +2663,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2604,7 +2681,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 7,
@@ -2620,6 +2698,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2647,6 +2727,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2663,6 +2749,7 @@
      "covered": 5,
      "total": 9
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2672,6 +2759,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2835,6 +2924,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2898,7 +2988,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3008,7 +3100,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3024,7 +3118,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 7,
@@ -3040,6 +3135,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3057,21 +3154,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 92.9,
+    "branch_pct": 92.9,
+    "branches": {
+     "covered": 13,
+     "total": 14
+    },
+    "branches_net": {
+     "covered": 13,
+     "total": 14
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3119,6 +3238,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3190,7 +3310,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3289,14 +3411,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgacdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 1,
     "commands": 6,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -3306,9 +3432,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3326,21 +3454,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 10,
+     "total": 10
+    },
+    "branches_net": {
+     "covered": 10,
+     "total": 10
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3401,6 +3551,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3464,7 +3615,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3563,14 +3716,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgacdb02.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 0,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -3579,9 +3736,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3599,21 +3758,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 50.0,
+    "branch_pct": 50.0,
+    "branches": {
+     "covered": 4,
+     "total": 8
+    },
+    "branches_net": {
+     "covered": 4,
+     "total": 8
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3648,6 +3829,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3711,7 +3893,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3810,14 +3994,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgacus01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -3826,9 +4014,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3846,21 +4036,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 54.8,
+    "branch_pct": 54.8,
+    "branches": {
+     "covered": 17,
+     "total": 31
+    },
+    "branches_net": {
+     "covered": 17,
+     "total": 31
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 85.7,
+    "paragraphs": {
+     "covered": 6,
+     "live": 7
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3960,6 +4172,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4023,7 +4236,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4122,14 +4337,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgapdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 14,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4138,9 +4357,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4158,21 +4379,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 62.5,
+    "branch_pct": 62.5,
+    "branches": {
+     "covered": 5,
+     "total": 8
+    },
+    "branches_net": {
+     "covered": 5,
+     "total": 8
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 2,
+     "live": 2
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4259,6 +4502,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4322,7 +4566,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4421,14 +4667,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgapol01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 3,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4437,9 +4687,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4457,21 +4709,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 12,
+     "total": 12
+    },
+    "branches_net": {
+     "covered": 12,
+     "total": 12
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4571,6 +4845,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4634,7 +4909,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4733,14 +5010,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgdpdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 0,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4749,9 +5030,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4769,21 +5052,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 66.7,
+    "branch_pct": 66.7,
+    "branches": {
+     "covered": 8,
+     "total": 12
+    },
+    "branches_net": {
+     "covered": 8,
+     "total": 12
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 3
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4870,6 +5175,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4933,7 +5239,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5032,14 +5340,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgdpol01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -5048,9 +5360,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5068,21 +5382,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 33.3,
+    "branch_pct": 33.3,
+    "branches": {
+     "covered": 4,
+     "total": 12
+    },
+    "branches_net": {
+     "covered": 4,
+     "total": 12
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 75.0,
+    "paragraphs": {
+     "covered": 3,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "b141138e182ff7da68a70a056f39c1d383404dbd",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5214,6 +5550,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5277,7 +5614,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5376,14 +5715,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgicdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 8,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -5392,9 +5735,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5412,21 +5757,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 50.0,
+    "branch_pct": 50.0,
+    "branches": {
+     "covered": 4,
+     "total": 8
+    },
+    "branches_net": {
+     "covered": 4,
+     "total": 8
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5461,6 +5828,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5524,7 +5892,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5623,14 +5993,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgicus01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -5639,9 +6013,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5659,21 +6035,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 98.6,
+    "branch_pct": 98.6,
+    "branches": {
+     "covered": 73,
+     "total": 74
+    },
+    "branches_net": {
+     "covered": 73,
+     "total": 74
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 12,
+     "live": 12
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5773,6 +6171,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5836,7 +6235,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5935,14 +6336,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgipdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 1,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -5951,9 +6356,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5971,21 +6378,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 50.0,
+    "branch_pct": 50.0,
+    "branches": {
+     "covered": 3,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 3,
+     "total": 6
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 2,
+     "live": 2
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6072,6 +6501,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6135,7 +6565,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6234,14 +6666,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgipol01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 3,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -6250,9 +6686,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6291,22 +6729,43 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 92.9,
+    "branch_pct": 92.9,
+    "branches": {
+     "covered": 13,
+     "total": 14
+    },
+    "branches_net": {
+     "covered": 13,
+     "total": 14
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6536,6 +6995,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6736,7 +7196,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6882,9 +7344,10 @@
    "residual": {
     "assumed_or_differs_named": [
      "X15",
-     "X19"
+     "X19",
+     "X27"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 1,
     "commands": 6,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -6892,9 +7355,11 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6928,22 +7393,43 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 73.7,
+    "branch_pct": 73.7,
+    "branches": {
+     "covered": 14,
+     "total": 19
+    },
+    "branches_net": {
+     "covered": 14,
+     "total": 19
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 70.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 10
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6978,6 +7464,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7073,7 +7560,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7201,7 +7690,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7332,8 +7823,10 @@
    ],
    "program": "base/src/lgtestp1.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 5,
     "commands": 8,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -7341,9 +7834,11 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 3,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7377,22 +7872,43 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 73.7,
+    "branch_pct": 73.7,
+    "branches": {
+     "covered": 14,
+     "total": 19
+    },
+    "branches_net": {
+     "covered": 14,
+     "total": 19
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 70.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 10
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7427,6 +7943,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7522,7 +8039,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7650,7 +8169,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7781,8 +8302,10 @@
    ],
    "program": "base/src/lgtestp2.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 5,
     "commands": 8,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -7790,9 +8313,11 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 3,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7826,22 +8351,43 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 73.7,
+    "branch_pct": 73.7,
+    "branches": {
+     "covered": 14,
+     "total": 19
+    },
+    "branches_net": {
+     "covered": 14,
+     "total": 19
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 70.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 10
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7876,6 +8422,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7971,7 +8518,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8099,7 +8648,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8230,8 +8781,10 @@
    ],
    "program": "base/src/lgtestp3.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 5,
     "commands": 8,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -8239,9 +8792,11 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 3,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8275,22 +8830,43 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 81.8,
+    "branch_pct": 81.8,
+    "branches": {
+     "covered": 18,
+     "total": 22
+    },
+    "branches_net": {
+     "covered": 18,
+     "total": 22
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 77.8,
+    "paragraphs": {
+     "covered": 7,
+     "live": 9
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8325,6 +8901,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8420,7 +8997,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8548,7 +9127,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8679,8 +9260,10 @@
    ],
    "program": "base/src/lgtestp4.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 4,
     "commands": 8,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -8688,9 +9271,11 @@
     ],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 2,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8708,21 +9293,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 90.0,
+    "branch_pct": 90.0,
+    "branches": {
+     "covered": 9,
+     "total": 10
+    },
+    "branches_net": {
+     "covered": 9,
+     "total": 10
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8770,6 +9377,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8833,7 +9441,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8932,14 +9542,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgucdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 1,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -8948,9 +9562,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8968,21 +9584,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 62.5,
+    "branch_pct": 62.5,
+    "branches": {
+     "covered": 5,
+     "total": 8
+    },
+    "branches_net": {
+     "covered": 5,
+     "total": 8
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9017,6 +9655,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9080,7 +9719,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9179,14 +9820,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgucus01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 3,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -9195,9 +9840,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9221,22 +9868,43 @@
       "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
       "id": "X3",
       "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 68.4,
+    "branch_pct": 68.4,
+    "branches": {
+     "covered": 26,
+     "total": 38
+    },
+    "branches_net": {
+     "covered": 26,
+     "total": 38
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 9,
+     "live": 9
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "b141138e182ff7da68a70a056f39c1d383404dbd",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9446,6 +10114,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9509,7 +10178,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9608,7 +10279,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9624,8 +10297,10 @@
    ],
    "program": "base/src/lgupdb01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 12,
     "commands": 6,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -9635,9 +10310,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9655,21 +10332,43 @@
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 81.2,
+    "branch_pct": 81.2,
+    "branches": {
+     "covered": 13,
+     "total": 16
+    },
+    "branches_net": {
+     "covered": 13,
+     "total": 16
+    },
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 4,
+     "live": 4
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9756,6 +10455,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9819,7 +10519,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9918,14 +10620,18 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "base/src/lgupol01.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 3,
     "commands": 5,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -9934,9 +10640,11 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9960,6 +10668,12 @@
       "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -9970,12 +10684,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9984,6 +10701,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10146,7 +10864,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10197,7 +10917,8 @@
    "program": "base/src/lgastat1.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X17"
+     "X17",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -10213,6 +10934,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS not a data area: Length of <name>"
@@ -10270,6 +10993,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10286,6 +11015,7 @@
      "covered": 7,
      "total": 12
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10295,6 +11025,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10325,6 +11057,7 @@
     }
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10571,7 +11304,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10711,7 +11446,8 @@
      "X14",
      "X15",
      "X19",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 5,
     "commands": 9,
@@ -10726,6 +11462,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS READ GTEQ"
@@ -10783,6 +11521,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10793,12 +11537,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10807,6 +11554,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11018,7 +11766,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11114,7 +11864,8 @@
      "X14",
      "X15",
      "X19",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 5,
@@ -11127,6 +11878,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS READ GENERIC GTEQ"
@@ -11158,6 +11911,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -11168,12 +11927,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11182,6 +11944,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11375,7 +12138,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11512,7 +12277,8 @@
    "program": "base/src/lgsetup.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X15"
+     "X15",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -11527,6 +12293,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS DEFINE COUNTER: named counters are not modelled",
@@ -11568,6 +12336,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -11578,12 +12352,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11592,6 +12369,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11703,7 +12481,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11850,7 +12630,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -12025,7 +12807,9 @@
    ],
    "program": "base/src/lgtestc1.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": null,
     "commands": 12,
     "commands_backed": 9,
@@ -12039,6 +12823,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS RECEIVE MAP ASIS"
@@ -12078,6 +12864,12 @@
       "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -12088,12 +12880,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12102,6 +12897,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12287,7 +13083,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -12370,7 +13168,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X18",
-     "X19"
+     "X19",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 9,
@@ -12386,6 +13185,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS DELETEQ TS",
@@ -12418,17 +13219,17 @@
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
   "coverage_from": "det-sweep coverage ledger freshness recomputed now",
-  "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
+  "crucible_baseline_ref": "v0.6.0 (b794aa8b)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.5.0",
+   "cics": "v0.6.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56"
+   "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status, recomputed now",
@@ -12450,7 +13251,16 @@
    "L4": 0,
    "L5": 0
   },
+  "histogram_stale": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
   "holes": 123,
+  "levels_stale": 0,
   "programs": 31,
   "records_current": 1,
   "refused_whole": 0,

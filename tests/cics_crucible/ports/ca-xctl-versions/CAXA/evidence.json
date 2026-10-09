@@ -56,8 +56,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 65,
-   "sha256": "1b1925973fc025837a5e2862c15a7fb405538868de5826528341dfb0f29128c8"
+   "files": 66,
+   "sha256": "e480cd14edc6b7a549cca8d1ff91aa535361a6babbabbe677515b9b007af5472"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -93,10 +93,10 @@
     }
    }
   },
-  "digest": "3349d9fe5effe463261130aa61f96239d3b28c1e6a5b3fced6642ddf2b238f6e"
+  "digest": "78cd427836f87849491e295c804c8d393242913d16b36607f4f821d71c3efe24"
  },
  "proof": {
-  "at": "2026-10-09T05:12:15Z",
+  "at": "2026-10-09T06:55:16Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -122,8 +122,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "76c7099d93db0d48757a6ad31c4b68f37e5be370+uncommitted",
-  "inputs_digest": "3349d9fe5effe463261130aa61f96239d3b28c1e6a5b3fced6642ddf2b238f6e"
+  "harness_commit": "d4b0f9137bffe3856b55de42e87833e3459620b0+uncommitted",
+  "inputs_digest": "78cd427836f87849491e295c804c8d393242913d16b36607f4f821d71c3efe24"
  },
  "coverage": {
   "paragraphs": {
@@ -138,7 +138,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXA",
   "ledger_sha256": "b041eb81e33650ada94387af852ac6f6392b6c4d12697d4f71e7365825bffc30",
-  "inputs_digest": "3349d9fe5effe463261130aa61f96239d3b28c1e6a5b3fced6642ddf2b238f6e"
+  "inputs_digest": "78cd427836f87849491e295c804c8d393242913d16b36607f4f821d71c3efe24"
  },
  "reach": {
   "entry_points": [

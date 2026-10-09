@@ -1613,6 +1613,38 @@ static void return_event(const char *transid, char *commarea, int len) {
     }
 }
 
+/* RETURN TRANSID(name1) [COMMAREA LENGTH: GG-ITEM 1] IMMEDIATE (#4270, register X27; IBM, EXEC CICS RETURN): the next task
+ * is attached at once, ahead of any terminal input, with the COMMAREA. INVREQ RESP2 1 for a task with no terminal
+ * ($GGCICS_FACILITY empty; unstated: refused), INVREQ RESP2 2 below the highest level, LENGERR RESP2 11 for a length
+ * outside 0-32763 -- the program then goes on. The two INVREQs together are not stated by IBM: refused. */
+int GGCRETI(gg_cics *c, char *commarea, int len) {
+    char transid[9], ev[128];
+    const char *own = getenv("GGCICS_FACILITY");
+    int has = c->item != 0, no_terminal;
+    trim(c->name1, 8, transid);
+    if (!own) refuse("RETURN IMMEDIATE: the task's terminal is not stated for this task");
+    no_terminal = !own[0];
+    if (no_terminal && lvl > 0)
+        refuse("RETURN IMMEDIATE below the highest level in a task with no terminal: IBM lists INVREQ RESP2 1 and 2 "
+               "for it and does not say which");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (lvl > 0) { c->resp = INVREQ; c->resp2 = 2; }
+    else if (no_terminal) { c->resp = INVREQ; c->resp2 = 1; }
+    else if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
+    if (c->resp != NORMAL) {
+        snprintf(ev, sizeof ev, "RETURN level=%d transid=%s immediate=1 resp=%d resp2=%d", lvl + 1, transid, c->resp,
+                 c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
+    levels[lvl].state = DONE;
+    ended = 1;
+    snprintf(ev, sizeof ev, "RETURN level=1 transid=%s len=%d immediate=1", transid, has ? len : 0);
+    event(ev, has ? commarea : NULL, has && len > 0 ? len : 0);
+    return 0;
+}
+
 static void xctl_next(const char *program, char *commarea, int len) {
     level *L = &levels[lvl];
     snprintf(L->next_invoker, sizeof L->next_invoker, "%s", L->prog);  /* the XCTLing program */

@@ -2237,6 +2237,45 @@ public class CicsTask {
         ended = true;
     }
 
+    /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
+     *  RETURN): the next task, `transid`, is attached at once -- ahead of any terminal input and any transaction ATI
+     *  enqueued for the terminal -- with the COMMAREA, and "appears to the operator as having been started by terminal
+     *  data". As {RESP, RESP2}: {0, 0} and the task ends; INVREQ RESP2 1 for a task with no terminal, INVREQ RESP2 2 for
+     *  a program below the highest logical level, LENGERR RESP2 11 for a COMMAREA length below 0 or past 32763 -- the
+     *  command then returns to the program. IBM does not say which of the two INVREQs a non-terminal task below level 1
+     *  gets: refused. */
+    public int[] returnImmediate(String transid, Object commarea, Integer length) {
+        boolean lower = level > 1;
+        boolean noTerminal = termid() == null;
+        if (lower && noTerminal) {
+            throw new IllegalStateException("RETURN IMMEDIATE below the highest level in a task with no terminal: IBM "
+                    + "lists INVREQ RESP2 1 and 2 for it and does not say which: not modelled");
+        }
+        int resp = 0;
+        int resp2 = 0;
+        if (lower) {
+            resp = 16;
+            resp2 = 2;
+        } else if (noTerminal) {
+            resp = 16;
+            resp2 = 1;
+        } else if (commarea != null && length != null && (length < 0 || length > 32763)) {
+            resp = 22;
+            resp2 = 11;
+        }
+        if (resp != 0) {
+            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", resp == 16 ? "INVREQ" : "LENGERR",
+                    "resp2", resp2);
+            return new int[] {resp, resp2};
+        }
+        event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length", commarea == null ? null : length,
+                "immediate", true);
+        root().returnedArea = commarea;
+        root().returnedLength = commarea == null ? null : length;
+        ended = true;
+        return new int[] {0, 0};
+    }
+
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
      *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is converted by layout (#4449) when
      *  both are laid out as bytes (the generator writes toCommarea / fromCommarea into the DTOs a facade converts

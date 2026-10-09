@@ -158,7 +158,7 @@ COBOL_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
+        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
@@ -182,7 +182,7 @@ JAVA_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
+        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
@@ -728,6 +728,7 @@ class EquivalenceRunTest {
         String pending;
         Object pendingCa;
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
+        Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
 
         Scenario(JsonNode plan, JsonNode sc) {
@@ -749,6 +750,20 @@ class EquivalenceRunTest {
             int next = 0;
             String stopped = null;
             while (true) {
+                if (immediate != null) {
+                    // #4270 (X27): RETURN IMMEDIATE -- TRANSID's task is attached next, "regardless of any other
+                    // transactions enqueued by ATI for this terminal", with no operator step and no EIBAID
+                    Map<String, Object> im = immediate;
+                    immediate = null;
+                    Map<String, Object> trigger = new LinkedHashMap<>();
+                    trigger.put("kind", "immediate");
+                    trigger.put("task", im.get("task"));
+                    trigger.put("event", im.get("event"));
+                    Map<String, Object> f = frame(terminal, trigger, null);
+                    f.put("startcode", "TD");  // IBM: "appears to the operator as having been started by terminal data"
+                    runOne(f, (String) im.get("transid"), im.get("commarea"), (Integer) im.get("length"), null, List.of());
+                    continue;
+                }
                 List<Map<String, Object>> expired = requests.stream()
                         .filter(r -> !((LocalDateTime) r.get("expires")).isAfter(now)).toList();
                 if (!expired.isEmpty()) {
@@ -1134,6 +1149,15 @@ class EquivalenceRunTest {
                     transid = (String) e.get("transid");
                     commarea = e.get("commarea") instanceof Map<?, ?> m ? m.get("object") : null;
                     length = e.get("length") instanceof Integer l ? l : null;
+                    if (Boolean.TRUE.equals(e.get("immediate")) && atTerminal && !abended) {  // #4270 (X27)
+                        immediate = new LinkedHashMap<>();
+                        immediate.put("transid", transid);
+                        immediate.put("commarea", commarea);
+                        immediate.put("length", length);
+                        immediate.put("task", tasks.size());
+                        immediate.put("event", j);
+                        transid = null;  // not the terminal's next input
+                    }
                 }
             }
             if (atTerminal) {
@@ -1456,6 +1480,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                     ev["length"] = e.get("length")
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
+            elif kind == "RETURN" and e.get("resp") is not None:  # #4270 (X27): a RETURN IMMEDIATE that failed
+                ev.update(level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2"))
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
                 ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
@@ -1463,6 +1489,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
+                if e.get("immediate"):  # #4270 (X27)
+                    ev["immediate"] = True
             elif kind == "LINK":
                 ev.update(target=e.get("target"), length=e.get("length"), resp=e.get("resp"), resp2=e.get("resp2"),
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
@@ -1753,8 +1781,13 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}
-            if level == 1:
+            if arg("resp"):  # #4270 (X27): a RETURN IMMEDIATE that failed (GGCRETI) -- it went on in the program
+                ev.update(immediate=True, transid=arg("transid"), resp=names.get(int(arg("resp")), arg("resp")),
+                          resp2=int(arg("resp2") or 0))  # fmt: skip
+            elif level == 1:
                 ev.update(transid=arg("transid") or None, commarea=cc.RawArea(data, "latin-1") if data else None)
+                if arg("immediate"):  # #4270 (X27)
+                    ev["immediate"] = True
             else:  # #4004: the LINK COMMAREA as the linking program now sees it (len -1: the LINK had none)
                 ev["caller_commarea"] = cc.RawArea(data, "latin-1") if int(arg("len") or -1) >= 0 else None
         elif verb == "XCTL":  # #4008: RESP2 only where the command is not NORMAL (SPEC 6.2)
@@ -1904,11 +1937,12 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
     issued = 0
     pending: Optional[str] = None
     pending_ca: Optional[bytes] = None
+    immediate: Optional[dict[str, Any]] = None  # #4270 (X27): a RETURN IMMEDIATE's task, attached before anything else
     now = clock
     steps = list(enumerate(sc["steps"]))
 
     def ended(task: dict[str, Any], at: datetime.datetime) -> None:
-        nonlocal issued, pending, pending_ca
+        nonlocal issued, pending, pending_ca, immediate
         for j, e in enumerate(task["events"]):
             if (
                 e["event"] == "START"
@@ -1930,9 +1964,13 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                 if r is not None:
                     requests.remove(r)
         if task.get("termid") == terminal:  # the terminal's next input starts this task's RETURN TRANSID
-            last = next((e for e in reversed(task["events"]) if e["event"] == "RETURN" and e.get("level") == 1), None)
+            last = next((e for e in reversed(task["events"])
+                         if e["event"] == "RETURN" and e.get("level") == 1 and e.get("resp") is None), None)  # fmt: skip
             pending = last["transid"] if last is not None and task["end"] == "normal" else None
             pending_ca = last["commarea"].data if pending and last is not None and last["commarea"] else None
+            if pending and last.get("immediate"):  # #4270 (X27): the next task is not the terminal's next input
+                immediate = {"transid": pending, "commarea": pending_ca, "task": len(tasks), "event": task["events"].index(last)}
+                pending, pending_ca = None, None
 
     def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
             data: list[Any], at: datetime.datetime) -> None:  # fmt: skip
@@ -1942,6 +1980,13 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
         ended(task, at)
 
     while True:
+        if immediate is not None:  # #4270 (X27): attached at once, ahead of the expired requests and the next step
+            im, immediate = immediate, None
+            frame = {"termid": terminal, "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
+                     "trigger": {"kind": "immediate", "task": im["task"], "event": im["event"]},
+                     "eibaid": None, "startcode": "TD"}  # fmt: skip
+            run(frame, im["transid"], im["commarea"], None, [], now)
+            continue
         expired = [r for r in requests if r["expires"] <= now]
         if expired:
             first = min(expired, key=lambda r: (r["expires"], r["issue"]))

@@ -1854,3 +1854,94 @@ def test_cics_task_states_eibtaskn_as_the_stub_does(tmp_path):
         }""",
     )
     assert out.splitlines() == ["MAIN 34", "SUB 34", "unstated 0", "refused"]
+
+
+# ---- #4270 (X27): RETURN ... IMMEDIATE -------------------------------------------------------------------------------
+_RETI_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len; char qname[16];
+                 int item; int num; } gg_cics;
+int GGCRETI(gg_cics *c, char *commarea, int len);
+int GGCLINK(gg_cics *c, char *area);
+int main(int argc, char **argv) {
+    gg_cics c = {0};
+    char area[16] = "12345678";
+    memset(c.name1, ' ', 8);
+    memcpy(c.name1, "PC52", 4);
+    if (argc > 2) { c.item = 1; c.len = atoi(argv[2]); }
+    if (argc > 3) { memcpy(c.name2, "PCIMML  ", 8); memcpy(c.name1, "PCIMML  ", 8); c.item = 0; GGCLINK(&c, area);
+                    memset(c.name1, ' ', 8); memcpy(c.name1, "PC52", 4); c.item = argc > 2; }
+    GGCRETI(&c, area, c.len);
+    printf("%d/%d\n", c.resp, c.resp2);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_return_immediate_is_ibms(tmp_path):
+    """#4270 (X27), IBM EXEC CICS RETURN: IMMEDIATE attaches TRANSID's task at once; INVREQ RESP2 1 for a task with no
+    terminal, INVREQ RESP2 2 below the highest logical level, LENGERR RESP2 11 for a COMMAREA length below 0 or past
+    32763 (the program then goes on). The task's terminal is a stated fact ($GGCICS_FACILITY): unstated, refused; a task
+    with no terminal below level 1, where IBM lists both INVREQs without a precedence, refused."""
+    exe = _stub(tmp_path, _RETI_MAIN)
+    (tmp_path / "out").mkdir()
+
+    def run(env, *args):
+        return subprocess.run([str(exe), *args], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+                                                      **env}, capture_output=True, text=True)  # noqa: S603
+
+    term = {"GGCICS_FACILITY": "T001"}
+    ok = run(term, "x", "8")
+    assert ok.stdout.strip() == "0/0"
+    events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1")
+    assert "level=1 transid=PC52 len=8 immediate=1" in events
+    assert run(term, "x", "32764").stdout.strip() == "22/11"
+    assert run(term, "x", "-1").stdout.strip() == "22/11"
+    assert run({"GGCICS_FACILITY": ""}, "x", "8").stdout.strip() == "16/1"
+    assert run(term, "x", "8", "link").stdout.strip() == "16/2"
+    unstated = run({}, "x", "8")
+    assert unstated.returncode == 98 and "terminal is not stated" in unstated.stdout
+    both = run({"GGCICS_FACILITY": ""}, "x", "8", "link")
+    assert both.returncode == 98 and "does not say which" in both.stdout
+
+
+@needs_javac
+def test_cics_task_return_immediate_as_the_stub_does(tmp_path):
+    """#4270 (X27): CicsTask.returnImmediate as the stub's GGCRETI (above): {0, 0} and the task ends with an event that
+    says `immediate`; INVREQ 1 with no terminal, INVREQ 2 below level 1 (the event names the level), LENGERR 11; both
+    INVREQs at once refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("PC51", "ENTER", null, null).withTermid("T001");
+        System.out.println(java.util.Arrays.toString(t.returnImmediate("PC52", null, null)) + t.ended());
+        System.out.println(t.events().get(0));
+        CicsTask u = new CicsTask("PC51", "ENTER", null, null).withTermid("T001");
+        System.out.println(java.util.Arrays.toString(u.returnImmediate("PC52", new byte[8], 32764)) + u.ended());
+        CicsTask n = new CicsTask("PC54", null, null, null);
+        System.out.println(java.util.Arrays.toString(n.returnImmediate("PC52", null, null)) + n.ended());
+        final int[][] low = new int[1][];
+        CicsTask r = new CicsTask("PC51", "ENTER", null, null).withTermid("T001").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) { return true; }
+            public void run(String p, CicsTask k) { low[0] = k.returnImmediate("PC52", null, null); }
+        });
+        r.link("PCIMML");
+        System.out.println(java.util.Arrays.toString(low[0]) + r.ended());
+        System.out.println(r.events().get(1));
+        try {
+            CicsTask b = new CicsTask("PC54", null, null, null).withPrograms(new CicsTask.Programs() {
+                public boolean defined(String p) { return true; }
+                public void run(String p, CicsTask k) { k.returnImmediate("PC52", null, null); }
+            });
+            b.link("PCIMML");
+        } catch (IllegalStateException e) {
+            System.out.println("refused");
+        }""",
+    )
+    lines = out.splitlines()
+    assert lines[0] == "[0, 0]true" and "immediate=true" in lines[1] and "transid=PC52" in lines[1]
+    assert lines[2:5] == ["[22, 11]false", "[16, 1]false", "[16, 2]false"]
+    assert "level=2" in lines[5] and "resp=INVREQ" in lines[5] and "resp2=2" in lines[5]
+    assert lines[6] == "refused"

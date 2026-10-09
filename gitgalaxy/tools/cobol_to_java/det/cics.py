@@ -708,6 +708,9 @@ class Cics:
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
         if verb == "LINK":
+            # #4270 (X27): "SYNCONRETURN is only applicable to remote links, it is ignored if the link is local" (IBM,
+            # EXEC CICS LINK); SYSID, the only way to a remote link, is refused, so every LINK here is local
+            opts = {k: v for k, v in opts.items() if k != "SYNCONRETURN"}
             # a literal, or a data item's VALUE (GenApp's 01 LGUPVS01 PIC X(8) VALUE 'LGUPVS01'): the program the
             # COMMAREA's DTO is typed for -- the name the LINK uses at run time is still the item's
             prog_lit = _literal(opts.get("PROGRAM")) or self._value_name(opts.get("PROGRAM"))
@@ -764,6 +767,18 @@ class Cics:
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", f"DetCics.linkResp2({r})", ind)  # #4679
         if verb == "RETURN":
+            if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
+                if not opts.get("TRANSID"):
+                    raise CicsError(
+                        "RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)"
+                    )
+                tid = self.name(_arg(opts["TRANSID"]))
+                dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
+                rr = g.tmpname("rr")
+                # failing (INVREQ / LENGERR) it returns to the program, which tests RESP; else the task ends
+                return [f"{ind}int[] {rr} = task.returnImmediate({tid}, {dto}, {length});",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
                 dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")

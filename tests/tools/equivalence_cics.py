@@ -751,6 +751,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         area = opts.get("COMMAREA")
         args = ([f"BY REFERENCE {area}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {area}'}"] if area
                 else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
+        if verb == "RETURN" and "IMMEDIATE" in opts:  # #4270 (X27): the next task attached at once; can fail (GGCRETI)
+            if not target:
+                raise Unsupported("RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)",
+                                  ["RETURN IMMEDIATE"])  # fmt: skip
+            return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM"]
+                    + _call("GGCRETI", args) + ["IF GG-RESP = 0", "    GOBACK", "END-IF"]
+                    + _resp(opts, True, labels))  # fmt: skip
         if verb == "RETURN":
             return [name(target, "GG-NAME1")] + _call("GGCRETN", args) + ["GOBACK"]
         # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling
@@ -1953,7 +1960,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
-        elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1:  # the task's own (a LINK level's: no)
+        # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
+        elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
@@ -3146,7 +3154,11 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
             lvl = re.search(r"\blevel=(\d+)", args)
-            if lvl and int(lvl.group(1)) > 1:  # a LINKed program's RETURN: back to its caller, no COMMAREA of its own
+            if "resp=" in args:  # #4270: a RETURN IMMEDIATE that failed (INVREQ / LENGERR): CicsTask.returnImmediate
+                kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+                out.append({"event": "RETURN", "level": int(kv["level"]), "immediate": True, "transid": kv["transid"],
+                            "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])})
+            elif lvl and int(lvl.group(1)) > 1:  # a LINKed program's RETURN: back to its caller, no COMMAREA of its own
                 out.append({"event": "RETURN", "transid": None, "commarea": None})
             else:
                 out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,

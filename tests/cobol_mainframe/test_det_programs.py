@@ -1320,9 +1320,10 @@ def _java_run(
     unit: str | None = None,
     raw: bool = False,
     trunc_std: bool = False,
+    trunc_opt: bool = False,
 ) -> str:
-    """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), else TRUNC(BIN) as
-    `cobc -std=ibm` alone."""
+    """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), `trunc_opt` under
+    TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
@@ -1344,7 +1345,8 @@ def _java_run(
     rec.parent.mkdir(parents=True, exist_ok=True)
     rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
                    "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
-    trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std else ""
+    trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
+    trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
     (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
                                       f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()

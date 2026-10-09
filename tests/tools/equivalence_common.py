@@ -157,10 +157,18 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
 # behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
 # default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND)
-# and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully. NUMPROC: see
-# numproc_mig and numproc_guard (#4271).
+# and no TRUNC(OPT) (#4706: OPT is TRUNC(STD) wherever every binary value fits its PICTURE, and the det runtime stops
+# by name where one would not -- so the oracle runs -fbinary-truncate; see option_differences): a case needing one it
+# cannot honour cannot be proven here, and says so rather than run unfaithfully. NUMPROC: see numproc_mig and
+# numproc_guard (#4271).
 COBC_OPTIONS = {
     ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "-fbinary-truncate", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
+    # #4706: under TRUNC(OPT) IBM "assumes that data conforms to PICTURE specifications in USAGE BINARY receiving
+    # fields" and leaves a value that does not to the generated code (Programming Guide, "TRUNC"); conforming, the
+    # results are TRUNC(STD)'s. The det runtime stops by name before a value past a binary receiver's PICTURE is
+    # stored (Codec.truncOpt), so a scenario that reaches one is never judged; a port without that stop is proven as
+    # TRUNC(STD), a declared difference (option_differences).
+    ("TRUNC", "OPT"): "-fbinary-truncate",
     ("NUMPROC", "NOPFD"): "",
     # #4271: with preferred signs NUMPROC(PFD) computes as NOPFD (Programming Guide SC27-8714-03, "Sign representation
     # of zoned and packed-decimal data"); what it does with any other sign IBM leaves to the generated code, and the
@@ -279,6 +287,26 @@ def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -
             "NUMPROC(PFD): only a det port's runtime refuses a non-preferred sign (oracle_assumptions.md C5); this "
             "port has no such guard, so the case cannot be proven with it"
         )
+
+
+TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
+
+
+def option_differences(case: dict[str, Any], source: str, port_dir: Optional[Path]) -> list[dict[str, Any]]:
+    """#4706: the options the proof of `port_dir` (None: the generated service) cannot claim, as declared differences
+    for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
+    binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
+    for conforming values, but nothing guarantees a scenario stays conforming."""
+    trunc = str(effective_with_defaults(effective_options(case).layers, source).get("TRUNC") or "").upper()
+    if trunc != "OPT":
+        return []
+    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
+    if any(TRUNC_OPT_STOP in read_source(p).text for p in services):
+        return []
+    return [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
+             "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's "
+                     "runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result "
+                     "only while every binary value fits its PICTURE (#4706)"}]  # fmt: skip
 
 
 def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:

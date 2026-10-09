@@ -24,8 +24,10 @@ program opens I-O) is unloaded to fixed-length records. Compiled `-std=ibm
 #3828: the program's CBL / PROCESS cards, and a case's `"compiler_options": ["TRUNC(BIN)"]`
 (the compile step's PARM; the cards override it), become cobc flags where GnuCOBOL has one
 (TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN), ARITH(EXTEND),
-TRUNC(OPT), NUMPROC(MIG) under a compiler before Enterprise COBOL 5 -- stops the run
-(equivalence_common.compile_options); NUMPROC(PFD) runs only with a det port (#4271). A case's
+NUMPROC(MIG) under a compiler before Enterprise COBOL 5 -- stops the run
+(equivalence_common.compile_options); NUMPROC(PFD) runs only with a det port (#4271); TRUNC(OPT)
+runs the oracle as STD, and a port without the det runtime's stop on a value past its PICTURE is
+proven as STD, a declared difference in its evidence record (#4706, option_differences). A case's
 `"culture"` (e.g. {"db2_date_format": "eur"}) is the Java side's target config.
 
 Java side -- the generated project (the refractor + cobol-to-java pipeline, target
@@ -115,6 +117,7 @@ from equivalence_common import (
     java_failure_report,
     layout_fields,
     numproc_guard,
+    option_differences,
     read_program,
     stage_copybooks,
     require_ascii_runtime,
@@ -724,7 +727,12 @@ def main() -> int:
         corpus = mc.require_clone(corpus_entry)
     if not args.cobol_only:  # #4271: NUMPROC(PFD) only through a det port's guard (register C5)
         port_dir = None if args.generated_only else args.port or CASES / case.get("port_from", case["name"]) / "port"
-        numproc_guard(case, read_program(case, corpus / case["program_source"])[0], port_dir)
+        program_text = read_program(case, corpus / case["program_source"])[0]
+        numproc_guard(case, program_text, port_dir)
+        # #4706: an option this port's proof cannot claim (TRUNC(OPT) without the det runtime's stop): declared
+        args.option_differences = option_differences(case, program_text, port_dir)
+        for d in args.option_differences:
+            print(f"{case['name']}: declared difference -- {d['note']}")
     if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
         equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
@@ -866,7 +874,12 @@ def main() -> int:
 
 def _recorded(args: argparse.Namespace, work: Path, rc: int) -> int:
     """#4048 `--record`: the evidence record of the run just made (report.json in `work`), proven or not."""
-    if getattr(args, "record", False) and (work / "report.json").is_file():
+    report_file = work / "report.json"
+    if getattr(args, "option_differences", None) and report_file.is_file():  # #4706: what the proof cannot claim
+        report = json.loads(report_file.read_text(encoding="utf-8"))
+        report["option_differences"] = args.option_differences
+        report_file.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if getattr(args, "record", False) and report_file.is_file():
         import evidence
 
         rec = evidence.record_equivalence_run(args.case, work)

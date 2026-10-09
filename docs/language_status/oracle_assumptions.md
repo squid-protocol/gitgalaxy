@@ -79,11 +79,11 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
-| C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
+| C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed); `TRUNC(OPT)` as STD for values that fit their PICTURE, a named stop otherwise (#4706) | MATCHED / MODELLED (OPT) | reachable (GenApp LGICDB01); OPT: CBSA CUSTCTRL, DELACC, INQACC run under it, no scenario reaches the stop |
 | C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
-| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `TRUNC(OPT)` | MATCHED (NUMPROC) / REFUSED (the rest) | NUMPROC: no |
+| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values (#4706); `INTDATE(LILIAN)`, `ARITH(EXTEND)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports) |
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
@@ -159,6 +159,25 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   +09999, SIZE ERROR, +02345). The det port sets each entry's TRUNC from the program's CBL / PROCESS cards, else the
   case's `compiler_options`, else STD, and restores the caller's on exit. Every det and model port was re-proven under
   it; nothing moved (no proven scenario puts more digits in a binary item than its PICTURE).
+- **TRUNC(OPT) (#4706): MODELLED as STD with a stop.** "When TRUNC(OPT) is in effect, the compiler assumes that data
+  conforms to PICTURE specifications in USAGE BINARY receiving fields in MOVE statements and arithmetic expressions.
+  The results are manipulated in the most optimal way, either truncating to the number of digits in the PICTURE
+  clause, or to the size of the binary field in storage (halfword, fullword, or doubleword)"; for data that does not
+  conform "unpredictable results could occur ... dependent on the particular code sequence generated" (Enterprise
+  COBOL for z/OS 6.x Programming Guide, "TRUNC"; the Language Reference's MOVE and arithmetic rules defer to the
+  option). For conforming values the result is STD's. So the det runtime computes STD and **stops by name** --
+  `TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable (<value> into a <n>-digit binary item) is not
+  modelled` -- before a value past a COMP / COMP-4 / BINARY receiver's PICTURE is stored by a MOVE, an arithmetic
+  store, or a typed (lifted) item's assignment (`Codec.truncOpt`, `Cobol.swapTruncOpt`; COMP-5 is never truncated
+  and never stops). An ON SIZE ERROR statement stores nothing past the PICTURE (the receiver unchanged, as STD) and
+  does not stop; a Db2 or CICS value assigned to a host variable by its byte width (#4579) is not a COBOL store and
+  does not stop either. The oracle runs `-fbinary-truncate` (STD). A scenario that would reach such a value stops on
+  the port's side, so it is never judged equal: the run fails with the stop's message (as `Hfp.divideNested` and the
+  NUMVAL refusals), never a silent pass. A TRUNC(STD) program LINKed or CALLed from a TRUNC(OPT) one keeps the
+  stop (a refusal where IBM's STD is defined, never a guess). A port without the stop -- a model port, the generated
+  service -- is proven as TRUNC(STD): a declared difference of kind `option` in its evidence record
+  (`equivalence_common.option_differences`). Pinned by `tests/cobol_mainframe/test_trunc_opt.py` (conforming values
+  equal cobc's STD output; each non-conforming shape stops).
 - **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
   would now behave as on z/OS.
 
@@ -224,7 +243,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   TRUNC(BIN), and for COMP-5 whatever TRUNC says, a binary receiver is "truncated only at halfword, fullword, or
   doubleword boundaries"; under TRUNC(STD) to "the number of digits in the PICTURE clause" (6.4 Programming Guide,
   SC27-8714-03, "TRUNC", pp. 419-420). So 1 - 3 into an unsigned `PIC 9(4) COMP` is 2 under either TRUNC. Not
-  measured on z/OS here (#4702 Part 2). TRUNC(OPT) leaves an out-of-range value undefined and is refused (C5).
+  measured on z/OS here (#4702 Part 2). TRUNC(OPT) leaves an out-of-range value undefined: the det runtime stops on
+  one by name (C1, #4706).
 - **The oracle.** cobc 3.1.2 compiles `ADD` / `SUBTRACT ... TO / FROM` into native integer arithmetic
   (`cb_build_optim_add` / `_sub`) when the receiver is an unsigned binary item of no decimal places, the statement
   has no `ROUNDED` and no store option, and its one operand fits a C int (`cb_fits_int`: an integer literal within
@@ -258,7 +278,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   truncation, and stores 2.344; IBM and the det runtime store 9.000. COMP-5 and TRUNC(BIN) are not affected.
 - **Reached.** No case reaches either. `test_det_programs.py` keeps its unsigned item above zero.
 
-### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); INTDATE(LILIAN), ARITH(EXTEND), TRUNC(OPT) REFUSED
+### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); TRUNC(OPT) MODELLED (#4706); INTDATE(LILIAN), ARITH(EXTEND) REFUSED
 - **NUMPROC(MIG): MATCHED for Enterprise COBOL 5 and later.** "Enterprise COBOL 5 and 6 does not support the
   NUMPROC(MIG) option. If NUMPROC(MIG) is specified, Enterprise COBOL 5 or 6 issues a warning message and the
   compilation will get the default setting for NUMPROC. This is either the user-customized default or the IBM default,
@@ -288,16 +308,32 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   - GnuCOBOL leaves an F sign in a signed item after VALUE ZERO and INITIALIZE (C10) where z/OS writes C, so a PFD
     program that reads one is refused, never misjudged.
   - **Reached.** No case compiles with PFD. Pinned by `tests/cobol_mainframe/test_numproc.py`.
-- **REFUSED:** `INTDATE(LILIAN)`, `ARITH(EXTEND)` and `TRUNC(OPT)`, from a CBL/PROCESS card or a case's
-  `compiler_options`, stop the run (`UnsupportedOption`).
-  - `TRUNC(OPT)` is undefined for out-of-range values by IBM's own description, so no oracle could be faithful to it.
-    CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
+- **TRUNC(OPT): MODELLED (#4706), as C1 describes.** IBM defines OPT's result only for binary values that fit their
+  PICTURE, and there it is STD's: the oracle compiles `-fbinary-truncate`, the det runtime computes STD and stops by
+  name before storing a value past a binary receiver's PICTURE, so a scenario either stays where IBM is defined or
+  is not judged. A port without that stop is proven as STD, a declared difference in its evidence record
+  (`option_differences`), never as OPT. CBSA's build JCL passes `TRUNC(OPT)` (`etc/install/base/buildjcl/CICS.jcl:7`):
+  most of its programs override it with a `TRUNC(STD)` PROCESS card (C1); CUSTCTRL, DELACC and INQACC have none and
+  now run under OPT (the estate options file honours the PARM; #4704 slice 1 had applied it as STD, a deviation).
+- **REFUSED:** `INTDATE(LILIAN)` and `ARITH(EXTEND)`, from a CBL/PROCESS card or a case's `compiler_options`, stop the
+  run (`UnsupportedOption`).
   - `ARITH(EXTEND)` changes only intermediates past 30 digits (31 instead) and float-mode precision (extended instead
     of long). GnuCOBOL caps neither (C2), so the oracle would compute COMPAT and EXTEND the same; a model needs a
     guard on both sides that stops an intermediate past 30 digits.
   - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
     refused. No case needs it yet.
+
+### Compile options: the table (#4706)
+One row per option that can change a result: (1) does it change results; (2) can cobc honour it; (3) what the det
+port does; (4) otherwise refused by name or a declared difference (#4702: IBM is the reference, GnuCOBOL the
+instrument). Rows for the other options of #4706 follow in its later slices.
+
+| option | (1) changes results? | (2) cobc | (3) det port | (4) otherwise | register |
+|---|---|---|---|---|---|
+| `TRUNC(STD)` (IBM default) | yes: a binary receiver keeps its PICTURE's digits | `-fbinary-truncate` | `Cobol.swapTruncBinary(true)` | -- | C1 |
+| `TRUNC(BIN)` | yes: a binary receiver keeps its bytes | `-fnotrunc` | `Cobol.swapTruncBinary(false)` | -- | C1 |
+| `TRUNC(OPT)` | only for a binary value past its PICTURE, where IBM's result is unpredictable; conforming values compute as STD | `-fbinary-truncate` (STD: equal for conforming values) | STD, plus `Cobol.swapTruncOpt(true)`: a value past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name ("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable") | a port without the stop (model, generated) is proven as STD: a declared difference (`option_differences`) | C1, C5 |
 
 ### C6. Floating point — MODELLED in the det runtime as HFP (#4271 slice 1); the oracle DIFFERS
 - **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a sign bit, a 7-bit characteristic
@@ -384,7 +420,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
-  `ARITH(EXTEND)`, `TRUNC(OPT)` and `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5), COMP-5's
+  `ARITH(EXTEND)` and `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5), COMP-5's
   z/OS byte order where bytes are observable (C7).
 
 ### C7. COMP-5 byte order — DIFFERS

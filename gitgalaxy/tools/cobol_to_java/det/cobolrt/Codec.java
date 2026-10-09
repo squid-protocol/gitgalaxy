@@ -13,6 +13,29 @@ final class Codec {
      *  harness) does not: a binary item holds whatever its 2 / 4 / 8 bytes hold (TRUNC(BIN)), so that is the default. */
     static volatile boolean truncBinary = false;
 
+    /** TRUNC(OPT) (#4706), with truncBinary on: "the compiler assumes that data conforms to PICTURE specifications in
+     *  USAGE BINARY receiving fields in MOVE statements and arithmetic expressions", and truncates a value that does
+     *  not "either ... to the number of digits in the PICTURE clause, or to the size of the binary field in storage
+     *  (halfword, fullword, or doubleword)" -- "unpredictable results could occur ... dependent on the particular code
+     *  sequence generated" (Enterprise COBOL for z/OS 6.x Programming Guide, "TRUNC"). For a conforming value the
+     *  result is TRUNC(STD)'s, so the runtime computes as STD and stops by name where a value would be stored past a
+     *  binary receiver's PICTURE (COMP-5 excepted: no TRUNC truncates it). Default false. */
+    static volatile boolean truncOpt = false;
+
+    /** The named stop of a value past a binary receiver's PICTURE under TRUNC(OPT) (register C5, #4706). */
+    static UnsupportedOperationException truncOptUnpredictable(Field f, BigInteger magnitude, boolean neg) {
+        return new UnsupportedOperationException("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable ("
+                + (neg && f.signed ? "-" : "") + new BigDecimal(magnitude, f.scale).toPlainString() + " into a "
+                + (f.signed ? "signed " : "") + f.digits + "-digit binary item) is not modelled");
+    }
+
+    /** Whether storing `magnitude` (at the field's scale) in `f` meets the TRUNC(OPT) stop: a COMP / COMP-4 / BINARY
+     *  item under TRUNC(OPT), the value past its PICTURE's digits. */
+    static boolean pastPictureUnderOpt(Field f, BigInteger magnitude) {
+        return truncOpt && truncBinary && f.kind == Field.Kind.NUMERIC_BINARY && !f.nativeBin
+                && magnitude.compareTo(BigInteger.TEN.pow(f.digits)) >= 0;
+    }
+
     /** NUMPROC(PFD) (#4271): the program assumes preferred signs -- X'C' signed positive or zero, X'D' signed negative,
      *  X'F' unsigned -- and IBM leaves what it does with any other sign to the generated code ("the compiler uses
      *  whatever sign it is given"; Enterprise COBOL 6.4 Programming Guide, SC27-8714-03, "Sign representation of
@@ -184,6 +207,7 @@ final class Codec {
                 Hfp.store(f, new BigDecimal(neg ? m.negate() : m));
                 return;
             case NUMERIC_BINARY: {
+                if (pastPictureUnderOpt(f, m)) throw truncOptUnpredictable(f, m, neg);
                 BigInteger v = f.nativeBin || !truncBinary ? m : m.mod(limit);
                 if (neg && f.signed) v = v.negate();
                 byte[] b = v.toByteArray();

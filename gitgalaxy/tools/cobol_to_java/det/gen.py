@@ -174,6 +174,9 @@ class Gen:
         self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
+        # TRUNC(OPT) in effect (program.trunc_mode, #4706): a value MOVEd into a typed binary item goes through the
+        # runtime's store, which stops by name where it would not fit the item's PICTURE (Cobol.swapTruncOpt)
+        self.trunc_opt = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
@@ -796,12 +799,17 @@ class Gen:
             if self.is_numeric(src) and not (isinstance(src, E.Ref) and self.resolve(src).category != "NUMERIC"):
                 return self.store_into(E.Ref(it.name), self.num(src), False)
             return self.violate(it)
+        checked = self.trunc_opt and it.usage != "COMP-5"  # #4706: TRUNC(OPT), a value past the PICTURE stops
         if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
+            if checked and abs(int(src.value)) >= 10**it.digits:
+                return self.store_into(E.Ref(it.name), self.const(src.value), False)
             return f"{name} = {self.bin_value(it, src.value)}L;"
         if isinstance(src, E.Fig) and src.kind == "ZEROS":
             return f"{name} = 0L;"
         ls = self.lift(src)
         if ls and ls[0] == "BIN" and ls[2].size == it.size and ls[2].signed == it.signed:
+            if checked:
+                return self.store_into(E.Ref(it.name), f"BigDecimal.valueOf({ls[1]})", False)
             return f"{name} = {ls[1]};"
         return self.violate(it)
 

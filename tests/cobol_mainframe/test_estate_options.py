@@ -212,9 +212,10 @@ def test_oracle_and_det_port_resolve_the_same_options_for_every_case():
         r = eo.effective_options(case)
         eff = r.values(text)
         flags = common.compile_options(case, text)[1]
-        assert ("-fbinary-truncate" in flags) == (eff["TRUNC"].upper() == "STD"), c.parent.name
+        # #4706: TRUNC(OPT) runs the oracle as STD (the det runtime stops where the two would differ)
+        assert ("-fbinary-truncate" in flags) == (eff["TRUNC"].upper() in ("STD", "OPT")), c.parent.name
         assert common.numproc(case, text) == ("NOPFD" if eff["NUMPROC"].upper() == "MIG" else eff["NUMPROC"].upper())
-        assert P.trunc_std(src, r.layers) == (eff["TRUNC"].upper() == "STD"), c.parent.name
+        assert P.trunc_mode(src, r.layers) == eff["TRUNC"].upper(), c.parent.name
         assert P.numproc_pfd(src, r.layers) == (eff["NUMPROC"].upper() == "PFD"), c.parent.name
         checked += 1
     assert checked, "no case's program was readable"
@@ -250,19 +251,26 @@ def test_a_record_with_options_goes_stale_when_an_option_changes(monkeypatch):
 
 
 def test_a_record_from_before_the_input_stays_current_while_no_cobc_option_changes(monkeypatch):
+    real = eo.load_estate
+
+    def with_trunc_applied(value):
+        def load(corpus, directory=None):
+            data = copy.deepcopy(real(corpus, directory))
+            for e in data["parm"]["default"]:
+                if e["option"] == "TRUNC":
+                    e["applied_value"], e["applied_note"] = value, "a declared difference"
+            return data
+
+        return load
+
+    monkeypatch.setattr(eo, "load_estate", with_trunc_applied("STD"))  # the estate file as slice 1 had it
     t, now = _now()
     legacy = {k: v for k, v in copy.deepcopy(now).items() if k != "options"}
     assert ev.changed(legacy, now) == []  # the estate file changes no option the harness acts on
-    real = eo.load_estate
-
-    def with_trunc_bin(corpus, directory=None):
-        data = copy.deepcopy(real(corpus, directory))
-        for e in data["parm"]["default"]:
-            if e["option"] == "TRUNC":
-                e["applied_value"] = "BIN"  # the proof would now run under TRUNC(BIN)
-        return data
-
-    monkeypatch.setattr(eo, "load_estate", with_trunc_bin)
+    monkeypatch.setattr(eo, "load_estate", with_trunc_applied("BIN"))  # the proof would now run under TRUNC(BIN)
+    assert ev.changed(legacy, ev.compute_inputs(t)) == ["options"]
+    monkeypatch.undo()
+    # #4706: CBSA's TRUNC(OPT) is now honoured -- an option the det port acts on -- so such a record is stale
     assert ev.changed(legacy, ev.compute_inputs(t)) == ["options"]
 
 

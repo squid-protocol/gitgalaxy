@@ -132,9 +132,7 @@
     "value": "OPT",
     "source": "etc/install/base/buildjcl/CICS.jcl:7",
     "quote": "TRUNC(OPT)",
-    "note": "the estate's compile PARM; programs with their own TRUNC(STD) card override it",
-    "applied_value": "STD",
-    "applied_note": "GnuCOBOL 3.1 has no TRUNC(OPT) (equivalence_common.COBC_OPTIONS, #3828), so the proof runs TRUNC(STD): a declared difference for every CBSA program whose source has no TRUNC card (#4704)"
+    "note": "the estate's compile PARM; programs with their own TRUNC(STD) card override it. Honoured (#4706): the det runtime computes TRUNC(STD)'s results -- IBM's under OPT for every value that fits its PICTURE -- and stops by name where a binary receiver would get one that does not (IBM: unpredictable); the oracle runs -fbinary-truncate. A port without that stop is proven as TRUNC(STD), a declared difference in its evidence record (equivalence_common.option_differences)"
    },
    {
     "option": "CICS",

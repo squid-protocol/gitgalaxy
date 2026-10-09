@@ -51,3 +51,11 @@ def test_update_baseline_only_drops_entries_that_now_prove(tmp_path):
     ok, bad = {"proved": True, "coverage": ""}, {"proved": False, "coverage": ""}
     assert ps.prune_baseline({"det": {"x": ok, "y": bad, "z": ok}}, path) == ["det x"]
     assert list(ps.load_baseline(path)) == [("det", "y")]
+
+
+def test_db2_only_and_skip_db2_split_the_det_cases():
+    """#4733: Evidence Refresh's Db2 job sweeps exactly the cases the det-sweep workflow leaves out."""
+    every, plain, db2 = ps.det_cases(), ps.det_cases(skip_db2=True), ps.det_cases(only_db2=True)
+    assert db2 and plain
+    assert set(plain) | set(db2) == set(every) and not set(plain) & set(db2)
+    assert all(ps.is_db2(c) for c in db2) and not any(ps.is_db2(c) for c in plain)

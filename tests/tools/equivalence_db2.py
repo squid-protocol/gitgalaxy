@@ -197,7 +197,9 @@ def _ensure_container() -> None:
                     "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
                     "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
     for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
-        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(DATABASE0):
+        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
+            DATABASE0
+        ):
             return
         time.sleep(10)
     raise RuntimeError("Db2 did not come up")

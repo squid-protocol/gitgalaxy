@@ -2729,6 +2729,92 @@ int GGCXCNT(gg_cics *c) {
     return 0;
 }
 
+/* ---- #4270 zECS: INQUIRE URIMAP's browse, WRITE OPERATOR (IBM CICS TS, INQUIRE URIMAP, "Browsing resource definitions",
+ * WRITE OPERATOR; register X32) ----
+ * The URIMAP definitions installed in the region, in the order it browses them, are a fact the runner states: the file
+ * $GGCICS_URIMAPS names, one `NAME TRANSACTION PATH` per line ('-' for no transaction); unstated, refused. GG-FLAGS names
+ * the browse step: START (ILLOGIC RESP2 1 when one is already in progress), NEXT (END RESP2 2 past the last; the
+ * definition it returns is read by GGCURIP) or END. NEXT / END with no browse started are refused: IBM gives that ILLOGIC
+ * no RESP2 of its own. */
+static int urimap_at = -1; /* -1: no browse; else the next definition's index */
+static char urimap_now[3][300];
+
+static int urimap_get(int want, char fields[3][300]) {
+    const char *env = getenv("GGCICS_URIMAPS");
+    char line[1024];
+    int n = 0, found = 0;
+    if (!env) refuse("INQUIRE URIMAP: the installed URIMAP definitions are not stated for this task");
+    FILE *f = fopen(env, "r");
+    if (!f) refuse("INQUIRE URIMAP: the installed URIMAP definitions are not stated for this task");
+    while (fgets(line, sizeof line, f)) {
+        char a[300], b[300], p[300];
+        if (sscanf(line, "%299s %299s %299s", a, b, p) != 3) continue;
+        if (n == want && fields) {
+            snprintf(fields[0], 300, "%s", a);
+            snprintf(fields[1], 300, "%s", strcmp(b, "-") == 0 ? "" : b);
+            snprintf(fields[2], 300, "%s", p);
+            found = 1;
+        }
+        n++;
+    }
+    fclose(f);
+    return fields ? found : n;
+}
+
+int GGCURIB(gg_cics *c) {
+    char want[41];
+    trim(c->flags, 40, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    urimap_get(-1, NULL); /* (refuses when the definitions are not stated) */
+    if (strcmp(want, "START") == 0) {
+        if (urimap_at >= 0) { c->resp = DFHRESP_ILLOGIC; c->resp2 = 1; return 0; }
+        urimap_at = 0;
+        return 0;
+    }
+    if (urimap_at < 0) refuse("INQUIRE URIMAP NEXT or END with no browse started");
+    if (strcmp(want, "END") == 0) { urimap_at = -1; return 0; }
+    if (!urimap_get(urimap_at, urimap_now)) { c->resp = DFHRESP_END; c->resp2 = 2; return 0; }
+    urimap_at++;
+    return 0;
+}
+
+/* The definition the last NEXT returned: GG-FLAGS names URIMAP (8 characters), PATH (255) or TRANSACTION (4); the value,
+ * blank-padded, goes to the program's area -- at most its length (IBM states no padding for a short value: blanks). */
+int GGCURIP(gg_cics *c, char *area, int len) {
+    char want[41];
+    int at = 0, width = 8, n; /* urimap_now: name, transaction, path */
+    trim(c->flags, 40, want);
+    if (strcmp(want, "PATH") == 0) { at = 2; width = 255; }
+    else if (strcmp(want, "TRANSACTION") == 0) { at = 1; width = 4; }
+    n = len < width ? len : width;
+    for (int i = 0; i < n; i++) area[i] = ' ';
+    for (int i = 0; i < n && urimap_now[at][i]; i++) area[i] = urimap_now[at][i];
+    return 0;
+}
+
+/* WRITE OPERATOR TEXT(from) of GG-LEN bytes: a message to the console, recorded with its text. A text IBM reformats
+ * (DFHnnnn / DFHaannnn) or splits (over 113 characters) is refused. */
+int GGCWTO(gg_cics *c, char *from) {
+    char ev[64];
+    int n = c->len, k = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    while (n > 0 && from[n - 1] == ' ') n--;
+    if (c->len > 113) refuse("WRITE OPERATOR text IBM reformats");
+    if (n >= 7 && strncmp(from, "DFH", 3) == 0) {
+        k = 3;
+        if (from[3] >= 'A' && from[3] <= 'Z' && from[4] >= 'A' && from[4] <= 'Z') k = 5;
+        else if (from[3] >= 'a' && from[3] <= 'z' && from[4] >= 'a' && from[4] <= 'z') k = 5;
+        if (n >= k + 4 && from[k] >= '0' && from[k] <= '9' && from[k + 1] >= '0' && from[k + 1] <= '9'
+            && from[k + 2] >= '0' && from[k + 2] <= '9' && from[k + 3] >= '0' && from[k + 3] <= '9')
+            refuse("WRITE OPERATOR text IBM reformats");
+    }
+    snprintf(ev, sizeof ev, "WRITE-OPERATOR len=%d resp=0", c->len);
+    event(ev, from, c->len);
+    return 0;
+}
+
 /* The program returned to the driver without a RETURN / XCTL / ABEND. */
 int GGCEND(gg_cics *c) {
     (void)c;

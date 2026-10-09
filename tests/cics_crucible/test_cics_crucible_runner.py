@@ -84,6 +84,7 @@ def test_the_csd_names_programs_transactions_and_mapsets():
         "mapsets": {"MS"},
         "terminals": {},
         "uctran": {},
+        "urimaps": [],
     }
 
 
@@ -109,6 +110,17 @@ def test_the_csd_names_each_terminals_uctran():
     case.data = {"terminal": "T002"}
     assert runner.terminal_uctranst(case) is None
     assert runner.UCTRAN_TO_UCTRANST == {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
+
+
+def test_the_csd_states_the_installed_urimaps_in_its_order():
+    """#4270 zECS (register X32): the URIMAP definitions the case CSD installs -- name, TRANSACTION (none: ""), PATH -- in the
+    CSD's order are what INQUIRE URIMAP's browse returns on both runtimes."""
+    csd = cc.parse_csd(
+        "DEFINE URIMAP(ZCONE) GROUP(G) USAGE(SERVER) SCHEME(HTTP) PATH(/zone/*) TRANSACTION(ZC01)\n"
+        "* a comment\nDEFINE URIMAP(ZCTWO) GROUP(G) PATH(/ztwo)\nDEFINE PROGRAM(P) GROUP(G)\n"
+    )
+    assert csd["urimaps"] == [("ZCONE", "ZC01", "/zone/*"), ("ZCTWO", "", "/ztwo")]
+    assert cc.parse_csd("DEFINE PROGRAM(P) GROUP(G)\n")["urimaps"] == []
 
 
 def test_a_cases_stated_origin_is_the_stubs_origin_env():

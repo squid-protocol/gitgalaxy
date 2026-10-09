@@ -1008,6 +1008,36 @@ def test_define_and_delete_counter_become_stub_calls():
     assert "MOVE GG-RESP2 TO R2" in ec.translate_command("GET COUNTER(WS-C) VALUE(WS-V) RESP(R) RESP2(R2)")
 
 
+def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
+    """#4270 zECS (register X32): INQUIRE URIMAP START / NEXT / END -> GGCURIB (GG-FLAGS names the step); after a NEXT, one
+    GGCURIP per output option copies the definition's name / PATH / TRANSACTION to the program's area (at most its length);
+    WRITE OPERATOR -> GGCWTO with the area and its length. Other operands and options are refused by name."""
+    s = ec.translate_command("INQUIRE URIMAP START NOHANDLE")
+    assert s == ["MOVE 'START' TO GG-FLAGS", "CALL 'GGCURIB' USING GG-CICS", "MOVE GG-RESP TO EIBRESP",
+                 "MOVE GG-RESP2 TO EIBRESP2"]  # fmt: skip
+    n = ec.translate_command("INQUIRE URIMAP(WS-M) PATH(WS-P) TRANSACTION(WS-T) NEXT NOHANDLE")
+    assert n[:2] == ["MOVE 'NEXT' TO GG-FLAGS", "CALL 'GGCURIB' USING GG-CICS"] and n[2] == "IF GG-RESP = 0"
+    assert (
+        "    MOVE 'PATH' TO GG-FLAGS" in n
+        and "        BY VALUE LENGTH OF WS-P" in n
+        and "        BY REFERENCE WS-M" in n
+    )
+    with pytest.raises(ec.Unsupported, match="only the browse is modelled"):
+        ec.translate_command("INQUIRE URIMAP(WS-M) PATH(WS-P)")
+    with pytest.raises(ec.Unsupported, match="returns no definition"):
+        ec.translate_command("INQUIRE URIMAP END PATH(WS-P)")
+    with pytest.raises(ec.Unsupported, match="only the URIMAP's name"):
+        ec.translate_command("INQUIRE URIMAP(WS-M) HOST(WS-P) NEXT")
+    w = ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) NOHANDLE")
+    assert w[:3] == ["MOVE LENGTH OF WS-MSG TO GG-LEN", "CALL 'GGCWTO' USING GG-CICS", "    BY REFERENCE WS-MSG"]
+    with pytest.raises(ec.Unsupported, match="without TEXT"):
+        ec.translate_command("WRITE OPERATOR")
+    with pytest.raises(ec.Unsupported, match="data area"):
+        ec.translate_command("WRITE OPERATOR TEXT('HELLO')")
+    with pytest.raises(ec.Unsupported, match="only the plain message"):
+        ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) CRITICAL")
+
+
 def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
     case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""

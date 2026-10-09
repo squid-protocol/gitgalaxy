@@ -1,0 +1,198 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNKMENU",
+ "program_source": "src/base/cobol_src/BNKMENU.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OMEN",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNKMENU.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1ME": {
+   "copybook": "@bms/BNK1MAI.cpy",
+   "input": "BNK1MEI",
+   "output": "BNK1MEO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: BNK1MEO set to LOW-VALUES, the cursor on ACTION (length -1), SEND MAP ERASE; RETURN TRANSID('OMEN') COMMAREA LENGTH(1)"
+  },
+  {
+   "name": "option-1",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "1"
+    }
+   },
+   "why": "ENTER with action 1 (display customer): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('ODCS') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-2",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "2"
+    }
+   },
+   "why": "ENTER with action 2 (display account): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('ODAC') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-3",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "3"
+    }
+   },
+   "why": "ENTER with action 3 (create customer): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OCCS') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-4",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "4"
+    }
+   },
+   "why": "ENTER with action 4 (create account): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OCAC') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-5",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "5"
+    }
+   },
+   "why": "ENTER with action 5 (update account): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OUAC') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-6",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "6"
+    }
+   },
+   "why": "ENTER with action 6 (credit / debit funds): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OCRA') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-7",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "7"
+    }
+   },
+   "why": "ENTER with action 7 (transfer funds): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OTFN') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "option-a",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "A"
+    }
+   },
+   "why": "ENTER with action A (look up a customer's accounts): EDIT-MENU-DATA accepts it, INVOKE-OTHER-TXNS ends the task with RETURN TRANSID('OCCA') IMMEDIATE -- no map sent"
+  },
+  {
+   "name": "invalid-action",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "9"
+    }
+   },
+   "why": "action 9: 'You must enter a valid value (1-7 or A).', SEND MAP DATAONLY ALARM, RETURN TRANSID('OMEN')"
+  },
+  {
+   "name": "lower-case-action",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "a"
+    }
+   },
+   "why": "action 'a': only upper-case A is accepted -- the invalid-value message"
+  },
+  {
+   "name": "blank-action",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": " "
+    }
+   },
+   "why": "a space typed in ACTION: the invalid-value message"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RECEIVE MAP is MAPFAIL, the program sends the menu afresh (SEND MAP ERASE), then EDIT-MENU-DATA sees ACTIONI's LOW-VALUES: the invalid-value message is sent DATAONLY too"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE -- nothing sent, RETURN TRANSID('OMEN')"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: SEND-TERMINATION-MSG (SEND TEXT 'Session Ended' ERASE FREEKB), RETURN"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: the same termination message, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF5",
+   "commarea": {},
+   "why": "PF5: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM, RETURN TRANSID('OMEN')"
+  }
+ ],
+ "notes": "CBSA's main menu (BNKMENU, transaction OMEN, BMS map BNK1ME of mapset BNK1MAI: the symbolic map is generated from src/base/bms_src/BNK1MAI.bms, @bms/BNK1MAI.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the menu; a returning one (its 1-byte COMMAREA) acts on the AID -- PA keys do nothing, PF3 / PF12 end the session, CLEAR clears the screen, ENTER reads the action and either starts the chosen transaction with RETURN TRANSID(...) IMMEDIATE or re-sends the menu with a message, any other key re-sends it with 'Invalid key pressed.'. Not reached: the failure branches after RECEIVE MAP (other than MAPFAIL), SEND MAP / SEND TEXT / SEND CONTROL and RETURN -- no fault can be injected on those commands -- and so ABEND-THIS-TASK and the ABNDPROC LINKs. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

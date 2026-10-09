@@ -1,9 +1,8 @@
 name: GitGalaxy Smoke Tests
 
 on:
-  pull_request:
+  pull_request:  # #4825: full-suite / smoke-test are required checks -- they run on every PR
     branches: [main]
-    paths-ignore: ["docs/**"]
   # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
   push:
     branches: [main]

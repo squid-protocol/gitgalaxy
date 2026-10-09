@@ -1,0 +1,421 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "INQCUST",
+ "program_source": "src/base/cobol_src/INQCUST.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODCS",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  },
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/INQCUST.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's inquire-customer service (INQCUST, LINKed by BNK1DCS -- transaction ODCS -- and by INQACCCU and CREACC with the INQCUST copybook's COMMAREA). It sets 'N' / '0', keys on the program's own sort code (SORTCODE copybook, 987654; INQCUST-SCODE is ignored) and INQCUST-CUSTNO. INQCUST-CUSTNO 9999999999 or 0000000000 first finds the last customer number with a backwards browse (STARTBR at HIGH-VALUES, READPREV, ENDBR; any failure 'N' / '9' and RETURN): the number of the file's highest key, whatever its sort code. 9999999999 then reads that number; 0000000000 reads a random one, (last - 1) * FUNCTION RANDOM(EIBTASKN) + 1, drawing again (FUNCTION RANDOM with no seed) on each NOTFND up to 1,000 times. READ NORMAL fills the COMMAREA from the record, 'Y'; NOTFND gives 'N' / '1' (blanking name and address on an ordinary number; 9999999999 looks the last customer up once more); any other condition fills ABNDINFO, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs CVR1 CANCEL. Each SYSIDERR on a file command is retried after a DELAY FOR SECONDS(3), up to 100 times. FUNCTION RANDOM runs on the oracle's generator (oracle_assumptions.md C12) seeded by EIBTASKN, a stated fact of the run (X21): the random customers are the oracle's, not z/OS's. Not reached: ABEND-HANDLING (the HANDLE ABEND exit runs for an abend AFCR / AFCS / AFCT from VSAM RLS, which no fault raises; the program's own ABEND CVR1 is CANCEL) and the 100-retry ends of the SYSIDERR loops. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): customers 1-5 and 8 of sort code 987654, one of 123456 and a decoy 999999/0000000003 holding the highest key; abndfile.bin is empty. CUSTOMER and ABNDFILE are compared after every scenario. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenarios": [
+  {
+   "name": "found",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000001"
+   },
+   "why": "READ 987654/0000000001 NORMAL: every field of the record into the COMMAREA, 'Y' / '0'"
+  },
+  {
+   "name": "found-boundary-values",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000004"
+   },
+   "why": "credit score 000, born 01/01/1900, a 22-character name and a 34-character address padded to 60 / 160"
+  },
+  {
+   "name": "found-leap-day",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000003"
+   },
+   "why": "born and reviewed on 29 February; credit score 999"
+  },
+  {
+   "name": "found-after-gap",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000008"
+   },
+   "why": "the customer after the gap (6 and 7 do not exist)"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000006",
+    "INQCUST-NAME": "Caller Name",
+    "INQCUST-ADDR": "Caller Address",
+    "INQCUST-CREDIT-SCORE": "123"
+   },
+   "why": "READ NOTFND on an ordinary number: 'N' / '1', INQCUST-NAME and INQCUST-ADDR blanked; the rest of the COMMAREA (eyecatcher, number, credit score) left as the caller sent it"
+  },
+  {
+   "name": "other-sortcode-ignored",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "123456",
+    "INQCUST-CUSTNO": "0000000001"
+   },
+   "why": "INQCUST-SCODE 123456 is not the key: the program reads its own sort code 987654, so customer 987654/1 comes back and INQCUST-SCODE is overwritten with 987654"
+  },
+  {
+   "name": "only-other-sortcode",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "999999",
+    "INQCUST-CUSTNO": "0000000003"
+   },
+   "why": "987654/3 exists as well as the decoy 999999/3: the program's own sort code wins"
+  },
+  {
+   "name": "last-customer",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "why": "9999999999: GET-LAST-CUSTOMER-VSAM -- STARTBR at HIGH-VALUES, READPREV gives the file's highest key 999999/0000000003 (another sort code: the program keeps only its number), ENDBR, 'Y'; then READ 987654/0000000003 NORMAL: customer 987654/3 returned"
+  },
+  {
+   "name": "random-customer",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000000"
+   },
+   "why": "0000000000: the last customer number (3) as above, then RANDOM-CUSTOMER = (3 - 1) * FUNCTION RANDOM(EIBTASKN) + 1 truncated to 1 or 2 (EIBTASKN 0, oracle_assumptions.md X21; the generator, C12), READ NORMAL"
+  },
+  {
+   "name": "random-customer-task-12345",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000000"
+   },
+   "taskn": 12345,
+   "why": "the same with EIBTASKN 12345 as RANDOM's seed"
+  },
+  {
+   "name": "random-customer-retry",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000000"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": 1,
+     "why": "13 on the first READ: GENERATE-RANDOM-CUSTOMER-AGAIN (the next FUNCTION RANDOM), the second READ NORMAL"
+    }
+   ],
+   "why": "random customer not found once: INQCUST-RETRY 1, a second random number, found"
+  },
+  {
+   "name": "random-customer-gives-up",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000000"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": "*",
+     "why": "13 on every READ: 1,000 retries"
+    }
+   ],
+   "why": "every random customer not found: after INQCUST-RETRY reaches 1000 the loop ends with 'N' / '1' (the name and address left as they were)"
+  },
+  {
+   "name": "last-customer-notfound-retried",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": 1,
+     "why": "13 on the first READ: GET-LAST-CUSTOMER-VSAM again, WS-V-RETRIED 'Y'"
+    }
+   ],
+   "why": "9999999999 and the READ NOTFND once: the last customer is looked up again (a second browse) and the second READ finds 987654/3"
+  },
+  {
+   "name": "last-customer-notfound-twice",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": "*",
+     "why": "13 on every READ"
+    }
+   ],
+   "why": "9999999999 and NOTFND on the retry too: no IF of RCV010 takes it (the retried flag is set and the number is 9999999999), so the catch-all abends: ABNDINFO filled, LINK ABNDPROC (an ABNDFILE record), ABEND CVR1 CANCEL"
+  },
+  {
+   "name": "read-io-error",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "17 on the READ"
+    }
+   ],
+   "why": "READ IOERR: ABNDINFO filled from the clock and EIB (APPLID CBSAREGN, RESP 17), LINK ABNDPROC writes it to ABNDFILE, ABEND CVR1 CANCEL (no HANDLE ABEND exit)"
+  },
+  {
+   "name": "read-sysiderr-retried",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READ: DELAY 3 seconds, READ again"
+    }
+   ],
+   "why": "SYSIDERR once: the retry loop DELAYs (a task takes no time, X4) and READs again, NORMAL: 'Y'"
+  },
+  {
+   "name": "read-sysiderr-then-notfound",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000007"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READ; the retry's READ NOTFND naturally"
+    }
+   ],
+   "why": "SYSIDERR then NOTFND: the loop ends on a condition other than SYSIDERR, and RCV010's NOTFND IF gives 'N' / '1'"
+  },
+  {
+   "name": "startbr-fails",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "17 on the STARTBR"
+    }
+   ],
+   "why": "STARTBR IOERR: 'N' / '9', and P010 RETURNs at once without a READ"
+  },
+  {
+   "name": "startbr-notfound-random",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000000"
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": 1,
+     "why": "13 on the STARTBR"
+    }
+   ],
+   "why": "the random path's browse fails the same way: 'N' / '9', RETURN"
+  },
+  {
+   "name": "startbr-sysiderr-retried",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first STARTBR"
+    }
+   ],
+   "why": "SYSIDERR on STARTBR once: DELAY, STARTBR again NORMAL, the browse goes on: 'Y', customer 987654/3"
+  },
+  {
+   "name": "readprev-fails",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "17 on the READPREV"
+    }
+   ],
+   "why": "READPREV IOERR: 'N' / '9', RETURN (the browse is left open; the task ends it)"
+  },
+  {
+   "name": "readprev-sysiderr-retried",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READPREV"
+    }
+   ],
+   "why": "SYSIDERR on READPREV once: DELAY, READPREV again, the last record read"
+  },
+  {
+   "name": "endbr-fails-ignored",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "17 on the ENDBR"
+    }
+   ],
+   "why": "ENDBR IOERR: the program tests ENDBR's RESP only inside its SYSIDERR IF (the END-IF is missing, so the test sits under that IF), so the failure is ignored: 'Y' and the READ goes on"
+  },
+  {
+   "name": "endbr-sysiderr-then-fails",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first ENDBR"
+    },
+    {
+     "cmd": "ENDBR",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 2,
+     "why": "17 on the retried ENDBR"
+    }
+   ],
+   "why": "SYSIDERR on ENDBR, then IOERR on the retry: the loop ends, the RESP test inside the IF gives 'N' / '9', RETURN"
+  },
+  {
+   "name": "endbr-sysiderr-retried",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first ENDBR"
+    }
+   ],
+   "why": "SYSIDERR on ENDBR once, then NORMAL: 'Y'"
+  }
+ ]
+}

@@ -1,0 +1,324 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1CRA",
+ "program_source": "src/base/cobol_src/BNK1CRA.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCRA",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "DBCRFUN",
+   "program_source": "src/base/cobol_src/DBCRFUN.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CRA.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1CD": {
+   "copybook": "@bms/BNK1CDM.cpy",
+   "input": "BNK1CDI",
+   "output": "BNK1CDO"
+  }
+ },
+ "origin": {
+  "applid": "CBSAREGN",
+  "userid": "CICSUSER",
+  "facilname": "T001",
+  "networkid": "CBSANET",
+  "faciltype": "TERMINAL"
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the map sent ERASE with the cursor on ACCNO; RETURN TRANSID('OCRA') LENGTH(21)"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF5",
+   "commarea": {},
+   "why": "PF5: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RM010 -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  },
+  {
+   "name": "credit",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "100.50"
+    }
+   },
+   "why": "account 1, '+' 100.50: BIF DEEDIT, the amount checked character by character and through FUNCTION NUMVAL into the COMP-2 WS-AMOUNT-AS-FLOAT; INQUIRE ASSOCIATION(EIBTASKN) gives the task's origin data (stated: a TERMINAL facility, so DBCRFUN treats it as a teller transaction), LINK DBCRFUN (run in the task: both balances +100.50, PROCTRAN 'CRE') -- 'Amount successfully applied to the account.', the new balances"
+  },
+  {
+   "name": "debit",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000002",
+     "SIGNI": "-",
+     "AMTI": "50.25"
+    }
+   },
+   "why": "account 2, '-' 50.25: the float negated (COMPUTE * -1), DBCRFUN debits it (PROCTRAN 'DEB')"
+  },
+  {
+   "name": "credit-no-sign",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "AMTI": "12"
+    }
+   },
+   "why": "account 1, no sign typed (SIGNL 0) and '12': a whole amount, NUMERIC at once -- a credit"
+  },
+  {
+   "name": "payment-debit-insufficient",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000008",
+     "SIGNI": "-",
+     "AMTI": "500.50"
+    }
+   },
+   "why": "a payment (origin facility type NONE: DBCRFUN's 496) debiting 500.50 from account 8, whose available balance is -50: DBCRFUN '3' -- 'Sorry insufficient funds available to process the request.'",
+   "origin": {
+    "applid": "CBSAREGN",
+    "userid": "CICSUSER",
+    "facilname": "T001",
+    "networkid": "CBSANET",
+    "faciltype": "NONE"
+   }
+  },
+  {
+   "name": "payment-credit-mortgage",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000004",
+     "SIGNI": "+",
+     "AMTI": "10.25"
+    }
+   },
+   "why": "a payment credit to account 4, a MORTGAGE: DBCRFUN '4' -- the unexpected-error message with the code",
+   "origin": {
+    "applid": "CBSAREGN",
+    "userid": "CICSUSER",
+    "facilname": "T001",
+    "networkid": "CBSANET",
+    "faciltype": "NONE"
+   }
+  },
+  {
+   "name": "account-not-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000050",
+     "SIGNI": "+",
+     "AMTI": "1.5"
+    }
+   },
+   "why": "account 50: DBCRFUN '1' -- 'Sorry but the ACCOUNT no was not found for SORTCODE 987654 . Amount not applied.'"
+  },
+  {
+   "name": "account-null-date",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000005",
+     "SIGNI": "+",
+     "AMTI": "1.5"
+    }
+   },
+   "why": "account 5's last-statement date is NULL: DBCRFUN's SELECT -305, '2' -- 'due to an unexpected error.'"
+  },
+  {
+   "name": "account-zero",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000000",
+     "SIGNI": "+",
+     "AMTI": "1"
+    }
+   },
+   "why": "account 00000000: 'Please enter a non zero account number.'"
+  },
+  {
+   "name": "bad-sign",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "*",
+     "AMTI": "1"
+    }
+   },
+   "why": "sign '*': 'Please enter + or - preceding the amount'"
+  },
+  {
+   "name": "amount-missing",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+"
+    }
+   },
+   "why": "no amount (AMTL 0): 'The Amount entered must be numeric.'"
+  },
+  {
+   "name": "amount-embedded-space",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "1 0"
+    }
+   },
+   "why": "'1 0': the embedded-spaces message"
+  },
+  {
+   "name": "amount-letters",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "12a"
+    }
+   },
+   "why": "'12a': the numeric-amount message"
+  },
+  {
+   "name": "amount-two-points",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "1.2.5"
+    }
+   },
+   "why": "'1.2.5': one decimal point only"
+  },
+  {
+   "name": "amount-three-places",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "1.125"
+    }
+   },
+   "why": "'1.125': up to two decimal places"
+  },
+  {
+   "name": "amount-leading-spaces",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "00000001",
+     "SIGNI": "+",
+     "AMTI": "   12.75"
+    }
+   },
+   "why": "'   12.75': UNSTRING from the first non-space, then credited"
+  }
+ ],
+ "notes": "CBSA's credit / debit screen (BNK1CRA, transaction OCRA, BMS map BNK1CD of mapset BNK1CDM: the symbolic map is generated from src/base/bms_src/BNK1CDM.bms, @bms/BNK1CDM.cpy). Pseudo-conversational, as every CBSA screen (PF3 RETURN TRANSID('OMEN') IMMEDIATE from the stated terminal T001, oracle_assumptions.md X27). ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the account number, checks it is not zero and the sign is + or -, validates the amount character by character and converts it with FUNCTION NUMVAL into the COMP-2 WS-AMOUNT-AS-FLOAT (negated for '-'), then INQUIREs its own ASSOCIATION for the origin data and LINKs DBCRFUN with SUBPGM-PARMS (run in the task, as in cbsa-dbcrfun). The task's origin data is a stated fact of the run (oracle_assumptions.md X29): APPLID CBSAREGN, user CICSUSER, facility T001, network CBSANET, facility type TERMINAL (a teller transaction to DBCRFUN), or NONE (DBCRFUN's 496, a payment) where a scenario says so. Every amount that reaches NUMVAL is exact in both IEEE and HFP (100.50, 50.25, 12.75, 1.5 ...): IBM's long HFP and the oracle's IEEE agree only on such values (oracle_assumptions.md C6). The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA. ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached: an account number with no digit after BIF DEEDIT (not modelled: refused) and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE (no fault can be injected on them). Data: seed.sql is cbsa-dbcrfun's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

@@ -1,0 +1,118 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CRDTAGY4",
+ "program_source": "src/base/cobol_src/CRDTAGY4.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCR4",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "datasets": {},
+ "commarea": null,
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's credit agency 4 (CRDTAGY4, transaction OCR4): one of the five 'credit agencies' CRECUST (create customer) starts asynchronously with EXEC CICS RUN TRANSID(OCR4) CHANNEL(CIPCREDCHANN), after PUTting its 261-byte COMMAREA (the CRECUST copybook: the new customer) into containers CIPA-CIPE, then FETCHes the children and averages the scores. CRDTAGY4 DELAYs a random 1 to 2 seconds ((3 - 1) * FUNCTION RANDOM(EIBTASKN) + 1 into PIC S9(8) COMP), GETs CONTAINER(CIPD) of CHANNEL(CIPCREDCHANN) INTO WS-CONT-IN, sets WS-CONT-IN-CREDIT-SCORE to (999 - 1) * FUNCTION RANDOM + 1, PUTs it back and RETURNs; a GET or PUT failure is DISPLAYed and RETURNs; a DELAY failure fills ABNDINFO, LINKs ABNDPROC and ABENDs PLOP. No COMMAREA (its LINKAGE SECTION is empty: \"commarea\": null). The task starts with the channel its parent passed (oracle_assumptions.md X24); the containers on it are compared at the task's end, as CRECUST's FETCH CHILD sees them. FUNCTION RANDOM runs on the oracle's generator (C12) seeded by EIBTASKN, a stated fact of the run (X21): the scores are the oracle's, not z/OS's. A task takes no time: DELAY is NORMAL and EIBTIME does not move (X4). Not reached: the DELAY failure branch (A010's first IF, with POPULATE-TIME-DATE and the LINK to ABNDPROC): DELAY FOR SECONDS of 1 or 2 raises no condition IBM documents, and the harness injects none on DELAY; and the PUT CONTAINER failure branch (after a GET CONTAINER NORMAL on a channel in scope, nothing documented makes the PUT fail). Data: the containers are SYNTHETIC customers in the CRECUST layout. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenarios": [
+  {
+   "name": "credit-score",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "the channel CRECUST builds: CIPCREDCHANN holding CIPA-CIPE, each the 261-byte new customer (CRECUST's COMMAREA, credit score 000). DELAY FOR SECONDS((3 - 1) * FUNCTION RANDOM(EIBTASKN) + 1) NORMAL (EIBTASKN 0: X21; the generator: C12; a task takes no time: X4), GET CONTAINER(CIPD) NORMAL, the score replaced by (999 - 1) * FUNCTION RANDOM + 1, PUT CONTAINER(CIPD) back; the other four containers unchanged"
+  },
+  {
+   "name": "credit-score-task-4242",
+   "commarea": null,
+   "taskn": 4242,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPD": {
+      "text": "CUST9876540000000043Mr Gareth L Owen                                            2 Quay Street, Lymington, SO41 9AB                                                                                                                              2902197299929022028Y0"
+     }
+    }
+   },
+   "why": "EIBTASKN 4242 seeds RANDOM: another delay and another score; CIPD alone on the channel, its score 999 and flags 'Y' / '0' as CRECUST left them -- only the score changes"
+  },
+  {
+   "name": "container-missing",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "CIPCREDCHANN without CIPD: GET CONTAINER CONTAINERERR (RESP 110, RESP2 10), caught by RESP: the DISPLAYs, then GET-ME-OUT-OF-HERE's RETURN; nothing PUT, the channel left as it came"
+  },
+  {
+   "name": "no-channel",
+   "commarea": null,
+   "why": "started with no channel: GET CONTAINER CHANNEL(CIPCREDCHANN) names a channel not in the program's scope -- CHANNELERR (RESP 122, RESP2 2), RETURN; there is no channel to compare"
+  },
+  {
+   "name": "other-channel",
+   "commarea": null,
+   "channel": {
+    "name": "MYCHANNEL",
+    "containers": {
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "started with channel MYCHANNEL (holding CIPD): CIPCREDCHANN is still not in scope, CHANNELERR, RETURN; MYCHANNEL compared unchanged"
+  },
+  {
+   "name": "container-too-long",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  EXTRA BYTES PAST THE RECORD"
+     }
+    }
+   },
+   "why": "CIPD 288 bytes, FLENGTH 261: GET CONTAINER LENGERR (RESP 22, RESP2 11), the first 261 bytes moved; caught by RESP: RETURN with nothing PUT, CIPD unchanged"
+  },
+  {
+   "name": "container-short",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winch"
+     }
+    }
+   },
+   "why": "CIPD only 100 bytes: GET CONTAINER NORMAL, FLENGTH 100, WS-CONT-IN past byte 100 keeps its initial value (no VALUE clause: oracle_assumptions.md L3); the new score is set and PUT CONTAINER writes all 261 bytes back, so CIPD grows to 261"
+  }
+ ]
+}

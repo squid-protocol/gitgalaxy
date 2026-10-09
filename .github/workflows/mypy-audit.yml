@@ -1,10 +1,9 @@
 name: Mypy Audit
 
 on:
-  pull_request:
+  pull_request:  # #4825: a required check -- runs on every PR
     branches:
       - main
-    paths-ignore: ["docs/**"]
 
 permissions:
   contents: read

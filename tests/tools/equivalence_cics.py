@@ -369,6 +369,31 @@ def task_number(case: dict[str, Any], sc: dict[str, Any]) -> int:
     return n
 
 
+UCTRANST_NAMES = ("UCTRAN", "NOUCTRAN", "TRANIDONLY")
+ORIGIN_KEYS = ("applid", "userid", "facilname", "networkid", "faciltype")
+
+
+def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
+    """#4270 (CBSA's BMS front ends): the task's terminal, stated on both sides as the cics-crucible runner states it --
+    "termid" (EIBTRMID and the principal facility: $EIBIN, $GGCICS_FACILITY and terminals.cfg / CicsTask.withTermid;
+    RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
+    $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
+    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29). The scenario's, else the case's; unstated, None, and
+    the commands that read them are refused by both runtimes, as before."""
+    out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
+    t = out["termid"]
+    if t is not None and (not isinstance(t, str) or not 1 <= len(t) <= 4 or not t.strip() or "," in t or " " in t):
+        raise Unsupported(f'scenario {sc.get("name")}: "termid" {t!r} is not a terminal name (1 to 4 characters)')
+    if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
+        raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
+                          'stated "termid"')  # fmt: skip
+    o = out["origin"]
+    if o is not None and (not isinstance(o, dict) or sorted(o) != sorted(ORIGIN_KEYS)
+                          or any(not isinstance(o[k], str) or "," in o[k] or not o[k] for k in ORIGIN_KEYS)):  # fmt: skip
+        raise Unsupported(f'scenario {sc.get("name")}: "origin" is {{{", ".join(ORIGIN_KEYS)}}}, each a name')
+    return out
+
+
 def task_facts(case: dict[str, Any], sc: dict[str, Any]) -> tuple[str | None, str | None]:
     """#4270 (GenApp LGICVS01, a terminal transaction): how the task was started and what the operator typed -- facts
     of the run stated on both sides as the cics-crucible runner states them (ASSIGN STARTCODE: $GGCICS_STARTCODE /
@@ -1100,7 +1125,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
              "DATA DIVISION.", "FILE SECTION.", "FD  EIB-IN.", "01  EIB-LINE.",
              "    05 IN-TRNID PIC X(4).", "    05 FILLER   PIC X.", "    05 IN-AID   PIC X(8).",
              "    05 FILLER   PIC X.", "    05 IN-DATE  PIC 9(7).", "    05 FILLER   PIC X.",
-             "    05 IN-TIME  PIC 9(7).",
+             "    05 IN-TIME  PIC 9(7).", "    05 FILLER   PIC X.", "    05 IN-TRMID PIC X(4).",
              "WORKING-STORAGE SECTION.", "COPY DFHEIBLK.", "COPY DFHAID.",
              "01  WS-CA  PIC X(32767).", "01  WS-LEN PIC S9(9) COMP-5.",
              "01  WS-PTR USAGE POINTER.", "LINKAGE SECTION.", "01  LK-CA  PIC X(32767).",
@@ -1108,6 +1133,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
              "    OPEN INPUT EIB-IN", "    READ EIB-IN", "    CLOSE EIB-IN",
              "    INITIALIZE DFHEIBLK GG-CICS",
              "    MOVE IN-TRNID TO EIBTRNID", "    MOVE IN-DATE TO EIBDATE", "    MOVE IN-TIME TO EIBTIME",
+             "    MOVE IN-TRMID TO EIBTRMID",
              "    CALL 'GGCTASKN' USING GG-CICS", "    MOVE GG-NUM TO EIBTASKN",
              "    MOVE 0 TO GG-NUM",
              "    EVALUATE IN-AID"]  # fmt: skip
@@ -1837,8 +1863,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
-        (d / "eib.in").write_text(f"{case['transid']:<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time}\n",
-                                  encoding="ascii")  # fmt: skip
+        term = terminal_facts(case, sc)  # #4270: the task's terminal, when the case states one
+        (d / "eib.in").write_text(f"{case['transid']:<4} {sc.get('aid', 'DFHENTER'):<8} {eib_date} {eib_time} "
+                                  f"{term['termid'] or '':<4}\n", encoding="ascii")  # fmt: skip
+        if term["termid"]:  # the region's terminals: the task's own (START / INQUIRE / SET TERMINAL's TERMIDERR)
+            (d / "terminals.cfg").write_text(f"{term['termid']}\n", encoding="ascii")
         rel = f"/work/scenarios/{sc['name']}"
         sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
         if db2:  # #4173: each statement the task runs traced; its planned SQL faults, the ones that fire logged
@@ -1852,6 +1881,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
+                      + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
+                      + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
+                      + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
@@ -2774,6 +2806,13 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                  "datasource.DataSourceTransactionManager(db2Jdbc.getJdbcTemplate().getDataSource()))"
                  ".executeWithoutResult(db2Status -> {\n            ") if db2 else ""  # fmt: skip
     db2_rollback = "db2Status.setRollbackOnly(); " if db2 else ""
+    # #4270 (CBSA CREACC): SYNCPOINT ROLLBACK ends the task's Db2 unit of work there and then -- its changes undone on
+    # the task's connection -- and the task's later SQL is a new unit of work, committed when the task ends, as the
+    # COBOL side's Db2 does it (an abend still backs out only what came after). Marking the whole transaction
+    # rollback-only lost the SQL a caller ran after a LINKed program's rollback (INQACCCU -> CREACC's INSERTs).
+    db2_rollback_now = ("try { org.springframework.jdbc.datasource.DataSourceUtils.getConnection(db2Jdbc.getJdbcTemplate()"
+                        ".getDataSource()).rollback(); } catch (java.sql.SQLException e) { throw new "
+                        "IllegalStateException(e); } ") if db2 else ""  # fmt: skip
     abend_catch = (" catch (CicsAbendException e) {\n                    status.setRollbackOnly();\n"
                    f"                    {db2_rollback}task.abend(e.getAbcode());\n                }}")  # fmt: skip
     abend_catch = abend_catch if has_abend else ""
@@ -2869,6 +2908,9 @@ class EquivalenceRunTest {{
                     // #4270: ASSIGN STARTCODE and an unformatted RECEIVE's input, as the stub's ($GGCICS_STARTCODE, terminal.in)
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
+                    // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
+                    .withTermid(sc.get("termid").isNull() ? null : sc.get("termid").asText())
+                    .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
                     .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),
@@ -2886,6 +2928,11 @@ class EquivalenceRunTest {{
             }}
             if (calen != null) {{
                 task.withExactCommarea();
+            }}
+            if (sc.hasNonNull("origin")) {{  // #4270 (X29): INQUIRE ASSOCIATION -- the origin data the case states
+                JsonNode o = sc.get("origin");
+                task.withOrigin(o.get("applid").asText(), o.get("userid").asText(), o.get("facilname").asText(),
+                        o.get("networkid").asText(), o.get("faciltype").asText());
             }}
             // #4765: a LINKed task's COMMAREA bytes too, by reference (a caller's LINK passes both): a port that takes
             // them (task.linkArea()) leaves its result there, every occurrence of a table included
@@ -2921,7 +2968,7 @@ class EquivalenceRunTest {{
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
             {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback}}});
+                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback_now}}});
                 try {{
                     if (facades) {{
                         try (CicsTask.Joined joined = CicsTask.join(region)) {{
@@ -3128,6 +3175,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "channel": _channel_json(case, sc),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
+                          **terminal_facts(case, sc),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
@@ -3401,6 +3449,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":
             out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
+            cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
+            out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
+                        "cursor": cur if cur >= 0 else None})  # fmt: skip
         elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # file updates: CicsTask.syncpoint / rollback record them
             out.append({"event": verb})
         elif verb == "WRITEQ-TD":  # CicsTask.writeqTd records the queue and the record's text
@@ -3537,6 +3589,11 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
+            if sorted(c.get("options") or []) != sorted(j.get("options") or []):
+                bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
+            if c.get("cursor") != j.get("cursor"):
+                bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
         if c["event"] == "SEND-MAP" and "subfields" in c:  # #4053: attributes, colour, highlight, cursor, options
             cs, js = c["subfields"], java_subfields(j.get("subfields"))
             for name in sorted(set(cs) | set(js)):

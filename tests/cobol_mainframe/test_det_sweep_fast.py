@@ -100,7 +100,7 @@ def test_dependents_of_a_changed_port_are_proven_too():
 @pytest.mark.parametrize(
     "path",
     [
-        "gitgalaxy/tools/cobol_to_java/det/x.py",  # the translator
+        "gitgalaxy/tools/cobol_to_java/proof_reach.py",  # moves verdicts without moving a port byte
         "tests/tools/equivalence.py",  # the harness / tools
         "tests/equivalence/det_sweep_baseline.json",  # the ratchet itself
         "tests/equivalence/gnucobol.Dockerfile",  # the oracle
@@ -110,11 +110,63 @@ def test_dependents_of_a_changed_port_are_proven_too():
         "tests/equivalence/det_sweep_coverage.json",  # the retired single-file ledger
         "tests/cobol_mainframe/corpora.json",
         ".github/workflows/det-sweep.yml",
-        "README.md",
     ],
 )
 def test_anything_but_case_files_is_a_full_sweep(path):
     assert plan.plan(["tests/equivalence/delta/case.json", path], "pull_request", CASES)["mode"] == "full"
+
+
+@pytest.mark.parametrize("path", ["README.md", "docs/x/y.md", "gitgalaxy/core/detector.py", "tests/tools/pr_check.py",
+                                  "gitgalaxy/tools/cobol_to_java/det/NOTES.md"])  # fmt: skip
+def test_a_pr_that_changes_no_det_input_proves_nothing(path):
+    """#4825: det-sweep runs on every PR (`det` is a required check); the planner proves nothing when no changed file
+    is something a det proof reads -- and such a file never widens a case-only plan to a full sweep."""
+    p = plan.plan([path], "pull_request", CASES)
+    assert p["mode"] == "none" and p["cases"] == [] and plan.shards_for(p) == []
+    assert plan.plan([path, "tests/equivalence/delta/case.json"], "pull_request", CASES)["mode"] == "narrow"
+
+
+def test_a_translator_only_change_is_planned_from_its_port_diff(tmp_path):
+    """#4814: det/ (translator + runtime) changes are narrowed to the ports they move; the rest is carried forward."""
+    p = plan.plan(
+        ["gitgalaxy/tools/cobol_to_java/det/gen.py", "tests/equivalence/delta/case.json"], "pull_request", CASES
+    )
+    assert p["mode"] == "ports" and p["cases"] == ["delta"] and plan.shards_for(p) == []
+    check = tmp_path / "check.json"
+    check.write_text(json.dumps([{"case": "alpha", "status": "changed", "files": ["X.java"]},
+                                 {"case": "beta", "status": "unchanged", "files": []},
+                                 {"case": "dbcase", "status": "changed", "files": ["Y.java"]},
+                                 {"case": "delta", "status": "unchanged", "files": []}]), encoding="utf-8")  # fmt: skip
+    n = plan.narrow_by_ports(check, ["delta"], CASES)
+    assert n["mode"] == "narrow" and n["cases"] == ["alpha", "beta", "delta", "gamma"]  # alpha's port moved: dependents
+    assert n["db2_not_swept"] == ["dbcase"] and n["carried"] == 0
+    assert plan.shards_for(n) == ["1/2", "2/2"]
+
+
+def test_no_usable_port_diff_is_a_full_sweep(tmp_path):
+    assert plan.narrow_by_ports(tmp_path / "missing.json", [], CASES)["mode"] == "full"
+    (tmp_path / "bad.json").write_text("{not json", encoding="utf-8")
+    assert plan.narrow_by_ports(tmp_path / "bad.json", [], CASES)["mode"] == "full"
+
+
+def test_the_port_diff_cli_writes_the_final_outputs(tmp_path):
+    check, out = tmp_path / "check.json", tmp_path / "out"
+    rows = [
+        {"case": c, "status": "changed" if c == "carddemo-menu" else "unchanged", "files": []}
+        for c in ["carddemo-menu"]
+    ]
+    check.write_text(json.dumps(rows), encoding="utf-8")
+    run = [
+        sys.executable,
+        str(ROOT / "tests" / "tools" / "det_sweep_plan.py"),
+        "--ports",
+        str(check),
+        "--github-output",
+        str(out),
+    ]
+    proc = subprocess.run(run, capture_output=True, text=True, check=True)  # noqa: S603
+    assert json.loads(proc.stdout)["mode"] == "narrow"
+    assert "mode=narrow" in out.read_text(encoding="utf-8") and "shards=1" in out.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("event", ["schedule", "workflow_dispatch", "push"])
@@ -127,7 +179,7 @@ def test_db2_cases_are_not_planned_and_the_runner_count_follows_the_plan():
     assert p["cases"] == [] and plan.shards_for(p) == []
     assert plan.shards_for({"mode": "narrow", "cases": ["a"]}) == ["1/1"]
     assert plan.shards_for({"mode": "narrow", "cases": list("abcdefg")}) == ["1/3", "2/3", "3/3"]
-    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/6" for i in range(1, 7)]
+    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/20" for i in range(1, 21)]  # #4814
 
 
 def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):

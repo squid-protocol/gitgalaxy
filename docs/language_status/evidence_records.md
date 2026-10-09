@@ -93,6 +93,21 @@ tree and compares it with the record's. It returns a status and every reason for
   (`evidence.py refresh --stale`, also on `workflow_dispatch`). It runs on every push to main too (#4703) and opens a bot PR (`auto/evidence-refresh`) with the refreshed records and
   the re-rendered evidence report; the PR auto-merges (squash) when every proof succeeded.
 
+**Stale levels in the evidence report** (owner decision, 2026-10-08, #4730): the det-sweep coverage ledger
+(`tests/equivalence/det_sweep_coverage.json`) is fingerprinted like a record, and the same split applies to the
+levels the [evidence report](evidence_report/README.md) derives from it. Stale on a **scheduled** input (harness,
+oracle) means "measured against the previous harness, not yet re-checked", not "regressed": the report keeps the
+program's last measured level and marks it (`L3*`), with `stale since <commit>` (the commit the ledger entry was
+measured at, `measured_at`, written by `det_coverage_ledger.py update`; an older entry falls back to the commit its
+case's record was proven at) and the changed inputs. Stale on a **blocking** input (the case or the corpus pin; a
+program's own port, differences and options do not feed the ledger but change the record) the level drops, as the old
+measurement no longer describes that program. `report.json` carries per program `level`, `level_current`,
+`stale_since`, `stale_inputs`, and the summary `histogram_stale` / `levels_stale`; the summary tables show current
+and stale counts apart ("L3+: 14 (14 awaiting re-check)"). `evidence_report.py --deltas` reports stale against
+current. The release gate (`evidence_report.py --check --live`, publish.yml, #4703) still requires every level
+current: it fails while any level is stale, so a stale level is never quoted as current in anything published. The
+scheduled re-sweep makes the levels current again. No timestamps are stored; "stale since" is always a commit.
+
 **Unproven methods** (owner decision, #4048 Q7): under the policy switch
 `PORTED_UNPROVEN_POLICY = "block"` in `tests/tools/evidence.py`, a port with any ported_unproven method is **not
 proven**. Its status says why, for example "1 ported_unproven method (executeCsutldtc)". To become proven, the

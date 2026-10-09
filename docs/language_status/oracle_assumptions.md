@@ -94,6 +94,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
+| C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -448,6 +449,29 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   reads COMP-5 little-endian: `S9(4) COMP-5 VALUE 32767` read back as -12534 (cics-crucible `ca-xctl-versions`,
   XCTL LENGTH). The image now holds the whole value in the runtime's (GnuCOBOL's) order; pinned by
   `test_det_programs.py` COMP5 against GnuCOBOL.
+- **Its size** for 1 or 2 digits differs too: C16.
+
+### C16. A 1- or 2-digit COMP-5 item — the oracle DIFFERS (one byte), REFUSED by name (#4751)
+- **IBM.** Binary items -- COMP, COMP-4, BINARY and COMP-5 alike -- of 1 to 4 digits occupy a halfword (2 bytes), 5
+  to 9 a fullword, 10 to 18 a doubleword (Enterprise COBOL for z/OS Language Reference, USAGE clause, "Computational
+  items"). COMP-5 holds up to the capacity of those bytes (C7), so `MOVE 99999` to a `PIC S9(2) COMP-5` leaves -31073
+  (99999 modulo 2 ** 16, signed). The det layout (`det/layout.py`, `Item.elementary_size`) sizes it so.
+- **The oracle.** GnuCOBOL 3.1.2 sizes COMP / COMP-4 / BINARY by its `binary-size` setting, which `-std=ibm` already
+  sets to `2-4-8` (`/etc/gnucobol/ibm-strict.conf`; the default dialect's is `1-2-4-8`), but COMP-5 by the PICTURE's
+  9s alone: 1 or 2 of them are one byte whatever `-fbinary-size` says (only `1--8` changes COMP-5, and only to pack
+  wider items tighter). Measured 2026-10-09 on the pinned image (`cobc -x -std=ibm -fsign=EBCDIC`, alone and with
+  `-fbinary-size=2-4-8`, `-fbinary-size=1-2-4-8`, `-fbinary-truncate`, `-fnotrunc`): `LENGTH OF` a `PIC S9(1)`,
+  `S9(2)`, `9(2)`, `S9V9` or `9PP` COMP-5 item is 1, also under a group's `USAGE COMP-5`; `S9(3)` and wider are 2,
+  4 or 8 as on z/OS; `MOVE 99999` leaves -97, `MOVE 300` to `9(2)` 44; a group of `S9(2) COMP-5`, `S9(2) COMP`,
+  `S9(4) COMP-5`, `X` is 6 bytes (z/OS and the det layout: 7). `-fbinary-size=2-4-8` changes no byte.
+- **So the oracle refuses it.** `equivalence_common.comp5_layout_guard` scans every COBOL source staged for an
+  oracle build -- the program, its copybooks, the programs it calls or links to, a crucible case's programs
+  (batch, CALL, CICS and the CICS crucible) -- and refuses the case by name when one declares such an item; a
+  proof is never loosened to tolerate the bytes. Pinned by `tests/cobol_mainframe/test_comp5_layout.py` (the
+  scanner, the det layout's halfword, and with `EQUIVALENCE_E2E=1` the oracle's one byte: if a new image lays it
+  out in a halfword, drop the guard and this entry).
+- **Reach.** None: no corpus and no case declares one (CardDemo's IMSFUNCS.cpy, the only COMP-5 in the corpora, is
+  `PIC S9(05)`; the harness's SQLCA uses `S9(4)` and `S9(9)`).
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.

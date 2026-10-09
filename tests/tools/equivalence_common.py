@@ -289,6 +289,58 @@ def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -
         )
 
 
+# #4751: GnuCOBOL 3.1.2 lays out a COMP-5 item of 1 or 2 digits (its PICTURE's 9s) in one byte whatever
+# -fbinary-size says (`-std=ibm` already sets 2-4-8, which COMP / COMP-4 / BINARY follow); IBM and the det layout use a
+# halfword. Register C16.
+_COMP5 = re.compile(r"\bCOMP(?:UTATIONAL)?-5\b", re.I)
+_LEVEL = re.compile(r"\s*(\d{1,2})\s")
+_PICTURE = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+)", re.I)
+
+
+def one_byte_comp5(text: str) -> list[str]:
+    """#4751: the data items of a COBOL source (program or copybook, fixed format) that GnuCOBOL lays out in one byte
+    and IBM in a halfword: a COMP-5 item, its own USAGE or a group's, whose PICTURE has 1 or 2 9s."""
+    code = []
+    for ln in text.splitlines():
+        if len(ln) > 6 and ln[6] in "*/":
+            continue
+        code.append(ln[7:72].split("*>")[0])
+    found: list[str] = []
+    groups: list[tuple[int, bool]] = []  # the open groups: (level, USAGE COMP-5)
+    for entry in re.split(r"\.(?=\s|$)", " ".join(code)):
+        m = _LEVEL.match(entry)
+        if not m or int(m.group(1)) in (66, 88):
+            continue
+        level = int(m.group(1))
+        level = 1 if level == 77 else level
+        while groups and groups[-1][0] >= level:
+            groups.pop()
+        comp5 = bool(_COMP5.search(entry)) or any(c for _, c in groups)
+        pic = _PICTURE.search(entry)
+        if pic is None:
+            groups.append((level, comp5))
+            continue
+        p = re.sub(r"(.)\((\d+)\)", lambda x: x.group(1) * int(x.group(2)), pic.group(1).upper())
+        if comp5 and 0 < p.count("9") <= 2 and not re.search(r"[XAN]", p):
+            found.append(" ".join(entry.split()))
+    return found
+
+
+def comp5_layout_guard(src: Path) -> None:
+    """#4751: refuse an oracle build whose COBOL sources (the staged program, its copybooks and called programs)
+    declare a 1- or 2-digit COMP-5 item: GnuCOBOL lays it out in one byte, IBM in a halfword, so its offsets, its
+    record's length and a value past 127 / 255 differ (register C16). No cobc option changes it (-fbinary-size is
+    ignored for COMP-5 but for `1--8`)."""
+    for p in sorted(src.iterdir()):
+        if p.is_file() and p.suffix.lower() not in (".c", ".h", ".sql", ".cfg"):
+            hits = one_byte_comp5(decode_bytes(p.read_bytes()))
+            if hits:
+                raise UnsupportedOption(
+                    f"{p.name}: `{hits[0]}`: GnuCOBOL lays out a 1- or 2-digit COMP-5 item in one byte, IBM in a "
+                    "halfword (oracle_assumptions.md C16), so the case cannot be proven"
+                )
+
+
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 

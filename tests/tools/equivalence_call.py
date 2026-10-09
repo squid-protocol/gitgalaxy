@@ -163,6 +163,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     program, option_flags = common.compile_options(case, source)
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     common.stage_copybooks(case, corpus, src)
+    common.comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     (src / "EQCALLDR.cbl").write_text(cobol_driver(case, corpus), encoding="ascii")
     stubs = [p for p in [*LE.glob("*.c"), FAULTS / "ggabend.c"] if p.is_file()]
     for p in stubs:

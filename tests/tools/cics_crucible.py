@@ -1861,6 +1861,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
     a LINK runs a new level and an XCTL its target at the same level); {scenario: actual}. #4023: compiled
     -ftraceall, each task traced; `coverage` gets {scenario: {program: what it executed}}."""
     import equivalence_cics as ec
+    import equivalence_common as common
 
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
@@ -1875,6 +1876,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
         (src / f"{prog}.cbl").write_text(text, encoding="latin-1")
     (src / "GGTASK.cbl").write_text(ec.task_driver(), encoding="ascii")
     (src / "GGCRUN.cbl").write_text(ec.task_dispatcher({p: ca for p, (_t, ca) in programs.items()}), encoding="ascii")
+    common.comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     units = " ".join(f"src/{p}.cbl" for p in ["GGTASK", "GGCRUN", *programs])
     compile_lines = ["set -e", "cd /work", "mkdir -p bin",
                      f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {cov.TRACE_FLAG} -I /work/src -o bin/task {units} src/ggcics.c"]  # fmt: skip

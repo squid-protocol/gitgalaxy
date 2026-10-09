@@ -926,7 +926,9 @@ NOT_MODELLED = "GGDISPLAY-NOT-MODELLED"  # faults/ggdisplay.c: an operand IBM's 
 def sysout_lines(data: bytes, enc: str) -> list[str]:
     """The job log's lines as compared: trailing blanks dropped (a SYSOUT record is blank-padded to its length,
     so they are not text) and libcob's own runtime messages left out (they are GnuCOBOL's, not the program's)."""
-    lines = [x.rstrip(" \r") for x in data.decode(enc).split("\n") if not x.startswith("libcob: ")]
+    # #4698: records are separated by a plain LF byte on both sides whatever the charset (the separator is the
+    # capture's framing, not data -- IBM's SYSOUT record has none), so split the bytes, then decode each record
+    lines = [x.rstrip(" \r") for x in (r.decode(enc) for r in data.split(b"\n")) if not x.startswith("libcob: ")]
     while lines and not lines[-1]:
         lines.pop()
     return lines
@@ -937,8 +939,9 @@ def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
     operand ggdisplay.c does not model: GnuCOBOL's text for it is not IBM's."""
     c, j = (
         sysout_lines(cobol, enc),
-        java.decode(enc).split("\n") if java else [],
-    )  # #4691: the port writes record-charset bytes (a CICS task's log too: the harness passes the data charset)
+        [r.decode(enc) for r in java.split(b"\n")] if java else [],
+    )  # #4691: the port writes record-charset bytes (a CICS task's log too: the harness passes the data charset);
+    # #4698: its records end in a plain LF byte whatever the charset, so the bytes are split before they are decoded
     j = [x.rstrip(" \r") for x in j]
     while j and not j[-1]:
         j.pop()

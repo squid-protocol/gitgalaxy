@@ -18,7 +18,7 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | harness | 11 files `de02ccecbdaf08d0` |
 | oracle | 21 files `017ca3ab867f90c3` |
 | generator | 67 files `645d8151ea3dba13` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:42d04bb08a2a` (matches pin: True) |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 
 ## Proof outputs

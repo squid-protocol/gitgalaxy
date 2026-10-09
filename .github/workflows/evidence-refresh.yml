@@ -23,7 +23,20 @@ name: Evidence Refresh
 #
 # Auto-merge happens only when every proof step succeeded. A run where a proof or the sweep failed still opens the PR,
 # but leaves it for a person (and the job fails). Approvals are never touched (only `evidence.py approve`, run by a
-# person at a terminal, writes one). Db2 cases need IBM's Db2 container; they run only on a manual dispatch with db2 = true.
+# person at a terminal, writes one).
+#
+# #4733: the Db2 cases (most of GenApp, several CBSA programs) need IBM's Db2 container, so they run in their own job,
+# `db2`: the Db2 half of the det sweep (`proof_sweep.py --det-only --db2-only`, for the coverage ledger) and the re-proof of
+# the stale Db2 evidence records, on one runner with the Db2 image pinned by digest (tests/tools/equivalence_db2.py IMAGE,
+# docs/language_status/oracle_assumptions.md). The job uploads its sweep.json and the records it wrote; `refresh` (which
+# `needs: db2`) merges them in before it rewrites the ledger (det_coverage_ledger.py update takes both sweeps), re-renders the
+# pages and builds the reports, so one bot PR carries the whole sweep. CADENCE: the Db2 job runs on the NIGHTLY schedule and
+# on a manual dispatch with db2 = true (the default), not on every push to main: it adds its own time (image pull, Db2 start,
+# the sweep, the records: see the job's summary for the measured time) ahead of the ~1 h refresh, and merge-heavy days push
+# many times. A push-triggered refresh skips the job, leaves the Db2 half of the ledger and the Db2 records as the last
+# nightly wrote them, and the report shows them as stale, not as zero, once their inputs move (#4730). The non-Db2 path is
+# the same on every trigger. A Db2 job that fails (no Db2, a lost proof) does not stop the non-Db2 refresh, but the run
+# fails and the bot PR is left for a person, as for any failed proof.
 
 on:
   push:
@@ -33,9 +46,9 @@ on:
   workflow_dispatch:
     inputs:
       db2:
-        description: "also re-prove the Db2 cases (starts IBM's Db2 container: slow)"
+        description: "also sweep and re-prove the Db2 cases (starts IBM's Db2 container; the nightly run always does)"
         type: boolean
-        default: false
+        default: true
       keys:
         description: "only these records (space-separated keys, e.g. carddemo-dateutil crucible:pc-wizard/PCWIZ)"
         type: string
@@ -49,7 +62,186 @@ concurrency:
   cancel-in-progress: false  # finish the running refresh; GitHub keeps only the newest pending run queued (#4703)
 
 jobs:
+  # #4733: the Db2 half of the sweep and the Db2 records. Its own runner: IBM's Db2 Community container needs --privileged
+  # and a few GB of memory (a GitHub-hosted ubuntu-latest runner has both: 4 vCPU, 16 GB, root docker).
+  db2:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    outputs:
+      sweep_ok: ${{ steps.db2_sweep.outcome == 'success' }}
+      sha: ${{ steps.db2_asof.outputs.sha }}  # the commit the Db2 results are of: the refresh job works from the same one
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          ref: main  # the same commit family as the refresh job: the current main (#4640)
+          fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
+          persist-credentials: false
+
+      - name: Record the commit the Db2 results are of
+        id: db2_asof
+        run: echo "sha=$(git -C gitgalaxy rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "./gitgalaxy[translator]"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            evidence-m2-
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Build the oracle image and check it against its pin (#4309)
+        run: |
+          docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+
+      # The image is the one tests/tools/equivalence_db2.py pins by digest (#4733): pulled here by that name, so the
+      # harness starts the container from it (a tag, or a different digest, is refused by test_db2_image_pin.py).
+      - name: Pull the pinned Db2 image (#4733)
+        run: |
+          image=$(cd gitgalaxy/tests/tools && python -c "import equivalence_db2; print(equivalence_db2.IMAGE)")
+          echo "Db2 image: $image"
+          docker pull -q "$image"
+          echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Re-sweep the Db2 det ports for the coverage ledger (#4733)
+        id: db2_sweep
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          start=$(date +%s)
+          # The same ratchet as the non-Db2 sweep: a Db2 case that stops proving fails the job, and its coverage is not
+          # written to the ledger.
+          python tests/tools/proof_sweep.py --det-only --db2-only --jobs 4 --work "$RUNNER_TEMP/db2-sweep" \
+            | tee "$RUNNER_TEMP/db2-sweep.txt"
+          echo "sweep_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
+
+      - name: Re-prove the stale Db2 records (#4733)
+        id: db2_records
+        continue-on-error: true
+        shell: bash
+        env:
+          KEYS: ${{ github.event.inputs.keys }}
+        run: |
+          cd gitgalaxy
+          start=$(date +%s)
+          # shellcheck disable=SC2086 -- KEYS is a space-separated list on purpose
+          python tests/tools/evidence.py refresh --stale --only-db2 --crucible ../cics-crucible --work "$RUNNER_TEMP/db2-evidence" $KEYS \
+            | tee "$RUNNER_TEMP/db2-refresh.txt"
+          echo "records_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
+
+      - name: Stage what the refresh job takes
+        if: always()
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/db2-out"
+          mkdir -p "$out/sweep"
+          if [ -f "$RUNNER_TEMP/db2-sweep/sweep.json" ]; then cp "$RUNNER_TEMP/db2-sweep/sweep.json" "$out/sweep/sweep.json"; fi
+          cd gitgalaxy
+          # only the evidence records the proofs wrote (the refresh job re-renders the pages from them)
+          git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/*/evidence.json' \
+              'tests/cics_crucible/ports/*/*/evidence.json' \
+            | while IFS= read -r -d '' f; do mkdir -p "$out/records/$(dirname "$f")"; cp "$f" "$out/records/$f"; done
+          find "$out" -type f | sort
+
+      - name: Summary
+        if: always()
+        env:
+          SWEEP_SECONDS: ${{ steps.db2_sweep.outputs.sweep_seconds }}
+          RECORDS_SECONDS: ${{ steps.db2_records.outputs.records_seconds }}
+        run: |
+          {
+            echo "## Db2 cases (#4733)"
+            echo "sweep: ${SWEEP_SECONDS:-?} s, records: ${RECORDS_SECONDS:-?} s"
+            echo '```'
+            grep -v '^ *$' "$RUNNER_TEMP/db2-sweep.txt" 2>/dev/null | grep -v 'WARNING\|INFO' | tail -60 || echo "(no sweep output)"
+            echo '```'
+            echo '```'
+            cat "$RUNNER_TEMP/db2-refresh.txt" 2>/dev/null || echo "(no records output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the Db2 results for the refresh job
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: db2-results
+          path: ${{ runner.temp }}/db2-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Keep the Db2 proofs' logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: db2-sweep-logs
+          path: |
+            ${{ runner.temp }}/db2-sweep/det/*/proof.log
+            ${{ runner.temp }}/db2-sweep/det/*/proof/report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Fail when the Db2 sweep or a Db2 re-proof failed
+        if: steps.db2_sweep.outcome == 'failure' || steps.db2_records.outcome == 'failure'
+        run: |
+          echo "::error title=Db2 cases::the Db2 det sweep or a Db2 record's proof failed or could not run -- see the summary"
+          exit 1
+
   refresh:
+    needs: db2
+    # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     permissions:
@@ -65,7 +257,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
-          ref: main  # always the current main, whatever event or branch started the run (#4640)
+          # always main, whatever event or branch started the run (#4640): the current one, or (#4733) the commit the
+          # Db2 job swept, so that the ledger's fingerprints are those of the tree its Db2 numbers were measured on
+          ref: ${{ needs.db2.outputs.sha || 'main' }}
           fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
           persist-credentials: false
 
@@ -137,6 +331,26 @@ jobs:
       # from the sweep: `update` always takes fingerprints from the tree, never from the old entry.
       # The sweep applies the det_sweep_baseline ratchet (no --no-ratchet): a sweep that proves fewer cases than the
       # baseline expects exits 1, fails this job, and the ledger is NOT rewritten from it.
+      - name: Take the Db2 job's results (#4733)
+        id: db2_in
+        if: needs.db2.result == 'success' || needs.db2.result == 'failure'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: db2-results
+          path: ${{ runner.temp }}/db2-in
+        continue-on-error: true
+
+      - name: Put the Db2 records in place (#4733)
+        if: steps.db2_in.outcome == 'success'
+        shell: bash
+        run: |
+          in="$RUNNER_TEMP/db2-in/records"
+          [ -d "$in" ] || exit 0
+          # only evidence records, as regular files: nothing else from an artifact reaches the tree
+          bad=$(find "$in" -type f ! -name evidence.json -o -type l)
+          if [ -n "$bad" ]; then echo "::error title=Db2 results::unexpected files in the Db2 artifact: $bad"; exit 1; fi
+          cp -r "$in"/. gitgalaxy/
+
       - name: Re-sweep the det ports for the coverage ledger (#4270)
         id: ledger_sweep
         continue-on-error: true
@@ -150,13 +364,21 @@ jobs:
         # Only from a sweep that passed the ratchet. hashFiles() only searches the workspace, never $RUNNER_TEMP, so
         # test for the file in the shell instead.
         if: steps.ledger_sweep.outcome == 'success'
+        env:
+          DB2_SWEEP_OK: ${{ needs.db2.outputs.sweep_ok }}
         run: |
           cd gitgalaxy
           if [ ! -f "$RUNNER_TEMP/sweep/sweep.json" ]; then
             echo "::warning title=coverage ledger::no sweep.json from the det sweep: the ledger is not refreshed"
             exit 0
           fi
-          python tests/tools/det_coverage_ledger.py update "$RUNNER_TEMP/sweep"
+          sweeps=("$RUNNER_TEMP/sweep")
+          # #4733: the Db2 job's sweep too, when it ran and passed its ratchet; otherwise the Db2 entries stay as they were
+          # (stale, not zero, once their inputs move: #4730)
+          if [ "$DB2_SWEEP_OK" = "true" ] && [ -f "$RUNNER_TEMP/db2-in/sweep/sweep.json" ]; then
+            sweeps+=("$RUNNER_TEMP/db2-in/sweep/sweep.json")
+          fi
+          python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
 
       - name: Re-prove the stale records
         id: refresh
@@ -164,13 +386,11 @@ jobs:
         shell: bash  # -eo pipefail: the refresh's exit status, not tee's
         env:
           KEYS: ${{ github.event.inputs.keys }}
-          DB2: ${{ github.event.inputs.db2 }}
         run: |
           cd gitgalaxy
-          skip=""
-          if [ "$DB2" != "true" ]; then skip="--skip-db2"; fi
+          # the Db2 records are the db2 job's (#4733): this job has no Db2 container
           # shellcheck disable=SC2086 -- KEYS is a space-separated list on purpose
-          python tests/tools/evidence.py refresh --stale $skip --crucible ../cics-crucible --work "$RUNNER_TEMP/evidence" $KEYS \
+          python tests/tools/evidence.py refresh --stale --skip-db2 --crucible ../cics-crucible --work "$RUNNER_TEMP/evidence" $KEYS \
             | tee "$RUNNER_TEMP/refresh.txt"
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
@@ -222,7 +442,7 @@ jobs:
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && steps.refresh.outcome == 'success' && steps.ledger_sweep.outcome == 'success'
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && steps.refresh.outcome == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -230,7 +450,7 @@ jobs:
         run: gh pr merge "$PR" --repo "$REPO" --auto --squash
 
       - name: Fail when a re-proof failed
-        if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure'
+        if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof or the ledger's det sweep failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof, the ledger's det sweep or the Db2 job failed or could not run -- see the summary"
           exit 1

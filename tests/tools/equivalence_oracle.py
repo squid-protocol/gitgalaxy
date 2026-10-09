@@ -119,7 +119,12 @@ def image_for(case: dict[str, Any]) -> str:
 
 def for_case(case: dict[str, Any]) -> Optional[dict[str, Any]]:
     """What a proof report records under `oracle` for `case` (checked against the pin)."""
-    return checked(image_for(case))
+    fp = checked(image_for(case))
+    if fp is not None and case.get("db2"):  # #4733: a Db2 case's oracle is also the Db2 it ran SQL on
+        import equivalence_db2  # noqa: PLC0415
+
+        fp = {**fp, "db2": {"image": equivalence_db2.IMAGE, "pinned_by_digest": equivalence_db2.pinned_by_digest()}}
+    return fp
 
 
 def adopt_from(case: dict[str, Any], earlier: Path) -> None:

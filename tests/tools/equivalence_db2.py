@@ -53,7 +53,10 @@ import equivalence_common as common
 
 CONTAINER = "gitgalaxy-db2"
 NETWORK = "gitgalaxy-db2"
-IMAGE = "icr.io/db2_community/db2:latest"
+# #4733: pinned by digest, never a tag -- `:latest` moves under the proofs (the Db2 version, its code pages, its SQL
+# behaviour) and a Db2 case's verdict could change with no change of ours. Moving it is a deliberate change: see "The Db2
+# image is pinned" in docs/language_status/oracle_assumptions.md. tests/cobol_mainframe/test_db2_image_pin.py enforces it.
+IMAGE = "icr.io/db2_community/db2@sha256:2de8151713c261843868c5c3411b57be6ae79d99d70a5b3022337836776bfda6"
 COBOL_IMAGE = "gitgalaxy-gnucobol-db2:3"
 DATABASE0 = "GGDB"  # the container's own database: the pool's first
 DATABASE = DATABASE0  # this process's database (hold_lock picks it from the pool)
@@ -158,6 +161,11 @@ def _ensure_database(database: str) -> None:
         if database in listed():
             return
         ref = _db_cfg(DATABASE0)
+        for _ in range(60):  # #4733: a fresh container (CI) is still creating GGDB when the first pool cases start
+            if "Database code set" in ref:
+                break
+            time.sleep(10)
+            ref = _db_cfg(DATABASE0)
         out = _instance(f"db2 create database {database} using codeset {ref['Database code set']} territory "
                         f"{ref['Database territory']} collate using {ref['Database collating sequence']} "
                         f"pagesize {ref['Database page size']}")  # fmt: skip
@@ -168,24 +176,48 @@ def _ensure_database(database: str) -> None:
 def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
-    state = _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip()
-    if state == "true":
-        return
-    if not _docker("network", "ls", "-q", "-f", f"name=^{NETWORK}$").strip():
-        _docker("network", "create", NETWORK)
-    if state == "false":
-        _docker("start", CONTAINER)
-    else:
-        _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
-                "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
-                "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
-                "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
-                "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
-    for _ in range(120):  # first start: several minutes
-        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and _clp("VALUES 1", check=False)[0] == 0:
+    import fcntl
+
+    # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it
+    lock = Path.home() / ".cache" / "gitgalaxy-db2-start.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with lock.open("w") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        state = _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip()
+        if state in ("true", "false"):
+            _check_container_image()
+        if not _docker("network", "ls", "-q", "-f", f"name=^{NETWORK}$").strip():
+            _docker("network", "create", NETWORK)
+        if state == "false":
+            _docker("start", CONTAINER)
+        elif state != "true":
+            _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
+                    "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
+                    "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
+                    "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
+                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
+    for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
+        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
+            DATABASE0
+        ):
             return
         time.sleep(10)
     raise RuntimeError("Db2 did not come up")
+
+
+def pinned_by_digest(image: str = IMAGE) -> bool:
+    """#4733: the Db2 image is named by content digest (`name@sha256:<64 hex>`), not by a tag that can move."""
+    return re.fullmatch(r"[a-z0-9][a-z0-9./_-]*@sha256:[0-9a-f]{64}", image) is not None
+
+
+def _check_container_image() -> None:
+    """An existing container must have been made from the pinned image: one left from `:latest` of another day would
+    prove against a Db2 the pin does not name. Compared by image id, when the pinned image is on this host."""
+    want = _docker("image", "inspect", "-f", "{{.Id}}", IMAGE, check=False).strip()
+    have = _docker("inspect", "-f", "{{.Image}}", CONTAINER, check=False).strip()
+    if want.startswith("sha256:") and have.startswith("sha256:") and want != have:
+        raise RuntimeError(f"Db2: container {CONTAINER} was made from another image ({have[:19]}) than the pin "
+                           f"{IMAGE} ({want[:19]}); `docker rm -f {CONTAINER}` and run again (#4733)")  # fmt: skip
 
 
 def _clp(script: str, check: bool = True) -> tuple[int, str]:

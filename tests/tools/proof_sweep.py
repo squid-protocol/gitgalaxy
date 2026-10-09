@@ -17,6 +17,7 @@ and so does a proven case whose coverage the committed ledger tests/equivalence/
 tests/tools/det_coverage_ledger.py, #4270). Every det sweep also fails when a case's proof reached an outcome
 tests/equivalence/infeasible_outcomes.json states no input can reach (tests/tools/infeasible_outcomes.py, #4602).
 --skip-db2 leaves out the cases with a "db2" section (IBM's Db2 container is slow to start): CI's det-sweep workflow (#4463).
+--db2-only is the other half (#4733): only those cases, which the Db2 job of Evidence Refresh sweeps; `--aggregate --expect db2` expects them.
 """
 
 from __future__ import annotations
@@ -115,9 +116,13 @@ def shard_cases(
     return split_cases(cases, n, durations)[i - 1]
 
 
-def det_cases(skip_db2: bool = False) -> list[str]:
-    """Every case a det sweep proves."""
-    return sorted(p.parent.name for p in CASES.glob("*/case.json") if not (skip_db2 and is_db2(p.parent.name)))
+def det_cases(skip_db2: bool = False, only_db2: bool = False) -> list[str]:
+    """Every case a det sweep proves (only the Db2 cases with `only_db2`, #4733)."""
+    return sorted(
+        p.parent.name
+        for p in CASES.glob("*/case.json")
+        if not (skip_db2 and is_db2(p.parent.name)) and (not only_db2 or is_db2(p.parent.name))
+    )
 
 
 def merge_sweeps(dirs: list[Path]) -> dict[str, dict[str, dict]]:
@@ -228,6 +233,8 @@ def main() -> int:
     which.add_argument("--det-only", action="store_true")
     which.add_argument("--model-only", action="store_true")
     ap.add_argument("--skip-db2", action="store_true", help='leave out the cases with a "db2" section')
+    ap.add_argument("--db2-only", action="store_true",
+                    help="only the cases with a \"db2\" section (#4733: Evidence Refresh's Db2 job; the det-sweep workflow uses --skip-db2)")  # fmt: skip
     ap.add_argument("--shard", type=parse_shard, metavar="I/N", help="only the I-th of N balanced slices of the cases")
     ap.add_argument("--cases", help="only these cases (comma-separated; default all)")
     ap.add_argument("--no-ratchet", action="store_true",
@@ -240,18 +247,22 @@ def main() -> int:
         help="no sweep: merge these shards' sweep.json (directories or files) and apply the ratchet",
     )
     ap.add_argument("--expect", default="all", help="with --aggregate: the cases that must be in the merge: all "
-                    "(every det case bar Db2's, as --skip-db2) | none | NAME,NAME")  # fmt: skip
+                    "(every det case bar Db2's, as --skip-db2) | db2 (every Db2 case, as --db2-only) | none | NAME,NAME")  # fmt: skip
     ap.add_argument(
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )
     ap.add_argument("--update-durations", action="store_true",
                     help="after the sweep, record each det case's seconds in det_sweep_durations.json (what --shard balances by)")  # fmt: skip
     args = ap.parse_args()
+    if args.db2_only and args.skip_db2:
+        ap.error("--db2-only and --skip-db2 leave out each other's cases")
     if args.aggregate:
         results = merge_sweeps(args.aggregate)
         expect = (
             det_cases(skip_db2=True)
             if args.expect == "all"
+            else det_cases(only_db2=True)
+            if args.expect == "db2"
             else []
             if args.expect == "none"
             else args.expect.split(",")
@@ -265,7 +276,7 @@ def main() -> int:
     if only and (unknown := sorted(set(only) - known)):
         ap.error(f"--cases: no such case {', '.join(unknown)}")
     if args.shard:  # the slice of what this sweep would prove, balanced by what each case took last time
-        det_all = [c for c in det_cases(args.skip_db2) if only is None or c in only]
+        det_all = [c for c in det_cases(args.skip_db2, args.db2_only) if only is None or c in only]
         model_all = [p.parent.name for p in CASES.glob("*/port") if (only is None or p.parent.name in only)
                      and not (args.skip_db2 and is_db2(p.parent.name))]  # fmt: skip
         det_only = shard_cases(det_all, args.shard, load_durations())
@@ -274,6 +285,8 @@ def main() -> int:
         det_only, model_only = only, only
     results: dict[str, dict[str, dict]] = {}
     if not args.model_only:
+        if args.db2_only:  # whatever --cases says, only Db2 cases
+            det_only = [c for c in (det_only if det_only is not None else det_cases()) if is_db2(c)]
         results["det"] = det_sweep(args.work / "det", args.jobs, args.faults, args.skip_db2, det_only)
     if not args.det_only:
         (args.work / "model").mkdir(exist_ok=True)

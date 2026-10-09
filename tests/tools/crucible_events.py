@@ -56,9 +56,6 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "READ": (("file", "ridfld", "resp"), ()),
     "ABEND": (("abcode", "cause", "outcome"), ("condition", "exit")),
 }
-# Keys the crucible's main has (cics-crucible, #4270 X27) but no release yet: the pin's schema lacks them, so the table
-# check (tests/tools/test_crucible_case.py) leaves them out until the pin moves
-UNRELEASED: dict[str, tuple[str, ...]] = {"RETURN": ("immediate", "resp", "resp2")}
 ABEND_FOR = {
     "NOTFND": "AEIM",
     "LENGERR": "AEIV",

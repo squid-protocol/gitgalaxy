@@ -98,6 +98,22 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-09T05:10:28+00:00",
+    "crucible_ref": "v0.6.0 (b794aa8b)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "ae3837ff9418e65494c6885a9a8f17be45f52a24ae655b75bb35712741f78181",
+    "harness_commit": "76c7099d93db0d48757a6ad31c4b68f37e5be370",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXEXT --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

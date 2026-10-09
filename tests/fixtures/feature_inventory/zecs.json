@@ -1,0 +1,1726 @@
+{
+  "cics_commands": {
+    "ASKTIME": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "ASSIGN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "DELAY": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "DELETE": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT CREATE": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "ENQ": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "FORMATTIME": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FREEMAIN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GETMAIN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "HANDLE ABEND": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "INQUIRE": {
+      "count": 6,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE URIMAP": {
+      "count": 2,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "READ": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "RETRIEVE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 5,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "REWRITE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "SEND": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "START": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "SYNCPOINT": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB CLOSE": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB EXTRACT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB OPEN": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB READ": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB SEND": {
+      "count": 11,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB WRITE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE OPERATOR": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITEQ TD": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "XCTL": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "cics_options": {
+    "ASKTIME: ABSTIME": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "ASKTIME: NOHANDLE": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "ASSIGN: APPLID": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "DELAY: INTERVAL": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "DELAY: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "DELETE: FILE": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DELETE: GENERIC": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DELETE: KEYLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DELETE: NOHANDLE": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DELETE: RIDFLD": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT CREATE: DOCTOKEN": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT CREATE: NOHANDLE": {
+      "count": 6,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT CREATE: RESP": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "DOCUMENT CREATE: TEMPLATE": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: DATAONLY": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: DOCTOKEN": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: INTO": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: LENGTH": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: MAXLENGTH": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "DOCUMENT RETRIEVE: NOHANDLE": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "ENQ: LENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "ENQ: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "ENQ: NOSUSPEND": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "ENQ: RESOURCE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "ENQ: TASK": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "FORMATTIME: ABSTIME": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FORMATTIME: DATESEP": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FORMATTIME: NOHANDLE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FORMATTIME: TIME": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FORMATTIME: TIMESEP": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FORMATTIME: YYYYMMDD": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FREEMAIN: DATAPOINTER": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "FREEMAIN: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET: DCOUNTER": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET: INCREMENT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET: VALUE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GET: WRAP": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GETMAIN: FLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GETMAIN: INITIMG": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GETMAIN: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "GETMAIN: SET": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "HANDLE ABEND: LABEL": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "HANDLE ABEND: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "INQUIRE URIMAP: END": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE URIMAP: NOHANDLE": {
+      "count": 2,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE URIMAP: START": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE: NEXT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE: NOHANDLE": {
+      "count": 6,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE: PATH": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE: PROGRAM": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "INQUIRE: RESP": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "INQUIRE: STATUS": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "INQUIRE: TRANSACTION": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INQUIRE: URIMAP": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "LINK: COMMAREA": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "LINK: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "READ: FILE": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: GTEQ": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: INTO": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: LENGTH": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: NOHANDLE": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: RESP": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "READ: RIDFLD": {
+      "count": 12,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "READ: UPDATE": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "RECEIVE: LENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "RECEIVE: MAXLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "RECEIVE: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "RETRIEVE: INTO": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "RETRIEVE: LENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "RETRIEVE: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "REWRITE: FILE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "REWRITE: FROM": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "REWRITE: LENGTH": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "REWRITE: NOHANDLE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "SEND: ERASE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "SEND: FROM": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "SEND: LENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "SEND: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "START: FROM": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "START: INTERVAL": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS000.cbl"
+      ]
+    },
+    "START: LENGTH": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "START: NOHANDLE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "START: TRANSID": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "SYNCPOINT: NOHANDLE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB CLOSE: NOHANDLE": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CLOSE: SESSTOKEN": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: CLIENTCONV": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB CONVERSE: FROM": {
+      "count": 3,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB CONVERSE: FROMLENGTH": {
+      "count": 3,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB CONVERSE: INTO": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: MAXLENGTH": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: MEDIATYPE": {
+      "count": 6,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: METHOD": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: NOHANDLE": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: NOOUTCONVERT": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: PATH": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: PATHLENGTH": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: QUERYSTRING": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: QUERYSTRLEN": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: SESSTOKEN": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: STATUSCODE": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: STATUSLEN": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: STATUSTEXT": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB CONVERSE: TOLENGTH": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB EXTRACT: HOST": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: HOSTLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: HTTPMETHOD": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: HTTPVERSION": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: METHODLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: PATH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: PATHLENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: PORTNUMBER": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: QUERYSTRING": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: QUERYSTRLEN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: REQUESTTYPE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: SCHEME": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB EXTRACT: VERSIONLEN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB OPEN: HOST": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: HOSTLENGTH": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: NOHANDLE": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: PORTNUMBER": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: SCHEME": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: SESSTOKEN": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB OPEN: URIMAP": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "WEB PARSE: HOST": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: HOSTLENGTH": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: NOHANDLE": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: PORTNUMBER": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: SCHEMENAME": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: URL": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB PARSE: URLLENGTH": {
+      "count": 4,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB READ: HTTPHEADER": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB READ: NAMELENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB READ: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB READ: VALUE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB READ: VALUELENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: LENGTH": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: MAXLENGTH": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: MEDIATYPE": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: NOHANDLE": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: NOSRVCONVERT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: RESP": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: SET": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB RECEIVE: SRVCONVERT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB SEND: ACTION": {
+      "count": 9,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: DOCTOKEN": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB SEND: FROM": {
+      "count": 10,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: FROMLENGTH": {
+      "count": 10,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: MEDIATYPE": {
+      "count": 11,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: NOHANDLE": {
+      "count": 11,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: NOSRVCONVERT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB SEND: SRVCONVERT": {
+      "count": 10,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: STATUSCODE": {
+      "count": 11,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB SEND: STATUSLEN": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB SEND: STATUSTEXT": {
+      "count": 11,
+      "programs": [
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "WEB WRITE: HTTPHEADER": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB WRITE: NAMELENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB WRITE: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB WRITE: VALUE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WEB WRITE: VALUELENGTH": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE OPERATOR: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITE OPERATOR: TEXT": {
+      "count": 1,
+      "programs": [
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITE: FILE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE: FROM": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE: LENGTH": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE: NOHANDLE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE: RESP": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITE: RIDFLD": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "WRITEQ TD: FROM": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITEQ TD: LENGTH": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITEQ TD: NOHANDLE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "WRITEQ TD: QUEUE": {
+      "count": 3,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "XCTL: COMMAREA": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "XCTL: NOHANDLE": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "XCTL: PROGRAM": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 5,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 5,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 5,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 5,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 174,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "PACKED": {
+      "count": 24,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "intrinsic_functions": {
+    "UPPER-CASE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "ARITH": {
+      "count": 39,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "CALL": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "EVALUATE": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "EXIT": {
+      "count": 108,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "GOTO": {
+      "count": 4,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "IF": {
+      "count": 155,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "INSPECT": {
+      "count": 5,
+      "programs": [
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 292,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "NEXT-SENTENCE": {
+      "count": 3,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 194,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ]
+    },
+    "SET-BY": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "SET-TO": {
+      "count": 1,
+      "programs": [
+        "Source/ECS001.cbl"
+      ]
+    },
+    "STRING": {
+      "count": 3,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS003.cbl"
+      ]
+    },
+    "UNSTRING": {
+      "count": 7,
+      "programs": [
+        "Source/ECS001.cbl",
+        "Source/ZECS001.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    }
+  },
+  "unparsed_programs": []
+}

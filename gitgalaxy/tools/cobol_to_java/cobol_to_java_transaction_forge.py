@@ -2658,7 +2658,11 @@ def incoming_links(skeleton: dict) -> list[dict]:
 
 def is_cics_program(skeleton: dict) -> bool:
     """A program the engine saw CICS evidence for: an entry transaction, an EXEC CICS resource,
-    a COMMAREA contract, a container, or a LINK / XCTL reaching it."""
+    a COMMAREA contract, a container, or a LINK / XCTL reaching it -- or (#4270) a program nothing in the
+    estate starts or LINKs to that is still a CICS program: one that declares DFHCOMMAREA in its LINKAGE SECTION
+    (the name the CICS translator gives the COMMAREA it passes; CBSA's ACCTCTRL, called from outside the estate),
+    or one whose EXEC CICS handlers / ABENDs / SYNCPOINTs the engine extracted (cics-java-recgen's EDUPGM, LINKed
+    from Java). Without it such a program got a plain service and every EXEC CICS in it was a hole."""
     sections = skeleton.get("sections", {})
     interface = (sections.get("interface") or {}).get("facts") or {}
     return bool(
@@ -2667,6 +2671,11 @@ def is_cics_program(skeleton: dict) -> bool:
         or (sections.get("commarea_contracts") or {}).get("facts")
         or interface.get("containers")
         or incoming_links(skeleton)
+        or any(
+            r.get("level") == 1 and r.get("section") == "LINKAGE" and str(r.get("name") or "").upper() == "DFHCOMMAREA"
+            for r in (sections.get("records") or {}).get("facts") or []
+        )
+        or any(r.get("source") == "CICS" for r in (sections.get("uow_handlers") or {}).get("facts") or [])
     )
 
 

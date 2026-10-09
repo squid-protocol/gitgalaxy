@@ -263,6 +263,8 @@ def write_only_pointers(records: list, proc) -> set[str]:
                     continue
                 if s.kind == "SET-POINTER" and s.data["target"] == x.name.upper():
                     continue
+                if s.kind == "SET-NULL" and {r.name.upper() for r in s.data["targets"]} <= {x.name.upper()}:
+                    continue  # #4270: SET pointer TO NULL writes the pointer, never reads it
                 if s.kind == "INITIALIZE" and {r.name.upper() for r in s.data["refs"]} <= names - {x.name.upper()}:
                     continue
                 ok = False
@@ -763,7 +765,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         st = _storage_name(roots[id(rec)])
         for it in rec.walk():
             fid = gen.ids.get(id(it))
-            if fid is None or it.usage in ("POINTER", "INDEX") or id(it) in gen.lifted:
+            if fid is None or id(it) in gen.lifted:
+                continue
+            if it.usage == "INDEX":  # #4270: a POINTER has a Field over its bytes (SET ... TO NULL, SET p TO q)
                 continue
             try:
                 field_lines.append(f"        {fid} = {gen.factory(it, st, str(it.offset))};")

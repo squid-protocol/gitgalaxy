@@ -181,7 +181,7 @@ def tag_paragraph(body: list, conditions: set[str]) -> collections.Counter:
             tags[exec_tag(s.text)] += 1
         elif k == "SET-TRUE":
             tags["88-level"] += 1
-        elif k in ("SET-TO", "SET-BY"):
+        elif k in ("SET-TO", "SET-BY", "SET-NULL"):
             tags["record-move"] += 1
         elif k == "GOTO":
             tags["goto"] += 1

@@ -622,6 +622,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
+        _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
+        if not opts.get("VALUE"):
+            raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
+        return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
@@ -650,6 +657,26 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([f"MOVE {opts.get('LENGTH') or f'LENGTH OF {field}'} TO GG-NUM"]
                 + _call("GGCDEED", [f"BY REFERENCE {field}", f"BY VALUE LENGTH OF {field}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb == "INQUIRE" and "ASSOCIATION" in opts:  # #4415 slice 2 (X29): the task's own origin data
+        _check_spec("INQUIRE ASSOCIATION", opts, (verb,), lambda bad: ["INQUIRE ASSOCIATION"])
+        if not opts["ASSOCIATION"] or opts["ASSOCIATION"].strip().upper() != "EIBTASKN":
+            raise Unsupported(
+                f"INQUIRE ASSOCIATION({opts['ASSOCIATION']}): only the task's own number, EIBTASKN, is "
+                "modelled (IBM gives no representation for the 4 bytes)",
+                ["INQUIRE ASSOCIATION"],
+            )
+        wanted = [o for o in ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE") if opts.get(o)]
+        if not wanted:  # IBM's INVREQ RESP2 2 ("specified with no arguments") is ambiguous about ASSOCIATION alone
+            raise Unsupported(
+                "INQUIRE ASSOCIATION without an origin option: IBM's INVREQ RESP2 2 does not say whether "
+                "ASSOCIATION alone is none: not modelled",
+                ["INQUIRE ASSOCIATION"],
+            )
+        lines = []
+        for o in wanted:
+            lines += [f"MOVE '{o}' TO GG-FLAGS"] + _call("GGCINQA", [])
+            lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
+        return lines + _resp(opts, False, labels)
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"
         _check_spec(key, opts, (verb,), lambda bad: [key])
@@ -701,6 +728,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
                 + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
                 + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
+    if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
+        _check_spec("DELETEQ TS", opts, (verb,), lambda bad: [f"DELETEQ TS {bad[0]}"])
+        queue = opts.get("QUEUE") or opts.get("QNAME")
+        if not queue:
+            raise Unsupported(_rule("DELETEQ TS", "one_of", "QUEUE"), ["DELETEQ TS"])
+        return [f"MOVE {queue} TO GG-QNAME"] + _call("GGCDELQ", []) + _resp(opts, True, labels)
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
         return _ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:

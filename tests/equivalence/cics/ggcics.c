@@ -2190,6 +2190,65 @@ int GGCSETT(gg_cics *c) {
     return 0;
 }
 
+/* ---- #4415 slice 2: INQUIRE ASSOCIATION, DELETEQ TS (IBM CICS TS, INQUIRE ASSOCIATION, DELETEQ TS; register X29) ----
+ * INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID ODUSERID ODFACILNAME ODNETWORKID ODFACILTYPE: the task's own origin data, the
+ * five values the runner states in $GGCICS_ORIGIN as "applid,userid,facilname,networkid,faciltype" (the facility type
+ * one of IBM's CVDA names); unstated, refused. GG-FLAGS names the option wanted: the 8-character values come back in
+ * name1, ODFACILTYPE's CVDA in num. The task exists and no security is checked: neither TASKIDERR nor NOTAUTH. */
+int GGCINQA(gg_cics *c) {
+    static const struct { const char *name; int cvda; } types[] = {
+        {"APPC", 124}, {"ASRUNTRAN", 1209}, {"BRIDGE", 935}, {"EVENT", 334}, {"IIOP", 1097}, {"IPECI", 936},
+        {"IPIC", 1089}, {"JVMSERVER", 1193}, {"LU61", 125}, {"MRO", 938}, {"NODEJSAPP", 1215}, {"NONE", 496},
+        {"RRSUR", 939}, {"RZINSTOR", 940}, {"SCHEDULER", 941}, {"SOCKET", 942}, {"START", 635}, {"STARTTERM", 943},
+        {"TERMINAL", 213}, {"TRANDATA", 944}, {"WEB", 945}, {"XMRUNTRAN", 946}};
+    const char *env = getenv("GGCICS_ORIGIN");
+    char want[41], fields[5][64], buf[256];
+    int n = 0;
+    trim(c->flags, 40, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!env) refuse("INQUIRE ASSOCIATION: the origin data is not stated for this task");
+    snprintf(buf, sizeof buf, "%s", env);
+    for (char *tok = strtok(buf, ","); tok && n < 5; tok = strtok(NULL, ",")) snprintf(fields[n++], sizeof fields[0], "%s", tok);
+    if (n != 5) refuse("INQUIRE ASSOCIATION: $GGCICS_ORIGIN is not applid,userid,facilname,networkid,faciltype");
+    if (strcmp(want, "ODFACILTYPE") == 0) {
+        c->num = 0;
+        for (size_t i = 0; i < sizeof types / sizeof types[0]; i++)
+            if (strcmp(types[i].name, fields[4]) == 0) c->num = types[i].cvda;
+        if (!c->num) refuse("INQUIRE ASSOCIATION: $GGCICS_ORIGIN's facility type is not one of IBM's");
+        return 0;
+    }
+    int at = strcmp(want, "ODAPPLID") == 0 ? 0 : strcmp(want, "ODUSERID") == 0 ? 1
+           : strcmp(want, "ODFACILNAME") == 0 ? 2 : strcmp(want, "ODNETWORKID") == 0 ? 3 : -1;
+    if (at < 0) refuse("INQUIRE ASSOCIATION: an option that is not modelled");
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, fields[at], strlen(fields[at]) < 8 ? strlen(fields[at]) : 8);
+    return 0;
+}
+
+/* DELETEQ TS QUEUE (c->qname): the whole queue and its READQ NEXT position. QIDERR (44) when it does not exist; INVREQ
+ * (16) for a name of binary zeros only (IBM: "the queue name is all binary zeroes"); IBM lists no RESP2 (0). */
+int GGCDELQ(gg_cics *c) {
+    char dir[4096], hex[40], path[4200];
+    int last = -1, zeros = 1;
+    for (int i = 0; i < 16; i++) if (c->qname[i] != ' ') last = i;
+    for (int i = 0; i <= last; i++) if (c->qname[i] != '\0') zeros = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (last >= 0 && zeros) { c->resp = INVREQ; return 0; }
+    ts_dir(c, dir, sizeof dir, hex);
+    int count = ts_count(dir);
+    if (count < 0) { c->resp = QIDERR; return 0; }
+    for (int i = 1; i <= count; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/next", dir);
+    remove(path);
+    remove(dir);
+    return 0;
+}
+
 /* This task's own STARTs with a REQID, for a CANCEL in the same task. */
 static struct { char reqid[17]; time_t expires; int cancelled; int data; } own[64];
 static int nown = 0;
@@ -2546,6 +2605,36 @@ int GGCGCNT(gg_cics *c) {
     }
     snprintf(ev, sizeof ev, "GET-COUNTER pool=%s counter=%s resp=%d", pool, want, c->resp);
     event(ev, NULL, 0);
+    return 0;
+}
+
+/* QUERY COUNTER(qname) POOL(name1) VALUE (#4415 slice 2, register X29; IBM, EXEC CICS QUERY COUNTER): the named counter's
+ * current value in GG-NUM, unchanged; a counter not there is INVREQ RESP2 201 "Named counter not found". A value beyond
+ * a fullword (IBM's LENGERR) is refused. The counters are $GGCICS_DIR/counters.cfg, as GET COUNTER reads them. */
+int GGCQCNT(gg_cics *c) {
+    char want[17], pool[9], path[4096], line[256], p[64], n[64];
+    long v, got = 0;
+    int found = 0;
+    trim(c->qname, 16, want);
+    trim(c->name1, 8, pool);
+    if (!pool[0]) strcpy(pool, "-");
+    snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    while (f && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s %63s %ld", p, n, &v) != 3) continue;
+        if (!found && strcmp(p, pool) == 0 && strcmp(n, want) == 0) { found = 1; got = v; }
+    }
+    if (f) fclose(f);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!found) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else if (got < -2147483647L - 1 || got > 2147483647L) {
+        refuse("QUERY COUNTER of a value beyond a fullword");
+    } else {
+        c->num = (int)got;
+    }
     return 0;
 }
 

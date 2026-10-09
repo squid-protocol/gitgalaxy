@@ -86,12 +86,17 @@ def command_key(words: list[str], opts: dict) -> str:
     for form in _FORM_OPTION.get(verb, ()):
         if form in opts:
             return f"{verb} {form}"
-    if verb in ("WRITEQ", "READQ"):  # (a TD option after the verb is refused, never read as TS)
+    if verb in ("WRITEQ", "READQ", "DELETEQ"):  # (a TD option after the verb is refused, never read as TS)
         return f"{verb} TS"
     return verb
 
 
-_FORM_OPTION = {"RECEIVE": ("MAP",), "GET": ("COUNTER",), "INQUIRE": ("PROGRAM", "TERMINAL"), "SET": ("TERMINAL",)}
+_FORM_OPTION = {
+    "RECEIVE": ("MAP",),
+    "GET": ("COUNTER",),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION"),
+    "SET": ("TERMINAL",),
+}
 
 
 def check_options(words: list[str], opts: dict) -> None:
@@ -679,6 +684,14 @@ class Cics:
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v})", False),
                     f"{ind}}}",
                     *self.outcome(opts, f"({v} == null ? 13 : 0)", "0", ind)]  # fmt: skip
+        if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            return [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+                    f"{ind}if ({v}[0] == 0) {{",
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
+                    f"{ind}}}",
+                    *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
@@ -886,6 +899,8 @@ class Cics:
             return [f"{ind}int {r} = CicsTask.deeditResp({n});",
                     f"{ind}if ({r} == 0) DetCics.deedit({fld}, {n}, CS, REGION);",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if key == "INQUIRE ASSOCIATION":  # #4415 slice 2: the origin data of the task's own association (register X29)
+            return self.inquire_association(opts, ind)
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:
                 raise CicsError(f"{key} without UCTRANST")
@@ -911,8 +926,8 @@ class Cics:
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
-        if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ") and verb.startswith(("WRITEQ", "READQ")) \
-                and "TD" not in words:  # fmt: skip
+        if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ", "DELETEQ TS", "DELETEQ") \
+                and verb.startswith(("WRITEQ", "READQ", "DELETEQ")) and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
             # #4437: NORMAL -- the only outcome in this region (OPTIONS says why); EIBRESP / RESP / RESP2 written as
@@ -1134,6 +1149,36 @@ class Cics:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
         return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
 
+    def inquire_association(self, opts: dict, ind: str) -> list[str]:
+        """INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID (8 characters) and ODFACILTYPE (a
+        CVDA): the origin data of the task's own association data, as the run states it (CicsTask.withOrigin; unstated,
+        refused). IBM gives no representation for the task number, so only the task's own number, EIBTASKN, is read: any
+        other operand (a literal, a copy of it) is refused. A command with no origin option is refused: IBM's
+        INVREQ RESP2 2 ("The command was specified with no arguments") does not say whether ASSOCIATION alone is none."""
+        if re.fullmatch(r"(?is)\s*EIBTASKN\s*", _arg(opts.get("ASSOCIATION"))) is None:
+            raise CicsError(
+                f"INQUIRE ASSOCIATION({opts.get('ASSOCIATION')}): only the task's own number, EIBTASKN, is "
+                "modelled (IBM gives no representation for the 4 bytes)"
+            )
+        wanted = [o for o in ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE") if o in opts]
+        if not wanted:
+            raise CicsError(
+                "INQUIRE ASSOCIATION without an origin option: IBM's INVREQ RESP2 2 (\"The command was "
+                'specified with no arguments") does not say whether ASSOCIATION alone is none: not modelled'
+            )
+        r = self.g.tmpname("assoc")
+        out = [f"{ind}CicsTask.Origin {r} = task.inquireAssociation();"]
+        for k, acc in (("ODAPPLID", "applid"), ("ODUSERID", "userid"), ("ODFACILNAME", "facilname"),
+                       ("ODNETWORKID", "networkid")):  # fmt: skip
+            if k in opts:
+                out.append(f"{ind}DetCics.putText({self.field(_arg(opts[k]))}, {r}.{acc}(), CS);")
+        if "ODFACILTYPE" in opts:
+            out.append(
+                ind
+                + self.g.store_into(self.ref(_arg(opts["ODFACILTYPE"])), f"BigDecimal.valueOf({r}.faciltype())", False)
+            )
+        return out + self.outcome(opts, "0", "0", ind)
+
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
         region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
@@ -1146,6 +1191,8 @@ class Cics:
         r = g.tmpname("ts")
         out: list[str] = []
         self.region_used = True
+        if verb == "DELETEQ":  # #4415 slice 2 (X29): the whole queue; QIDERR for one that does not exist
+            return [f"{ind}int {r} = task.deleteqTs({queue});", *self.outcome(opts, r, "0", ind)]
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"

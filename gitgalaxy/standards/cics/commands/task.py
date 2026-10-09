@@ -80,6 +80,40 @@ GET_COUNTER = Command(
     state=("handle_table",),
 )
 
+# #4415 slice 2, register X29: QUERY COUNTER reads a named counter's value without changing it. IBM (EXEC CICS QUERY COUNTER
+# and QUERY DCOUNTER): INVREQ RESP2 201 "Named counter not found", LENGERR (RESP2 1-3) for a value beyond a fullword
+# (refused by name: the region's counters are fullwords); MINIMUM / MAXIMUM (the counter's limits are not stated by the
+# run) and NOSUSPEND (BUSY needs a coupling facility) are refused
+QUERY_COUNTER = Command(
+    key="QUERY COUNTER",
+    ibm=ibm("EXEC CICS QUERY COUNTER and QUERY DCOUNTER", "summary-query-counter-query-dcounter"),
+    status="modelled",
+    register="X29",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "VALUE": Arg("area_out", width=4),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal("only the counter's value is modelled (the region states no limits)", "X29"),
+    groups=(required("VALUE", msg="QUERY COUNTER without VALUE"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        Outcome("INVREQ", 201, "Named counter not found"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a counter value beyond a fullword: IBM's LENGERR (RESP2 1-3) returns the low-order 32 bits, not modelled",
+            "X29",
+            java="QUERY COUNTER of a value beyond a fullword",
+            c="QUERY COUNTER of a value beyond a fullword",
+        ),
+    ),
+    state=("handle_table",),
+)
+
 ASKTIME = Command(
     key="ASKTIME",
     ibm=ibm("EXEC CICS ASKTIME", "summary-asktime"),
@@ -239,11 +273,59 @@ SET_TERMINAL = Command(
     state=("terminal", "handle_table"),
 )
 
+# #4415 slice 2, register X29: INQUIRE ASSOCIATION, the origin data of the task's own association data (CBSA BNK1CRA). IBM
+# (CICS SPI command INQUIRE ASSOCIATION) lists TASKIDERR RESP2 1 (the task is not found), NOTAUTH RESP2 100 and INVREQ
+# RESP2 2 ("The command was specified with no arguments": a command with no origin option is refused, the sentence does
+# not say whether ASSOCIATION alone is "no arguments"). Only the task's own number (EIBTASKN) is modelled: the task
+# exists, no security is checked, and a task number the region does not state is refused. The five origin values are
+# facts whoever runs the task states: IBM's pages do not say what a terminal-started task's origin holds
+_OD_AREA = Arg("area_out", width=8)
+_ORIGIN_OPTIONS = ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE")
+INQUIRE_ASSOCIATION = Command(
+    key="INQUIRE ASSOCIATION",
+    ibm=ibm("CICS SPI command INQUIRE ASSOCIATION", "commands-inquire-association"),
+    status="modelled",
+    register="X29",
+    options={
+        "ASSOCIATION": Arg("value"),  # EIBTASKN only (Cics.command): IBM gives no representation for the 4 bytes
+        "ODAPPLID": _OD_AREA,
+        "ODUSERID": _OD_AREA,
+        "ODFACILNAME": _OD_AREA,
+        "ODNETWORKID": _OD_AREA,
+        "ODFACILTYPE": Arg("area_out", width=4, binary=True),  # a CVDA (DFHVALUE name numbers: det/cvda.py)
+        **RESP_OPTIONS,
+    },
+    default_refusal=Refusal(
+        "only the origin data of the association is modelled (no corpus program asks for more)", "X29"
+    ),
+    groups=(required("ASSOCIATION", msg="INQUIRE ASSOCIATION without ASSOCIATION"),),
+    outcomes=(Outcome("NORMAL", 0, "", writes=_ORIGIN_OPTIONS),),
+    facts=(
+        Fact(
+            "origin",
+            java="withOrigin",
+            env="GGCICS_ORIGIN",
+            region_default=None,
+            options=_ORIGIN_OPTIONS,
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the task's origin data is not stated for the task",
+            "X29",
+            java="the task's origin data is not stated (withOrigin)",
+            c="INQUIRE ASSOCIATION: the origin data is not stated for this task",
+        ),
+    ),
+    state=("handle_table",),
+)
+
 COMMANDS = (
     ENQ,
     DEQ,
     DELAY,
     GET_COUNTER,
+    QUERY_COUNTER,
     ASKTIME,
     FORMATTIME,
     INQUIRE_PROGRAM,
@@ -252,4 +334,5 @@ COMMANDS = (
     BIF_DEEDIT,
     INQUIRE_TERMINAL,
     SET_TERMINAL,
+    INQUIRE_ASSOCIATION,
 )

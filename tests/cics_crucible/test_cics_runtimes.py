@@ -1782,6 +1782,128 @@ def test_cics_task_uctranst_and_deedit_as_the_stub_does(tmp_path):
                                 "unstated", "22 0", "[16, 1][0, 0]"]  # fmt: skip
 
 
+_X29_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDELQ(gg_cics *c);
+int GGCINQA(gg_cics *c);
+int GGCQCNT(gg_cics *c);
+static gg_cics c;
+int main(int argc, char **argv) {
+    memset(c.qname, ' ', 16);
+    memset(c.name1, ' ', 8);
+    memset(c.flags, ' ', 40);
+    if (strcmp(argv[1], "delq") == 0) {
+        memcpy(c.qname, argv[2], strlen(argv[2]));
+        GGCDELQ(&c);
+        printf("%d/%d\n", c.resp, c.resp2);
+    } else if (strcmp(argv[1], "zeros") == 0) {
+        memset(c.qname, 0, 8);
+        GGCDELQ(&c);
+        printf("%d/%d\n", c.resp, c.resp2);
+    } else if (strcmp(argv[1], "inqa") == 0) {
+        memcpy(c.flags, argv[2], strlen(argv[2]));
+        GGCINQA(&c);
+        if (strcmp(argv[2], "ODFACILTYPE") == 0) printf("%d/%d/%d\n", c.resp, c.resp2, c.num);
+        else printf("%d/%d/[%.8s]\n", c.resp, c.resp2, c.name1);
+    } else {
+        memcpy(c.qname, argv[2], strlen(argv[2]));
+        if (argc > 3) memcpy(c.name1, argv[3], strlen(argv[3]));
+        GGCQCNT(&c);
+        printf("%d/%d/%d\n", c.resp, c.resp2, c.num);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_deleteq_ts_inquire_association_and_query_counter(tmp_path):
+    """#4415 slice 2 (register X29), IBM EXEC CICS DELETEQ TS / INQUIRE ASSOCIATION / QUERY COUNTER: DELETEQ TS removes
+    the whole queue (QIDERR RESP 44 when it is not there, INVREQ for a name of binary zeros, RESP2 0); INQUIRE
+    ASSOCIATION answers the five origin values the runner states (the facility type as its CVDA), refused unstated;
+    QUERY COUNTER answers a counter's value and leaves it, INVREQ RESP2 201 for one that is not there, a value beyond a
+    fullword refused."""
+    exe = _stub(tmp_path, _X29_MAIN)
+    ts = tmp_path / "tsroot"
+    hexname = "5131"  # "Q1"
+    (ts / hexname).mkdir(parents=True)
+    (ts / hexname / "000001.bin").write_bytes(b"\xc1")
+    (ts / hexname / "000002.bin").write_bytes(b"\xc2")
+    (ts / hexname / "next").write_text("1\n", encoding="ascii")
+
+    def run(env, *args, check=True):
+        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path), **env}
+        return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
+
+    with_ts = {"GGCICS_TS": str(ts)}
+    assert run(with_ts, "delq", "Q1").stdout.strip() == "0/0"
+    assert not (ts / hexname).exists()  # (the items and the NEXT position went with it)
+    assert run(with_ts, "delq", "Q1").stdout.strip() == "44/0"  # QIDERR
+    assert run(with_ts, "zeros").stdout.strip() == "16/0"  # INVREQ: "the queue name is all binary zeroes"
+    origin = {"GGCICS_ORIGIN": "GTCICS01,CICSUSER,T001,GTNET,TERMINAL"}
+    for want, out in (("ODAPPLID", "0/0/[GTCICS01]"), ("ODUSERID", "0/0/[CICSUSER]"), ("ODFACILNAME", "0/0/[T001    ]"),
+                      ("ODNETWORKID", "0/0/[GTNET   ]"), ("ODFACILTYPE", "0/0/213")):  # fmt: skip
+        assert run(origin, "inqa", want).stdout.strip() == out, want
+    unstated = run({}, "inqa", "ODAPPLID", check=False)
+    assert unstated.returncode == 98 and "origin data is not stated" in unstated.stdout
+    bad = run({"GGCICS_ORIGIN": "A,B,C,D,NOSUCH"}, "inqa", "ODFACILTYPE", check=False)
+    assert bad.returncode == 98 and "facility type" in bad.stdout
+    (tmp_path / "counters.cfg").write_text("GENAPOOL GENACNT 41\n- PLAIN 7\nBIG BIGCNT 4294967296\n", encoding="ascii")
+    assert run({}, "qcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/41"
+    assert run({}, "qcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/41"  # (unchanged: not a GET)
+    assert run({}, "qcnt", "PLAIN").stdout.strip() == "0/0/7"
+    assert run({}, "qcnt", "NOPE", "GENAPOOL").stdout.strip() == "16/201/0"
+    big = run({}, "qcnt", "BIGCNT", "BIG", check=False)
+    assert big.returncode == 98 and "beyond a fullword" in big.stdout
+
+
+@needs_javac
+def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_does(tmp_path):
+    """#4415 slice 2: CicsTask answers as the stub does (above): DELETEQ TS the whole queue and its NEXT position, QIDERR /
+    INVREQ; INQUIRE ASSOCIATION the stated origin (8 characters, the facility type's CVDA), refused unstated; QUERY COUNTER
+    the value unchanged, INVREQ RESP2 201, a value beyond a fullword refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.TempStorage ts = new CicsTask.TempStorage().seed("Q1", java.util.List.of(new byte[] {1}, new byte[] {2}));
+        CicsTask t = new CicsTask("HC41", "ENTER", null, null).withTempStorage(ts)
+                .withCounters(new java.util.HashMap<>(java.util.Map.of("GENAPOOL/GENACNT", 41L, "/PLAIN", 7L,
+                        "BIG/BIGCNT", 4294967296L)));
+        t.readqTsNext("Q1", 8);
+        System.out.println(t.deleteqTs("Q1") + " " + t.readqTs("Q1", 1, 8).resp() + " " + t.deleteqTs("Q1"));
+        System.out.println(t.deleteqTs(new String(new char[] {0, 0, 0})));
+        t.withOrigin("GTCICS01", "CICSUSER", "T001", "GTNET", "TERMINAL");
+        CicsTask.Origin o = t.inquireAssociation();
+        System.out.println("[" + o.applid() + "][" + o.userid() + "][" + o.facilname() + "][" + o.networkid() + "] "
+                + o.faciltype());
+        try {
+            new CicsTask("HC41", "ENTER", null, null).inquireAssociation();
+        } catch (IllegalStateException e) {
+            System.out.println("unstated");
+        }
+        try {
+            t.withOrigin("A", "B", "C", "D", "NOSUCH");
+        } catch (IllegalArgumentException e) {
+            System.out.println("bad type");
+        }
+        System.out.println(java.util.Arrays.toString(t.queryCounter("GENAPOOL", "GENACNT"))
+                + java.util.Arrays.toString(t.queryCounter("GENAPOOL", "GENACNT"))
+                + java.util.Arrays.toString(t.queryCounter("", "PLAIN"))
+                + java.util.Arrays.toString(t.queryCounter("GENAPOOL", "NOPE")));
+        try {
+            t.queryCounter("BIG", "BIGCNT");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("refused");
+        }""",
+    )
+    assert out.splitlines() == ["0 QIDERR 44", "16", "[GTCICS01][CICSUSER][T001    ][GTNET   ] 213", "unstated",
+                                "bad type", "[0, 0, 41][0, 0, 41][0, 0, 7][16, 201, 0]", "refused"]  # fmt: skip
+
+
 def test_scheduler_states_each_tasks_startcode():
     """#4270 slice 3: a terminal step's task is STARTCODE TD; a START-triggered one S / SD by its requests' FROM, a
     group that mixes them none (refused)."""

@@ -78,7 +78,8 @@ Logs = Callable[[int], str]
 def job_log(job_id: int) -> str:
     """A job's full log (`gh api .../actions/jobs/ID/logs`), or a note when it can't be fetched."""
     path = f"repos/{REPO_SLUG}/actions/jobs/{job_id}/logs"
-    res = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=False)  # noqa: S603, S607
+    # gh refuses to print a log holding ANSI escapes unless told; clean() strips them
+    res = subprocess.run(["gh", "api", "--allow-escape-sequences", path], capture_output=True, text=True, check=False)  # noqa: S603, S607
     return res.stdout if res.returncode == 0 else f"(log unavailable: {res.stderr.strip()[:200]})"
 
 

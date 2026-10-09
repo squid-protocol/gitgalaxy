@@ -106,6 +106,18 @@ def test_update_records_the_commit_measured_at(monkeypatch):
     assert built[CASE]["measured_at"] == "feedface"
 
 
+def test_update_is_idempotent_when_nothing_moved(monkeypatch):
+    # The evidence-refresh bot's merge triggers the next refresh: restamping measured_at on unchanged entries made the
+    # ledger change on every run, so it never settled and every open PR touching it went dirty.
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    monkeypatch.setattr(dcl, "_head", lambda: "feedface")
+    first = dcl.build({CASE: {"proved": True, "coverage": LINE}}, {})
+    monkeypatch.setattr(dcl, "_head", lambda: "c0ffee")
+    assert dcl.build({CASE: {"proved": True, "coverage": LINE}}, first) == first
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "harness": "new"})
+    assert dcl.build({CASE: {"proved": True, "coverage": LINE}}, first)[CASE]["measured_at"] == "c0ffee"
+
+
 def test_a_component_the_case_does_not_use_does_not_stale_the_entry():
     """#4731: harness / oracle fingerprints differ, but every component the case uses is as it was: current. One it uses
     changing, or an entry with no components (written before them), keeps the whole-input meaning."""

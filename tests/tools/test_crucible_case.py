@@ -71,6 +71,16 @@ def test_expected_and_write_case(tmp_path):
     assert json.loads((tmp_path / "expected" / "s.json").read_text())["final"] == {"ts_queues": {"Q": ["A"]}}
 
 
+def test_return_immediate_events_and_the_immediate_trigger():
+    """#4270 (X27): RETURN's optional `immediate`; a failed RETURN IMMEDIATE carries resp / resp2 and no area of its own;
+    the `immediate` trigger names the RETURN."""
+    ok = ev.return_("A", transid="PC52", commarea=None, immediate=True)
+    assert ok["immediate"] is True and ok["commarea"] is None and "resp" not in ok
+    failed = ev.return_("A", level=2, transid="PC52", immediate=True, resp="INVREQ", resp2=2)
+    assert "commarea" not in failed and "caller_commarea" not in failed and failed["resp2"] == 2
+    assert ev.immediate(1, 2) == {"kind": "immediate", "task": 1, "event": 2}
+
+
 def test_events_table_matches_the_crucible_schema():
     crucible = _crucible()
     if crucible is None:
@@ -83,7 +93,10 @@ def test_events_table_matches_the_crucible_schema():
             {k for k in req if k not in ("event", "program")},
             {k for k in props if k not in req and k != "note"},
         )
-    assert table == {k: (set(r), set(o)) for k, (r, o) in ev.EVENTS.items()}
+    # (keys the crucible's main has and no release yet are left out until the pinned schema has them)
+    mine = {k: (set(r), set(o) - {x for x in ev.UNRELEASED.get(k, ()) if x not in table.get(k, ((), ()))[1]})
+            for k, (r, o) in ev.EVENTS.items()}  # fmt: skip
+    assert table == mine
 
 
 def test_every_committed_event_round_trips():

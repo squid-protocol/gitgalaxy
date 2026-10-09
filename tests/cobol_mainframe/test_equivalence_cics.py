@@ -1299,3 +1299,16 @@ def test_each_linked_sql_program_gets_the_next_free_ids_within_four_digits():
     )
     assert ec.sql_first_id(table) == 200
     assert ec.sql_first_id("S 199 EXEC 0 0 - P 1\n") == 200
+
+
+def test_return_immediate_and_link_synconreturn_in_the_stub():
+    """#4270 (X27), IBM EXEC CICS RETURN / LINK: RETURN TRANSID IMMEDIATE -> GGCRETI, and since it can fail (INVREQ, LENGERR)
+    the program goes on when GG-RESP is not 0; without TRANSID refused. SYNCONRETURN is "ignored if the link is local":
+    the LINK's lines are the same without it."""
+    out = ec.translate_command("RETURN TRANSID('PC52') COMMAREA(WS-CA) LENGTH(8) IMMEDIATE RESP(R)")
+    assert "CALL 'GGCRETI' USING GG-CICS" in out and "CALL 'GGCRETN' USING GG-CICS" not in out
+    assert out[out.index("IF GG-RESP = 0") + 1].strip() == "GOBACK" and "MOVE 1 TO GG-ITEM" in out
+    assert "MOVE GG-RESP TO R" in out
+    with pytest.raises(ec.Unsupported, match="IMMEDIATE without TRANSID"):
+        ec.translate_command("RETURN IMMEDIATE")
+    assert ec.translate_command("LINK PROGRAM('P') SYNCONRETURN") == ec.translate_command("LINK PROGRAM('P')")

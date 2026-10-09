@@ -343,14 +343,12 @@ class _KeyCics(_RbaCics):
 @pytest.mark.parametrize(
     "text",
     [
-        "RETURN IMMEDIATE",  # 9 programs: IMMEDIATE ignored
-        "RETURN TRANSID('T1') IMMEDIATE",
+        "RETURN IMMEDIATE",  # #4270 (X27): IMMEDIATE without TRANSID: IBM does not say what it attaches
         "READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ TOKEN(R)",  # #4270: GTEQ honoured, TOKEN still refused
         "STARTBR FILE('KSDS') RIDFLD(KEY) GENERIC KEYLENGTH(6)",
         "STARTBR FILE('KSDS') RIDFLD(KEY) REQID(2)",
         "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) REQID(2)",
         "ENDBR FILE('KSDS') REQID(2)",
-        "LINK PROGRAM('P') COMMAREA(REC) SYNCONRETURN",  # 10 programs, one repo
         "LINK PROGRAM('P') COMMAREA(REC) DATALENGTH(KEY)",
         "ASSIGN OPID(REC)",
         "ASSIGN NETNAME(REC) APPLID(REC)",
@@ -2303,3 +2301,18 @@ def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros
     assert r.stats["holes"] == []
     assert '_WS_A, "0000000000", CS) == 0' in r.java and '_WS_A, "0", CS) == 0' in r.java
     assert '"007"' not in r.java  # a numeric item against it: by value, as before
+
+
+def test_return_immediate_and_link_synconreturn():
+    """#4270 (X27), IBM EXEC CICS RETURN / LINK: RETURN TRANSID IMMEDIATE attaches the task at once with the COMMAREA, and
+    can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11: the program then goes on, so RESP is read); without TRANSID IBM does
+    not say what it attaches, refused. SYNCONRETURN is "ignored if the link is local" (every LINK here is): the
+    translation is the same as without it."""
+    out = _ChanCics().command("RETURN TRANSID('PC52') IMMEDIATE RESP(R) RESP2(R2)", "")
+    assert out == ["int[] rr1 = task.returnImmediate('PC52'.strip(), null, null);",
+                   "if (rr1[0] == 0) { caBack.run(); throw new Goback(); }",
+                   "OUTCOME(rr1[0], rr1[1]);"]  # fmt: skip
+    with pytest.raises(C.CicsError, match="not modelled"):
+        _ChanCics().command("RETURN IMMEDIATE", "")
+    plain = _ChanCics().command("LINK PROGRAM('P') RESP(R)", "")
+    assert _ChanCics().command("LINK PROGRAM('P') SYNCONRETURN RESP(R)", "") == plain

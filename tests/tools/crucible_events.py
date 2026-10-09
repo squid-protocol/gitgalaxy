@@ -43,7 +43,7 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "RECEIVE": (("resp", "length", "data"), ()),
     "LINK": (("target", "length", "commarea", "resp"), ("resp2",)),
     "XCTL": (("target", "length", "commarea", "resp"), ("resp2",)),
-    "RETURN": (("level",), ("transid", "commarea", "caller_commarea")),
+    "RETURN": (("level",), ("transid", "commarea", "caller_commarea", "immediate", "resp", "resp2")),  # #4270 (X27)
     "START": (
         ("transid", "termid", "from", "protect", "resp", "expires"),
         ("interval", "time", "reqid", "rtransid", "rtermid", "queue", "resp2"),
@@ -56,6 +56,9 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "READ": (("file", "ridfld", "resp"), ()),
     "ABEND": (("abcode", "cause", "outcome"), ("condition", "exit")),
 }
+# Keys the crucible's main has (cics-crucible, #4270 X27) but no release yet: the pin's schema lacks them, so the table
+# check (tests/tools/test_crucible_case.py) leaves them out until the pin moves
+UNRELEASED: dict[str, tuple[str, ...]] = {"RETURN": ("immediate", "resp", "resp2")}
 ABEND_FOR = {
     "NOTFND": "AEIM",
     "LENGERR": "AEIV",
@@ -159,6 +162,8 @@ def return_(program: str, level: int = 1, transid: str | None = None, commarea: 
             **kw: Any) -> dict[str, Any]:  # fmt: skip
     """RETURN. At level 1 `transid` / `commarea` are always written (null when none); a LINKed program's RETURN
     (level > 1) carries `caller_commarea` instead."""
+    if "resp" in kw:  # #4270 (X27): a RETURN IMMEDIATE that failed went on in the program: no area of its own
+        return event("RETURN", program, level=level, transid=transid, **kw)
     if level == 1:
         return event("RETURN", program, level=1, transid=transid, commarea=commarea, **kw)
     return event("RETURN", program, level=level, **kw)
@@ -219,6 +224,11 @@ def started(task: int, event_index: int) -> dict[str, Any]:
 
 def run_child(task: int, event_index: int) -> dict[str, Any]:
     return {"kind": "run", "task": task, "event": event_index}
+
+
+def immediate(task: int, event_index: int) -> dict[str, Any]:
+    """#4270 (X27): a task a RETURN IMMEDIATE (event `event_index` of task `task`) attached at once."""
+    return {"kind": "immediate", "task": task, "event": event_index}
 
 
 def task(seq: int, transid: str, program: str, at: str, trigger: dict[str, Any], events: list[dict[str, Any]],

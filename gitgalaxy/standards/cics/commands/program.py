@@ -27,7 +27,8 @@ _TRANSFER_OUTCOMES = (
 )
 
 
-def _transfer(key: str, **kw) -> Command:
+def _transfer(key: str, extra: dict[str, Arg] | None = None, **kw) -> Command:
+    extra = extra or {}
     msg = _ONE_OR_THE_OTHER.format(key)
     return Command(
         key=key,
@@ -39,6 +40,7 @@ def _transfer(key: str, **kw) -> Command:
             "LENGTH": Arg("value"),
             "CHANNEL": Arg("name", width=16),
             **RESP_OPTIONS,
+            **extra,
         },
         groups=(at_most_one("CHANNEL", "COMMAREA", msg=msg), at_most_one("CHANNEL", "LENGTH", msg=msg)),
         outcomes=_TRANSFER_OUTCOMES,
@@ -48,21 +50,37 @@ def _transfer(key: str, **kw) -> Command:
     )
 
 
-LINK = _transfer("LINK", refused={"SYSID": SYSID_REMOTE})
+# #4270 (X27): SYNCONRETURN "is only applicable to remote links, it is ignored if the link is local" (IBM, EXEC CICS
+# LINK); every program of the modelled region is local, so it is accepted and changes nothing
+LINK = _transfer("LINK", extra={"SYNCONRETURN": Arg("flag")}, refused={"SYSID": SYSID_REMOTE}, register="X27")
 XCTL = _transfer("XCTL")
 
 RETURN = Command(
     key="RETURN",
     ibm=ibm("EXEC CICS RETURN", "summary-return"),
     status="modelled",
+    register="X27",
     # control never comes back from a RETURN, so a RESP area it does not write is never read after it
-    options={"TRANSID": Arg("name", width=4), "COMMAREA": Arg("area_in"), "LENGTH": Arg("value"), **RESP_OPTIONS},
+    # #4270 (X27): IMMEDIATE attaches TRANSID's task at once, ahead of any terminal input (IBM, EXEC CICS RETURN); with
+    # it the command can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11), so RESP is read after it
+    options={
+        "TRANSID": Arg("name", width=4),
+        "COMMAREA": Arg("area_in"),
+        "LENGTH": Arg("value"),
+        "IMMEDIATE": Arg("flag"),
+        **RESP_OPTIONS,
+    },
     refused={
         "CHANNEL": Refusal(
             "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)", whole=True
         ),
     },
-    outcomes=(Outcome("NORMAL", 0, "control returns to CICS or the linking program"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "control returns to CICS or the linking program"),
+        Outcome("INVREQ", 1, "the task is not associated with a terminal", raised_by=("IMMEDIATE",)),
+        Outcome("INVREQ", 2, "IMMEDIATE below the highest logical level", raised_by=("IMMEDIATE",)),
+        Outcome("LENGERR", 11, "the COMMAREA length is below 0 or past 32763", raised_by=("IMMEDIATE",)),
+    ),
     state=("channel_scope",),
     engine=EngineFacts(channel_option="TRANSID"),
 )

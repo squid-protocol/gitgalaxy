@@ -402,6 +402,11 @@ Only generator output, never a test case:
   in the region's page (`DetCics.deedit`, `GGCDEED`); UCTRANST is a stated fact (`withUctranst`, `$GGCICS_UCTRANST`).
   Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. Left for
   slice 2: FORMATTIME YYDDD / DATE / MILLISECONDS, DELETEQ TS, DUMP, QUERY; INQUIRE of other resources stays refused.
+- #4270 slice: `EXEC CICS RETURN ... IMMEDIATE` (9 CBSA programs) and `LINK ... SYNCONRETURN` (10). IMMEDIATE attaches
+  TRANSID's task at once with the COMMAREA, ahead of the terminal's next input (`CicsTask.returnImmediate`, `GGCRETI`; the
+  runner's `immediate` trigger); it can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11) and the program then goes on.
+  SYNCONRETURN "is ignored if the link is local" (IBM), so it is accepted and does nothing. Register X27; proven through
+  cics-crucible pc-return-immediate (4) on the cobol-stub side and the det port.
 - #4463: four det ports stopped proving on 2026-10-04 and no CI ran the det sweep. carddemo-menu: a #4049 scenario
   sent option 99, which COMEN01C still uses as a subscript of its 12-entry table, 4K past the record (X8: the det
   port stops; the case now sends 12). mortgage-cmort / mlist / nbrvl: #4245 read every program of EPSCSMRD's

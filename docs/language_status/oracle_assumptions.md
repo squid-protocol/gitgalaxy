@@ -106,6 +106,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X24 | CICS | A task started with a channel (a scenario's `channel`: what a RUN TRANSID CHANNEL parent or a LINK CHANNEL caller passed), made its first program's current channel; the containers left on that channel compared at the task's end (dropped on an abend), byte for byte; RUN TRANSID children not run | ASSUMED | yes (async credit-card CRDTCHK, CSSTATS2, CSSTATUS, GETADDR, GETNAME) |
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
 | X26 | CICS | BIF DEEDIT FIELD [LENGTH] edited in place in the region's EBCDIC page (CCSID 037); INQUIRE / SET TERMINAL UCTRANST as the CVDAs UCTRAN 450 / NOUCTRAN 451 / TRANIDONLY 452, the terminal's value stated by the run (the case TYPETERM's UCTRAN), a terminal RECEIVE after a SET refused; DFHVALUE(name) in the stub's programs is IBM's CVDA number; a DEEDIT field with no digit left, beyond 7-bit ASCII or past LENGTH, and the UCTRANST of a terminal other than the task's, refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-deedit-uctranst, unreleased) |
+| X27 | CICS | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | yes (cics-crucible pc-return-immediate, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -1227,6 +1228,38 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **DFHVALUE(name)** in a program the stub runs is replaced by IBM's CVDA number (det/cvda.py, generated from the API
   Reference's table); a name that is no CVDA is refused by name. The det port already took it in expressions.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-deedit-uctranst (3) on
+  the cobol-stub side and the det port.
+
+### X27. RETURN ... IMMEDIATE, LINK ... SYNCONRETURN — ASSUMED, REFUSED where IBM is silent (#4270 slice)
+- **RETURN IMMEDIATE** (CICS TS 6.x, EXEC CICS RETURN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return).
+  IMMEDIATE "ensures that the transaction specified in the TRANSID option is attached as the next transaction regardless
+  of any other transactions enqueued by ATI for this terminal. The next transaction starts immediately and appears to the
+  operator as having been started by terminal data." COMMAREA: "The communication area specified is passed to the next
+  program that runs at the terminal." So the runtime ends the task, the next task is TRANSID's, at the same virtual time,
+  with the COMMAREA, and the terminal's next operator step is not used up by it (`CicsTask.returnImmediate`, `GGCRETI`,
+  the runner's `immediate` trigger). Conditions: INVREQ RESP2 1 "A RETURN command with the TRANSID option is issued in a
+  program that is not associated with a terminal"; INVREQ RESP2 2 "A RETURN command with the CHANNEL, COMMAREA, or
+  IMMEDIATE option is issued by a program that is not at the highest logical level"; LENGERR RESP2 11 "The COMMAREA
+  length is less than 0 or greater than 32763". The command then returns to the program (RESP/RESP2, else the condition's
+  default action). The task's terminal is a stated fact (`CicsTask.withTermid`, `$GGCICS_FACILITY`); unstated in the stub,
+  refused. The INVREQ and LENGERR checks are made for IMMEDIATE only: the plain RETURN TRANSID still never returns to the
+  program here (no corpus program tests its RESP).
+- **Assumed.** The immediate task's STARTCODE is `TD` ("started by terminal data"; the runner states it, ASSIGN STARTCODE
+  would read it). Nothing else about it is claimed: IBM does not say what EIBAID holds, or what an unformatted terminal
+  RECEIVE returns ("terminal data" that was never typed), so the crucible runner gives the task no EIBAID and no input,
+  the log's `eibaid` is null, and the case reads neither.
+- **Refused by name.** RETURN IMMEDIATE without TRANSID (IBM does not say what it attaches); a task with no terminal
+  below level 1 (IBM lists INVREQ RESP2 1 and 2 and no precedence); an unstated terminal in the stub.
+  RETURN CHANNEL stays refused (register: no corpus program uses it). IBM does not say how an immediate task orders
+  against an expired START request of another transaction; the runner runs it first, and a case never makes the order
+  observable.
+- **LINK SYNCONRETURN** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-link): "Specifies that the server region
+  named on the SYSID option is to take a sync point on successful completion of the server program", and "SYNCONRETURN is
+  only applicable to remote links, it is ignored if the link is local." Every program of the modelled region is local (SYSID
+  is refused by name), so the option is accepted and changes nothing: the linked program is not given a unit of work of its
+  own, a SYNCPOINT or ROLLBACK in it is the caller's. The remote-only conditions (INVREQ RESP2 14, ROLLEDBACK RESP2 29,
+  SYSIDERR, TERMERR) cannot occur.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible pc-return-immediate (4) on
   the cobol-stub side and the det port.
 
 ## Language Environment

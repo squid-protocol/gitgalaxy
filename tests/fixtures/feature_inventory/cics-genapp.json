@@ -1,0 +1,1929 @@
+{
+  "cics_commands": {
+    "ABEND": {
+      "count": 24,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "ASKTIME": {
+      "count": 22,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "ASSIGN": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "DEFINE": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETE": {
+      "count": 38,
+      "programs": [
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETEQ TS": {
+      "count": 6,
+      "programs": [
+        "base/src/lgsetup.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "DEQ": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "ENQ": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "FORMATTIME": {
+      "count": 22,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "GET": {
+      "count": 4,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "HANDLE AID": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "HANDLE CONDITION": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 95,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "QUERY": {
+      "count": 36,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READ": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READQ TS": {
+      "count": 7,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 13,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 84,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "REWRITE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "SEND": {
+      "count": 43,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND TEXT": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "START": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK": {
+      "count": 10,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "WRITE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITEQ TD": {
+      "count": 1,
+      "programs": [
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "WRITEQ TS": {
+      "count": 17,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "cics_options": {
+    "ABEND: ABCODE": {
+      "count": 24,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "ABEND: NODUMP": {
+      "count": 24,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "ASKTIME: ABSTIME": {
+      "count": 22,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "ASSIGN: APPLID": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "ASSIGN: INVOKINGPROG": {
+      "count": 3,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "ASSIGN: RESP": {
+      "count": 8,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "ASSIGN: STARTCODE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl"
+      ]
+    },
+    "ASSIGN: SYSID": {
+      "count": 3,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "DEFINE: COUNTER": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DEFINE: POOL": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DEFINE: RESP": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DEFINE: VALUE": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETE: COUNTER": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETE: FILE": {
+      "count": 1,
+      "programs": [
+        "base/src/lgdpvs01.cbl"
+      ]
+    },
+    "DELETE: KEYLENGTH": {
+      "count": 1,
+      "programs": [
+        "base/src/lgdpvs01.cbl"
+      ]
+    },
+    "DELETE: POOL": {
+      "count": 37,
+      "programs": [
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETE: RESP": {
+      "count": 38,
+      "programs": [
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgsetup.cbl"
+      ]
+    },
+    "DELETE: RIDFLD": {
+      "count": 1,
+      "programs": [
+        "base/src/lgdpvs01.cbl"
+      ]
+    },
+    "DELETEQ TS: QUEUE": {
+      "count": 6,
+      "programs": [
+        "base/src/lgsetup.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "DELETEQ TS: RESP": {
+      "count": 6,
+      "programs": [
+        "base/src/lgsetup.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "DEQ: LENGTH": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "DEQ: RESOURCE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "ENQ: LENGTH": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "ENQ: RESOURCE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "FORMATTIME: ABSTIME": {
+      "count": 22,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "FORMATTIME: DDMMYYYY": {
+      "count": 1,
+      "programs": [
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "FORMATTIME: MMDDYYYY": {
+      "count": 21,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "FORMATTIME: TIME": {
+      "count": 22,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "GET: CONTAINER": {
+      "count": 2,
+      "programs": [
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "GET: COUNTER": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "GET: INTO": {
+      "count": 2,
+      "programs": [
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "GET: POOL": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "GET: RESP": {
+      "count": 4,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "GET: VALUE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl"
+      ]
+    },
+    "HANDLE AID: CLEAR": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "HANDLE AID: PF3": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "HANDLE CONDITION: MAPFAIL": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "LINK: COMMAREA": {
+      "count": 95,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "LINK: LENGTH": {
+      "count": 95,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 95,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "QUERY: COUNTER": {
+      "count": 36,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "QUERY: POOL": {
+      "count": 36,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "QUERY: RESP": {
+      "count": 36,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "QUERY: VALUE": {
+      "count": 36,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READ: FILE": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: GENERIC": {
+      "count": 1,
+      "programs": [
+        "base/src/lgipvs01.cbl"
+      ]
+    },
+    "READ: GTEQ": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl"
+      ]
+    },
+    "READ: INTO": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: KEYLENGTH": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: LENGTH": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: RESP": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: RIDFLD": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READ: UPDATE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "READQ TS: INTO": {
+      "count": 7,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READQ TS: ITEM": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READQ TS: LENGTH": {
+      "count": 3,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READQ TS: NEXT": {
+      "count": 2,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "READQ TS: QUEUE": {
+      "count": 7,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "READQ TS: RESP": {
+      "count": 7,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "RECEIVE: ASIS": {
+      "count": 2,
+      "programs": [
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 13,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "RECEIVE: LENGTH": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "RECEIVE: MAP": {
+      "count": 9,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "RECEIVE: MAPSET": {
+      "count": 9,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "RECEIVE: RESP": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "RETURN: COMMAREA": {
+      "count": 10,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "RETURN: TRANSID": {
+      "count": 10,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "REWRITE: FILE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "REWRITE: FROM": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "REWRITE: LENGTH": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "REWRITE: RESP": {
+      "count": 2,
+      "programs": [
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "SEND TEXT: ERASE": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND TEXT: FREEKB": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND TEXT: FROM": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND TEXT: LENGTH": {
+      "count": 9,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND TEXT: WAIT": {
+      "count": 4,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "SEND: CURSOR": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND: ERASE": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND: FROM": {
+      "count": 34,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND: MAP": {
+      "count": 43,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND: MAPONLY": {
+      "count": 5,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "SEND: MAPSET": {
+      "count": 43,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl"
+      ]
+    },
+    "START: AFTER": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "START: MINUTES": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "START: RESP": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "START: TRANSID": {
+      "count": 1,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "WRITE: FILE": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITE: FROM": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITE: KEYLENGTH": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITE: LENGTH": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITE: RESP": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITE: RIDFLD": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl"
+      ]
+    },
+    "WRITEQ TD: FROM": {
+      "count": 1,
+      "programs": [
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "WRITEQ TD: LENGTH": {
+      "count": 1,
+      "programs": [
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "WRITEQ TD: QUEUE": {
+      "count": 1,
+      "programs": [
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "WRITEQ TD: RESP": {
+      "count": 1,
+      "programs": [
+        "base/src/lgstsq.cbl"
+      ]
+    },
+    "WRITEQ TS: FROM": {
+      "count": 17,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "WRITEQ TS: ITEM": {
+      "count": 1,
+      "programs": [
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "WRITEQ TS: LENGTH": {
+      "count": 17,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "WRITEQ TS: NOSUSPEND": {
+      "count": 10,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "WRITEQ TS: QUEUE": {
+      "count": 17,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "WRITEQ TS: RESP": {
+      "count": 17,
+      "programs": [
+        "base/src/lgastat1.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "WRITEQ TS: REWRITE": {
+      "count": 1,
+      "programs": [
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 31,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 31,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 31,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 31,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 763,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "COMP-5": {
+      "count": 32,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "EDITED": {
+      "count": 39,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "intrinsic_functions": {
+    "INTEGER": {
+      "count": 1,
+      "programs": [
+        "base/src/lgicvs01.cbl"
+      ]
+    },
+    "RANDOM": {
+      "count": 1,
+      "programs": [
+        "base/src/lgicvs01.cbl"
+      ]
+    },
+    "UPPER-CASE": {
+      "count": 4,
+      "programs": [
+        "base/src/lgdpol01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "CLOSE": {
+      "count": 3,
+      "programs": [
+        "base/src/lgipdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "DELETE": {
+      "count": 1,
+      "programs": [
+        "base/src/lgdpdb01.cbl"
+      ]
+    },
+    "FETCH": {
+      "count": 3,
+      "programs": [
+        "base/src/lgipdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "INSERT": {
+      "count": 9,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgapdb01.cbl"
+      ]
+    },
+    "OPEN": {
+      "count": 3,
+      "programs": [
+        "base/src/lgipdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "SELECT": {
+      "count": 8,
+      "programs": [
+        "base/src/lgapdb01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "SET": {
+      "count": 2,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgapdb01.cbl"
+      ]
+    },
+    "STATIC": {
+      "count": 34,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "UPDATE": {
+      "count": 5,
+      "programs": [
+        "base/src/lgucdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "ARITH": {
+      "count": 40,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgupol01.cbl"
+      ]
+    },
+    "COMPUTE": {
+      "count": 50,
+      "programs": [
+        "base/src/lgicvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "EVALUATE": {
+      "count": 21,
+      "programs": [
+        "base/src/lgacdb02.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ]
+    },
+    "EXIT": {
+      "count": 78,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "GOBACK": {
+      "count": 10,
+      "programs": [
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "GOTO": {
+      "count": 79,
+      "programs": [
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucus01.cbl"
+      ]
+    },
+    "IF": {
+      "count": 188,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "INITIALIZE": {
+      "count": 70,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "INSPECT": {
+      "count": 2,
+      "programs": [
+        "base/src/lgtestc1.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 1114,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 114,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "SET-POINTER": {
+      "count": 15,
+      "programs": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl"
+      ]
+    },
+    "STRING": {
+      "count": 25,
+      "programs": [
+        "base/src/lgwebst5.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "unparsed_programs": []
+}

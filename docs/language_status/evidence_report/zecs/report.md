@@ -14,6 +14,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **Stale levels (`L3*`).** A level marked `*` is the program's LAST MEASURED level, shown because the measurement it rests on was made against an earlier harness or oracle: the det-sweep coverage ledger entry's input fingerprints no longer match the tree on a scheduled input (harness, oracle). It means "measured against the previous harness, not yet re-checked", not "regressed"; the program table names `stale since <commit>` (the commit the level was last measured at) and the changed inputs, and the scheduled re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared differences or options) is not shown as stale: the level drops, as the old measurement no longer describes it. A stale level is never a current one: the summary counts them apart, and the release gate (`evidence_report.py --check --live`) fails while any program's level is stale.
 
+**Options.** A result holds under the compile and runtime options it was produced with, so each program lists the options that change results (TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE ...) as the resolver (`gitgalaxy/core/estate_options.py`) applies them: IBM defaults, overridden by the estate's compile PARM, overridden by the program's own CBL / PROCESS cards. Each value says where it came from: `found at <file>:<line>` in the corpus, or `assumed: IBM default` / `assumed: owner decision` / `assumed: not stated in the corpus`. A **declared option difference** is an option the estate uses that the proof does not run under (for example TRUNC(OPT) run as TRUNC(STD)): the level holds under the applied option, not the declared one. The estate-level table gives the compiler product and version, the PARM defaults, and how many values were found versus assumed.
+
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
@@ -50,6 +52,31 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - translated whole: 0; refused whole: 0; holes left: 71
 - with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
 
+## Options the estate compiles and runs under
+
+From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus, 16 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 0 found, 30 assumed; programs with a declared option difference: 0.
+
+| item | value | provenance | source |
+|---|---|---|---|
+| compiler | product: Enterprise COBOL | found | System Requirements and Considerations.md:12 |
+| compiler | version: 4.2 | found | System Requirements and Considerations.md:12 |
+| installation default | ARITH(COMPAT) | assumed | assumed: IBM default |
+| installation default | CODEPAGE(1140) | assumed | assumed: IBM default |
+| installation default | DISPSIGN(COMPAT) | assumed | assumed: IBM default |
+| installation default | INTDATE(ANSI) | assumed | assumed: IBM default |
+| installation default | NOSSRANGE | assumed | assumed: IBM default |
+| installation default | NSYMBOL(NATIONAL) | assumed | assumed: IBM default |
+| installation default | NUMPROC(NOPFD) | assumed | assumed: IBM default |
+| installation default | OPTIMIZE(0) | assumed | assumed: IBM default |
+| installation default | TRUNC(STD) | assumed | assumed: IBM default |
+| PARM | CICS | assumed | assumed: owner decision |
+
+| runtime section | found | assumed |
+|---|---|---|
+| LE | 0 | 3 |
+| DB2 | 0 | 1 |
+| CICS | 1 | 2 |
+
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
@@ -70,6 +97,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -101,6 +129,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -160,6 +189,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: INQUIRE PROGRAM STATUS: option not modelled
   - hole: HOLE SET ADDRESS OF (pointers)
   - hole: HOLE dynamic CALL
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -215,6 +245,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -246,6 +277,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled
   - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -256,12 +288,12 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | (unlisted) INQUIRE URIMAP | no spec entry | none | no |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | START | full | gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
-  | WRITE OPERATOR | name-only | none | no |
+  | WRITE OPERATOR | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 4 holes; ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: (unlisted) INQUIRE, (unlisted) INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 holes; ASSUMED / DIFFERS entries named: X18, X27, X32; commands without oracle backing: (unlisted) INQUIRE, (unlisted) INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -277,6 +309,7 @@ From the spec entries of the commands the programs use, with the register's stat
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
 | X22 | CICS | ASSUMED (REFUSED where IBM is silent or the layout decides) | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
+| X32 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused |
 
 ## Reproducibility
 

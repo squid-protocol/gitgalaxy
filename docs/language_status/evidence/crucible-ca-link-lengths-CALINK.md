@@ -8,7 +8,7 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-09T11:25:00Z, harness `49de92389f5b7dd726e187d63605a312edda98a9+uncommitted` |
+| proof | proven at 2026-10-09T12:31:39Z, harness `80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted` |
 | inputs digest | `d02283a247bee82891bfcb1dc34a5b5b2f646e369ae507bd1551d40a22bab6b2` |
 | port | 2 files `17689244a21afff2` |
 | case | 0 files `e3b0c44298fc1c14` |

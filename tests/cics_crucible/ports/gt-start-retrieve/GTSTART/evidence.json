@@ -96,7 +96,7 @@
   "digest": "933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023"
  },
  "proof": {
-  "at": "2026-10-09T11:27:14Z",
+  "at": "2026-10-09T12:32:31Z",
   "verdict": "proven",
   "runs": 6,
   "fault_runs": 0,
@@ -134,7 +134,7 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "49de92389f5b7dd726e187d63605a312edda98a9+uncommitted",
+  "harness_commit": "80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted",
   "inputs_digest": "933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023"
  },
  "coverage": {

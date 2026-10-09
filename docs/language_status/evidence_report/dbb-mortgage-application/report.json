@@ -17,6 +17,12 @@
    "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
    "id": "X27",
    "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+   "id": "X31",
+   "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
   }
  ],
  "bars": {
@@ -533,6 +539,127 @@
    "what": "the switch-over plan: parallel run, fallback, data freeze"
   }
  ],
+ "options": {
+  "compiler": {
+   "product": {
+    "applied_value": null,
+    "option": "product",
+    "provenance": "found",
+    "source": "Migration/jclToZBuilder/samples/BLDMORT.jcl:22",
+    "value": "Enterprise COBOL"
+   },
+   "version": {
+    "applied_value": null,
+    "option": "version",
+    "provenance": "found",
+    "source": "Migration/jclToZBuilder/samples/BLDMORT.jcl:29",
+    "value": "6.1"
+   }
+  },
+  "counts": {
+   "assumed": 20,
+   "found": 9
+  },
+  "estate_file": "tests/equivalence/estate_options/dbb-mortgage-application.json",
+  "installation_defaults": [
+   {
+    "applied_value": null,
+    "option": "ARITH",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "CODEPAGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "1140"
+   },
+   {
+    "applied_value": null,
+    "option": "DISPSIGN",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "INTDATE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "ANSI"
+   },
+   {
+    "applied_value": null,
+    "option": "NOSSRANGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "NSYMBOL",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NATIONAL"
+   },
+   {
+    "applied_value": null,
+    "option": "NUMPROC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NOPFD"
+   },
+   {
+    "applied_value": null,
+    "option": "OPTIMIZE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "0"
+   },
+   {
+    "applied_value": null,
+    "option": "TRUNC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "STD"
+   },
+   {
+    "applied_value": null,
+    "option": "ZONEDATA",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "PFD"
+   }
+  ],
+  "parm_default": [],
+  "parm_programs": [
+   "EPSCMORT",
+   "EPSCSMRD",
+   "EPSCSMRT",
+   "EPSMLIST",
+   "EPSMPMT",
+   "EPSNBRVL"
+  ],
+  "programs_assumed": 36,
+  "programs_found": 0,
+  "programs_with_deviation": 0,
+  "sections": {
+   "cics": {
+    "assumed": 1,
+    "found": 1
+   },
+   "db2": {
+    "assumed": 6,
+    "found": 1
+   },
+   "le": {
+    "assumed": 3,
+    "found": 0
+   }
+  }
+ },
  "oracle": {
   "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -556,6 +683,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -572,7 +705,7 @@
      "covered": 15,
      "total": 21
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -582,8 +715,11 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -614,13 +750,68 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
     "paragraph coverage >= 100.0 (now 50.0)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -674,7 +865,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -804,7 +997,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -897,7 +1092,8 @@
    "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": 6,
     "commands": 5,
@@ -908,8 +1104,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -931,6 +1130,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -1018,6 +1223,61 @@
    "next": [
     "paragraph coverage >= 100.0 (now 83.3)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -1188,7 +1448,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1203,7 +1465,8 @@
    "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": 1,
     "commands": 6,
@@ -1290,6 +1553,61 @@
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured: no fresh det-sweep ledger entry and no local sweep)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [],
    "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
    "residual": {
@@ -1366,6 +1684,61 @@
    "next": [
     "translated whole (20 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -1667,6 +2040,61 @@
    "next": [
     "translated whole (1 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [],
    "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
    "residual": {
@@ -1760,6 +2188,61 @@
    "next": [
     "translated whole (2 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [],
    "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
    "residual": {
@@ -1835,13 +2318,13 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 0,
+   "L2": 1,
    "L3": 0,
    "L4": 0,
    "L5": 0
   },
   "holes": 23,
-  "levels_stale": 0,
+  "levels_stale": 1,
   "programs": 6,
   "records_current": 0,
   "refused_whole": 0,

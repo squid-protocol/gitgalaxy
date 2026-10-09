@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.6.0 (b794aa8b)",
+ "crucible_ref": "v0.7.0 (aaf84bcd)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -595,6 +595,58 @@
     }
    }
   },
+  "gt-urimap-browse/GTUBROW": {
+   "live": 2,
+   "outcomes": 6,
+   "scenarios": {
+    "browse": {
+     "units": [
+      "CHECK-ONE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "119:false",
+      "119:true",
+      "122:false",
+      "122:true",
+      "125:false",
+      "125:true"
+     ]
+    },
+    "browse-twice": {
+     "units": [
+      "CHECK-ONE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "119:false",
+      "119:true",
+      "122:false",
+      "122:true",
+      "125:false",
+      "125:true"
+     ]
+    }
+   }
+  },
+  "gt-urimap-browse/GTUNEXT": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "browse": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    },
+    "browse-twice": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-abend-link/HCMAIN": {
    "live": 4,
    "outcomes": 4,
@@ -934,6 +986,123 @@
      ],
      "outcomes": [
       "26:OTHER"
+     ]
+    }
+   }
+  },
+  "hc-inquire-deleteq/HCINQD": {
+   "live": 7,
+   "outcomes": 6,
+   "scenarios": {
+    "origin": {
+     "units": [
+      "ASSOC-PARA",
+      "LOG-I",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "60:false",
+      "66:WHEN@67"
+     ]
+    },
+    "deleteq": {
+     "units": [
+      "DELETEQ-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "60:false",
+      "66:WHEN@69"
+     ]
+    },
+    "receive-terminal": {
+     "units": [
+      "MAIN-PARA",
+      "RECEIVE-PARA",
+      "SHOW-PARA"
+     ],
+     "outcomes": [
+      "60:false",
+      "60:true",
+      "66:WHEN@71"
+     ]
+    }
+   }
+  },
+  "hc-map-not-in-mapset/HCMAB": {
+   "live": 2,
+   "outcomes": 5,
+   "scenarios": {
+    "in-mapset": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@36"
+     ]
+    },
+    "omitted-mapset": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@40"
+     ]
+    },
+    "receive": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@49"
+     ]
+    },
+    "exit": {
+     "units": [
+      "MAIN-PARA",
+      "MAP-ABEND"
+     ],
+     "outcomes": [
+      "35:WHEN@43"
+     ]
+    }
+   }
+  },
+  "hc-named-counters/HCCNTR": {
+   "live": 6,
+   "outcomes": 7,
+   "scenarios": {
+    "lifecycle": {
+     "units": [
+      "LIFE-PARA",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "49:WHEN@50",
+      "184:false",
+      "184:true",
+      "194:false",
+      "194:true"
+     ]
+    },
+    "names": {
+     "units": [
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "NAMES-PARA"
+     ],
+     "outcomes": [
+      "49:WHEN@52",
+      "184:false",
+      "184:true",
+      "194:false",
+      "194:true"
      ]
     }
    }

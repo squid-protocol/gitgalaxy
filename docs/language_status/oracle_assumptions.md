@@ -93,6 +93,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
 | C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
+| C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -648,6 +649,35 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   which IBM calls a size error and the oracle (and so the port) computes as 0.
 - **Reached.** Not known to be: no proven scenario divides by zero or raises a size error from an exponent.
 - **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR.
+
+### C15. CALL identifier — the program is the item's content: MODELLED over the names the source fixes, REFUSED otherwise (#4736)
+- **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, CALL statement,
+  https://www.ibm.com/docs/en/cobol-zos/6.4.0?topic=statements-call-statement, read 2026-10-09): identifier-1 "must be
+  an alphanumeric, alphabetic, or numeric data item described with USAGE DISPLAY"; "literal-1 or the contents of
+  identifier-1 must specify the program-name of the called subprogram"; "the rules of formation for program-names are
+  dependent on the PGMNAME compiler option". An exception condition occurs "when the called subprogram cannot be made
+  available": ON EXCEPTION (ON OVERFLOW, the same) runs its imperative statement, and NOT ON EXCEPTION is ignored when
+  no ON EXCEPTION is written. The page does not say what ends the run unit without the phrase, whether the name's
+  case or trailing blanks matter, or what a name longer than eight characters does (the PROGRAM-ID rules and the
+  PGMNAME option decide).
+- **The port** (`det/dyncall.py`, `Gen.dynamic_call`). The names the item can hold when the CALL runs are found from
+  the source: (1) a MOVE of a literal, or of an item whose bytes VALUE clauses fix and nothing writes (through a
+  REDEFINES table too: DBB EPSCSMRT's `MOVE CALLED-PROGRAM-NAME(1) TO WS-CALLED-PROGRAM`, subscripts literal),
+  earlier in the CALL's paragraph on its own path with nothing between that may write the item; else (2) an item with
+  a VALUE clause whose every write in the program is such a MOVE: its VALUE and each MOVEd value. One name is one
+  call; several are a switch on the item's content (trailing blanks trimmed) with a case per name. Each name is
+  checked: an estate service with a CALL entry or a library routine (CEEDAYS, COBDATFT, CEE3ABD), uppercase, at most
+  8 characters (PGMNAME(COMPAT)); else the statement is refused by that name. Refused by name too: an item with no
+  VALUE, a write the analysis cannot read (a READ INTO, a STRING, a group MOVE, an alias through REDEFINES, the item
+  in a CALL's USING list, a MOVE from COMMAREA data, a computed subscript), a blank name, and ON EXCEPTION /
+  OVERFLOW phrases. A name no estate program answers to (EPSCSMRT's `'NOT VLD'` entry, never moved) is refused only
+  when it can reach the CALL, never for sitting in a table.
+- **Not modelled.** What the run unit does when a dynamic CALL finds no program (IBM: not stated on the page above; the
+  oracle: a run-time error). The port never reaches that case: every name it can reach is a known program.
+  CANCEL is refused by the translator already (an unmodelled verb), so a callee's state is the run unit's.
+- **Reached.** Yes: `tests/cobol_mainframe/test_det_dynamic_call_4736.py` runs each shape under GnuCOBOL (callees as
+  modules) and as the port (callees' services written by hand) and compares the output. DBB EPSCSMRT translates whole;
+  its callee EPSMPMT stays refused (a COMP-1 item, C6), so no equivalence case of EPSCSMRT is possible yet.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
@@ -1492,9 +1522,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   cursor runs (Q8).
 
 ### Q5. DSNTIAC / DSNTIAR — REFUSED
-- **What.** IBM's message formatter is not modelled. COTRTLIC's call to it, on the Db2-error path, is its one
-  untranslated statement.
-- **Reached.** No scenario reaches it.
+- **What.** Db2's message formatters (DSNTIAR formats an SQLCA into message text in a caller's buffer; DSNTIAC is its CICS
+  interface; IBM Db2 for z/OS Application Programming and SQL Guide, paraphrased and not re-fetched for this entry) are not modelled: the text is Db2's message catalogue, which IBM documents by message number but
+  not byte for byte, and the oracle (ggsql.c / equivalence_sql.py, Db2 for Linux) has no routine that produces
+  z/OS's text. The port refuses both by name, whether the program writes `CALL 'DSNTIAC'` or calls it through a data
+  item (COTRTLIC's `CALL LIT-DSNTIAC`, #4736): "DSNTIAC: Db2's message text is not modelled".
+- **Reached.** No scenario reaches it. COTRTLIC's call, on the Db2-error path, is its one untranslated statement.
 
 ### Q6. Date text and DDL from z/OS jobs — ASSUMED
 - **Date text.** A DATE column read into a character host variable comes back as `YYYY-MM-DD` on both sides: Db2's
@@ -1563,7 +1596,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   the statement only; -911's unit-of-work rollback is not used. Nothing else changes: no row, no host variable, a
   cursor where it was.
 - **Not judged.** A fault task that LINKs to a program the case does not run is judged up to that LINK (X6). One whose
-  path reaches a det port's named hole (COTRTLIC's dynamic CALL) is recorded "not judged" and left out of the proof
+  path reaches a det port's named hole (COTRTLIC's CALL DSNTIAC) is recorded "not judged" and left out of the proof
   and of the coverage figure. A port without DetSql (a model port) cannot take a planned SQL fault: such a task is
   recorded "not judged" (no SQL fault hook), never run unfaulted.
 - **Effect.** Coverage of the 17 Db2 cases before and after is in the #4173 PR, e.g. GenApp LGACDB01 6/14 → 8/14

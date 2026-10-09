@@ -2141,6 +2141,44 @@ def test_dynamic_targets_from_tables_values_and_moves(menu_scanned):
     assert calls["gaps"]["dynamic target"] == 0 and calls["resolved"] >= 2
 
 
+# ---- #4736: a CALL through an item MOVEd from an element of a VALUE table (DBB epscsmrt) -----------------------
+TABLE_CALL_PGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TBLCALL.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CALLED          PIC X(8).
+       01  STATIC-PROGRAMS.
+           03 STATIC-TABLE.
+              05 FILLER       PIC X(8) VALUE 'PGMAAA'.
+              05 FILLER       PIC X(8) VALUE 'NOT VLD'.
+              05 FILLER       PIC X(8) VALUE ' '.
+           03 PROGRAM-TABLE REDEFINES STATIC-TABLE OCCURS 3 TIMES.
+              05 PROGRAM-NAME PIC X(8).
+       PROCEDURE DIVISION.
+           MOVE PROGRAM-NAME(1) TO WS-CALLED.
+           CALL WS-CALLED.
+           GOBACK.
+"""
+
+
+def test_a_call_through_an_item_moved_from_a_value_table_names_the_tables_programs(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_tblcall")
+    repo = base / "tbl"
+    for rel, text in {"cbl/TBLCALL.cbl": TABLE_CALL_PGM, "cbl/PGMAAA.cbl": STUB.format("PGMAAA")}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    (site,) = [d for d in ir.dynamic_call_targets() if d["verb"] == "CALL"]
+    # the table's non-blank entries; the one that is no program here stays a candidate without a file
+    assert [(c["program"], c["via"], bool(c["resolves_to"])) for c in site["candidates"]] == [
+        ("NOT VLD", "table", False),
+        ("PGMAAA", "table", True),
+    ]
+    assert site["other_sources"] == []
+
+
 # ---- #3494: remote programs and function shipping ------------------------------
 DPL_CSD = """\
  DEFINE PROGRAM(BIZPGM) GROUP(TORGRP)

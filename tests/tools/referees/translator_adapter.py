@@ -449,6 +449,8 @@ def program_facts(
                     elif s.kind == "GOTO":
                         for t in s.data["targets"]:
                             f["edges"].add(F.edge_value(uname, "GO_TO", t))
+                    elif s.kind == "CALL" and s.data.get("dynamic") is not None:  # #4736: CALL identifier
+                        f["calls"].add(F.call_value("CALL", "identifier", s.data["dynamic"].name))
                     elif s.kind == "CALL":
                         f["calls"].add(F.call_value("CALL", "literal", s.data["program"]))
                     elif s.kind == "HOLE" and s.data.get("why") == "dynamic CALL":

@@ -800,10 +800,13 @@ def _goto(p: E.Parser, text: str, line: int) -> Stmt:
 
 
 def _call(p: E.Parser, text: str, line: int) -> Stmt:
-    tok = p.take()
-    if tok[:1] not in "'\"":
-        return Stmt("HOLE", line, text, {"why": "dynamic CALL"})
-    prog = E._unquote(tok).upper()
+    dynamic = None
+    if (p.peek() or " ")[:1] in "'\"":
+        prog = E._unquote(p.take()).upper()
+    else:
+        # #4736: CALL identifier -- the program is the identifier's content; gen resolves what it can hold
+        dynamic = p.ref()
+        prog = None
     args: list[tuple[str, Any]] = []
     mode = "REFERENCE"
     if p.accept("USING"):
@@ -820,7 +823,7 @@ def _call(p: E.Parser, text: str, line: int) -> Stmt:
                 continue
             args.append((mode, p.operand()))
     returning = p.ref() if p.accept("RETURNING") else None
-    return Stmt("CALL", line, text, {"program": prog, "args": args, "returning": returning})
+    return Stmt("CALL", line, text, {"program": prog, "args": args, "returning": returning, "dynamic": dynamic})
 
 
 def _simple(kind: str):

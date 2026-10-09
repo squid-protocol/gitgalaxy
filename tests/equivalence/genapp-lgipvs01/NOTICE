@@ -1,0 +1,10 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgipvs01.cbl, is GenApp's,
+used unmodified from the corpus.
+
+ksdspoly.txt is the genapp-lgupdb01 case's (see its NOTICE). The scenarios in
+case.json are written for this case.

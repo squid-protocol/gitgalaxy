@@ -1,0 +1,12 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgtestc1.cbl, the
+programs it runs in the same task (base/src/lgicus01.cbl, base/src/lgicdb01.cbl, base/src/lgacus01.cbl, base/src/lgacdb01.cbl, base/src/lgacvs01.cbl, base/src/lgacdb02.cbl, base/src/lgucus01.cbl, base/src/lgucdb01.cbl, base/src/lgucvs01.cbl, base/src/lgstsq.cbl),
+their copybooks, the BMS mapset (base/src/ssmap.bms) and the Db2 DDL and rows
+(base/cntl/db2cre.jcl) are GenApp's, used unmodified from the corpus.
+
+ksdscust.txt is the genapp-lgacus01 case's (see its NOTICE). The scenarios in
+case.json are written for this case.

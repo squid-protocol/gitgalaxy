@@ -68,6 +68,7 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "RUN": ("transid", "resp", "resp2"),  # #4270: RUN TRANSID (its child token is not observable)
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
+    "WRITE-OPERATOR": ("data", "resp"),  # #4270 zECS (X32): the console message
     "READ": ("file", "ridfld", "resp"),
     "ABEND": ("abcode", "cause", "condition", "outcome", "exit"),
 }
@@ -83,7 +84,7 @@ class CaseError(Exception):
 def parse_csd(text: str) -> dict[str, Any]:
     """The DFHCSDUP input of a case: {"programs": set, "transactions": {transid: program},
     "mapsets": set, "terminals": {termid: DEVICE of its TYPETERM}, "uctran": {termid: UCTRAN of its
-    TYPETERM, when it has one}}. Comment lines start with `*`; a
+    TYPETERM, when it has one}, "urimaps": [(name, TRANSACTION, PATH)] in the CSD's order}. Comment lines start with `*`; a
     DEFINE may continue on following lines. #4413: a TYPETERM's DEVICE (3270 when not given) says
     whether a terminal RECEIVE raises EOC (SPEC section 2: DEVICE(LUTYPE2) does)."""
     programs: set[str] = set()
@@ -92,6 +93,7 @@ def parse_csd(text: str) -> dict[str, Any]:
     devices: dict[str, str] = {}
     terminal_types: dict[str, str] = {}
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
+    urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     body = " ".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("*"))
     for m in re.finditer(r"\bDEFINE\s+(\w+)\s*\(\s*([^)\s]+)\s*\)(.*?)(?=\bDEFINE\b|$)", body, re.I | re.S):
         kind, name, rest = m.group(1).upper(), m.group(2).upper(), m.group(3)
@@ -99,6 +101,10 @@ def parse_csd(text: str) -> dict[str, Any]:
             programs.add(name)
         elif kind == "MAPSET":
             mapsets.add(name)
+        elif kind == "URIMAP":
+            tr = re.search(r"\bTRANSACTION\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
+            pa = re.search(r"\bPATH\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
+            urimaps.append((name, tr.group(1).upper() if tr else "", pa.group(1) if pa else ""))
         elif kind == "TRANSACTION":
             prog = re.search(r"\bPROGRAM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if prog:
@@ -116,7 +122,7 @@ def parse_csd(text: str) -> dict[str, Any]:
     terminals = {t: devices.get(tt, "3270") for t, tt in terminal_types.items()}
     uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
     return {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
-            "uctran": uctran}  # fmt: skip
+            "uctran": uctran, "urimaps": urimaps}  # fmt: skip
 
 
 @dataclass

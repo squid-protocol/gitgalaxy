@@ -162,6 +162,17 @@ public final class Hfp {
         return of(v);
     }
 
+    /** The store of a floating-point result into a FIXED-POINT receiver of `scale` decimals, in a statement that is
+     *  floating point only because an operand is FUNCTION NUMVAL / NUMVAL-C (#4741). IBM documents that such a
+     *  statement is evaluated in floating point and that a float moved to a fixed-point item is ROUNDED in the
+     *  low-order position (Programming Guide, SC27-8714-03, "Conversions and precision"); it does not document an
+     *  arithmetic statement's store. The model ASSUMES the same rule (pending z/OS calibration, #4702; register C6):
+     *  the value is rounded half away from zero to the receiver's scale, so NUMVAL('0.10') (0.0999... in long HFP)
+     *  stores 0.10 even without ROUNDED. */
+    public static BigDecimal fixedStore(BigDecimal v, int scale, boolean rounded) {
+        return v.setScale(scale, RoundingMode.HALF_UP);
+    }
+
     /** A long value rounded to short (LOAD ROUNDED): a one added at the first discarded bit, carry propagated. */
     public static BigDecimal toShort(BigDecimal v) {
         H h = chop(v, LONG);

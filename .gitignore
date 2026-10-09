@@ -221,3 +221,6 @@ tests/telemetry_out/
 !tests/dead_key_audit_baseline.json
 # The local Java toolchain (scripts/setup_java_toolchain.sh, #3654)
 .tools/
+
+# #4788: the oracle-assumptions register layout is source (the *.json rule above hid it from the first PR)
+!docs/language_status/register/_layout.json

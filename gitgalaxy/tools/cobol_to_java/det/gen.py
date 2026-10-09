@@ -782,7 +782,7 @@ class Gen:
         if isinstance(e, E.Lit) and isinstance(e.value, str):
             return jstr(e.value[:n].ljust(n))
         if isinstance(e, E.Lit) and isinstance(e.value, bytes):
-            return jstr(e.value.decode("latin-1")[:n].ljust(n))
+            return self.hex_text(e.value[:n], n - len(e.value[:n]))
         if isinstance(e, E.Fig):
             if e.kind == "ALL":
                 pat = e.all_literal or " "
@@ -1118,6 +1118,15 @@ class Gen:
             arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
         return arg
 
+    @staticmethod
+    def hex_text(b: bytes, pad: int = 0) -> str:
+        """A hexadecimal literal X'hh..' as Java text (#4698). IBM (Enterprise COBOL Language Reference, "Hexadecimal
+        notation for alphanumeric literals"): exactly those bytes, no code-page translation -- so not the record
+        charset's encoding of a latin-1 view of them. Cobol.hex gives the text that charset encodes back to the
+        bytes; `pad` trailing blanks (an ordinary character, so the charset's own blank) fill a MOVE's receiver."""
+        out = f"Cobol.hex({jstr(b.decode('latin-1'))}, CS)"
+        return f"({out} + {jstr(' ' * pad)})" if pad else out
+
     @_reads
     def text(self, e) -> str:
         """A Java String for an operand's text."""
@@ -1125,7 +1134,7 @@ class Gen:
             if isinstance(e.value, Decimal):
                 return jstr(str(e.value))
             if isinstance(e.value, bytes):
-                return jstr(e.value.decode("latin-1"))
+                return self.hex_text(e.value)
             return jstr(e.value)
         lo = self.lift(e)
         if lo and lo[0] == "X":
@@ -1511,7 +1520,7 @@ class Gen:
         if kind == "fig":
             return f"Cobol.compareFigurative({f}, Figurative.{self.fig(v[1])}, CS{c})"
         if kind == "hex":
-            return f"Cobol.compare({f}, {jstr(v[1].decode('latin-1'))}, CS{c})"
+            return f"Cobol.compare({f}, {self.hex_text(v[1])}, CS{c})"
         raise Untranslatable(f"88 value {kind}")
 
     # ---- moves --------------------------------------------------------------------------------------------------
@@ -1906,7 +1915,7 @@ class Gen:
         if kind == "fig":
             return f"Cobol.moveFigurative(Figurative.{self.fig(v[1])}, {f}, CS);"
         if kind == "hex":
-            return f"Cobol.move({jstr(v[1].decode('latin-1'))}, {f}, CS);"
+            return f"Cobol.move({self.hex_text(v[1])}, {f}, CS);"
         raise Untranslatable(f"value {kind}")
 
     @_reads

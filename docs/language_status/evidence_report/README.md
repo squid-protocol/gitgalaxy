@@ -12,12 +12,12 @@ These files are derived output. A feature PR does not commit them: the Evidence 
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 5 | 25 | 0 | 0 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 14 | 15 | 2 | 0 | 0 | 0 |
-| [cics-genapp](cics-genapp/report.md) | 31 | 6 | 20 | 5 | 0 | 0 | 0 |
-| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 3 | 1 | 2 | 0 | 0 | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 4 | 12 (1 stale) | 3 | 11 | 0 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 14 | 9 | 3 (3 stale) | 2 (2 stale) | 3 (1 stale) | 0 |
+| [cics-genapp](cics-genapp/report.md) | 31 | 6 | 0 | 12 (7 stale) | 11 (11 stale) | 2 (2 stale) | 0 |
+| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 3 | 0 | 3 (1 stale) | 0 | 0 | 0 |
 | [zecs](zecs/report.md) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
-| total | 117 | 42 | 41 | 34 | 0 | 0 | 0 |
+| total | 117 | 42 | 13 | 30 (12 stale) | 16 (13 stale) | 16 (3 stale) | 0 |
 
 ## Non-burned estates
 

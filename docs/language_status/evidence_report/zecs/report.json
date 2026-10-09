@@ -3046,7 +3046,7 @@
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
-  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
   "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -3057,7 +3057,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status at build time",
+  "record_status_from": "evidence.py status, recomputed now",
   "survey": {
    "label": "before",
    "scope": "burned + local + census corpora",

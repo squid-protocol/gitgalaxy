@@ -22,7 +22,7 @@ You land one PR. The orchestrator gave you issue(s), acceptance criteria and coo
 8. NEVER pip install into a shared venv. Different tool version -> private venv under your scratch dir.
 
 ## Box tools (`tests/tools/box/`)
-- `heavy-run.sh <cmd...>`: wrap pr_gates, scans, the full suite (shared slots).
+- `heavy-run.sh <cmd...>`: wrap pr_gates, scans, the full suite (shared slots). **Also every proof run**: `proof_sweep.py`, `det_port.py run`, `evidence.py prove/refresh`, the cics_crucible runner, and any `EQUIVALENCE_E2E=1` pytest (Docker cobc + javac + Db2). The slots are machine-wide, so N parallel agents can't stack N sweeps (2026-10-09: four agents' sweeps drove load to 51 on 12 cores, plus 5 GB swap). `det_port.py check` (translation only) doesn't need it.
 - `golden-lock.sh <cmd...>`: exclusive; golden bless/check only.
 - `sync-pins.sh [--dry-run]`: align language/cics/estate-crucible checkouts with this branch's pins (takes golden-lock itself; refuses on tracked modifications). Run it after a pin bump or a merge of main, before golden/ratchet runs.
 - `wait-pids.sh <pid...>`: wait on PIDs, never on output files.

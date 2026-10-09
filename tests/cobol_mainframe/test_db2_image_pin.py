@@ -40,3 +40,10 @@ def test_a_db2_cases_oracle_records_the_db2_image(monkeypatch):
     fp = eo.for_case({"db2": {"ddl": []}})
     assert fp["db2"] == {"image": db2.IMAGE, "pinned_by_digest": True}
     assert "db2" not in eo.for_case({})
+
+
+def test_the_combined_register_page_is_current():
+    """#4788: oracle_assumptions.md is generated from docs/language_status/register/ (register.py render)."""
+    import register  # tests/tools/register.py
+
+    assert register.check() == []

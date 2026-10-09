@@ -1228,6 +1228,13 @@ def encode_field(
 ) -> bytes:
     """A value as the field stores it (the inverse of equivalence.decode_field); #3815: text in `enc`.
     SIGN LEADING / TRAILING SEPARATE: the digits and a `+` / `-` byte of its own at that end."""
+    if (usage or "").upper() == "POINTER" and not pic:
+        # #4270 (C9): only NULL can be given -- binary zeros, on both sides; an address names storage neither side has
+        if value is None or str(value).strip() in ("", common.POINTER_NULL):
+            return bytes(nbytes)
+        raise ValueError(
+            f"a POINTER can only be given as {common.POINTER_NULL!r} (an address is not portable): {value!r}"
+        )
     num = common._pic_numeric(pic) if pic else None
     if num is None:
         return common.text_bytes(str(value), nbytes, enc)
@@ -1295,7 +1302,10 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
             continue
         v = common.decode_field(raw, f["pic"], f["usage"], common.sign_page(enc), f.get("sign_separate", False),
                                 enc)  # fmt: skip
-        if not isinstance(v, str):
+        if v == common.POINTER_NULL and f["usage"] == "POINTER":
+            # #4270 (C9): NULL is what the Java DTO carries as null (DetCics.pointerOut): absent, as `_same` reads it
+            out[f["name"]] = None
+        elif not isinstance(v, str):
             out[f["name"]] = str(v)
         else:
             if exact:

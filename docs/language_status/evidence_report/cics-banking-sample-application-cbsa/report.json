@@ -14398,10 +14398,10 @@
   ],
   "corpus_ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
   "coverage_from": "det-sweep coverage ledger freshness recomputed now",
-  "crucible_baseline_ref": "v0.6.0 (b794aa8b)",
+  "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.6.0",
+   "cics": "v0.7.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },

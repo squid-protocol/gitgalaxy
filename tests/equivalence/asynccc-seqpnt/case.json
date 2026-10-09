@@ -1,0 +1,88 @@
+{
+ "kind": "cics",
+ "corpus": "cics-async-api-credit-card-application-example",
+ "program": "SEQPNT",
+ "program_source": "src/SEQPNT.cbl",
+ "copy_dirs": [],
+ "transid": "SCCA",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "CRDTCHK",
+   "program_source": "src/CRDTCHK.cbl"
+  },
+  {
+   "program": "GETNAME",
+   "program_source": "src/GETNAME.cbl"
+  },
+  {
+   "program": "GETADDR",
+   "program_source": "src/GETADDR.cbl"
+  },
+  {
+   "program": "CSSTATUS",
+   "program_source": "src/CSSTATUS.cbl"
+  },
+  {
+   "program": "GETPOL",
+   "program_source": "src/GETPOL.cbl"
+  },
+  {
+   "program": "GETSPND",
+   "program_source": "src/GETSPND.cbl"
+  },
+  {
+   "program": "UPDCSDB",
+   "program_source": "src/UPDCSDB.cbl"
+  }
+ ],
+ "datasets": {},
+ "commarea": null,
+ "linked": false,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "terminal-0001",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0001",
+   "why": "from a terminal (STARTCODE 'TD'): RECEIVE ... NOTRUNCATE reads 'SCCA 0001' (9 bytes), account 0001; PUT CONTAINER(INPUTCONTAINER) on MYCHANNEL; LINK CRDTCHK, GETNAME, GETADDR, CSSTATUS (which LINKs GETPOL, GETSPND) and UPDCSDB in turn with MYCHANNEL, GET CONTAINER of each one's answer ('998', PRADEEP GOHIL, the Hursley address, 'VERY VIP'), SEND TEXT of the progress line before and after each; RESULT-SUCCESS; PUT CONTAINER('SEQPNT') with no channel of its own: INVREQ (caught by RESP); RETURN"
+  },
+  {
+   "name": "terminal-other-account",
+   "commarea": null,
+   "startcode": "TD",
+   "terminal": "SCCA 0002",
+   "why": "account 0002 from a terminal: each service's ELSE branch ('537', JOE BLOGS, the London address, 'REGULAR ')"
+  },
+  {
+   "name": "web-service-0001",
+   "commarea": null,
+   "startcode": "S",
+   "channel": {
+    "name": "SEQPNTWS",
+    "containers": {
+     "SEQPNT": {
+      "text": "0001"
+     }
+    }
+   },
+   "why": "not from a terminal (the web service's task, STARTCODE 'S'): GET CONTAINER('SEQPNT') of the task's channel gives the account; the same LINKs, no SEND TEXT; PUT CONTAINER('SEQPNT') FROM(RETURN-DATA) back on that channel (compared at the task's end); RETURN"
+  },
+  {
+   "name": "web-service-other-account",
+   "commarea": null,
+   "startcode": "S",
+   "channel": {
+    "name": "SEQPNTWS",
+    "containers": {
+     "SEQPNT": {
+      "text": "9999"
+     }
+    }
+   },
+   "why": "account 9999 through the web service: the services' ELSE branches, RETURN-DATA put back"
+  }
+ ],
+ "notes": "IBM's CICS asynchronous API credit-card example: SEQPNT (transaction SCCA in the README's CSD, also a web service: src/SEQPNT.wsbind) runs the five credit-card services one after another -- the sequential counterpart of ASYNCPNT. ASSIGN STARTCODE: from a terminal ('TD', X19) it RECEIVEs 'tran acct' (NOTRUNCATE, 9 bytes) and SENDs a progress line (TEXT ... ERASE FREEKB) as each service starts and ends; otherwise it takes the account from container SEQPNT of its own channel (the web service's) and puts RETURN-DATA back there. It PUTs the account into INPUTCONTAINER of a channel it creates (MYCHANNEL) and LINKs CRDTCHK, GETNAME, GETADDR, CSSTATUS (which LINKs GETPOL and GETSPND) and UPDCSDB with it, GETting each one's answer; the case runs all seven in the task (\"programs\"; each is proven on its own by its asynccc- case). The channel a web-service task starts with is stated by the scenario (its name, SEQPNTWS, is not one the program reads: X24). RETURN-DATA's CUSTOMER-* fields are compared through the SEQPNT container. Not exercised: a terminal line shorter than 9 bytes (READ-INPUT has no VALUE clause: what RECEIVE leaves unwritten is initial storage, oracle_assumptions.md L3) and a web-service task without its container (ACCOUNT-NUMBER-IN likewise). Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

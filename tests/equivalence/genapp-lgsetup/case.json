@@ -1,0 +1,55 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGSETUP",
+ "program_source": "base/src/lgsetup.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGSE",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "linked": false,
+ "screens": {},
+ "startcode": "TD",
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgsetup.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "last-customer-typed",
+   "terminal": "LGSE 0000000050",
+   "commarea": null,
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000001",
+     "HIGH CUSTOMER=0000000011"
+    ],
+    "GENAERRS": [
+     "old error"
+    ],
+    "GENASTRT": [
+     "01102026  103015"
+    ]
+   },
+   "why": "the operator types LGSE 0000000050: RECEIVE gives 15 bytes, the 10 after the transaction id go into LastCustNum; DELETEQ TS GENAERRS / GENASTRT / GENASTAT / GENACNTL (GENASTAT is not there: QIDERR, caught by RESP); WRITEQ TS GENACNTL '**** GENAPP CNTL'; the second WRITEQ (FROM WRITE-MSG-L X(13) LENGTH(23)) is past its FROM item: X6, the task judged up to it"
+  },
+  {
+   "name": "transaction-id-only",
+   "terminal": "LGSE",
+   "commarea": null,
+   "why": "LGSE alone: RECEIVE gives 4 bytes (not > 5), LastCustNum keeps its VALUE 11; the four DELETEQs (none there: QIDERR each), the first WRITEQ, then X6 at the second"
+  }
+ ],
+ "notes": "GenApp's setup transaction (LGSETUP, transaction LGSE in base/cntl/cdef121.jcl, a terminal transaction). It RECEIVEs the operator's line (an unformatted RECEIVE: the scenario's terminal input; STARTCODE 'TD') and, when more than the transaction id was typed, takes the last customer number from it; deletes TS queues GENAERRS, GENASTRT, GENASTAT and GENACNTL; writes GENACNTL's three items ('**** GENAPP CNTL', 'LOW CUSTOMER=...', 'HIGH CUSTOMER=...'); deletes and defines the named counters of pool GENA (GENACUSTNUM at the last customer number, the 48 statistics counters at 0); SEND TEXT FROM(WRITE-MSG-H) LENGTH(24); RETURN. Judged only up to the second WRITEQ: it writes FROM(WRITE-MSG-L), PIC X(13), LENGTH(23) -- ten bytes past its FROM item, which CICS copies from whatever follows in storage, a layout no oracle here can say (oracle_assumptions.md X6, REFUSED on both sides, the task judged up to it, owner decision on #4607). Every task reaches it, so what is compared is the RECEIVE and the first WRITEQ (DELETEQ TS is not an event on either side; it shows only in what a later READQ reads); the counters, the third WRITEQ and the SEND TEXT are not compared (the gap this case leaves, until #4050 settles X6 on z/OS). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

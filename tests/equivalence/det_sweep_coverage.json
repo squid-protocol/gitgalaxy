@@ -128,6 +128,24 @@
    },
    "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
   },
+  "asynccc-seqpnt": {
+   "scenarios": 4,
+   "paragraphs": {
+    "covered": 3,
+    "live": 3
+   },
+   "branches": {
+    "covered": 4,
+    "total": 4
+   },
+   "inputs": {
+    "case": "4113ce9fb107671dbed8b0d5944489d393500fcc8170c4c348abf263d7c305dc",
+    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
+  },
   "asynccc-updcsdb": {
    "scenarios": 1,
    "paragraphs": {
@@ -271,6 +289,24 @@
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
    "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+  },
+  "carddemo-copaus2c": {
+   "scenarios": 7,
+   "paragraphs": {
+    "covered": 2,
+    "live": 2
+   },
+   "branches": {
+    "covered": 6,
+    "total": 6
+   },
+   "inputs": {
+    "case": "4a6062284bd779add2f4a0feb44b6058a1fc74409478c9ee8081ca1c088c247c",
+    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
   },
   "carddemo-cotrtlic": {
    "scenarios": 27,
@@ -794,6 +830,24 @@
    },
    "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
   },
+  "genapp-lgastat1": {
+   "scenarios": 8,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 10,
+    "total": 10
+   },
+   "inputs": {
+    "case": "0a61a1e0ff664600970ba736dcc5b49f7109d99aa203f5a988b3448d2bb2484a",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
+  },
   "genapp-lgdpdb01": {
    "scenarios": 12,
    "paragraphs": {
@@ -937,6 +991,60 @@
     "oracle": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
    },
    "measured_at": "2b53e918c59de134e98e0ab795255afabd21437e"
+  },
+  "genapp-lgipvs01": {
+   "scenarios": 5,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 4,
+    "total": 6
+   },
+   "inputs": {
+    "case": "4fec5a8fd26e151f9869557a3ad6d7986079cac7f74cc65b46d32591280f14bd",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
+  },
+  "genapp-lgsetup": {
+   "scenarios": 2,
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   },
+   "inputs": {
+    "case": "a51844f64be6062f30b12423fe808fde3e55de5553961a8d723a92c15fb41633",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
+  },
+  "genapp-lgtestc1": {
+   "scenarios": 18,
+   "paragraphs": {
+    "covered": 9,
+    "live": 10
+   },
+   "branches": {
+    "covered": 16,
+    "total": 18
+   },
+   "inputs": {
+    "case": "dcc50e1c6dc34a3b1cd7c3fcd362990e86fe9f272b24ef833d7a0ea2ea31e490",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
   },
   "genapp-lgtestp1": {
    "scenarios": 25,
@@ -1118,6 +1226,24 @@
    },
    "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
   },
+  "genapp-lgwebst5": {
+   "scenarios": 4,
+   "paragraphs": {
+    "covered": 3,
+    "live": 3
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   },
+   "inputs": {
+    "case": "491147b6f561ca922e216842d82e18bd5128bfb1e6c33f33b8bdf7091aac087f",
+    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
+  },
   "mortgage-cmort": {
    "scenarios": 9,
    "paragraphs": {
@@ -1171,6 +1297,24 @@
     "oracle": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
    },
    "measured_at": "5bc184e0e9f89377eb7b20e7537344dcb70b0e50"
+  },
+  "zecs-zecsplt": {
+   "scenarios": 4,
+   "paragraphs": {
+    "covered": 11,
+    "live": 11
+   },
+   "branches": {
+    "covered": 6,
+    "total": 6
+   },
+   "inputs": {
+    "case": "d0dc0032d22ec04d8b390e1ec8a39ecf4060e83b9d1687a43ecefe62ef45fd26",
+    "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
+    "harness": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+    "oracle": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734"
+   },
+   "measured_at": "52428785807296735b5787d094cb8bbb5ea1c52c"
   }
  }
 }

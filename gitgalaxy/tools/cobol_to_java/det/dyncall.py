@@ -123,7 +123,7 @@ def _closure(gen, stmts, seen: set[int]):
             if paras[i].section == t and d["thru"] is None:
                 rng = [j for j, p in enumerate(paras) if p.section == t]
             else:
-                rng = range(i, gen.para_index.get(d["thru"] or t, i) + 1)
+                rng = list(range(i, gen.para_index.get(d["thru"] or t, i) + 1))
             for j in rng:
                 if j not in seen:
                     seen.add(j)
@@ -170,7 +170,7 @@ def _plain_text_item(gen, ref: E.Ref, role: str) -> L.Item:
     return it
 
 
-def _element(gen, ref: E.Ref, it: L.Item) -> tuple[int, int]:
+def _element(ref: E.Ref, it: L.Item) -> tuple[int, int]:
     """The byte range of the element a literal-subscripted reference names, within the item's record."""
     from gitgalaxy.tools.cobol_to_java.det.gen import _occurs_chain
 
@@ -178,7 +178,7 @@ def _element(gen, ref: E.Ref, it: L.Item) -> tuple[int, int]:
     if len(chain) != len(ref.subscripts):
         raise Unknown(f"{ref.name}: {len(ref.subscripts)} subscripts for {len(chain)} OCCURS levels")
     off = it.offset
-    for lvl, sub in zip(chain, ref.subscripts):
+    for lvl, sub in zip(chain, ref.subscripts, strict=True):
         n = _const_int(sub)
         if n is None or lvl.depending:
             raise Unknown(f"{ref.name}: a subscript that is not a literal")
@@ -213,8 +213,10 @@ def _item_values(gen, ref: E.Ref, it: L.Item, seen: tuple) -> set[str]:
     seen = (*seen, id(it))
     if it.section != "WORKING-STORAGE":
         raise Unknown(f"{ref.name}: not in WORKING-STORAGE, so its initial content is not the program's")
-    lo, hi = _element(gen, ref, it) if ref.subscripts else (it.offset, it.offset + it.size)
+    lo, hi = _element(ref, it) if ref.subscripts else (it.offset, it.offset + it.size)
     rec = it.record
+    if rec is None:
+        raise Unknown(f"{ref.name}: no record")
     mask = _valued(rec)
     if not all(mask[lo:hi]):
         raise Unknown(f"{ref.name}: no VALUE clause fixes its initial content")

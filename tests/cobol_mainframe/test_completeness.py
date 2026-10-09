@@ -125,9 +125,8 @@ PINNED = {
         "program calls": (7, 7), "copybooks": (0, 0), "transactions": (7, 10), "screens": (0, 0),
         "data flows": (42, 42), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
-    # IBM DBB MortgageApplication (estate 4): 11 of 12 unresolved program calls are
-    # EPSCSMRD's helpers (XCHRFLTR, XWSPFLTR, EPSCSMRC/O/L/K, ...), which the
-    # repository does not ship; one is EPSCSMRT's dynamic CALL WS-CALLED-PROGRAM. Most
+    # IBM DBB MortgageApplication (estate 4): every program call resolves; the last, EPSCSMRT's dynamic CALL
+    # WS-CALLED-PROGRAM, since #4736 (a MOVE from an element of its VALUE table). Most
     # unresolved data-flow operands are in that generated web-service wrapper. EPSMLIST
     # is reached by no transaction in the repository (no CSD), and EPSCSMRT is a batch
     # driver no JCL step runs. #4242: EPSCSMRD (the web-service wrapper, `PROGRAM-ID. 'EPSCSMRD'.`) records
@@ -140,7 +139,7 @@ PINNED = {
     # #4447: CALLs between the sibling programs of one member now resolve (epscsmrd.cbl holds 13
     # programs, eleven siblings and two nested): program calls 7 -> 18 of 19.
     "dbb-mortgage-application": {
-        "program calls": (18, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
+        "program calls": (19, 19), "copybooks": (11, 11), "transactions": (2, 4), "screens": (7, 7),
         "data flows": (549, 567), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only

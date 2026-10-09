@@ -8,6 +8,7 @@ generator mapped the file to (the javadoc "... as BATCH SELECT <name> ..." over 
 from __future__ import annotations
 
 import base64
+import contextlib
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -619,10 +620,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         called = {s.data["program"] for s in calls if s.data["program"]}
         for s in calls:  # #4736: CALL identifier -- the programs the identifier can hold (det.dyncall)
             if s.data.get("dynamic") is not None:
-                try:
+                with contextlib.suppress(dyncall.Unknown, G.Untranslatable):  # (else refused at the statement, by name)
                     called |= {n for n in dyncall.values(gen, s) if n}
-                except (dyncall.Unknown, G.Untranslatable):
-                    pass  # refused at the statement, by name
         for prog_name in sorted(called - set(gen.callees)):
             from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 

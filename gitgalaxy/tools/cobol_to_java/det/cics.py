@@ -245,10 +245,14 @@ class Generated:
             for k, v in got.items():
                 self.estate_files.setdefault(k, set()).add(v)
         self.screens: dict[str, str] = {}
+        self.mapsets: dict[str, list[str]] = {}  # mapset -> its maps, from the generated screens
         for p in sorted(self.java.rglob("dto/screen/*Screen.java")):
             mm = re.search(r'String MAP = "([^"]+)"', p.read_text(encoding="utf-8"))
             if mm:
                 self.screens[mm.group(1).upper()] = p.stem
+                ms = re.search(r'String MAPSET = "([^"]+)"', p.read_text(encoding="utf-8"))
+                if ms:
+                    self.mapsets.setdefault(ms.group(1).upper(), []).append(mm.group(1).upper())
         self.records: dict[str, str] = {}  # COBOL record -> its contract DTO
         for p in sorted(self.java.rglob("dto/contract/*.java")):
             mm = re.search(r"COBOL record ([A-Z0-9-]+) \(", p.read_text(encoding="utf-8"))
@@ -1267,8 +1271,11 @@ class Cics:
     def map_names(self, opts: dict, area: str | None, suffix: str, ind: str) -> tuple[str, str, list[str]]:
         """(map, mapset, guard): constants; else the map whose symbolic record the FROM / INTO area is
         (CACTVWAO -> CACTVWA), the names checked at run time -- a different one is a hole, never a wrong screen."""
+        # IBM CICS TS (BMS maps): a map / mapset name is 1-8 characters, blank-padded to 8 -- 'NBLKMAP ' IS NBLKMAP
         m = self.constant(opts["MAP"])
         ms = self.constant(opts.get("MAPSET") or opts["MAP"])
+        m = m.rstrip(" ") if m is not None else None
+        ms = ms.rstrip(" ") if ms is not None else None
         guard: list[str] = []
         if m is None and area is not None:
             name = self.ref(area).name
@@ -1291,11 +1298,23 @@ class Cics:
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
 
+    def no_screen(self, m: str, ms: str, opts: dict) -> CicsError:
+        """Why map `m` has no generated screen, by name. IBM CICS TS (SEND MAP / RECEIVE MAP): MAPSET defaults to the
+        MAP name when omitted, and a map is found only inside its own mapset (BMS: DFHMSD names the mapset, each
+        DFHMDI a map). A name that is a mapset of the estate but no map of it asks CICS for a map the mapset does not
+        hold; the condition CICS raises then is not modelled, so the command is refused, never given another map."""
+        if ms in self.gp.mapsets and m not in self.gp.mapsets[ms]:
+            how = "(MAPSET omitted: IBM defaults it to the MAP name) " if not opts.get("MAPSET") else ""
+            held = ", ".join(sorted(self.gp.mapsets[ms]))
+            return CicsError(f"map {m} {how}names no map of mapset {ms} (its maps: {held}): the condition CICS "
+                             "raises for a map the mapset does not hold is not modelled")  # fmt: skip
+        return CicsError(f"no generated screen for map {m}")
+
     def send_map(self, opts: dict, ind: str) -> list[str]:
         m, ms, guard = self.map_names(opts, opts.get("FROM"), "O", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise CicsError(f"no generated screen for map {m}")
+            raise self.no_screen(m, ms, opts)
         self.used_screens.add(cls)
         frm = self.ref(opts["FROM"]).name if opts.get("FROM") else m + "O"
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
@@ -1327,7 +1346,7 @@ class Cics:
         m, ms, guard = self.map_names(opts, opts.get("INTO"), "I", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise CicsError(f"no generated screen for map {m}")
+            raise self.no_screen(m, ms, opts)
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")

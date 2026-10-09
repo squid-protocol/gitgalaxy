@@ -62,13 +62,30 @@ def test_pending_pr_waits_and_merged_pr_leaves():
     assert "#1 waiting: 1 pending" in did and state["queue"] == [1] and gh.calls == []
 
 
-def test_infra_failure_is_rerun_once_per_head():
+def test_infra_failure_is_rerun_up_to_three_times_spaced_out(monkeypatch):
+    gh, state, clock = Gh(), {"queue": [1], "after": {}, "seen": {}}, [1000.0]
+    monkeypatch.setattr(cs, "now", lambda: clock[0])
+    gh.pr(1, runs=[("full-suite", "failure")])
+
+    def reruns():
+        return [c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]
+
+    step(gh, state, failing("infra"))
+    step(gh, state, failing("infra"))  # too soon after the first
+    assert reruns() == [["gh", "run", "rerun", "99", "--failed", "-R", cs.REPO_SLUG]]
+    for _ in range(4):
+        clock[0] += cs.RETRY_GAP
+        step(gh, state, failing("infra"))
+    assert len(reruns()) == cs.INFRA_RETRIES
+
+
+def test_a_flake_is_rerun_once():
     gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
     gh.pr(1, runs=[("full-suite", "failure")])
-    step(gh, state, failing("infra"))
-    step(gh, state, failing("infra"))
-    assert [c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]] == [["gh", "run", "rerun", "99", "--failed",
-                                                                        "-R", cs.REPO_SLUG]]  # fmt: skip
+    step(gh, state, failing("flake"))
+    state["seen"]["1"]["rerun:full-suite"][-1] -= cs.RETRY_GAP
+    step(gh, state, failing("flake"))
+    assert len([c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]) == 1
 
 
 def test_real_failure_is_commented_once_per_head_and_again_after_a_push():

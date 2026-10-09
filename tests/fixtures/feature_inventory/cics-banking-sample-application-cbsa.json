@@ -1,0 +1,2778 @@
+{
+  "cics_commands": {
+    "ABEND": {
+      "count": 60,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASKTIME": {
+      "count": 36,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASSIGN": {
+      "count": 252,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "BIF DEEDIT": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl"
+      ]
+    },
+    "DELAY FOR": {
+      "count": 18,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "DELETE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "DEQ": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ENDBR": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "ENQ": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FORMATTIME": {
+      "count": 35,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "GET": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "HANDLE ABEND": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "INQUIRE": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 140,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "PUT": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "READ": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READPREV": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 69,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "REWRITE": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "RUN": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "SEND": {
+      "count": 28,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND CONTROL": {
+      "count": 8,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SET": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "STARTBR": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK": {
+      "count": 16,
+      "programs": [
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "WRITE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    }
+  },
+  "cics_options": {
+    "ABEND: ABCODE": {
+      "count": 60,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ABEND: CANCEL": {
+      "count": 28,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ABEND: NODUMP": {
+      "count": 38,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASKTIME: ABSTIME": {
+      "count": 36,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASSIGN: ABCODE": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASSIGN: APPLID": {
+      "count": 123,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "ASSIGN: PROGRAM": {
+      "count": 123,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "BIF DEEDIT: FIELD": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl"
+      ]
+    },
+    "DELAY FOR: RESP": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "DELAY FOR: RESP2": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "DELAY FOR: SECONDS": {
+      "count": 18,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "DELETE: FILE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "DELETE: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "DELETE: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "DELETE: TOKEN": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "DEQ: LENGTH": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "DEQ: RESOURCE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "DEQ: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "DEQ: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ENDBR: FILE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "ENDBR: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "ENDBR: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "ENQ: LENGTH": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ENQ: RESOURCE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ENQ: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ENQ: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: ABCODE": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: ANY": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: CHANNEL": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: COMPSTATUS": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: NOSUSPEND": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: RESP": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FETCH: RESP2": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "FORMATTIME: ABSTIME": {
+      "count": 35,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "FORMATTIME: DATESEP": {
+      "count": 35,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "FORMATTIME: DDMMYYYY": {
+      "count": 35,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "FORMATTIME: TIME": {
+      "count": 35,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "GET: CHANNEL": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "GET: CONTAINER": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "GET: FLENGTH": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "GET: INTO": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "GET: RESP": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "GET: RESP2": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl"
+      ]
+    },
+    "HANDLE ABEND: CANCEL": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "HANDLE ABEND: LABEL": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "INQUIRE: ASSOCIATION": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: ODAPPLID": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: ODFACILNAME": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: ODFACILTYPE": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: ODNETWORKID": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: ODUSERID": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CRA.cbl"
+      ]
+    },
+    "INQUIRE: RESP": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "INQUIRE: RESP2": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "INQUIRE: TERMINAL": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "INQUIRE: UCTRANST": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "LINK: COMMAREA": {
+      "count": 140,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 140,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "LINK: RESP": {
+      "count": 14,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl"
+      ]
+    },
+    "LINK: RESP2": {
+      "count": 12,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl"
+      ]
+    },
+    "LINK: SYNCONRETURN": {
+      "count": 14,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "PUT: CHANNEL": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "PUT: CONTAINER": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "PUT: FLENGTH": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "PUT: FROM": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "PUT: RESP": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "PUT: RESP2": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "READ: FILE": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READ: INTO": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READ: KEYLENGTH": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CUSTCTRL.cbl"
+      ]
+    },
+    "READ: RESP": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READ: RESP2": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READ: RIDFLD": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READ: TOKEN": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "READ: UPDATE": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "READPREV: FILE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "READPREV: INTO": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "READPREV: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "READPREV: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "READPREV: RIDFLD": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "RECEIVE: ASIS": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RECEIVE: MAP": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RECEIVE: MAPSET": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RECEIVE: RESP": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RECEIVE: RESP2": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RECEIVE: TERMINAL": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "RETURN: COMMAREA": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN: IMMEDIATE": {
+      "count": 16,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN: LENGTH": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN: RESP": {
+      "count": 25,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN: RESP2": {
+      "count": 25,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "RETURN: TRANSID": {
+      "count": 26,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "REWRITE: FILE": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "REWRITE: FROM": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "REWRITE: LENGTH": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "REWRITE: RESP": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "REWRITE: RESP2": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "RUN: CHANNEL": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "RUN: CHILD": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "RUN: RESP": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "RUN: RESP2": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "RUN: TRANSID": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "SEND CONTROL: ERASE": {
+      "count": 8,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND CONTROL: FREEKB": {
+      "count": 8,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT: ERASE": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT: FREEKB": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT: FROM": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT: RESP": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND TEXT: RESP2": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: ALARM": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: CURSOR": {
+      "count": 12,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl"
+      ]
+    },
+    "SEND: DATAONLY": {
+      "count": 18,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: ERASE": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: FREEKB": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl"
+      ]
+    },
+    "SEND: FROM": {
+      "count": 27,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: MAP": {
+      "count": 28,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: MAPONLY": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl"
+      ]
+    },
+    "SEND: MAPSET": {
+      "count": 27,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: RESP": {
+      "count": 27,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SEND: RESP2": {
+      "count": 27,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl"
+      ]
+    },
+    "SET: RESP": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "SET: RESP2": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "SET: TERMINAL": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "SET: UCTRANST": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl"
+      ]
+    },
+    "STARTBR: FILE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "STARTBR: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "STARTBR: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "STARTBR: RIDFLD": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK: RESP": {
+      "count": 16,
+      "programs": [
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK: RESP2": {
+      "count": 16,
+      "programs": [
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "WRITE: FILE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: FROM": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: KEYLENGTH": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: LENGTH": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: RESP": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "WRITE: RIDFLD": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 31,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 31,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 31,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "TRUNC: OPT": {
+      "count": 17,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 14,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "COPY CEEIGZCT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 328,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "COMP-1": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl"
+      ]
+    },
+    "COMP-2": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl"
+      ]
+    },
+    "COMP-5": {
+      "count": 50,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "EDITED": {
+      "count": 20,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "PACKED": {
+      "count": 84,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "intrinsic_functions": {
+    "CURRENT-DATE": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "DATE-OF-INTEGER": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "INTEGER-OF-DATE": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "NUMVAL": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl"
+      ]
+    },
+    "RANDOM": {
+      "count": 39,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    },
+    "REVERSE": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "CLOSE": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl"
+      ]
+    },
+    "COMMIT": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "DELETE": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/DELACC.cbl"
+      ]
+    },
+    "FETCH": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl"
+      ]
+    },
+    "INSERT": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "OPEN": {
+      "count": 2,
+      "programs": [
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl"
+      ]
+    },
+    "SELECT": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "STATIC": {
+      "count": 40,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "UPDATE": {
+      "count": 6,
+      "programs": [
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "ADD": {
+      "count": 8,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "ARITH": {
+      "count": 26,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "CALL": {
+      "count": 4,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "CLOSE": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "COMPUTE": {
+      "count": 106,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "CONTINUE": {
+      "count": 86,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "DISPLAY": {
+      "count": 156,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "EVALUATE": {
+      "count": 39,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "EXIT": {
+      "count": 229,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "GOBACK": {
+      "count": 13,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "GOTO": {
+      "count": 146,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "IF": {
+      "count": 503,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "INITIALIZE": {
+      "count": 257,
+      "programs": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "INSPECT": {
+      "count": 33,
+      "programs": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 3309,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "OPEN": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 501,
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "READ": {
+      "count": 5,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "REWRITE": {
+      "count": 3,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "SET-NULL": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl"
+      ]
+    },
+    "SET-TO": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/DELCUS.cbl"
+      ]
+    },
+    "SET-TRUE": {
+      "count": 34,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "SORT": {
+      "count": 9,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "START": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "STRING": {
+      "count": 361,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    "SUBTRACT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "UNSTRING": {
+      "count": 7,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    "WRITE": {
+      "count": 10,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "unparsed_programs": [
+    {
+      "program": "src/base/cobol_src/CRECUST.cbl",
+      "reason": "CopyNotFound - /srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/base/cobol_src/CRECUST.cbl:303: COPY CEEIGZCT found in none of ['/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/base/cobol_src', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/Z-OS-Connect-Customer-Services-Interface', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/Z-OS-Connect-Payment-Interface', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/bank-application-frontend', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/base/cobol_copy', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/base/cobol_src', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/webui', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/webui/.settings', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/webui/WebContent', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/creacc', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/crecust', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/delacc', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/delcus', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/inqacccz', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/inqaccz', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/inqcustz', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/makepayment', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/updacc', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/apis/updcust', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CSacccre', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CSaccdel', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CSaccenq', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CSaccupd', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CScustacc', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CScustcre', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CScustdel', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CScustenq', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/CScustupd', '/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/cics-banking-sample-application-cbsa/src/zosconnect_artefacts/services/Pay', '/tmp/gitgalaxy-scratch/agy-4723/db/bms', '/srv/storage_16tb/projects/gitgalaxy-worktrees/feature-inventory-4723/gitgalaxy/tools/cobol_to_java/det/copy']"
+    }
+  ]
+}

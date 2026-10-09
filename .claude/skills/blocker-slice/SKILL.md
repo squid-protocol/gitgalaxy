@@ -52,9 +52,11 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - **Crucible logs are never derived from the spec** (nor from a runtime or a port). The gen script is traced by
   hand from IBM's documentation; `crucible_case.py check-hand-derived` fails if it imports anything but the stdlib
   and `crucible_events`.
-- `python tests/tools/cics_spec_status.py render` regenerates `docs/language_status/cics_spec_status.md` (a test
-  fails on a stale page); after a slice, `refresh --census --crucible DIR` first. A spec PR adds its row to
-  `SPEC_PRS_DONE` there.
+- `docs/language_status/cics_spec_status.md` is generated on main by the evidence-refresh bot (#4789): do NOT commit
+  it in a PR (`cics_spec_status.py render` only to look). After a slice, commit `refresh --census --crucible DIR`'s
+  `cics_spec_status.json`. A spec PR adds its row to `SPEC_PRS_DONE` there.
+- The det-sweep coverage ledger is one file per case, `tests/equivalence/det_sweep_coverage/<case>.json` (#4789):
+  `det_coverage_ledger.py update <sweep DIR>` rewrites only the files of the cases that sweep ran.
 - Then the `cics-command-slice` checklist: both runtimes, the hand-traced crucible case, proofs, X-register entry.
 
 ## 3. Honest refusals (the patterns that made programs whole without guessing)

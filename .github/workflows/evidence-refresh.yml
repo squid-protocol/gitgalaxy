@@ -21,6 +21,10 @@ name: Evidence Refresh
 # Earlier bot PRs failed twice: #4640 was opened against a feature branch (the base is now pinned to main) and #4649
 # went dirty while parallel PRs kept conflicting on the report (those PRs no longer commit it).
 #
+# #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md): rendered here, never in a PR.
+# The det-sweep coverage ledger is one file per case (tests/equivalence/det_sweep_coverage/<CASE>.json), so a case PR and
+# this bot (or two case PRs) touch only the files of the cases they swept.
+#
 # Auto-merge happens only when every proof step succeeded. A run where a proof or the sweep failed still opens the PR,
 # but leaves it for a person (and the job fails). Approvals are never touched (only `evidence.py approve`, run by a
 # person at a terminal, writes one).
@@ -771,6 +775,15 @@ jobs:
           # once its inputs move: #4730), so no sweep is passed here.
           python tests/tools/evidence_report.py --refresh --live
 
+      - name: Re-render the CICS spec status page (#4789)
+        # Derived output like the report above: PRs no longer commit docs/language_status/cics_spec_status.md (parallel
+        # slices conflicted on it); it is rendered here from main's spec, translator, stub and cics_spec_status.json.
+        if: always()
+        continue-on-error: true  # a page that fails to render stays as main has it; it never holds back the records
+        run: |
+          cd gitgalaxy
+          python tests/tools/cics_spec_status.py render
+
       - name: Summary
         if: always()
         run: |
@@ -818,12 +831,15 @@ jobs:
             Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
             Each record's proof was run again on the committed port and case; the records and
             docs/language_status/evidence/ are rewritten from those runs. A proof that now fails is recorded as
-            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703).
+            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703),
+            the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/, one file per case: #4789) from the
+            sweep, and the CICS spec status page (docs/language_status/cics_spec_status.md, #4789) from main.
             Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
           branch: auto/evidence-refresh${{ github.event_name != 'push' && '-full' || '' }}  # a lane's own branch (#4743)
           delete-branch: true
           add-paths: |
-            tests/equivalence/det_sweep_coverage.json
+            tests/equivalence/det_sweep_coverage/*.json
+            docs/language_status/cics_spec_status.md
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
             docs/language_status/evidence/*.md

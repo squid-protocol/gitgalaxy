@@ -154,3 +154,14 @@ jobs:
         if: always()
         continue-on-error: true
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
+
+      - name: CICS spec status page (advisory, #4789)
+        if: always()
+        continue-on-error: true
+        run: |
+          {
+            echo "## CICS spec status page (advisory)"
+            if python tests/tools/cics_spec_status.py render --check 2>&1; then :; else
+              echo "The evidence-refresh bot re-renders docs/language_status/cics_spec_status.md on main after merge; do not commit it here."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

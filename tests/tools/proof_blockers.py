@@ -30,7 +30,7 @@ one or more gap classes:
 Verdicts come from, in order: the sweeps given with --sweep (`proof_sweep.py --det-only --work DIR`: DIR/sweep.json,
 and DIR/det/<case>/proof/report.json for the diff kind), else main's CI ratchet -- a non-Db2 case not in
 det_sweep_baseline.json is proven, because CI's det-sweep fails on any that is not. Coverage comes from the sweep's
-coverage line, else the committed det-sweep ledger (tests/equivalence/det_sweep_coverage.json, det_coverage_ledger.py: while
+coverage line, else the committed det-sweep ledger (tests/equivalence/det_sweep_coverage/<case>.json, det_coverage_ledger.py: while
 its fingerprints match the tree), else the case's evidence record (the COBOL side's coverage of the same
 scenarios). Crucible programs (a surveyed corpus named *crucible*, path cases/<trap>/<case>/src/<PROGRAM>.cbl) take their verdicts from
 tests/cics_crucible/{baseline,coverage}.json and the ports under tests/cics_crucible/ports.

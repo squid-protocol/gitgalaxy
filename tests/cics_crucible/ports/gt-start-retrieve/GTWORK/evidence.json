@@ -45,12 +45,12 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "96ba7a9128f15dd85106797ec1afba5bef82f080df410f2486962347c72b015b",
+   "sha256": "4cf38f8090bcee6eea5f72f9b0e7075e7a7f283000f6bf3a0ab75bab2d0b6e9d",
    "components": {
     "harness:call": "9fc3abd81ee72d5068a139f9589fd9907ce0ae401520744d1bc6b8f02136dec3",
-    "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
-    "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
-    "harness:crucible": "c050d5c68016018d7306633cee572ec6b6a0fe9f18f99a3bbdde1f264e9494e1",
+    "harness:cics": "e441dd30e5c47d2d30431c71f9066f950dc4136cfcabd80766c7e29047e3edc6",
+    "harness:core": "173803afd91838dee6482b69047e2372c79ff76b08f23c2092f52cf567a48ba3",
+    "harness:crucible": "dbf534e346575011465dcfc0ac21fa0cbb191cc6af183fb3449fdc8bc5f2615b",
     "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
    }
   },
@@ -65,7 +65,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52",
+   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489",
    "components": {
     "generator:cobolrt/Cobol.java": "96b2a0472a6ddde32dbda40fb3241bd1caeb2d67848a48b1c5d8d7d3a8ad425b",
     "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
@@ -85,9 +85,9 @@
     "generator:cobolrt/sql/DetSql.java": "95725d0ad31cef578bc7bb3e9a2f5697105a7f498c56138625c6b39a50e99c33",
     "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
     "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
-    "generator:core": "c8842395391d5f9b24e3191f58709cfacc6e01955765f040203e505d6b60fd38",
+    "generator:core": "2723b6d5c35dd45b44e4ae6f71b50a3f5504adadc6b6913c914496d0e8e6000e",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "52aa26c06951b4b126c56db5e6580ec47c6ad57e9d5129af42b725e426b3a16a",
+    "generator:det/cics": "0a51b9e9852f1e2765e8c81bd36adad9bcc46077a3b13b10ad28bd4de2473f8e",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
@@ -105,8 +105,8 @@
   },
   "corpus": {
    "name": "cics-crucible",
-   "ref": "v0.6.0",
-   "sha256": "21a0ddc1b67516931ee700fc497e3671ad18caa33afcf03d799b8a4d3a2e3bdc"
+   "ref": "v0.7.0",
+   "sha256": "8d63af71c999878b857eb6741fdcabac6d264b5384707d64fed1c3e8603053e3"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -137,10 +137,10 @@
     }
    }
   },
-  "digest": "c65c61b73cea66899457e80b7830d30c27ffd992cc710edd04eb056ccf6f9940"
+  "digest": "933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023"
  },
  "proof": {
-  "at": "2026-10-09T10:59:36Z",
+  "at": "2026-10-09T12:32:45Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -174,8 +174,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "2b53e918c59de134e98e0ab795255afabd21437e+uncommitted",
-  "inputs_digest": "c65c61b73cea66899457e80b7830d30c27ffd992cc710edd04eb056ccf6f9940"
+  "harness_commit": "80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted",
+  "inputs_digest": "933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023"
  },
  "coverage": {
   "paragraphs": {
@@ -190,7 +190,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/gt-start-retrieve/GTWORK",
   "ledger_sha256": "5938642195476ff8b8ace96b5f62d9228b854510ecb15263a8103e42a7d811b7",
-  "inputs_digest": "c65c61b73cea66899457e80b7830d30c27ffd992cc710edd04eb056ccf6f9940"
+  "inputs_digest": "933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023"
  },
  "reach": {
   "entry_points": [
@@ -254,7 +254,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.6.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
+  "source": "cics-crucible v0.7.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -274,9 +274,9 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/gt-start-retrieve/GTWORK/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "88dc2201af91613aaec5cd937b04ee16dd4983f3439ff8fb9bce0c7e4a87efcc"
+   "sha256": "f24b6f8ca65f79560cfdf4f4c51c2b178ff33d73011cd0d485abf510679a70a1"
   },
-  "crucible_ref_proven": "v0.6.0 (b794aa8b)"
+  "crucible_ref_proven": "v0.7.0 (aaf84bcd)"
  },
  "approvals": []
 }

@@ -40,13 +40,13 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|---|
 | L0 | 3 | 0 |
 | L1 | 0 | 0 |
-| L2 | 3 | 0 |
+| L2 | 3 | 1 |
 | L3 | 0 | 0 |
 | L4 | 0 | 0 |
 | L5 | 0 | 0 |
 
-- current levels: 6; stale (`*`, last measured): 0
-- L2+: 3 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
+- stale (`*`, last measured): 1 of 6 programs; the rest are current
+- L2+: 3 (1 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 3; refused whole: 0; holes left: 23
@@ -82,7 +82,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2 | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2* | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
@@ -91,7 +91,9 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 ## Per program
 
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `2b53e918c59d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 50.0)
@@ -240,7 +242,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 - translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
-- crucible pins: cics `v0.6.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.6.0 (b794aa8b)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none

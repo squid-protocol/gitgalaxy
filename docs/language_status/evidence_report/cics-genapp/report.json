@@ -1531,7 +1531,7 @@
      "covered": 10,
      "total": 10
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -1541,8 +1541,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1595,7 +1598,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1838,8 +1841,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -1879,7 +1885,7 @@
      "covered": 12,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -1889,8 +1895,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1976,7 +1985,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2219,8 +2228,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2266,7 +2278,7 @@
      "covered": 13,
      "total": 14
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2276,8 +2288,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2319,7 +2334,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2574,8 +2589,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2615,7 +2633,7 @@
      "covered": 4,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2625,8 +2643,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2657,7 +2678,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2900,8 +2921,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2941,7 +2965,7 @@
      "covered": 5,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2951,8 +2975,11 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3027,7 +3054,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3270,8 +3297,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3311,7 +3341,7 @@
      "covered": 8,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -3321,8 +3351,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3397,7 +3430,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3640,8 +3673,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3681,7 +3717,7 @@
      "covered": 4,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -3691,8 +3727,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3723,7 +3762,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3966,8 +4005,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4007,7 +4049,7 @@
      "covered": 73,
      "total": 74
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4017,8 +4059,11 @@
      "live": 12
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4104,7 +4149,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4347,8 +4392,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4388,7 +4436,7 @@
      "covered": 3,
      "total": 6
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4398,8 +4446,11 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4474,7 +4525,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4717,8 +4768,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4758,7 +4812,7 @@
      "covered": 9,
      "total": 10
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4768,8 +4822,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4811,7 +4868,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5054,8 +5111,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5095,7 +5155,7 @@
      "covered": 5,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5105,8 +5165,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5137,7 +5200,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5380,8 +5443,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5427,7 +5493,7 @@
      "covered": 26,
      "total": 38
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5437,8 +5503,11 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5545,8 +5614,12 @@
        "runs": 5,
        "scenarios": 5,
        "scenarios_equal": 5,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
+       "stale_inputs": [
+        "harness",
+        "oracle",
+        "generator"
+       ],
+       "status_at_build": "stale",
        "verdict": "all equal"
       },
       "role": "program"
@@ -5620,15 +5693,19 @@
       "runs": 5,
       "scenarios": 5,
       "scenarios_equal": 5,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
+      "stale_inputs": [
+       "harness",
+       "oracle",
+       "generator"
+      ],
+      "status_at_build": "stale",
       "verdict": "all equal"
      },
      "role": "program"
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5882,8 +5959,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5923,7 +6003,7 @@
      "covered": 13,
      "total": 16
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5933,8 +6013,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6009,7 +6092,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6252,8 +6335,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6648,7 +6734,7 @@
      "covered": 17,
      "total": 31
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6658,8 +6744,11 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6745,7 +6834,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6988,8 +7077,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7859,7 +7951,7 @@
      "covered": 4,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7869,8 +7961,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7920,8 +8015,12 @@
        "runs": 12,
        "scenarios": 12,
        "scenarios_equal": 12,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
+       "stale_inputs": [
+        "harness",
+        "oracle",
+        "generator"
+       ],
+       "status_at_build": "stale",
        "verdict": "all equal"
       },
       "role": "program"
@@ -7982,15 +8081,19 @@
       "runs": 12,
       "scenarios": 12,
       "scenarios_equal": 12,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
+      "stale_inputs": [
+       "harness",
+       "oracle",
+       "generator"
+      ],
+      "status_at_build": "stale",
       "verdict": "all equal"
      },
      "role": "program"
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8233,8 +8336,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8493,7 +8599,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8911,8 +9017,11 @@
     "paragraphs_unrun": null,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8974,7 +9083,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8984,8 +9093,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9016,7 +9128,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9449,8 +9561,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9512,7 +9627,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9522,8 +9637,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9554,7 +9672,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9987,8 +10105,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10050,7 +10171,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10060,8 +10181,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10092,7 +10216,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10525,8 +10649,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10588,7 +10715,7 @@
      "covered": 18,
      "total": 22
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10598,8 +10725,11 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10630,7 +10760,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11063,8 +11193,11 @@
     "paragraphs_unrun": 2,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11613,8 +11746,12 @@
        "runs": 5,
        "scenarios": 5,
        "scenarios_equal": 5,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
+       "stale_inputs": [
+        "harness",
+        "oracle",
+        "generator"
+       ],
+       "status_at_build": "stale",
        "verdict": "all equal"
       },
       "role": "linked"
@@ -14878,10 +15015,10 @@
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
   "coverage_from": "det-sweep coverage ledger freshness recomputed now",
-  "crucible_baseline_ref": "v0.6.0 (b794aa8b)",
+  "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.6.0",
+   "cics": "v0.7.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -14913,15 +15050,15 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 0,
-   "L3": 0,
-   "L4": 0,
+   "L2": 7,
+   "L3": 11,
+   "L4": 2,
    "L5": 0
   },
   "holes": 123,
-  "levels_stale": 0,
+  "levels_stale": 20,
   "programs": 31,
-  "records_current": 3,
+  "records_current": 1,
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 25,

@@ -216,13 +216,18 @@ class Dto:
         return off + shift + sum(p.wider for _, p, o in self.parts if o < off)
 
     @property
-    def size(self) -> int:
+    def extent(self) -> int:
+        """Where the DTO's last property ends, in storage bytes: what its object carries."""
         n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size) for x in self.leaves),
                 default=0)  # fmt: skip
-        n = max([n] + [self.at(off) + p.size for _, p, off in self.parts])
-        if self.wider and self.occurs and self.record:
-            # #4270 (C9): a DTO with a POINTER whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts):
-            # the whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
+        return max([n] + [self.at(off) + p.size for _, p, off in self.parts])
+
+    @property
+    def size(self) -> int:
+        n = self.extent
+        if self.occurs and self.record:
+            # #4270 (C9) / #4765: a DTO whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts): the
+            # whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
             n = max(n, self.record + self.wider)
         return n
 
@@ -689,12 +694,16 @@ class Cics:
             f = self.g.field_expr(r)
         dto = f"out_{cls}({f}.storage(), {f}.offset())"
         length = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else "null"
+        d = self.gp.dto(cls)
         if length != "null":
             # #4501 / #4679: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
-            size = self.gp.dto(cls).size
             known = self.constant_int(opts["LENGTH"])
-            if known is None or known > size:
-                dto = f"DetCics.commareaOut({dto}, {f}, {length}, {size}, CS)"
+            if known is None or known > d.extent:
+                dto = f"DetCics.commareaOut({dto}, {f}, {length}, {d.extent}, CS)"
+        elif d.size > d.extent:
+            # #4765: a DTO whose OCCURS fields appear once holds the first occurrence only: the record's bytes go, every
+            # occurrence of the table (as a LINK's span, Dto.size)
+            dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
         return dto, length
 
     # -- files

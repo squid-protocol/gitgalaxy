@@ -563,7 +563,11 @@ def decode_pointer(raw: bytes) -> str:
 
 
 def layout_fields(
-    corpus: Path, copybook: str, record: Optional[str] = None, copy_dirs: Optional[list[Path]] = None
+    corpus: Path,
+    copybook: str,
+    record: Optional[str] = None,
+    copy_dirs: Optional[list[Path]] = None,
+    occurrences: bool = False,
 ) -> list[dict[str, Any]]:
     """The elementary fields of a copybook record: name, offset, bytes, pic, usage (the answer
     key's own reader and storage arithmetic, cobol_answer_key).
@@ -572,7 +576,15 @@ def layout_fields(
     the file's own directory, then `corpus`), so the fields after a nested COPY keep their offsets.
     A COPY that resolves nowhere is harmless outside the chosen record but raises LayoutError
     inside it, as does a COPY ... REPLACING anywhere before the PROCEDURE DIVISION (after it, no record
-    is laid out and nothing is expanded): a shifted layout is never returned."""
+    is laid out and nothing is expanded): a shifted layout is never returned.
+
+    #4765 `occurrences`: every occurrence of an OCCURS item is a field of its own, named by its subscripts
+    (`COMM-ACC-TYPE(3)`, `CELL(2,4)` under a nested OCCURS), with `base` (the item's name), `subscripts` and -- under
+    an OCCURS DEPENDING ON -- `odo`: [[object, subscript], ...], the occurrence's index in each variable table above
+    it (active_fields keeps an occurrence only while each object holds at least that). Without it an OCCURS group's
+    fields are listed once, at its first occurrence, and an elementary OCCURS item once, as wide as all of them: what
+    a record is BUILT from (a scenario's COMMAREA, generated inputs), as the DTO lists them; a record COMPARED is
+    read with every occurrence."""
     import cobol_answer_key as ak
 
     path = corpus / copybook
@@ -584,35 +596,49 @@ def layout_fields(
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
 
-    def size(it: dict[str, Any]) -> int:
+    def own(it: dict[str, Any]) -> int:  # one occurrence's bytes
         if _pointer(it):
-            own = ORACLE_POINTER_BYTES
-        elif it.get("pic"):
-            own = ak._pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False))
-        else:
-            own = sum(size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))
-        return own * (it.get("occurs_max") or 1)
+            return ORACLE_POINTER_BYTES
+        if it.get("pic"):
+            return ak._pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False))
+        return sum(size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))
+
+    def size(it: dict[str, Any]) -> int:
+        return own(it) * (it.get("occurs_max") or 1)
 
     out: list[dict[str, Any]] = []
 
-    def place(it: dict[str, Any], at: int) -> None:
+    def field(it: dict[str, Any], at: int, subs: list[int], odo: list[list[Any]]) -> dict[str, Any]:
+        f: dict[str, Any] = {"name": it["name"], "offset": at}
         if _pointer(it):  # #4270 (C9): as the oracle stores it, so the fields after it sit where its program reads them
-            out.append({"name": it["name"], "offset": at, "bytes": size(it), "pic": None, "usage": "POINTER",
-                        "sign_separate": False})  # fmt: skip
-            return
-        if it.get("pic"):
-            out.append(
-                {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),
-                 "sign_separate": bool(it.get("sign_separate")),
-                 **({"sign_leading": bool(it.get("sign_leading"))} if it.get("sign_separate") else {})}
-            )  # fmt: skip
-            return
-        cur = at
-        for c in kids.get(it["ordinal"], []):
-            if c.get("redefines"):
+            f.update({"bytes": own(it) if occurrences else size(it), "pic": None, "usage": "POINTER",
+                      "sign_separate": False})  # fmt: skip
+        else:
+            f.update({"bytes": own(it) if occurrences else size(it), "pic": it["pic"], "usage": it.get("usage"),
+                      "sign_separate": bool(it.get("sign_separate")),
+                      **({"sign_leading": bool(it.get("sign_leading"))} if it.get("sign_separate") else {})})  # fmt: skip
+        if subs:  # #4765: one occurrence, by name and subscripts
+            f.update({"name": f"{it['name']}({','.join(map(str, subs))})", "base": it["name"], "subscripts": subs})
+            if odo:
+                f["odo"] = odo
+        return f
+
+    def place(it: dict[str, Any], at: int, subs: list[int], odo: list[list[Any]]) -> None:
+        times = (it.get("occurs_max") or 1) if occurrences else 1
+        varying = it.get("occurs_depending_on") if occurrences else None
+        for k in range(1, times + 1):
+            start = at + (k - 1) * own(it)
+            ksubs = [*subs, k] if occurrences and it.get("occurs_max") else subs
+            kodo = [*odo, [varying, k]] if varying else odo
+            if _pointer(it) or it.get("pic"):
+                out.append(field(it, start, ksubs, kodo))
                 continue
-            place(c, cur)
-            cur += size(c)
+            cur = start
+            for c in kids.get(it["ordinal"], []):
+                if c.get("redefines"):
+                    continue
+                place(c, cur, ksubs, kodo)
+                cur += size(c)
 
     # A named record may itself REDEFINE another (#3754: a symbolic map's output area, CACTVWAO
     # REDEFINES CACTVWAI); with no name, the first record that does not is the layout.
@@ -632,8 +658,41 @@ def layout_fields(
             f"{copybook}: COPY {', '.join(inside)} inside {root['name']} resolves nowhere in "
             f"{', '.join(str(d) for d in dirs)}, so every field after it would shift"
         )
-    place(root, 0)
+    place(root, 0, [], [])
     return out
+
+
+def active_fields(
+    data: bytes, fields: list[dict[str, Any]], data_encoding: str = DEFAULT_DATA_ENCODING
+) -> list[dict[str, Any]]:
+    """#4765: the fields of a record (layout_fields(..., occurrences=True)) its own bytes make active: an occurrence
+    of an OCCURS DEPENDING ON table is kept only while the object holds at least its subscript, read from `data`
+    itself -- each side's record by its own count, so a count that differs is a difference and so is every occurrence
+    one side has and the other does not. An object the layout does not hold, or one that is not a number, keeps
+    every occurrence (the table's maximum), never fewer: nothing is left uncompared on a guess."""
+    if not any(f.get("odo") for f in fields):
+        return fields
+    by_name = {f["name"]: f for f in fields}
+    counts: dict[str, Optional[int]] = {}
+
+    def count(obj: str) -> Optional[int]:
+        if obj not in counts:
+            f = by_name.get(obj)
+            v = None
+            if f is not None and f["offset"] + f["bytes"] <= len(data):
+                v = decode_field(data[f["offset"] : f["offset"] + f["bytes"]], f["pic"], f["usage"],
+                                 sign_page(data_encoding), f.get("sign_separate", False), data_encoding)  # fmt: skip
+            counts[obj] = int(v) if isinstance(v, Decimal) and v == v.to_integral_value() else None
+        return counts[obj]
+
+    def active(f: dict[str, Any]) -> bool:
+        for obj, k in f.get("odo") or []:
+            n = count(obj)
+            if n is not None and k > n:
+                return False
+        return True
+
+    return [f for f in fields if active(f)]
 
 
 # ---- the field-by-field diff ---------------------------------------------------------

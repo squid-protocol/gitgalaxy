@@ -69,9 +69,9 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
 | SYNCPOINT | full | yes (4 options) | yes | X3 | — | 15 (9 / 6) | — |
 | SYNCPOINT ROLLBACK | full | yes (3 options) | yes | X3 | — | 14 (14 / 0) | — |
-| BIF DEEDIT | full | yes (5 options) | yes | X26 (no row!) | — | 5 (5 / 0) | — |
-| INQUIRE TERMINAL | full | yes (5 options) | yes | X26 (no row!) | uctranst | 0 | — |
-| SET TERMINAL | full | yes (5 options) | yes | X26 (no row!) | — | 0 | — |
+| BIF DEEDIT | full | yes (5 options) | yes | X26 | — | 5 (5 / 0) | — |
+| INQUIRE TERMINAL | full | yes (5 options) | yes | X26 | uctranst | 0 | — |
+| SET TERMINAL | full | yes (5 options) | yes | X26 | — | 0 | — |
 | LOAD | engine-only | refused whole | refused whole | — | — | 0 | — |
 | RELEASE | engine-only | refused whole | refused whole | — | — | 0 | — |
 

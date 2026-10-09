@@ -80,6 +80,9 @@ def test_the_index_numbers_come_from_the_reports():
         rs = [r for r in reps if r["burned"] == burned]
         have |= {str(sum(r["summary"]["programs"] for r in rs))}
         have |= {str(sum(r["summary"]["histogram"][lv] for r in rs)) for lv in er.LEVELS}
+        have |= {
+            str(sum(er.stale_counts(r["summary"])[lv] for r in rs)) for lv in er.LEVELS
+        }  # "(k stale)" cells (#4730)
     missing = set(_NUMBER.findall((er.OUT / "README.md").read_text("utf-8"))) - have
     assert not missing, sorted(missing)
 
@@ -213,7 +216,7 @@ def test_check_fails_on_an_edited_report(tmp_path, monkeypatch):
     for name in ("report.json", "report.md"):
         (tmp_path / estate / name).write_text((er.OUT / estate / name).read_text("utf-8"))
     monkeypatch.setattr(er, "OUT", tmp_path)
-    er.write({tmp_path / "README.md": er.render_index([json.loads((tmp_path / estate / "report.json").read_text())])})
+    er.write(er.expected())  # the committed JSON may predate a format change (#4730): the bot regenerates it on main
     assert er.main(["--check"]) == 0
     md = tmp_path / estate / "report.md"
     md.write_text(md.read_text().replace("| L0 |", "| L0 (edited) |", 1))
@@ -251,3 +254,93 @@ def test_deltas_are_advisory_and_name_the_level_changes(tmp_path, monkeypatch, c
     assert er.main(["--deltas"]) == 0
     out = capsys.readouterr().out
     assert "differ from what the repo makes now" in out and rep["programs"][0]["program"] in out and "L5" in out
+
+
+# ---- #4730: a stale level is kept, marked, and never current --------------------------------------------------------
+CASE = "carddemo-adminmenu"  # a carddemo program's case, whose coverage the ledger holds
+FULL = [4, 4, 2, 2]
+STALE = {"coverage": FULL, "stale_inputs": ["harness", "oracle"], "stale_since": "abc1234def5678"}
+
+
+def stale_fixture(tmp_path, monkeypatch, cov):
+    """A tmp OUT holding the carddemo report refreshed with the ledger's measurement of CASE = cov (list: current;
+    dict: stale on a scheduled input; None: unknown). Live status is the same measurement (no tree needed)."""
+    estate = "aws-mainframe-modernization-carddemo"
+    old = json.loads((er.OUT / estate / "report.json").read_text("utf-8"))
+    old["measured"]["det_coverage"] = {**old["measured"]["det_coverage"], CASE: cov}
+    (tmp_path / estate).mkdir(exist_ok=True)
+    monkeypatch.setattr(er, "OUT", tmp_path)
+    (tmp_path / estate / "report.json").write_text(er.dumps(old), "utf-8")
+    monkeypatch.setattr(er, "record_status", lambda: old["measured"]["record_status"])
+    monkeypatch.setattr(er, "det_coverage", lambda: old["measured"]["det_coverage"])
+    er.write(er.expected(True))
+    return estate
+
+
+def program_of(tmp_path, estate):
+    rep = json.loads((tmp_path / estate / "report.json").read_text("utf-8"))
+    return rep, next(p for p in rep["programs"] if p["equivalence"]["chosen"]["case"] == CASE)
+
+
+def test_a_harness_only_change_keeps_the_last_level_marked_stale(tmp_path, monkeypatch):
+    estate = stale_fixture(tmp_path, monkeypatch, STALE)
+    rep, p = program_of(tmp_path, estate)
+    assert (p["level"], p["level_current"]) == ("L3", False)  # not 0 / unknown
+    assert p["stale_inputs"] == ["harness", "oracle"] and p["stale_since"] == "abc1234def5678"
+    assert er.validate(rep, strict=True) == []
+    s = rep["summary"]
+    assert s["histogram"]["L3"] == 1 and s["histogram_stale"]["L3"] == 1 and s["levels_stale"] == 1
+    md = (tmp_path / estate / "report.md").read_text("utf-8")
+    assert f"| {p['program']} | L3* |" in md and "stale since `abc1234def56` (harness, oracle)" in md
+    assert "L3+: 1 (1 awaiting re-check)" in md and "How to read" in md and "Stale levels" in md
+    assert not er._FORBIDDEN.search(md)
+
+
+def test_a_current_measurement_is_a_current_level(tmp_path, monkeypatch):
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    rep, p = program_of(tmp_path, estate)
+    assert (p["level"], p["level_current"], p["stale_inputs"], p["stale_since"]) == ("L3", True, [], None)
+    assert rep["summary"]["levels_stale"] == 0 and er.validate(rep, strict=True) == []
+
+
+def test_a_blocking_change_drops_the_level(tmp_path, monkeypatch):
+    estate = stale_fixture(tmp_path, monkeypatch, None)  # det_coverage() maps a case / corpus change to None
+    _, p = program_of(tmp_path, estate)
+    assert (p["level"], p["level_current"]) == ("L2", True)
+
+
+def test_det_coverage_keeps_scheduled_staleness_and_drops_blocking(monkeypatch):
+    import det_coverage_ledger as dcl
+
+    base = {"coverage": (4, 4, 2, 2), "measured_at": "deadbeef"}
+    got = {}
+    monkeypatch.setattr(dcl, "load", lambda: {})
+    for name, last in {
+        "current": {**base, "stale_inputs": [], "blocking": False},
+        "harness": {**base, "stale_inputs": ["harness"], "blocking": False},
+        "case": {**base, "stale_inputs": ["harness", "case"], "blocking": True},
+        "none": None,
+    }.items():
+        monkeypatch.setattr(dcl, "last_coverage", lambda case, ledger, last=last: last)
+        got[name] = er.det_coverage()[CASE]
+    assert got["current"] == FULL
+    assert got["harness"] == {"coverage": FULL, "stale_inputs": ["harness"], "stale_since": "deadbeef"}
+    assert got["case"] is None and got["none"] is None
+
+
+def test_the_release_gate_fails_while_a_level_is_stale(tmp_path, monkeypatch, capsys):
+    stale_fixture(tmp_path, monkeypatch, STALE)
+    assert er.main(["--check", "--live"]) == 1  # the files are what the tree makes, yet the gate fails
+    assert "stale level" in capsys.readouterr().err
+    stale_fixture(tmp_path, monkeypatch, FULL)
+    assert er.main(["--check", "--live"]) == 0
+
+
+def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
+    stale_fixture(tmp_path, monkeypatch, FULL)  # committed: current
+    now = {**er.det_coverage(), CASE: STALE}  # the harness moved since
+    monkeypatch.setattr(er, "det_coverage", lambda: now)
+    assert er.main(["--deltas", "--live"]) == 0
+    out = capsys.readouterr().out
+    assert "1 stale" in out and "L3*" in out and "abc1234def56" in out and "harness, oracle" in out
+    assert "L3 | L3*" in out  # level now (current) | level after refresh (stale)

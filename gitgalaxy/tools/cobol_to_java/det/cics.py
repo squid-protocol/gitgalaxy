@@ -117,7 +117,7 @@ def _arg(v: str | None) -> str:
 
 
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
-_BARE_OPTIONS = ("NOTRUNCATE",)
+_BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -846,26 +846,38 @@ class Cics:
         if verb == "ASSIGN":
             return self.assign(opts, ind)
         if verb == "ASKTIME":
+            if "ABSTIME" not in opts:  # #4737: only EIBDATE / EIBTIME are updated, and the region keeps them (X4)
+                return [f"{ind}task.asktime();"]
             return [
                 f"{ind}Cobol.store({self.field(_arg(opts['ABSTIME']))}, BigDecimal.valueOf(task.asktime()), false, CS);"
             ]
         if verb == "FORMATTIME":
             t = f"Cobol.num({self.field(_arg(opts['ABSTIME']))}, CS).longValue()"
-            out = []
+            body = []
             for form in DATE_FORMS:
                 if form in opts:
                     # DATESEP with no value is IBM's default separator, '/'; no DATESEP, none
                     sep = (self.text(_arg(opts["DATESEP"])) if opts.get("DATESEP")
                            else '"/"' if "DATESEP" in opts else '""')  # fmt: skip
-                    out.append(f"{ind}Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
-                               f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
+                    body.append(f"Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
+                                f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
             if "TIME" in opts:
                 sep = (self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP")
                        else '":"' if "TIMESEP" in opts else '""')  # TIMESEP alone: IBM's ':'  # fmt: skip
-                out.append(f"{ind}Cobol.move(CicsTask.formatTime({t}, {sep}), {self.field(_arg(opts['TIME']))}, CS);")
-            if not out:
+                body.append(f"Cobol.move(CicsTask.formatTime({t}, {sep}), {self.field(_arg(opts['TIME']))}, CS);")
+            if not body:
                 raise CicsError("FORMATTIME form")
-            return out
+            if "RESP" not in opts and "RESP2" not in opts:
+                # #4737 (X28): without RESP the INVREQ's handling (HANDLE CONDITION, the default abend) is not modelled:
+                # CicsTask.formatDate / formatTime refuse an ABSTIME below zero at run time
+                return [f"{ind}{ln}" for ln in body]
+            # INVREQ RESP2 1 for an ABSTIME below zero (IBM), nothing written, through RESP / RESP2
+            chk = g.tmpname("fmt")
+            return [f"{ind}int[] {chk} = CicsTask.formattimeCheck({t});",
+                    f"{ind}if ({chk}[0] == 0) {{",
+                    *[f"{ind}    {ln}" for ln in body],
+                    f"{ind}}}",
+                    *self.outcome(opts, f"{chk}[0]", f"{chk}[1]", ind)]  # fmt: skip
         if key == "BIF DEEDIT":  # #4415 slice 1: IBM, EXEC CICS BIF DEEDIT (register X26)
             fld = self.field(_arg(opts.get("FIELD")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{fld}.length()"
@@ -1161,7 +1173,8 @@ class Cics:
                     f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
                 )
             out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));")
-            if opts.get("LENGTH"):
+            # #4737: LENGTH(LENGTH OF x) / a literal is the most the program takes; CICS's length goes to a temporary
+            if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
                 out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
                            f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
             if opts.get("ITEM") and "NEXT" in opts:
@@ -1261,6 +1274,9 @@ class Cics:
         return out + self.outcome(opts, "0", "0", ind)
 
     def receive_map(self, opts: dict, ind: str) -> list[str]:
+        # #4737 (X28): ASIS -- IBM: "lowercase characters in the 3270 input data stream are not translated to uppercase".
+        # The operator's input reaches the program as typed (CicsTask.receive), which is what ASIS asks for
+        as_is = "ASIS" in opts  # noqa: F841  (the option is honoured by doing nothing: no translation exists to switch off)
         m, ms, guard = self.map_names(opts, opts.get("INTO"), "I", ind)
         cls = self.gp.screens.get(m)
         if cls is None:

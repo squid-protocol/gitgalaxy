@@ -128,6 +128,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
 | X26 | CICS | BIF DEEDIT FIELD [LENGTH] edited in place in the region's EBCDIC page (CCSID 037); INQUIRE / SET TERMINAL UCTRANST as the CVDAs UCTRAN 450 / NOUCTRAN 451 / TRANIDONLY 452, the terminal's value stated by the run (the case TYPETERM's UCTRAN), a terminal RECEIVE after a SET refused; DFHVALUE(name) in the stub's programs is IBM's CVDA number; a DEEDIT field with no digit left, beyond 7-bit ASCII or past LENGTH, and the UCTRANST of a terminal other than the task's, refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-deedit-uctranst, unreleased) |
 | X27 | CICS | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | yes (cics-crucible pc-return-immediate, unreleased) |
+| X28 | CICS | FORMATTIME with RESP / RESP2: INVREQ RESP2 1 for an ABSTIME below zero, nothing formatted (without RESP the INVREQ's handling is refused at run time); ASKTIME with NOHANDLE and without ABSTIME (EIBDATE / EIBTIME as dispatched, X4); READQ TS ... LENGTH(LENGTH OF area): the most INTO takes, LENGERR truncation, no length stored back; RECEIVE MAP ... ASIS: input delivered as typed, lower case kept; an ABSTIME that is not packed decimal (the port reads the field by its declared usage), STRINGFORMAT (RESP2 2) and the output areas of an INVREQ FORMATTIME not modelled / not read | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-resp-options, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -1351,6 +1352,35 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   SYSIDERR, TERMERR) cannot occur.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible pc-return-immediate (4) on
   the cobol-stub side and the det port.
+
+### X28. FORMATTIME RESP, ASKTIME NOHANDLE, READQ TS LENGTH(LENGTH OF), RECEIVE MAP ASIS — ASSUMED, REFUSED where IBM is silent (#4737)
+- **FORMATTIME** (CICS TS 6.x, EXEC CICS FORMATTIME, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-formattime).
+  INVREQ (RESP 16): RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal format", RESP2 2 "Invalid CVDA
+  value for the STRINGFORMAT option"; the default action is to terminate the task abnormally (AEIP). The runtimes check the
+  ABSTIME value (`CicsTask.formattimeCheck`; the stub's COBOL) when RESP or RESP2 is given and write RESP 16 / RESP2 1 for one
+  below zero (nothing formatted; EIBRESP / EIBRESP2 and RESP / RESP2 written). With neither, INVREQ's handling (a HANDLE
+  CONDITION label, the default abend AEIP) is REFUSED at run time by name for an ABSTIME below zero (`CicsTask.formatDate` /
+  `formatTime`; the stub's `FORMATTIME ABSTIME < 0 NO RESP: not modelled`): the corpora's FORMATTIMEs take the
+  ABSTIME of an ASKTIME. "Not in packed-
+  decimal format" is the declared storage's business: a port reads ABSTIME by its declared usage, so it is not checked
+  (X4's `ASKTIME` size note applies). STRINGFORMAT is not an option here (refused by name). IBM does not say what the
+  output areas hold after INVREQ: the runtimes leave them alone and the case does not read them (ASSUMED).
+- **ASKTIME NOHANDLE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-asktime): "ASKTIME updates the date (EIBDATE)
+  and CICS time-of-day clock (EIBTIME) fields in the EIB"; NOHANDLE is one of the common options and the page lists no
+  condition, so it suppresses nothing. ABSTIME is optional: without it only the EIB fields change, and the region keeps those
+  as dispatched (X4). `NOHANDLE` directly after the verb is an option, not a second verb word (the translator's parser).
+- **READQ TS LENGTH(LENGTH OF area)** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-readq-ts): "If you specify INTO,
+  LENGTH defines the maximum length of data that the program accepts"; a longer item "is truncated to that value and the
+  LENGERR condition occurs"; the LENGTH data area is "set to the original length of the data record". `LENGTH OF` is a
+  compile-time constant, so it is the maximum and CICS's length goes to a temporary nobody reads: both sides do not store it
+  back (a literal LENGTH is the same). IBM lists no RESP2 for LENGERR.
+- **RECEIVE MAP ... ASIS** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map): ASIS "specifies that
+  lowercase characters in the 3270 input data stream are not translated to uppercase" (no effect on the first RECEIVE of a
+  transaction). The runtimes deliver the operator's input as typed, which is what ASIS asks for. A RECEIVE MAP without ASIS on
+  a UCTRAN(YES) terminal (X26) would translate on z/OS: the runtimes do not model that translation and no case reads it
+  (REFUSED where IBM is silent: the page does not tabulate UCTRAN against ASIS).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-resp-options (4) on the
+  cobol-stub side and the det port.
 
 ## Language Environment
 

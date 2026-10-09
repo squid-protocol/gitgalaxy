@@ -404,7 +404,8 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "READQ":
         lines.append(f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM")
         lines += _call("GGCREADQ", [f"BY REFERENCE {area}"])
-        if length:
+        if length and not _literal(length) and not re.fullmatch(r"(?is)LENGTH\s+OF\s+.+", length.strip()):
+            # (#4737: a literal / LENGTH OF is the most INTO takes; CICS's length goes to a temporary nobody reads)
             after += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
     else:
         rewrite = "REWRITE" in opts
@@ -630,7 +631,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 "    - FUNCTION INTEGER-OF-DATE(19000101)) * 86400000",
                 "    + GG-HH * 3600000 + GG-MI * 60000", "    + GG-SS * 1000 + GG-CS * 10"]  # fmt: skip
     if verb == "FORMATTIME":
-        return _formattime(opts)
+        out = _formattime(opts)
+        return out + _resp(opts, True, labels) if opts.get("RESP") or opts.get("RESP2") else out
     if verb == "SYNCPOINT":
         _check_spec("SYNCPOINT", opts, (verb,))
         mode = "MOVE 'ROLLBACK' TO GG-FLAGS" if "ROLLBACK" in opts else "MOVE SPACES TO GG-FLAGS"
@@ -1305,12 +1307,20 @@ def _formattime(opts: dict[str, str]) -> list[str]:
         return (["MOVE SPACES TO GG-OUT", "STRING " + " ".join(pieces), "    DELIMITED BY SIZE INTO GG-OUT"]
                 + [f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})"])  # fmt: skip
 
+    body: list[str] = []
     for form, parts in _DATE_FORMS.items():
         if opts.get(form):
-            lines += build(parts, sep("DATESEP", "/"), opts[form])
+            body += build(parts, sep("DATESEP", "/"), opts[form])
     if opts.get("TIME"):
-        lines += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
-    return lines
+        body += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
+    # #4737 (X28): IBM, INVREQ RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal format": with RESP /
+    # RESP2 nothing is formatted and the condition is the program's; without them INVREQ's handling is not modelled
+    # (refused, as CicsTask refuses it)
+    if not opts.get("RESP") and not opts.get("RESP2"):
+        return [f"IF {t} < 0", "    DISPLAY 'FORMATTIME ABSTIME < 0 NO RESP: not modelled'",
+                "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"] + lines + body  # fmt: skip
+    return (["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2", f"IF {t} < 0", "    MOVE 16 TO GG-RESP",
+             "    MOVE 1 TO GG-RESP2", "ELSE"] + [f"    {ln}" for ln in lines + body] + ["END-IF"])  # fmt: skip
 
 
 # ---- running a case -------------------------------------------------------------------
@@ -3156,8 +3166,16 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             lvl = re.search(r"\blevel=(\d+)", args)
             if "resp=" in args:  # #4270: a RETURN IMMEDIATE that failed (INVREQ / LENGERR): CicsTask.returnImmediate
                 kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-                out.append({"event": "RETURN", "level": int(kv["level"]), "immediate": True, "transid": kv["transid"],
-                            "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])})
+                out.append(
+                    {
+                        "event": "RETURN",
+                        "level": int(kv["level"]),
+                        "immediate": True,
+                        "transid": kv["transid"],
+                        "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
+                        "resp2": int(kv["resp2"]),
+                    }
+                )
             elif lvl and int(lvl.group(1)) > 1:  # a LINKed program's RETURN: back to its caller, no COMMAREA of its own
                 out.append({"event": "RETURN", "transid": None, "commarea": None})
             else:

@@ -354,7 +354,6 @@ class _KeyCics(_RbaCics):
         "ASSIGN NETNAME(REC) APPLID(REC)",
         "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DAYOFMONTH(KEY)",
         "ASKTIME ABSTIME(REC) RESP(R)",
-        "RECEIVE MAP('M') MAPSET('S') INTO(REC) ASIS",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
         "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
@@ -879,7 +878,7 @@ def test_syncpoint_resp2_alone_is_written_too():
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
 # is written (or need not be).
 _RESP_SAMPLES = {
-    "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
+    "FORMATTIME": "FORMATTIME ABSTIME(REC) DDMMYYYY(KEY)", "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
     "SEND TEXT": "SEND TEXT FROM(REC)", "XCTL": "XCTL PROGRAM('P')", "ASSIGN": "ASSIGN APPLID(REC)",
     "READ": "READ FILE('KSDS') INTO(REC) RIDFLD(KEY)", "READNEXT": "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY)",
     "READPREV": "READPREV FILE('KSDS') INTO(REC) RIDFLD(KEY)", "STARTBR": "STARTBR FILE('KSDS') RIDFLD(KEY)",
@@ -2316,3 +2315,23 @@ def test_return_immediate_and_link_synconreturn():
         _ChanCics().command("RETURN IMMEDIATE", "")
     plain = _ChanCics().command("LINK PROGRAM('P') RESP(R)", "")
     assert _ChanCics().command("LINK PROGRAM('P') SYNCONRETURN RESP(R)", "") == plain
+
+
+def test_asktime_nohandle_formattime_resp_and_readq_length_of():
+    """#4737 (register X28): ASKTIME NOHANDLE (the option is no verb word; ABSTIME optional), FORMATTIME RESP (INVREQ
+    RESP2 1 for ABSTIME below zero, nothing written), READQ TS LENGTH(LENGTH OF x) (the most INTO takes, no store back)."""
+    c = _ChanCics()
+    assert C.parse_exec("EXEC CICS ASKTIME NOHANDLE ABSTIME(A) NOHANDLE END-EXEC")[0] == ["ASKTIME"]
+    assert c.command("ASKTIME NOHANDLE", "") == ["task.asktime();"]
+    assert "task.asktime()" in c.command("ASKTIME ABSTIME(REC) NOHANDLE", "")[0]
+    out = c.command("FORMATTIME ABSTIME(REC) DDMMYYYY(KEY) DATESEP RESP(R)", "")
+    assert out[0].startswith("int[] fmt") and out[0].endswith(".longValue());") and out[1].endswith("[0] == 0) {")
+    assert out[2].lstrip().startswith("Cobol.move(CicsTask.formatDate(") and out[3] == "}"
+    assert out[4].startswith("OUTCOME(fmt") and "[0]" in out[4] and "[1]" in out[4]
+    plain = c.command("FORMATTIME ABSTIME(REC) TIME(KEY) NOHANDLE", "")  # (no RESP: unchanged; the runtime refuses < 0)
+    assert len(plain) == 1 and plain[0].startswith("Cobol.move(CicsTask.formatTime(")
+    out = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(LENGTH OF REC) RESP(R)", "")
+    assert not any("Cobol.store" in x and "length()" in x for x in out)
+    assert any("readqTsNext" in x for x in out)
+    stored = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(KEY) RESP(R)", "")
+    assert any("Cobol.store" in x and "length()" in x for x in stored)

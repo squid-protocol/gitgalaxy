@@ -44,7 +44,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | REWRITE | full | yes (7 options, 1 refused by name) | yes | — | — | 11 (10 / 1) | — |
 | DELETE | full | yes (10 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | — |
 | SEND MAP | full | yes (22 options, 1 refused by name) | yes | — | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
-| RECEIVE MAP | full | yes (6 options, 1 refused by name) | yes | — | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
+| RECEIVE MAP | full | yes (7 options, 1 refused by name) | yes | — | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
 | LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
@@ -65,7 +65,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DELAY | full | yes (10 options) | yes | — | — | 20 (11 / 9) | — |
 | GET COUNTER | full | yes (5 options) | yes | — | — | 2 (2 / 0) | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
-| FORMATTIME | full | yes (11 options) | yes | — | — | 56 (55 / 1) | — |
+| FORMATTIME | full | yes (13 options) | yes | — | — | 56 (55 / 1) | — |
 | INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
 | SYNCPOINT | full | yes (4 options) | yes | X3 | — | 15 (9 / 6) | — |
 | SYNCPOINT ROLLBACK | full | yes (3 options) | yes | X3 | — | 14 (14 / 0) | — |

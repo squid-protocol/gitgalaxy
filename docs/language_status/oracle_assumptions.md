@@ -331,6 +331,30 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
     Guide, "Conversions and precision"). Comparisons are long, unless both comparands are COMP-1.
   - DISPLAY: "A COMP-1 item will display as if it had an external floating-point PICTURE clause of -.9(8)E-99"
     (COMP-2: -.9(17)E-99; 6.4 Language Reference, DISPLAY statement): ` .12500000E 02`.
+  - **FUNCTION NUMVAL / NUMVAL-C in a floating-point expression (#4270).** "The returned value is a floating-point
+    approximation of the numeric value represented by argument-1. The precision of the returned value depends on the
+    setting of the ARITH compiler option" (6.4 Language Reference, SC27-8713-03, NUMVAL, p. 605); "NUMVAL, NUMVAL-C
+    and NUMVAL-F return long (64-bit) floating-point values in compatibility mode, and return extended-precision
+    (128-bit) floating-point values in extended mode" (6.4 Programming Guide, "Converting to numbers (NUMVAL,
+    NUMVAL-C, NUMVAL-F)", p. 115). So the det runtime makes NUMVAL a long HFP operand (`Hfp.numval`): the statement
+    is long (a function is no COMP-1 item, so never short), a COMP-1 receiver rounds the long result to short, a
+    float MOVEd on to fixed point rounds (above). The digits are converted as any fixed-point value (truncated to
+    long, ASSUMED below). Refused by name at run time, where IBM describes no result: an argument of more than 18
+    digits ("If the ARITH(COMPAT) compiler option is in effect, the total number of digits must not exceed 18",
+    Language Reference) and a value of more than 15 digits from its first nonzero one ("At most 15 decimal digits
+    can be converted accurately to long-precision floating point ... Otherwise, the result may lose precision in an
+    unexpected manner", Programming Guide p. 115). Under ARITH(EXTEND) (the program's PROCESS / CBL cards over the
+    estate's PARM, `program.arith_extend`, the resolver TRUNC and NUMPROC use) every floating-point expression is
+    refused by name: extended-precision HFP is not modelled. Proven against the oracle by `test_det_programs.py`
+    NUMVALF (exact values, CBSA's shapes: a COMP-1 and a COMP-2 receiver, a reference-modified argument, signs, CR,
+    NUMVAL-C, zero, two NUMVALs added, a NUMVAL comparand, the compare and MOVE that follow), and by vectors in
+    `test_det_hfp.py`. **The oracle DIFFERS** where the value is not exact in IEEE and HFP: GnuCOBOL computes NUMVAL in
+    decimal, stores the nearest IEEE float and truncates it on a MOVE to fixed point -- measured on GnuCOBOL 3.1.2
+    (2026-10-08): NUMVAL('0.7') into a COMP-1 then MOVEd to `9(4)V99` gives 0.69 (det, as IBM rounds: 0.70), NUMVAL
+    ('12.34') into a COMP-2 then to `9(10)V99` 12.33 (det 12.34). A CBSA case through BNK1CAC / BNK1UAC (an interest
+    rate into a COMP-1) or BNK1TFN / BNK1CRA (an amount into a COMP-2) agrees with the oracle only for values exact
+    in both formats (a binary fraction: 1.5, 2.25, 100.50, 12.75); no case runs them yet. NUMVAL in a *fixed-point*
+    COMPUTE is still exact decimal, as the oracle computes it, though IBM evaluates it in floating point too (#4741).
   - **ASSUMED** (IBM does not document them): a fixed-point value converted to float is truncated to long (then
     rounded to short for a COMP-1); the mantissa of DISPLAY is rounded half away from zero; an arithmetic statement
     that stores a float result in a fixed-point receiver truncates unless ROUNDED (the COBOL rule), and a statement
@@ -346,15 +370,17 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE, a REDEFINES, a reference
   modification, STRING, a CALL argument, a record written, a COMMAREA); a float MOVEd to or from a nonnumeric item;
   a comparison with a nonnumeric operand; exponentiation in a floating-point expression (a run-time routine IBM does
-  not document bit for bit); an intrinsic function in one (IBM's floating-point functions); ON SIZE ERROR and
-  ROUNDED into a float, DIVIDE ... REMAINDER in floating point. In the runtime: an HFP exponent overflow or
-  underflow (what z/OS does depends on the program mask and Language Environment). `ggdisplay.c` still refuses the
-  DISPLAY of a float on the COBOL side (C8), so no proof compares one.
+  not document bit for bit); an intrinsic function in one but NUMVAL / NUMVAL-C (IBM's floating-point functions);
+  any floating-point expression under ARITH(EXTEND); ON SIZE ERROR and ROUNDED into a float, DIVIDE ... REMAINDER
+  in floating point. In the runtime: an HFP exponent overflow or underflow (what z/OS does depends on the program
+  mask and Language Environment), a NUMVAL argument past 18 digits or 15 significant ones. `ggdisplay.c` still
+  refuses the DISPLAY of a float on the COBOL side (C8), so no proof compares one.
 - **Waiting on it.**
   - `mortgage-mpmt` (EPSMPMT): its interest rate is now computed in long HFP, but the payment's `(1 + C) ** N`, N
     with decimal places, is a floating-point exponentiation: the one hole, so the case stays in the det sweep's
     baseline (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
-  - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases.
+  - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
+    BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),

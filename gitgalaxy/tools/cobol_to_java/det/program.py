@@ -326,6 +326,16 @@ def trunc_std(program: Path, options: list[str] | None = None, declared: str | N
     return str(eff.get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
 
 
+def arith_extend(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
+    """Whether the program is compiled with ARITH(EXTEND): its CBL / PROCESS cards over `options` (the compile step's
+    PARM), else IBM's default, COMPAT -- the same resolver as TRUNC and NUMPROC (#4704)."""
+    from gitgalaxy.core.compiler_options import effective_with_defaults
+    from gitgalaxy.core.source_text import read_source
+
+    eff = effective_with_defaults(options, read_source(program, declared=declared).text)
+    return str(eff.get("ARITH") or "").upper() == "EXTEND"
+
+
 def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
@@ -549,6 +559,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
+    # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
+    gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
     for rec in records:
         gen.root_of[id(rec)] = id(roots[id(rec)])

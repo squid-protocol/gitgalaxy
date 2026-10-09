@@ -753,6 +753,54 @@ PROGRAMS = {
             "MOVE ZERO TO L1 MOVE L1 TO N2 DISPLAY N2",
         ],
     ),
+    # #4270 (CBSA BNK1CAC / BNK1UAC / BNK1TFN / BNK1CRA): FUNCTION NUMVAL / NUMVAL-C in a floating-point expression,
+    # a long HFP operand on z/OS (IBM: "NUMVAL, NUMVAL-C and NUMVAL-F return long (64-bit) floating-point values in
+    # compatibility mode"): into a COMP-1 (rounded to short) and a COMP-2, an argument reference-modified by a
+    # length item, signs (leading, trailing CR), a currency sign and commas, zero, two NUMVALs added, a NUMVAL
+    # comparand, then the comparisons and MOVEs to fixed point the CBSA programs make. Every value is exact in IEEE,
+    # HFP and at its receiver's scale, so the two must agree (the inexact ones: test_det_hfp.py, register C6)
+    "NUMVALF": program(
+        "NUMVALF",
+        [
+            "01 INTRTI PIC X(7) VALUE '  12.5 '.",
+            "01 AMTI   PIC X(12) VALUE '1234.75 XXXX'.",
+            "01 AMTL   PIC S9(4) COMP VALUE 7.",
+            "01 NEGT   PIC X(8) VALUE ' -0.375'.",
+            "01 CRV    PIC X(10) VALUE '3.25 CR'.",
+            "01 CUR    PIC X(12) VALUE '$1,024.50'.",
+            "01 ZT     PIC X(8) VALUE '   0.00'.",
+            "01 BIGT   PIC X(9) VALUE '10000.5'.",
+            "01 R1 COMP-1.",
+            "01 W2 COMP-2.",
+            "01 RT  PIC 9(4)V99.",
+            "01 AMT PIC S9(10)V99 SIGN LEADING SEPARATE.",
+            "01 N1  PIC S9(5)V9(4) SIGN LEADING SEPARATE.",
+        ],
+        [
+            "COMPUTE R1 = FUNCTION NUMVAL(INTRTI)",
+            "IF R1 < 0 DISPLAY 'NEG' ELSE DISPLAY 'NOT NEG' END-IF",
+            "IF R1 > 9999.99 DISPLAY 'BIG' ELSE DISPLAY 'OK' END-IF",
+            "MOVE R1 TO RT DISPLAY RT",
+            "COMPUTE W2 = FUNCTION NUMVAL(AMTI(1:AMTL))",
+            "IF W2 <= 0 DISPLAY 'LE0' ELSE DISPLAY 'GT0' END-IF",
+            "MOVE W2 TO AMT DISPLAY AMT",
+            "COMPUTE R1 = FUNCTION NUMVAL(NEGT)",
+            "IF R1 < 0 DISPLAY 'NEG' ELSE DISPLAY 'NOT NEG' END-IF",
+            "MOVE R1 TO N1 DISPLAY N1",
+            "COMPUTE W2 = FUNCTION NUMVAL(CRV) MOVE W2 TO N1 DISPLAY N1",
+            "COMPUTE W2 = FUNCTION NUMVAL-C(CUR) MOVE W2 TO N1 DISPLAY N1",
+            "COMPUTE W2 = FUNCTION NUMVAL(ZT)",
+            "IF W2 = ZERO DISPLAY 'ZERO' ELSE DISPLAY 'NONZERO' END-IF",
+            "COMPUTE R1 = FUNCTION NUMVAL(BIGT)",
+            "IF R1 > 9999.99 DISPLAY 'BIG' ELSE DISPLAY 'OK' END-IF",
+            "COMPUTE W2 = FUNCTION NUMVAL(INTRTI) + FUNCTION NUMVAL(NEGT)",
+            "MOVE W2 TO N1 DISPLAY N1",
+            "COMPUTE W2 = FUNCTION NUMVAL('  2.5') - W2",
+            "MOVE W2 TO N1 DISPLAY N1",
+            "IF W2 < FUNCTION NUMVAL(INTRTI)",
+            "   DISPLAY 'LT' ELSE DISPLAY 'GE' END-IF",
+        ],
+    ),
     # #4501: a COMP-5 VALUE beyond its PICTURE keeps its value (IBM: the native binary capacity), little-endian as
     # the runtime reads it -- 32767 read back as -12534 before
     "COMP5": program(

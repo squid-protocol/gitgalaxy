@@ -172,6 +172,8 @@ class Gen:
         self._init_bytes = 0  # > 0 inside INITIALIZE: a group is walked to its elementary items, never copied
         self.float_top: int = 0  # id of the COMPUTE expression whose own division may be libcob's NaN (#4675)
         self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
+        # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
+        self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
@@ -518,6 +520,13 @@ class Gen:
     def fnum(self, e) -> str:
         """A floating-point expression (self.fmode): HFP values as exact BigDecimals (cobolrt/Hfp) -- a float item
         as it is, any other operand converted to long, each operation HFP's own (truncating, one guard digit)."""
+        if self.arith_extend:
+            # IBM: under ARITH(EXTEND) a floating-point expression with a multiplication, an exponentiation or any
+            # operand but a COMP-1 / COMP-2 item is computed in extended precision, and NUMVAL returns a 128-bit
+            # value (6.4 Programming Guide, Appendix A, "Floating-point data and intermediate results"): the det
+            # runtime models long and short HFP only (registers C5, C6)
+            raise Untranslatable("ARITH(EXTEND): a floating-point expression (extended-precision HFP is not modelled; "
+                                 "oracle_assumptions.md C5, C6)")  # fmt: skip
         lng = _b(self.fmode == "LONG")
         if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
             return f"Hfp.of({self.const(e.value)})"
@@ -544,6 +553,23 @@ class Gen:
         if isinstance(e, E.LengthOf):
             with self.floating(None):
                 return f"Hfp.of({self.num(e)})"
+        if (
+            isinstance(e, E.Func)
+            and e.name in ("NUMVAL", "NUMVAL-C")
+            and len(e.args) == 1
+            and not isinstance(e.args[0], tuple)
+        ):
+            # IBM: "The returned value is a floating-point approximation of the numeric value represented by
+            # argument-1" (6.4 Language Reference, NUMVAL); "NUMVAL, NUMVAL-C and NUMVAL-F return long (64-bit)
+            # floating-point values in compatibility mode" (6.4 Programming Guide, "Converting to numbers"): a long
+            # HFP operand, whatever the statement's mode (Hfp.numval; register C6)
+            with self.floating(None):
+                self.intr += 1
+                try:
+                    arg = self.numval_arg(e.args[0])
+                finally:
+                    self.intr -= 1
+            return f"Hfp.numval({arg}, {_b(e.name == 'NUMVAL-C')})"
         if isinstance(e, E.Func):
             raise Untranslatable(f"FUNCTION {e.name} in a floating-point expression (oracle_assumptions.md C6)")
         raise Untranslatable(f"floating-point expression {type(e).__name__}")
@@ -1010,12 +1036,7 @@ class Gen:
         if name == "CURRENT-DATE":
             return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
-            arg = self.text(args[0])
-            if any(r.decimal_comma for r in self.p.records):
-                # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
-                # swapped, it is the text the functions read with the standard ones (a position for a position)
-                arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
-            return f"Funcs.{_camel(name)}({arg})"
+            return f"Funcs.{_camel(name)}({self.numval_arg(args[0])})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
         if name in ("MOD", "REM", "MIN", "MAX") and len(args) >= 2:
@@ -1027,6 +1048,15 @@ class Gen:
             self.uses_random = True
             return f"funcRandom.next({self.num(args[0])})" if args else "funcRandom.next()"
         raise Untranslatable(f"FUNCTION {name}")
+
+    def numval_arg(self, a) -> str:
+        """The text NUMVAL / NUMVAL-C (and their TEST- functions) read from argument-1."""
+        arg = self.text(a)
+        if any(r.decimal_comma for r in self.p.records):
+            # #4462: DECIMAL-POINT IS COMMA -- the argument's `,` is its decimal point and `.` its separator:
+            # swapped, it is the text the functions read with the standard ones (a position for a position)
+            arg = f"{arg}.replace('.', '\\u0000').replace(',', '.').replace('\\u0000', ',')"
+        return arg
 
     @_reads
     def text(self, e) -> str:

@@ -135,6 +135,33 @@ public final class Hfp {
         return h == null ? BigDecimal.ZERO : value(h, LONG);
     }
 
+    /** FUNCTION NUMVAL / NUMVAL-C in a floating-point expression, under ARITH(COMPAT): "NUMVAL, NUMVAL-C and
+     *  NUMVAL-F return long (64-bit) floating-point values in compatibility mode" (Enterprise COBOL 6.4 Programming
+     *  Guide, SC27-8714-03, "Converting to numbers"; Language Reference, NUMVAL: "a floating-point approximation of
+     *  the numeric value represented by argument-1"). The value is converted as any fixed-point value ({@link #of}:
+     *  truncated to 14 hexadecimal digits, ASSUMED, register C6). IBM bounds what it describes, and the rest is
+     *  refused by name: argument-1 holds at most 18 digits under ARITH(COMPAT) (Language Reference, NUMVAL), and "at
+     *  most 15 decimal digits can be converted accurately to long-precision floating point [...] Otherwise, the
+     *  result may lose precision in an unexpected manner" (Programming Guide, same section): more than 15 digits
+     *  from the first nonzero one (trailing zeros written included) are not modelled. */
+    public static BigDecimal numval(String s, boolean currency) {
+        int digits = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) >= '0' && s.charAt(i) <= '9') digits++;
+        }
+        if (digits > 18) {
+            throw new UnsupportedOperationException("FUNCTION NUMVAL argument of " + digits + " digits: IBM allows at"
+                    + " most 18 under ARITH(COMPAT), not modelled (register C6)");
+        }
+        BigDecimal v = currency ? Funcs.numvalC(s) : Funcs.numval(s);
+        if (v.signum() != 0 && v.precision() > 15) { // (a trailing zero written counts: IBM converts the digits)
+            throw new UnsupportedOperationException("FUNCTION NUMVAL of " + v.toPlainString() + " in floating point:"
+                    + " more than 15 significant digits, which IBM's long-precision conversion may not keep (Programming"
+                    + " Guide, \"Converting to numbers\"), not modelled (register C6)");
+        }
+        return of(v);
+    }
+
     /** A long value rounded to short (LOAD ROUNDED): a one added at the first discarded bit, carry propagated. */
     public static BigDecimal toShort(BigDecimal v) {
         H h = chop(v, LONG);

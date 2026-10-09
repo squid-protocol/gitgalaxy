@@ -68,15 +68,132 @@ GET_COUNTER = Command(
     key="GET COUNTER",
     ibm=ibm("EXEC CICS GET COUNTER and GET DCOUNTER", "summary-get-counter-get-dcounter"),
     status="modelled",
+    register="X30",
     options={
         "COUNTER": Arg("name", width=16),
         "POOL": Arg("name", width=8),
         "VALUE": Arg("area_out", width=4),
         "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
     groups=(required("VALUE", msg="GET COUNTER without VALUE"),),
-    outcomes=(Outcome("NORMAL", 0, "", writes=("VALUE",)), Outcome("NOTFND", None, "the counter is not defined")),
+    # X30: IBM's GET COUNTER page lists no NOTFND; "Named counter not found" is INVREQ RESP2 201
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+    ),
+    state=("handle_table",),
+)
+
+# #4415 slice 2, register X29: QUERY COUNTER reads a named counter's value without changing it. IBM (EXEC CICS QUERY COUNTER
+# and QUERY DCOUNTER): INVREQ RESP2 201 "Named counter not found", LENGERR (RESP2 1-3) for a value beyond a fullword
+# (refused by name: the region's counters are fullwords); MINIMUM / MAXIMUM (the counter's limits are not stated by the
+# run) and NOSUSPEND (BUSY needs a coupling facility) are refused
+QUERY_COUNTER = Command(
+    key="QUERY COUNTER",
+    ibm=ibm("EXEC CICS QUERY COUNTER and QUERY DCOUNTER", "summary-query-counter-query-dcounter"),
+    status="modelled",
+    register="X29",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "VALUE": Arg("area_out", width=4),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal("only the counter's value is modelled (the region states no limits)", "X29"),
+    groups=(required("VALUE", msg="QUERY COUNTER without VALUE"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a counter value beyond a fullword: IBM's LENGERR (RESP2 1-3) returns the low-order 32 bits, not modelled",
+            "X29",
+            java="QUERY COUNTER of a value beyond a fullword",
+            c="QUERY COUNTER of a value beyond a fullword",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+# #4270 named counters, register X30. IBM (EXEC CICS DEFINE COUNTER and DEFINE DCOUNTER): VALUE "If you omit both the VALUE
+# and MINIMUM parameters, the named counter is created with an initial value of zero"; INVREQ RESP2 202 "Duplicate counter
+# name. A named counter of this name already exists" (the page lists no DUPREC), 403 / 404 / 406. MINIMUM / MAXIMUM (the
+# default limits are "low-values" / "high values", whose signed reading IBM does not state), NOSUSPEND (BUSY needs a coupling
+# facility structure) and DCOUNTER (unsigned doublewords) are refused; so is a VALUE below zero (at run time).
+DEFINE_COUNTER = Command(
+    key="DEFINE COUNTER",
+    ibm=ibm("EXEC CICS DEFINE COUNTER and DEFINE DCOUNTER", "summary-define-counter-define-dcounter"),
+    status="modelled",
+    register="X30",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "VALUE": Arg("value"),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal(
+        "only a fullword counter with the default limits is modelled (the region states none)", "X30"
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 202, "Duplicate counter name. A named counter of this name already exists"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a VALUE below zero: the default minimum is low-values and IBM does not state how it reads as a signed value",
+            "X30",
+            java="DEFINE COUNTER with a VALUE below zero",
+            c="DEFINE COUNTER with a VALUE below zero",
+        ),
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+DELETE_COUNTER = Command(
+    key="DELETE COUNTER",
+    ibm=ibm("EXEC CICS DELETE COUNTER and DELETE DCOUNTER", "summary-delete-counter-delete-dcounter"),
+    status="modelled",
+    register="X30",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal("only a fullword counter is modelled", "X30"),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
+        ),
+    ),
     state=("handle_table",),
 )
 
@@ -239,11 +356,61 @@ SET_TERMINAL = Command(
     state=("terminal", "handle_table"),
 )
 
+# #4415 slice 2, register X29: INQUIRE ASSOCIATION, the origin data of the task's own association data (CBSA BNK1CRA). IBM
+# (CICS SPI command INQUIRE ASSOCIATION) lists TASKIDERR RESP2 1 (the task is not found), NOTAUTH RESP2 100 and INVREQ
+# RESP2 2 ("The command was specified with no arguments": a command with no origin option is refused, the sentence does
+# not say whether ASSOCIATION alone is "no arguments"). Only the task's own number (EIBTASKN) is modelled: the task
+# exists, no security is checked, and a task number the region does not state is refused. The five origin values are
+# facts whoever runs the task states: IBM's pages do not say what a terminal-started task's origin holds
+_OD_AREA = Arg("area_out", width=8)
+_ORIGIN_OPTIONS = ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE")
+INQUIRE_ASSOCIATION = Command(
+    key="INQUIRE ASSOCIATION",
+    ibm=ibm("CICS SPI command INQUIRE ASSOCIATION", "commands-inquire-association"),
+    status="modelled",
+    register="X29",
+    options={
+        "ASSOCIATION": Arg("value"),  # EIBTASKN only (Cics.command): IBM gives no representation for the 4 bytes
+        "ODAPPLID": _OD_AREA,
+        "ODUSERID": _OD_AREA,
+        "ODFACILNAME": _OD_AREA,
+        "ODNETWORKID": _OD_AREA,
+        "ODFACILTYPE": Arg("area_out", width=4, binary=True),  # a CVDA (DFHVALUE name numbers: det/cvda.py)
+        **RESP_OPTIONS,
+    },
+    default_refusal=Refusal(
+        "only the origin data of the association is modelled (no corpus program asks for more)", "X29"
+    ),
+    groups=(required("ASSOCIATION", msg="INQUIRE ASSOCIATION without ASSOCIATION"),),
+    outcomes=(Outcome("NORMAL", 0, "", writes=_ORIGIN_OPTIONS),),
+    facts=(
+        Fact(
+            "origin",
+            java="withOrigin",
+            env="GGCICS_ORIGIN",
+            region_default=None,
+            options=_ORIGIN_OPTIONS,
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the task's origin data is not stated for the task",
+            "X29",
+            java="the task's origin data is not stated (withOrigin)",
+            c="INQUIRE ASSOCIATION: the origin data is not stated for this task",
+        ),
+    ),
+    state=("handle_table",),
+)
+
 COMMANDS = (
     ENQ,
     DEQ,
     DELAY,
     GET_COUNTER,
+    QUERY_COUNTER,
+    DEFINE_COUNTER,
+    DELETE_COUNTER,
     ASKTIME,
     FORMATTIME,
     INQUIRE_PROGRAM,
@@ -252,4 +419,5 @@ COMMANDS = (
     BIF_DEEDIT,
     INQUIRE_TERMINAL,
     SET_TERMINAL,
+    INQUIRE_ASSOCIATION,
 )

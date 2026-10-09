@@ -87,7 +87,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
-| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
+| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
@@ -131,6 +131,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X26 | CICS | BIF DEEDIT FIELD [LENGTH] edited in place in the region's EBCDIC page (CCSID 037); INQUIRE / SET TERMINAL UCTRANST as the CVDAs UCTRAN 450 / NOUCTRAN 451 / TRANIDONLY 452, the terminal's value stated by the run (the case TYPETERM's UCTRAN), a terminal RECEIVE after a SET refused; DFHVALUE(name) in the stub's programs is IBM's CVDA number; a DEEDIT field with no digit left, beyond 7-bit ASCII or past LENGTH, and the UCTRANST of a terminal other than the task's, refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-deedit-uctranst, unreleased) |
 | X27 | CICS | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | yes (cics-crucible pc-return-immediate, unreleased) |
 | X28 | CICS | FORMATTIME with RESP / RESP2: INVREQ RESP2 1 for an ABSTIME below zero, nothing formatted (without RESP the INVREQ's handling is refused at run time); ASKTIME with NOHANDLE and without ABSTIME (EIBDATE / EIBTIME as dispatched, X4); READQ TS ... LENGTH(LENGTH OF area): the most INTO takes, LENGERR truncation, no length stored back; RECEIVE MAP ... ASIS: input delivered as typed, lower case kept; an ABSTIME that is not packed decimal (the port reads the field by its declared usage), STRINGFORMAT (RESP2 2) and the output areas of an INVREQ FORMATTIME not modelled / not read | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-resp-options, unreleased) |
+| X29 | CICS | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL: yes (cics-crucible hc-inquire-deleteq, unreleased); QUERY COUNTER: no (the reference region has no named counters; unit tests on both runtimes) |
+| X30 | CICS | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-named-counters, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -413,29 +415,22 @@ instrument). Rows for the other options of #4706 follow in its later slices.
     a long one (`float_mode`), the operand `Hfp.numval` with the same run-time refusals as above (more than 18
     digits; more than 15 significant digits). The store of the float result into a fixed-point receiver is
     `Hfp.fixedStore`: **IBM documents the float-to-fixed MOVE (rounded in the low-order position, "Conversions and
-    precision") but not an arithmetic statement's store**, and not how NUMVAL's conversion treats a value that is not
-    a hexadecimal fraction. The ASSUMED rules (truncation unless ROUNDED; NUMVAL truncated to long) and the
-    documented one disagree exactly where the long-HFP value is not on the receiver's scale: `NUMVAL('0.10')` is
-    0.0999... in long HFP (`4019999999999999`), truncated 0.09, rounded 0.10, while the oracle's exact decimal is
-    0.10. So the store is **refused by name** when the value, or the value one unit in the last place further from
-    zero, does not store the same truncated and rounded (rounded alone under ROUNDED); a value exactly at the
-    receiver's scale (12.5, -0.375, 1024.50, an integer into an integer item) stores as it is and agrees with the
-    oracle. Proven against GnuCOBOL by `test_det_programs.py` NUMVALX (those exact shapes, in byte, typed and
-    typed-groups modes) and by `test_det_hfp.py` (the refusals, a vector table). **The oracle DIFFERS** for every
-    other value (0.1, 12.34, 123.45 into `V99`): the det port refuses where GnuCOBOL answers. A proven case whose
-    scenarios hold such a value declares it: `"numval_fixed_store": "oracle"` in case.json builds its det port with
-    `Hfp.swapNumvalStore(true)` (a value within two units in the last place of a point of the receiver's scale stores
-    as that point, and a NUMVAL of more than 15 digits is its exact decimal), a declared difference of its evidence
-    record (#4051, kind `option`, option NUMVAL): the proof claims the oracle's decimal, not z/OS's. CardDemo
-    COTRN02C (carddemo-tranadd: `COMPUTE WS-TRAN-AMT-N = FUNCTION NUMVAL-C(TRNAMTI)`, an amount such as 123.45 into
-    `S9(9)V99`, and a 16-digit card number through NUMVAL into `9(16)`, which IBM's long conversion may not keep) is
-    the one proven case that needs it. **Still exact decimal, as the oracle computes it, though IBM evaluates them in
+    precision") but not an arithmetic statement's store.** The model ASSUMES the store follows that rule: rounded half
+    away from zero to the receiver's scale, with or without ROUNDED (ASSUMED, pending z/OS calibration, #4702 part 2).
+    So `NUMVAL('0.10')`, 0.0999... in long HFP (`4019999999999999`), stores 0.10 and 123.45 stores 123.45. The
+    refusals (more than 18 digits, more than 15 significant digits) and ARITH(EXTEND)'s stand. Proven against
+    GnuCOBOL by `test_det_programs.py` NUMVALX (values whose rounded long-HFP value is the oracle's decimal, in byte,
+    typed and typed-groups modes) and by `test_det_hfp.py`. The port never follows the oracle: **the oracle DIFFERS**
+    where the argument has more decimals than the receiver (GnuCOBOL truncates the exact decimal, the model rounds)
+    and for a NUMVAL of more than 15 digits (a 16-digit card number), refused where GnuCOBOL answers.
+    **Still exact decimal, as the oracle computes it, though IBM evaluates them in
     floating point too:** NUMVAL in a comparison, in a MOVE, in a subscript, in another function's argument
     (`INTEGER(NUMVAL(X))`), and NUMVAL-F (not translated). **Under ARITH(EXTEND)** a fixed-point statement with a
     NUMVAL operand is refused with the other floating-point expressions.
   - **ASSUMED** (IBM does not document them): a fixed-point value converted to float is truncated to long (then
     rounded to short for a COMP-1); the mantissa of DISPLAY is rounded half away from zero; an arithmetic statement
-    that stores a float result in a fixed-point receiver truncates unless ROUNDED (the COBOL rule), and a statement
+    that stores a float result in a fixed-point receiver truncates unless ROUNDED (the COBOL rule; except a NUMVAL-only
+    statement, which rounds, #4741 above), and a statement
     with several receivers is one mode for all of them.
 - **How it is proven** (the oracle cannot run HFP):
   - the byte layout and the arithmetic by hand-computed vectors from IBM's examples (1.0 = `41100000`, -118.625 =
@@ -503,11 +498,26 @@ instrument). Rows for the other options of #4706 follow in its later slices.
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
-- **Reach.** CBSA passes IMS-era PCB pointers at the end of its COMMAREAs, always NULL. The port carries a POINTER in a
-  COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an address) and refuses a DTO with data
-  after a POINTER: the task stops by name when it gets one.
-- **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
-  side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
+- **No oracle setting.** cobc 3.1.2 (the pinned image) lays a POINTER out as the build's `sizeof(void *)`: `cobc
+  --info` says `64bit-mode: yes`, no option or configuration key changes the width (`numeric-pointer` makes it
+  BINARY-DOUBLE UNSIGNED, still 8; `-fbinary-size` is for PICTURE binary items only). Only a 32-bit (i386) build of
+  GnuCOBOL would lay it out in 4 -- a different oracle image, not a flag.
+- **Declared, compared by name** (#4270). Each side reads the fields where its own program put them, and they are
+  compared by NAME, never as raw bytes across the two layouts:
+  - the det port's storage is the oracle's (8-byte POINTER). The generated COMMAREA DTO carries IBM's offsets (4-byte);
+    its codec places each field past the wider POINTERs before it (`det.cics.Dto.at`), so the data after a POINTER
+    is the same field on both sides, and a DTO whose OCCURS fields appear once carries its whole record (CBSA's
+    INQACCCU-COMMAREA: 1981 bytes on z/OS, 1985 here, every account). A POINTER under an OCCURS (wider once per
+    occurrence, which the DTO cannot say) is refused by name.
+  - the harness lays a record out as the oracle stores it (`equivalence_common.layout_fields`: a POINTER 8 bytes) and
+    compares a POINTER only as NULL or not: a scenario can give only `"NULL"` (an address is refused), NULL decodes as
+    absent (the det DTO's null), and an address never compares equal -- it is not portable, and IBM gives it no
+    stable value. A COMMAREA's EIBCALEN is the oracle's length (INQACCCU 1985, INQACC 107), not z/OS's.
+  The port carries a POINTER in a COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an
+  address). Pinned by `tests/cobol_mainframe/test_pointer_commarea_4270.py` (with `EQUIVALENCE_E2E=1`, the oracle's
+  bytes against the harness's layout and the det port's storage).
+- **Reach.** CBSA passes IMS-era PCB pointers in its COMMAREAs, always NULL: trailing (INQACC, INQCUST, DELACC) and
+  with data after one (INQACCCU-COMMAREA, passed by BNK1CCA, CREACC and DELCUS).
 - **NULL and pointer-to-pointer SET** (#4270): `SET pointer TO NULL` stores binary zeros over the pointer's bytes --
   GnuCOBOL's NULL is a zero `void *` (8 bytes), and IBM documents NULL as the value that holds no address (Enterprise
   COBOL Language Reference, "Figurative constants": NULL / NULLS; SET statement, format 5 "data-pointer") and sets
@@ -966,7 +976,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 
 ### X9. Named counters — MATCHED
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not
-  have is NOTFND. A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
+  have is INVREQ RESP2 201 (X30: it was NOTFND before; IBM lists none). A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
   read the same. Other counter options (INCREMENT, WRAP, MINIMUM / MAXIMUM, RESP2 ...) are refused by name.
 
 ### X10. A LINK target's COMMAREA past the caller's record — DIFFERS (#4181)
@@ -1474,6 +1484,85 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (REFUSED where IBM is silent: the page does not tabulate UCTRAN against ASIS).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-resp-options (4) on the
   cobol-stub side and the det port.
+
+### X29. INQUIRE ASSOCIATION, DELETEQ TS, QUERY COUNTER, RECEIVE MAP TERMINAL — ASSUMED, REFUSED where IBM is silent (#4415 slice 2)
+- **INQUIRE ASSOCIATION** (CICS TS 6.x, CICS SPI command INQUIRE ASSOCIATION,
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-association). ASSOCIATION "Specifies the 4-byte number of the
+  task for which you want to retrieve association data"; ODAPPLID "the 8-character APPLID taken from the origin descriptor
+  associated with this task"; ODUSERID "the 8-character user ID under which the originating task ran"; ODFACILNAME "the
+  8-character name of the facility" (a transient data queue, terminal or system); ODNETWORKID "the 8-character network
+  qualifier for the origin region APPLID"; ODFACILTYPE a CVDA for the facility type that started the originating task (APPC,
+  ASRUNTRAN, BRIDGE, EVENT, IIOP, IPECI, IPIC, JVMSERVER, LU61, MRO, NODEJSAPP, NONE, RRSUR, RZINSTOR, SCHEDULER, SOCKET,
+  START, STARTTERM, TERMINAL, TRANDATA, WEB, XMRUNTRAN; numbers: det/cvda.py). Conditions: INVREQ RESP2 2 "The command was
+  specified with no arguments", NOTAUTH RESP2 100, TASKIDERR RESP2 1 "The task specified on the ASSOCIATION option was not
+  found". The origin data page (Association data, "Origin data characteristics": "details of its point of origin is placed
+  into task context information called origin data", "created when a new request first arrives at a CICS region") does not
+  say what the five fields hold for a task a terminal started, so they are **a fact the run states** (`CicsTask.withOrigin`,
+  the stub's `$GGCICS_ORIGIN` = `applid,userid,facilname,networkid,faciltype`; the cics-crucible runner takes them from the
+  case's optional `origin` object, for a task that terminal input started -- a START, RUN or RETURN IMMEDIATE task is not
+  stated): never a default; unstated, INQUIRE ASSOCIATION is refused at run time on both sides. Only the task's own number
+  is modelled: the operand must be `EIBTASKN` itself (IBM gives no representation for the 4 bytes; a literal or a copy is
+  refused by the translator and the stub's harness), so TASKIDERR does not arise (the task exists) and NOTAUTH does not
+  (the reference region has no security). A command with no origin option is REFUSED (the INVREQ RESP2 2 sentence does not
+  say whether ASSOCIATION alone is "no arguments"; a case does not use it either). Every other option
+  (ODTASKID, ODTRANSID, the previous-hop and other association-data options) is refused by name.
+- **DELETEQ TS** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-deleteq-ts). QUEUE / QNAME; "Every condition
+  below has the default action of terminating the task abnormally": INVREQ (16) "The queue was created by CICS internal code, or
+  the queue name is all binary zeroes", ISCINVREQ (54), LOCKED (100) "restricted because a unit of work failed indoubt",
+  NOTAUTH (70), QIDERR (44) "the queue can't be found in main or auxiliary storage", SYSIDERR (53). The page lists **no
+  RESP2**, so 0 is written. Modelled: the whole queue and its READQ NEXT position are removed (`CicsTask.deleteqTs`, the
+  stub's `GGCDELQ`); QIDERR for a queue that is not there; INVREQ for a name whose bytes up to its trailing blanks are all
+  binary zeros. ISCINVREQ / SYSIDERR need SYSID (refused), LOCKED needs a recoverable queue (the region's are not, SPEC 2),
+  NOTAUTH needs security (none). A DELETEQ TS leaves no event of its own in the log: its effect is what a later READQ TS /
+  WRITEQ TS answers.
+- **QUERY COUNTER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-query-counter-query-dcounter). "VALUE ... Returns the
+  current value. CICS returns a fullword signed binary value for the COUNTER command"; INVREQ RESP2 201 "Named counter not
+  found"; LENGERR RESP2 1-3 for a value too large for a fullword. Modelled: COUNTER, POOL (omitted: the 8 blanks), VALUE, the
+  value left as it is (unlike GET COUNTER) from the region's named counters (`CicsTask.withCounters`, the stub's
+  `counters.cfg`); a counter beyond a fullword is refused by name (IBM returns the low-order 32 bits with LENGERR; not
+  modelled); MINIMUM / MAXIMUM (the counters' limits are not stated by the run) and NOSUSPEND (BUSY needs a coupling-facility
+  structure) are refused as options. **Not proven through the crucible**: the reference region has no named counters, so
+  this is proven by unit tests of both runtimes on IBM's text (tests/cics_crucible/test_cics_runtimes.py). Note: the existing
+  GET COUNTER answered NOTFND for a counter that is not there, where IBM's GET COUNTER page lists INVREQ RESP2 201 -- fixed in
+  X30.
+- **RECEIVE MAP ... TERMINAL** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map). TERMINAL "specifies that
+  input data is to be read from the terminal that originated the transaction". The task's terminal is the only one the
+  region has, and the one every RECEIVE MAP already reads, so the option changes nothing. (The page does not say whether it is
+  the default; for a terminal task the two are the same.)
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-inquire-deleteq on the
+  cobol-stub side and the det port (INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL).
+
+### X30. DEFINE COUNTER, DELETE COUNTER; GET COUNTER's missing counter is INVREQ RESP2 201 — ASSUMED, REFUSED where IBM is silent (#4270)
+- **DEFINE COUNTER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter). COUNTER "the 16-byte
+  name of a fullword (signed) counter ... uppercase letters, digits, underscores, and $, #, @ ... cannot start with a number or
+  underscore"; POOL "an 8-character pool selector ... If you omit the name of the pool, a pool selector value of 8 blanks is
+  assumed" (valid characters A-Z, 0-9, $, @, #, _); VALUE the initial value ("If you omit both the VALUE and MINIMUM parameters,
+  the named counter is created with an initial value of zero"). Conditions: INVREQ RESP2 202 "Duplicate counter name. A named
+  counter of this name already exists" (the page lists **no DUPREC**), 403 "POOL contains invalid characters or embedded spaces",
+  404 "COUNTER contains invalid characters or embedded spaces", 406 / 407 (VALUE / MINIMUM / MAXIMUM outside the limits),
+  301-311 (counter server and options table: the region has no server), BUSY RESP2 500 (NOSUSPEND during a coupling-facility
+  rebuild). Modelled: COUNTER, POOL, VALUE (omitted: zero), the region's counters keyed by pool and name (`CicsTask.defineCounter`,
+  the stub's `GGCDCNT` on `counters.cfg`); 202, 403, 404. **Refused by name**: MINIMUM / MAXIMUM (the default limits are
+  "low-values" / "high values" and IBM does not say how they read as signed values), NOSUSPEND, DCOUNTER (unsigned doublewords);
+  at run time a VALUE below zero (406 depends on the unstated minimum) and a counter name of blanks only (IBM states the
+  character rules, not an empty name).
+- **DELETE COUNTER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete-counter-delete-dcounter). Conditions: INVREQ
+  RESP2 201 "Named counter not found" (the page lists **no NOTFND**), 403, 301-311, BUSY 500. The page lists no 404: a name
+  outside the rules is simply a counter that is not there (201). Modelled (`CicsTask.deleteCounter`, `GGCXCNT`); NOSUSPEND,
+  DCOUNTER refused.
+- **GET COUNTER fixed** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-get-counter-get-dcounter). The page lists INVREQ
+  RESP2 201 "Named counter not found" and no NOTFND; the runtimes answered NOTFND (RESP 13, RESP2 0) since X9. Both now answer
+  INVREQ (16) RESP2 201 (`CicsTask.getCounter` returns {RESP, RESP2, value}; the det translator writes both; the stub's
+  `GGCGCNT`), and INVREQ 403 / 404 for a pool / counter name outside IBM's characters, as DEFINE does; QUERY COUNTER likewise.
+  **No proven case moved**: no cics-crucible case, equivalence case or committed port used GET COUNTER (only a translator unit
+  sample), so no verdict changed; hc-named-counters is the first that does, and it proves INVREQ RESP2 201. GET COUNTER's
+  other options (INCREMENT, WRAP, REDUCE, COMPAREMIN / COMPAREMAX, NOSUSPEND) stay refused by name (X9).
+- **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
+  command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
+  check the pool first); the value area of a failed GET / QUERY (not written).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
+  hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
+  (tests/cics_crucible/test_cics_runtimes.py).
 
 ## Language Environment
 

@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**253 entries:** 46 full, 2 engine-only, 205 name-only.
+**254 entries:** 51 full, 2 engine-only, 201 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -44,7 +44,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | REWRITE | full | yes (7 options, 1 refused by name) | yes | — | — | 11 (10 / 1) | — |
 | DELETE | full | yes (10 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | — |
 | SEND MAP | full | yes (22 options, 1 refused by name) | yes | — | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
-| RECEIVE MAP | full | yes (7 options, 1 refused by name) | yes | — | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
+| RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | — | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
 | LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
@@ -60,10 +60,14 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WRITEQ TD | full | yes (6 options, 1 refused by name) | yes | — | — | 8 (6 / 2) | — |
 | WRITEQ TS | full | yes (14 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | ca-channel-containers, ca-link-lengths, gt-assign-startcode, gt-start-options, gt-start-retrieve, hc-perform-range, pc-wizard |
 | READQ TS | full | yes (11 options, 2 refused by name) | yes | — | — | 5 (4 / 1) | hc-abend-link, hc-perform-range |
+| DELETEQ TS | full | yes (6 options, 1 refused by name) | yes | X29 | — | 2 (2 / 0) | — |
 | ENQ | full | yes (9 options) | yes | — | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | — | — | 20 (11 / 9) | — |
-| GET COUNTER | full | yes (5 options) | yes | — | — | 2 (2 / 0) | — |
+| GET COUNTER | full | yes (6 options) | yes | X30 | — | 2 (2 / 0) | — |
+| QUERY COUNTER | full | yes (6 options) | yes | X29 | — | 1 (1 / 0) | — |
+| DEFINE COUNTER | full | yes (6 options) | yes | X30 | — | 1 (1 / 0) | — |
+| DELETE COUNTER | full | yes (5 options) | yes | X30 | — | 1 (1 / 0) | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
 | FORMATTIME | full | yes (13 options) | yes | — | — | 56 (55 / 1) | — |
 | INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
@@ -72,6 +76,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | BIF DEEDIT | full | yes (5 options) | yes | X26 | — | 5 (5 / 0) | — |
 | INQUIRE TERMINAL | full | yes (5 options) | yes | X26 | uctranst | 0 | — |
 | SET TERMINAL | full | yes (5 options) | yes | X26 | — | 0 | — |
+| INQUIRE ASSOCIATION | full | yes (9 options) | yes | X29 | origin | 0 | — |
 | LOAD | engine-only | refused whole | refused whole | — | — | 0 | — |
 | RELEASE | engine-only | refused whole | refused whole | — | — | 0 | — |
 
@@ -94,13 +99,9 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 | WEB READ HTTPHEADER | 2 (1 / 1) | — |
 | WEB RECEIVE | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | 2 (1 / 1) | — |
-| DELETEQ TS | 2 (2 / 0) | — |
 | FREEMAIN | 2 (2 / 0) | — |
 | GETMAIN | 2 (2 / 0) | — |
-| DEFINE COUNTER | 1 (1 / 0) | — |
-| DELETE COUNTER | 1 (1 / 0) | — |
 | GETNEXT CONTAINER | 1 (1 / 0) | — |
-| QUERY COUNTER | 1 (1 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 | WEB EXTRACT | 1 (1 / 0) | — |
 | WRITE OPERATOR | 1 (1 / 0) | — |

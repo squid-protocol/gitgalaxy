@@ -6,18 +6,18 @@ Per estate, a level per program (see any report's "How to read this report"). On
 
 ## How this stays current
 
-These files are derived output. A feature PR does not commit them: the Evidence Refresh workflow (`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) through an auto-merged bot PR from `auto/evidence-refresh`, and skips the PR when nothing changed. Per-PR CI only prints the level changes a PR would cause in its job summary (`evidence_report.py --deltas --live`; advisory, never a failure). A release tag is gated on `evidence_report.py --check --live` being clean. The schema check (`test_committed_report_validates`), the evidence-record staleness check and the det-sweep baseline stay blocking in every PR; a PR still re-runs the proof of a record it makes stale.
+These files are derived output. A feature PR does not commit them: the Evidence Refresh workflow (`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) through an auto-merged bot PR from `auto/evidence-refresh`, and skips the PR when nothing changed. Per-PR CI only prints the level changes a PR would cause in its job summary (`evidence_report.py --deltas --live`; advisory, never a failure). A release tag is gated on `evidence_report.py --check --live` being clean AND on every level being current: a `(k stale)` cell is a level last measured against an earlier harness or oracle (marked `*` in the report), kept instead of counted as 0, and it fails the gate until the scheduled re-sweep refreshes it. The schema check (`test_committed_report_validates`), the evidence-record staleness check and the det-sweep baseline stay blocking in every PR; a PR still re-runs the proof of a record it makes stale.
 
 ## Burned estates (ports developed against them)
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 5 | 11 | 3 | 11 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 14 | 15 | 0 | 0 | 2 | 0 |
-| [cics-genapp](cics-genapp/report.md) | 31 | 6 | 20 | 5 | 0 | 0 | 0 |
-| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 3 | 1 | 2 | 0 | 0 | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 4 | 12 | 3 | 11 | 0 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 14 | 9 | 3 | 2 | 3 | 0 |
+| [cics-genapp](cics-genapp/report.md) | 31 | 6 | 0 | 12 | 11 | 2 | 0 |
+| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 3 | 0 | 3 | 0 | 0 | 0 |
 | [zecs](zecs/report.md) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
-| total | 117 | 42 | 41 | 18 | 3 | 13 | 0 |
+| total | 117 | 42 | 13 | 30 | 16 | 16 | 0 |
 
 ## Non-burned estates
 

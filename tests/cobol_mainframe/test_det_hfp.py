@@ -392,66 +392,46 @@ FIXED_PROBE = """
 import p.cobolrt.*;
 import java.math.BigDecimal;
 public class Probe {
-    static String run(String s, int scale, boolean rounded, boolean oracle) {
-        boolean before = Hfp.swapNumvalStore(oracle);
+    static String run(String s, int scale, boolean rounded) {
         try {
-            return Hfp.fixedStore(Hfp.numval(s, false), scale, rounded)
-                .setScale(scale, rounded ? java.math.RoundingMode.HALF_UP : java.math.RoundingMode.DOWN).toPlainString();
+            return Hfp.fixedStore(Hfp.numval(s, false), scale, rounded).toPlainString();
         } catch (UnsupportedOperationException e) {
             return "REFUSED " + e.getMessage();
-        } finally {
-            Hfp.swapNumvalStore(before);
         }
     }
     public static void main(String[] a) {
         Object[][] cases = {%CASES%};
-        for (Object[] k : cases) System.out.println(run((String) k[0], (Integer) k[1], (Boolean) k[2], (Boolean) k[3]));
+        for (Object[] k : cases) System.out.println(run((String) k[0], (Integer) k[1], (Boolean) k[2]));
     }
 }
 """
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
-def test_numval_in_a_fixed_point_store_refuses_what_ibm_leaves_undefined(tmp_path):
-    """IBM evaluates NUMVAL in long floating point even in a fixed-point COMPUTE, and documents the float-to-fixed
-    MOVE (rounded) but not the arithmetic store (ASSUMED truncated unless ROUNDED, register C6): a value exact in HFP
-    and at the receiver's scale stores as it is; one the two rules store differently is refused by name."""
+def test_numval_in_a_fixed_point_store_rounds_as_ibms_float_to_fixed_move(tmp_path):
+    """IBM evaluates NUMVAL in long floating point even in a fixed-point COMPUTE and rounds a float moved to a
+    fixed-point item ("Conversions and precision"); the model ASSUMES the store rounds too (register C6, #4702)."""
     cases = [("12.5", 2, False), ("-0.375", 3, False), ("42", 0, False), ("1024.5", 2, False), ("0.1", 2, False),
-             ("0.1", 2, True), ("12.34", 2, False), ("0.125", 2, False), ("0.125", 2, True), ("12.7", 0, False),
-             ("0.00", 2, False), ("0.1", 2, False, True), ("123.45", 2, False, True), ("12.7", 0, False, True),
-             ("1234567890123456", 0, False, True), ("1234567890123456", 0, False)]  # fmt: skip
+             ("0.1", 2, True), ("123.45", 2, False), ("12.34", 2, False), ("0.125", 2, False), ("12.7", 0, False),
+             ("-0.1", 2, False), ("1234567890123456", 0, False), ("0.00", 2, False)]  # fmt: skip
     rt = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
     out = tmp_path / "src/p/cobolrt"
     out.mkdir(parents=True)
     for f in rt.glob("*.java"):
         (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
-    probe = FIXED_PROBE.replace(
-        "%CASES%", ", ".join(f'{{"{c[0]}", {c[1]}, {str(c[2]).lower()}, {str(len(c) > 3).lower()}}}' for c in cases)
-    )
+    probe = FIXED_PROBE.replace("%CASES%", ", ".join(f'{{"{s}", {n}, {str(r).lower()}}}' for s, n, r in cases))
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
     subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
     got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
                          text=True, check=True).stdout.splitlines()  # fmt: skip
-    assert got[0] == "12.50"  # exact in HFP and at 2 decimals
-    assert got[1] == "-0.375"
-    assert got[2] == "42"
-    assert got[3] == "1024.50"
-    # 0.1 is 0.0999... in long HFP (4019999999999999): truncation gives 0.09, IBM's rounding 0.10 -- undocumented
-    assert got[4].startswith("REFUSED") and "does not document" in got[4], got[4]
-    assert got[5] == "0.10"  # ROUNDED: rounded either way
-    assert got[6].startswith("REFUSED"), got[6]
-    assert got[7].startswith("REFUSED"), got[7]  # exact, but truncated 0.12 vs rounded 0.13
-    assert got[8] == "0.13"  # ROUNDED: 0.13 on either conversion
-    assert got[9].startswith("REFUSED"), got[9]
-    assert got[10] == "0.00"
-    # a proof of a case declaring "numval_fixed_store": "oracle" (swapNumvalStore): the oracle's decimal where the
-    # value is within two units in the last place of the receiver's scale; 12.7 into an integer is no such value
-    assert got[11] == "0.10" and got[12] == "123.45", got[11:13]
-    assert got[13].startswith("REFUSED"), got[13]
-    assert got[14] == "1234567890123456"  # more than 15 digits: the exact decimal
-    assert got[15].startswith("REFUSED") and "more than 15 significant digits" in got[15], got[15]
+    assert got[:4] == ["12.500", "-0.375", "42", "1024.50"][:0] + ["12.50", "-0.375", "42", "1024.50"]
+    # 0.1 is 0.0999... in long HFP (4019999999999999): truncation would give 0.09, the rounding 0.10
+    assert got[4] == "0.10" and got[5] == "0.10" and got[6] == "123.45" and got[7] == "12.34", got
+    assert got[8] == "0.13" and got[9] == "13" and got[10] == "-0.10", got  # half away from zero
+    assert got[11].startswith("REFUSED") and "more than 15 significant digits" in got[11], got[11]
+    assert got[12] == "0.00"
 
 
 def test_a_numval_compute_is_a_float_statement_with_checked_stores(tmp_path):

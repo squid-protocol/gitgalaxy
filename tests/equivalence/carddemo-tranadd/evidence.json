@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-tranadd/**"
    ],
    "files": 1,
-   "sha256": "991db9ed0339f790654097f3283a9badf4d99f83ce927061bd4f3ea78b64f5b9"
+   "sha256": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97"
   },
   "harness": {
    "paths": [
@@ -44,7 +44,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1cfba60a48f0d87665aa0fcc4a28f858d2485b8a37ad932343b8a58b92d2e94f"
+   "sha256": "a4180d0a5e85ece10f97288b0e0ddbf8b86331c752840fe6b90fc46bcb45988e"
   },
   "oracle": {
    "paths": [
@@ -57,14 +57,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   "sha256": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "7cae3755139e72e584b230affc91a0dd84dd756ecd5d10feb3a2ae1fe3189905"
+   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -146,10 +146,10 @@
     }
    }
   },
-  "digest": "7d09c1fda216894719f39e5fb044c5f8302c959ef5b31209c6eca84350928311"
+  "digest": "451e1b571e3956374b4ff4b810db36258f6ce1f338c01067632fb6aa547a290e"
  },
  "proof": {
-  "at": "2026-10-09T06:08:05Z",
+  "at": "2026-10-09T09:14:56Z",
   "verdict": "proven",
   "runs": 46,
   "fault_runs": 8,
@@ -354,8 +354,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "c0ea0a6a0690a6969960cb1e8a0c3b71cb773793+uncommitted",
-  "inputs_digest": "7d09c1fda216894719f39e5fb044c5f8302c959ef5b31209c6eca84350928311"
+  "harness_commit": "a497a304f49010737210b9faf1ebd0e1d50fca19+uncommitted",
+  "inputs_digest": "451e1b571e3956374b4ff4b810db36258f6ce1f338c01067632fb6aa547a290e"
  },
  "coverage": {
   "paragraphs": {
@@ -391,7 +391,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7d09c1fda216894719f39e5fb044c5f8302c959ef5b31209c6eca84350928311"
+  "inputs_digest": "451e1b571e3956374b4ff4b810db36258f6ce1f338c01067632fb6aa547a290e"
  },
  "reach": {
   "entry_points": [
@@ -436,7 +436,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:d7e387df360c519ce8945a1f6d748c8dafab06f50551b23ddf85d6373a4dcd6e",
+   "id": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -456,7 +456,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "62b4b4c8dd54b45eb350e1a901bdbc4658c3ca988b3f421fc93ea26cd938cb93"
+    "sha256": "45d8aa7c45371ebf334c768dce605a6a6506fc68277e33985f3e148c864399c8"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",

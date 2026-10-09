@@ -72,7 +72,7 @@ Each det port starts with a provenance header (`// gitgalaxy-det-port: COBOL <PR
 ## Limits
 
 - **The oracle is not z/OS.** It is GnuCOBOL 3.1.2 in IBM mode, plus models of CICS, Language Environment and IBM's DISPLAY text, and Db2 for Linux instead of Db2 for z/OS. Every known or suspected difference, and whether a proven program reaches it, is in the [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md). Notable entries:
-  - **C9:** a POINTER is 8 bytes here and 4 on z/OS. A COMMAREA with data after a POINTER cannot be compared yet, which blocks CBSA's INQACCCU, DELCUS and CREACC.
+  - **C9:** a POINTER is 8 bytes here and 4 on z/OS, so the offsets after one differ. Each side's COMMAREA is read by its own layout and compared field by field, by name; a POINTER is compared only as NULL or not (an address is not portable).
   - **D1:** text compares in ASCII order, not EBCDIC. Indexed keys that mix letters and digits browse differently, and in-program comparisons have not been audited.
   - **M2:** a Db2 error after a successful statement cannot be injected yet.
   - **Q3:** a CICS task's SQL is one Db2 unit of work in the equivalence test, and a deployment must provide the same. A batch program's repositories autocommit.

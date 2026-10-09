@@ -86,12 +86,17 @@ def command_key(words: list[str], opts: dict) -> str:
     for form in _FORM_OPTION.get(verb, ()):
         if form in opts:
             return f"{verb} {form}"
-    if verb in ("WRITEQ", "READQ"):  # (a TD option after the verb is refused, never read as TS)
+    if verb in ("WRITEQ", "READQ", "DELETEQ"):  # (a TD option after the verb is refused, never read as TS)
         return f"{verb} TS"
     return verb
 
 
-_FORM_OPTION = {"RECEIVE": ("MAP",), "GET": ("COUNTER",), "INQUIRE": ("PROGRAM", "TERMINAL"), "SET": ("TERMINAL",)}
+_FORM_OPTION = {
+    "RECEIVE": ("MAP",),
+    "GET": ("COUNTER",),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION"),
+    "SET": ("TERMINAL",),
+}
 
 
 def check_options(words: list[str], opts: dict) -> None:
@@ -168,8 +173,10 @@ _PROP = re.compile(r"//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);")
 _LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL|DISPLAY))?,"
                    r"\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")  # fmt: skip
 _PART = re.compile(r"offset\s+(\d+),\s*(\d+)\s+bytes\s*->\s*([A-Z0-9-]+)")
-_POINTER = re.compile(r"([A-Z0-9-]+):\s*POINTER,\s*offset\s+(\d+),\s*(\d+)\s+bytes")
+_POINTER = re.compile(r"([A-Z0-9-]+):\s*POINTER,\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")
 POINTER_BYTES = 8  # GnuCOBOL's on x86-64, and so the port's storage; IBM's is 4 (oracle_assumptions.md C9)
+IBM_POINTER_BYTES = 4  # Enterprise COBOL's (AMODE 31), as the generated DTOs lay a POINTER out
+_DTO_RECORD = re.compile(r"COBOL record [A-Z0-9-]+ \([^)]*\), (\d+) bytes")
 
 
 @dataclass
@@ -186,14 +193,38 @@ class Leaf:
 
 @dataclass
 class Dto:
+    """A generated COMMAREA DTO. Its offsets are IBM's (the generator lays a POINTER out in 4 bytes, as Enterprise
+    COBOL does); the port's storage is GnuCOBOL's, where a POINTER is POINTER_BYTES (oracle_assumptions.md C9).
+    `at` maps a DTO offset to the storage's: each POINTER before it is that much wider there. `size` is in storage
+    bytes."""
+
     cls: str
     leaves: list = field(default_factory=list)
     parts: list = field(default_factory=list)  # (var, Dto, offset)
+    record: int | None = None  # the bytes the DTO's header declares (IBM's), when it says
+    occurs: bool = False  # the header says OCCURS fields appear once: the leaves end before the record does
+
+    @property
+    def wider(self) -> int:
+        """How many bytes wider the record is in the port's storage than in IBM's: its POINTERs'."""
+        own = sum(POINTER_BYTES - x.size for x in self.leaves if x.usage == "POINTER")
+        return own + sum(p.wider for _, p, _ in self.parts)
+
+    def at(self, off: int) -> int:
+        """The storage offset of DTO offset `off` (a field's start): past every POINTER before it."""
+        shift = sum(POINTER_BYTES - x.size for x in self.leaves if x.usage == "POINTER" and x.offset < off)
+        return off + shift + sum(p.wider for _, p, o in self.parts if o < off)
 
     @property
     def size(self) -> int:
-        n = max((x.offset + x.size for x in self.leaves), default=0)
-        return max([n] + [off + p.size for _, p, off in self.parts])
+        n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size) for x in self.leaves),
+                default=0)  # fmt: skip
+        n = max([n] + [self.at(off) + p.size for _, p, off in self.parts])
+        if self.wider and self.occurs and self.record:
+            # #4270 (C9): a DTO with a POINTER whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts):
+            # the whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
+            n = max(n, self.record + self.wider)
+        return n
 
 
 class Generated:
@@ -240,10 +271,14 @@ class Generated:
             for k, v in got.items():
                 self.estate_files.setdefault(k, set()).add(v)
         self.screens: dict[str, str] = {}
+        self.mapsets: dict[str, list[str]] = {}  # mapset -> its maps, from the generated screens
         for p in sorted(self.java.rglob("dto/screen/*Screen.java")):
             mm = re.search(r'String MAP = "([^"]+)"', p.read_text(encoding="utf-8"))
             if mm:
                 self.screens[mm.group(1).upper()] = p.stem
+                ms = re.search(r'String MAPSET = "([^"]+)"', p.read_text(encoding="utf-8"))
+                if ms:
+                    self.mapsets.setdefault(ms.group(1).upper(), []).append(mm.group(1).upper())
         self.records: dict[str, str] = {}  # COBOL record -> its contract DTO
         for p in sorted(self.java.rglob("dto/contract/*.java")):
             mm = re.search(r"COBOL record ([A-Z0-9-]+) \(", p.read_text(encoding="utf-8"))
@@ -290,14 +325,22 @@ class Generated:
         if cls in self.dtos:
             return self.dtos[cls]
         d = Dto(cls)
-        for comment, jtype, var in _PROP.findall(self._file("dto/contract", cls).read_text(encoding="utf-8")):
+        text = self._file("dto/contract", cls).read_text(encoding="utf-8")
+        head = _DTO_RECORD.search(text)
+        d.record = int(head.group(1)) if head else None
+        d.occurs = "Fields inside an OCCURS group appear once" in text
+        for comment, jtype, var in _PROP.findall(text):
             part = _PART.search(comment)
             if part:
                 d.parts.append((var, self.dto(jtype), int(part.group(1))))
                 continue
             ptr = _POINTER.search(comment)
             if ptr and jtype == "String":  # CBSA's PCB pointers: NULL travels, an address cannot (DetCics.pointerIn)
-                d.leaves.append(Leaf(var, jtype, ptr.group(1), "", "POINTER", int(ptr.group(2)), int(ptr.group(3))))
+                if int(ptr.group(3)) != IBM_POINTER_BYTES:
+                    raise CicsError(f"{cls}.{var}: a {ptr.group(3)}-byte POINTER (IBM's is {IBM_POINTER_BYTES}: the "
+                                    "DTO's later offsets cannot be mapped to the port's storage)")  # fmt: skip
+                d.leaves.append(Leaf(var, jtype, ptr.group(1), "", "POINTER", int(ptr.group(2)), int(ptr.group(3)),
+                                     ptr.group(4)))  # fmt: skip
                 continue
             leaf = _LEAF.search(comment)
             if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
@@ -518,24 +561,25 @@ class Cics:
                     "            return;", "        }"]  # fmt: skip
         # fill_: the bytes into an existing DTO (a LINKed program's COMMAREA is its caller's object); out_: a new one
         lines_out = [f"    private void fill_{cls}({cls} d, Storage s, int base) {{"]
-        pointers = [x for x in d.leaves if x.usage == "POINTER"]
-        first = min((p.offset for p in pointers), default=None)
-        after = first is not None and (any(x.offset > first for x in d.leaves if x.usage != "POINTER")
-                                       or any(off > first for _, _, off in d.parts))  # fmt: skip
-        if after:
-            raise CicsError(f"{cls}: data after a POINTER (GnuCOBOL's pointer is {POINTER_BYTES} bytes, IBM's 4: "
-                            "every later offset differs)")  # fmt: skip
+        # #4270 (C9): the DTO's offsets are IBM's, the storage's GnuCOBOL's -- each field is placed past the wider
+        # POINTERs before it (Dto.at), so the data after a POINTER is the same field on both sides; a POINTER inside an
+        # OCCURS would be wider once per occurrence, which the DTO (fields listed once) cannot say: refused by name
+        ends = [x.offset for x in d.leaves if x.usage != "POINTER"] + [off for _, _, off in d.parts]
         for leaf in d.leaves:
+            if leaf.usage == "POINTER" and any(o > leaf.offset for o in ends):  # (a trailing one shifts nothing)
+                self.pointer_outside_occurs(cls, leaf)
+        for leaf in d.leaves:
+            at = d.at(leaf.offset)
             if leaf.usage == "POINTER":
                 cap = leaf.var[0].upper() + leaf.var[1:]
-                lines_in.append(f"        DetCics.pointerIn(d.get{cap}(), s, base + {leaf.offset}, {POINTER_BYTES});")
-                lines_out.append(f"        d.set{cap}(DetCics.pointerOut(s, base + {leaf.offset}, {POINTER_BYTES}));")
+                lines_in.append(f"        DetCics.pointerIn(d.get{cap}(), s, base + {at}, {POINTER_BYTES});")
+                lines_out.append(f"        d.set{cap}(DetCics.pointerOut(s, base + {at}, {POINTER_BYTES}));")
                 continue
             it = item_for(leaf)
             if it.size != leaf.size:
                 # the comment does not carry everything (SIGN LEADING SEPARATE): the item as its copybook declares it
                 it = self.declared(leaf)
-            f = self.g.factory(it, "s", f"base + {leaf.offset}")
+            f = self.g.factory(it, "s", f"base + {at}")
             cap = leaf.var[0].upper() + leaf.var[1:]
             if leaf.jtype == "String":
                 lines_in.append(f'        Cobol.move(d.get{cap}() == null ? "" : d.get{cap}(), {f}, CS);')
@@ -548,32 +592,60 @@ class Cics:
         for var, part, off in d.parts:
             self.codec(part.cls)
             cap = var[0].upper() + var[1:]
-            lines_in.append(f"        in_{part.cls}(d.get{cap}(), s, base + {off});")
-            lines_out.append(f"        d.set{cap}(out_{part.cls}(s, base + {off}));")
+            lines_in.append(f"        in_{part.cls}(d.get{cap}(), s, base + {d.at(off)});")
+            lines_out.append(f"        d.set{cap}(out_{part.cls}(s, base + {d.at(off)}));")
         self.codecs[cls] = [*lines_in, "    }", "", *lines_out, "    }", "",
                             f"    private {cls} out_{cls}(Storage s, int base) {{", f"        {cls} d = new {cls}();",
                             f"        fill_{cls}(d, s, base);", "        return d;", "    }", ""]  # fmt: skip
         return cls
 
-    def declared(self, leaf: Leaf) -> L.Item:
-        """A DTO field's item as the copybook the generator read it from declares it."""
+    def pointer_outside_occurs(self, cls: str, leaf: Leaf) -> None:
+        """#4270 (C9): a DTO's POINTER, as its copybook declares it, is under no OCCURS -- else each occurrence would
+        shift the storage's offsets once more than the DTO's, which lists its fields once. Refused by name."""
+        if not leaf.source:
+            raise CicsError(f"{cls}: POINTER {leaf.cobol} names no copybook (is it under an OCCURS?)")
+        for it in self._copybook_items(leaf, f"{leaf.cobol} DTO POINTER"):
+            if it.name == leaf.cobol and it.usage == "POINTER":
+                up = it
+                while up is not None:
+                    if up.occurs > 1 or up.depending:
+                        raise CicsError(f"{cls}: POINTER {leaf.cobol} under an OCCURS (each occurrence is "
+                                        f"{POINTER_BYTES - IBM_POINTER_BYTES} bytes wider than IBM's)")  # fmt: skip
+                    up = up.parent
+                return
+        raise CicsError(f"{cls}: POINTER {leaf.cobol} is not declared in {Path(leaf.source).name}")
+
+    def _copybook_items(self, leaf: Leaf, what: str, missing: str = ""):
+        """Every item of the copybook the generator read a DTO field from, as one record (GG-DTO-RECORD)."""
         from gitgalaxy.tools.cobol_to_java.det.source import CopyAmbiguous, _raw_lines, _search_member, logical_lines
 
         name = Path(leaf.source or "").name
         try:  # #4461: the member the source reader resolves, never the first directory holding the name
-            path = _search_member(name, self.g.copy_dirs, frozenset(), f"{leaf.cobol} DTO field") if name else None
+            path = _search_member(name, self.g.copy_dirs, frozenset(), what) if name else None
         except CopyAmbiguous as e:
             raise CicsError(str(e)) from e
         if path is None:
-            raise CicsError(f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found")
+            raise CicsError(missing or f"{leaf.cobol}: its copybook {name!r} not found")
         raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDTO.", "       DATA DIVISION.",
                "       WORKING-STORAGE SECTION.", "       01 GG-DTO-RECORD."]  # fmt: skip
         # #4528: decoded with the code page the estate declares for it, as the engine and the source reader do
         raw += _raw_lines(path, self.g.engine)
-        for rec in L.parse(logical_lines(raw, str(path))):
-            for it in rec.walk():
-                if it.name == leaf.cobol and it.size == leaf.size:
-                    return it
+        try:
+            records = L.parse(logical_lines(raw, str(path)))
+        except L.LayoutError as e:  # (a program's own source, say: not a member to copy into a record)
+            raise CicsError(f"{what}: {name} is not read as a copybook ({e})") from e
+        for rec in records:
+            yield from rec.walk()
+
+    def declared(self, leaf: Leaf) -> L.Item:
+        """A DTO field's item as the copybook the generator read it from declares it."""
+        name = Path(leaf.source or "").name
+        missing = f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found"
+        if not name:
+            raise CicsError(missing)
+        for it in self._copybook_items(leaf, f"{leaf.cobol} DTO field", missing):
+            if it.name == leaf.cobol and it.size == leaf.size:
+                return it
         raise CicsError(f"{leaf.cobol}: not a {leaf.size}-byte item of {name}")
 
     def _value_name(self, operand: str | None) -> str | None:
@@ -669,16 +741,37 @@ class Cics:
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
-        if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
+        if (
+            verb == "GET" and "COUNTER" in opts
+        ):  # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30)
             if not opts.get("VALUE"):
                 raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            return [f"{ind}Long {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
-                    f"{ind}if ({v} != null) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v})", False),
+            return [f"{ind}long[] {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+                    f"{ind}if ({v}[0] == 0) {{",
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
                     f"{ind}}}",
-                    *self.outcome(opts, f"({v} == null ? 13 : 0)", "0", ind)]  # fmt: skip
+                    *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
+        if verb in ("DEFINE", "DELETE") and "COUNTER" in opts:  # #4270 (X30): the region's named counters
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            nm = self.name(_arg(opts["COUNTER"]))
+            if verb == "DELETE":
+                call = f"task.deleteCounter({pool}, {nm})"
+            else:  # (VALUE omitted: IBM's initial value of zero)
+                call = (
+                    f"task.defineCounter({pool}, {nm}, {self.int_(_arg(opts['VALUE'])) if opts.get('VALUE') else '0'})"
+                )
+            return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
+        if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            return [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+                    f"{ind}if ({v}[0] == 0) {{",
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
+                    f"{ind}}}",
+                    *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
@@ -886,6 +979,8 @@ class Cics:
             return [f"{ind}int {r} = CicsTask.deeditResp({n});",
                     f"{ind}if ({r} == 0) DetCics.deedit({fld}, {n}, CS, REGION);",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if key == "INQUIRE ASSOCIATION":  # #4415 slice 2: the origin data of the task's own association (register X29)
+            return self.inquire_association(opts, ind)
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:
                 raise CicsError(f"{key} without UCTRANST")
@@ -911,8 +1006,8 @@ class Cics:
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
-        if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ") and verb.startswith(("WRITEQ", "READQ")) \
-                and "TD" not in words:  # fmt: skip
+        if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ", "DELETEQ TS", "DELETEQ") \
+                and verb.startswith(("WRITEQ", "READQ", "DELETEQ")) and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
             # #4437: NORMAL -- the only outcome in this region (OPTIONS says why); EIBRESP / RESP / RESP2 written as
@@ -1134,6 +1229,36 @@ class Cics:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
         return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
 
+    def inquire_association(self, opts: dict, ind: str) -> list[str]:
+        """INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID (8 characters) and ODFACILTYPE (a
+        CVDA): the origin data of the task's own association data, as the run states it (CicsTask.withOrigin; unstated,
+        refused). IBM gives no representation for the task number, so only the task's own number, EIBTASKN, is read: any
+        other operand (a literal, a copy of it) is refused. A command with no origin option is refused: IBM's
+        INVREQ RESP2 2 ("The command was specified with no arguments") does not say whether ASSOCIATION alone is none."""
+        if re.fullmatch(r"(?is)\s*EIBTASKN\s*", _arg(opts.get("ASSOCIATION"))) is None:
+            raise CicsError(
+                f"INQUIRE ASSOCIATION({opts.get('ASSOCIATION')}): only the task's own number, EIBTASKN, is "
+                "modelled (IBM gives no representation for the 4 bytes)"
+            )
+        wanted = [o for o in ("ODAPPLID", "ODUSERID", "ODFACILNAME", "ODNETWORKID", "ODFACILTYPE") if o in opts]
+        if not wanted:
+            raise CicsError(
+                "INQUIRE ASSOCIATION without an origin option: IBM's INVREQ RESP2 2 (\"The command was "
+                'specified with no arguments") does not say whether ASSOCIATION alone is none: not modelled'
+            )
+        r = self.g.tmpname("assoc")
+        out = [f"{ind}CicsTask.Origin {r} = task.inquireAssociation();"]
+        for k, acc in (("ODAPPLID", "applid"), ("ODUSERID", "userid"), ("ODFACILNAME", "facilname"),
+                       ("ODNETWORKID", "networkid")):  # fmt: skip
+            if k in opts:
+                out.append(f"{ind}DetCics.putText({self.field(_arg(opts[k]))}, {r}.{acc}(), CS);")
+        if "ODFACILTYPE" in opts:
+            out.append(
+                ind
+                + self.g.store_into(self.ref(_arg(opts["ODFACILTYPE"])), f"BigDecimal.valueOf({r}.faciltype())", False)
+            )
+        return out + self.outcome(opts, "0", "0", ind)
+
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
         region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
@@ -1146,6 +1271,8 @@ class Cics:
         r = g.tmpname("ts")
         out: list[str] = []
         self.region_used = True
+        if verb == "DELETEQ":  # #4415 slice 2 (X29): the whole queue; QIDERR for one that does not exist
+            return [f"{ind}int {r} = task.deleteqTs({queue});", *self.outcome(opts, r, "0", ind)]
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
@@ -1220,8 +1347,11 @@ class Cics:
     def map_names(self, opts: dict, area: str | None, suffix: str, ind: str) -> tuple[str, str, list[str]]:
         """(map, mapset, guard): constants; else the map whose symbolic record the FROM / INTO area is
         (CACTVWAO -> CACTVWA), the names checked at run time -- a different one is a hole, never a wrong screen."""
+        # IBM CICS TS (BMS maps): a map / mapset name is 1-8 characters, blank-padded to 8 -- 'NBLKMAP ' IS NBLKMAP
         m = self.constant(opts["MAP"])
         ms = self.constant(opts.get("MAPSET") or opts["MAP"])
+        m = m.rstrip(" ") if m is not None else None
+        ms = ms.rstrip(" ") if ms is not None else None
         guard: list[str] = []
         if m is None and area is not None:
             name = self.ref(area).name
@@ -1244,11 +1374,23 @@ class Cics:
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
 
+    def no_screen(self, m: str, ms: str, opts: dict) -> CicsError:
+        """Why map `m` has no generated screen, by name. IBM CICS TS (SEND MAP / RECEIVE MAP): MAPSET defaults to the
+        MAP name when omitted, and a map is found only inside its own mapset (BMS: DFHMSD names the mapset, each
+        DFHMDI a map). A name that is a mapset of the estate but no map of it asks CICS for a map the mapset does not
+        hold; the condition CICS raises then is not modelled, so the command is refused, never given another map."""
+        if ms in self.gp.mapsets and m not in self.gp.mapsets[ms]:
+            how = "(MAPSET omitted: IBM defaults it to the MAP name) " if not opts.get("MAPSET") else ""
+            held = ", ".join(sorted(self.gp.mapsets[ms]))
+            return CicsError(f"map {m} {how}names no map of mapset {ms} (its maps: {held}): the condition CICS "
+                             "raises for a map the mapset does not hold is not modelled")  # fmt: skip
+        return CicsError(f"no generated screen for map {m}")
+
     def send_map(self, opts: dict, ind: str) -> list[str]:
         m, ms, guard = self.map_names(opts, opts.get("FROM"), "O", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise CicsError(f"no generated screen for map {m}")
+            raise self.no_screen(m, ms, opts)
         self.used_screens.add(cls)
         frm = self.ref(opts["FROM"]).name if opts.get("FROM") else m + "O"
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
@@ -1280,7 +1422,7 @@ class Cics:
         m, ms, guard = self.map_names(opts, opts.get("INTO"), "I", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise CicsError(f"no generated screen for map {m}")
+            raise self.no_screen(m, ms, opts)
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")

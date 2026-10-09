@@ -41,6 +41,12 @@
    "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+  },
+  {
+   "area": "CICS",
+   "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+   "id": "X27",
+   "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -62,7 +68,7 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },
@@ -681,6 +687,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -691,12 +703,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -705,6 +720,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -882,7 +898,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -999,7 +1017,8 @@
    "program": "Source/ECS001.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X15"
+     "X15",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -1015,6 +1034,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS INQUIRE",
@@ -1073,6 +1094,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -1083,12 +1110,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1097,6 +1127,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1354,7 +1385,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1451,7 +1484,8 @@
      "X14",
      "X18",
      "X19",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 22,
@@ -1480,6 +1514,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS DOCUMENT CREATE",
@@ -1537,6 +1573,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -1547,12 +1589,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1561,6 +1606,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1669,7 +1715,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1779,7 +1827,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1922,7 +1972,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 27,
@@ -1958,6 +2009,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS DOCUMENT CREATE",
@@ -2025,6 +2078,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2035,12 +2094,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2049,6 +2111,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2203,7 +2266,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2251,7 +2316,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 12,
@@ -2274,6 +2340,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS DELETE GENERIC",
@@ -2317,6 +2385,12 @@
       "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2327,12 +2401,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2341,6 +2418,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2460,7 +2538,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2514,7 +2594,8 @@
    "program": "Source/ZECSPLT.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X18"
+     "X18",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 6,
@@ -2530,6 +2611,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS INQUIRE",
@@ -2559,10 +2642,10 @@
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
   "coverage_from": "det-sweep coverage ledger freshness recomputed now",
-  "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
+  "crucible_baseline_ref": "v0.6.0 (b794aa8b)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.5.0",
+   "cics": "v0.6.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -2588,7 +2671,16 @@
    "L4": 0,
    "L5": 0
   },
+  "histogram_stale": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
   "holes": 71,
+  "levels_stale": 0,
   "programs": 5,
   "records_current": 0,
   "refused_whole": 0,

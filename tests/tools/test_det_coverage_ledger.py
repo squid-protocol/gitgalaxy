@@ -61,6 +61,16 @@ def test_update_rewrites_stale_fingerprints(monkeypatch):
     assert dcl.fresh_coverage(CASE, built) == (4, 4, 2, 2)
 
 
+def test_update_drops_a_case_the_sweep_did_not_prove_and_keeps_one_it_did_not_run(monkeypatch):
+    """#4758: an entry means the last sweep of its case proved it (the evidence report reads a Db2 case's verdict from
+    it); a case the sweep skipped (a push refresh skips Db2) keeps its entry."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    old = {CASE: entry(), "cbsa-updcust": entry()}
+    built = dcl.build({CASE: {"proved": False, "coverage": ""}}, old)
+    assert set(built) == {"cbsa-updcust"}
+    assert dcl.build({}, old) == old
+
+
 def test_ledger_is_committed():
     """The ledger must be in git (a `*.json` ignore rule once kept it out of PR #4606)."""
     assert dcl._tracked(dcl.LEDGER)

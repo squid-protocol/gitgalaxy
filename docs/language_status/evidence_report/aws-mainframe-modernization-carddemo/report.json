@@ -41,6 +41,12 @@
    "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+  },
+  {
+   "area": "CICS",
+   "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+   "id": "X27",
+   "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -62,7 +68,7 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },
@@ -1404,6 +1410,12 @@
       "entry": "HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port",
       "id": "X16",
       "status": "MATCHED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -1420,6 +1432,7 @@
      "covered": 20,
      "total": 20
     },
+    "current": true,
     "infeasible_netted": [
      "PROCESS-ENTER-KEY:141:false",
      "BUILD-MENU-OPTIONS:241:OTHER",
@@ -1491,6 +1504,8 @@
      "live": 8
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1530,7 +1545,7 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 40,
        "records_equal": 40,
@@ -1578,7 +1593,7 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 40,
       "records_equal": 40,
@@ -1593,6 +1608,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1771,7 +1787,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -1835,7 +1853,9 @@
    ],
    "program": "app/cbl/COADM01C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 6,
     "commands": 5,
     "commands_backed": 5,
@@ -1845,6 +1865,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -1872,6 +1894,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -1888,6 +1916,7 @@
      "covered": 46,
      "total": 46
     },
+    "current": true,
     "infeasible_netted": [
      "RETURN-TO-PREV-SCREEN:275:true",
      "UPDATE-ACCTDAT-FILE:387:WHEN@390"
@@ -1919,6 +1948,8 @@
      "live": 16
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -1954,7 +1985,7 @@
        },
        "fault_runs": 10,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 85,
        "records_equal": 85,
@@ -1998,7 +2029,7 @@
       },
       "fault_runs": 10,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 85,
       "records_equal": 85,
@@ -2013,6 +2044,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2188,7 +2220,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2278,7 +2312,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 12,
@@ -2298,6 +2333,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2331,6 +2368,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2347,6 +2390,7 @@
      "covered": 69,
      "total": 69
     },
+    "current": true,
     "infeasible_netted": [
      "1300-SETUP-SCREEN-ATTRS:553:true",
      "2210-EDIT-ACCOUNT:656:false",
@@ -2418,6 +2462,8 @@
      "live": 30
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2457,7 +2503,7 @@
        },
        "fault_runs": 3,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 60,
        "records_equal": 60,
@@ -2505,7 +2551,7 @@
       },
       "fault_runs": 3,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 60,
       "records_equal": 60,
@@ -2520,6 +2566,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2696,7 +2743,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2848,7 +2897,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 6,
     "commands": 8,
@@ -2861,6 +2911,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2905,6 +2957,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2921,6 +2979,7 @@
      "covered": 17,
      "total": 17
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2930,6 +2989,8 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2962,7 +3023,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 30,
        "records_equal": 30,
@@ -3003,7 +3064,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 30,
       "records_equal": 30,
@@ -3018,6 +3079,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3192,7 +3254,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3345,7 +3409,8 @@
     "assumed_or_differs_named": [
      "X14",
      "X19",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 7,
@@ -3358,6 +3423,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3373,7 +3440,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -3388,6 +3462,7 @@
      "covered": 96,
      "total": 96
     },
+    "current": true,
     "infeasible_netted": [
      "PROCESS-PAGE-BACKWARD:339:false",
      "PROCESS-PAGE-BACKWARD:361:false",
@@ -3449,6 +3524,8 @@
      "live": 16
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3487,7 +3564,7 @@
        },
        "fault_runs": 4,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 91,
        "records_equal": 91,
@@ -3534,7 +3611,7 @@
       },
       "fault_runs": 4,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 91,
       "records_equal": 91,
@@ -3549,6 +3626,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3705,7 +3783,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3777,7 +3857,9 @@
    ],
    "program": "app/cbl/COTRN00C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 5,
     "commands": 8,
     "commands_backed": 4,
@@ -3792,6 +3874,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3819,6 +3903,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -3835,6 +3925,7 @@
      "covered": 23,
      "total": 23
     },
+    "current": true,
     "infeasible_netted": [
      "RETURN-TO-PREV-SCREEN:199:true"
     ],
@@ -3856,6 +3947,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3890,7 +3983,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 39,
        "records_equal": 39,
@@ -3933,7 +4026,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 39,
       "records_equal": 39,
@@ -3948,6 +4041,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4091,7 +4185,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4157,7 +4253,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 1,
     "commands": 5,
@@ -4170,6 +4267,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4197,6 +4296,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4213,6 +4318,7 @@
      "covered": 72,
      "total": 72
     },
+    "current": true,
     "infeasible_netted": [
      "VALIDATE-INPUT-DATA-FIELDS:237:true",
      "COPY-LAST-TRAN-DATA:480:false",
@@ -4254,6 +4360,8 @@
      "live": 18
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4290,7 +4398,7 @@
        },
        "fault_runs": 8,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 132,
        "records_equal": 132,
@@ -4335,7 +4443,7 @@
       },
       "fault_runs": 8,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 132,
       "records_equal": 132,
@@ -4350,6 +4458,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4509,7 +4618,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4591,7 +4702,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 9,
@@ -4608,6 +4720,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4623,7 +4737,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -4638,6 +4759,7 @@
      "covered": 95,
      "total": 95
     },
+    "current": true,
     "infeasible_netted": [
      "PROCESS-PAGE-BACKWARD:342:false",
      "PROCESS-PAGE-BACKWARD:364:false",
@@ -4699,6 +4821,8 @@
      "live": 16
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4737,7 +4861,7 @@
        },
        "fault_runs": 4,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 92,
        "records_equal": 92,
@@ -4784,7 +4908,7 @@
       },
       "fault_runs": 4,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 92,
       "records_equal": 92,
@@ -4799,6 +4923,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4955,7 +5080,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5027,7 +5154,9 @@
    ],
    "program": "app/cbl/COUSR00C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 5,
     "commands": 8,
     "commands_backed": 4,
@@ -5042,6 +5171,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5057,7 +5188,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -5072,6 +5210,7 @@
      "covered": 20,
      "total": 20
     },
+    "current": true,
     "infeasible_netted": [
      "RETURN-TO-PREV-SCREEN:167:true"
     ],
@@ -5093,6 +5232,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5127,7 +5268,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 35,
        "records_equal": 35,
@@ -5170,7 +5311,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 35,
       "records_equal": 35,
@@ -5185,6 +5326,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5317,7 +5459,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5389,7 +5533,9 @@
    ],
    "program": "app/cbl/COUSR01C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 1,
     "commands": 5,
     "commands_backed": 4,
@@ -5401,6 +5547,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5428,6 +5576,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5444,6 +5598,7 @@
      "covered": 44,
      "total": 44
     },
+    "current": true,
     "infeasible_netted": [
      "RETURN-TO-PREV-SCREEN:252:true",
      "UPDATE-USER-SEC-FILE:368:WHEN@377"
@@ -5475,6 +5630,8 @@
      "live": 11
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5510,7 +5667,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 74,
        "records_equal": 74,
@@ -5554,7 +5711,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 74,
       "records_equal": 74,
@@ -5569,6 +5726,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5712,7 +5870,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5786,7 +5946,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 6,
@@ -5800,6 +5961,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5827,6 +5990,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5843,6 +6012,7 @@
      "covered": 30,
      "total": 30
     },
+    "current": true,
     "infeasible_netted": [
      "RETURN-TO-PREV-SCREEN:199:true",
      "DELETE-USER-SEC-FILE:313:WHEN@323"
@@ -5874,6 +6044,8 @@
      "live": 11
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5909,7 +6081,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -5953,7 +6125,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -5968,6 +6140,7 @@
     }
    },
    "level": "L4",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6119,7 +6292,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6185,7 +6360,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 6,
@@ -6199,6 +6375,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6220,6 +6398,12 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -6236,6 +6420,7 @@
      "covered": 146,
      "total": 147
     },
+    "current": true,
     "infeasible_netted": [
      "1250-SETUP-ARRAY-ATTRIBS:757:true",
      "1400-SETUP-MESSAGE:897:OTHER"
@@ -6267,6 +6452,8 @@
      "live": 36
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6303,7 +6490,7 @@
        },
        "fault_runs": 5,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 124,
        "records_equal": 124,
@@ -6348,7 +6535,7 @@
       },
       "fault_runs": 5,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 124,
       "records_equal": 124,
@@ -6363,6 +6550,7 @@
     }
    },
    "level": "L3",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6519,7 +6707,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6677,7 +6867,9 @@
    ],
    "program": "app/cbl/COCRDLIC.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 3,
     "commands": 9,
     "commands_backed": 5,
@@ -6692,6 +6884,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6707,7 +6901,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -6722,6 +6923,7 @@
      "covered": 29,
      "total": 30
     },
+    "current": true,
     "infeasible_netted": [
      "PROCESS-ENTER-KEY:146:WHEN@169",
      "BUILD-MENU-OPTIONS:274:OTHER",
@@ -6763,6 +6965,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6800,7 +7004,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 38,
        "records_equal": 38,
@@ -6846,7 +7050,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 38,
       "records_equal": 38,
@@ -6861,6 +7065,7 @@
     }
    },
    "level": "L3",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7001,7 +7206,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7065,7 +7272,9 @@
    ],
    "program": "app/cbl/COMEN01C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
     "commands_backed": 4,
@@ -7077,6 +7286,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7092,7 +7303,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -7107,6 +7325,7 @@
      "covered": 51,
      "total": 52
     },
+    "current": true,
     "infeasible_netted": [
      "PROCESS-ENTER-KEY:347:true",
      "PROCESS-ENTER-KEY:373:true",
@@ -7188,6 +7407,8 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7229,7 +7450,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 142,
        "records_equal": 142,
@@ -7279,7 +7500,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 142,
       "records_equal": 142,
@@ -7294,6 +7515,7 @@
     }
    },
    "level": "L3",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7426,7 +7648,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7498,7 +7722,9 @@
    ],
    "program": "app/cbl/CORPT00C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": 8,
     "commands": 5,
     "commands_backed": 4,
@@ -7510,6 +7736,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7518,6 +7746,441 @@
     "source_defects": [],
     "statements": 220,
     "translated": 220,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 75.9,
+    "branch_pct": 75.9,
+    "branches": {
+     "covered": 126,
+     "total": 166
+    },
+    "branches_net": {
+     "covered": 126,
+     "total": 166
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 98.4,
+    "paragraphs": {
+     "covered": 62,
+     "live": 63
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cotrtupc",
+      "case_scenarios": 34,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cotrtupc",
+     "case_scenarios": 34,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (now 98.4)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 40,
+    "commands": 8,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "SYNCPOINT"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 1,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 436,
+    "translated": 436,
     "whole": true
    }
   },
@@ -7534,12 +8197,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7570,6 +8236,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7589,6 +8256,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7613,12 +8282,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7650,7 +8322,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -7690,7 +8362,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -7705,6 +8377,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7724,6 +8397,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7748,12 +8423,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7785,7 +8463,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -7825,7 +8503,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -7840,6 +8518,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7859,6 +8538,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7883,12 +8564,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7920,7 +8604,7 @@
        "facade": null,
        "fault_runs": 19,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 105,
        "records_equal": 105,
@@ -7973,7 +8657,7 @@
       "facade": null,
       "fault_runs": 19,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 105,
       "records_equal": 105,
@@ -7988,6 +8672,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8007,6 +8692,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8031,12 +8718,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8068,7 +8758,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -8108,7 +8798,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8123,6 +8813,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8142,6 +8833,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8166,12 +8859,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8203,7 +8899,7 @@
        "facade": null,
        "fault_runs": 20,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -8243,7 +8939,7 @@
       "facade": null,
       "fault_runs": 20,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8258,6 +8954,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8277,6 +8974,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8301,12 +9000,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8338,7 +9040,7 @@
        "facade": null,
        "fault_runs": 28,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 455,
        "records_equal": 455,
@@ -8389,7 +9091,7 @@
       "facade": null,
       "fault_runs": 28,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 455,
       "records_equal": 455,
@@ -8404,6 +9106,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8423,6 +9126,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8447,12 +9152,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8484,7 +9192,7 @@
        "facade": null,
        "fault_runs": 24,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 447,
        "records_equal": 447,
@@ -8524,7 +9232,7 @@
       "facade": null,
       "fault_runs": 24,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 447,
       "records_equal": 447,
@@ -8539,6 +9247,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8558,6 +9267,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8597,6 +9308,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -8613,6 +9330,7 @@
      "covered": 310,
      "total": 397
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8622,6 +9340,8 @@
      "live": 95
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8652,6 +9372,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8828,7 +9549,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9008,7 +9731,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 87,
     "commands": 11,
@@ -9024,6 +9748,8 @@
     "paragraphs_unrun": 6,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9057,6 +9783,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -9073,6 +9805,7 @@
      "covered": 58,
      "total": 69
     },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9082,6 +9815,8 @@
      "live": 32
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9126,7 +9861,7 @@
        },
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 49,
        "records_equal": 49,
@@ -9190,7 +9925,7 @@
       },
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 49,
       "records_equal": 49,
@@ -9205,6 +9940,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9381,7 +10117,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9533,7 +10271,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": 11,
     "commands": 8,
@@ -9546,6 +10285,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9570,12 +10311,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9612,7 +10356,7 @@
        "facade": null,
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 17,
        "records_equal": 17,
@@ -9657,7 +10401,7 @@
       "facade": null,
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 17,
       "records_equal": 17,
@@ -9672,6 +10416,7 @@
     }
    },
    "level": "L2",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9691,6 +10436,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9715,12 +10462,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9733,7 +10483,7 @@
       "det": {
        "state": "not run",
        "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+        "a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
        ]
       },
       "record": null,
@@ -9747,7 +10497,7 @@
      "det": {
       "state": "not run",
       "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       "a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
       ]
      },
      "record": null,
@@ -9755,11 +10505,12 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+    "its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
    ],
    "oracle_backing": [],
    "program": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
@@ -9774,6 +10525,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9782,420 +10535,6 @@
     "source_defects": [],
     "statements": 58,
     "translated": 58,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cotrtupc",
-      "case_scenarios": 34,
-      "db2": true,
-      "det": {
-       "state": "not run",
-       "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-       ]
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cotrtupc",
-     "case_scenarios": 34,
-     "db2": true,
-     "det": {
-      "state": "not run",
-      "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-      ]
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L1",
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "its det port equal on every scenario of carddemo-cotrtupc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-   ],
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 8,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "SYNCPOINT"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 436,
-    "translated": 436,
     "whole": true
    }
   },
@@ -10212,12 +10551,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10226,6 +10568,7 @@
     "chosen": null
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10245,6 +10588,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10269,12 +10614,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10283,6 +10631,7 @@
     "chosen": null
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10302,6 +10651,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10341,6 +10692,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10351,12 +10708,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10391,6 +10751,7 @@
     }
    },
    "level": "L1",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10567,7 +10928,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10737,7 +11100,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 10,
@@ -10752,6 +11116,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10776,12 +11142,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10790,6 +11159,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -10809,6 +11179,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -10857,6 +11229,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10867,12 +11245,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10881,6 +11262,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11037,7 +11419,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11064,7 +11448,8 @@
     "assumed_or_differs_named": [
      "X14",
      "X18",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -11081,6 +11466,8 @@
     "paragraphs_unrun": null,
     "refused": "missing copybook CMQODV"
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "missing copybook CMQODV"
@@ -11116,6 +11503,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -11126,12 +11519,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11140,6 +11536,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11283,7 +11680,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11359,7 +11758,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X14",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 6,
@@ -11373,6 +11773,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -11402,6 +11804,12 @@
       "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
       "id": "X3",
       "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -11412,12 +11820,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11426,6 +11837,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11454,7 +11866,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11582,7 +11996,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11666,7 +12082,9 @@
    ],
    "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": null,
     "commands": 7,
     "commands_backed": 5,
@@ -11679,6 +12097,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -11702,7 +12122,14 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
-    "named_by_commands": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
     "reach": "not measured",
     "source_read": true
    },
@@ -11711,12 +12138,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11725,6 +12155,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11844,13 +12275,17 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     }
    ],
    "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
+    "assumed_or_differs_named": [
+     "X27"
+    ],
     "branch_outcomes_unrun": null,
     "commands": 3,
     "commands_backed": 1,
@@ -11863,6 +12298,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "EXEC CICS ASKTIME NOHANDLE"
@@ -11891,12 +12328,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11905,6 +12345,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11924,6 +12365,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -11954,12 +12397,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11968,6 +12414,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11987,6 +12434,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -12017,12 +12466,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12031,6 +12483,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12050,6 +12503,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -12083,22 +12538,40 @@
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 71.7,
+    "branch_pct": 71.7,
+    "branches": {
+     "covered": 165,
+     "total": 230
+    },
+    "branches_net": {
+     "covered": 165,
+     "total": 230
+    },
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 94.9,
+    "paragraphs": {
+     "covered": 56,
+     "live": 59
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12109,10 +12582,8 @@
       "case_scenarios": 27,
       "db2": true,
       "det": {
-       "state": "not run",
-       "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-       ]
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
       },
       "record": null,
       "role": "program"
@@ -12123,16 +12594,15 @@
      "case_scenarios": 27,
      "db2": true,
      "det": {
-      "state": "not run",
-      "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-      ]
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
      },
      "record": null,
      "role": "program"
     }
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12265,7 +12735,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -12425,8 +12897,10 @@
    ],
    "program": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
    "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 65,
     "commands": 6,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -12434,9 +12908,11 @@
     ],
     "facts_unstated": 0,
     "holes": 1,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 3,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "dynamic CALL"
@@ -12480,6 +12956,12 @@
       "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -12490,12 +12972,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12504,6 +12989,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12644,7 +13130,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -12663,7 +13151,8 @@
     "assumed_or_differs_named": [
      "X14",
      "X18",
-     "X22"
+     "X22",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 4,
@@ -12677,6 +13166,8 @@
     "paragraphs_unrun": null,
     "refused": "missing copybook CMQGMOV"
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "missing copybook CMQGMOV"
@@ -12706,6 +13197,12 @@
       "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -12716,12 +13213,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12730,6 +13230,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12875,7 +13376,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X27"
+     ],
      "spec_entry": "full"
     },
     {
@@ -12892,7 +13395,8 @@
    "program": "app/app-vsam-mq/cbl/CODATE01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X18"
+     "X18",
+     "X27"
     ],
     "branch_outcomes_unrun": null,
     "commands": 5,
@@ -12907,6 +13411,8 @@
     "paragraphs_unrun": null,
     "refused": "missing copybook CMQGMOV"
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "missing copybook CMQGMOV"
@@ -12933,12 +13439,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12947,6 +13456,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12966,6 +13476,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "ALTER not modelled",
@@ -12996,12 +13508,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13010,6 +13525,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13029,6 +13545,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "<name>: no repository for this file in the generated project"
@@ -13059,12 +13577,15 @@
     "branch_pct": null,
     "branches": null,
     "branches_net": null,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
     "paragraph_pct": null,
     "paragraphs": null,
     "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13073,6 +13594,7 @@
     "chosen": null
    },
    "level": "L0",
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13092,6 +13614,8 @@
     "paragraphs_unrun": null,
     "refused": null
    },
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [
      "ACCEPT FROM SYSIN",
@@ -13121,16 +13645,16 @@
   ],
   "corpus_ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
   "coverage_from": "det-sweep coverage ledger freshness recomputed now",
-  "crucible_baseline_ref": "v0.5.0 (9ee42d11)",
+  "crucible_baseline_ref": "v0.6.0 (b794aa8b)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.5.0",
+   "cics": "v0.6.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56"
+   "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status, recomputed now",
@@ -13143,16 +13667,25 @@
  },
  "summary": {
   "cics_programs": 25,
-  "det_equal": 25,
+  "det_equal": 27,
   "histogram": {
    "L0": 14,
-   "L1": 5,
-   "L2": 11,
+   "L1": 4,
+   "L2": 12,
    "L3": 3,
    "L4": 11,
    "L5": 0
   },
+  "histogram_stale": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
   "holes": 68,
+  "levels_stale": 0,
   "programs": 44,
   "records_current": 23,
   "refused_whole": 3,

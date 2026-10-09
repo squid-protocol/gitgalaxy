@@ -17,7 +17,10 @@ Every number in it is read off a sweep's coverage line, none is computed or writ
 (proof_blockers.py) trusts an entry as CURRENT only while `fresh_coverage()`; a missing entry is "unknown". #4730: a
 stale entry stays readable through `last_coverage()` (the evidence report shows it as the last measurement, marked
 stale) unless a BLOCKING input (case, corpus) changed, which makes it unknown as before. `update` also records
-`measured_at`, the commit the numbers were measured at.
+`measured_at`, the commit the numbers were measured at. #4758: an entry exists only while the last sweep that ran its
+case proved it (`update` drops the entry of a case a sweep ran and did not prove), so it is also the case's det verdict:
+the evidence report reads a Db2 case's verdict from it (CI's per-PR det-sweep skips Db2; the scheduled evidence
+refresh's db2 job sweeps them), current or stale like its coverage.
 
 The check (run by `proof_sweep.py --aggregate` in CI's det-sweep, after the verdict ratchet): for every proven case
 in the sweep, the ledger must hold its numbers. It FAILS on a missing entry, on numbers the sweep disagrees with, and on
@@ -117,12 +120,17 @@ def sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
 
 
 def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    """`old` with the entries of the sweep's proven cases rewritten (others kept; an entry for a case no longer
-    in the tree dropped)."""
+    """`old` with the entries of the sweep's proven cases rewritten, the entry of a case the sweep ran and did NOT prove
+    dropped (#4758: an entry means its last sweep proved it, so the evidence report reads a Db2 case's verdict from it),
+    the cases the sweep did not run kept (a push refresh skips Db2), and an entry for a case no longer in the tree
+    dropped."""
     cases = {c: e for c, e in old.items() if (CASES / c / "case.json").is_file()}
     head = _head()
     for case, row in sorted(det.items()):
-        nums = parse_line(row.get("coverage", "")) if row.get("proved") else None
+        if not row.get("proved"):
+            cases.pop(case, None)
+            continue
+        nums = parse_line(row.get("coverage", ""))
         if nums is not None:
             cases[case] = {**nums, "inputs": fingerprints(case), **({"measured_at": head} if head else {})}
     return dict(sorted(cases.items()))

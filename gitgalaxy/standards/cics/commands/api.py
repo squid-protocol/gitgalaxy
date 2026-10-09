@@ -11,10 +11,10 @@
 translator refuses it whole (cics_command_spec.md section 9, decision 4). No SPI / system-programming command.
 
 IBM's "CICS command summary" (CICS TS 6.x) lists 336 API command topics: 259 command names once the device / role
-variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... -- are one name. 44 of them have full
+variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... -- are one name. 48 of them have full
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
-NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 205 are here.
+NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 201 are here.
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
 The reasons the translator gave before PR 2 are kept word for word (container MOVE / browse, a parent waiting for its
@@ -182,7 +182,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # queues and files beyond the modelled ones
     ("READQ TD", None, "reading a transient-data queue is not modelled (only WRITEQ TD)"),
     ("DELETEQ TD", None, "deleting a transient-data queue is not modelled"),
-    ("DELETEQ TS", None, "deleting a temporary-storage queue is not modelled"),
     ("RESETBR", None, "repositioning a browse (RESETBR) is not modelled"),
     ("UNLOCK", None, "releasing a record's update lock (UNLOCK) is not modelled"),
     # journals
@@ -204,10 +203,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("VERIFY PASSWORD", None, _SECURITY),
     ("VERIFY PHRASE", None, _SECURITY),
     ("VERIFY TOKEN", None, _SECURITY),
-    # named counters other than GET COUNTER
-    ("DEFINE COUNTER", "define-counter-define-dcounter", COUNTER),
-    ("DELETE COUNTER", "delete-counter-delete-dcounter", COUNTER),
-    ("QUERY COUNTER", "query-counter-query-dcounter", COUNTER),
+    # named counters other than GET / QUERY / DEFINE / DELETE COUNTER
     ("REWIND COUNTER", "rewind-counter-rewind-dcounter", COUNTER),
     ("UPDATE COUNTER", "update-counter-update-dcounter", COUNTER),
     # documents

@@ -655,6 +655,45 @@ public class CicsTask {
         return length < 1 ? 22 : 0;
     }
 
+    // #4415 slice 2 (register X29): INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID /
+    // ODFACILTYPE (IBM CICS TS, INQUIRE ASSOCIATION). IBM's pages do not say what the origin of a terminal-started
+    // task holds, so the five values are a fact whoever runs the task states, never guessed.
+    private String[] origin;
+
+    // IBM's CVDAs for ODFACILTYPE (API Reference, "CVDAs and numeric values"; det/cvda.py)
+    private static final Map<String, Integer> FACILTYPE_CVDAS = Map.ofEntries(
+            Map.entry("APPC", 124), Map.entry("ASRUNTRAN", 1209), Map.entry("BRIDGE", 935), Map.entry("EVENT", 334),
+            Map.entry("IIOP", 1097), Map.entry("IPECI", 936), Map.entry("IPIC", 1089), Map.entry("JVMSERVER", 1193),
+            Map.entry("LU61", 125), Map.entry("MRO", 938), Map.entry("NODEJSAPP", 1215), Map.entry("NONE", 496),
+            Map.entry("RRSUR", 939), Map.entry("RZINSTOR", 940), Map.entry("SCHEDULER", 941), Map.entry("SOCKET", 942),
+            Map.entry("START", 635), Map.entry("STARTTERM", 943), Map.entry("TERMINAL", 213), Map.entry("TRANDATA", 944),
+            Map.entry("WEB", 945), Map.entry("XMRUNTRAN", 946));
+
+    /** The origin data of the task's association data: 8-character values and the facility type's CVDA. */
+    public record Origin(String applid, String userid, String facilname, String networkid, int faciltype) {
+    }
+
+    /** The task's origin data (INQUIRE ASSOCIATION ODAPPLID, ODUSERID, ODFACILNAME, ODNETWORKID, ODFACILTYPE): the
+     *  facility type is one of IBM's CVDA names. Not stated (never called), INQUIRE ASSOCIATION is refused. */
+    public CicsTask withOrigin(String applid, String userid, String facilname, String networkid, String faciltype) {
+        if (!FACILTYPE_CVDAS.containsKey(faciltype)) {
+            throw new IllegalArgumentException("ODFACILTYPE " + faciltype + " is not one of IBM's facility types");
+        }
+        this.origin = new String[] {applid, userid, facilname, networkid, faciltype};
+        return this;
+    }
+
+    /** INQUIRE ASSOCIATION(EIBTASKN) ...: the task's own origin data (the task exists and no security is checked, so
+     *  neither TASKIDERR nor NOTAUTH arises). Unstated, refused. */
+    public Origin inquireAssociation() {
+        String[] o = root().origin;
+        if (o == null) {
+            throw new IllegalStateException("INQUIRE ASSOCIATION: the task's origin data is not stated (withOrigin)");
+        }
+        java.util.function.Function<String, String> pad = v -> String.format(java.util.Locale.ROOT, "%-8.8s", v);
+        return new Origin(pad.apply(o[0]), pad.apply(o[1]), pad.apply(o[2]), pad.apply(o[3]), FACILTYPE_CVDAS.get(o[4]));
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;
@@ -1393,16 +1432,101 @@ public class CicsTask {
         return this;
     }
 
-    /** GET COUNTER (IBM CICS TS): the named counter's current value, after which it is one more; null (NOTFND)
-     *  for a counter the region does not have. */
-    public Long getCounter(String pool, String name) {
-        java.util.Map<String, Long> all = root().counters;
-        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
-        Long v = all.get(key);
-        if (v != null) {
-            all.put(key, v + 1);
+    /** The INVREQ RESP2 IBM gives a counter or pool name outside its rules (X30): 403 for the pool (A-Z 0-9 $ @ # _, no
+     *  embedded spaces), 404 for the counter (A-Z 0-9 _ $ # @, not starting with a digit or an underscore, no embedded
+     *  spaces); 0 for a valid pair. A counter name of blanks only is not covered by IBM's rules: refused. */
+    private static int counterNameResp2(String pool, String name) {
+        String p = pool == null ? "" : pool.stripTrailing();
+        for (int i = 0; i < p.length(); i++) {
+            char c = p.charAt(i);
+            if (!((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '$' || c == '@' || c == '#' || c == '_')) {
+                return 403;
+            }
         }
-        return v;
+        String n = name == null ? "" : name.stripTrailing();
+        if (n.isEmpty()) {
+            throw refused("a named counter with a blank name");
+        }
+        for (int i = 0; i < n.length(); i++) {
+            char c = n.charAt(i);
+            boolean ok = (c >= 'A' && c <= 'Z') || c == '$' || c == '@' || c == '#' || (i > 0 && ((c >= '0' && c <= '9') || c == '_'));
+            if (!ok) {
+                return 404;
+            }
+        }
+        return 0;
+    }
+
+    private static String counterKey(String pool, String name) {
+        return (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
+    }
+
+    /** GET COUNTER (IBM CICS TS): {RESP, RESP2, value} -- the named counter's current value, after which it is one more;
+     *  INVREQ (16) RESP2 201 "Named counter not found" (the page lists no NOTFND; X30), 403 / 404 for a name outside
+     *  IBM's rules. */
+    public long[] getCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new long[] {16, bad, 0};
+        }
+        java.util.Map<String, Long> all = root().counters;
+        String key = counterKey(pool, name);
+        Long v = all.get(key);
+        if (v == null) {
+            return new long[] {16, 201, 0};
+        }
+        all.put(key, v + 1);
+        return new long[] {0, 0, v};
+    }
+
+    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30): {RESP, RESP2} -- the counter created with VALUE (the caller
+     *  passes zero when it is omitted: IBM's initial value); INVREQ 202 when one of that name exists, 403 / 404 for a name
+     *  outside IBM's rules. A VALUE below zero is refused (IBM does not state how the default minimum reads signed). */
+    public int[] defineCounter(String pool, String name, int value) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (value < 0) {
+            throw refused("DEFINE COUNTER with a VALUE below zero");
+        }
+        java.util.Map<String, Long> all = root().counters;
+        String key = counterKey(pool, name);
+        if (all.containsKey(key)) {
+            return new int[] {16, 202};
+        }
+        all.put(key, (long) value);
+        return new int[] {0, 0};
+    }
+
+    /** DELETE COUNTER (IBM CICS TS, DELETE COUNTER; X30): {RESP, RESP2} -- INVREQ 201 "Named counter not found"
+     *  (the page lists no NOTFND), 403 for a pool outside IBM's rules. */
+    public int[] deleteCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad == 403) {
+            return new int[] {16, bad};
+        }
+        java.util.Map<String, Long> all = root().counters;
+        return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
+    }
+
+    /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER): {RESP, RESP2, value} -- the named counter's current value, which stays;
+     *  INVREQ (16) RESP2 201 "Named counter not found", 403 / 404 for a name outside IBM's rules. The region's counters
+     *  are fullwords: one beyond it (IBM's LENGERR) is refused. */
+    public int[] queryCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad, 0};
+        }
+        java.util.Map<String, Long> all = root().counters;
+        Long v = all.get(counterKey(pool, name));
+        if (v == null) {
+            return new int[] {16, 201, 0};
+        }
+        if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) {
+            throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
+        }
+        return new int[] {0, 0, v.intValue()};
     }
 
     /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
@@ -2081,6 +2205,13 @@ public class CicsTask {
         return tempStorage.read(this, queue, item, maxLength);
     }
 
+    /** DELETEQ TS QUEUE(queue) (#4415 slice 2, IBM EXEC CICS DELETEQ TS): the whole queue and its READQ NEXT position;
+     *  QIDERR (44) when it does not exist, INVREQ (16) for a name of binary zeros only. Returns RESP (RESP2 is 0: IBM
+     *  lists none). */
+    public int deleteqTs(String queue) {
+        return tempStorage.delete(queue);
+    }
+
     /** READQ TS QUEUE(queue) NEXT: the item after the last one read by any task (ITEMERR past the end). */
     public TsResult readqTsNext(String queue, int maxLength) {
         return tempStorage.read(this, queue, 0, maxLength);
@@ -2108,6 +2239,17 @@ public class CicsTask {
             Map<String, List<byte[]>> out = new LinkedHashMap<>();
             queues.forEach((q, items) -> out.put(q, List.copyOf(items)));
             return out;
+        }
+
+        int delete(String queue) {
+            if (!queue.isEmpty() && queue.chars().allMatch(c -> c == 0)) {
+                return 16;
+            }
+            if (queues.remove(queue) == null) {
+                return 44;
+            }
+            next.remove(queue);
+            return 0;
         }
 
         TsResult write(CicsTask task, String queue, int rewrite, byte[] data) {

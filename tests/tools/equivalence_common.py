@@ -341,7 +341,6 @@ def comp5_layout_guard(src: Path) -> None:
                 )
 
 
-NUMVAL_ORACLE_STORE = "Hfp.swapNumvalStore(true)"  # det/program.with_numval_oracle (#4741)
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 
@@ -350,22 +349,13 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Optional[Pat
     for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
     binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
     for conforming values, but nothing guarantees a scenario stays conforming."""
-    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
-    out: list[dict[str, Any]] = []
-    if case.get("numval_fixed_store") == "oracle" and any(NUMVAL_ORACLE_STORE in read_source(p).text for p in services):
-        out.append({"kind": "option", "option": "NUMVAL", "declared": "long HFP, stored as IBM leaves undefined",
-                    "applied": "the oracle's exact decimal",
-                    "note": "FUNCTION NUMVAL / NUMVAL-C in a fixed-point COMPUTE or ADD is evaluated in long floating "
-                            "point on z/OS, and IBM does not document how a float result is stored in a fixed-point "
-                            "receiver (truncated or rounded, oracle_assumptions.md C6, #4741), nor what its long-precision "
-                            "conversion keeps of more than 15 digits: a port without this declaration refuses such "
-                            "a value, this proof claims the oracle's decimal for it"})  # fmt: skip
     trunc = str(effective_with_defaults(effective_options(case).layers, source).get("TRUNC") or "").upper()
     if trunc != "OPT":
-        return out
+        return []
+    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
     if any(TRUNC_OPT_STOP in read_source(p).text for p in services):
-        return out
-    return out + [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
+        return []
+    return [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
              "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's "
                      "runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result "
                      "only while every binary value fits its PICTURE (#4706)"}]  # fmt: skip
@@ -442,6 +432,8 @@ def decode_field(
     `data_encoding`; bytes that are not text there are `<undecodable ...>` (the raw bytes kept, never dropped)."""
     num = _pic_numeric(pic) if pic else None
     u = (usage or "DISPLAY").upper()
+    if u == "POINTER" and not pic:  # #4270 (C9): NULL or not, never the address
+        return decode_pointer(raw)
     if num is None:
         text = _decode_text(raw, data_encoding)
         return f"<undecodable {raw!r} in {data_encoding}>" if text is None else text
@@ -550,6 +542,26 @@ def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, st
     return out
 
 
+# #4270 (oracle_assumptions.md C9): a POINTER as the oracle lays it out -- GnuCOBOL on x86-64, 8 bytes; Enterprise
+# COBOL's (AMODE 31) is 4. A record is laid out as the oracle stores it, so each side's fields are read where its own
+# program put them and compared by NAME (never as raw bytes across the two layouts). A POINTER's value is an address,
+# meaningless across sides: it is compared only as NULL or not (decode_field / decode_pointer).
+ORACLE_POINTER_BYTES = 8
+POINTER_NULL = "NULL"
+POINTER_SET = "<a POINTER holding an address: not portable, never equal>"
+
+
+def _pointer(it: dict[str, Any]) -> bool:
+    return not it.get("pic") and (it.get("usage") or "").upper() == "POINTER"
+
+
+def decode_pointer(raw: bytes) -> str:
+    """A POINTER's bytes as compared: NULL (all zero, as SET ... TO NULL and INITIALIZE leave it), else POINTER_SET --
+    an address, which no other run of either side would hold (IBM gives it no stable value), so it never compares
+    equal to anything."""
+    return POINTER_NULL if not any(raw) else POINTER_SET
+
+
 def layout_fields(
     corpus: Path, copybook: str, record: Optional[str] = None, copy_dirs: Optional[list[Path]] = None
 ) -> list[dict[str, Any]]:
@@ -573,7 +585,9 @@ def layout_fields(
         kids.setdefault(it["parent"], []).append(it)
 
     def size(it: dict[str, Any]) -> int:
-        if it.get("pic"):
+        if _pointer(it):
+            own = ORACLE_POINTER_BYTES
+        elif it.get("pic"):
             own = ak._pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False))
         else:
             own = sum(size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))
@@ -582,6 +596,10 @@ def layout_fields(
     out: list[dict[str, Any]] = []
 
     def place(it: dict[str, Any], at: int) -> None:
+        if _pointer(it):  # #4270 (C9): as the oracle stores it, so the fields after it sit where its program reads them
+            out.append({"name": it["name"], "offset": at, "bytes": size(it), "pic": None, "usage": "POINTER",
+                        "sign_separate": False})  # fmt: skip
+            return
         if it.get("pic"):
             out.append(
                 {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),

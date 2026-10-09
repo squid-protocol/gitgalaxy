@@ -925,6 +925,14 @@ class EquivalenceRunTest {
                 if (plan.hasNonNull("uctranst")) {
                     t.withUctranst(plan.get("uctranst").asText());  // #4415: INQUIRE TERMINAL UCTRANST
                 }
+                if (plan.hasNonNull("origin") && frame.get("trigger") instanceof Map<?, ?> otr
+                        && "terminal".equals(otr.get("kind"))) {
+                    // #4415 slice 2 (X29): INQUIRE ASSOCIATION -- the origin data the case states, for a task that
+                    // terminal input started ("Origin data is created when a new request first arrives")
+                    JsonNode o = plan.get("origin");
+                    t.withOrigin(o.get("applid").asText(), o.get("userid").asText(), o.get("facilname").asText(),
+                            o.get("networkid").asText(), o.get("faciltype").asText());
+                }
                 if (sc.path("fault_plans").has(transid)) {  // #4049: the conditions planned for this TRANSID's tasks
                     List<String> faults = new ArrayList<>();
                     sc.get("fault_plans").get(transid).forEach(f -> faults.add(f.asText()));
@@ -1316,6 +1324,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "terminal": case.data["terminal"],
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
+        "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
@@ -1331,6 +1340,15 @@ def terminal_device(case: cc.Case) -> str:
 # #4415 (register X26): the terminal's UCTRANST from its TYPETERM's UCTRAN, name for name (IBM, INQUIRE TERMINAL: "The
 # value comes from the UCTRAN option of the associated TYPETERM definition")
 UCTRAN_TO_UCTRANST = {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
+
+
+def origin_env(case: cc.Case) -> Optional[str]:
+    """#4415 slice 2 (X29): the case's stated origin data as the stub's $GGCICS_ORIGIN (applid,userid,facilname,
+    networkid,faciltype); None when the case states none (INQUIRE ASSOCIATION is then refused by both runtimes)."""
+    o = case.data.get("origin")
+    if not o:
+        return None
+    return ",".join(str(o[k]) for k in ("applid", "userid", "facilname", "networkid", "faciltype"))
 
 
 def terminal_uctranst(case: cc.Case) -> Optional[str]:
@@ -2101,6 +2119,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
+           f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "

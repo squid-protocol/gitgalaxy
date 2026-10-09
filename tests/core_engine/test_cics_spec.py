@@ -164,7 +164,7 @@ def test_resp_tables():
 # ---- the CLI -------------------------------------------------------------------------------------------------------
 def test_cli_check_and_emit(capsys):
     assert cli.main(["check"]) == 0
-    assert "253 commands, ok" in capsys.readouterr().out
+    assert "254 commands, ok" in capsys.readouterr().out
     assert cli.main(["emit", "--json", "GET CONTAINER"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert list(data["commands"]) == ["GET CONTAINER"]
@@ -232,7 +232,7 @@ def test_the_runtimes_keep_no_hand_copy_of_the_generated_tables():
 
 
 def test_python_m_runs_the_cli():
-    assert "cics spec: 253 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
+    assert "cics spec: 254 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
                                                "try:\n    runpy.run_module('gitgalaxy.standards.cics', run_name='__main__')\n"
                                                "except SystemExit as e:\n    assert e.code == 0")  # fmt: skip
 
@@ -242,10 +242,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 46 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
-    # IBM's CICS TS 6.x command summary: 259 API command names, 44 with full entries (+ INQUIRE PROGRAM, SPI), 9
-    # forms of a modelled command (api.py's docstring), the other 205 name-only
-    assert len(by_status["refused"]) == 205
+    assert len(by_status["modelled"]) == 51 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    # IBM's CICS TS 6.x command summary: 259 API command names, 48 with full entries (+ INQUIRE PROGRAM, SPI), 9
+    # forms of a modelled command (api.py's docstring), the other 201 name-only
+    assert len(by_status["refused"]) == 201
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.refused and not c.outcomes, key

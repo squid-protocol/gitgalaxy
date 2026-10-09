@@ -86,4 +86,24 @@ READQ_TS = Command(
     engine=EngineFacts(resource="QUEUE", access="read"),
 )
 
-COMMANDS = (WRITEQ_TD, WRITEQ_TS, READQ_TS)
+# #4415 slice 2, register X29. IBM (EXEC CICS DELETEQ TS) lists INVREQ (the queue "was created by CICS internal code,
+# or the queue name is all binary zeroes"), ISCINVREQ, LOCKED, NOTAUTH, QIDERR ("the queue can't be found") and
+# SYSIDERR, and no RESP2 value for any of them (so 0). Here: one task, local queues, no security, no recoverable queue.
+DELETEQ_TS = Command(
+    key="DELETEQ TS",
+    ibm=ibm("EXEC CICS DELETEQ TS", "summary-deleteq-ts"),
+    status="modelled",
+    register="X29",
+    options={**_QUEUE, **RESP_OPTIONS},
+    refused={"SYSID": SYSID_REMOTE},
+    groups=(one_of("QUEUE", "QNAME", msg=_NO_QUEUE.format("DELETEQ")),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        _QIDERR,
+        Outcome("INVREQ", None, "the queue name is all binary zeros (IBM lists no RESP2)"),
+    ),
+    state=("handle_table",),
+    engine=EngineFacts(resource="QUEUE", access="delete"),
+)
+
+COMMANDS = (WRITEQ_TD, WRITEQ_TS, READQ_TS, DELETEQ_TS)

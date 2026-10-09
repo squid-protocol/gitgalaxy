@@ -2190,6 +2190,65 @@ int GGCSETT(gg_cics *c) {
     return 0;
 }
 
+/* ---- #4415 slice 2: INQUIRE ASSOCIATION, DELETEQ TS (IBM CICS TS, INQUIRE ASSOCIATION, DELETEQ TS; register X29) ----
+ * INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID ODUSERID ODFACILNAME ODNETWORKID ODFACILTYPE: the task's own origin data, the
+ * five values the runner states in $GGCICS_ORIGIN as "applid,userid,facilname,networkid,faciltype" (the facility type
+ * one of IBM's CVDA names); unstated, refused. GG-FLAGS names the option wanted: the 8-character values come back in
+ * name1, ODFACILTYPE's CVDA in num. The task exists and no security is checked: neither TASKIDERR nor NOTAUTH. */
+int GGCINQA(gg_cics *c) {
+    static const struct { const char *name; int cvda; } types[] = {
+        {"APPC", 124}, {"ASRUNTRAN", 1209}, {"BRIDGE", 935}, {"EVENT", 334}, {"IIOP", 1097}, {"IPECI", 936},
+        {"IPIC", 1089}, {"JVMSERVER", 1193}, {"LU61", 125}, {"MRO", 938}, {"NODEJSAPP", 1215}, {"NONE", 496},
+        {"RRSUR", 939}, {"RZINSTOR", 940}, {"SCHEDULER", 941}, {"SOCKET", 942}, {"START", 635}, {"STARTTERM", 943},
+        {"TERMINAL", 213}, {"TRANDATA", 944}, {"WEB", 945}, {"XMRUNTRAN", 946}};
+    const char *env = getenv("GGCICS_ORIGIN");
+    char want[41], fields[5][64], buf[256];
+    int n = 0;
+    trim(c->flags, 40, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!env) refuse("INQUIRE ASSOCIATION: the origin data is not stated for this task");
+    snprintf(buf, sizeof buf, "%s", env);
+    for (char *tok = strtok(buf, ","); tok && n < 5; tok = strtok(NULL, ",")) snprintf(fields[n++], sizeof fields[0], "%s", tok);
+    if (n != 5) refuse("INQUIRE ASSOCIATION: $GGCICS_ORIGIN is not applid,userid,facilname,networkid,faciltype");
+    if (strcmp(want, "ODFACILTYPE") == 0) {
+        c->num = 0;
+        for (size_t i = 0; i < sizeof types / sizeof types[0]; i++)
+            if (strcmp(types[i].name, fields[4]) == 0) c->num = types[i].cvda;
+        if (!c->num) refuse("INQUIRE ASSOCIATION: $GGCICS_ORIGIN's facility type is not one of IBM's");
+        return 0;
+    }
+    int at = strcmp(want, "ODAPPLID") == 0 ? 0 : strcmp(want, "ODUSERID") == 0 ? 1
+           : strcmp(want, "ODFACILNAME") == 0 ? 2 : strcmp(want, "ODNETWORKID") == 0 ? 3 : -1;
+    if (at < 0) refuse("INQUIRE ASSOCIATION: an option that is not modelled");
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, fields[at], strlen(fields[at]) < 8 ? strlen(fields[at]) : 8);
+    return 0;
+}
+
+/* DELETEQ TS QUEUE (c->qname): the whole queue and its READQ NEXT position. QIDERR (44) when it does not exist; INVREQ
+ * (16) for a name of binary zeros only (IBM: "the queue name is all binary zeroes"); IBM lists no RESP2 (0). */
+int GGCDELQ(gg_cics *c) {
+    char dir[4096], hex[40], path[4200];
+    int last = -1, zeros = 1;
+    for (int i = 0; i < 16; i++) if (c->qname[i] != ' ') last = i;
+    for (int i = 0; i <= last; i++) if (c->qname[i] != '\0') zeros = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (last >= 0 && zeros) { c->resp = INVREQ; return 0; }
+    ts_dir(c, dir, sizeof dir, hex);
+    int count = ts_count(dir);
+    if (count < 0) { c->resp = QIDERR; return 0; }
+    for (int i = 1; i <= count; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/next", dir);
+    remove(path);
+    remove(dir);
+    return 0;
+}
+
 /* This task's own STARTs with a REQID, for a CANCEL in the same task. */
 static struct { char reqid[17]; time_t expires; int cancelled; int data; } own[64];
 static int nown = 0;
@@ -2512,40 +2571,161 @@ int GGCAOUT(const char *ca, int len) {
     return 0;
 }
 
-/* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
- * counter is one more. The region's counters are $GGCICS_DIR/counters.cfg ("POOL NAME VALUE", POOL "-" for none),
- * rewritten after each GET, so a later task of the scenario sees the next value; a counter not there is NOTFND. */
-int GGCGCNT(gg_cics *c) {
-    char want[17], pool[9], path[4096], line[256], p[64], n[64], ev[128];
-    long v, got = -1;
-    char lines[64][128];
-    int nl = 0;
-    trim(c->qname, 16, want);
-    trim(c->name1, 8, pool);
-    if (!pool[0]) strcpy(pool, "-");
+/* The region's named counters (#4270, register X30): $GGCICS_DIR/counters.cfg, one "POOL NAME VALUE" per line (POOL "-" for
+ * none), read whole for each counter command and rewritten by the ones that change it, so a later task of the scenario
+ * sees the result. */
+#define MAXCNT 64
+typedef struct { char pool[64], name[64]; long value; } counter_row;
+
+static int counters_read(counter_row *rows) {
+    char path[4096], line[256];
+    int n = 0;
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "r");
-    while (f && nl < 64 && fgets(line, sizeof line, f)) {
-        if (sscanf(line, "%63s %63s %ld", p, n, &v) != 3) continue;
-        if (got < 0 && strcmp(p, pool) == 0 && strcmp(n, want) == 0) {
-            got = v;
-            v++;
-        }
-        snprintf(lines[nl++], sizeof lines[0], "%s %s %ld\n", p, n, v);
-    }
+    while (f && n < MAXCNT && fgets(line, sizeof line, f))
+        if (sscanf(line, "%63s %63s %ld", rows[n].pool, rows[n].name, &rows[n].value) == 3) n++;
     if (f) fclose(f);
-    c->resp2 = 0;
-    if (got < 0) {
-        c->resp = NOTFND;
-    } else {
-        c->resp = NORMAL;
-        c->num = (int)got;
-        f = fopen(path, "w");
-        for (int i = 0; f && i < nl; i++) fputs(lines[i], f);
-        if (f) fclose(f);
+    return n;
+}
+
+static void counters_write(const counter_row *rows, int n) {
+    char path[4096];
+    snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
+    FILE *f = fopen(path, "w");
+    for (int i = 0; f && i < n; i++) fprintf(f, "%s %s %ld\n", rows[i].pool, rows[i].name, rows[i].value);
+    if (f) fclose(f);
+}
+
+static int counter_find(const counter_row *rows, int n, const char *pool, const char *name) {
+    for (int i = 0; i < n; i++)
+        if (strcmp(rows[i].pool, pool) == 0 && strcmp(rows[i].name, name) == 0) return i;
+    return -1;
+}
+
+/* The INVREQ RESP2 IBM gives a name outside its rules (EXEC CICS DEFINE / GET COUNTER): 403 for the pool (A-Z 0-9 $ @ # _,
+ * no embedded spaces), 404 for the counter (A-Z $ @ # first, then also 0-9 and _; no embedded spaces); 0 for a valid pair.
+ * A counter name of blanks only is not covered by IBM's rules: refused. */
+static int counter_name_resp2(const char *pool, const char *name) {
+    for (const char *q = pool; *q; q++)
+        if (!((*q >= 'A' && *q <= 'Z') || (*q >= '0' && *q <= '9') || *q == '$' || *q == '@' || *q == '#' || *q == '_'))
+            return 403;
+    if (!name[0]) refuse("a named counter with a blank name");
+    for (const char *q = name; *q; q++) {
+        int ok = (*q >= 'A' && *q <= 'Z') || *q == '$' || *q == '@' || *q == '#' ||
+                 (q > name && ((*q >= '0' && *q <= '9') || *q == '_'));
+        if (!ok) return 404;
     }
-    snprintf(ev, sizeof ev, "GET-COUNTER pool=%s counter=%s resp=%d", pool, want, c->resp);
-    event(ev, NULL, 0);
+    return 0;
+}
+
+static void counter_names(gg_cics *c, char *want, char *pool, char *shown) {
+    trim(c->qname, 16, want);
+    trim(c->name1, 8, pool);
+    strcpy(shown, pool);
+    if (!pool[0]) strcpy(pool, "-");
+}
+
+/* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
+ * counter is one more; a counter not there is INVREQ RESP2 201 "Named counter not found" (the page lists no NOTFND; X30),
+ * a name outside IBM's rules INVREQ 403 / 404. */
+int GGCGCNT(gg_cics *c) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        c->num = (int)rows[at].value;
+        rows[at].value++;
+        counters_write(rows, n);
+    }
+    return 0;
+}
+
+/* QUERY COUNTER(qname) POOL(name1) VALUE (#4415 slice 2, register X29; IBM, EXEC CICS QUERY COUNTER): the named counter's
+ * current value in GG-NUM, unchanged; a counter not there is INVREQ RESP2 201 "Named counter not found". A value beyond
+ * a fullword (IBM's LENGERR) is refused. */
+int GGCQCNT(gg_cics *c) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else if (rows[at].value < -2147483647L - 1 || rows[at].value > 2147483647L) {
+        refuse("QUERY COUNTER of a value beyond a fullword");
+    } else {
+        c->num = (int)rows[at].value;
+    }
+    return 0;
+}
+
+/* DEFINE COUNTER(qname) POOL(name1) VALUE(GG-NUM) (#4270, register X30; IBM, EXEC CICS DEFINE COUNTER): the counter
+ * created with VALUE (zero when the command omits it: IBM's initial value); INVREQ RESP2 202 "Duplicate counter name"
+ * when one of that name exists, 403 / 404 for a name outside IBM's rules. A VALUE below zero is refused. */
+int GGCDCNT(gg_cics *c) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        return 0;
+    }
+    if (c->num < 0) refuse("DEFINE COUNTER with a VALUE below zero");
+    if (counter_find(rows, n, pool, want) >= 0) {
+        c->resp = INVREQ;
+        c->resp2 = 202;
+    } else if (n >= MAXCNT) {
+        refuse("DEFINE COUNTER past the stub's 64 counters");
+    } else {
+        snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
+        snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
+        rows[n].value = c->num;
+        counters_write(rows, n + 1);
+    }
+    return 0;
+}
+
+/* DELETE COUNTER(qname) POOL(name1) (#4270, register X30; IBM, EXEC CICS DELETE COUNTER): the counter removed; INVREQ
+ * RESP2 201 "Named counter not found" (the page lists no NOTFND), 403 for a pool outside IBM's rules. */
+int GGCXCNT(gg_cics *c) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows), at = bad == 403 ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad == 403) {
+        c->resp = INVREQ;
+        c->resp2 = 403;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        for (int i = at; i + 1 < n; i++) rows[i] = rows[i + 1];
+        counters_write(rows, n - 1);
+    }
     return 0;
 }
 

@@ -1,0 +1,140 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "INQACCCU",
+ "program_source": "src/base/cobol_src/INQACCCU.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/INQACCCU.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "three-accounts",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "INQCUST finds customer 1 (sort code 987654): the cursor FETCHes its three accounts of the program's own sort code (not its 123456 one) into ACCOUNT-DETAILS 1-3 -- after the POINTER -- NUMBER-OF-ACCOUNTS 3, dates reformatted DDMMYYYY (2024-02-29 opened), 'Y'"
+  },
+  {
+   "name": "one-negative-loan",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "2",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "one LOAN account: negative DECIMAL(12,2) balances into the signed S9(10)V99 fields after the POINTER; NUMBER-OF-ACCOUNTS 1"
+  },
+  {
+   "name": "customer-with-no-accounts",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "3",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "INQCUST finds customer 3; the cursor's first FETCH is +100: NUMBER-OF-ACCOUNTS 0, 'Y'"
+  },
+  {
+   "name": "customer-not-on-file",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "5",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "customer 5 has an account but no CUSTOMER record: INQCUST NOTFND, 'N'; CUSTOMER-FOUND 'N', COMM-FAIL-CODE '1', NUMBER-OF-ACCOUNTS 0, no SQL"
+  },
+  {
+   "name": "customer-zero",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "0",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "CUSTOMER-NUMBER zero: not looked up (no LINK), CUSTOMER-FOUND 'N', COMM-FAIL-CODE '1', NUMBER-OF-ACCOUNTS 0"
+  },
+  {
+   "name": "customer-9999999999",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "9999999999",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "CUSTOMER-NUMBER 9999999999 (on the CUSTOMER file): not looked up either, 'N' / '1'"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "4",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "customer 4's account has a NULL ACCOUNT_LAST_STATEMENT with no indicator: FETCH -305, CHECK-FOR-STORM-DRAIN-DB2, then the program's failure path"
+  },
+  {
+   "name": "caller-leaves-data",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL",
+    "COMM-EYE": "XXXX",
+    "COMM-CUSTNO": "ZZZZZZZZZZ",
+    "COMM-ACC-TYPE": "OLDTYPE"
+   },
+   "why": "the caller's COMMAREA arrives with account 1's fields already holding text (as BNK1CCA's working storage might): every field after the POINTER is overwritten"
+  }
+ ],
+ "notes": "CBSA's inquire-accounts-for-customer service (INQACCCU, LINKed with the INQACCCU copybook's COMMAREA by BNK1CCA, CREACC and DELCUS). Its COMMAREA carries data after a POINTER (COMM-PCB-POINTER, then ACCOUNT-DETAILS OCCURS 1 TO 20 DEPENDING ON NUMBER-OF-ACCOUNTS): a POINTER is 4 bytes on z/OS and 8 under the oracle (oracle_assumptions.md C9), so each side's COMMAREA is read by its own layout and compared by name, the POINTER only as NULL. CUSTOMER-NUMBER zero or 9999999999 is not looked up; otherwise INQCUST is LINKed (run in the same task: READ FILE('CUSTOMER') by the program's own sort code, 987654) and, when it finds the customer, ACC-CURSOR is OPENed on the customer number and the program's own sort code (no ORDER BY: the order is Db2's, the same Db2 on both sides) and FETCHed into ACCOUNT-DETAILS until +100 or 20 accounts. A FETCH error (-305: a NULL date with no indicator) takes the program's failure path. The COMMAREA's OCCURS fields are compared at the first occurrence and NUMBER-OF-ACCOUNTS (the harness's layout lists an OCCURS group's fields once); ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql and customer.txt are SYNTHETIC (customer.txt is cbsa-updcust's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

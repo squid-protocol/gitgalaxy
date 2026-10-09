@@ -384,35 +384,6 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_numval_oracle(java: str) -> str:
-    """Each entry (runTask / runBatch / handleCall) run with NUMVAL's fixed-point store as the oracle computes it
-    (Hfp.swapNumvalStore, #4741): a proof of a case that declares `"numval_fixed_store": "oracle"` (a declared
-    difference of its evidence record, equivalence_common.option_differences). IBM's result there is undefined
-    (oracle_assumptions.md C6); a port built without it refuses by name."""
-    out, at = [], 0
-    for m in _ENTRIES.finditer(java):
-        end = _method_end(java, m.end())
-        if end is None:
-            continue
-        body = java[m.end() : end]
-        out.append(java[at : m.end()])
-        out.append(
-            f"\n        boolean {NUMVAL_ORACLE_VAR} = Hfp.swapNumvalStore(true);  // numval_fixed_store: oracle\n        try {{"
-        )
-        out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
-        out.append(f"    }} finally {{\n            Hfp.swapNumvalStore({NUMVAL_ORACLE_VAR});\n        }}\n    ")
-        at = end
-    out.append(java[at:])
-    res = "".join(out)
-    if "cobolrt.Hfp;" not in res:
-        res = re.sub(r"^(import [\w.]+\.cobolrt\.Funcs;\n)", lambda m: m.group(1) + m.group(1).replace("Funcs", "Hfp"), res,
-                     count=1, flags=re.M)  # fmt: skip
-    return res
-
-
-NUMVAL_ORACLE_VAR = "numvalStoreBefore"
-
-
 def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
     """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
     (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
@@ -1290,7 +1261,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             except C.CicsError as e:
                 if cls != cx.gp.contract:
                     continue
-                # the program's own COMMAREA cannot be carried (INQACCCU: data after a POINTER, register C9): the task
+                # the program's own COMMAREA cannot be carried (a POINTER under an OCCURS, register C9): the task
                 # stops by name when it gets one, rather than run as if there were no COMMAREA
                 kw = "if" if not ca_in else "} else if"
                 ca_in += [f"        {kw} (ca instanceof {cls}) {{",

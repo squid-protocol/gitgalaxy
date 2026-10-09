@@ -89,8 +89,6 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
     (port / "service").mkdir(parents=True, exist_ok=True)
-    if case.get("numval_fixed_store") == "oracle":  # #4741: a declared difference of the case (option_differences)
-        r.java = P.with_numval_oracle(r.java)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
     for extra in case.get("programs", []):  # the programs the task LINKs to: translated the same way
         x_svc = ej._service_class(extra["program"])
@@ -102,8 +100,6 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out
-        if case.get("numval_fixed_store") == "oracle":
-            x.java = P.with_numval_oracle(x.java)
         (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
         r.stats["statements"] += x.stats["statements"]
         r.stats["translated"] += x.stats["translated"]

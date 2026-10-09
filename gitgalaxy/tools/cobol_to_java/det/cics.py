@@ -769,7 +769,9 @@ class Cics:
         if verb == "RETURN":
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
-                    raise CicsError("RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)")
+                    raise CicsError(
+                        "RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)"
+                    )
                 tid = self.name(_arg(opts["TRANSID"]))
                 dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
                 rr = g.tmpname("rr")

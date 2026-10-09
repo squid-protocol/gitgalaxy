@@ -49,8 +49,16 @@ name: Evidence Refresh
 #     run already under way when the full run started). The full PR's merge is itself a push to main, so the push lane then
 #     refreshes whatever moved meanwhile. Nothing is lost: both lanes always work from the CURRENT main, and
 #     det_coverage_ledger.py update rewrites only the cases a sweep proved (a push run leaves the Db2 entries as main has them).
-# Measured (runs 37859714260, 37866635888): ~35-46 min is the det sweep, ~33-43 min the stale-record re-proofs (they run again
-# in every run until the previous bot PR has merged), ~1 min checkout + report. Left as is; see the follow-up issue.
+# #4744: SPEED. Measured on completed push-lane refreshes (runs 37859714260, 37866635888), one 4-vCPU runner, sequential: det
+# sweep 2111-2753 s, stale-record re-proofs 2002-2579 s, ~1 min checkout + report. Now the proofs run in parallel jobs and a
+# short `refresh` job merges them: `sweep` (4 shards of proof_sweep.py --shard, --no-ratchet), `records` (6 shards of
+# evidence.py refresh --stale --shard) and, on the full lane, `db2`, all of the ONE commit the `lane` job pinned. `refresh`
+# downloads their outputs, puts the records in place, re-renders the pages, applies the det_sweep_baseline ratchet to the
+# MERGED sweep (proof_sweep.py --aggregate: a case with no result, i.e. a shard that died, fails it), rewrites the ledger from
+# it, rebuilds the reports and opens the PR. Nothing is weakened: the same proofs, the same ratchet, the same failure and
+# auto-merge rules (a failed proof, a failed or missing shard, a failed Db2 job: the PR is opened, never auto-merged, the run
+# fails). Expected wall time: ~5 min setup + the slowest shard (~11 min sweep, ~7-10 min records) + ~8 min `refresh`
+# (setup, merge, report, PR): ~25 min instead of 75-100.
 
 on:
   push:
@@ -87,10 +95,20 @@ jobs:
       actions: read
     outputs:
       defer: ${{ steps.push_gate.outputs.defer }}
+      sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
     env:
       REPO: ${{ github.repository }}
       EVENT: ${{ github.event_name }}
     steps:
+      # #4744: the sweep shards, the record shards, the Db2 job and the refresh job run in parallel, on separate runners, and
+      # must all be of the SAME tree (the ledger's fingerprints and the records' inputs are judged against it), so main's
+      # head is read once here and every checkout below takes it.
+      - name: Pin the commit of main this run is of
+        id: pin
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "sha=$(gh api "repos/$REPO/commits/main" --jq .sha)" >> "$GITHUB_OUTPUT"
+
       - name: Push lane - stand down while a full run is queued or running
         id: push_gate
         if: github.event_name == 'push'
@@ -137,7 +155,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
-          ref: main  # the same commit family as the refresh job: the current main (#4640)
+          ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
           fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
           persist-credentials: false
 
@@ -294,16 +312,21 @@ jobs:
           echo "::error title=Db2 cases::the Db2 det sweep or a Db2 record's proof failed or could not run -- see the summary"
           exit 1
 
-  refresh:
-    needs: [lane, db2]
-    # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck.
-    # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
-    if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
+  # #4744: the non-Db2 det sweep for the coverage ledger, in parallel shards (proof_sweep.py --shard I/N, balanced by
+  # tests/equivalence/det_sweep_durations.json, as det-sweep.yml does). Each shard writes its sweep.json and leaves the
+  # ratchet to the `refresh` job, which merges them (--aggregate: a missing case, a shard that died, fails it).
+  # Measured on one runner: 2111-2753 s; four shards: ~1/4 of that plus ~5 min of setup.
+  sweep:
+    name: sweep ${{ matrix.shard }}
+    needs: lane
+    # not when the lane job says a push run stands down for a full run (#4743)
+    if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 300
-    permissions:
-      contents: write
-      pull-requests: write
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/4", "2/4", "3/4", "4/4"]
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -314,15 +337,140 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
-          # always main, whatever event or branch started the run (#4640): the current one, or (#4733) the commit the
-          # Db2 job swept, so that the ledger's fingerprints are those of the tree its Db2 numbers were measured on
-          ref: ${{ needs.db2.outputs.sha || 'main' }}
+          ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
+          # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install -e "./gitgalaxy[translator]"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            evidence-m2-
+            det-sweep-m2-
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # The oracle image is built once per Dockerfile and kept (docker save, under the Dockerfile's hash; det-sweep.yml's
+      # cache): every shard loads it instead of building it. The fingerprint check is still the pin (#4309): a stale image
+      # fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        env:
+          IMAGE_CACHE_HIT: ${{ steps.image.outputs.cache-hit }}
+        run: |
+          if [ "$IMAGE_CACHE_HIT" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      - name: Re-sweep this shard's det ports for the coverage ledger (#4270)
+        shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          start=$(date +%s)
+          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --shard "${{ matrix.shard }}" \
+            --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
+          echo "seconds: $(( $(date +%s) - start ))" >> "$RUNNER_TEMP/sweep.txt"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Det sweep, shard ${{ matrix.shard }} (#4744)"
+            echo '```'
+            grep -v '^ *$' "$RUNNER_TEMP/sweep.txt" 2>/dev/null | grep -v 'WARNING\|INFO' | tail -60 || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep this shard's results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: refresh-sweep-shard-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/sweep/sweep.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Keep the proofs' logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: refresh-sweep-logs-${{ strategy.job-index }}
+          path: |
+            ${{ runner.temp }}/sweep/det/*/proof.log
+            ${{ runner.temp }}/sweep/det/*/proof/report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # #4744: the stale-record re-proofs, in parallel shards (evidence.py refresh --stale --shard I/N: every shard computes the
+  # same stale list from the same tree and takes every N-th record of it). Each shard stages the records it wrote; the
+  # `refresh` job puts them in place and re-renders the pages. A failed proof fails its shard (the records are staged anyway),
+  # and so the run: no auto-merge. Measured on one runner: 2002-2579 s, sequential; six shards: ~1/6 plus ~5 min of setup.
+  records:
+    name: records ${{ matrix.shard }}
+    needs: lane
+    # not when the lane job says a push run stands down for a full run (#4743)
+    if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/6", "2/6", "3/6", "4/6", "5/6", "6/6"]
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
           fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
           persist-credentials: false
-
-      - name: Record the commit the refresh is as of
-        id: asof
-        run: echo "sha=$(git -C gitgalaxy rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Clone cics-crucible at the pin
         run: |
@@ -363,6 +511,7 @@ jobs:
           key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
           restore-keys: |
             evidence-m2-
+            det-sweep-m2-
             cics-crucible-m2-
             java-compile-m2-
 
@@ -378,16 +527,156 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
-      - name: Build the oracle image and check it against its pin (#4309)
-        run: |
-          docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
-          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+      # The oracle image is built once per Dockerfile and kept (docker save, under the Dockerfile's hash; det-sweep.yml's
+      # cache): every shard loads it instead of building it. The fingerprint check is still the pin (#4309): a stale image
+      # fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        env:
+          IMAGE_CACHE_HIT: ${{ steps.image.outputs.cache-hit }}
+        run: |
+          if [ "$IMAGE_CACHE_HIT" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      - name: Re-prove this shard's stale records
+        id: refresh
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the refresh's exit status, not tee's
+        env:
+          KEYS: ${{ github.event.inputs.keys }}
+        run: |
+          cd gitgalaxy
+          start=$(date +%s)
+          # the Db2 records are the db2 job's (#4733): no Db2 container here
+          # shellcheck disable=SC2086 -- KEYS is a space-separated list on purpose
+          python tests/tools/evidence.py refresh --stale --skip-db2 --shard "${{ matrix.shard }}" --crucible ../cics-crucible \
+            --work "$RUNNER_TEMP/evidence" $KEYS | tee "$RUNNER_TEMP/refresh.txt"
+          echo "seconds: $(( $(date +%s) - start ))" >> "$RUNNER_TEMP/refresh.txt"
+
+      - name: Stage the records this shard wrote
+        if: always()
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/records-out"
+          mkdir -p "$out/records"
+          cd gitgalaxy
+          # only the evidence records the proofs wrote (the refresh job re-renders the pages from them)
+          git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/*/evidence.json' \
+              'tests/cics_crucible/ports/*/*/evidence.json' \
+            | while IFS= read -r -d '' f; do mkdir -p "$out/records/$(dirname "$f")"; cp "$f" "$out/records/$f"; done
+          find "$out" -type f | sort
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Stale records, shard ${{ matrix.shard }} (#4744)"
+            echo '```'
+            cat "$RUNNER_TEMP/refresh.txt" 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep this shard's records
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: refresh-records-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/records-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Fail when a re-proof failed
+        if: steps.refresh.outcome == 'failure'
+        run: |
+          echo "::error title=Evidence refresh::a record's proof failed or could not run -- see the summary"
+          exit 1
+
+  refresh:
+    needs: [lane, db2, sweep, records]
+    # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck.
+    # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
+    if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          # always main, whatever event or branch started the run (#4640): the commit the lane job pinned, which the sweep
+          # shards, the record shards and the Db2 job (#4733) all worked from (#4744), so that the ledger's fingerprints
+          # and the records are those of the tree the proofs ran on
+          ref: ${{ needs.lane.outputs.sha }}
+          fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
+          persist-credentials: false
+
+      - name: Record the commit the refresh is as of
+        id: asof
+        run: echo "sha=$(git -C gitgalaxy rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
+          # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install -e "./gitgalaxy[translator]"
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #4744: the proofs ran in the `sweep` and `records` jobs, in parallel on their own runners; this job only merges them.
+      #
       # #4270: the det-sweep coverage ledger is keyed to harness / oracle fingerprints, so a harness change blanks every
       # entry (readers then treat coverage as unknown) until a sweep rewrites them. Re-sweep nightly and rewrite the ledger
       # from the sweep: `update` always takes fingerprints from the tree, never from the old entry.
-      # The sweep applies the det_sweep_baseline ratchet (no --no-ratchet): a sweep that proves fewer cases than the
-      # baseline expects exits 1, fails this job, and the ledger is NOT rewritten from it.
       - name: Take the Db2 job's results (#4733)
         id: db2_in
         if: needs.db2.result == 'success' || needs.db2.result == 'failure'
@@ -408,47 +697,69 @@ jobs:
           if [ -n "$bad" ]; then echo "::error title=Db2 results::unexpected files in the Db2 artifact: $bad"; exit 1; fi
           cp -r "$in"/. gitgalaxy/
 
-      - name: Re-sweep the det ports for the coverage ledger (#4270)
+      - name: Take the record shards' results (#4744)
+        id: records_in
+        if: needs.records.result == 'success' || needs.records.result == 'failure'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: refresh-records-*
+          merge-multiple: true  # the shards' record sets are disjoint
+          path: ${{ runner.temp }}/records-in
+        continue-on-error: true
+
+      - name: Put the re-proved records in place and re-render the pages (#4744)
+        if: steps.records_in.outcome == 'success'
+        shell: bash
+        run: |
+          in="$RUNNER_TEMP/records-in/records"
+          if [ -d "$in" ]; then
+            # only evidence records, as regular files: nothing else from an artifact reaches the tree
+            bad=$(find "$in" -type f ! -name evidence.json -o -type l)
+            if [ -n "$bad" ]; then echo "::error title=record shards::unexpected files in a shard artifact: $bad"; exit 1; fi
+            cp -r "$in"/. gitgalaxy/
+          fi
+          # what `evidence.py refresh` did at its end on one runner: the pages are rendered from the records
+          cd gitgalaxy && python tests/tools/evidence.py render
+
+      - name: Take the det sweep shards' results (#4744)
+        id: sweep_in
+        if: needs.sweep.result == 'success' || needs.sweep.result == 'failure'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: refresh-sweep-shard-*
+          path: ${{ runner.temp }}/sweep-in
+        continue-on-error: true  # no shard reported: the merge below names every case missing
+
+      # The sweep applies the det_sweep_baseline ratchet, now over the MERGED shards (each shard ran --no-ratchet): a sweep
+      # that proves fewer cases than the baseline expects, or lacks a case (a shard that died), exits 1, fails this job, and
+      # the ledger is NOT rewritten from it. --skip-ledger-check: the ledger is rewritten from this very sweep next.
+      - name: Merge the det sweep and apply its ratchet (#4270, #4744)
         id: ledger_sweep
         continue-on-error: true
-        shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        shell: bash  # -eo pipefail: the aggregate's exit status, not tee's
         run: |
           cd gitgalaxy
-          python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --work "$RUNNER_TEMP/sweep" \
-            | tee "$RUNNER_TEMP/sweep.txt"
+          shopt -s nullglob
+          found=("$RUNNER_TEMP"/sweep-in/*/sweep.json)
+          if [ "${#found[@]}" -eq 0 ]; then echo "no shard reported a sweep.json"; exit 1; fi
+          python tests/tools/proof_sweep.py --aggregate "${found[@]}" --expect all --skip-ledger-check | tee "$RUNNER_TEMP/sweep.txt"
 
       - name: Rewrite the coverage ledger from the sweep (#4270)
-        # Only from a sweep that passed the ratchet. hashFiles() only searches the workspace, never $RUNNER_TEMP, so
-        # test for the file in the shell instead.
+        # Only from a sweep that passed the ratchet.
         if: steps.ledger_sweep.outcome == 'success'
+        shell: bash
         env:
           DB2_SWEEP_OK: ${{ needs.db2.outputs.sweep_ok }}
         run: |
           cd gitgalaxy
-          if [ ! -f "$RUNNER_TEMP/sweep/sweep.json" ]; then
-            echo "::warning title=coverage ledger::no sweep.json from the det sweep: the ledger is not refreshed"
-            exit 0
-          fi
-          sweeps=("$RUNNER_TEMP/sweep")
+          shopt -s nullglob
+          sweeps=("$RUNNER_TEMP"/sweep-in/*/sweep.json)
           # #4733: the Db2 job's sweep too, when it ran and passed its ratchet; otherwise the Db2 entries stay as they were
           # (stale, not zero, once their inputs move: #4730)
           if [ "$DB2_SWEEP_OK" = "true" ] && [ -f "$RUNNER_TEMP/db2-in/sweep/sweep.json" ]; then
             sweeps+=("$RUNNER_TEMP/db2-in/sweep/sweep.json")
           fi
           python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
-
-      - name: Re-prove the stale records
-        id: refresh
-        continue-on-error: true
-        shell: bash  # -eo pipefail: the refresh's exit status, not tee's
-        env:
-          KEYS: ${{ github.event.inputs.keys }}
-        run: |
-          cd gitgalaxy
-          # the Db2 records are the db2 job's (#4733): this job has no Db2 container
-          # shellcheck disable=SC2086 -- KEYS is a space-separated list on purpose
-          python tests/tools/evidence.py refresh --stale --skip-db2 --crucible ../cics-crucible --work "$RUNNER_TEMP/evidence" $KEYS \
-            | tee "$RUNNER_TEMP/refresh.txt"
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
         if: always()
@@ -465,8 +776,9 @@ jobs:
         run: |
           {
             echo "## Evidence refresh"
+            echo "The proofs ran in the sweep and records jobs (their summaries have the per-case output)."
             echo '```'
-            cat "$RUNNER_TEMP/refresh.txt" 2>/dev/null || echo "(no output)"
+            grep -v '^ *$' "$RUNNER_TEMP/sweep.txt" 2>/dev/null | grep -E '^(det|model):|^sweep:' || echo "(no sweep output)"
             echo '```'
             echo '```'
             (cd gitgalaxy && python tests/tools/evidence.py status) || true
@@ -519,7 +831,7 @@ jobs:
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && steps.refresh.outcome == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -536,7 +848,7 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof, the ledger's det sweep or the Db2 job failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
           exit 1

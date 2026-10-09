@@ -248,6 +248,9 @@ def main() -> int:
     )
     ap.add_argument("--expect", default="all", help="with --aggregate: the cases that must be in the merge: all "
                     "(every det case bar Db2's, as --skip-db2) | db2 (every Db2 case, as --db2-only) | none | NAME,NAME")  # fmt: skip
+    ap.add_argument("--skip-ledger-check", action="store_true",
+                    help="with --aggregate: leave out the check of the sweep against the committed coverage ledger (#4744: "
+                    "Evidence Refresh merges its shards, then rewrites the ledger from them, as its one-runner sweep did)")  # fmt: skip
     ap.add_argument(
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )
@@ -322,7 +325,7 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
             print(f"  {sweep} {case:<30} {'PROVED' if r['proved'] else 'NOT PROVEN'}  {r.get('coverage', '')}")
     problems = [*missing, *verdict(results, load_baseline())]
     if (
-        getattr(args, "aggregate", None) and "det" in results
+        getattr(args, "aggregate", None) and "det" in results and not getattr(args, "skip_ledger_check", False)
     ):  # CI: the coverage ledger must hold what the sweep covered
         import det_coverage_ledger as ledger
 

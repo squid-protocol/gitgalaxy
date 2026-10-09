@@ -59,3 +59,20 @@ def test_db2_only_and_skip_db2_split_the_det_cases():
     assert db2 and plain
     assert set(plain) | set(db2) == set(every) and not set(plain) & set(db2)
     assert all(ps.is_db2(c) for c in db2) and not any(ps.is_db2(c) for c in plain)
+
+
+def test_skip_ledger_check_leaves_the_ledger_out_of_the_aggregate_ratchet(monkeypatch, capsys):
+    """#4744: Evidence Refresh aggregates its shards BEFORE it rewrites the coverage ledger, so the ledger check (CI's
+    det sweep, where the ledger must already hold the coverage) must be skippable; everything else stays."""
+    import argparse
+
+    import det_coverage_ledger as ledger
+
+    calls = []
+    monkeypatch.setattr(ledger, "check", lambda det, led: calls.append(1) or (["ledger problem"], []))
+    monkeypatch.setattr(ps, "verdict", lambda results, base: [])
+    results = {"det": {}}
+    ns = dict(aggregate=[Path(".")], no_ratchet=False, update_baseline=False)
+    assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=False)) == 1 and calls
+    calls.clear()
+    assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=True)) == 0 and not calls

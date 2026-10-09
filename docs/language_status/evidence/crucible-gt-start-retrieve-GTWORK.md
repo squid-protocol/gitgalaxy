@@ -8,17 +8,17 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-09T11:51:22Z, harness `8ccdaad9a51d5f88ccfc4d6e564eeb77f22748bf+uncommitted` |
-| inputs digest | `e00966e7d9684f6756e08952cc307d31d52abced728b9913ff6355d2d4eb3f3c` |
+| proof | proven at 2026-10-09T12:32:45Z, harness `80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted` |
+| inputs digest | `933f77675982d6786f4b42e7dcecd60981daea98fd00c384bc0ac788e3bda023` |
 | port | 2 files `3b64f63beb9eaf81` |
 | case | 0 files `e3b0c44298fc1c14` |
-| corpus | cics-crucible @ `v0.6.0` `21a0ddc1b6751693` |
+| corpus | cics-crucible @ `v0.7.0` `8d63af71c999878b` |
 | differences |  `4f53cda18c2baa0c` |
 | options |  `d87806f701d94c84` |
 | harness | 13 files `4cf38f8090bcee6e` |
 | oracle | 0 files `e3b0c44298fc1c14` |
 | generator | 66 files `1e66f8dda300d302` |
-| oracle run | crucible-expected-logs: cics-crucible v0.6.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly |
+| oracle run | crucible-expected-logs: cics-crucible v0.7.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly |
 | written by | model `claude-opus-5-5`, attempt 1 |
 
 ## Proof outputs

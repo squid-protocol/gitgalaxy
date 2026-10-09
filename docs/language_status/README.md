@@ -73,7 +73,7 @@ by `tests/tools/cics_crucible.py`. It measures the CICS pipeline against
 case and scenario: engine facts, whether the generated project compiles, the COBOL on the stub
 runtime, and the generated Java. It also lists the harness work each unsupported cell waits on.
 
-**Definition of done (DRAFT, #4722): [`definition_of_done.md`](definition_of_done.md).** What "done" means for a COBOL / CICS / Db2 migration: scope, the acceptable outcomes per program (a stated evidence level, or a refusal by name), what an estate needs to be done, and what "supported" means for the readiness scanner. Awaiting owner approval.
+**Definition of done (#4722): [`definition_of_done.md`](definition_of_done.md).** What "done" means for a COBOL / CICS / Db2 migration: scope, the acceptable outcomes per program (a stated evidence level, or a refusal by name), what an estate needs to be done, and what "supported" means for the readiness scanner.
 
 **COBOL-to-Java proofs: [`oracle_assumptions.md`](oracle_assumptions.md)** (added 2026-10-02). A proof compares the
 Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists

@@ -56,8 +56,12 @@ estate's report is written only with --out outside the repository: census repos 
 committed. The rendered text never calls a program or estate "proven", "verified" or "guaranteed" (tested); text
 quoted from other tools is reworded to this report's vocabulary.
 
+A level whose coverage is the ledger's last measurement, stale on a SCHEDULED input (harness / oracle), is kept and marked
+(`L3*`, #4730); stale on a BLOCKING input (case, corpus) it drops as before. `--check --live` (the release gate) fails
+while any level is stale; `--deltas` reports stale vs current.
+
 report.json (`gitgalaxy-evidence-report/1`): {format, estate, burned, bars, levels, oracle, not_measured, measured,
-summary, programs: [{program, level, next, translation, equivalence, coverage, oracle_backing, assumptions,
+summary, programs: [{program, level, level_current, stale_since, stale_inputs, next, translation, equivalence, coverage, oracle_backing, assumptions,
 residual}], assumptions_named, reproducibility}; validate() checks the shape.
 """
 
@@ -217,17 +221,37 @@ def measure(
     }
 
 
-def det_coverage() -> dict[str, list[int] | None]:
-    """case -> the det sweep's coverage from the committed ledger while it is fresh (det_coverage_ledger.py, #4606):
-    [paragraphs covered, live, branches covered, total], or None (no entry, or stale)."""
+def record_commit(case: str) -> str | None:
+    """The commit the case's evidence record was proven at (its proof's harness_commit), a fallback for a ledger entry
+    written before entries carried `measured_at`."""
+    rec = ev.load(ev.equivalence_target(case))
+    sha = ((rec or {}).get("proof") or {}).get("harness_commit") or ""
+    return sha.split("+")[0] or None
+
+
+def det_coverage() -> dict[str, Any]:
+    """case -> the det sweep's coverage from the committed ledger (det_coverage_ledger.py, #4606 / #4730):
+    [paragraphs covered, live, branches covered, total] while the entry is current;
+    {"coverage": [...], "stale_inputs": [...], "stale_since": sha|None} while it is stale on SCHEDULED inputs only
+    (harness / oracle: the last measurement, not re-checked); None (no entry, or a BLOCKING input -- case / corpus --
+    changed, so it describes another program)."""
     import det_coverage_ledger as dcl
 
     ledger = dcl.load()
     used = sorted({r.case for runs in pb.equivalence_runs().values() for r in runs})
-    out: dict[str, list[int] | None] = {}
+    out: dict[str, Any] = {}
     for case in used:
-        cov = dcl.fresh_coverage(case, ledger)
-        out[case] = list(cov) if cov else None
+        last = dcl.last_coverage(case, ledger)
+        if last is None or last["blocking"]:
+            out[case] = None
+        elif not last["stale_inputs"]:
+            out[case] = list(last["coverage"])
+        else:
+            out[case] = {
+                "coverage": list(last["coverage"]),
+                "stale_inputs": list(last["stale_inputs"]),
+                "stale_since": last["measured_at"] or record_commit(case),
+            }
     return out
 
 
@@ -327,6 +351,9 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         "infeasible_refuted": [],
         "uncovered_branches": [],
         "uncovered_paragraphs": "not recorded",
+        "current": True,  # #4730: False = the numbers are the last measurement, stale on `stale_inputs`
+        "stale_inputs": [],
+        "stale_since": None,
     }
     if case is None:
         return out
@@ -342,8 +369,16 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     line = pb.coverage_of(row.get("coverage", ""))
     uncovered = row.get("uncovered") if line else None
     led = ledger.get(case["case"])
+    if isinstance(led, dict):  # #4730: the last measurement, stale on a scheduled input
+        out["current"], out["stale_inputs"], out["stale_since"] = (
+            False,
+            list(led["stale_inputs"]),
+            led.get("stale_since"),
+        )
+        led = led["coverage"]
     if line:
         out["source"] = "local sweep coverage line"
+        out["current"], out["stale_inputs"], out["stale_since"] = True, [], None
     elif led:
         out["source"] = "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)"
         line = tuple(led)
@@ -464,6 +499,12 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     p["equivalence"] = {"cases": cases, "chosen": chosen}
     p["coverage"] = cov
     p["level"], p["next"] = lvl, nxt
+    # #4730: a level that rests on the ledger's last measurement (stale on a scheduled input) is shown, marked stale;
+    # L0 / L1 do not read coverage, so they are always current.
+    stale_cov = cov["source"] is not None and not cov["current"] and lvl not in ("L0", "L1")
+    p["level_current"] = not stale_cov
+    p["stale_inputs"] = list(cov["stale_inputs"]) if stale_cov else []
+    p["stale_since"] = cov["stale_since"] if stale_cov else None
     # #4628: the det port's mutation score is the L5 hook. docs/language_status/mutation_scores.json covers the
     # model / hand ports only, so it is deliberately left out here (it says nothing about the det port).
     p["mutation"] = {"det_port": MUTATION}
@@ -497,11 +538,12 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     return p
 
 
-def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live: bool = False) -> dict[str, Any]:
+def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live: bool = False,
+          now: tuple[Any, Any] | None = None) -> dict[str, Any]:  # fmt: skip
     """The report of one estate from its measured block and the repo (live: the records' status recomputed now)."""
     swept = measured.get("sweeps", {})
-    status = record_status() if live else measured.get("record_status", {})
-    ledger = det_coverage() if live else measured.get("det_coverage", {})
+    status, ledger = (now or (record_status(), det_coverage())) if live else (
+        measured.get("record_status", {}), measured.get("det_coverage", {}))  # fmt: skip
     eq = pb.equivalence_runs()
     sweeps = {c: {**s, "report": None} for c, s in swept.items()}
     det_base = pb.load_det_baseline()
@@ -522,6 +564,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
     progs = [build_program(m, estate, ctx) for m in measured["programs"]]
     progs.sort(key=lambda p: (-LEVELS.index(p["level"]), p["program"]))
     hist = Counter(p["level"] for p in progs)
+    hist_stale = Counter(p["level"] for p in progs if not p["level_current"])
     named = sorted(
         {a["id"] for p in progs for a in p["assumptions"]["named_by_commands"]}, key=lambda x: (x[0], int(x[1:]))
     )
@@ -551,7 +594,9 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "measured": measured,
         "summary": {
             "programs": len(progs),
-            "histogram": {lv: hist.get(lv, 0) for lv in LEVELS},
+            "histogram": {lv: hist.get(lv, 0) for lv in LEVELS},  # last measured, stale ones included (#4730)
+            "histogram_stale": {lv: hist_stale.get(lv, 0) for lv in LEVELS},  # of which awaiting a re-check
+            "levels_stale": sum(hist_stale.values()),
             "translated_whole": sum(p["translation"]["whole"] for p in progs),
             "refused_whole": sum(bool(p["translation"]["refused"]) for p in progs),
             "holes": sum(p["translation"]["hole_count"] for p in progs),
@@ -653,7 +698,9 @@ def commands(estate: str, progs: list[dict[str, Any]], measured: dict[str, Any])
 
 
 # ---- validation --------------------------------------------------------------------------------------------------
-def validate(rep: dict[str, Any]) -> list[str]:
+def validate(rep: dict[str, Any], strict: bool = False) -> list[str]:
+    """The shape. A report committed before #4730 has no level_current / stale_* / histogram_stale (every level then
+    was current) until the evidence-refresh bot regenerates it; strict (a freshly built report) requires them."""
     errs = []
     need = (
         "format",
@@ -688,15 +735,56 @@ def validate(rep: dict[str, Any]) -> list[str]:
                 errs.append(f"programs[{i}].{k} missing")
         if p.get("level") not in LEVELS:
             errs.append(f"programs[{i}].level {p.get('level')!r}")
+        if "level_current" not in p and not strict:
+            continue
+        if not isinstance(p.get("level_current"), bool):
+            errs.append(f"programs[{i}].level_current {p.get('level_current')!r}")
+        elif "stale_since" not in p or "stale_inputs" not in p:
+            errs.append(f"programs[{i}]: stale_since / stale_inputs missing")
+        elif p["level_current"] and (p.get("stale_inputs") or p.get("stale_since")):
+            errs.append(f"programs[{i}]: a current level names stale inputs")
+        elif not p["level_current"] and not p.get("stale_inputs"):
+            errs.append(f"programs[{i}]: a stale level names no stale inputs")
     for k in ("survey", "programs", "sweeps", "record_status", "det_coverage"):
         if k not in rep.get("measured", {}):
             errs.append(f"measured.{k} missing")
+    hs = rep.get("summary", {}).get("histogram_stale")
+    if hs is None:
+        if strict:
+            errs.append("summary.histogram_stale missing")
+    elif sum(hs.values()) != sum(not p.get("level_current", True) for p in rep.get("programs", [])):
+        errs.append("summary.histogram_stale disagrees with the programs")
     return errs
 
 
 # ---- rendering ---------------------------------------------------------------------------------------------------
 def _n(x: Any) -> str:
     return "—" if x is None else str(x)
+
+
+def lvl(p: dict[str, Any]) -> str:
+    """A program's level as printed: `L3*` when it is the last measurement, stale (#4730)."""
+    return p["level"] + ("" if p.get("level_current", True) else "*")
+
+
+def stale_counts(s: dict[str, Any]) -> dict[str, int]:
+    """summary.histogram_stale; a report committed before #4730 has none (every level was current)."""
+    return s.get("histogram_stale") or dict.fromkeys(LEVELS, 0)
+
+
+def cell(n: int, k: int) -> str:
+    """A histogram cell: the count, with how many of them await a re-check."""
+    return f"{n} ({k} stale)" if k else str(n)
+
+
+def stale_note(p: dict[str, Any]) -> str:
+    since = f"`{p['stale_since'][:12]}`" if p["stale_since"] else "a commit not recorded"
+    return f"stale since {since} ({', '.join(p['stale_inputs'])})"
+
+
+def plus(s: dict[str, Any], lv: str, key: str = "histogram") -> int:
+    """Programs at lv or above."""
+    return sum(n for k, n in s[key].items() if LEVELS.index(k) >= LEVELS.index(lv))
 
 
 def _frac(d: dict[str, int] | None, a: str, b: str, p: float | None) -> str:
@@ -723,6 +811,18 @@ def preface(rep: dict[str, Any]) -> list[str]:
             "each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a "
             f"level. Det-port mutation (the top level): {rep['mutation']}. The evidence record of a program's case (the committed hand or "
             "model port's proof) is reported beside each program, and is not a condition of any level."
+        ),
+        "",
+        (
+            "**Stale levels (`L3*`).** A level marked `*` is the program's LAST MEASURED level, shown because the "
+            "measurement it rests on was made against an earlier harness or oracle: the det-sweep coverage ledger "
+            "entry's input fingerprints no longer match the tree on a scheduled input (harness, oracle). It means "
+            '"measured against the previous harness, not yet re-checked", not "regressed"; the program table names '
+            "`stale since <commit>` (the commit the level was last measured at) and the changed inputs, and the scheduled "
+            "re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared "
+            "differences or options) is not shown as stale: the level drops, as the old measurement no longer describes "
+            "it. A stale level is never a current one: the summary counts them apart, and the release gate "
+            "(`evidence_report.py --check --live`) fails while any program's level is stale."
         ),
         "",
         "| level | name | condition |",
@@ -770,8 +870,18 @@ def render(rep: dict[str, Any]) -> str:
         "",
     ]
     out += preface(rep)
-    out += ["", "## Summary", "", "| level | programs |", "|---|---|"]
-    out += [f"| {lv} | {n} |" for lv, n in s["histogram"].items()]
+    out += ["", "## Summary", "", "| level | programs | of which stale (awaiting re-check) |", "|---|---|---|"]
+    out += [f"| {lv} | {n} | {stale_counts(s)[lv]} |" for lv, n in s["histogram"].items()]
+    out += [
+        "",
+        f"- current levels: {s['programs'] - sum(stale_counts(s).values())}; stale (`*`, last measured): "
+        f"{sum(stale_counts(s).values())}",
+        "- "
+        + "; ".join(
+            f"{lv}+: {plus(s, lv)} ({plus({**s, 'histogram_stale': stale_counts(s)}, lv, 'histogram_stale')} awaiting re-check)"
+            for lv in ("L2", "L3", "L4")
+        ),
+    ]
     out += [
         "",
         (
@@ -797,7 +907,7 @@ def render(rep: dict[str, Any]) -> str:
         rec = c["record"] if c else None
         rs = p["residual"]
         out.append(
-            f"| {p['program']} | {p['level']} | "
+            f"| {p['program']} | {lvl(p)} | "
             + ("refused" if t["refused"] else f"{_n(t['translated'])}/{_n(t['statements'])}")
             + f" | {t['hole_count']} | {c['case'] if c else '—'} | {c['det']['state'] if c else '—'} | "
             f"{(rec['scenarios'] if rec else c['case_scenarios']) if c else '—'} | "
@@ -854,7 +964,9 @@ def render(rep: dict[str, Any]) -> str:
 
 def program_section(p: dict[str, Any]) -> list[str]:
     t, eq, cov, a, rs = p["translation"], p["equivalence"], p["coverage"], p["assumptions"], p["residual"]
-    out = [f"### {p['program']} -- {p['level']}", ""]
+    out = [f"### {p['program']} -- {lvl(p)}", ""]
+    if not p.get("level_current", True):
+        out += [f"- **Stale level:** {p['level']} is the last measurement, {stale_note(p)}; not yet re-checked", ""]
     if p["level"] not in ("L0", "L1"):
         ch = eq["chosen"]
         out.append(
@@ -990,7 +1102,9 @@ def render_index(reports: list[dict[str, Any]]) -> str:
         "(`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) through an "
         "auto-merged bot PR from `auto/evidence-refresh`, and skips the PR when nothing changed. Per-PR CI only prints "
         "the level changes a PR would cause in its job summary (`evidence_report.py --deltas --live`; advisory, never a "
-        "failure). A release tag is gated on `evidence_report.py --check --live` being clean. The schema check "
+        "failure). A release tag is gated on `evidence_report.py --check --live` being clean AND on every level being "
+        "current: a `(k stale)` cell is a level last measured against an earlier harness or oracle (marked `*` in the "
+        "report), kept instead of counted as 0, and it fails the gate until the scheduled re-sweep refreshes it. The schema check "
         "(`test_committed_report_validates`), the evidence-record staleness check and the det-sweep baseline stay "
         "blocking in every PR; a PR still re-runs the proof of a record it makes stale.",
         "",
@@ -1006,13 +1120,14 @@ def render_index(reports: list[dict[str, Any]]) -> str:
             h = r["summary"]["histogram"]
             out.append(
                 f"| [{r['estate']}]({r['estate']}/report.md) | {r['summary']['programs']} | "
-                + " | ".join(str(h[lv]) for lv in LEVELS)
+                + " | ".join(cell(h[lv], stale_counts(r["summary"])[lv]) for lv in LEVELS)
                 + " |"
             )
         tot = {lv: sum(r["summary"]["histogram"][lv] for r in rs) for lv in LEVELS}
+        tot_stale = {lv: sum(stale_counts(r["summary"])[lv] for r in rs) for lv in LEVELS}
         out.append(
             f"| total | {sum(r['summary']['programs'] for r in rs)} | "
-            + " | ".join(str(tot[lv]) for lv in LEVELS)
+            + " | ".join(cell(tot[lv], tot_stale[lv]) for lv in LEVELS)
             + " |"
         )
         out.append("")
@@ -1028,12 +1143,11 @@ def committed() -> dict[str, dict[str, Any]]:
     return {f.parent.name: json.loads(f.read_text("utf-8")) for f in sorted(OUT.glob("*/report.json"))}
 
 
-def expected(live: bool = False) -> dict[Path, str]:
+def expected(live: bool = False, built: Any = None) -> dict[Path, str]:
     """Every committed file as the repo makes it now, from the committed measured blocks."""
     reps = []
     out: dict[Path, str] = {}
-    for estate, old in committed().items():
-        rep = build(old["measured"], estate, old["bars"], live=live)
+    for estate, _old, rep in built if built is not None else rebuilt(live):
         reps.append(rep)
         out[OUT / estate / "report.json"] = dumps(rep)
         out[OUT / estate / "report.md"] = render(rep)
@@ -1041,25 +1155,62 @@ def expected(live: bool = False) -> dict[Path, str]:
     return out
 
 
-def level_deltas(live: bool = False) -> list[tuple[str, str, str, str]]:
-    """(estate, program, committed level, level now) for every program whose level a refresh would change (#4703)."""
+def rebuilt(live: bool = False) -> list[tuple[str, dict[str, Any], dict[str, Any]]]:
+    """(estate, committed report, report as the repo makes it now) -- built once, a live build is slow."""
+    now = (record_status(), det_coverage()) if live else None  # once for every estate
+    return [(e, old, build(old["measured"], e, old["bars"], live=live, now=now)) for e, old in committed().items()]
+
+
+def level_deltas(live: bool = False, built: Any = None) -> list[tuple[str, str, str, str]]:
+    """(estate, program, committed level, level now) for every program whose level a refresh would change (#4703);
+    a stale level is printed `L3*` (#4730)."""
     out: list[tuple[str, str, str, str]] = []
-    for estate, old in committed().items():
-        new = build(old["measured"], estate, old["bars"], live=live)
-        was = {p["program"]: p["level"] for p in old["programs"]}
-        now = {p["program"]: p["level"] for p in new["programs"]}
+    for estate, old, new in built if built is not None else rebuilt(live):
+        was = {
+            p["program"]: lvl({"level_current": True, **p}) for p in old["programs"]
+        }  # reports before #4730: current
+        now = {p["program"]: lvl(p) for p in new["programs"]}
         for prog in sorted(set(was) | set(now)):
             if was.get(prog) != now.get(prog):
                 out.append((estate, prog, was.get(prog, "(new)"), now.get(prog, "(gone)")))
     return out
 
 
+def stale_levels(live: bool = False, built: Any = None) -> list[tuple[str, str, str, str, str]]:
+    """(estate, program, level, stale since, stale inputs) of every program whose level is stale now (#4730)."""
+    out = []
+    for estate, _old, new in built if built is not None else rebuilt(live):
+        for p in new["programs"]:
+            if not p["level_current"]:
+                out.append(
+                    (estate, p["program"], p["level"], p["stale_since"] or "not recorded", ", ".join(p["stale_inputs"]))
+                )
+    return out
+
+
 def deltas_markdown(live: bool = False) -> str:
     """The advisory view of a PR (#4703): committed reports are refreshed by the bot on main, so a PR is never failed
     for them; this says what the refresh after its merge will change."""
-    rows = level_deltas(live)
-    stale = [p for p, text in expected(live).items() if not p.is_file() or p.read_text("utf-8") != text]
+    built = rebuilt(live)
+    rows = level_deltas(live, built)
+    stale = [p for p, text in expected(live, built).items() if not p.is_file() or p.read_text("utf-8") != text]
     lines = ["## Evidence report (advisory)", ""]
+    sl = stale_levels(live, built)
+    now = [new["summary"] for _e, _old, new in built]
+    n = sum(s["programs"] for s in now)
+    lines += [
+        f"Levels now: {n - len(sl)} current, {len(sl)} stale (last measured, awaiting a re-check; the release gate "
+        + ("fails" if sl else "would pass on levels")
+        + "). "
+        + "; ".join(
+            f"{lv}+: {sum(plus(s, lv) for s in now)} ({sum(plus(s, lv, 'histogram_stale') for s in now)} stale)"
+            for lv in ("L3", "L4")
+        ),
+        "",
+    ]
+    if sl:
+        lines += ["| estate | program | stale level | stale since | stale inputs |", "|---|---|---|---|---|"]
+        lines += [f"| {e} | {p} | {lv}* | {sha[:12]} | {ins} |" for e, p, lv, sha, ins in sl] + [""]
     if not stale:
         lines.append("The committed reports are current.")
     else:
@@ -1068,7 +1219,13 @@ def deltas_markdown(live: bool = False) -> str:
             "regenerates them on main after merge; this PR does not commit them."
         )
     if rows:
-        lines += ["", "| estate | program | level now | level after refresh |", "|---|---|---|---|"]
+        lines += [
+            "",
+            "(`*` = stale: the last measured level.)",
+            "",
+            "| estate | program | level now | level after refresh |",
+            "|---|---|---|---|",
+        ]
         lines += [f"| {e} | {p} | {a} | {b} |" for e, p, a, b in rows]
     elif stale:
         lines += ["", "No program changes level."]
@@ -1110,7 +1267,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bar-branches", type=float, default=DEFAULT_BARS["branches"])
     ap.add_argument("--refresh", action="store_true", help="rebuild the committed reports from their measured blocks")
     ap.add_argument("--check", action="store_true", help="exit 1 when a committed report is not current")
-    ap.add_argument("--deltas", action="store_true", help="print the level changes a refresh would make; exit 0 (#4703)")
+    ap.add_argument(
+        "--deltas", action="store_true", help="print the level changes a refresh would make; exit 0 (#4703)"
+    )
     ap.add_argument("--live", action="store_true", help="--check / --refresh: recompute the records' status now")
     args = ap.parse_args(argv)
 
@@ -1118,16 +1277,25 @@ def main(argv: list[str] | None = None) -> int:
         print(deltas_markdown(args.live), end="")
         return 0
     if args.check:
-        want = expected(args.live)
+        stale_failed = False
+        built = rebuilt(args.live)
+        want = expected(args.live, built)
         bad = [p for p, text in want.items() if not p.is_file() or p.read_text("utf-8") != text]
         extra = [p for p in OUT.glob("*/*") if p.is_file() and p not in want]
+        if args.live:  # #4730: the release gate never quotes a stale level as current
+            for e, prog, lv, sha, ins in stale_levels(True, built):
+                print(
+                    f"stale level: {e}/{prog} {lv}* (stale since {sha[:12]}: {ins}) -- re-sweep, then --refresh --live",
+                    file=sys.stderr,
+                )
+                stale_failed = True
         for p in bad + extra:
             print(
                 f"not current: {_rel(p)} -- run python tests/tools/evidence_report.py --refresh"
                 + (" --live" if args.live else ""),
                 file=sys.stderr,
             )
-        return 1 if bad or extra else 0
+        return 1 if bad or extra or stale_failed else 0
     if args.refresh:
         files = expected(args.live)
         write(files)
@@ -1167,12 +1335,15 @@ def main(argv: list[str] | None = None) -> int:
     for e in estates:
         measured = measure(e, rows, roots, survey, sweeps)
         rep = build(measured, e, bars)
-        errs = validate(rep)
+        errs = validate(rep, strict=True)
         if errs:
             raise SystemExit(f"{e}: the report does not validate: {errs}")
         write({out_dir / e / "report.json": dumps(rep), out_dir / e / "report.md": render(rep)})
-        h = rep["summary"]["histogram"]
-        print(f"{e}: {rep['summary']['programs']} programs, " + ", ".join(f"{lv} {n}" for lv, n in h.items()))
+        h, hs = rep["summary"]["histogram"], stale_counts(rep["summary"])
+        print(
+            f"{e}: {rep['summary']['programs']} programs, "
+            + ", ".join(f"{lv} {cell(n, hs[lv])}" for lv, n in h.items())
+        )
     if out_dir.resolve() == OUT.resolve():
         write({OUT / "README.md": render_index(list(committed().values()))})
     return 0

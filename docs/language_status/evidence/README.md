@@ -14,7 +14,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | - | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | - | 0 | - |
-| [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 16 | 7/7 / 28/33 | 86/136 / 86/93 | 0 | - |
+| [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 16 | 7/7 / 29/33 | 86/136 / 86/93 | 0 | - |
 | [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | - | 0 | - |
 | [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |

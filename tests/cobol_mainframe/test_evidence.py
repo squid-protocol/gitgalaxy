@@ -417,3 +417,41 @@ def test_a_task_judged_up_to_x6_is_recorded_and_stated_as_an_assumption():
     proof = ev.proof_section(t, report, "d")
     assert proof["outputs"]["whole"] == {"equal": 2, "records": 2}
     assert proof["outputs"]["error-path"]["assumes"] == "X6"
+
+
+# ---- #4744: the refresh's shards ---------------------------------------------------------------------------------------
+def _refresh_args(*extra):
+    ap_args = ["refresh", "--stale", "--skip-db2", *extra]
+    import argparse
+
+    ns = argparse.Namespace(cmd="refresh", keys=[], all=False, stale=True, skip_db2=True, only_db2=False, shard=None)
+    for a in ap_args:
+        if a.startswith("--shard="):
+            ns.shard = ev._parse_shard(a.split("=", 1)[1])
+    return ns
+
+
+def test_the_shards_of_a_refresh_are_exactly_the_unsharded_selection(monkeypatch):
+    """Slices I/N of the stale records together are the whole selection, once each: no record is proved twice or dropped."""
+    keys = [f"k{i:02d}" for i in range(11)]
+    fake = [type("T", (), {"key": k, "db2": k == "k03"})() for k in keys]
+    monkeypatch.setattr(ev, "_pick", lambda ks, all_: fake)
+    monkeypatch.setattr(ev, "load", lambda t: {})
+    monkeypatch.setattr(ev, "status", lambda rec, t: {"status": "stale", "stale": ["harness"]} if t.key != "k05" else {"status": "proven", "stale": []})  # fmt: skip
+    whole = [t.key for t in ev._selected(_refresh_args(), say=lambda s: None)]
+    assert "k03" not in whole and "k05" not in whole and len(whole) == 9  # Db2 and current records left out
+    for n in (1, 3, 4, 20):
+        got = [
+            [t.key for t in ev._selected(_refresh_args(f"--shard={i}/{n}"), say=lambda s: None)]
+            for i in range(1, n + 1)
+        ]
+        assert sorted(k for s in got for k in s) == sorted(whole)
+        assert max(map(len, got)) - min(map(len, got)) <= 1
+
+
+@pytest.mark.parametrize("text", ["0/4", "5/4", "x", "2"])
+def test_a_bad_shard_is_refused(text):
+    import argparse
+
+    with pytest.raises(argparse.ArgumentTypeError):
+        ev._parse_shard(text)

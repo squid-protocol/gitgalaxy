@@ -68,7 +68,7 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },

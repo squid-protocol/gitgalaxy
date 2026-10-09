@@ -82,7 +82,7 @@ Instead of letting an LLM guess how to fix the file (which leads to catastrophic
 The LLM is dispatched as a deterministic Systems Architect, tasked solely with resolving the specific structural anomaly without altering the core business logic.
 
 ### 5. From the map to a proven port
-A flag in the audit above is a reason for review, not a reason the program cannot be ported. Three of the CBSA programs it flags (XFRFUN, INQACC and DELACC, each with `COPY REPLACING`) now have deterministic Java ports proven against the original COBOL on a real Db2, with no model involved. CREACC is not proven yet, for a different reason: its COMMAREA carries data after a POINTER, and a POINTER is 8 bytes under the test oracle but 4 on z/OS (register entry C9). See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md).
+A flag in the audit above is a reason for review, not a reason the program cannot be ported. Three of the CBSA programs it flags (XFRFUN, INQACC and DELACC, each with `COPY REPLACING`) now have deterministic Java ports proven against the original COBOL on a real Db2, with no model involved. CREACC is not proven yet: it translates whole, but has no equivalence case. Its COMMAREA carries data after a POINTER, which is 8 bytes under the test oracle but 4 on z/OS; each side's fields are read by its own layout and compared by name (register entry C9). See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md).
 
 > **Read the full technical specification:** [Legacy Refraction Controller](../05-01-legacy-refraction-controller.md)
 > **And:** [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md)

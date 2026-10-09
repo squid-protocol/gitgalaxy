@@ -1426,3 +1426,14 @@ def test_return_immediate_and_link_synconreturn_in_the_stub():
     with pytest.raises(ec.Unsupported, match="IMMEDIATE without TRANSID"):
         ec.translate_command("RETURN IMMEDIATE")
     assert ec.translate_command("LINK PROGRAM('P') SYNCONRETURN") == ec.translate_command("LINK PROGRAM('P')")
+
+
+def test_send_and_receive_map_leave_the_program_on_the_abm0_abend_x31():
+    # #4270 (X31): the stub abends ABM0 for a map its mapset does not hold (GGCSMAP / GGCRECV, $GGCICS_MAPSETS); the
+    # generated COBOL follows the exit label (GG-GOTO > 0) or leaves the program (GG-GOTO < 0) before RESP is stored
+    for cmd in ("SEND MAP('M') MAPSET('S') FROM(MO) RESP(R)", "RECEIVE MAP('M') MAPSET('S') INTO(MI) RESP(R)"):
+        got = ec.translate_command(cmd, ["EXIT-1"])
+        call = next(i for i, ln in enumerate(got) if "GGCSMAP" in ln or "GGCRECV" in ln)
+        text = "\n".join(got)
+        assert "DEPENDING ON GG-GOTO" in text and "IF GG-GOTO < 0" in text
+        assert text.index("IF GG-GOTO < 0") < text.index("MOVE GG-RESP TO R"), (call, got)

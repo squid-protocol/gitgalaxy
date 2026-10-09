@@ -87,7 +87,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
-| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
+| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | translated, no proof yet (CBSA CRDTAGY1-5, INQCUST; GenApp LGICVS01) |
@@ -133,6 +133,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X28 | CICS | FORMATTIME with RESP / RESP2: INVREQ RESP2 1 for an ABSTIME below zero, nothing formatted (without RESP the INVREQ's handling is refused at run time); ASKTIME with NOHANDLE and without ABSTIME (EIBDATE / EIBTIME as dispatched, X4); READQ TS ... LENGTH(LENGTH OF area): the most INTO takes, LENGERR truncation, no length stored back; RECEIVE MAP ... ASIS: input delivered as typed, lower case kept; an ABSTIME that is not packed decimal (the port reads the field by its declared usage), STRINGFORMAT (RESP2 2) and the output areas of an INVREQ FORMATTIME not modelled / not read | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-resp-options, unreleased) |
 | X29 | CICS | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL: yes (cics-crucible hc-inquire-deleteq, unreleased); QUERY COUNTER: no (the reference region has no named counters; unit tests on both runtimes) |
 | X30 | CICS | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-named-counters, unreleased) |
+| X31 | CICS | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | yes (cics-crucible hc-map-not-in-mapset, unreleased) |
 | X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
@@ -478,11 +479,26 @@ instrument). Rows for the other options of #4706 follow in its later slices.
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
-- **Reach.** CBSA passes IMS-era PCB pointers at the end of its COMMAREAs, always NULL. The port carries a POINTER in a
-  COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an address) and refuses a DTO with data
-  after a POINTER: the task stops by name when it gets one.
-- **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
-  side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
+- **No oracle setting.** cobc 3.1.2 (the pinned image) lays a POINTER out as the build's `sizeof(void *)`: `cobc
+  --info` says `64bit-mode: yes`, no option or configuration key changes the width (`numeric-pointer` makes it
+  BINARY-DOUBLE UNSIGNED, still 8; `-fbinary-size` is for PICTURE binary items only). Only a 32-bit (i386) build of
+  GnuCOBOL would lay it out in 4 -- a different oracle image, not a flag.
+- **Declared, compared by name** (#4270). Each side reads the fields where its own program put them, and they are
+  compared by NAME, never as raw bytes across the two layouts:
+  - the det port's storage is the oracle's (8-byte POINTER). The generated COMMAREA DTO carries IBM's offsets (4-byte);
+    its codec places each field past the wider POINTERs before it (`det.cics.Dto.at`), so the data after a POINTER
+    is the same field on both sides, and a DTO whose OCCURS fields appear once carries its whole record (CBSA's
+    INQACCCU-COMMAREA: 1981 bytes on z/OS, 1985 here, every account). A POINTER under an OCCURS (wider once per
+    occurrence, which the DTO cannot say) is refused by name.
+  - the harness lays a record out as the oracle stores it (`equivalence_common.layout_fields`: a POINTER 8 bytes) and
+    compares a POINTER only as NULL or not: a scenario can give only `"NULL"` (an address is refused), NULL decodes as
+    absent (the det DTO's null), and an address never compares equal -- it is not portable, and IBM gives it no
+    stable value. A COMMAREA's EIBCALEN is the oracle's length (INQACCCU 1985, INQACC 107), not z/OS's.
+  The port carries a POINTER in a COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an
+  address). Pinned by `tests/cobol_mainframe/test_pointer_commarea_4270.py` (with `EQUIVALENCE_E2E=1`, the oracle's
+  bytes against the harness's layout and the det port's storage).
+- **Reach.** CBSA passes IMS-era PCB pointers in its COMMAREAs, always NULL: trailing (INQACC, INQCUST, DELACC) and
+  with data after one (INQACCCU-COMMAREA, passed by BNK1CCA, CREACC and DELCUS).
 - **NULL and pointer-to-pointer SET** (#4270): `SET pointer TO NULL` stores binary zeros over the pointer's bytes --
   GnuCOBOL's NULL is a zero `void *` (8 bytes), and IBM documents NULL as the value that holds no address (Enterprise
   COBOL Language Reference, "Figurative constants": NULL / NULLS; SET statement, format 5 "data-pointer") and sets
@@ -1784,3 +1800,35 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
 - **A refusal or a declared difference** found in the code (`not modelled`, `Unsupported`, `UnsupportedOption`) has
   an entry here.
 - **A change of status** (a z/OS run, a new flag) edits the entry and its date. The summary table follows.
+
+### X31. SEND MAP / RECEIVE MAP for a map its mapset does not hold -- abend ABM0, no condition -- ASSUMED (#4270)
+- **What IBM says.** SEND MAP, MAPSET: "If this option is not specified, the name given in the MAP option is assumed to be
+  that of the mapset" (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map); the mapset "must reside in the CICS
+  program library" and "can be defined either by using RDO or by program autoinstall". SEND MAP's conditions are INVMPSZ (38,
+  no RESP2: "the specified map is too wide for the terminal") and INVREQ (16; RESP2 200 "Command not allowed for a distributed
+  program link server program"; also a map without field specifications), RECEIVE MAP's (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map)
+  EOC, EODS, INVMPSZ, INVPARTN, INVREQ (a nonterminal task), MAPFAIL (36, "the data to be mapped has a length of zero or does not
+  contain a set-buffer-address (SBA) sequence"), PARTNFAIL, RDATT, UNEXPIN. **Neither page lists a condition for a map that
+  is not found.** The abend code reference has one: ABM0, "The map specified for a basic mapping support (BMS) request could
+  not be located"; system action "The transaction is abnormally terminated with a CICS transaction dump"; user response "Check
+  if the map has been defined. If it has, check that it has been specified correctly"
+  (https://www.ibm.com/docs/SSGMCP_6.1.0/reference-abend-codes/abend-codes/ABxx_abend_codes/ABM0.html; modules DFHMCP, DFHMCX,
+  DFHMCY). A mapset that is not defined at all: PGMIDERR, when autoinstall for programs is off (SET SYSTEM,
+  https://www.ibm.com/docs/en/cics-ts/5.5.0?topic=commands-set-system, "a program, map set, or partition set that is not
+  defined") -- not modelled.
+- **Modelled.** A map the (constant) MAP names that is not one of the maps its (constant, or defaulted) mapset holds, in an
+  estate whose BMS source defines that mapset: abend ABM0, as EXEC CICS ABEND ABCODE('ABM0') ends the task -- the first
+  active HANDLE ABEND exit from the issuing level upward gets control, else the task is terminated and its unit of work
+  backed out; the ABEND event's `cause` is `system` (cics-crucible SPEC, additive); nothing is sent or received, EIBRESP is
+  not written. Translator: `Cics.map_not_found` (`CicsTask.abendMapNotFound`); stub: `GGCSMAP` / `GGCRECV`, the mapsets and
+  their maps stated by the run in `$GGCICS_MAPSETS` (`MAPSET=MAP,MAP;...`, the cics-crucible runner takes them from the
+  case's `maps`), a mapset not stated is not checked. BNK1CCS (CBSA) names its mapset BNK1CCM as a map, with no MAPSET, and
+  now translates whole.
+- **ASSUMED.** (1) ABM0 is the abend for a map missing from a mapset that exists: IBM's text says "the map ... could not be
+  located" and does not say "in the mapset". (2) RESP / RESP2 do not turn the abend into a condition: IBM lists no condition
+  for it, so the abend is taken to be unconditional; no crucible scenario gives the command RESP. A map not found is never
+  PGMIDERR here. Refused (unchanged): a MAP / MAPSET that is not a constant, a map of no BMS source we hold in an unknown
+  mapset ("no generated screen for map"), and the mapset-undefined case.
+- **Proof.** cics-crucible `hc-map-not-in-mapset` (hand-traced; `in-mapset`, `omitted-mapset`, `receive`, `exit`): the
+  cobol-stub and the det port (java-ported) agree with the log; unit tests on both runtimes
+  (`test_det_cics_map_names_4270.py`, `test_equivalence_cics.py`).

@@ -950,12 +950,45 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     return 0;
 }
 
+/* #4270 (X31): SEND MAP / RECEIVE MAP for a map the mapset does not hold. IBM CICS TS, abend ABM0: "The map specified for
+ * a basic mapping support (BMS) request could not be located"; "The transaction is abnormally terminated with a CICS
+ * transaction dump". Neither command lists a condition for it, so RESP / HANDLE CONDITION do not see it (a HANDLE ABEND
+ * exit does). The mapsets and their maps are a fact the run states, $GGCICS_MAPSETS = `MAPSET=MAP,MAP;MAPSET=MAP`
+ * (the cics-crucible runner takes them from the case's maps); a mapset not stated is not checked. 1: the task
+ * abended -- c->go_to says where to go on (an exit label at this level, else -1: leave the program). */
+static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel);
+
+static int map_not_found(gg_cics *c, const char *map, const char *mapset) {
+    const char *env = getenv("GGCICS_MAPSETS");
+    size_t ml = strlen(mapset), nl = strlen(map);
+    c->go_to = 0;
+    for (const char *p = env; p && *p;) {
+        const char *end = strchr(p, ';');
+        size_t len = end ? (size_t)(end - p) : strlen(p);
+        if (len > ml && strncmp(p, mapset, ml) == 0 && p[ml] == '=') {
+            int held = 0;
+            for (const char *q = p + ml + 1; q < p + len;) {
+                const char *comma = memchr(q, ',', (size_t)(p + len - q));
+                size_t n = comma ? (size_t)(comma - q) : (size_t)(p + len - q);
+                if (n == nl && strncmp(q, map, nl) == 0) held = 1;
+                q += n + 1;
+            }
+            if (held) return 0;
+            abend(c, "ABM0", "system", 0, 0);
+            return 1;
+        }
+        p = end ? end + 1 : NULL;
+    }
+    return 0;
+}
+
 /* RECEIVE MAP(name1) MAPSET(name2) INTO: the scenario's recorded map input. */
 int GGCRECV(gg_cics *c, char *into, int intolen) {
     char map[9], mapset[9], path[4096], ev[128];
     if (uctranst_set) refuse("a terminal RECEIVE after SET TERMINAL UCTRANST");
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
+    if (map_not_found(c, map, mapset)) return 0;
     snprintf(path, sizeof path, "%s/receive_%s.bin", dir_in(), map);
     FILE *f = fopen(path, "rb");
     c->resp = MAPFAIL;
@@ -1180,6 +1213,7 @@ int GGCSMAP(gg_cics *c, char *from, int len) {
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
     trim(c->flags, 40, flags);
+    if (map_not_found(c, map, mapset)) return 0;
     snprintf(ev, sizeof ev, "SEND-MAP map=%s mapset=%s len=%d cursor=%d opts=%s", map, mapset, len, c->len, flags);
     event(ev, from, len);
     c->resp = NORMAL;

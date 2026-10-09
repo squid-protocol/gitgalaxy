@@ -53,7 +53,7 @@ import tempfile
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = REPO_ROOT / "tests" / "tools"
@@ -973,6 +973,39 @@ def _pick(keys: list[str], all_: bool) -> list[Target]:
     return [target(k) for k in keys]
 
 
+def _parse_shard(text: str) -> tuple[int, int]:
+    """ "I/N" (1-based) -> (I, N)."""
+    try:
+        i, n = (int(x) for x in text.split("/"))
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"--shard wants I/N (e.g. 2/4), not {text!r}") from None
+    if not 1 <= i <= n:
+        raise argparse.ArgumentTypeError(f"--shard {text}: I must be 1..N")
+    return i, n
+
+
+def _selected(args: argparse.Namespace, say: Callable[[str], None] = print) -> list[Target]:
+    """The targets a prove / refresh run proves: what the keys, --skip-db2 / --only-db2 and --stale leave, then (#4744) the
+    --shard slice of that. Every shard sees the same tree, so the same list: slice I of N is every N-th record of it, in
+    the order of targets(), and the slices together are exactly the unsharded selection."""
+    out = []
+    for t in _pick(args.keys, args.all):
+        if args.skip_db2 and t.db2:
+            say(f"{t.key}: skipped (Db2)")
+            continue
+        if args.only_db2 and not t.db2:
+            continue
+        if args.cmd == "refresh" and args.stale:
+            st = status(load(t), t)
+            if st["status"] != "no-record" and not st["stale"]:
+                continue
+        out.append(t)
+    if args.shard:
+        i, n = args.shard
+        out = out[i - 1 :: n]
+    return out
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -990,6 +1023,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         p.add_argument("--offline", action="store_true")
         p.add_argument("--skip-db2", action="store_true", help="leave the Db2 cases (they need a Db2 container)")
         p.add_argument("--only-db2", action="store_true", help="only the Db2 cases (#4733: Evidence Refresh's Db2 job)")
+        p.add_argument("--shard", type=_parse_shard, metavar="I/N",
+                       help="only the I-th of N slices of the records this run would prove (#4744: parallel runners)")  # fmt: skip
     sub.add_parser("mutation")
     r = sub.add_parser("render")
     r.add_argument("--check", action="store_true", help="exit 1 when a page is not current")
@@ -1019,16 +1054,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             ap.error("--only-db2 and --skip-db2 leave out each other's cases")
         work = (args.work or Path(tempfile.mkdtemp(prefix="evidence_"))).resolve()
         failed = 0
-        for t in _pick(args.keys, args.all):
-            if args.skip_db2 and t.db2:
-                print(f"{t.key}: skipped (Db2)")
-                continue
-            if args.only_db2 and not t.db2:
-                continue
-            if args.cmd == "refresh" and args.stale:
-                st = status(load(t), t)
-                if st["status"] != "no-record" and not st["stale"]:
-                    continue
+        for t in _selected(args):
             got = prove(t, work, args.crucible, args.offline)
             if "error" in got:
                 failed += 1

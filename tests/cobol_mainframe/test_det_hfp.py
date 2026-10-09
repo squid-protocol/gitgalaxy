@@ -264,7 +264,7 @@ FLOAT_DATA = """       01 S1 COMP-1 VALUE 1.5.
         ("MOVE X4 TO S1", "MOVE of a nonnumeric operand to S1 COMP-1"),
         ("MOVE S1(1:2) TO X4", "the bytes of a COMP-1 item"),
         ("COMPUTE L1 = S1 ** 2", "exponentiation in a floating-point expression"),
-        ("COMPUTE L1 = FUNCTION NUMVAL(X4)", "FUNCTION NUMVAL in a floating-point expression"),
+        ("COMPUTE L1 = FUNCTION SQRT(N)", "FUNCTION SQRT in a floating-point expression"),
         ("COMPUTE S1 ROUNDED = N / 3", "ROUNDED into S1"),
         ("IF S1 = 'AB' DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
         ("IF S1 = SPACES DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
@@ -303,3 +303,84 @@ def test_ibm_dbb_epsmpmt_translates_but_its_float_exponentiation(tmp_path):
     assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h], holes
     assert any("line 125: COMPUTE exponentiation in a floating-point expression" in h for h in holes), holes
     assert "Hfp.divide(Hfp.divide(Hfp.of(" in r.java  # (rate / 100) / 12 into the COMP-1: long HFP
+
+
+# ---- FUNCTION NUMVAL in a floating-point expression (#4270: CBSA BNK1CAC, BNK1TFN, BNK1CRA, BNK1UAC) --------------
+
+NUMVAL_PROBE = """
+import p.cobolrt.*;
+import java.math.BigDecimal;
+public class Probe {
+    static String run(String s, boolean c) {
+        try {
+            BigDecimal v = Hfp.numval(s, c);
+            return v.stripTrailingZeros().toPlainString() + " " + Hfp.toShort(v).stripTrailingZeros().toPlainString();
+        } catch (UnsupportedOperationException e) {
+            return "REFUSED " + e.getMessage();
+        }
+    }
+    public static void main(String[] a) {
+        String[][] cases = {%CASES%};
+        for (String[] k : cases) System.out.println(run(k[0], k[1].equals("C")));
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_numval_is_a_long_hfp_operand_and_refuses_what_ibm_does_not_describe(tmp_path):
+    """IBM: NUMVAL returns a long floating-point value under ARITH(COMPAT) (6.4 Programming Guide, "Converting to
+    numbers"); the conversion is the model's fixed-point one (truncated to long, ASSUMED) and a COMP-1 receiver rounds
+    it to short. More than 18 digits (invalid under ARITH(COMPAT)) or 15 significant digits (IBM: precision may be
+    lost "in an unexpected manner") are refused by name."""
+    cases = [("  12.5 ", ""), ("0.1", ""), ("-0.375", ""), ("3.25 CR", ""), ("$1,024.50", "C"), ("0.00", ""),
+             ("123456789012345", ""), ("1234567890123456", ""), ("0000000000000000001", ""),
+             ("12345678901234.50", ""), ("0012.50", "")]  # fmt: skip
+    rt = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
+    out = tmp_path / "src/p/cobolrt"
+    out.mkdir(parents=True)
+    for f in rt.glob("*.java"):
+        (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
+    probe = NUMVAL_PROBE.replace("%CASES%", ", ".join(f'{{"{s}", "{c}"}}' for s, c in cases))
+    (tmp_path / "src/Probe.java").write_text(probe)
+    jdk = _jdk()
+    files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
+    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+
+    def model(v: str) -> str:
+        x = H.of(F(Decimal(v)))
+        return f"{_plain(x)} {_plain(H.to_short(x))}"
+
+    assert got[0] == model("12.5") == "12.5 12.5"
+    assert got[1] == model("0.1")  # long: truncated to 14 hex digits; short: rounded (4019999A)
+    assert H.encode(H.to_short(H.of(F(Decimal("0.1")))), True).hex().upper() == "4019999A"
+    assert H.encode(H.of(F(Decimal("0.1"))), False).hex().upper() == "4019999999999999"
+    assert got[2] == model("-0.375")
+    assert got[3] == model("-3.25")
+    assert got[4] == model("1024.5")
+    assert got[5] == "0 0"
+    assert got[6] == model("123456789012345")  # 15 significant digits: IBM converts them accurately
+    assert got[7].startswith("REFUSED") and "more than 15 significant digits" in got[7], got[7]
+    assert got[8].startswith("REFUSED") and "19 digits" in got[8], got[8]
+    assert got[9].startswith("REFUSED") and "more than 15 significant digits" in got[9], got[9]  # a written 0
+    assert got[10] == model("12.5")  # leading zeros are not significant
+
+
+def test_arith_extend_refuses_a_floating_point_expression(tmp_path):
+    """Under ARITH(EXTEND) (a PROCESS card, resolved as TRUNC and NUMPROC are) NUMVAL returns extended-precision
+    (128-bit) HFP and float expressions may be extended: not modelled, refused by name (register C5, C6)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    body = ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. FLT.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n" + FLOAT_DATA + "       PROCEDURE DIVISION.\n"
+            "           COMPUTE S1 = FUNCTION NUMVAL(X4)\n           GOBACK.\n")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    for card, holes in (("", []), ("       PROCESS ARITH(EXTEND)\n", ["ARITH(EXTEND): a floating-point expression"])):
+        cbl = tmp_path / "FLT.cbl"
+        cbl.write_text(card + body, encoding="ascii")
+        r = P.translate(cbl, [], "public class FltService {\n}\n", "p", None, tmp_path / "project")
+        assert [h for h in r.stats["holes"] if not any(w in h for w in holes)] == [], r.stats["holes"]
+        assert len(r.stats["holes"]) == len(holes), r.stats["holes"]

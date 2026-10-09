@@ -918,14 +918,14 @@ class Cics:
                 dto, length = self.commarea_out(opts, prog_lit)
                 if not dto.startswith("DetCics.commareaOut("):
                     # #4806: the bytes too -- a det target's DFHCOMMAREA is them, not the DTO's reading of them
-                    area = self.commarea_bytes(opts, prog_lit)
-                    call = f"task.xctl({prog}, {dto}, {length if length != 'null' else '(Integer) null'}, {area})"
-                elif length != "null" and self.constant_int(opts["LENGTH"]) is None:
+                    xarea = self.commarea_bytes(opts, prog_lit)
+                    call = f"task.xctl({prog}, {dto}, {length if length != 'null' else '(Integer) null'}, {xarea})"
+                elif length != "null" and self.constant_int(str(opts["LENGTH"])) is None:
                     # a LENGTH known at run time: the bytes past the DTO (#4501), else the DTO and its bytes (#4806)
                     xc = g.tmpname("xc")
                     pre.append(f"{ind}Object {xc} = {dto};")
-                    area = f"({xc} instanceof byte[] ? null : {self.commarea_bytes(opts, prog_lit)})"
-                    call = f"task.xctl({prog}, {xc}, {length}, {area})"
+                    xarea = f"({xc} instanceof byte[] ? null : {self.commarea_bytes(opts, prog_lit)})"
+                    call = f"task.xctl({prog}, {xc}, {length}, {xarea})"
                 else:  # always the bytes past the DTO (#4501 LENGTH, #4765 a table's every occurrence)
                     call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:

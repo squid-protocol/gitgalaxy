@@ -1960,8 +1960,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
-        elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and "resp" not in kv:  # the task's own (a
-            # LINK level's: no; a RETURN IMMEDIATE that failed: it returned to the program, #4270)
+        # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
+        elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",

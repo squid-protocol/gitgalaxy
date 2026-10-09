@@ -62,8 +62,8 @@
   },
   "corpus": {
    "name": "cics-crucible",
-   "ref": "v0.6.0",
-   "sha256": "21a0ddc1b67516931ee700fc497e3671ad18caa33afcf03d799b8a4d3a2e3bdc"
+   "ref": "v0.7.0",
+   "sha256": "8d63af71c999878b857eb6741fdcabac6d264b5384707d64fed1c3e8603053e3"
   },
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -94,10 +94,10 @@
     }
    }
   },
-  "digest": "4aecec47fba1c13a72ac872a15d5b4a6d1daecc16dabcbb8e402f1ae521c4395"
+  "digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
  },
  "proof": {
-  "at": "2026-10-09T11:51:46Z",
+  "at": "2026-10-09T12:32:18Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -124,8 +124,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "8ccdaad9a51d5f88ccfc4d6e564eeb77f22748bf+uncommitted",
-  "inputs_digest": "4aecec47fba1c13a72ac872a15d5b4a6d1daecc16dabcbb8e402f1ae521c4395"
+  "harness_commit": "80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted",
+  "inputs_digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
  },
  "coverage": {
   "paragraphs": {
@@ -140,7 +140,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXB",
   "ledger_sha256": "14fb4eee40f3c102720586999186172a1e57ed5764e2798ce1fc36d88fbd4de7",
-  "inputs_digest": "4aecec47fba1c13a72ac872a15d5b4a6d1daecc16dabcbb8e402f1ae521c4395"
+  "inputs_digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
  },
  "reach": {
   "entry_points": [
@@ -198,7 +198,7 @@
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",
-  "source": "cics-crucible v0.6.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
+  "source": "cics-crucible v0.7.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly",
   "compiler": null,
   "image": null,
   "models": [],
@@ -218,9 +218,9 @@
   "provenance_file": {
    "path": "tests/cics_crucible/ports/ca-xctl-versions/CAXB/provenance.json",
    "format": "cics-crucible-port/1",
-   "sha256": "db8e74bb80633793a209b524777589c89d59d3afaef7ddeb7c15319b78211750"
+   "sha256": "5f7946fb385a356c16f1d024033dbdd392bd562dec896d5513e29669cda085c8"
   },
-  "crucible_ref_proven": "v0.6.0 (b794aa8b)"
+  "crucible_ref_proven": "v0.7.0 (aaf84bcd)"
  },
  "approvals": []
 }

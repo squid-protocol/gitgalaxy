@@ -45,7 +45,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | L4 | 3 | 1 |
 | L5 | 0 | 0 |
 
-- current levels: 25; stale (`*`, last measured): 6
+- stale (`*`, last measured): 6 of 31 programs; the rest are current
 - L2+: 8 (6 awaiting re-check); L3+: 5 (3 awaiting re-check); L4+: 3 (1 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
@@ -1041,7 +1041,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 - translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
-- crucible pins: cics `v0.6.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.6.0 (b794aa8b)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: `sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85`

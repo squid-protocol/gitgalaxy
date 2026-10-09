@@ -58,6 +58,12 @@ def encode_field(
 ) -> bytes:
     """A value as the field stores it -- the inverse of equivalence.decode_field. #3815: text and zoned
     digits in `data_encoding` (the zoned sign from `code_page`'s table, as the generated CobolRecords)."""
+    if (usage or "").upper() == "POINTER" and not pic:  # #4270 (C9): NULL only -- an address is not portable
+        if value is None or str(value).strip() in ("", common.POINTER_NULL):
+            return bytes(nbytes)
+        raise ValueError(
+            f"a POINTER can only be given as {common.POINTER_NULL!r} (an address is not portable): {value!r}"
+        )
     num = common._pic_numeric(pic) if pic else None
     if num is None:
         return common.text_bytes(str(value), nbytes, data_encoding)
@@ -139,6 +145,8 @@ def _text_value(rng: random.Random, name: str, nbytes: int, row: int, alphabet: 
 
 
 def field_value(rng: random.Random, f: dict[str, Any], row: int, alphabet: str = _TEXT) -> Any:
+    if f.get("usage") == "POINTER" and not f.get("pic"):  # #4270 (C9): NULL, the only value both sides can hold
+        return common.POINTER_NULL
     num = common._pic_numeric(f["pic"]) if f.get("pic") else None
     if num is None:
         return _text_value(rng, f["name"], f["bytes"], row, alphabet)

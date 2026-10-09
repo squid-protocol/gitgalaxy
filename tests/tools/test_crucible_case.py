@@ -93,9 +93,7 @@ def test_events_table_matches_the_crucible_schema():
             {k for k in req if k not in ("event", "program")},
             {k for k in props if k not in req and k != "note"},
         )
-    # (keys the crucible's main has and no release yet are left out until the pinned schema has them)
-    mine = {k: (set(r), set(o) - {x for x in ev.UNRELEASED.get(k, ()) if x not in table.get(k, ((), ()))[1]})
-            for k, (r, o) in ev.EVENTS.items()}  # fmt: skip
+    mine = {k: (set(r), set(o)) for k, (r, o) in ev.EVENTS.items()}
     assert table == mine
 
 

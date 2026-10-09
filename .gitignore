@@ -168,7 +168,7 @@ museum_2/
 !tests/equivalence/*/evidence.json
 !tests/equivalence/facade_baseline.json
 !tests/equivalence/det_sweep_baseline.json
-!tests/equivalence/det_sweep_coverage.json
+!tests/equivalence/det_sweep_coverage/*.json
 !tests/equivalence/infeasible_outcomes.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
@@ -224,3 +224,5 @@ tests/telemetry_out/
 
 # #4788: the oracle-assumptions register layout is source (the *.json rule above hid it from the first PR)
 !docs/language_status/register/_layout.json
+!tests/tools/feature_inventory.schema.json
+!tests/fixtures/feature_inventory/*.json

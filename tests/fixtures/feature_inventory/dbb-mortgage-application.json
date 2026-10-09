@@ -1,0 +1,723 @@
+{
+  "cics_commands": {
+    "ABEND": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "ENDBR": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "FREEMAIN": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GET": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETMAIN": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETNEXT": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 4,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "PUT": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "READNEXT": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 7,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SEND": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SEND TEXT": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SOAPFAULT CREATE": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "STARTBR": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBROWSE CONTAINER": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "cics_options": {
+    "ENDBR: FILE": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "FREEMAIN: DATAPOINTER": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GET: CONTAINER": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GET: FLENGTH": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GET: INTOCCSID": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GET: SET": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETMAIN: FLENGTH": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETMAIN: SET": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETNEXT: BROWSETOKEN": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETNEXT: CONTAINER": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETNEXT: RESP": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "GETNEXT: RESP2": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "LINK: COMMAREA": {
+      "count": 4,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 4,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "PUT: CONTAINER": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "PUT: FLENGTH": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "PUT: FROM": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "PUT: FROMCCSID": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "READNEXT: FILE": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "READNEXT: INTO": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "READNEXT: RBA": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "READNEXT: RESP": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "READNEXT: RIDFLD": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RECEIVE: MAP": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RECEIVE: MAPSET": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RETURN: COMMAREA": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RETURN: LENGTH": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "RETURN: TRANSID": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND TEXT: ERASE": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND TEXT: FREEKB": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND TEXT: FROM": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND: CURSOR": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND: DATAONLY": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND: ERASE": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SEND: FROM": {
+      "count": 5,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SEND: MAP": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SEND: MAPONLY": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "SEND: MAPSET": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "SOAPFAULT CREATE: CLIENT": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SOAPFAULT CREATE: FAULTSTRING": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SOAPFAULT CREATE: FAULTSTRLEN": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "STARTBR: DATASET": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBR: EQUAL": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBR: RBA": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBR: RESP": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBR: RIDFLD": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "STARTBROWSE CONTAINER: BROWSETOKEN": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 5,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "ARITH: EXTEND": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "NUMPROC: MIG": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 4,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 465,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "COMP-1": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ]
+    },
+    "COMP-5": {
+      "count": 39,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EDITED": {
+      "count": 59,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "NATIONAL": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "PACKED": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "intrinsic_functions": {
+    "ANNUITY": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ]
+    },
+    "DISPLAY-OF": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "LENGTH": {
+      "count": 6,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "NUMVAL-C": {
+      "count": 4,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "SELECT": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "STATIC": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "ARITH": {
+      "count": 47,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "CALL": {
+      "count": 33,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl"
+      ]
+    },
+    "COMPUTE": {
+      "count": 39,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "CONTINUE": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "DISPLAY": {
+      "count": 19,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ]
+    },
+    "EVALUATE": {
+      "count": 13,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ]
+    },
+    "GOBACK": {
+      "count": 25,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "GOTO": {
+      "count": 210,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "IF": {
+      "count": 130,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "INITIALIZE": {
+      "count": 5,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "INSPECT": {
+      "count": 18,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 437,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 145,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    "SEARCH": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SET-BY": {
+      "count": 7,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SET-POINTER": {
+      "count": 5,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SET-TO": {
+      "count": 5,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "SET-TRUE": {
+      "count": 7,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "STOP": {
+      "count": 7,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 100,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    }
+  },
+  "unparsed_programs": []
+}

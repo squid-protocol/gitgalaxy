@@ -63,7 +63,9 @@ FLAKY = {"test_regex_redos", "test_many_move_statements_stay_linear"}  # #4477: 
 INFRA_CONCLUSIONS = {"cancelled", "startup_failure", "timed_out"}
 INFRA_LOG = re.compile(r"runner has received a shutdown signal|lost communication with the server|No space left on "
                        r"device|API rate limit exceeded|Could not resolve host|The operation was canceled|"
-                       r"Error: The hosted runner|503 Service Unavailable", re.I)  # fmt: skip
+                       r"Error: The hosted runner|503 Service Unavailable|502 Bad Gateway|429 Too Many Requests|"
+                       r"toomanyrequests|Connection reset by peer|ECONNRESET|TLS handshake timeout|"
+                       r"Build container for action use|failed to solve: .*(registry|docker\.io)", re.I)  # fmt: skip
 ERROR = re.compile(r"##\[error\]|^(FAILED|ERROR) |Traceback \(most recent call last\)|AssertionError|\bFAIL\b|"
                    r"NOT PROVEN|error: |Error: ", re.I)  # fmt: skip
 ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
@@ -78,7 +80,8 @@ Logs = Callable[[int], str]
 def job_log(job_id: int) -> str:
     """A job's full log (`gh api .../actions/jobs/ID/logs`), or a note when it can't be fetched."""
     path = f"repos/{REPO_SLUG}/actions/jobs/{job_id}/logs"
-    res = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=False)  # noqa: S603, S607
+    # gh refuses to print a log holding ANSI escapes unless told; clean() strips them
+    res = subprocess.run(["gh", "api", "--allow-escape-sequences", path], capture_output=True, text=True, check=False)  # noqa: S603, S607
     return res.stdout if res.returncode == 0 else f"(log unavailable: {res.stderr.strip()[:200]})"
 
 

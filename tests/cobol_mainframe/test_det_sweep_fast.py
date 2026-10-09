@@ -84,6 +84,14 @@ def test_a_change_inside_one_case_proves_that_case_only():
     assert (p["mode"], p["cases"]) == ("narrow", ["delta"])
 
 
+def test_a_cases_coverage_ledger_file_proves_that_case():
+    """#4789: a case PR's own ledger file (tests/equivalence/det_sweep_coverage/<case>.json) keeps the sweep narrow: the
+    sweep of that case is what checks the entry."""
+    p = plan.plan(["tests/equivalence/delta/case.json", "tests/equivalence/det_sweep_coverage/delta.json",
+                   "tests/equivalence/det_sweep_coverage/alpha.json"], "pull_request", CASES)  # fmt: skip
+    assert (p["mode"], p["cases"]) == ("narrow", ["alpha", "beta", "delta", "gamma"])
+
+
 def test_dependents_of_a_changed_port_are_proven_too():
     p = plan.plan(["tests/equivalence/alpha/port/A.java"], "pull_request", CASES)
     assert p["cases"] == ["alpha", "beta", "gamma"]  # port_from, then uses_ports of that (transitively)
@@ -98,6 +106,8 @@ def test_dependents_of_a_changed_port_are_proven_too():
         "tests/equivalence/gnucobol.Dockerfile",  # the oracle
         "tests/equivalence/faults/ggfault.c",  # a shared stub
         "tests/equivalence/newcase/case.json",  # a case that does not exist yet / removed
+        "tests/equivalence/det_sweep_coverage/newcase.json",  # #4789: the ledger file of no such case
+        "tests/equivalence/det_sweep_coverage.json",  # the retired single-file ledger
         "tests/cobol_mainframe/corpora.json",
         ".github/workflows/det-sweep.yml",
         "README.md",

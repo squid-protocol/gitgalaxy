@@ -24,7 +24,7 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
                                column, not a gate
   L3 + paragraph coverage      the det proof's scenarios execute >= the paragraph bar (default 100) of the live
                                paragraphs: the --sweep coverage line, else the det-sweep coverage ledger
-                               (tests/equivalence/det_sweep_coverage.json, #4606) while its entry is fresh
+                               (tests/equivalence/det_sweep_coverage/<case>.json, #4606) while its entry is fresh
   L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes NET of the case's
                                reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
                                per program as stated assumptions; raw and net numbers both printed
@@ -278,7 +278,7 @@ def record_status() -> dict[str, dict[str, Any]]:
 # ---- building: everything else, from the repo --------------------------------------------------------------------
 NOT_IN_CI = "not proven in CI"  # proof_blockers.judge_equivalence's gap for a Db2 case with no sweep row
 LEDGER_VERDICT = (
-    "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)"
+    "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)"
 )
 
 
@@ -427,7 +427,7 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         out["source"] = "local sweep coverage line"
         out["current"], out["stale_inputs"], out["stale_since"] = True, [], None
     elif led:
-        out["source"] = "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)"
+        out["source"] = "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)"
         line = tuple(led)
     else:
         return out

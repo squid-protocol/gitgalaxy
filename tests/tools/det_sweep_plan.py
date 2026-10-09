@@ -4,10 +4,12 @@
     python tests/tools/det_sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--github-output PATH]
 
 A pull request that changes only files under tests/equivalence/<case>/ re-proves those cases (and the cases that
-take that case's port: `port_from`, `uses_ports`, transitively). Anything else -- the translator, the harness, the tools,
-the corpora pin, the workflow, the baseline, a file straight under tests/equivalence/, a case directory with no case.json
-(a case added or removed), an unreadable diff -- is a full sweep, as is every event that is not a pull request (nightly,
-manual). When in doubt, full. Stdlib only: the job runs before anything is installed.
+take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
+tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). Anything
+else -- the translator, the harness, the tools, the corpora pin, the workflow, the baseline, a file straight under
+tests/equivalence/, a case directory with no case.json (a case added or removed), an unreadable diff -- is a full
+sweep, as is every event that is not a pull request (nightly, manual). When in doubt, full. Stdlib only: the job runs
+before anything is installed.
 
 Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names; `matrix` the shard labels "I/N".
 """
@@ -25,6 +27,8 @@ CASES = REPO_ROOT / "tests" / "equivalence"
 MAX_SHARDS = 6  # full sweep: runners
 PER_SHARD = 3  # narrow: about this many cases per runner
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
+# #4789: <case>.json, the det-sweep coverage ledger's entry of a case
+LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
 
 
 def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
@@ -57,6 +61,9 @@ def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
     files = [f for f in files if f not in IGNORED]
     touched: set[str] = set()
     for f in files:
+        if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
+            touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
         parts = f.split("/")
         if len(parts) < 4 or parts[:2] != ["tests", "equivalence"] or parts[2] not in cases:
             return {**full, "reason": f"{f} is not inside one existing case directory"}

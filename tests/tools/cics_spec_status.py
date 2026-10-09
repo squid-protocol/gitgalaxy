@@ -16,9 +16,11 @@ plus the progress of the 8 spec PRs (cics_command_spec.md section 7).
 The spec, the translator and the stub are read live. Census use and crucible coverage need corpora no CI job has, so
 `refresh` measures them into docs/language_status/cics_spec_status.json (counts and case ids only; the census
 programs are read as `cics_census.py usage` reads them, through the translator's own EXEC parser, and nothing but
-counts is kept) and `render` reads that file. tests/tools/test_cics_spec_status.py fails when the committed page is
-not what `render` makes: after a spec, translator or stub change, run `render`; after a slice, `refresh` then
-`render`. Never open docs/language_status/estate4_candidates.json: the census corpora are the ineligible list only.
+counts is kept) and `render` reads that file. #4789: the page is derived output, like the evidence report (#4703):
+the evidence-refresh bot runs `render` on main and commits it; a PR does NOT commit it (parallel slices conflicted on
+it). A PR that changes the spec, translator or stub commits nothing here; a slice commits the `refresh`ed
+cics_spec_status.json. Per-PR CI only says whether the page would change (smoke-test.yml, advisory);
+test_cics_spec_status.py's currency test runs only outside it (EVIDENCE_REPORT_ADVISORY unset). Never open docs/language_status/estate4_candidates.json: the census corpora are the ineligible list only.
 """
 
 from __future__ import annotations

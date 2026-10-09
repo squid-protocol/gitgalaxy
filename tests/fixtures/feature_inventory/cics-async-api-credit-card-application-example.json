@@ -1,0 +1,518 @@
+{
+  "cics_commands": {
+    "ASSIGN": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "DELAY FOR": {
+      "count": 5,
+      "programs": [
+        "src/CRDTCHK.cbl",
+        "src/GETADDR.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "FETCH": {
+      "count": 5,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "GET": {
+      "count": 17,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 7,
+      "programs": [
+        "src/CSSTATUS.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "RUN": {
+      "count": 7,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CSSTATS2.cbl"
+      ]
+    },
+    "SEND TEXT": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "cics_options": {
+    "ASSIGN: STARTCODE": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "DELAY FOR: SECONDS": {
+      "count": 5,
+      "programs": [
+        "src/CRDTCHK.cbl",
+        "src/GETADDR.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "FETCH: ABCODE": {
+      "count": 5,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "FETCH: CHANNEL": {
+      "count": 4,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "FETCH: CHILD": {
+      "count": 5,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "FETCH: COMPSTATUS": {
+      "count": 5,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "GET: CHANNEL": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "GET: CONTAINER": {
+      "count": 17,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "GET: INTO": {
+      "count": 17,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "GET: RESP": {
+      "count": 17,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "GET: RESP2": {
+      "count": 17,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "LINK: CHANNEL": {
+      "count": 5,
+      "programs": [
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 7,
+      "programs": [
+        "src/CSSTATUS.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "LINK: RESP": {
+      "count": 5,
+      "programs": [
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "LINK: RESP2": {
+      "count": 5,
+      "programs": [
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT: CHANNEL": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT: CONTAINER": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT: FROM": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT: RESP": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PUT: RESP2": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE: LENGTH": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE: NOTRUNCATE": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE: RESP": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RECEIVE: RESP2": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "RUN: CHANNEL": {
+      "count": 5,
+      "programs": [
+        "src/ASYNCPNT.cbl"
+      ]
+    },
+    "RUN: CHILD": {
+      "count": 7,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CSSTATS2.cbl"
+      ]
+    },
+    "RUN: TRANSID": {
+      "count": 7,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CSSTATS2.cbl"
+      ]
+    },
+    "SEND TEXT: ERASE": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "SEND TEXT: FREEKB": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "SEND TEXT: FROM": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "SEND TEXT: TERMINAL": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "SEND TEXT: WAIT": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 10,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 18,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ]
+    },
+    "COMP-5": {
+      "count": 2,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "intrinsic_functions": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "IF": {
+      "count": 9,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 42,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 26,
+      "programs": [
+        "src/ASYNCPNT.cbl",
+        "src/SEQPNT.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "unparsed_programs": []
+}

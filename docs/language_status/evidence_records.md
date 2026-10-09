@@ -94,7 +94,7 @@ tree and compares it with the record's. It returns a status and every reason for
   the re-rendered evidence report; the PR auto-merges (squash) when every proof succeeded.
 
 **Stale levels in the evidence report** (owner decision, 2026-10-08, #4730): the det-sweep coverage ledger
-(`tests/equivalence/det_sweep_coverage.json`) is fingerprinted like a record, and the same split applies to the
+(`tests/equivalence/det_sweep_coverage/<case>.json`) is fingerprinted like a record, and the same split applies to the
 levels the [evidence report](evidence_report/README.md) derives from it. Stale on a **scheduled** input (harness,
 oracle) means "measured against the previous harness, not yet re-checked", not "regressed": the report keeps the
 program's last measured level and marks it (`L3*`), with `stale since <commit>` (the commit the ledger entry was

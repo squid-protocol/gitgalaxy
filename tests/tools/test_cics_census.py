@@ -222,6 +222,7 @@ def test_compare_before_after(tmp_path, capsys):
         ("line 9: HOLE grammar node exit_statement", "grammar: grammar node exit_statement"),
         ("line 10: MOVE WS-ITEM-1: FILLER", "<name>: FILLER"),  # one class whatever the statement
         ("line 10: IF DIBSTAT: no such item", "<name>: no such item"),
+        ("line 10: MOVE DB2-CODFUN: undeclared item", "<name>: undeclared item"),  # #4735: the source's defect, named
         (
             "line 10: ENTRY ENTRY DLITCBL: an alternate entry point is not modelled",
             "ENTRY DLITCBL: an alternate entry point is not modelled",
@@ -251,6 +252,16 @@ def test_compare_before_after(tmp_path, capsys):
 )
 def test_gap_key_strips_line_numbers_and_specifics(hole, key):
     assert cc.gap_key(hole) == key
+
+
+def test_error_key_names_the_new_source_defects_4735():
+    cut = cc.error_key("LayoutError: NEND-DAY.cbl:411: source defect: source text past column 72 (`PORTO,`) truncates "
+                       "`:HV-SO-IM`: fixed-form COBOL reads columns 8-72 only")  # fmt: skip
+    assert cut.startswith("refused: LayoutError: source defect: source text past column")
+    assert cc.unmask_check(cut) == "cut-literal"  # the same survey what-if lifts it
+    assert cc.error_key("generation failed: not a COBOL program: ISPF editor screen (CURSOR.cbl: menu bar)").startswith(
+        "refused: generation failed"
+    )
 
 
 def test_error_key_names_the_copybook_and_drops_paths():

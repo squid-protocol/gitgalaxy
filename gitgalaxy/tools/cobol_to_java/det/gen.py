@@ -126,6 +126,16 @@ class Program:
     files: dict = field(default_factory=dict)  # FD / SELECT name -> FileDef
 
 
+# #4735: names a program uses that the translator, not the source, would have to supply (the CICS / DL/I interface
+# blocks): their absence is a translator gap (`no such item`). Any other name no data entry, COPY or INCLUDE
+# declares is the SOURCE's defect: named `undeclared item`, never a guess at what the author meant.
+_SUPPLIED = re.compile(r"(?:DFH|EIB|DIB)[A-Z0-9-]*")
+
+
+def _missing_item(name: str) -> str:
+    return "no such item" if _SUPPLIED.fullmatch(name) else "undeclared item"
+
+
 class Gen:
     def __init__(self, prog: Program, structured: bool = False):
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
@@ -246,7 +256,7 @@ class Gen:
 
             cands = [c for c in cands if ok(c)]
         if len(cands) != 1:
-            raise Untranslatable(f"{ref.name}: {'no such item' if not cands else 'ambiguous'}")
+            raise Untranslatable(f"{ref.name}: {_missing_item(ref.name) if not cands else 'ambiguous'}")
         why = p_unmodelled(cands[0])
         if why:
             raise Untranslatable(why)
@@ -1696,7 +1706,7 @@ class Gen:
             sw = [c, f"{ind}switch ({self.int_expr(s.data['depending'])}) {{"]
             for i, name in enumerate(t, 1):
                 if name not in self.para_index:
-                    raise Untranslatable(f"GO TO {name}: no such paragraph")
+                    raise Untranslatable(f"GO TO {name}: undeclared paragraph")
                 sw.append(f"{ind}    case {i}: return GOTO | {self.para_index[name]};")
             return [*sw, f"{ind}    default: break;", f"{ind}}}"]
         if k == "ENTRY":  # #4462 (stmt._entry): the program's first statement is its entry, else not modelled
@@ -2350,10 +2360,10 @@ class Gen:
         else:
             t = d["target"]
             if t not in self.para_index:
-                raise Untranslatable(f"PERFORM {t}: no such paragraph")
+                raise Untranslatable(f"PERFORM {t}: undeclared paragraph")
             thru = d["thru"] or t
             if thru not in self.para_index:
-                raise Untranslatable(f"PERFORM THRU {thru}: no such paragraph")
+                raise Untranslatable(f"PERFORM THRU {thru}: undeclared paragraph")
             if self.p.proc.paragraphs[self.para_index[t]].section == t and d["thru"] is None:
                 # PERFORM section: its paragraphs
                 sec = [i for i, p in enumerate(self.p.proc.paragraphs) if p.section == t]
@@ -2639,7 +2649,7 @@ class Gen:
         """An INPUT / OUTPUT PROCEDURE: run as PERFORM name [THRU name] runs it (a section: its paragraphs)."""
         t, thru = rng
         if t not in self.para_index or (thru is not None and thru not in self.para_index):
-            raise Untranslatable(f"PROCEDURE {t}{' THRU ' + thru if thru else ''}: no such paragraph")
+            raise Untranslatable(f"PROCEDURE {t}{' THRU ' + thru if thru else ''}: undeclared paragraph")
         if thru is None and self.p.proc.paragraphs[self.para_index[t]].section == t:
             sec = [i for i, p in enumerate(self.p.proc.paragraphs) if p.section == t]
             return self.perform_call(sec[0], sec[-1], ind)

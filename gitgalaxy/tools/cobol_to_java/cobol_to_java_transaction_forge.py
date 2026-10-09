@@ -568,6 +568,93 @@ public class CicsTask {
         return width ? s[1] : s[0];
     }
 
+    // #4415 slice 1: INQUIRE / SET TERMINAL UCTRANST (IBM CICS TS, EXEC CICS INQUIRE TERMINAL, SET TERMINAL): the CVDAs
+    // UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452. The terminal's value comes "from the UCTRAN option of the associated
+    // TYPETERM definition" -- a fact whoever runs the task states, never guessed (register X26).
+    private String uctranst;
+    private boolean uctranstSet;
+
+    /** The task's terminal's UCTRANST (UCTRAN, NOUCTRAN or TRANIDONLY); null, not stated (INQUIRE is refused). */
+    public CicsTask withUctranst(String uctranst) {
+        if (uctranst != null && !UCTRANST_NAMES.contains(uctranst)) {
+            throw new IllegalArgumentException("UCTRANST " + uctranst + " is not UCTRAN, NOUCTRAN or TRANIDONLY");
+        }
+        this.uctranst = uctranst;
+        return this;
+    }
+
+    // IBM's CVDAs for UCTRANST, in order: UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452
+    private static final List<String> UCTRANST_NAMES = List.of("UCTRAN", "NOUCTRAN", "TRANIDONLY");
+    private static final int[] UCTRANST_CVDAS = {450, 451, 452};
+
+    private static int uctranstCvda(String name) {
+        return UCTRANST_CVDAS[UCTRANST_NAMES.indexOf(name)];
+    }
+
+    /** The terminal INQUIRE / SET TERMINAL names, as {RESP, RESP2} when it is no terminal of the region (TERMIDERR,
+     *  RESP2 `resp2`); refused (not modelled) for a defined terminal other than the task's, whose UCTRANST nobody
+     *  stated; null for the task's own. */
+    private int[] terminalCheck(String terminal, int resp2) {
+        String t = terminal.strip();
+        CicsTask r = root();
+        Programs known = programs != null ? programs : r.programs;
+        if (known != null && !known.terminal(t)) {
+            return new int[] {11, resp2};
+        }
+        if (!t.equals(r.termid)) {
+            throw refused("UCTRANST of terminal " + t + ", not the task's terminal");
+        }
+        return null;
+    }
+
+    /** INQUIRE TERMINAL(t) UCTRANST(area): {RESP, RESP2, CVDA}. TERMIDERR RESP2 1 for "The named terminal cannot be
+     *  found". Unstated, refused. */
+    public int[] inquireUctranst(String terminal) {
+        int[] bad = terminalCheck(terminal, 1);
+        if (bad != null) {
+            return new int[] {bad[0], bad[1], 0};
+        }
+        if (root().uctranst == null) {
+            throw new IllegalStateException("INQUIRE TERMINAL UCTRANST: the terminal's UCTRANST is not stated (withUctranst)");
+        }
+        return new int[] {0, 0, uctranstCvda(root().uctranst)};
+    }
+
+    /** SET TERMINAL(t) UCTRANST(cvda): {RESP, RESP2}. TERMIDERR RESP2 23 ("The named terminal cannot be found"); INVREQ
+     *  RESP2 43 for an invalid CVDA. The change is the task's view of its terminal from then on; a terminal RECEIVE
+     *  after it is refused (IBM does not say when the change takes effect). */
+    public int[] setUctranst(String terminal, long cvda) {
+        int[] bad = terminalCheck(terminal, 23);
+        if (bad != null) {
+            return bad;
+        }
+        int at = -1;
+        for (int i = 0; i < UCTRANST_CVDAS.length; i++) {
+            if (UCTRANST_CVDAS[i] == cvda) {
+                at = i;
+            }
+        }
+        if (at < 0) {
+            return new int[] {16, 43};
+        }
+        CicsTask r = root();
+        r.uctranst = UCTRANST_NAMES.get(at);
+        r.uctranstSet = true;
+        return new int[] {0, 0};
+    }
+
+    private void inputAfterUctranstSet() {
+        if (root().uctranstSet) {
+            throw refused("a terminal RECEIVE after SET TERMINAL UCTRANST (IBM does not say when the change takes effect)");
+        }
+    }
+
+    /** EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n)'s condition: LENGERR (22) "if the LENGTH value is less than 1"; IBM lists
+     *  no RESP2 (0). */
+    public static int deeditResp(int length) {
+        return length < 1 ? 22 : 0;
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;
@@ -1338,6 +1425,7 @@ public class CicsTask {
 
     /** RECEIVE MAP(map) MAPSET(mapset), recorded as an event with its RESP (NORMAL, or MAPFAIL when empty). */
     public <T> Optional<T> receive(String map, String mapset, Class<T> type) {
+        inputAfterUctranstSet();
         Optional<T> screen = Optional.ofNullable(received.get(map)).map(type::cast);
         event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp", screen.isPresent() ? "NORMAL" : "MAPFAIL");
         return screen;
@@ -1382,6 +1470,7 @@ public class CicsTask {
      *  the input's last byte raises EOC instead of NORMAL; whether one that leaves data retained does is not
      *  documented, and is refused. */
     public Received receive(int maxLength, boolean notruncate) {
+        inputAfterUctranstSet();
         CicsTask task = root();  // the terminal is the task's, whichever level reads it
         String text;
         if (task.terminalRest != null) {

@@ -14,7 +14,7 @@ this region, register X3)."""
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, required
+from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Fact, Outcome, Refusal, RuntimeRefusal, required
 
 _NORMAL = Outcome("NORMAL", 0, "")
 _NOHANDLE = {"NOHANDLE": Arg("flag")}
@@ -135,4 +135,113 @@ SYNCPOINT_ROLLBACK = Command(
     outcomes=(_NORMAL,),
 )
 
-COMMANDS = (ENQ, DEQ, DELAY, GET_COUNTER, ASKTIME, FORMATTIME, INQUIRE_PROGRAM, SYNCPOINT, SYNCPOINT_ROLLBACK)
+# #4415 slice 1, register X26. IBM (EXEC CICS BIF DEEDIT) lists LENGERR "if the LENGTH value is less than 1" and no
+# RESP2 value; what it leaves out is refused by name at run time (a field with no digit left, a character beyond 7-bit
+# ASCII, a LENGTH past the field)
+BIF_DEEDIT = Command(
+    key="BIF DEEDIT",
+    ibm=ibm("EXEC CICS BIF DEEDIT", "summary-bif-deedit"),
+    status="modelled",
+    register="X26",
+    options={"FIELD": Arg("area_inout"), "LENGTH": Arg("value"), **RESP_OPTIONS},
+    groups=(required("FIELD", msg="BIF DEEDIT without FIELD"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("FIELD",)),
+        Outcome("LENGERR", None, "The LENGTH value is less than 1 (IBM lists no RESP2)"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a field with no digit left: IBM does not say what it becomes",
+            "X26",
+            java="BIF DEEDIT of a field with no digit left",
+            c="BIF DEEDIT of a field with no digit left",
+        ),
+        RuntimeRefusal(
+            "a character beyond 7-bit ASCII in the field",
+            "X26",
+            java="beyond 7-bit ASCII:",
+            c="BIF DEEDIT of a byte beyond 7-bit ASCII",
+        ),
+    ),
+)
+
+# #4415 slice 1, register X26: the one terminal the task has. The terminal's UCTRANST is a fact whoever runs the task
+# states (from the TYPETERM's UCTRAN); SET changes the task's view; a terminal RECEIVE after a SET is refused
+_TERMINAL_REST = Refusal("only the terminal's translation state is modelled (no corpus program asks for more)", "X26")
+INQUIRE_TERMINAL = Command(
+    key="INQUIRE TERMINAL",
+    ibm=ibm("CICS SPI command INQUIRE TERMINAL", "commands-inquire-terminal"),
+    status="modelled",
+    register="X26",
+    options={"TERMINAL": Arg("name", width=4), "UCTRANST": Arg("area_out", width=4, binary=True), **RESP_OPTIONS},
+    default_refusal=_TERMINAL_REST,
+    groups=(required("TERMINAL", msg="INQUIRE TERMINAL without TERMINAL"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("UCTRANST",)),
+        Outcome("TERMIDERR", 1, "The named terminal cannot be found"),
+    ),
+    facts=(
+        Fact(
+            "uctranst",
+            java="withUctranst",
+            env="GGCICS_UCTRANST",
+            region_default=None,
+            options=("UCTRANST",),
+            values=("UCTRAN", "NOUCTRAN", "TRANIDONLY"),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the terminal's UCTRANST is not stated for the task",
+            "X26",
+            java="the terminal's UCTRANST is not stated (withUctranst)",
+            c="INQUIRE TERMINAL UCTRANST: not stated for this task",
+        ),
+        RuntimeRefusal(
+            "the UCTRANST of a terminal other than the task's",
+            "X26",
+            java="not the task's terminal",
+            c="UCTRANST of a terminal other than the task's",
+        ),
+    ),
+    state=("terminal", "handle_table"),
+)
+
+SET_TERMINAL = Command(
+    key="SET TERMINAL",
+    ibm=ibm("CICS SPI command SET TERMINAL", "commands-set-terminal"),
+    status="modelled",
+    register="X26",
+    options={"TERMINAL": Arg("name", width=4), "UCTRANST": Arg("cvda"), **RESP_OPTIONS},
+    default_refusal=_TERMINAL_REST,
+    groups=(required("TERMINAL", msg="SET TERMINAL without TERMINAL"),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 43, "Invalid UCTRANST CVDA", raised_by=("UCTRANST",)),
+        Outcome("TERMIDERR", 23, "The named terminal cannot be found"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a terminal RECEIVE after SET TERMINAL UCTRANST: IBM does not say when the change takes effect",
+            "X26",
+            java="a terminal RECEIVE after SET TERMINAL UCTRANST",
+            c="a terminal RECEIVE after SET TERMINAL UCTRANST",
+        ),
+    ),
+    state=("terminal", "handle_table"),
+)
+
+COMMANDS = (
+    ENQ,
+    DEQ,
+    DELAY,
+    GET_COUNTER,
+    ASKTIME,
+    FORMATTIME,
+    INQUIRE_PROGRAM,
+    SYNCPOINT,
+    SYNCPOINT_ROLLBACK,
+    BIF_DEEDIT,
+    INQUIRE_TERMINAL,
+    SET_TERMINAL,
+)

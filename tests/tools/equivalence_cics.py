@@ -47,6 +47,7 @@ from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
@@ -58,6 +59,7 @@ DFHRESP: dict[str, int] = dict(SPEC_DFHRESP)
 _EXEC = re.compile(r"\bEXEC\s+CICS\b", re.I)
 _END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
 _DFHRESP = re.compile(r"\bDFHRESP\s*\(\s*([A-Z0-9]+)\s*\)", re.I)
+_DFHVALUE = re.compile(r"\bDFHVALUE\s*\(\s*([A-Z0-9]+)\s*\)", re.I)  # #4415: a CVDA, the number IBM gives it
 _AREA_B = " " * 11  # columns 1-11: sequence area, indicator, Area A
 
 
@@ -638,6 +640,27 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not opts["PROGRAM"]:
             raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
         return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + _resp(opts, True, labels)
+    if verb == "BIF" and "DEEDIT" in opts:  # #4415 slice 1 (X26): FIELD edited in place, in the region's EBCDIC page
+        _check_spec("BIF DEEDIT", opts, ("BIF", "DEEDIT"), lambda bad: ["BIF DEEDIT"])
+        if not opts.get("FIELD"):
+            raise Unsupported(_rule("BIF DEEDIT", "required", "FIELD"), ["BIF DEEDIT"])
+        field = opts["FIELD"]
+        return ([f"MOVE {opts.get('LENGTH') or f'LENGTH OF {field}'} TO GG-NUM"]
+                + _call("GGCDEED", [f"BY REFERENCE {field}", f"BY VALUE LENGTH OF {field}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
+        key = f"{verb} TERMINAL"
+        _check_spec(key, opts, (verb,), lambda bad: [key])
+        if not opts.get("TERMINAL"):
+            raise Unsupported(_rule(key, "required", "TERMINAL"), [key])
+        if not opts.get("UCTRANST"):
+            raise Unsupported(f"{key} without UCTRANST", [key])
+        if verb == "SET":
+            return ([name(opts["TERMINAL"], "GG-NAME1"), f"MOVE {opts['UCTRANST']} TO GG-NUM"]
+                    + _call("GGCSETT", []) + _resp(opts, True, labels))  # fmt: skip
+        return ([name(opts["TERMINAL"], "GG-NAME1")] + _call("GGCINQT", [])
+                + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['UCTRANST']}", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "RECEIVE" and "MAP" in opts:
         _check_spec("RECEIVE MAP", opts, (verb,))
         into = opts.get("INTO") or (f"{_literal(opts['MAP'])}I" if _literal(opts["MAP"]) else None)
@@ -912,9 +935,20 @@ def translate(source: str) -> tuple[str, bool]:
     for name in unknown:  # #3989: refused by name, never a KeyError
         problems.append(f"DFHRESP({name}) is not a documented condition")
         features.append(f"DFHRESP({name})")
+    for name in sorted({m.group(1).upper() for ln in out for m in _DFHVALUE.finditer(ln)} - set(CVDA)):
+        problems.append(f"DFHVALUE({name}) is not a documented CVDA")  # #4415: refused by name, as the translator does
+        features.append(f"DFHVALUE({name})")
     if problems:
         raise Unsupported("; ".join(problems), features)
-    text = "\n".join(_DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln) for ln in out) + "\n"
+    text = (
+        "\n".join(
+            _DFHVALUE.sub(
+                lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln)
+            )
+            for ln in out
+        )
+        + "\n"
+    )
     # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
     # INQACC-COMMAREA BY DFHCOMMAREA)
     has_commarea = bool(

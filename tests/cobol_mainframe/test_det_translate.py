@@ -895,13 +895,15 @@ _RESP_SAMPLES = {
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
     "DELETE CONTAINER": "DELETE CONTAINER('C')",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
-    "RUN": "RUN TRANSID('T') CHILD(REC)",
+    "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
+    "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
     "SEND MAP": "Cics.send_map ends in outcome() (screens: covered by the det ports' CICS proofs)",
     "RECEIVE MAP": "Cics.receive_map ends in outcome() (covered by the det ports' CICS proofs)",
     "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
+    "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 
 
@@ -1149,6 +1151,32 @@ def test_assign_startcode_userid_and_the_terminal_facts():
                      ("TWALENG", "transaction work area"), ("MAPCOLUMN", "no corpus program")):  # fmt: skip
         with pytest.raises(C.CicsError, match=f"ASSIGN {opt}: option not modelled .*{why}"):
             c.command(f"ASSIGN {opt}(REC)", "")
+
+
+def test_bif_deedit_and_the_terminal_uctranst_cvdas():
+    """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT / INQUIRE TERMINAL / SET TERMINAL: DEEDIT edits FIELD in
+    place (LENGTH its length, LENGERR below 1, no RESP2); INQUIRE TERMINAL UCTRANST returns the CVDA (UCTRAN 450,
+    NOUCTRAN 451, TRANIDONLY 452); SET TERMINAL UCTRANST takes DFHVALUE(..) or a data area, TERMIDERR RESP2 23 /
+    INVREQ RESP2 43 from the runtime. Other options are refused by name."""
+    c = _ChanCics()
+    out = c.command("BIF DEEDIT FIELD(REC) RESP(R)", "")
+    assert out[0] == "int resp1 = CicsTask.deeditResp(f_REC.length());"
+    assert out[1] == "if (resp1 == 0) DetCics.deedit(f_REC, f_REC.length(), CS, REGION);"
+    sized = c.command("BIF DEEDIT FIELD(REC) LENGTH(4) NOHANDLE", "")
+    assert sized[0].endswith("deeditResp(INT(4));") and sized[1].endswith("DetCics.deedit(f_REC, INT(4), CS, REGION);")
+    assert c.region_used
+    inq = c.command("INQUIRE TERMINAL(KEY) UCTRANST(REC) RESP(R) RESP2(R)", "")
+    assert inq[0].startswith("int[] term") and ".inquireUctranst(" in inq[0] and inq[1].startswith("if (term")
+    st = c.command("SET TERMINAL(KEY) UCTRANST(DFHVALUE(NOUCTRAN)) RESP(R)", "")
+    assert (
+        ".setUctranst(" in st[0] and "NOUCTRAN" in st[0]
+    )  # (the double prints its operand; DFHVALUE -> 451 is test_dfhvalue_is_its_cvda)
+    for bad, why in (("INQUIRE TERMINAL(KEY) NETNAME(REC)", "only the terminal's translation state"),
+                     ("SET TERMINAL(KEY) UCTRANST(X) PURGE", "only the terminal's translation state")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+    with pytest.raises(C.CicsError, match="without UCTRANST"):
+        c.command("SET TERMINAL(KEY)", "")
 
 
 @pytest.mark.parametrize(
@@ -1816,6 +1844,71 @@ public class Main {
     assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
     assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
     assert out[7:] == ["refused", "IBM273"]
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_det_cics_deedit_follows_ibms_text(tmp_path):
+    """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT: non-digits removed, digits right-aligned and zero
+    padded in the same field ("14-6704/B" -> "00146704B", "$25.68" in 9 bytes -> "000002568": IBM's two examples); a
+    trailing minus sign or CR puts the negative zone X'D' in the rightmost byte (123- -> 012L, X'D3'); a rightmost
+    byte with a zone of A-F is returned unaltered; a 1-byte field is; LENGTH edits that many bytes. A field with no
+    digit left, a character beyond 7-bit ASCII and a LENGTH past the field are refused by name."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static void run(String text, int length) {
+        Charset l1 = Charset.forName("ISO-8859-1"), region = DetCics.region("IBM037");
+        Storage st = new Storage(text.length());
+        System.arraycopy(text.getBytes(l1), 0, st.bytes, 0, text.length());
+        try {
+            DetCics.deedit(Field.alphanumeric(st, 0, text.length(), false), length, l1, region);
+            System.out.println("[" + text + "] -> [" + new String(st.bytes, l1) + "]");
+        } catch (RuntimeException e) {
+            System.out.println("[" + text + "] refused: " + e.getMessage());
+        }
+    }
+    public static void main(String[] a) {
+        run("14-6704/B", 9);
+        run("$25.68   ", 9);
+        run("123-", 4);
+        run("1.5CR", 5);
+        run("5-", 2);
+        run("12}", 3);
+        run("A", 1);
+        run("ab12cd34", 8);
+        run("ab12cd34", 4);
+        run("abc", 3);
+        run("\u00e91", 2);
+        run("12345", 6);
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    import subprocess
+
+    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-encoding", "UTF-8", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert out[:9] == ["[14-6704/B] -> [00146704B]", "[$25.68   ] -> [000002568]", "[123-] -> [012L]",
+                       "[1.5CR] -> [0001N]", "[5-] -> [0N]", "[12}] -> [12}]", "[A] -> [A]",
+                       "[ab12cd34] -> [00001234]", "[ab12cd34] -> [0012cd34]"]  # fmt: skip
+    assert "refused: BIF DEEDIT of a field with no digit left" in out[9]
+    assert "beyond 7-bit ASCII" in out[10] and "LENGTH 6 > FIELD's 5 bytes" in out[11]
 
 
 # ---- #4534: a LINKed program's COMMAREA writes survive its abend --------------------------------------------------

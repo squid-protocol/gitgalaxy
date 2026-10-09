@@ -105,6 +105,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X23 | CICS | A COMMAREA of a stated length (a scenario's `commarea_length`, EIBCALEN shorter than the record): the program is given exactly those bytes; a reference past EIBCALEN refused on both sides, the task judged up to it | ASSUMED (REFUSED past EIBCALEN) | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01) |
 | X24 | CICS | A task started with a channel (a scenario's `channel`: what a RUN TRANSID CHANNEL parent or a LINK CHANNEL caller passed), made its first program's current channel; the containers left on that channel compared at the task's end (dropped on an abend), byte for byte; RUN TRANSID children not run | ASSUMED | yes (async credit-card CRDTCHK, CSSTATS2, CSSTATUS, GETADDR, GETNAME) |
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
+| X26 | CICS | BIF DEEDIT FIELD [LENGTH] edited in place in the region's EBCDIC page (CCSID 037); INQUIRE / SET TERMINAL UCTRANST as the CVDAs UCTRAN 450 / NOUCTRAN 451 / TRANIDONLY 452, the terminal's value stated by the run (the case TYPETERM's UCTRAN), a terminal RECEIVE after a SET refused; DFHVALUE(name) in the stub's programs is IBM's CVDA number; a DEEDIT field with no digit left, beyond 7-bit ASCII or past LENGTH, and the UCTRANST of a terminal other than the task's, refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-deedit-uctranst, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -1192,6 +1193,41 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   or a record's length), the two can differ.
 - **Reach today.** No committed case reaches it: no committed oracle case or answer-key layout holds an 8-byte binary
   with SYNC after an off-boundary item. Status: ASSUMED.
+
+### X26. BIF DEEDIT, INQUIRE / SET TERMINAL UCTRANST, DFHVALUE — ASSUMED, REFUSED where IBM is silent (#4415 slice 1)
+- **BIF DEEDIT** (CICS TS 6.x, EXEC CICS BIF DEEDIT, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-bif-deedit).
+  "alphabetic and special characters are removed from an EBCDIC data field", "the remaining digits right-aligned and
+  padded to the left with zeros as necessary"; "If the field ends with a minus sign or a carriage-return (CR), a negative
+  zone (X'D') is placed in the rightmost (low-order) byte"; "If the zone portion of the rightmost byte contains one of
+  the characters X'A' through X'F', the rightmost byte is returned unaltered (see the example). This permits the
+  application program to operate on a zoned numeric field"; "A 1-byte field is returned unaltered, no matter what the
+  field contains". The page's examples: `14-6704/B` in 9 bytes returns `00146704B`, `$25.68` returns `000002568`.
+  LENGERR "if the LENGTH value is less than 1" (default action: terminate the task abnormally, AEIV); the page lists no
+  RESP2, so none is claimed (RESP2 0 is written). Implemented as `DetCics.deedit` (the port) and `GGCDEED` (the stub):
+  the first LENGTH bytes of FIELD taken in the region's page (the port: the program's page `CS` to `REGION`; the stub:
+  7-bit ASCII to CCSID 037 by the table python's cp037 gives), edited on those bytes, and taken back.
+- **Assumed.** LENGTH defaults to the field's length (the COBOL translator supplies it; CBSA's five programs give none:
+  IBM's page does not say for COBOL); a trailing minus sign or CR takes precedence over the zoned-byte rule for the
+  rightmost byte (`CR` ends in X'D9', a zoned byte, so the two statements overlap); the digits are X'F0'-X'F9' only;
+  "ends with" is literal (a sign followed by blanks is no sign); a `CR` is upper case. The crucible case
+  hc-deedit-uctranst uses none of these.
+- **Refused by name** (exit 98 / UnsupportedOperationException): a field in which no digit remains and no rightmost byte
+  is zoned (IBM does not say what it becomes), a character beyond 7-bit ASCII, a LENGTH past the field (as X6).
+- **INQUIRE TERMINAL UCTRANST / SET TERMINAL UCTRANST** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-terminal,
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-set-terminal; CVDAs: API Reference, "CVDAs and numeric values":
+  UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452). INQUIRE: the value "comes from the UCTRAN option of the associated TYPETERM
+  definition"; TERMIDERR RESP2 1 "The named terminal cannot be found". SET: INVREQ RESP2 43 "Invalid UCTRANST CVDA",
+  TERMIDERR RESP2 23. The terminal's UCTRANST is a fact the run states (`CicsTask.withUctranst`, the stub's
+  `$GGCICS_UCTRANST`; the crucible runner takes it from the case terminal's TYPETERM `UCTRAN(YES|NO|TRANID)` as UCTRAN /
+  NOUCTRAN / TRANIDONLY, name for name: ASSUMED, the pages do not tabulate it); unstated, INQUIRE is refused. IBM does
+  not say when a SET takes effect or whether it outlives the task, so a terminal RECEIVE after a SET in the same task
+  is refused, and a SET is the task's view only (the harness does not carry it to a later task). The UCTRANST of a
+  terminal other than the task's is refused (its TYPETERM is not stated). Every other option of the two commands is
+  refused with a reason.
+- **DFHVALUE(name)** in a program the stub runs is replaced by IBM's CVDA number (det/cvda.py, generated from the API
+  Reference's table); a name that is no CVDA is refused by name. The det port already took it in expressions.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-deedit-uctranst (3) on
+  the cobol-stub side and the det port.
 
 ## Language Environment
 

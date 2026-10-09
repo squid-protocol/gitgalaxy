@@ -50,7 +50,7 @@ def test_crucible_runner_condition_abcode_equals_the_spec():
 
 # the slice 1-4 commands, whose runtime refusals and stated facts PR 5 shares
 KEYS = sorted(["PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER", "START", "RETRIEVE", "CANCEL", "RUN", "ASSIGN",
-               "SEND TEXT"])  # fmt: skip
+               "SEND TEXT", "BIF DEEDIT", "INQUIRE TERMINAL", "SET TERMINAL"])  # fmt: skip
 
 
 # ---- runtimes: refusal texts and stated facts ---------------------------------------------------------------------

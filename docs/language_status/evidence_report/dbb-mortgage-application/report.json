@@ -705,7 +705,7 @@
      "covered": 15,
      "total": 21
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -715,8 +715,11 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -747,7 +750,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -1101,8 +1104,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2312,13 +2318,13 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 0,
+   "L2": 1,
    "L3": 0,
    "L4": 0,
    "L5": 0
   },
   "holes": 23,
-  "levels_stale": 0,
+  "levels_stale": 1,
   "programs": 6,
   "records_current": 0,
   "refused_whole": 0,

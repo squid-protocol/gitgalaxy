@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "e28c79fa7078abaf76fe6241a64ff8aee39223bf8d8688bcd8dd068ef5f6314c"
+   "sha256": "a4180d0a5e85ece10f97288b0e0ddbf8b86331c752840fe6b90fc46bcb45988e"
   },
   "oracle": {
    "paths": [
@@ -56,14 +56,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   "sha256": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 65,
-   "sha256": "1f7fed4b0b5604bed73f4538cf711b15c36f3cbbaae56b959a5f49b7ae8a8e07"
+   "files": 66,
+   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0"
   },
   "corpus": {
    "name": "cics-banking-sample-application-cbsa",
@@ -160,10 +160,10 @@
     }
    }
   },
-  "digest": "5f493f0ac5b29d7d8d2a9e5c0c0c902aa2460dfc9d0fc2269ed481b4df8d7ce7"
+  "digest": "e23738250dd568dba148e5de2b998aa820270ab6b8bc46b6d8bea30a407ac006"
  },
  "proof": {
-  "at": "2026-10-09T03:45:51Z",
+  "at": "2026-10-09T07:54:48Z",
   "verdict": "proven",
   "runs": 10,
   "fault_runs": 0,
@@ -224,8 +224,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "144da679ef9235548a9327006897c25ac490ed4f+uncommitted",
-  "inputs_digest": "5f493f0ac5b29d7d8d2a9e5c0c0c902aa2460dfc9d0fc2269ed481b4df8d7ce7"
+  "harness_commit": "a497a304f49010737210b9faf1ebd0e1d50fca19+uncommitted",
+  "inputs_digest": "e23738250dd568dba148e5de2b998aa820270ab6b8bc46b6d8bea30a407ac006"
  },
  "coverage": {
   "paragraphs": {
@@ -249,7 +249,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "5f493f0ac5b29d7d8d2a9e5c0c0c902aa2460dfc9d0fc2269ed481b4df8d7ce7"
+  "inputs_digest": "e23738250dd568dba148e5de2b998aa820270ab6b8bc46b6d8bea30a407ac006"
  },
  "reach": {
   "entry_points": [
@@ -275,7 +275,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol-db2:3",
-   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "id": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -295,7 +295,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "62b4b4c8dd54b45eb350e1a901bdbc4658c3ca988b3f421fc93ea26cd938cb93"
+    "sha256": "45d8aa7c45371ebf334c768dce605a6a6506fc68277e33985f3e148c864399c8"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",

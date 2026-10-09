@@ -89,6 +89,28 @@ def once(state: dict[str, Any], n: int, sha: str, key: str) -> bool:
     return True
 
 
+INFRA_RETRIES = 3  # an outage (Docker Hub 429/504 on 2026-10-09) outlasts one rerun
+RETRY_GAP = 15 * 60  # seconds between reruns of the same check on the same head
+
+
+def now() -> float:
+    return time.time()
+
+
+def retry_due(state: dict[str, Any], n: int, sha: str, key: str, tries: int, t: float) -> bool:
+    """True (and records the attempt) when `key` has had fewer than `tries` reruns on this head, the last at least
+    RETRY_GAP ago."""
+    seen = state["seen"].setdefault(str(n), {})
+    if seen.get("sha") != sha:
+        seen.clear()
+        seen["sha"] = sha
+    done = seen[key] if isinstance(seen.get(key), list) else ([0.0] if key in seen else [])
+    if len(done) >= tries or (done and t - done[-1] < RETRY_GAP):
+        return False
+    seen[key] = [*done, t]
+    return True
+
+
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
          digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests)."""
@@ -123,7 +145,12 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
         d = digest(n)
         kinds = {f["triage"] for f in d["failed"]} or ({"dirty"} if res["mergeable_state"] == "dirty" else set())
         for f in d["failed"]:
-            if f["triage"] in ("infra", "flake") and f.get("run_id") and once(state, n, sha, f"rerun:{f['check']}"):
+            tries = INFRA_RETRIES if f["triage"] == "infra" else 1
+            if (
+                f["triage"] in ("infra", "flake")
+                and f.get("run_id")
+                and retry_due(state, n, sha, f"rerun:{f['check']}", tries, now())
+            ):
                 r = run(["gh", "run", "rerun", str(f["run_id"]), "--failed", "-R", REPO_SLUG])
                 did.append(
                     f"#{n} rerun {f['check']} ({f['triage']}): {'ok' if not r.returncode else r.stderr.strip()[:120]}"

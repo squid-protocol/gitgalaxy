@@ -344,3 +344,90 @@ def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "1 stale" in out and "L3*" in out and "abc1234def56" in out and "harness, oracle" in out
     assert "L3 | L3*" in out  # level now (current) | level after refresh (stale)
+
+
+# ---- #4758: a Db2 case's det verdict from a sweep, else from the ledger the scheduled Db2 sweep wrote ----------------
+GENAPP = "cics-genapp"
+DB2_CASE = "genapp-lgacus01"  # a Db2 case: CI's per-PR det-sweep skips it, the evidence refresh's db2 job sweeps it
+DB2_COV = [3, 3, 4, 8]
+
+
+def db2_fixture(tmp_path, monkeypatch, cov, sweep=None):
+    """A tmp OUT holding the GenApp report refreshed --live with the ledger's measurement of DB2_CASE = cov (list:
+    current; dict: stale on a scheduled input; None: no entry) and, optionally, a sweep row for it."""
+    old = json.loads((er.OUT / GENAPP / "report.json").read_text("utf-8"))
+    old["measured"]["det_coverage"] = {**old["measured"]["det_coverage"], DB2_CASE: cov}
+    if sweep is not None:
+        old["measured"]["sweeps"] = {**old["measured"]["sweeps"], DB2_CASE: sweep}
+    (tmp_path / GENAPP).mkdir(exist_ok=True)
+    monkeypatch.setattr(er, "OUT", tmp_path)
+    (tmp_path / GENAPP / "report.json").write_text(er.dumps(old), "utf-8")
+    monkeypatch.setattr(er, "record_status", lambda: old["measured"]["record_status"])
+    monkeypatch.setattr(er, "det_coverage", lambda: old["measured"]["det_coverage"])
+    er.write(er.expected(True))
+    rep = json.loads((tmp_path / GENAPP / "report.json").read_text("utf-8"))
+    p = next(p for p in rep["programs"] if p["program"].endswith("lgacus01.cbl"))
+    assert er.validate(rep, strict=True) == []
+    return rep, p
+
+
+def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monkeypatch):
+    _, p = db2_fixture(tmp_path, monkeypatch, None)
+    assert p["level"] == "L1" and p["equivalence"]["chosen"]["det"]["state"] == "not run"
+
+
+def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
+    row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 4/8 branches",
+           "translated": "", "first_diff": "", "uncovered": None}  # fmt: skip
+    _, p = db2_fixture(tmp_path, monkeypatch, None, sweep=row)
+    det = p["equivalence"]["chosen"]["det"]
+    assert (det["state"], det["source"]) == ("equal", "local sweep (proof_sweep.py --det-only)")
+    assert (p["level"], p["level_current"]) == ("L3", True)  # 3/3 paragraphs, 4/8 branches
+    assert p["coverage"]["source"] == "local sweep coverage line"
+
+
+def test_a_db2_verdict_persists_from_the_ledger_on_a_run_without_db2(tmp_path, monkeypatch):
+    """A push refresh skips the db2 job; the ledger entry the last full refresh wrote (proven cases only) carries."""
+    _, p = db2_fixture(tmp_path, monkeypatch, DB2_COV)
+    det = p["equivalence"]["chosen"]["det"]
+    assert (det["state"], det["source"]) == ("equal", er.LEDGER_VERDICT)
+    assert (p["level"], p["level_current"], p["stale_inputs"]) == ("L3", True, [])
+    assert p["coverage"]["paragraphs"] == {"covered": 3, "live": 3} and p["coverage"]["branches"]["total"] == 8
+
+
+def test_a_db2_verdict_from_a_stale_ledger_entry_is_marked_stale(tmp_path, monkeypatch):
+    stale = {"coverage": DB2_COV, "stale_inputs": ["harness"], "stale_since": "abc1234def5678"}
+    rep, p = db2_fixture(tmp_path, monkeypatch, stale)
+    assert p["equivalence"]["chosen"]["det"]["state"] == "equal"
+    assert (p["level"], p["level_current"]) == ("L3", False)
+    assert p["stale_inputs"] == ["harness"] and p["stale_since"] == "abc1234def5678"
+    assert rep["summary"]["histogram_stale"]["L3"] >= 1
+    md = (tmp_path / GENAPP / "report.md").read_text("utf-8")
+    assert f"| {p['program']} | L3* |" in md and not er._FORBIDDEN.search(md)
+
+
+def test_the_ledger_never_overrides_a_known_unproven_db2_case(monkeypatch):
+    """det_sweep_baseline.json's known-unproven entry and a sweep's verdict both outrank a ledger entry."""
+    import proof_blockers as pb
+
+    run = pb.Run(kind="equivalence", case=DB2_CASE, db2=True)
+    run.gaps.add("known unproven: #1")
+    assert er.ledger_verdicts({("x", "y"): [run]}, {DB2_CASE: DB2_COV}) == set()
+    assert "known unproven: #1" in run.gaps
+    run2 = pb.Run(kind="equivalence", case=DB2_CASE, db2=True)
+    run2.gaps.add("not proven in CI: Db2 case (det-sweep runs --skip-db2)")
+    assert er.ledger_verdicts({("x", "y"): [run2]}, {DB2_CASE: None}) == set() and run2.gaps
+    assert er.ledger_verdicts({("x", "y"): [run2]}, {DB2_CASE: DB2_COV}) == {DB2_CASE} and not run2.gaps
+
+
+def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdict_is_stale(tmp_path, monkeypatch):
+    """LGSTSQ is only LINKed by the GenApp Db2 cases: equal by the ledger is L2 (no coverage of its own, #4270),
+    stale with the entry it rests on."""
+    stale = {"coverage": DB2_COV, "stale_inputs": ["oracle"], "stale_since": "abc1234def5678"}
+    db2_fixture(tmp_path, monkeypatch, stale)
+    rep = json.loads((tmp_path / GENAPP / "report.json").read_text("utf-8"))
+    p = next(p for p in rep["programs"] if p["program"].endswith("lgstsq.cbl"))
+    c = p["equivalence"]["chosen"]
+    assert (c["case"], c["role"], c["det"]["state"]) == (DB2_CASE, "linked", "equal")
+    assert p["coverage"]["source"] is None and "LINKed" in p["next"][0]
+    assert (p["level"], p["level_current"], p["stale_inputs"]) == ("L2", False, ["oracle"])

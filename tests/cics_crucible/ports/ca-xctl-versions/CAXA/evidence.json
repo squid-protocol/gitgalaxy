@@ -45,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "ece4c26c77b4a36fd6fbc8023f47df4d9f650c6794ce9a37879f79a6d9bb2bee"
+   "sha256": "810401d8a146aaca8fd172c300d9a34d8abcb263c5ac4c576b68df7612d65659"
   },
   "oracle": {
    "paths": [],
@@ -56,8 +56,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 62,
-   "sha256": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e"
+   "files": 65,
+   "sha256": "a66ca9853e7dfd55ff5e1b851e66609b5716a893f364a0ee47f2e5a6677d6fa6"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,36 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "837c2103e5799629dafa6054ef89fe247d833ea56019a70a2485726c2b42e418"
+  "options": {
+   "sha256": "d87806f701d94c84819bc951ae21f409785d0e8001fb9c64fe6abcb54126a236",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": null,
+   "effective": {
+    "estate": null,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "parm": [],
+    "declared_parm": [],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {},
+     "db2": {},
+     "cics": {}
+    }
+   }
+  },
+  "digest": "387ff40124842488448f1b41e003a141b2a83ebf135f61cbee4c29ccdb304537"
  },
  "proof": {
-  "at": "2026-10-07T17:00:32Z",
+  "at": "2026-10-09T00:57:03Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -96,8 +122,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ab94c6c7d2b496f26eb5033a1b0f727b841c9106+uncommitted",
-  "inputs_digest": "837c2103e5799629dafa6054ef89fe247d833ea56019a70a2485726c2b42e418"
+  "harness_commit": "e7f2f7dbf6b7b530af74bf57ff96fb4ae1b0c637+uncommitted",
+  "inputs_digest": "387ff40124842488448f1b41e003a141b2a83ebf135f61cbee4c29ccdb304537"
  },
  "coverage": {
   "paragraphs": {
@@ -112,7 +138,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXA",
   "ledger_sha256": "b041eb81e33650ada94387af852ac6f6392b6c4d12697d4f71e7365825bffc30",
-  "inputs_digest": "837c2103e5799629dafa6054ef89fe247d833ea56019a70a2485726c2b42e418"
+  "inputs_digest": "387ff40124842488448f1b41e003a141b2a83ebf135f61cbee4c29ccdb304537"
  },
  "reach": {
   "entry_points": [

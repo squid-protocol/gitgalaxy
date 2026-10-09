@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.cobol_source_format import ispf_screens
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc, on_disk
 from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
@@ -490,6 +491,12 @@ def main():
 
     # 1. Sense the scale of the repository
     ir_mode, cobol_files = calibrate_ir_medium(target_path, cobol_files=program_files)
+    # #4735: a saved ISPF editor screen named `*.cbl` is no program: named, and left out (it has no PROGRAM-ID)
+    screens = dict(ispf_screens(target_path))
+    for name, why in screens.items():
+        print(f"⚠️ not a COBOL program: ISPF editor screen: {name} ({why})")
+    if screens:
+        cobol_files = [f for f in cobol_files if _rel(f, target_path).as_posix() not in screens]
     if not cobol_files and not (galaxy_ir is not None and galaxy_ir.programs("pli")):  # #3623: PL/I-only estates
         print("⚠️ No executable COBOL files found in the target location.")
         sys.exit(0)

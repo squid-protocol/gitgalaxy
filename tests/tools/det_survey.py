@@ -106,6 +106,7 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
 
     from gitgalaxy.tools.cobol_to_java.det import source as S
 
+    from gitgalaxy.core.cobol_source_format import ispf_screens
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     row: dict[str, Any] = {"program": str(program.relative_to(corpus))}
@@ -220,7 +221,11 @@ def main() -> int:
         except (Exception, SystemExit) as e:  # an estate the generator cannot take is a result too -- also when the
             # refactor controller sys.exit()s ("No executable COBOL files found"), which silently ended the whole
             # survey with status 0 and no survey.json
-            rows_by[name] = [{"program": "(estate)", "error": f"generation failed: {type(e).__name__}: {e}"}]
+            # #4735: when the corpus's COBOL-named files are saved ISPF editor screens, say so (not `SystemExit: 0`)
+            screens = ispf_screens(corpus)
+            msg = (f"generation failed: not a COBOL program: ISPF editor screen ({screens[0][0]}: {screens[0][1]})"
+                   if screens else f"generation failed: {type(e).__name__}: {e}")  # fmt: skip
+            rows_by[name] = [{"program": "(estate)", "error": msg}]
             continue
         # the runtime for this estate (its batch adapters only where the project has a batch package)
         runtime = work / "runtime"

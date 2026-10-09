@@ -154,3 +154,50 @@ def blank_sequence_area(code_stream: str, formats: list[str] | None = None) -> s
         elif indicator in "Dd" and line[:6].isdigit():
             lines[i] = " " * 7 + line[7:]
     return "\n".join(lines)
+
+
+# ------------------------------------------------------------------------------
+# A saved ISPF editor screen is no COBOL source (#4735)
+# ------------------------------------------------------------------------------
+# What a 3270 ISPF edit panel puts on the screen, which a screen capture saved as `PROG.cbl` keeps: the menu bar, the
+# `EDIT <dataset> Columns 00001 00072` title, the `Command ===>` / `Scroll ===>` line, the `****** ... Top of Data`
+# and `Bottom of Data` banners, the `=COLS>` / `=BNDS>` / `=NOTE=` line commands. (A six-digit line number in front
+# of every source line is an ordinary sequence area, so it is no marker.)
+_ISPF_MARKERS = (
+    ("menu bar", re.compile(r"^\s*File\s+Edit\s+Edit_Settings\s+Menu\b", re.I | re.M)),
+    ("EDIT title", re.compile(r"^\s*EDIT\s+\S+.*\bColumns\s+\d{5}\s+\d{5}\b", re.I | re.M)),
+    ("command line", re.compile(r"^\s*Command\s*={2,}>.*\bScroll\s*={2,}>", re.I | re.M)),
+    ("data banner", re.compile(r"^\s*\*{6}\s+\*{5,}\s+(?:Top|Bottom)\s+of\s+Data\b", re.I | re.M)),
+    ("ruler", re.compile(r"^\s*(?:=COLS>|=BNDS>|=NOTE=|=TABS>)", re.M)),
+)
+
+
+def ispf_screen(text: str) -> str | None:
+    """#4735: why `text` is a saved ISPF editor screen rather than COBOL source (e.g. `menu bar, command line`), or
+    None. Two independent ISPF markers are needed (a COBOL comment may mention one)."""
+    seen = [name for name, rx in _ISPF_MARKERS if rx.search(text)]
+    if len(seen) < 2:
+        return None
+    return ", ".join(seen)
+
+
+def ispf_screens(root, exts=(".cbl", ".cob", ".cobol")) -> list[tuple[str, str]]:
+    """#4735: [(path relative to `root`, ispf_screen reason)] of each COBOL-named file under `root` that is a saved ISPF
+    screen. `root` is a directory or one file."""
+    from pathlib import Path
+
+    from gitgalaxy.core.source_text import read_source
+
+    top = Path(root)
+    files = [top] if top.is_file() else sorted(p for p in top.rglob("*") if p.is_file() and ".git" not in p.parts)
+    out = []
+    for p in files:
+        if p.suffix.lower() not in exts:
+            continue
+        try:
+            why = ispf_screen(read_source(p).text)
+        except OSError:
+            continue
+        if why:
+            out.append((p.name if top.is_file() else p.relative_to(top).as_posix(), why))
+    return out

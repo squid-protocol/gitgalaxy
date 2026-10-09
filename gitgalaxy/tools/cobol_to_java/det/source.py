@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from gitgalaxy.core.cobol_source_format import ispf_screen
 from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
 
@@ -37,6 +38,9 @@ class Line:
     file: str
     line: int
     cut: str = ""  # #4462: the text past column 72 of a line whose columns 8-72 end inside a literal
+    lost: str = ""  # #4735: the program text past column 72 of any other fixed-form line (not a sequence / ID tag)
+    lost_after: str = ""  # #4735: the last word of columns 8-72 on that line, which `lost` cuts or follows
+    lost_joined: bool = False  # #4735: `lost` runs on from that word with no blank between (column 72 and 73 both text)
 
 
 # ---- the survey-only what-if switch (#4270 `cics_census.py blockers --unmask`) -----------------------------------
@@ -47,7 +51,8 @@ class Line:
 # under gitgalaxy/ does): no environment variable, flag or default turns it on, so no production path can translate
 # a program the translator refuses. What a survey reports under it is a what-if, never a translation.
 UNMASKABLE = {
-    "cut-literal": "a literal cut open at column 72 (cut_literal): read with its text past column 72, as if fixed",
+    "cut-literal": "text past column 72 (cut_literal): a literal cut open is read with its text past column 72, as if fixed (other "
+    "lost text -- a name cut short, a comma -- stays lost)",
     "several-programs": "several programs in one source (several_programs): read as one",
     "unmodelled": "national / DBCS text, a national letter in a name, IDMS, a decimal-point literal under "
     "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
@@ -85,6 +90,18 @@ def refusal(lines: list[Line]) -> str | None:
             if msg:
                 return msg
     return None
+
+
+class NotCobol(ValueError):
+    """#4735: the file is no COBOL program at all -- a saved ISPF editor screen (menu bar, `Command ===>` line, line
+    numbers) -- refused by name instead of reaching the parser (and `generation failed: SystemExit: 0`)."""
+
+
+def check_cobol(raw: list[str], file: str) -> None:
+    """#4735: raise NotCobol when `raw` is a saved ISPF editor screen."""
+    why = ispf_screen("\n".join(raw))
+    if why:
+        raise NotCobol(f"{Path(file).name}: not a COBOL program: ISPF editor screen ({why})")
 
 
 class CopyNotFound(Exception):
@@ -268,6 +285,24 @@ def _free_code(line: str) -> str:
 _LISTING = re.compile(r"\s*(?:EJECT|SKIP[123]|TITLE\s+(?:'[^']*'|\"[^\"]*\"))\s*\.?\s*", re.I)
 
 
+# #4735: punctuation that only program text carries. Columns 73-80 hold an identification area -- a sequence number,
+# a program / change tag (`00000100`, `COF00010`, `NEND-DAY`), a lone marker character (`-`, `.`, `E`) -- which has
+# none of these; a comma, a quote, a colon or a parenthesis there is code the line ran on into.
+_CODE_PUNCT = re.compile(r"[,'\":()]")
+
+
+def _lost_text(line: str) -> str:
+    """#4735: the program text past column 72 of a fixed-form code line, '' when columns 73+ hold no such text. Fixed-
+    form COBOL reads columns 8-72 only, so that text is lost: a host variable cut short (`:HV-SO-IM` | `PORTO,`), a
+    separator comma gone (NexusBank NEND-DAY). Only text carrying code punctuation counts (_CODE_PUNCT): a tag, a
+    sequence number or a lone marker is an identification area, and a `*>` comment loses nothing. Never repaired:
+    what the author meant is not guessed."""
+    tail = line[72:].strip()
+    if not tail or tail.startswith("*>") or not _CODE_PUNCT.search(tail):
+        return ""
+    return tail
+
+
 def logical_lines(raw: list[str], file: str) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
@@ -301,6 +336,9 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
         if ind == "-" and out:
             prev = out[-1]
             cont = body.lstrip()
+            lost = _lost_text(line)
+            if lost and not prev.lost:
+                prev.lost, prev.lost_after, prev.lost_joined = lost, cont.split()[-1] if cont.split() else "", False
             if cont[:1] in ("'", '"') and _open_literal(prev.text):
                 # the open literal ran to column 72 (its trailing spaces are part of it)
                 prev.text = prev.text.ljust(65) + cont[1:]
@@ -311,7 +349,13 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             continue
         body = _headers(body)
         is_open = _open_literal(body)
-        out.append(Line(body if is_open else body.rstrip(), file, n, line[72:].rstrip() if is_open else ""))
+        row = Line(body if is_open else body.rstrip(), file, n, line[72:].rstrip() if is_open else "")
+        lost = _lost_text(line)
+        if lost and not is_open:  # (an open literal is cut_literal's: refused with its own wording)
+            words = body.split()
+            row.lost, row.lost_after = lost, words[-1] if words else ""
+            row.lost_joined = len(line) > 72 and line[71] != " " and line[72] != " "
+        out.append(row)
     return out
 
 
@@ -325,6 +369,12 @@ def cut_literal(lines: list[Line]) -> str | None:
         if ln.cut.strip() and _open_literal(ln.text):
             return (f"{Path(ln.file).name}:{ln.line}: source defect: source text past column 72 (`{ln.cut.strip()}`) cuts "
                     "a literal open: fixed-form COBOL reads columns 8-72 only")  # fmt: skip
+    for ln in lines:
+        if ln.lost:  # #4735: NexusBank NEND-DAY `:HV-SO-IM` | `PORTO,`; a comma lost in column 73
+            what = (f"truncates `{ln.lost_after}`" if ln.lost_joined and ln.lost_after
+                    else f"is cut off after `{ln.lost_after}`")  # fmt: skip
+            return (f"{Path(ln.file).name}:{ln.line}: source defect: source text past column 72 (`{ln.lost}`) {what}: "
+                    "fixed-form COBOL reads columns 8-72 only")  # fmt: skip
     return None
 
 
@@ -707,7 +757,9 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     if engine is not None and engine.program != program:
         engine = engine.with_program(program)
     names: set[str] = set()
-    out = expand(logical_lines(_raw_lines(program, engine), str(program)), [program.parent, *dirs],
+    raw = _raw_lines(program, engine)
+    check_cobol(raw, str(program))
+    out = expand(logical_lines(raw, str(program)), [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)

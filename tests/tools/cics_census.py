@@ -445,8 +445,9 @@ def gap_key(hole: str) -> str:
         if why in ("does not parse", "not parsed") or why.startswith("grammar node"):
             return "grammar: " + _generic(why)
         return _generic(why)
-    if re.fullmatch(r"[A-Z][\w-]*: no such item", why):  # a map field, DIBSTAT, ...: one class whatever the name
-        return "<name>: no such item"
+    # a map field, DIBSTAT, an undeclared host variable ...: one class whatever the name
+    if re.fullmatch(r"[A-Z][\w-]*: (?:no such|undeclared) item", why):
+        return "<name>: " + why.split(": ", 1)[1]
     if why.startswith(kind + " ") or re.match(r"[A-Z][\w-]*: ", why):  # CALL CALL X / MOVE ITEM: no such item
         return _generic(why)
     return _generic(f"{kind} {why}")

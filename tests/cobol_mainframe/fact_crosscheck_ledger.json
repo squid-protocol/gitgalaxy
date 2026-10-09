@@ -45,7 +45,7 @@
   "translator-refuses-source-defect": {
    "side": "definitional",
    "issue": 4462,
-   "summary": "Refused by name since #4462 (layout._missing_period): a data entry with no period before the next level number (GenApp polloo2.cpy's 03 CA-CUSPOL-REQUEST). The source is defective; the engine reads past it, the translator never lays out a guess at it. Nothing to fix on either side."
+   "summary": "Refused by name since #4462 (layout._missing_period): a data entry with no period before the next level number (GenApp polloo2.cpy's 03 CA-CUSPOL-REQUEST). The source is defective; the engine reads past it, the translator never lays out a guess at it. Since #4735 also by name (source.cut_literal): program text past column 72 of a fixed-form line (a host variable cut short, a comma lost: NexusBank NEND-DAY), and a file that is a saved ISPF editor screen, not COBOL (source.NotCobol). Nothing to fix on either side."
   },
   "translator-refuses-vendor-copybook": {
    "side": "definitional",

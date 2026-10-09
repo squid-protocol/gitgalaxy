@@ -1555,7 +1555,7 @@ class Gen:
 
     def _factory(self, it: L.Item, storage: str, offset: str) -> str:
         cat = it.category
-        if cat == "GROUP":
+        if cat == "GROUP" or cat == "POINTER":  # a POINTER: its bytes only (#4270: SET ... TO NULL, SET p TO q)
             return f"Field.group({storage}, {offset}, {it.size})"
         if cat in ("ALPHANUMERIC",):
             return f"Field.alphanumeric({storage}, {offset}, {it.size}, {_b(it.justified)})"
@@ -1722,6 +1722,17 @@ class Gen:
                 with self.floating(mode):
                     return [c, *self.arith_float(s, ind)]
             return [c, *self.arith(s, ind)]
+        if k == "SET-NULL":
+            # #4270 (CBSA CREACC's SET COMM-PCB-POINTER TO NULL): a data pointer set to NULL holds no address --
+            # binary zeros, as INITIALIZE leaves one (oracle_assumptions.md C9: GnuCOBOL's NULL is a zero
+            # `void *`, IBM's NULL is X'00000000'; the pointer's width differs, its bytes are all zero on both)
+            out = [c]
+            for r in s.data["targets"]:
+                it = self.resolve(r)
+                if it.usage != "POINTER":
+                    raise Untranslatable(f"SET {r.name} TO NULL: not a pointer")
+                out.append(f"{ind}Cobol.moveFigurative(Figurative.LOW_VALUES, {self.field_expr(r)}, CS);")
+            return out
         if k == "SET-POINTER":
             if s.data["target"] not in self.write_only_pointers:
                 raise Untranslatable("SET ADDRESS OF (pointers)")

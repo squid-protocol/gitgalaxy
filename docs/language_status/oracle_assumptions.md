@@ -360,6 +360,13 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   after a POINTER: the task stops by name when it gets one.
 - **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
   side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
+- **NULL and pointer-to-pointer SET** (#4270): `SET pointer TO NULL` stores binary zeros over the pointer's bytes --
+  GnuCOBOL's NULL is a zero `void *` (8 bytes), and IBM documents NULL as the value that holds no address (Enterprise
+  COBOL Language Reference, "Figurative constants": NULL / NULLS; SET statement, format 5 "data-pointer") and sets
+  it as X'00000000' (4 bytes), so the bytes are zero on both and only the width differs, as above. `SET p TO q`
+  copies q's bytes into p, as both compilers copy the address. CBSA's CREACC (`SET COMM-PCB-POINTER TO NULL`) and
+  DELCUS (`SET COMM-PCB-POINTER OF INQACCCU-COMMAREA TO DELACC-COMM-PCB1`). Every other use of NULL -- a comparison,
+  a MOVE, a VALUE -- and `SET ADDRESS OF` on a pointer that is read stay refused by name.
 - **Procedure and function pointers** (#4462): the det translator lays out USAGE PROCEDURE-POINTER and
   FUNCTION-POINTER as it lays out POINTER, 8 bytes (GnuCOBOL's `sizeof(void *)` for both). IBM's procedure pointer
   is 8 bytes and its function pointer 4 (Enterprise COBOL Language Reference, USAGE clause), so offsets after a

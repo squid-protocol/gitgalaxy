@@ -742,6 +742,8 @@ def _set(p: E.Parser, text: str, line: int) -> Stmt:
     if p.accept("TO"):
         if p.up() == "TRUE":
             return Stmt("SET-TRUE", line, text, {"conds": targets})
+        if p.up() in ("NULL", "NULLS") and p.up(1) in (None, "."):  # #4270: SET pointer TO NULL (gen: SET-NULL)
+            return Stmt("SET-NULL", line, text, {"targets": targets})
         if p.up() == "FALSE":
             return Stmt("HOLE", line, text, {"why": "SET ... TO FALSE"})
         return Stmt("SET-TO", line, text, {"targets": targets, "value": p.operand()})

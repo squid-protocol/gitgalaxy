@@ -37,6 +37,20 @@ name: Evidence Refresh
 # nightly wrote them, and the report shows them as stale, not as zero, once their inputs move (#4730). The non-Db2 path is
 # the same on every trigger. A Db2 job that fails (no Db2, a lost proof) does not stop the non-Db2 refresh, but the run
 # fails and the bot PR is left for a person, as for any failed proof.
+#
+# #4743: two LANES. GitHub keeps ONE pending run per concurrency group and a newer run cancels the older pending one even with
+# cancel-in-progress: false, so with one group every queued nightly / dispatched Db2 run was cancelled by the next push's run
+# (runs 37874905643 by #4742's). Now: the PUSH lane (event push) and the FULL lane (schedule, workflow_dispatch) have their own
+# concurrency groups (a push run can no longer replace a full run), their own bot branches (auto/evidence-refresh and
+# auto/evidence-refresh-full: neither force-pushes over the other's PR) and a hand-over in the `lane` job so the two never have
+# PRs open together, which would conflict on the rendered report:
+#   - a full run closes the open push-lane bot PR before it starts (the full run re-proves everything the push run does, plus Db2);
+#   - a push run does nothing at all while a full run is queued or running, and re-checks just before it opens its PR (a push
+#     run already under way when the full run started). The full PR's merge is itself a push to main, so the push lane then
+#     refreshes whatever moved meanwhile. Nothing is lost: both lanes always work from the CURRENT main, and
+#     det_coverage_ledger.py update rewrites only the cases a sweep proved (a push run leaves the Db2 entries as main has them).
+# Measured (runs 37859714260, 37866635888): ~35-46 min is the det sweep, ~33-43 min the stale-record re-proofs (they run again
+# in every run until the previous bot PR has merged), ~1 min checkout + report. Left as is; see the follow-up issue.
 
 on:
   push:
@@ -58,13 +72,55 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false  # finish the running refresh; GitHub keeps only the newest pending run queued (#4703)
+  # one group per lane (#4743): a push run must not replace a pending nightly / dispatched full run. cancel-in-progress is
+  # false: a running refresh finishes; within a lane GitHub keeps only the newest pending run, which is what a lane wants
+  # (every run starts from the current main), but never across lanes.
+  group: evidence-refresh-${{ github.event_name == 'push' && 'push' || 'full' }}
+  cancel-in-progress: false
 
 jobs:
+  # #4743: the hand-over between the two lanes (see the header). Cheap; no checkout, no secrets beyond the bot token.
+  lane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+    outputs:
+      defer: ${{ steps.push_gate.outputs.defer }}
+    env:
+      REPO: ${{ github.repository }}
+      EVENT: ${{ github.event_name }}
+    steps:
+      - name: Push lane - stand down while a full run is queued or running
+        id: push_gate
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          active=$(gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
+            --jq '[.workflow_runs[] | select(.status != "completed" and .event != "push")] | length')
+          if [ "$active" -gt 0 ]; then
+            echo "defer=true" >> "$GITHUB_OUTPUT"
+            echo "A full (schedule / dispatch) refresh is queued or running: this push refresh stands down; its PR will move main and trigger the next one." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "defer=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Full lane - close the push lane's open bot PR (superseded)
+        if: github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          prs=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh&per_page=10" --jq '.[].number')
+          for pr in $prs; do
+            gh pr close "$pr" --repo "$REPO" --delete-branch \
+              --comment "Superseded by a full (${EVENT}) evidence refresh, which re-proves everything this one did, plus the Db2 cases (#4743)."
+          done
+
   # #4733: the Db2 half of the sweep and the Db2 records. Its own runner: IBM's Db2 Community container needs --privileged
   # and a few GB of memory (a GitHub-hosted ubuntu-latest runner has both: 4 vCPU, 16 GB, root docker).
   db2:
+    needs: lane
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2)
     runs-on: ubuntu-latest
     timeout-minutes: 150
@@ -239,9 +295,10 @@ jobs:
           exit 1
 
   refresh:
-    needs: db2
-    # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck
-    if: ${{ !cancelled() }}
+    needs: [lane, db2]
+    # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck.
+    # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
+    if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     permissions:
@@ -413,8 +470,25 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Push lane - hold the PR back if a full run has started meanwhile (#4743)
+        id: late_gate
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          active=$(gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
+            --jq '[.workflow_runs[] | select(.status != "completed" and .event != "push")] | length')
+          if [ "$active" -gt 0 ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "A full refresh started while this one ran: no PR from the push lane (the full PR carries it)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Open or update the bot PR with the refreshed records
         id: cpr
+        if: steps.late_gate.outputs.publish != 'false'
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
           token: ${{ secrets.AUTOMATION_PAT }}
@@ -431,7 +505,7 @@ jobs:
             docs/language_status/evidence/ are rewritten from those runs. A proof that now fails is recorded as
             not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703).
             Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
-          branch: auto/evidence-refresh
+          branch: auto/evidence-refresh${{ github.event_name != 'push' && '-full' || '' }}  # a lane's own branch (#4743)
           delete-branch: true
           add-paths: |
             tests/equivalence/det_sweep_coverage.json

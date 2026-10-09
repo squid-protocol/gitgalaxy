@@ -2,6 +2,7 @@
 command, census counts (counts only), the stub probe, the spec PR table -- do what the page says."""
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -17,9 +18,22 @@ def fixed(*code: str) -> str:
     return "\n".join(f"{i * 100:06d} {c}" for i, c in enumerate(code, 1)) + "\n"
 
 
+def test_the_page_renders():
+    """#4789: what the evidence-refresh bot commits on main renders from the tree (every PR's CI checks this much)."""
+    text = st.render()
+    assert text.startswith("# CICS command spec: status\n") and "## Full and engine-only entries" in text
+    assert st.PAGE.is_file()
+
+
+@pytest.mark.skipif(
+    os.environ.get("EVIDENCE_REPORT_ADVISORY") == "1",
+    reason="#4789: the page is generated on main by the evidence-refresh bot, as the evidence report is (#4703); per-PR CI "
+    "only prints whether it would change (smoke-test.yml, advisory), so parallel PRs never conflict on it",
+)
 def test_the_committed_page_is_current():
     assert st.PAGE.read_text(encoding="utf-8") == st.render(), (
-        "stale: python tests/tools/cics_spec_status.py render (after a slice: refresh --census --crucible DIR first)"
+        "stale (advisory: the evidence-refresh bot re-renders it on main; do not commit it in a PR): "
+        "python tests/tools/cics_spec_status.py render"
     )
 
 

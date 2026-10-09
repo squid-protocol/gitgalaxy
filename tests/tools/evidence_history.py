@@ -31,7 +31,8 @@ import evidence as ev  # noqa: E402
 DIRS = ("tests/tools", "tests/equivalence", "tests/cics_crucible", "gitgalaxy/tools/cobol_to_java")
 # what the fingerprints cover: a commit that touches none of these cannot move a harness / oracle / generator one
 WATCHED = ("tests/tools", "tests/equivalence", "gitgalaxy/tools/cobol_to_java")
-LEDGER_PATH = "tests/equivalence/det_sweep_coverage.json"
+LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"  # #4789: one <CASE>.json per case
+LEDGER_PATH = "tests/equivalence/det_sweep_coverage.json"  # the single file it replaced (commits before #4789)
 
 
 class Tree:
@@ -57,8 +58,15 @@ class Tree:
         return Tree._blobs[blob]
 
     def ledger(self) -> dict[str, Any]:
-        if LEDGER_PATH not in self.sha:
-            return {}
+        """{CASE: entry} of the det-coverage ledger at this commit: the per-case files (#4789), else the single file."""
+        out = {}
+        for path in self.files:
+            if path.startswith(LEDGER_DIR) and path.endswith(".json") and "/" not in path[len(LEDGER_DIR) :]:
+                entry = json.loads(self.read(path).decode())
+                entry.pop("format", None)
+                out[path[len(LEDGER_DIR) : -len(".json")]] = entry
+        if out or LEDGER_PATH not in self.sha:
+            return out
         return dict(json.loads(self.read(LEDGER_PATH).decode()).get("cases", {}))
 
 

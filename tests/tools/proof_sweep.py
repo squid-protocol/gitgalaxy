@@ -13,7 +13,7 @@ listed there is not proven, or a listed one now is (--update-baseline drops thos
 --shard I/N proves the I-th of N balanced slices of the cases (1-based; by recorded duration, tests/equivalence/det_sweep_durations.json,
 else by name), --cases NAME,... only those: CI's det-sweep runs the slices on N runners, each writing DIR/sweep.json, and
 `--aggregate DIR [DIR ...] [--expect all|NAME,...]` merges them and applies the ratchet (a case missing from the merge fails it,
-and so does a proven case whose coverage the committed ledger tests/equivalence/det_sweep_coverage.json lacks or disagrees with:
+and so does a proven case whose coverage the committed ledger tests/equivalence/det_sweep_coverage/<case>.json lacks or disagrees with:
 tests/tools/det_coverage_ledger.py, #4270). Every det sweep also fails when a case's proof reached an outcome
 tests/equivalence/infeasible_outcomes.json states no input can reach (tests/tools/infeasible_outcomes.py, #4602).
 --skip-db2 leaves out the cases with a "db2" section (IBM's Db2 container is slow to start): CI's det-sweep workflow (#4463).

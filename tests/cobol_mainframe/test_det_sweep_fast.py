@@ -110,11 +110,20 @@ def test_dependents_of_a_changed_port_are_proven_too():
         "tests/equivalence/det_sweep_coverage.json",  # the retired single-file ledger
         "tests/cobol_mainframe/corpora.json",
         ".github/workflows/det-sweep.yml",
-        "README.md",
     ],
 )
 def test_anything_but_case_files_is_a_full_sweep(path):
     assert plan.plan(["tests/equivalence/delta/case.json", path], "pull_request", CASES)["mode"] == "full"
+
+
+@pytest.mark.parametrize("path", ["README.md", "docs/x/y.md", "gitgalaxy/core/detector.py", "tests/tools/pr_check.py",
+                                  "gitgalaxy/tools/cobol_to_java/det/NOTES.md"])  # fmt: skip
+def test_a_pr_that_changes_no_det_input_proves_nothing(path):
+    """#4825: det-sweep runs on every PR (`det` is a required check); the planner proves nothing when no changed file
+    is something a det proof reads -- and such a file never widens a case-only plan to a full sweep."""
+    p = plan.plan([path], "pull_request", CASES)
+    assert p["mode"] == "none" and p["cases"] == [] and plan.shards_for(p) == []
+    assert plan.plan([path, "tests/equivalence/delta/case.json"], "pull_request", CASES)["mode"] == "narrow"
 
 
 @pytest.mark.parametrize("event", ["schedule", "workflow_dispatch", "push"])

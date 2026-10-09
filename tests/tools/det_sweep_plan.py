@@ -3,7 +3,9 @@
 
     python tests/tools/det_sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--github-output PATH]
 
-A pull request that changes only files under tests/equivalence/<case>/ re-proves those cases (and the cases that
+A pull request that changes no det input (DET_INPUTS: docs, other engine code ...) proves nothing (mode "none"; #4825,
+so the workflow can run -- and report its required `det` check -- on every PR). One that changes only files under
+tests/equivalence/<case>/ re-proves those cases (and the cases that
 take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
 tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). Anything
 else -- the translator, the harness, the tools, the corpora pin, the workflow, the baseline, a file straight under
@@ -17,6 +19,7 @@ Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import subprocess
 import sys
@@ -27,6 +30,26 @@ CASES = REPO_ROOT / "tests" / "equivalence"
 MAX_SHARDS = 6  # full sweep: runners
 PER_SHARD = 3  # narrow: about this many cases per runner
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
+# What a det proof reads (#4825: moved here from det-sweep.yml's trigger, so the workflow runs -- and reports `det` --
+# on every PR). A PR that changes none of these proves nothing (mode "none"). fnmatch: `*` also crosses `/`.
+DET_INPUTS = (
+    "gitgalaxy/tools/cobol_to_java/*",
+    "tests/tools/det_port.py",
+    "tests/tools/det_parity.py",
+    "tests/tools/proof_sweep.py",
+    "tests/tools/det_sweep_plan.py",
+    "tests/tools/equivalence*.py",
+    "tests/tools/mainframe_corpus.py",
+    "tests/equivalence/*",
+    "tests/cobol_mainframe/corpora.json",
+    ".github/workflows/det-sweep.yml",
+)
+
+
+def det_input(path: str) -> bool:
+    return not path.endswith(".md") and any(fnmatch.fnmatch(path, p) for p in DET_INPUTS)
+
+
 # #4789: <case>.json, the det-sweep coverage ledger's entry of a case
 LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
 
@@ -58,7 +81,9 @@ def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
     full = {"mode": "full", "cases": "all"}
     if event != "pull_request":
         return {**full, "reason": f"{event}: always a full sweep"}
-    files = [f for f in files if f not in IGNORED]
+    files = [f for f in files if f not in IGNORED and det_input(f)]
+    if not files:
+        return {"mode": "none", "cases": [], "reason": "no changed file is a det-sweep input (DET_INPUTS)"}
     touched: set[str] = set()
     for f in files:
         if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:

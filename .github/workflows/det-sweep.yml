@@ -23,19 +23,8 @@ name: Det Sweep
 # the harness and oracle, the cases, the corpus pin.
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "gitgalaxy/tools/cobol_to_java/**"
-      - "tests/tools/det_port.py"
-      - "tests/tools/det_parity.py"
-      - "tests/tools/proof_sweep.py"
-      - "tests/tools/equivalence*.py"
-      - "tests/tools/mainframe_corpus.py"
-      - "tests/equivalence/**"
-      - "tests/cobol_mainframe/corpora.json"
-      - ".github/workflows/det-sweep.yml"
-      - "!**/*.md"
+  pull_request:  # #4825: no path filter -- `det` is a required check; det_sweep_plan.py proves nothing (mode none)
+    branches: [main]  # when no changed file is a det input (DET_INPUTS), so a docs-only PR passes `det` in about a minute
   schedule:
     - cron: "41 4 * * *"  # nightly: the scan engine moves too (#4245 broke the mortgage ports from an engine change)
   workflow_dispatch:

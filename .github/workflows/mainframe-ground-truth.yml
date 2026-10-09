@@ -21,9 +21,8 @@ name: Mainframe Ground Truth
 # bot-PR mechanism as call-resolution-history.yml.
 
 on:
-  pull_request:
+  pull_request:  # #4825: a required check -- runs on every PR
     branches: [main]
-    paths-ignore: ["docs/**", "**/*.md"]
   push:
     branches: [main]
     paths-ignore: ["docs/**", "**/*.md"]

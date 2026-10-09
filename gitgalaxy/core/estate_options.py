@@ -25,7 +25,7 @@
 # A case's own `compiler_options` stand for a PARM the estate file does not hold and override the estate's PARM.
 #
 # A DECLARED DIFFERENCE: a PARM option may carry `applied_value` -- the value the proof runs under when the harness
-# cannot honour the estate's (CBSA's PARM says TRUNC(OPT); GnuCOBOL has no TRUNC(OPT), so the proof runs TRUNC(STD)).
+# cannot honour the estate's (#4704 slice 1 so applied CBSA's TRUNC(OPT) as TRUNC(STD); #4706 honours OPT itself).
 # The resolver applies `applied_value`, and lists the difference in `deviations` wherever it still shows in the
 # program's final options, so no proof silently claims the estate's option.
 #

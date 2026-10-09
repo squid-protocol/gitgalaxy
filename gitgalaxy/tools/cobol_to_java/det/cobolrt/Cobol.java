@@ -65,6 +65,21 @@ public final class Cobol {
         return before;
     }
 
+    /** TRUNC(OPT) for a program's run (#4706), with swapTruncBinary(true): results as TRUNC(STD), and a value that
+     *  would be stored past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name (Codec.truncOpt). The setting
+     *  before is returned (the caller restores it). A program compiled otherwise leaves it as it is: a TRUNC(STD)
+     *  program LINKed or CALLed from a TRUNC(OPT) one stops where IBM would truncate -- a refusal, never a guess. */
+    public static boolean swapTruncOpt(boolean on) {
+        boolean before = Codec.truncOpt;
+        Codec.truncOpt = on;
+        return before;
+    }
+
+    /** TRUNC(OPT) on or off for a whole run (tests: as setTruncBinary). */
+    public static void setTruncOpt(boolean on) {
+        Codec.truncOpt = on;
+    }
+
     /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
      *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
      *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
@@ -372,6 +387,7 @@ public final class Cobol {
             v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? raw.ch[i] - '0' : 0));
         }
         v = v.mod(TWO_64);
+        if (Codec.pastPictureUnderOpt(to, v)) throw Codec.truncOptUnpredictable(to, v, neg);  // #4706
         if (Codec.truncBinary && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
         Codec.write(to, v, neg, cs);
         return true;

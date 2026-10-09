@@ -553,6 +553,12 @@ def save(t: Target, rec: dict[str, Any]) -> None:
 def record_proof(t: Target, report: dict[str, Any], work: Optional[Path] = None) -> dict[str, Any]:
     """Write the record of a proof that just ran on the committed port and case (report = its report.json)."""
     rec = load(t) or new_record(t)
+    # #4706: the options the harness found this port's proof cannot claim (equivalence_common.option_differences)
+    # are its declared differences of kind "option", replaced by every proof; any other declared difference stays
+    rec["differences"] = [
+        d for d in rec.get("differences") or [] if not (isinstance(d, dict) and d.get("kind") == "option")
+    ]
+    rec["differences"] += report.get("option_differences") or []
     inputs = compute_inputs(t, rec.get("differences"))
     own = port_files(t)
     rec.update({

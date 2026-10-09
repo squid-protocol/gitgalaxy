@@ -313,17 +313,24 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         excluded |= out.names
 
 
-def trunc_std(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
-    """Whether binary items keep only their PICTURE's digits (#4102): the TRUNC option in effect -- the program's
-    CBL / PROCESS cards over `options` (the compile step's PARM, as a case states it), else IBM's default, STD."""
+def trunc_mode(program: Path, options: list[str] | None = None, declared: str | None = None) -> str:
+    """The TRUNC option in effect (#4102, #4706): STD, BIN or OPT -- the program's CBL / PROCESS cards over `options`
+    (the compile step's PARM, as a case states it, or estate_options.effective_options(case).layers), else IBM's
+    default, STD. The same resolver the oracle's cobc flags use (#4704)."""
     from gitgalaxy.core.compiler_options import DEFAULTS, effective_with_defaults
     from gitgalaxy.core.source_text import read_source
 
-    # #4704: the same resolver the oracle's cobc flags use (`options` = estate_options.effective_options(case).layers)
     eff = effective_with_defaults(
         options, read_source(program, declared=declared).text
     )  # (#4462: the estate's code page)
-    return str(eff.get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
+    mode = str(eff.get("TRUNC") or DEFAULTS["TRUNC"]).upper()
+    return mode if mode in ("STD", "BIN", "OPT") else DEFAULTS["TRUNC"]
+
+
+def trunc_std(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
+    """Whether binary items keep only their PICTURE's digits (#4102): TRUNC(STD), and TRUNC(OPT), which computes as
+    STD and stops by name where a value would not fit its PICTURE (#4706, Cobol.swapTruncOpt)."""
+    return trunc_mode(program, options, declared) != "BIN"
 
 
 def arith_extend(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
@@ -375,10 +382,19 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, std: bool, pfd: bool = False) -> str:
+def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
     """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
     (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
-    leaves the caller's as it was."""
+    leaves the caller's as it was. `trunc`: "STD" / "BIN" / "OPT" (True / False: STD / BIN). TRUNC(OPT) (#4706) runs
+    as STD with Cobol.swapTruncOpt on: a value that would not fit a binary receiver's PICTURE stops by name."""
+    mode = ("STD" if trunc else "BIN") if isinstance(trunc, bool) else trunc.upper()
+    std = mode != "BIN"
+    opt_on = (
+        "\n        boolean optBefore = Cobol.swapTruncOpt(true);  // TRUNC(OPT): a value past the PICTURE stops"
+        if mode == "OPT"
+        else ""
+    )
+    opt_off = "            Cobol.swapTruncOpt(optBefore);\n" if mode == "OPT" else ""
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -388,13 +404,14 @@ def with_trunc(java: str, std: bool, pfd: bool = False) -> str:
         out.append(java[at : m.end()])
         out.append(
             f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
-            f"({'STD' if std else 'BIN'})"
+            f"({'STD' if mode == 'STD' else 'BIN' if mode == 'BIN' else 'OPT'})"
+            f"{opt_on}"
             f"\n        boolean pfdBefore = Cobol.swapNumprocPfd({'true' if pfd else 'false'});  // NUMPROC"
             f"({'PFD' if pfd else 'NOPFD'})\n        try {{"
         )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
         out.append(
-            "    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n"
+            f"    }} finally {{\n{opt_off}            Cobol.swapTruncBinary(truncBefore);\n"
             "            Cobol.swapNumprocPfd(pfdBefore);\n        }\n    "
         )
         at = end
@@ -561,6 +578,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.write_only_pointers = write_only_pointers(records, proc)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
+    # #4706: under TRUNC(OPT) a typed (lifted) binary item takes no value the runtime has not checked against its PICTURE
+    gen.trunc_opt = trunc_mode(program, options, engine.page(program) if engine is not None else None) == "OPT"
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
     for rec in records:
         gen.root_of[id(rec)] = id(roots[id(rec)])
@@ -1155,7 +1174,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         )
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
-    return Result(with_trunc(java, trunc_std(program, options, page), numproc_pfd(program, options, page)), service,
+    return Result(with_trunc(java, trunc_mode(program, options, page), numproc_pfd(program, options, page)), service,
                   stats)  # fmt: skip
 
 

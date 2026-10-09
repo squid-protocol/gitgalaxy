@@ -4774,6 +4774,11 @@ class GalaxyIR:
                             v = self._value_text(f, fl["source"].split(" OF ")[0], prog)
                             if v and v.strip() and "?" not in v:
                                 cands.setdefault(v.strip().upper(), "moves")
+                            elif tv := self._table_values(f, fl["source"].split(" OF ")[0].split("(")[0].strip(), prog):
+                                # #4736: MOVEd from an element of a VALUE table (DBB epscsmrt's
+                                # CALLED-PROGRAM-NAME(1)): the table's elements, whichever the subscript picks
+                                for t in tv:
+                                    cands.setdefault(t.upper(), "table")
                             else:
                                 others.add(fl["source"])
                     out.append(

@@ -17,6 +17,7 @@ from typing import Any
 
 from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
@@ -614,7 +615,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # a CALLed program the stub does not wire (the CALL sits in a procedure copybook): its service in the estate,
     # when it has the CALL entry
     if project is not None:
-        called = {s.data["program"] for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"}
+        calls = [s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"]
+        called = {s.data["program"] for s in calls if s.data["program"]}
+        for s in calls:  # #4736: CALL identifier -- the programs the identifier can hold (det.dyncall)
+            if s.data.get("dynamic") is not None:
+                try:
+                    called |= {n for n in dyncall.values(gen, s) if n}
+                except (dyncall.Unknown, G.Untranslatable):
+                    pass  # refused at the statement, by name
         for prog_name in sorted(called - set(gen.callees)):
             from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 import contextlib
 import re
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -2396,7 +2396,32 @@ class Gen:
         except Exception as e:  # det.cics.CicsError: a DTO property the port cannot convert
             raise Untranslatable(f"{cls}: {e}") from e
 
+    def dynamic_call(self, s: S.Stmt, ind: str) -> list[str]:
+        """#4736: CALL identifier over the programs the identifier can hold (det.dyncall): the one CALL when it can
+        hold one name, else a switch on its content with those cases, any other content ending the run by name."""
+        from gitgalaxy.tools.cobol_to_java.det import dyncall
+
+        for ph in ("EXCEPTION", "NOT-EXCEPTION", "OVERFLOW", "NOT-OVERFLOW"):
+            if ph in s.phrases:
+                raise Untranslatable(f"{s.data['dynamic'].name}: ON EXCEPTION / OVERFLOW phrases are not modelled")
+        names = dyncall.targets(self, s)
+
+        def one(name: str, at: str) -> list[str]:
+            return self.call(replace(s, data={**s.data, "program": name, "dynamic": None}), at)
+
+        if len(names) == 1:
+            return one(names[0], ind)
+        f = self.field_expr(s.data["dynamic"])
+        out = [f'{ind}switch (Cobol.text({f}, CS).replaceAll(" +$", "")) {{']
+        for n in names:
+            out += [f"{ind}    case {jstr(n)}: {{", *one(n, ind + "        "), f"{ind}        break;", f"{ind}    }}"]
+        why = f"CALL {s.data['dynamic'].name}: the program name is none of {', '.join(names)}"
+        out += [f"{ind}    default: throw new Hole({jstr(why)});", f"{ind}}}"]
+        return out
+
     def call(self, s: S.Stmt, ind: str) -> list[str]:
+        if s.data.get("dynamic") is not None:
+            return self.dynamic_call(s, ind)
         prog = s.data["program"]
         args = s.data["args"]
         if prog == "CEE3ABD":
@@ -2436,6 +2461,10 @@ class Gen:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: {lib[1]} items BY REFERENCE expected")
             return [f"{ind}{lib[0]}({', '.join(self.field_expr(a) for _, a in args)});"]
+        from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
+
+        if prog in REFUSED_BY_NAME:
+            raise Untranslatable(REFUSED_BY_NAME[prog])
         raise Untranslatable(f"CALL {prog}")
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:

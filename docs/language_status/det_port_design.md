@@ -764,8 +764,9 @@ NULL is distinct.
   - The CICS cases cover SELECT INTO, INSERT after an UPDATE of no row, a delete refused by the foreign key (-532,
     shown with SQLERRMC's tokens), +100, SYNCPOINT, and cursors forward and backward with paging, filters (LIKE)
     and a look-ahead FETCH.
-  - COTRTLIC's one untranslated statement is a dynamic CALL of IBM's DSNTIAC, on the Db2-error path, which no
-    scenario reaches; the COBOL side cannot run DSNTIAC either.
+  - COTRTLIC's one untranslated statement is a CALL of IBM's DSNTIAC (through a data item with a VALUE), refused by
+    name (oracle_assumptions.md Q5), on the Db2-error path, which no scenario reaches; the COBOL side cannot run
+    DSNTIAC either.
 - **CICS.** The COBOL side runs every scenario in one container, so a small CLI tool (`tests/equivalence/db2/ggsqlrun.c`)
   resets the tables before each task and dumps them after it. The Java side's test does the same over JDBC.
   A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it.
@@ -832,8 +833,8 @@ The combined method runs in the porting loop like any other backend, and every e
   Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by IBM's CEEIGZCT copybook (CRECUST), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL).
-- **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, dynamic CALL. Such
-  statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
+  oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
   re-proves every det and model port and compares the result with the cases not proven on purpose.
 

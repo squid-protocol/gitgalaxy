@@ -171,6 +171,12 @@ def _transfer(labels: list[str] | None) -> list[str]:
     return ["GO TO"] + [f"    {label}" for label in labels] + ["    DEPENDING ON GG-GOTO"]
 
 
+def _map_abend(labels: list[str] | None) -> list[str]:
+    """#4270 (X31): after SEND MAP / RECEIVE MAP, the ABM0 abend the stub raises for a map its mapset does not hold
+    (GGCSMAP / GGCRECV): the HANDLE ABEND exit's label, or leave the program (GG-GOTO -1); else it falls through."""
+    return _transfer(labels) + ["IF GG-GOTO < 0", "    GOBACK", "END-IF"]
+
+
 def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None = None) -> list[str]:
     """After a command: the EIB's RESP fields, the program's RESP / RESP2, or -- when it tests
     neither and does not say NOHANDLE (which suspend every HANDLE, IBM: "The HANDLE CONDITION
@@ -686,6 +692,33 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             lines += [f"MOVE '{o}' TO GG-FLAGS"] + _call("GGCINQA", [])
             lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
         return lines + _resp(opts, False, labels)
+    if verb == "INQUIRE" and "URIMAP" in opts:  # #4270 zECS (X32): the browse of the installed URIMAP definitions
+        _check_spec("INQUIRE URIMAP", opts, (verb,), lambda bad: [f"INQUIRE URIMAP {o}" for o in bad])
+        form = [f for f in ("START", "NEXT", "END") if f in opts]
+        if len(form) != 1:
+            raise Unsupported(_rule("INQUIRE URIMAP", "one_of", "START"), ["INQUIRE URIMAP"])
+        outs = [o for o in ("URIMAP", "PATH", "TRANSACTION") if opts.get(o)]
+        if form[0] != "NEXT" and outs:
+            raise Unsupported(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition",
+                              ["INQUIRE URIMAP"])  # fmt: skip
+        lines = [f"MOVE '{form[0]}' TO GG-FLAGS"] + _call("GGCURIB", [])
+        if outs:
+            lines.append("IF GG-RESP = 0")
+            for o in outs:
+                lines += [f"    MOVE '{o}' TO GG-FLAGS"] + [
+                    f"    {ln}" for ln in _call("GGCURIP", [f"BY REFERENCE {opts[o]}", f"BY VALUE LENGTH OF {opts[o]}"])
+                ]
+            lines.append("END-IF")
+        return lines + _resp(opts, True, labels)
+    if verb == "WRITE" and "OPERATOR" in opts:  # #4270 zECS (X32): a plain message to the console
+        _check_spec("WRITE OPERATOR", opts, (verb, "OPERATOR"))
+        text = opts.get("TEXT")
+        if not text:
+            raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
+        if _literal(text):  # (IBM's COBOL form takes a data area)
+            raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
+        return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
+                + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"
         _check_spec(key, opts, (verb,), lambda bad: [key])
@@ -706,6 +739,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
+                + _map_abend(labels)
                 + _input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
@@ -759,7 +793,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if not src:
                 raise Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
-        return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
+        return lines + _call("GGCSMAP", args) + _map_abend(labels) + _resp(opts, can_fail=False)
     if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
         _check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
         if "CURSOR" in opts and not opts["CURSOR"]:
@@ -2068,6 +2102,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+        elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as text in the data's page
+            text = common._decode_text(data, enc)
+            res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -3263,6 +3300,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     queued = iter(res.get("ts", []))
+    operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     for line in res["events"]:
         verb, _, args = line.partition(" ")
@@ -3278,6 +3316,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             queue = re.search(r"\bqueue=(\S*)", args).group(1)
             resp = re.search(r"\bresp=(\S*)", args).group(1)
             out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
+        elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): CicsTask.writeOperator records the text
+            out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)

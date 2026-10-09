@@ -15,7 +15,7 @@ A refused option shows no reason but SET's (the reason the old global table gave
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, RESP_OPTIONS, SET_POINTER, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, at_most_one, one_of
+from gitgalaxy.standards.cics.model import Abend, Arg, Command, EngineFacts, Outcome, at_most_one, one_of
 
 # SEND MAP's device controls and output options passed on as flags (det/cics.py parse_exec: never a verb word)
 MAP_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET", "MAPONLY", "DATAONLY", "PRINT", "LAST",
@@ -26,6 +26,14 @@ SEND_CONTROL_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET
 
 _MAP = {"MAP": Arg("name", width=7), "MAPSET": Arg("name", width=8)}
 
+# #4270 (X31): IBM CICS TS, abend code ABM0 -- "The map specified for a basic mapping support (BMS) request could not be
+# located." System action: "The transaction is abnormally terminated with a CICS transaction dump." A map is found only
+# inside its own mapset (MAPSET defaults to the MAP name), so a map the mapset does not hold is this abend. SEND MAP's and
+# RECEIVE MAP's condition lists name no condition for it, so RESP / RESP2 / HANDLE CONDITION do not see it
+MAP_NOT_FOUND = Abend(
+    "ABM0", "the map is not one of the mapset's maps (MAPSET omitted: the mapset is named like the map)"
+)
+
 SEND_MAP = Command(
     key="SEND MAP",
     ibm=ibm("EXEC CICS SEND MAP", "summary-send-map"),
@@ -33,7 +41,9 @@ SEND_MAP = Command(
     options={**_MAP, "FROM": Arg("area_in"), **{o: Arg("flag") for o in MAP_OPTIONS}, **RESP_OPTIONS},
     refused={"SET": SET_POINTER},
     outcomes=(Outcome("NORMAL", 0, ""),),
+    abends=(MAP_NOT_FOUND,),
     state=("terminal",),
+    register="X31",
     engine=EngineFacts(resource="MAP", access="write"),
 )
 
@@ -51,7 +61,9 @@ RECEIVE_MAP = Command(
         Outcome("NORMAL", 0, "", writes=("INTO",)),
         Outcome("MAPFAIL", None, "the operator sent no data for the map"),
     ),
+    abends=(MAP_NOT_FOUND,),
     state=("terminal", "handle_table"),
+    register="X31",
     engine=EngineFacts(resource="MAP", access="read"),
 )
 

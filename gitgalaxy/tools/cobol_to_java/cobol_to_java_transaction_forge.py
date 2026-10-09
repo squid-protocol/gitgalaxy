@@ -694,6 +694,93 @@ public class CicsTask {
         return new Origin(pad.apply(o[0]), pad.apply(o[1]), pad.apply(o[2]), pad.apply(o[3]), FACILTYPE_CVDAS.get(o[4]));
     }
 
+    // #4270 zECS (register X32): INQUIRE URIMAP's browse and WRITE OPERATOR (IBM CICS TS, INQUIRE URIMAP, "Browsing
+    // resource definitions", WRITE OPERATOR). The installed URIMAP definitions, in the region's order, are a fact whoever
+    // runs the task states, never guessed; the browse cursor belongs to the task.
+    private java.util.List<String[]> urimaps;
+    private int urimapBrowse = -1;
+    private String[] urimapNow;
+
+    /** The URIMAP definitions installed in the region, each {name, transaction, path}, in the order the region browses
+     *  them. Not stated (never called), INQUIRE URIMAP is refused. */
+    public CicsTask withUrimaps(java.util.List<String[]> defs) {
+        this.urimaps = defs;
+        return this;
+    }
+
+    private java.util.List<String[]> installedUrimaps() {
+        java.util.List<String[]> d = root().urimaps;
+        if (d == null) {
+            throw refused("the installed URIMAP definitions are not stated (withUrimaps)");
+        }
+        return d;
+    }
+
+    /** INQUIRE URIMAP START: {RESP, RESP2} -- ILLOGIC (21) RESP2 1 when a browse is already in progress. */
+    public int[] inquireUrimapStart() {
+        CicsTask r = root();
+        r.installedUrimaps();
+        if (r.urimapBrowse >= 0) {
+            return new int[] {21, 1};
+        }
+        r.urimapBrowse = 0;
+        r.urimapNow = null;
+        return new int[] {0, 0};
+    }
+
+    /** INQUIRE URIMAP NEXT: {RESP, RESP2}; the definition it returns is read by urimapName / urimapPath /
+     *  urimapTransaction. END (83) RESP2 2 when there are no more. */
+    public int[] inquireUrimapNext() {
+        CicsTask r = root();
+        java.util.List<String[]> d = r.installedUrimaps();
+        if (r.urimapBrowse < 0) {
+            throw refused("INQUIRE URIMAP NEXT or END with no browse started");
+        }
+        if (r.urimapBrowse >= d.size()) {
+            return new int[] {83, 2};
+        }
+        r.urimapNow = d.get(r.urimapBrowse++);
+        return new int[] {0, 0};
+    }
+
+    /** INQUIRE URIMAP END: {RESP, RESP2}; the browse is over. */
+    public int[] inquireUrimapEnd() {
+        CicsTask r = root();
+        r.installedUrimaps();
+        if (r.urimapBrowse < 0) {
+            throw refused("INQUIRE URIMAP NEXT or END with no browse started");
+        }
+        r.urimapBrowse = -1;
+        r.urimapNow = null;
+        return new int[] {0, 0};
+    }
+
+    /** The URIMAP the last NEXT returned, blank-padded to IBM's lengths: the 8-character name, the 255-character PATH
+     *  and the 4-character TRANSACTION (IBM does not state the padding of a short value: blanks). */
+    public String urimapName() {
+        return String.format(java.util.Locale.ROOT, "%-8.8s", root().urimapNow[0]);
+    }
+
+    public String urimapPath() {
+        return String.format(java.util.Locale.ROOT, "%-255.255s", root().urimapNow[2]);
+    }
+
+    public String urimapTransaction() {
+        return String.format(java.util.Locale.ROOT, "%-4.4s", root().urimapNow[1]);
+    }
+
+    /** WRITE OPERATOR TEXT(text) (IBM CICS TS, WRITE OPERATOR): a message to the system console, recorded with its text.
+     *  A text IBM reformats (DFHnnnn / DFHaannnn: a CICS message) or splits into lines (over 113 characters) is refused.
+     *  Returns the RESP (always NORMAL here: the WTO cannot fail in this region). */
+    public int writeOperator(String text) {
+        String t = text.stripTrailing();
+        if (text.length() > 113 || t.matches("(?s)DFH([A-Za-z]{2})?[0-9]{4}.*")) {
+            throw refused("WRITE OPERATOR text IBM reformats");
+        }
+        event("WRITE-OPERATOR", "text", text, "resp", "NORMAL");
+        return 0;
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;
@@ -2692,6 +2779,14 @@ public class CicsTask {
      *  with the condition's code (abcodeFor), with the same exit search and result as abend. */
     public String abendOnCondition(String condition) {
         return abend(abcodeFor(condition), "condition", condition, false);
+    }
+
+    /** SEND MAP / RECEIVE MAP naming a map its mapset does not hold (#4270, register X31): IBM abend ABM0 "The map
+     *  specified for a basic mapping support (BMS) request could not be located", the transaction "abnormally
+     *  terminated with a CICS transaction dump". CICS raises no condition for it, so RESP / HANDLE CONDITION do not
+     *  see it; a HANDLE ABEND exit does (cause "system": an abend CICS itself raises). Same result as abend. */
+    public String abendMapNotFound(String map, String mapset) {
+        return abend("ABM0", "system", null, false);
     }
 
     /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;

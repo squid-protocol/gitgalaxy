@@ -165,6 +165,7 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "resp"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
@@ -188,6 +189,7 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
@@ -922,6 +924,14 @@ class EquivalenceRunTest {
                     t.withTerminalInput(step.get("text").asText());
                 }
                 t.withEndOfChain("LUTYPE2".equals(plan.path("terminal_device").asText()));  // #4413
+                if (plan.has("urimaps")) {
+                    // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
+                    // transaction, path}, in the CSD's order
+                    List<String[]> defs = new ArrayList<>();
+                    plan.get("urimaps").forEach(u -> defs.add(new String[] {u.get(0).asText(), u.get(1).asText(),
+                            u.get(2).asText()}));
+                    t.withUrimaps(defs);
+                }
                 if (plan.hasNonNull("uctranst")) {
                     t.withUctranst(plan.get("uctranst").asText());  // #4415: INQUIRE TERMINAL UCTRANST
                 }
@@ -1325,6 +1335,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
+        "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
@@ -1340,6 +1351,15 @@ def terminal_device(case: cc.Case) -> str:
 # #4415 (register X26): the terminal's UCTRANST from its TYPETERM's UCTRAN, name for name (IBM, INQUIRE TERMINAL: "The
 # value comes from the UCTRAN option of the associated TYPETERM definition")
 UCTRAN_TO_UCTRANST = {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
+
+
+def mapsets_env(case: cc.Case) -> str:
+    """#4270 (X31): the case's mapsets and their maps as the stub's $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a
+    SEND MAP / RECEIVE MAP for a map its mapset does not hold abends ABM0. The case's `maps` name each map's mapset."""
+    held: dict[str, list[str]] = {}
+    for m, spec in sorted(case.data["maps"].items()):
+        held.setdefault(spec["mapset"], []).append(m)
+    return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
 
 
 def origin_env(case: cc.Case) -> Optional[str]:
@@ -1496,10 +1516,14 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
+            elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
+                ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
             elif kind == "RETURN" and e.get("resp") is not None:  # #4270 (X27): a RETURN IMMEDIATE that failed
-                ev.update(level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2"))
+                ev.update(
+                    level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2")
+                )
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
                 ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
@@ -1751,6 +1775,8 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), data=cc.RawArea(data, "latin-1"), resp=resp,
                       item=int(arg("item")) if resp == "NORMAL" else None)  # fmt: skip
+        elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the text sent, in the stub's page
+            ev.update(data=cc.RawArea(data, "latin-1"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "RECEIVE-REFUSED":  # #4413
             ev = {"event": "DRIVER-ERROR", "program": issuer,
                   "message": "RECEIVE NOTRUNCATE leaving data retained on an LUTYPE2 terminal: EOC is not documented"}  # fmt: skip
@@ -1989,7 +2015,12 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             pending = last["transid"] if last is not None and task["end"] == "normal" else None
             pending_ca = last["commarea"].data if pending and last is not None and last["commarea"] else None
             if pending and last.get("immediate"):  # #4270 (X27): the next task is not the terminal's next input
-                immediate = {"transid": pending, "commarea": pending_ca, "task": len(tasks), "event": task["events"].index(last)}
+                immediate = {
+                    "transid": pending,
+                    "commarea": pending_ca,
+                    "task": len(tasks),
+                    "event": task["events"].index(last),
+                }
                 pending, pending_ca = None, None
 
     def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
@@ -2086,6 +2117,9 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
+    # #4270 zECS (X32): the URIMAP definitions the case CSD installs, `NAME TRANSACTION PATH` ('-': no transaction)
+    (d / "urimaps.cfg").write_text("".join(f"{n} {t or '-'} {p}\n" for n, t, p in case.csd.get("urimaps") or []),
+                                   encoding="ascii")  # fmt: skip
     (d / "requests.cfg").write_text("".join(f"{r} {e}\n" for r, e in requests or []), encoding="ascii")
     for i, item in enumerate(data or [], 1):  # #4270: a record's FROM data, and its other data options beside it
         rec = item if isinstance(item, dict) else {"data": item}
@@ -2118,8 +2152,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
+           f"GGCICS_URIMAPS=/work/{rel}/urimaps.cfg "  # #4270 zECS (X32)
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
+           f"GGCICS_MAPSETS='{mapsets_env(case)}' "  # #4270 (X31): ABM0 for a map its mapset does not hold
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "

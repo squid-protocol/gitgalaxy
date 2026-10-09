@@ -14,6 +14,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **Stale levels (`L3*`).** A level marked `*` is the program's LAST MEASURED level, shown because the measurement it rests on was made against an earlier harness or oracle: the det-sweep coverage ledger entry's input fingerprints no longer match the tree on a scheduled input (harness, oracle). It means "measured against the previous harness, not yet re-checked", not "regressed"; the program table names `stale since <commit>` (the commit the level was last measured at) and the changed inputs, and the scheduled re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared differences or options) is not shown as stale: the level drops, as the old measurement no longer describes it. A stale level is never a current one: the summary counts them apart, and the release gate (`evidence_report.py --check --live`) fails while any program's level is stale.
 
+**Options.** A result holds under the compile and runtime options it was produced with, so each program lists the options that change results (TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE ...) as the resolver (`gitgalaxy/core/estate_options.py`) applies them: IBM defaults, overridden by the estate's compile PARM, overridden by the program's own CBL / PROCESS cards. Each value says where it came from: `found at <file>:<line>` in the corpus, or `assumed: IBM default` / `assumed: owner decision` / `assumed: not stated in the corpus`. A **declared option difference** is an option the estate uses that the proof does not run under (for example TRUNC(OPT) run as TRUNC(STD)): the level holds under the applied option, not the declared one. The estate-level table gives the compiler product and version, the PARM defaults, and how many values were found versus assumed.
+
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
@@ -50,6 +52,31 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - translated whole: 0; refused whole: 0; holes left: 71
 - with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
 
+## Options the estate compiles and runs under
+
+From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus, 16 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 0 found, 30 assumed; programs with a declared option difference: 0.
+
+| item | value | provenance | source |
+|---|---|---|---|
+| compiler | product: Enterprise COBOL | found | System Requirements and Considerations.md:12 |
+| compiler | version: 4.2 | found | System Requirements and Considerations.md:12 |
+| installation default | ARITH(COMPAT) | assumed | assumed: IBM default |
+| installation default | CODEPAGE(1140) | assumed | assumed: IBM default |
+| installation default | DISPSIGN(COMPAT) | assumed | assumed: IBM default |
+| installation default | INTDATE(ANSI) | assumed | assumed: IBM default |
+| installation default | NOSSRANGE | assumed | assumed: IBM default |
+| installation default | NSYMBOL(NATIONAL) | assumed | assumed: IBM default |
+| installation default | NUMPROC(NOPFD) | assumed | assumed: IBM default |
+| installation default | OPTIMIZE(0) | assumed | assumed: IBM default |
+| installation default | TRUNC(STD) | assumed | assumed: IBM default |
+| PARM | CICS | assumed | assumed: owner decision |
+
+| runtime section | found | assumed |
+|---|---|---|
+| LE | 0 | 3 |
+| DB2 | 0 | 1 |
+| CICS | 1 | 2 |
+
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
@@ -70,6 +97,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -101,6 +129,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -160,6 +189,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: INQUIRE PROGRAM STATUS: option not modelled
   - hole: HOLE SET ADDRESS OF (pointers)
   - hole: HOLE dynamic CALL
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -215,6 +245,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -246,6 +277,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled
   - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):

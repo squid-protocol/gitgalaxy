@@ -36,12 +36,33 @@ def test_trailing_blank_in_a_map_literal_is_the_same_name(tmp_path):
     assert (m, ms) == ("BNK1CC", "BNK1CCM")
 
 
-def test_a_mapset_name_asked_for_as_a_map_is_refused_by_name(tmp_path):
+def test_a_mapset_name_asked_for_as_a_map_abends_abm0(tmp_path):
+    # IBM abend ABM0 (X31): "The map specified for a BMS request could not be located"; no condition, so RESP does not see it
     c = _cics(tmp_path)
-    with pytest.raises(C.CicsError) as e:
-        c.send_map({"MAP": "'BNK1CCM'", "MAPONLY": None, "ERASE": None}, "")
-    msg = str(e.value)
-    assert "map BNK1CCM" in msg and "MAPSET omitted" in msg and "BNK1CC" in msg and "not modelled" in msg
+    c.g = _G()
+    for opts in ({"MAP": "'BNK1CCM'", "MAPONLY": None, "ERASE": None}, {"MAP": "'BNK1CCM'", "RESP": "WS-R"}):
+        out = "\n".join(c.send_map(opts, ""))
+        assert 'task.abendMapNotFound("BNK1CCM", "BNK1CCM")' in out and "abended()" in out
+        assert "EIBRESP" not in out and "WS-R" not in out
+    out = "\n".join(c.receive_map({"MAP": "'BNK1CCM'", "INTO": "X"}, ""))
+    assert 'task.abendMapNotFound("BNK1CCM", "BNK1CCM")' in out
+
+
+def test_a_map_of_its_mapset_is_not_the_abend(tmp_path):
+    c = _cics(tmp_path)
+    assert c.map_not_found("BNK1CC", "BNK1CCM", "") is None
+    assert c.map_not_found("OTHER", "NOTHELD", "") is None
+
+
+class _G:
+    n = 0
+
+    def tmpname(self, p):
+        self.n += 1
+        return f"{p}{self.n}"
+
+    def jump(self, t):
+        return f"JUMP {t};"
 
 
 def test_a_map_with_no_bms_source_keeps_the_plain_refusal(tmp_path):

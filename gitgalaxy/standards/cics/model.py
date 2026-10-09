@@ -136,6 +136,18 @@ class Outcome:
             raise ValueError(f"{self.condition} RESP2 {self.resp2}")
 
 
+@dataclass(frozen=True)
+class Abend:
+    """An abend CICS itself raises for a command (no condition: RESP, RESP2 and HANDLE CONDITION do not see it)."""
+
+    code: str  # the 4-character abend code (IBM, CICS abend codes)
+    when: str  # what causes it, in IBM's words where they exist
+
+    def __post_init__(self) -> None:
+        if not re.fullmatch(r"[A-Z0-9]{4}", self.code):
+            raise ValueError(f"abend code {self.code!r}")
+
+
 GroupKind = Literal["required", "one_of", "at_most_one", "requires"]
 
 
@@ -235,6 +247,7 @@ class Command:
     default_refusal: Refusal | None = None  # an option in neither table (None: refused with no reason)
     groups: tuple[Group, ...] = ()
     outcomes: tuple[Outcome, ...] = ()
+    abends: tuple[Abend, ...] = ()  # the abends it can end the task with, whatever RESP / HANDLE CONDITION say
     runtime_refusals: tuple[RuntimeRefusal, ...] = ()
     state: tuple[str, ...] = ()
     facts: tuple[Fact, ...] = ()

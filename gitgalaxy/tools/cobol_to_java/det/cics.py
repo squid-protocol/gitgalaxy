@@ -94,7 +94,7 @@ def command_key(words: list[str], opts: dict) -> str:
 _FORM_OPTION = {
     "RECEIVE": ("MAP",),
     "GET": ("COUNTER",),
-    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION"),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
 }
 
@@ -994,6 +994,14 @@ class Cics:
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if key == "INQUIRE ASSOCIATION":  # #4415 slice 2: the origin data of the task's own association (register X29)
             return self.inquire_association(opts, ind)
+        if key == "INQUIRE URIMAP":  # #4270 zECS: the browse of the installed URIMAPs (register X32)
+            return self.inquire_urimap(opts, ind)
+        if key == "WRITE OPERATOR":  # #4270 zECS: a plain message to the console (register X32)
+            if not opts.get("TEXT"):
+                raise CicsError(_msg("WRITE OPERATOR", "required", "TEXT"))
+            r = g.tmpname("wto")
+            f = self.read_field(_arg(opts["TEXT"]))
+            return [f"{ind}int {r} = task.writeOperator(Cobol.text({f}, CS));", *self.outcome(opts, r, "0", ind)]
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:
                 raise CicsError(f"{key} without UCTRANST")
@@ -1272,6 +1280,29 @@ class Cics:
             )
         return out + self.outcome(opts, "0", "0", ind)
 
+    def inquire_urimap(self, opts: dict, ind: str) -> list[str]:
+        """INQUIRE URIMAP START / NEXT / END (IBM CICS TS, INQUIRE URIMAP, "Browsing resource definitions"): the browse of
+        the URIMAP definitions the run states are installed (CicsTask.withUrimaps; unstated, refused). NEXT hands back the
+        definition's name (8), PATH (255) and TRANSACTION (4), blank-padded, only on NORMAL; END (RESP2 2) and ILLOGIC
+        (RESP2 1) leave the areas alone. START / END name no output area."""
+        g = self.g
+        form = [f for f in ("START", "NEXT", "END") if f in opts]
+        if len(form) != 1:
+            raise CicsError(_msg("INQUIRE URIMAP", "one_of", "START"))
+        r = g.tmpname("urimap")
+        call = {"START": "inquireUrimapStart", "NEXT": "inquireUrimapNext", "END": "inquireUrimapEnd"}[form[0]]
+        outs = [k for k in ("URIMAP", "PATH", "TRANSACTION") if k in opts]
+        if form[0] != "NEXT" and outs:
+            raise CicsError(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition")
+        out = [f"{ind}int[] {r} = task.{call}();"]
+        if outs:
+            out.append(f"{ind}if ({r}[0] == 0) {{")
+            for k, acc in (("URIMAP", "urimapName"), ("PATH", "urimapPath"), ("TRANSACTION", "urimapTransaction")):
+                if k in opts:
+                    out.append(f"{ind}    DetCics.putText({self.field(_arg(opts[k]))}, task.{acc}(), CS);")
+            out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)
+
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
         region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
@@ -1387,23 +1418,32 @@ class Cics:
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
 
-    def no_screen(self, m: str, ms: str, opts: dict) -> CicsError:
-        """Why map `m` has no generated screen, by name. IBM CICS TS (SEND MAP / RECEIVE MAP): MAPSET defaults to the
-        MAP name when omitted, and a map is found only inside its own mapset (BMS: DFHMSD names the mapset, each
-        DFHMDI a map). A name that is a mapset of the estate but no map of it asks CICS for a map the mapset does not
-        hold; the condition CICS raises then is not modelled, so the command is refused, never given another map."""
-        if ms in self.gp.mapsets and m not in self.gp.mapsets[ms]:
-            how = "(MAPSET omitted: IBM defaults it to the MAP name) " if not opts.get("MAPSET") else ""
-            held = ", ".join(sorted(self.gp.mapsets[ms]))
-            return CicsError(f"map {m} {how}names no map of mapset {ms} (its maps: {held}): the condition CICS "
-                             "raises for a map the mapset does not hold is not modelled")  # fmt: skip
+    def map_not_found(self, m: str, ms: str, ind: str) -> list[str] | None:
+        """IBM CICS TS (SEND MAP / RECEIVE MAP; abend code ABM0, register X31): a map is found only inside its own
+        mapset (BMS: DFHMSD names the mapset, each DFHMDI a map; MAPSET defaults to the MAP name when omitted). A name
+        that is a mapset of the estate but no map of it asks CICS for a map the mapset does not hold: ABM0, "The map
+        specified for a basic mapping support (BMS) request could not be located", the transaction abnormally
+        terminated. No condition is raised (neither command lists one), so RESP / HANDLE CONDITION do not see it; a
+        HANDLE ABEND exit does -- the lines are EXEC CICS ABEND's, with the abend CICS raises. None: not that case."""
+        if ms not in self.gp.mapsets or m in self.gp.mapsets[ms]:
+            return None
+        lbl = self.g.tmpname("exit")
+        return [f"{ind}String {lbl} = task.abendMapNotFound({G_jstr(m)}, {G_jstr(ms)});",
+                f"{ind}if ({lbl} == null) throw abended();",
+                f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
+
+    def no_screen(self, m: str) -> CicsError:
+        """Why map `m` has no generated screen, by name (a map of no BMS source we hold)."""
         return CicsError(f"no generated screen for map {m}")
 
     def send_map(self, opts: dict, ind: str) -> list[str]:
         m, ms, guard = self.map_names(opts, opts.get("FROM"), "O", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise self.no_screen(m, ms, opts)
+            missing = self.map_not_found(m, ms, ind)
+            if missing is not None:
+                return [*guard, *missing]
+            raise self.no_screen(m)
         self.used_screens.add(cls)
         frm = self.ref(opts["FROM"]).name if opts.get("FROM") else m + "O"
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
@@ -1435,7 +1475,10 @@ class Cics:
         m, ms, guard = self.map_names(opts, opts.get("INTO"), "I", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise self.no_screen(m, ms, opts)
+            missing = self.map_not_found(m, ms, ind)
+            if missing is not None:
+                return [*guard, *missing]
+            raise self.no_screen(m)
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")

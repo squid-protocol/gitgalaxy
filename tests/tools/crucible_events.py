@@ -53,6 +53,7 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "RUN": (("transid", "resp"), ("resp2",)),
     "READQ-TS": (("queue", "item", "resp", "data"), ("length",)),
     "WRITEQ-TS": (("queue", "data", "resp", "item"), ()),
+    "WRITE-OPERATOR": (("data", "resp"), ()),  # #4270 zECS (X32): additive (SPEC rule 5)
     "READ": (("file", "ridfld", "resp"), ()),
     "ABEND": (("abcode", "cause", "outcome"), ("condition", "exit")),
 }
@@ -193,6 +194,11 @@ def readq_ts(program: str, queue: str, item: Any, resp: str, data: Any, **kw: An
 def writeq_ts(program: str, queue: str, data: dict[str, Any], resp: str = "NORMAL", item: int = 1,
               **kw: Any) -> dict[str, Any]:  # fmt: skip
     return event("WRITEQ-TS", program, queue=queue, data=data, resp=resp, item=item, **kw)
+
+
+def write_operator(program: str, data: dict[str, Any], resp: str = "NORMAL", **kw: Any) -> dict[str, Any]:
+    """WRITE OPERATOR: the text sent to the console, as the program's area (#4270 zECS, register X32)."""
+    return event("WRITE-OPERATOR", program, data=data, resp=resp, **kw)
 
 
 def read(program: str, file: str, ridfld: Any, resp: str = "NORMAL", **kw: Any) -> dict[str, Any]:

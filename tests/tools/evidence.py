@@ -983,6 +983,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         p.add_argument("--crucible", type=Path, help="the cics-crucible checkout (at the pin)")
         p.add_argument("--offline", action="store_true")
         p.add_argument("--skip-db2", action="store_true", help="leave the Db2 cases (they need a Db2 container)")
+        p.add_argument("--only-db2", action="store_true", help="only the Db2 cases (#4733: Evidence Refresh's Db2 job)")
     sub.add_parser("mutation")
     r = sub.add_parser("render")
     r.add_argument("--check", action="store_true", help="exit 1 when a page is not current")
@@ -1008,11 +1009,15 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 1
         return 0
     if args.cmd in ("prove", "refresh"):
+        if args.only_db2 and args.skip_db2:
+            ap.error("--only-db2 and --skip-db2 leave out each other's cases")
         work = (args.work or Path(tempfile.mkdtemp(prefix="evidence_"))).resolve()
         failed = 0
         for t in _pick(args.keys, args.all):
             if args.skip_db2 and t.db2:
                 print(f"{t.key}: skipped (Db2)")
+                continue
+            if args.only_db2 and not t.db2:
                 continue
             if args.cmd == "refresh" and args.stale:
                 st = status(load(t), t)

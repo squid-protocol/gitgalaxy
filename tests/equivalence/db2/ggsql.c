@@ -589,14 +589,17 @@ static void outcome(const stmt *s, const sqlca_t *c, int fault) {
 }
 
 /* ---- the entry ---------------------------------------------------------------------------------------- */
-int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char *h1, unsigned char *h2,
-          unsigned char *h3, unsigned char *h4, unsigned char *h5, unsigned char *h6, unsigned char *h7,
-          unsigned char *h8, unsigned char *h9, unsigned char *h10, unsigned char *h11, unsigned char *h12,
-          unsigned char *h13, unsigned char *h14, unsigned char *h15, unsigned char *h16, unsigned char *h17,
-          unsigned char *h18, unsigned char *h19, unsigned char *h20, unsigned char *h21, unsigned char *h22,
-          unsigned char *h23) {
-    unsigned char *a[24] = {h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
-                            h19, h20, h21, h22, h23};
+/* #4270 (CardDemo COPAUS2C's 26-column INSERT): 32 host-variable arguments, as equivalence_sql.MAX_ARGS. */
+int GGSQL(unsigned char *id, unsigned char *ca,
+          unsigned char *h0, unsigned char *h1, unsigned char *h2, unsigned char *h3, unsigned char *h4,
+          unsigned char *h5, unsigned char *h6, unsigned char *h7, unsigned char *h8, unsigned char *h9,
+          unsigned char *h10, unsigned char *h11, unsigned char *h12, unsigned char *h13, unsigned char *h14,
+          unsigned char *h15, unsigned char *h16, unsigned char *h17, unsigned char *h18, unsigned char *h19,
+          unsigned char *h20, unsigned char *h21, unsigned char *h22, unsigned char *h23, unsigned char *h24,
+          unsigned char *h25, unsigned char *h26, unsigned char *h27, unsigned char *h28, unsigned char *h29,
+          unsigned char *h30, unsigned char *h31) {
+    unsigned char *a[32] = {h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18, h19,
+                            h20, h21, h22, h23, h24, h25, h26, h27, h28, h29, h30, h31};
     sqlca_t *c = (sqlca_t *)ca;
     int sid = 0;
     for (int i = 0; i < 4; i++) sid = sid * 10 + (id[i] - '0');  /* GG-SQL-ID PIC 9(4) */

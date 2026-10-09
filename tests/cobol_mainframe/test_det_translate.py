@@ -214,6 +214,16 @@ def test_cics_facades_run_the_program_in_the_region():
     java = "\n".join(P.facades("    public void handleLink(ChanIn request) {\n    }\n"))
     assert "throw new UnsupportedOperationException" in java and "region" not in java
 
+    # #4270: a COMMAREA program that also reads a channel (GenApp's LGASTAT1) has a handleChannel its controller
+    # calls: kept (the port compiles), stopping by name; the COMMAREA facade still runs the program
+    both = stub.replace("}\n", "    public void handleChannel(Lgastat1ChannelIn request) {\n    }\n}\n", 1)
+    java = "\n".join(P.facades(both))
+    assert (
+        "    public void handleChannel(Lgastat1ChannelIn request) {\n        throw new UnsupportedOperationException("
+        in java
+    )
+    assert 'region.run(task, "COMEN01C", this::runTask);' in java
+
 
 def test_an_item_nothing_uses_has_no_field():
     """A Field is a view of its storage's bytes: one nothing reads or writes is dead code, so it is not emitted. The

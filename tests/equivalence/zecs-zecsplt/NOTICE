@@ -1,0 +1,11 @@
+zECS (z/OS Enterprise Caching Service)
+https://github.com/walmartlabs/zECS
+Authors: Randy Frerking and Rich Jackson (Walmart Technology)
+
+Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
+licence file). The program under test, Source/ZECSPLT.cbl, is zECS's, used
+unmodified from the corpus.
+
+The URIMAP definitions the scenarios state follow zECS's own CSD template
+(Source/CSDZC##.rdo: URIMAPs ZC@id@, ZC@id@D, ZC@id@R) with its placeholders
+filled in for this case. The scenarios in case.json are written for this case.

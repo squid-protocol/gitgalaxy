@@ -1,0 +1,487 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGWEBST5",
+ "program_source": "base/src/lgwebst5.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "SSST",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "linked": false,
+ "screens": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgwebst5.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGWEBST5 ASSIGNs APPLID (into the symbol list, unused afterwards); GenApp names no region in the corpus"
+ },
+ "scenarios": [
+  {
+   "name": "statistics",
+   "commarea": null,
+   "counters": {
+    "GENA/GENACUSTNUM": 1000042,
+    "GENA/GENA01ICUS00": 10,
+    "GENA/GENA01ICUS99": 1,
+    "GENA/GENA01ACUS00": 20,
+    "GENA/GENA01ACUS99": 2,
+    "GENA/GENA01IMOT00": 30,
+    "GENA/GENA01IMOT99": 3,
+    "GENA/GENA01AMOT00": 40,
+    "GENA/GENA01AMOT99": 4,
+    "GENA/GENA01DMOT00": 50,
+    "GENA/GENA01DMOT99": 5,
+    "GENA/GENA01UMOT00": 60,
+    "GENA/GENA01UMOT99": 6,
+    "GENA/GENA01IEND00": 70,
+    "GENA/GENA01IEND99": 7,
+    "GENA/GENA01AEND00": 80,
+    "GENA/GENA01AEND99": 8,
+    "GENA/GENA01DEND00": 90,
+    "GENA/GENA01DEND99": 9,
+    "GENA/GENA01UEND00": 100,
+    "GENA/GENA01UEND99": 10,
+    "GENA/GENA01IHOU00": 110,
+    "GENA/GENA01IHOU99": 11,
+    "GENA/GENA01AHOU00": 120,
+    "GENA/GENA01AHOU99": 12,
+    "GENA/GENA01DHOU00": 130,
+    "GENA/GENA01DHOU99": 13,
+    "GENA/GENA01UHOU00": 140,
+    "GENA/GENA01UHOU99": 14,
+    "GENA/GENA01ICOM00": 150,
+    "GENA/GENA01ICOM99": 15,
+    "GENA/GENA01ACOM00": 160,
+    "GENA/GENA01ACOM99": 16,
+    "GENA/GENA01DCOM00": 170,
+    "GENA/GENA01DCOM99": 17,
+    "GENA/GENAOTHER": 3
+   },
+   "ts": {
+    "GENA000V": [
+     "102915"
+    ],
+    "GENAX05V": [
+     "000000005"
+    ],
+    "GENA100V": [
+     "000000005"
+    ],
+    "GENA200V": [
+     "000000005"
+    ],
+    "GENA300V": [
+     "000000005"
+    ],
+    "GENA400V": [
+     "000000005"
+    ],
+    "GENA500V": [
+     "000000005"
+    ],
+    "GENA600V": [
+     "000000005"
+    ],
+    "GENA700V": [
+     "000000005"
+    ],
+    "GENA800V": [
+     "000000005"
+    ],
+    "GENA900V": [
+     "000000005"
+    ],
+    "GENAA00V": [
+     "000000005"
+    ],
+    "GENAB00V": [
+     "000000005"
+    ],
+    "GENAC00V": [
+     "000000005"
+    ],
+    "GENAD00V": [
+     "000000005"
+    ],
+    "GENAE00V": [
+     "000000005"
+    ],
+    "GENAF00V": [
+     "000000005"
+    ],
+    "GENAG00V": [
+     "000000005"
+    ],
+    "GENAH00V": [
+     "000000005"
+    ],
+    "GENAX00V": [
+     "000000005"
+    ],
+    "GENAX01V": [
+     "000000005"
+    ],
+    "GENAX02V": [
+     "000000005"
+    ],
+    "GENAX03V": [
+     "000000005"
+    ],
+    "GENAX04V": [
+     "000000005"
+    ]
+   },
+   "why": "every named counter of pool GENA and every GENAxxxV queue there: Tran-Rate-Interval reads GENA000V's '102915', rewrites it with the clock's time (DELETEQ, WRITEQ '103015'), WRITEQs the interval in seconds (60) to it and STARTs SSST AFTER MINUTES(1); each QUERY COUNTER is summed into success / error / inquire / add / update / delete totals, and Tran-Rate-Counts rewrites each rate queue with the new count, the old one and their difference; ASSIGN APPLID, RETURN"
+  },
+  {
+   "name": "first-interval",
+   "commarea": null,
+   "counters": {
+    "GENA/GENACUSTNUM": 1000042,
+    "GENA/GENA01ICUS00": 10,
+    "GENA/GENA01ICUS99": 1,
+    "GENA/GENA01ACUS00": 20,
+    "GENA/GENA01ACUS99": 2,
+    "GENA/GENA01IMOT00": 30,
+    "GENA/GENA01IMOT99": 3,
+    "GENA/GENA01AMOT00": 40,
+    "GENA/GENA01AMOT99": 4,
+    "GENA/GENA01DMOT00": 50,
+    "GENA/GENA01DMOT99": 5,
+    "GENA/GENA01UMOT00": 60,
+    "GENA/GENA01UMOT99": 6,
+    "GENA/GENA01IEND00": 70,
+    "GENA/GENA01IEND99": 7,
+    "GENA/GENA01AEND00": 80,
+    "GENA/GENA01AEND99": 8,
+    "GENA/GENA01DEND00": 90,
+    "GENA/GENA01DEND99": 9,
+    "GENA/GENA01UEND00": 100,
+    "GENA/GENA01UEND99": 10,
+    "GENA/GENA01IHOU00": 110,
+    "GENA/GENA01IHOU99": 11,
+    "GENA/GENA01AHOU00": 120,
+    "GENA/GENA01AHOU99": 12,
+    "GENA/GENA01DHOU00": 130,
+    "GENA/GENA01DHOU99": 13,
+    "GENA/GENA01UHOU00": 140,
+    "GENA/GENA01UHOU99": 14,
+    "GENA/GENA01ICOM00": 150,
+    "GENA/GENA01ICOM99": 15,
+    "GENA/GENA01ACOM00": 160,
+    "GENA/GENA01ACOM99": 16,
+    "GENA/GENA01DCOM00": 170,
+    "GENA/GENA01DCOM99": 17,
+    "GENA/GENAOTHER": 3
+   },
+   "ts": {
+    "GENAX05V": [
+     "000000005"
+    ],
+    "GENA100V": [
+     "000000005"
+    ],
+    "GENA200V": [
+     "000000005"
+    ],
+    "GENA300V": [
+     "000000005"
+    ],
+    "GENA400V": [
+     "000000005"
+    ],
+    "GENA500V": [
+     "000000005"
+    ],
+    "GENA600V": [
+     "000000005"
+    ],
+    "GENA700V": [
+     "000000005"
+    ],
+    "GENA800V": [
+     "000000005"
+    ],
+    "GENA900V": [
+     "000000005"
+    ],
+    "GENAA00V": [
+     "000000005"
+    ],
+    "GENAB00V": [
+     "000000005"
+    ],
+    "GENAC00V": [
+     "000000005"
+    ],
+    "GENAD00V": [
+     "000000005"
+    ],
+    "GENAE00V": [
+     "000000005"
+    ],
+    "GENAF00V": [
+     "000000005"
+    ],
+    "GENAG00V": [
+     "000000005"
+    ],
+    "GENAH00V": [
+     "000000005"
+    ],
+    "GENAX00V": [
+     "000000005"
+    ],
+    "GENAX01V": [
+     "000000005"
+    ],
+    "GENAX02V": [
+     "000000005"
+    ],
+    "GENAX03V": [
+     "000000005"
+    ],
+    "GENAX04V": [
+     "000000005"
+    ]
+   },
+   "why": "no GENA000V (READQ QIDERR, caught by RESP): the old time is '120000', the interval |10:30:15 - 12:00:00| = 5385 seconds (an unsigned PIC 9(6) result keeps the magnitude)"
+  },
+  {
+   "name": "rates-fall",
+   "commarea": null,
+   "counters": {
+    "GENA/GENACUSTNUM": 1000042,
+    "GENA/GENA01ICUS00": 10,
+    "GENA/GENA01ICUS99": 1,
+    "GENA/GENA01ACUS00": 20,
+    "GENA/GENA01ACUS99": 2,
+    "GENA/GENA01IMOT00": 30,
+    "GENA/GENA01IMOT99": 3,
+    "GENA/GENA01AMOT00": 40,
+    "GENA/GENA01AMOT99": 4,
+    "GENA/GENA01DMOT00": 50,
+    "GENA/GENA01DMOT99": 5,
+    "GENA/GENA01UMOT00": 60,
+    "GENA/GENA01UMOT99": 6,
+    "GENA/GENA01IEND00": 70,
+    "GENA/GENA01IEND99": 7,
+    "GENA/GENA01AEND00": 80,
+    "GENA/GENA01AEND99": 8,
+    "GENA/GENA01DEND00": 90,
+    "GENA/GENA01DEND99": 9,
+    "GENA/GENA01UEND00": 100,
+    "GENA/GENA01UEND99": 10,
+    "GENA/GENA01IHOU00": 110,
+    "GENA/GENA01IHOU99": 11,
+    "GENA/GENA01AHOU00": 120,
+    "GENA/GENA01AHOU99": 12,
+    "GENA/GENA01DHOU00": 130,
+    "GENA/GENA01DHOU99": 13,
+    "GENA/GENA01UHOU00": 140,
+    "GENA/GENA01UHOU99": 14,
+    "GENA/GENA01ICOM00": 150,
+    "GENA/GENA01ICOM99": 15,
+    "GENA/GENA01ACOM00": 160,
+    "GENA/GENA01ACOM99": 16,
+    "GENA/GENA01DCOM00": 170,
+    "GENA/GENA01DCOM99": 17,
+    "GENA/GENAOTHER": 3
+   },
+   "ts": {
+    "GENA000V": [
+     "102915"
+    ],
+    "GENAX05V": [
+     "000999999"
+    ],
+    "GENA100V": [
+     "000999999"
+    ],
+    "GENA200V": [
+     "000999999"
+    ],
+    "GENA300V": [
+     "000999999"
+    ],
+    "GENA400V": [
+     "000999999"
+    ],
+    "GENA500V": [
+     "000999999"
+    ],
+    "GENA600V": [
+     "000999999"
+    ],
+    "GENA700V": [
+     "000999999"
+    ],
+    "GENA800V": [
+     "000999999"
+    ],
+    "GENA900V": [
+     "000999999"
+    ],
+    "GENAA00V": [
+     "000999999"
+    ],
+    "GENAB00V": [
+     "000999999"
+    ],
+    "GENAC00V": [
+     "000999999"
+    ],
+    "GENAD00V": [
+     "000999999"
+    ],
+    "GENAE00V": [
+     "000999999"
+    ],
+    "GENAF00V": [
+     "000999999"
+    ],
+    "GENAG00V": [
+     "000999999"
+    ],
+    "GENAH00V": [
+     "000999999"
+    ],
+    "GENAX00V": [
+     "000999999"
+    ],
+    "GENAX01V": [
+     "000999999"
+    ],
+    "GENAX02V": [
+     "000999999"
+    ],
+    "GENAX03V": [
+     "000999999"
+    ],
+    "GENAX04V": [
+     "000999999"
+    ]
+   },
+   "why": "every old count (999999) is above the new: DRateVal, PIC 9(9) unsigned, keeps the magnitude of the negative difference"
+  },
+  {
+   "name": "queue-and-counter-missing",
+   "commarea": null,
+   "counters": {
+    "GENA/GENACUSTNUM": 1000042,
+    "GENA/GENA01ICUS00": 10,
+    "GENA/GENA01ICUS99": 1,
+    "GENA/GENA01ACUS00": 20,
+    "GENA/GENA01IMOT00": 30,
+    "GENA/GENA01IMOT99": 3,
+    "GENA/GENA01AMOT00": 40,
+    "GENA/GENA01AMOT99": 4,
+    "GENA/GENA01DMOT00": 50,
+    "GENA/GENA01DMOT99": 5,
+    "GENA/GENA01UMOT00": 60,
+    "GENA/GENA01UMOT99": 6,
+    "GENA/GENA01IEND00": 70,
+    "GENA/GENA01IEND99": 7,
+    "GENA/GENA01AEND00": 80,
+    "GENA/GENA01AEND99": 8,
+    "GENA/GENA01DEND00": 90,
+    "GENA/GENA01DEND99": 9,
+    "GENA/GENA01UEND00": 100,
+    "GENA/GENA01UEND99": 10,
+    "GENA/GENA01IHOU00": 110,
+    "GENA/GENA01IHOU99": 11,
+    "GENA/GENA01AHOU00": 120,
+    "GENA/GENA01AHOU99": 12,
+    "GENA/GENA01DHOU00": 130,
+    "GENA/GENA01DHOU99": 13,
+    "GENA/GENA01UHOU00": 140,
+    "GENA/GENA01UHOU99": 14,
+    "GENA/GENA01ICOM00": 150,
+    "GENA/GENA01ICOM99": 15,
+    "GENA/GENA01ACOM00": 160,
+    "GENA/GENA01ACOM99": 16,
+    "GENA/GENA01DCOM99": 17,
+    "GENA/GENAOTHER": 3
+   },
+   "ts": {
+    "GENA000V": [
+     "102915"
+    ],
+    "GENAX05V": [
+     "000000005"
+    ],
+    "GENA200V": [
+     "000000005"
+    ],
+    "GENA300V": [
+     "000000005"
+    ],
+    "GENA400V": [
+     "000000005"
+    ],
+    "GENA500V": [
+     "000000005"
+    ],
+    "GENA600V": [
+     "000000005"
+    ],
+    "GENA700V": [
+     "000000005"
+    ],
+    "GENA800V": [
+     "000000005"
+    ],
+    "GENA900V": [
+     "000000005"
+    ],
+    "GENAA00V": [
+     "000000005"
+    ],
+    "GENAB00V": [
+     "000000005"
+    ],
+    "GENAC00V": [
+     "000000005"
+    ],
+    "GENAD00V": [
+     "000000005"
+    ],
+    "GENAE00V": [
+     "000000005"
+    ],
+    "GENAF00V": [
+     "000000005"
+    ],
+    "GENAG00V": [
+     "000000005"
+    ],
+    "GENAX00V": [
+     "000000005"
+    ],
+    "GENAX01V": [
+     "000000005"
+    ],
+    "GENAX02V": [
+     "000000005"
+    ],
+    "GENAX03V": [
+     "000000005"
+    ],
+    "GENAX04V": [
+     "000000005"
+    ]
+   },
+   "why": "GENA01ACUS99 and GENA01DCOM00 not defined (QUERY COUNTER fails, caught by RESP: CountVal keeps the previous counter's value, which is then summed again); GENA100V and GENAH00V not there (READQ QIDERR: WS-TSQdata keeps the previous queue's last item, the old count taken from it)"
+  }
+ ],
+ "notes": "GenApp's statistics collector (LGWEBST5, transaction SSST in base/cntl/cdef125.jcl; it re-STARTs itself every minute). It FORMATTIMEs the task's ASKTIME (MMDDYYYY, TIME), keeps the interval since its last run in TS queue GENA000V (READQ ITEM(1), DELETEQ, WRITEQ HHMMSS, WRITEQ the seconds between, START TRANSID('SSST') AFTER MINUTES(1)), QUERYs the 36 named counters of pool GENA that GenApp's LGASTAT1 / LGSETUP keep (GENACUSTNUM, GENA01<request>00 / 99, GENAOTHER), sums them into success / error totals and per-kind totals, and for each rate queue GENA<x>V READQs the old count, DELETEQs it and WRITEQs the new count, the old one and their difference; then ASSIGN APPLID and RETURN. The symbol list it builds (SymbList, for a document template) is never sent. Every scenario states the counters and queues as LGSETUP / LGASTAT1 and an earlier run leave them; the clock is the case's (10:30:15). WS-ABSTIME is PIC S9(8) COMP, narrower than ABSTIME's S9(15) COMP-3: both sides store into the declared 4 bytes (oracle_assumptions.md X11, DIFFERS: z/OS writes past it), so the date is 1900's -- only its TIME is used. Not exercised: GENACUSTNUM or the first rate queue (GENAX05V) missing -- CountVal / WS-TSQdata have no VALUE clause, so the result would be their initial storage (oracle_assumptions.md L3). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

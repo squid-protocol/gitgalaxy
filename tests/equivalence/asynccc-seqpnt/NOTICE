@@ -1,0 +1,9 @@
+CICS asynchronous API credit-card application example
+https://github.com/cicsdev/cics-async-api-credit-card-application-example
+Copyright IBM Corp. 2016
+
+Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
+licence file). The program under test, src/SEQPNT.cbl, is the corpus's, used
+unmodified from the corpus, and so are the programs it LINKs to (src/CRDTCHK.cbl, src/GETNAME.cbl, src/GETADDR.cbl, src/CSSTATUS.cbl, src/GETPOL.cbl, src/GETSPND.cbl, src/UPDCSDB.cbl).
+case.json (the scenarios, their input channel data and notes) was written for
+this equivalence case; it contains no code or data from the corpus.

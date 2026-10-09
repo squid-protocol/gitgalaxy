@@ -72,7 +72,7 @@ Results:
 | **runtime** | a `cobolrt` call is wrong for a value | DIVIDE's intermediate; TRIM of all spaces |
 | **harness** | the input or the comparison differs between the sides, not the logic | LOW-VALUES dropped on the way to the DTO; PROGRAM-ID read from the sequence columns |
 | **case** | a scenario is not what its name says | — |
-| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry in `oracle_assumptions.md` |
+| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry file in `docs/language_status/register/`, then `register.py render` |
 
 A translator fix is never a hand edit of a port.
 
@@ -97,7 +97,7 @@ A translator fix is never a hand edit of a port.
 **A harness or oracle change** (`tests/tools/equivalence*.py`, `tests/equivalence/{cics,db2,faults,le}/**`):
 - [ ] Every proof leans on the harness. Re-prove the det ports (`run --all-cases`) and the model ports the change
       can reach (`equivalence.py run CASE --faults all` for each case with a committed `port/`).
-- [ ] A new model, refusal or known difference gets its entry in `oracle_assumptions.md` in the same PR.
+- [ ] A new model, refusal or known difference gets its entry file in `docs/language_status/register/` (`register.py next X` / `render`) in the same PR.
 - [ ] A changed COBOL-side behaviour must also hold for the Java side's generated test (`equivalence_java.py`,
       `equivalence_cics.py` templates).
 
@@ -134,7 +134,7 @@ A translator fix is never a hand edit of a port.
 - **Most failures were the oracle's, not the translator's.** The oracle and the port agreed and both differed from
   IBM (TRUNC(BIN) for STD; the CLI's timestamp text; no backout on the Java side; every file treated as recoverable),
   or an output was never compared (a LINKed program's COMMAREA). Each new estate found such gaps: when a case
-  "proves" too easily, ask what is not being compared. Every finding goes in `oracle_assumptions.md`.
+  "proves" too easily, ask what is not being compared. Every finding goes in the register (`docs/language_status/register/`, rendered to `oracle_assumptions.md`).
 - **Real programs carry real defects; the port keeps them.** A FETCH into more host variables than columns, a WRITEQ
   past its FROM area, a reference modification 28K past its item, a misplaced END-IF. Where the outcome depends on
   storage layout, refuse by name (exit 98 / a Hole) rather than prove a guess.

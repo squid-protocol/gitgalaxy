@@ -43,11 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504",
-   "components": {
-    "harness:cics": "e441dd30e5c47d2d30431c71f9066f950dc4136cfcabd80766c7e29047e3edc6",
-    "harness:core": "173803afd91838dee6482b69047e2372c79ff76b08f23c2092f52cf567a48ba3"
-   }
+   "sha256": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4"
   },
   "oracle": {
    "paths": [
@@ -71,23 +67,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 66,
-   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489",
-   "components": {
-    "generator:core": "2723b6d5c35dd45b44e4ae6f71b50a3f5504adadc6b6913c914496d0e8e6000e",
-    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "0a51b9e9852f1e2765e8c81bd36adad9bcc46077a3b13b10ad28bd4de2473f8e",
-    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
-    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
-    "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
-    "generator:det/gen": "28f0eebdddd86c372b6414c26b13b6abee69e84e7d119ccf361728f7aab3f112",
-    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
-    "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
-    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2",
-    "generator:det/stmt": "50a37949ce1b8d53d062bd35243ed7ba6cd87a8be21c832db2a541c8de11e0be"
-   }
+   "files": 67,
+   "sha256": "29d230032f9afe7c03b300d248173e7624e4e0392c6fc520a90690f7b353ff86"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -169,10 +150,10 @@
     }
    }
   },
-  "digest": "965c50c9ad7f953ed8f5dd5d6dc345d2d876cd5567a9d21d490846f8621678ae"
+  "digest": "42e51a20ed53f341d384bf45bf1c0d22b7ee2401aaf9e031d9406a52fc27434e"
  },
  "proof": {
-  "at": "2026-10-09T12:03:05Z",
+  "at": "2026-10-09T16:32:24Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 1,
@@ -245,8 +226,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "8ccdaad9a51d5f88ccfc4d6e564eeb77f22748bf+uncommitted",
-  "inputs_digest": "965c50c9ad7f953ed8f5dd5d6dc345d2d876cd5567a9d21d490846f8621678ae"
+  "harness_commit": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64+uncommitted",
+  "inputs_digest": "42e51a20ed53f341d384bf45bf1c0d22b7ee2401aaf9e031d9406a52fc27434e"
  },
  "coverage": {
   "paragraphs": {
@@ -270,7 +251,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "965c50c9ad7f953ed8f5dd5d6dc345d2d876cd5567a9d21d490846f8621678ae"
+  "inputs_digest": "42e51a20ed53f341d384bf45bf1c0d22b7ee2401aaf9e031d9406a52fc27434e"
  },
  "reach": {
   "entry_points": [

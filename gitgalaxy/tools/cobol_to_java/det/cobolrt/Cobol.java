@@ -913,6 +913,17 @@ public final class Cobol {
         return num(t, cs).longValue();
     }
 
+    /** A typed binary item's value written back into its bytes in a group (det-port B3's pack, #4749): the long's
+     *  low 2 / 4 / 8 bytes as they are -- no TRUNC applies, since no new value is stored: the long holds what those
+     *  bytes held or what a store under the run's TRUNC left (big-endian; a COMP-5 item in its native order). */
+    public static void putBinary(Field f, long v) {
+        byte[] d = f.st.bytes;
+        for (int i = 0; i < f.len; i++) {
+            byte x = (byte) (v >>> (8 * (f.len - 1 - i)));
+            d[f.nativeBin ? f.off + f.len - 1 - i : f.off + i] = x;
+        }
+    }
+
     /** As {@link #binary}, for the statements {@link #storeNative} marks (#4684, C4): IBM's absolute value; `comp5`
      *  for a COMP-5 item, which no TRUNC truncates. */
     public static long binaryNative(BigDecimal value, int digits, boolean signed, boolean comp5, Charset cs) {

@@ -109,6 +109,7 @@ from equivalence_common import (
     _fixed,
     _input_path,
     compare_sysout,
+    comp5_layout_guard,
     compile_options,
     data_encoding,
     decode_field,
@@ -246,6 +247,7 @@ def run_cobol(
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     stage_copybooks(case, corpus, src)
+    comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     script = ["set -e", "cd /work"]
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, "-I /work/src"])
     import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts

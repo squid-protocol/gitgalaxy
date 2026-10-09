@@ -117,6 +117,23 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-09T05:09:59+00:00",
+    "crucible_ref": "v0.6.0 (b794aa8b)",
+    "summary": {
+     "five-items": "1/1",
+     "length-trap": "1/1",
+     "no-queue": "1/1",
+     "three-items": "1/1"
+    },
+    "port_sha256": "6cab1e1ca4ea16e5b8a5a1045979cfa736e981158e1eade90815e7dfc63b0337",
+    "harness_commit": "76c7099d93db0d48757a6ad31c4b68f37e5be370",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCQREAD --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

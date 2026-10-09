@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.5.0 (9ee42d11)",
+ "crucible_ref": "v0.6.0 (b794aa8b)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -258,6 +258,33 @@
       "44:false",
       "44:true"
      ]
+    }
+   }
+  },
+  "gt-send-text-terminal/GTSTXS": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "terminal-and-started": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "24:false",
+      "24:true"
+     ]
+    }
+   }
+  },
+  "gt-send-text-terminal/GTSTXT": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "terminal-and-started": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },
@@ -655,6 +682,42 @@
     }
    }
   },
+  "hc-deedit-uctranst/HCDEED": {
+   "live": 7,
+   "outcomes": 4,
+   "scenarios": {
+    "deedit": {
+     "units": [
+      "DEEDIT-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "52:WHEN@53"
+     ]
+    },
+    "uctranst": {
+     "units": [
+      "LOG-U-FAIL",
+      "LOG-U-OK",
+      "MAIN-PARA",
+      "UCTRANST-PARA"
+     ],
+     "outcomes": [
+      "52:WHEN@55"
+     ]
+    },
+    "lengerr-abend": {
+     "units": [
+      "LENGERR-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "52:WHEN@57"
+     ]
+    }
+   }
+  },
   "hc-eoc-error/HCEOE": {
    "live": 4,
    "outcomes": 2,
@@ -922,6 +985,46 @@
       "SEND-TRAIL"
      ],
      "outcomes": []
+    }
+   }
+  },
+  "hc-resp-options/HCOPT": {
+   "live": 7,
+   "outcomes": 6,
+   "scenarios": {
+    "formattime": {
+     "units": [
+      "FORMAT-PARA",
+      "LOG-F",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "52:false",
+      "58:WHEN@59"
+     ]
+    },
+    "readq-length": {
+     "units": [
+      "LOG-Q",
+      "MAIN-PARA",
+      "READQ-PARA"
+     ],
+     "outcomes": [
+      "52:false",
+      "58:WHEN@61"
+     ]
+    },
+    "asis": {
+     "units": [
+      "ASIS-PARA",
+      "MAIN-PARA",
+      "SHOW-PARA"
+     ],
+     "outcomes": [
+      "52:false",
+      "52:true",
+      "58:WHEN@63"
+     ]
     }
    }
   },
@@ -1225,6 +1328,102 @@
       "42:false",
       "46:OTHER"
      ]
+    }
+   }
+  },
+  "pc-return-immediate/PCIMMA": {
+   "live": 6,
+   "outcomes": 5,
+   "scenarios": {
+    "immediate": {
+     "units": [
+      "IMMEDIATE-PARA",
+      "LOG-A",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "34:WHEN@35"
+     ]
+    },
+    "synconreturn": {
+     "units": [
+      "LINK-PARA",
+      "LOG-A",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "34:WHEN@37"
+     ]
+    },
+    "link-level2": {
+     "units": [
+      "LOG-A",
+      "MAIN-PARA",
+      "NOCA-PARA"
+     ],
+     "outcomes": [
+      "34:WHEN@39"
+     ]
+    },
+    "no-terminal": {
+     "units": [
+      "LOG-A",
+      "MAIN-PARA",
+      "START-PARA"
+     ],
+     "outcomes": [
+      "34:WHEN@41"
+     ]
+    }
+   }
+  },
+  "pc-return-immediate/PCIMMB": {
+   "live": 2,
+   "outcomes": 2,
+   "scenarios": {
+    "immediate": {
+     "units": [
+      "LOG-B",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false",
+      "27:true"
+     ]
+    }
+   }
+  },
+  "pc-return-immediate/PCIMML": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "synconreturn": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:false"
+     ]
+    },
+    "link-level2": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "27:true"
+     ]
+    }
+   }
+  },
+  "pc-return-immediate/PCIMMS": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "no-terminal": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

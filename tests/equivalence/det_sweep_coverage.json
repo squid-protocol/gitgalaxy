@@ -151,9 +151,10 @@
    "inputs": {
     "case": "74c40a4c7c1afe285663eaf7c8888e2e8c4b1a8ba3c026dd65ab460947b44121",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "a585b5a15ba0e74d5d4dcebf7f00406b6569a1545712cb8061996fdb493513b8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "1cfba60a48f0d87665aa0fcc4a28f858d2485b8a37ad932343b8a58b92d2e94f",
+    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   },
+   "measured_at": "ea34f7758a4930b72224df894cc327c51064c57a"
   },
   "carddemo-acctview": {
    "scenarios": 20,
@@ -287,9 +288,10 @@
    "inputs": {
     "case": "c9136c4e3c7315197bc090d622aeac23563ff7303bb6e7789052a3a25b51049c",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "1cfba60a48f0d87665aa0fcc4a28f858d2485b8a37ad932343b8a58b92d2e94f",
+    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   },
+   "measured_at": "ea34f7758a4930b72224df894cc327c51064c57a"
   },
   "carddemo-menu": {
    "scenarios": 16,
@@ -321,9 +323,10 @@
    "inputs": {
     "case": "8a510ec12c46620c50eee6e60d38aa06906b342d505bb3e642bb192431f1807f",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "a585b5a15ba0e74d5d4dcebf7f00406b6569a1545712cb8061996fdb493513b8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "1cfba60a48f0d87665aa0fcc4a28f858d2485b8a37ad932343b8a58b92d2e94f",
+    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   },
+   "measured_at": "ea34f7758a4930b72224df894cc327c51064c57a"
   },
   "carddemo-signon": {
    "scenarios": 12,
@@ -353,11 +356,12 @@
     "total": 75
    },
    "inputs": {
-    "case": "9df37db4a0702e02d26ba7d7a796a58e66337983e82ae4b3d85ff26d603a2c97",
+    "case": "991db9ed0339f790654097f3283a9badf4d99f83ce927061bd4f3ea78b64f5b9",
     "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-    "harness": "a585b5a15ba0e74d5d4dcebf7f00406b6569a1545712cb8061996fdb493513b8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "1cfba60a48f0d87665aa0fcc4a28f858d2485b8a37ad932343b8a58b92d2e94f",
+    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+   },
+   "measured_at": "ea34f7758a4930b72224df894cc327c51064c57a"
   },
   "carddemo-tranlist": {
    "scenarios": 32,

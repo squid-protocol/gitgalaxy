@@ -454,7 +454,10 @@ jobs:
         if: always()
         run: |
           cd gitgalaxy
-          # the records' status is recomputed now; the measured translation stays (it needs corpora this job lacks)
+          # the records' status is recomputed now; the measured translation stays (it needs corpora this job lacks).
+          # #4758: a Db2 case's det verdict comes from the coverage ledger rewritten above (an entry = the last sweep of
+          # that case proved it): this run's Db2 sweep on a full run, the last nightly's on a push run (stale, not L1,
+          # once its inputs move: #4730), so no sweep is passed here.
           python tests/tools/evidence_report.py --refresh --live
 
       - name: Summary

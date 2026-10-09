@@ -17,8 +17,11 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
   L0 inventoried               the program is in the estate's survey
   L1 translated whole          the det translator leaves no hole and does not refuse it (cics_census.py survey)
   L2 executed equivalent       a case runs it and the case's det port is equal on every scenario: main's CI det-sweep
-                               ratchet (det_sweep_baseline.json) for a non-Db2 case, a local proof_sweep.py --sweep
-                               for a Db2 case. The case's #4048 evidence record is a reported column, not a gate
+                               ratchet (det_sweep_baseline.json) for a non-Db2 case; for a Db2 case a local
+                               proof_sweep.py --sweep, else the Db2 sweep that last wrote its det-sweep coverage ledger
+                               entry (#4758: the scheduled evidence refresh's Db2 job; the ledger holds proven cases
+                               only), stale like its coverage (#4730). The case's #4048 evidence record is a reported
+                               column, not a gate
   L3 + paragraph coverage      the det proof's scenarios execute >= the paragraph bar (default 100) of the live
                                paragraphs: the --sweep coverage line, else the det-sweep coverage ledger
                                (tests/equivalence/det_sweep_coverage.json, #4606) while its entry is fresh
@@ -267,11 +270,42 @@ def record_status() -> dict[str, dict[str, Any]]:
 
 
 # ---- building: everything else, from the repo --------------------------------------------------------------------
-def det_state(run: pb.Run, swept: dict[str, Any]) -> dict[str, Any]:
+NOT_IN_CI = "not proven in CI"  # proof_blockers.judge_equivalence's gap for a Db2 case with no sweep row
+LEDGER_VERDICT = (
+    "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)"
+)
+
+
+def ledger_verdicts(eq: dict[Any, list[pb.Run]], ledger: dict[str, Any]) -> set[str]:
+    """#4758: the Db2 cases whose det verdict is the ledger's. CI's per-PR det-sweep skips Db2 cases; the scheduled
+    evidence refresh sweeps them in its `db2` job and `det_coverage_ledger.py update` writes an entry ONLY for a case
+    that sweep proved equal on every scenario. So a Db2 case with no sweep row and no det_sweep_baseline.json entry
+    whose ledger entry is readable (det_coverage(): current, or stale on a scheduled input only) takes "equal" from it,
+    and its level is marked stale with that entry's coverage (#4730) -- a push refresh, which skips Db2, keeps it
+    instead of reverting it to "not run". A blocking change (case, corpus) makes the entry unknown: "not run" again.
+    Drops the "not proven in CI" gap of those runs."""
+    out = set()
+    for runs in eq.values():
+        for run in runs:
+            if ledger.get(run.case) is None:
+                continue
+            gone = {g for g in run.gaps if g.startswith(NOT_IN_CI)}
+            if gone:
+                run.gaps -= gone
+                out.add(run.case)
+    return out
+
+
+def det_state(run: pb.Run, swept: dict[str, Any], ledgered: frozenset[str] | set[str] = frozenset()) -> dict[str, Any]:
     """The det port's verdict on one case, in this report's words."""
     gaps = sorted(g for g in run.gaps if not g.startswith("coverage:"))
     if not gaps:
-        src = "local sweep (proof_sweep.py --det-only)" if run.case in swept else "CI det-sweep ratchet on main"
+        if run.case in swept:
+            src = "local sweep (proof_sweep.py --det-only)"
+        elif run.case in ledgered:
+            src = LEDGER_VERDICT
+        else:
+            src = "CI det-sweep ratchet on main"
         return {"state": "equal", "source": src}
     out: dict[str, Any] = {"state": "not equal", "why": []}
     for g in gaps:
@@ -285,7 +319,10 @@ def det_state(run: pb.Run, swept: dict[str, Any]) -> dict[str, Any]:
             out["why"].append(f"a scenario differs (first diff: {kind})")
         elif g.startswith("not proven in CI"):
             out["state"] = "not run"
-            out["why"].append("a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given")
+            out["why"].append(
+                "a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage "
+                "ledger holds no current entry for it"
+            )
         else:
             out["why"].append(neutral(g))
     return out
@@ -355,7 +392,8 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         "stale_inputs": [],
         "stale_since": None,
     }
-    if case is None:
+    # #4270: a case's coverage is its main program's, never a LINKed one's
+    if case is None or case.get("role") == "linked":
         return out
     import infeasible_outcomes as io
 
@@ -433,6 +471,9 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
         return "L1", ["an equivalence case that runs it"]
     if case["det"]["state"] != "equal":
         return "L1", ["its det port equal on every scenario of " + case["case"] + ": " + "; ".join(case["det"]["why"])]
+    if cov["paragraph_pct"] is None and case.get("role") == "linked":
+        why = "coverage not measured for a LINKed program: the case's coverage is its main program's"
+        return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
     if cov["paragraph_pct"] is None:
         why = "coverage not measured: no fresh det-sweep ledger entry and no local sweep"
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
@@ -466,7 +507,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
             "case": run.case,
             "role": run.role,
             "db2": run.db2,
-            "det": det_state(run, ctx["swept"]),
+            "det": det_state(run, ctx["swept"], ctx["ledgered"]),
             "case_scenarios": case_scenarios(run.case),
             "record": record_summary(run.case, ctx["status"].get(run.case)),
         }
@@ -500,11 +541,18 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     p["coverage"] = cov
     p["level"], p["next"] = lvl, nxt
     # #4730: a level that rests on the ledger's last measurement (stale on a scheduled input) is shown, marked stale;
-    # L0 / L1 do not read coverage, so they are always current.
-    stale_cov = cov["source"] is not None and not cov["current"] and lvl not in ("L0", "L1")
-    p["level_current"] = not stale_cov
-    p["stale_inputs"] = list(cov["stale_inputs"]) if stale_cov else []
-    p["stale_since"] = cov["stale_since"] if stale_cov else None
+    # L0 / L1 do not read coverage, so they are always current. #4758: a Db2 case's det verdict read from the ledger
+    # is that same measurement, so an L2 resting on it (a LINKed program, no coverage of its own) is stale with it.
+    stale_in, stale_at = [], None
+    if lvl not in ("L0", "L1"):
+        led = ctx["ledger"].get(chosen["case"]) if chosen else None
+        if cov["source"] is not None and not cov["current"]:
+            stale_in, stale_at = list(cov["stale_inputs"]), cov["stale_since"]
+        elif chosen and chosen["det"].get("source") == LEDGER_VERDICT and isinstance(led, dict):
+            stale_in, stale_at = list(led["stale_inputs"]), led.get("stale_since")
+    p["level_current"] = not stale_in
+    p["stale_inputs"] = stale_in
+    p["stale_since"] = stale_at
     # #4628: the det port's mutation score is the L5 hook. docs/language_status/mutation_scores.json covers the
     # model / hand ports only, so it is deliberately left out here (it says nothing about the det port).
     p["mutation"] = {"det_port": MUTATION}
@@ -550,12 +598,14 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
     for runs in eq.values():
         for run in runs:
             pb.judge_equivalence(run, det_base, sweeps, True)
+    ledgered = ledger_verdicts(eq, ledger)
     data = css.load_data()
     ctx = {
         "eq": eq,
         "swept": swept,
         "status": status,
         "ledger": ledger,
+        "ledgered": ledgered,
         "bars": bars,
         "crucible": data.get("crucible", {}),
         "disagree": crucible_disagreements(),
@@ -655,7 +705,8 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
             "level": "L2",
             "name": "executed equivalent",
             "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on "
-            "main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+            "main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence "
+            "record is reported, not required",
         },
         {
             "level": "L3",

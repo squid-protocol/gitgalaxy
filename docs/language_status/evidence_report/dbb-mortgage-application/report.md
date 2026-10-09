@@ -45,7 +45,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | L4 | 0 | 0 |
 | L5 | 0 | 0 |
 
-- current levels: 6; stale (`*`, last measured): 0
+- stale (`*`, last measured): 0 of 6 programs; the rest are current
 - L2+: 2 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)

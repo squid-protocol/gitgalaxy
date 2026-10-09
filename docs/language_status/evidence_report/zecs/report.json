@@ -2744,25 +2744,56 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 6,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 6,
+     "total": 6
+    },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 11,
+     "live": 11
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "zecs-zecsplt",
+      "case_scenarios": 4,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecsplt",
+     "case_scenarios": 4,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
    },
    "level": "L0",
    "level_current": true,
@@ -3002,7 +3033,7 @@
      "X27",
      "X32"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 0,
     "commands": 6,
     "commands_backed": 2,
     "commands_not_backed": [
@@ -3013,7 +3044,7 @@
     ],
     "facts_unstated": 0,
     "holes": 4,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "stale_inputs": [],
@@ -3043,6 +3074,7 @@
    "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py zecs --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
@@ -3067,7 +3099,7 @@
  },
  "summary": {
   "cics_programs": 5,
-  "det_equal": 0,
+  "det_equal": 1,
   "histogram": {
    "L0": 5,
    "L1": 0,
@@ -3091,7 +3123,7 @@
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 0,
-  "with_case": 0,
+  "with_case": 1,
   "with_record": 0
  }
 }

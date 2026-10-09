@@ -42,7 +42,10 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "1c4cdf6457fd98cfe726a6c8c6cfdfdbb51323fb6ff1e2b71b367214c4dea3f4"
+   "sha256": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+   "components": {
+    "harness:core": "af315f3088e082a3e3b4aab8d88c95d825a05c8cb934a0e0c77f6a3500303b39"
+   }
   },
   "oracle": {
    "paths": [
@@ -55,7 +58,7 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec",
+   "sha256": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734",
    "components": {
     "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
@@ -67,7 +70,25 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 67,
-   "sha256": "29d230032f9afe7c03b300d248173e7624e4e0392c6fc520a90690f7b353ff86"
+   "sha256": "645d8151ea3dba13f78232d2c3bf8a3389695b3b86d54b554446dd3c68fb9ac0",
+   "components": {
+    "generator:cobolrt/Cobol.java": "f44d59efd09c70486a2b25eb015cbcdccf4e5d7204910eede1c17b61aec36f97",
+    "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
+    "generator:cobolrt/Editing.java": "d509f18b7698d1b4c8390a9c0b9db106f69749d2e4f3258fc9a482fbd8ae5038",
+    "generator:cobolrt/Field.java": "4e509ad37fb783dd6c4f2fbbe6e93b10fbaf5dc332ba9955f0cae3f7178732c0",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/Funcs.java": "48b7776252cc93254377294d1add8a850d8980315885ce9821664432005c2ce0",
+    "generator:cobolrt/Hfp.java": "091cc29ea443a4d441d63dd60f8629fa5658eb8375a42dcca472259fbe4b1bbd",
+    "generator:cobolrt/Lossless.java": "5360ac01925ca83215c15dad30e37bb6ed7e9b4e2ae873350681f3cb89d0d491",
+    "generator:cobolrt/Sort.java": "6edc1333563834af5976a6682d22b2332678c8f09cf89cfdfb47be5cf56da6f9",
+    "generator:cobolrt/Storage.java": "28338ff6c17d773d0ceed66255f4085c1a0ffd08bde07dae4ba94f4a8ae8b653",
+    "generator:cobolrt/Zoned.java": "26d267a5a582f0e8cb769b3b6f2aab5c171db2c74e086be510060502a50ce71c",
+    "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
+    "generator:cobolrt/standalone/Sysout.java": "43e1b84823d738d62e4b752137d4e45d9fc5df01fe1f842528c2bdc6fd22d9c2",
+    "generator:core": "352ecaeedafd9232085838fb703b1ece3c709ed50a075e766b36ff888ce0455d",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2"
+   }
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -151,10 +172,10 @@
     }
    }
   },
-  "digest": "0fc1754fdd0782a9eb89aa36c5b44ed4c61874fb15bb0978a06d1287e264897f"
+  "digest": "857f7bbf99dd2b20a6084663afc2e9eff7d046eac4fb786fe2aa30a6040dc460"
  },
  "proof": {
-  "at": "2026-10-09T16:33:56Z",
+  "at": "2026-10-09T20:12:49Z",
   "verdict": "proven",
   "runs": 7,
   "fault_runs": 6,
@@ -164,8 +185,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64+uncommitted",
-  "inputs_digest": "0fc1754fdd0782a9eb89aa36c5b44ed4c61874fb15bb0978a06d1287e264897f"
+  "harness_commit": "8130b9a928c8690aa77504c10bb83c62409a70f0+uncommitted",
+  "inputs_digest": "857f7bbf99dd2b20a6084663afc2e9eff7d046eac4fb786fe2aa30a6040dc460"
  },
  "coverage": {
   "paragraphs": {
@@ -189,7 +210,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "0fc1754fdd0782a9eb89aa36c5b44ed4c61874fb15bb0978a06d1287e264897f"
+  "inputs_digest": "857f7bbf99dd2b20a6084663afc2e9eff7d046eac4fb786fe2aa30a6040dc460"
  },
  "reach": {
   "entry_points": [
@@ -250,7 +271,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "42dac4f30a953b633e2c1b3bf5fb64ae57e8da9bb9d2474311d9b6a5c8ab49d9"
+    "sha256": "b7d6932d123d35ca30e0907693a15f430c9dc51f99620d9050d2dadcfeadfc9b"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",
@@ -302,7 +323,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "ab94a145393162be61aa38bc1085b4d738b41682f8000eff2fc07c39e4641499"
+    "sha256": "e4a297e6018d5d123e7970073d72212f0052a80a0c1026a42893503cf8beccb6"
    }
   ],
   "assumptions": null

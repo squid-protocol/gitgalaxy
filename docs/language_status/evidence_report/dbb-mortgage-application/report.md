@@ -18,7 +18,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
 | L1 | translated whole | the det translator leaves no hole and does not refuse it |
-| L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required |
+| L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
 | L5 | mutants accounted for | L4, and every surviving mutant of the det port accounted for: not yet measured (#4628) |
@@ -37,38 +37,60 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 3 | 0 |
-| L1 | 1 | 0 |
-| L2 | 2 | 0 |
+| L1 | 0 | 0 |
+| L2 | 3 | 0 |
 | L3 | 0 | 0 |
 | L4 | 0 | 0 |
 | L5 | 0 | 0 |
 
 - current levels: 6; stale (`*`, last measured): 0
-- L2+: 2 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
+- L2+: 3 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 3; refused whole: 0; holes left: 23
-- with an equivalence case: 4; det port equal on its case: 2; with an evidence record: 0; record current at build: 0
+- with an equivalence case: 4; det port equal on its case: 3; with an evidence record: 0; record current at build: 0
 
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2 | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not run | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L0 | 12/13 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L0 | 25/27 | 2 | mortgage-mpmt | not equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 
 ## Per program
 
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2
+
+- **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (now 50.0)
+- **Translation:** 61/61 statements, 0 holes; whole: yes
+- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
+  - evidence record: none (8 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** 3 live paragraphs unrun; 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
+
 ### zBuilder/MortgageApplication/cobol/epsmlist.cbl -- L2
 
 - **Executed equivalent** on the 9 scenarios of mortgage-mlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 83.3)
 - **Translation:** 51/51 statements, 0 holes; whole: yes
-- **Executed equivalence** (mortgage-cmort, linked, Db2): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
+- **Executed equivalence** (mortgage-cmort, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (mortgage-mlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (9 scenarios in case.json)
@@ -102,27 +124,6 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
-
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L1
-
-- **Next level needs:** its det port equal on every scenario of mortgage-cmort: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given
-- **Translation:** 61/61 statements, 0 holes; whole: yes
-- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
-  - evidence record: none (8 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 live paragraphs unrun; 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
 

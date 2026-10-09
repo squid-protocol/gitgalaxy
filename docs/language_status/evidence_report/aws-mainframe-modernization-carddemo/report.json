@@ -68,7 +68,7 @@
    "name": "translated whole"
   },
   {
-   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case only by a local sweep); the case's evidence record is reported, not required",
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required",
    "level": "L2",
    "name": "executed equivalent"
   },
@@ -1545,7 +1545,7 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 40,
        "records_equal": 40,
@@ -1593,7 +1593,7 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 40,
       "records_equal": 40,
@@ -1985,7 +1985,7 @@
        },
        "fault_runs": 10,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 85,
        "records_equal": 85,
@@ -2029,7 +2029,7 @@
       },
       "fault_runs": 10,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 85,
       "records_equal": 85,
@@ -2503,7 +2503,7 @@
        },
        "fault_runs": 3,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 60,
        "records_equal": 60,
@@ -2551,7 +2551,7 @@
       },
       "fault_runs": 3,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 60,
       "records_equal": 60,
@@ -3023,7 +3023,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 30,
        "records_equal": 30,
@@ -3064,7 +3064,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 30,
       "records_equal": 30,
@@ -3564,7 +3564,7 @@
        },
        "fault_runs": 4,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 91,
        "records_equal": 91,
@@ -3611,7 +3611,7 @@
       },
       "fault_runs": 4,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 91,
       "records_equal": 91,
@@ -3983,7 +3983,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 39,
        "records_equal": 39,
@@ -4026,7 +4026,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 39,
       "records_equal": 39,
@@ -4398,7 +4398,7 @@
        },
        "fault_runs": 8,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 132,
        "records_equal": 132,
@@ -4443,7 +4443,7 @@
       },
       "fault_runs": 8,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 132,
       "records_equal": 132,
@@ -4861,7 +4861,7 @@
        },
        "fault_runs": 4,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 92,
        "records_equal": 92,
@@ -4908,7 +4908,7 @@
       },
       "fault_runs": 4,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 92,
       "records_equal": 92,
@@ -5268,7 +5268,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 35,
        "records_equal": 35,
@@ -5311,7 +5311,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 35,
       "records_equal": 35,
@@ -5667,7 +5667,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 74,
        "records_equal": 74,
@@ -5711,7 +5711,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 74,
       "records_equal": 74,
@@ -6081,7 +6081,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -6125,7 +6125,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -6490,7 +6490,7 @@
        },
        "fault_runs": 5,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 124,
        "records_equal": 124,
@@ -6535,7 +6535,7 @@
       },
       "fault_runs": 5,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 124,
       "records_equal": 124,
@@ -7004,7 +7004,7 @@
        },
        "fault_runs": 2,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 38,
        "records_equal": 38,
@@ -7050,7 +7050,7 @@
       },
       "fault_runs": 2,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 38,
       "records_equal": 38,
@@ -7450,7 +7450,7 @@
        },
        "fault_runs": 1,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 142,
        "records_equal": 142,
@@ -7500,7 +7500,7 @@
       },
       "fault_runs": 1,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 142,
       "records_equal": 142,
@@ -7753,6 +7753,441 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 75.9,
+    "branch_pct": 75.9,
+    "branches": {
+     "covered": 126,
+     "total": 166
+    },
+    "branches_net": {
+     "covered": 126,
+     "total": 166
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 98.4,
+    "paragraphs": {
+     "covered": 62,
+     "live": 63
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cotrtupc",
+      "case_scenarios": 34,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cotrtupc",
+     "case_scenarios": 34,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (now 98.4)"
+   ],
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 40,
+    "commands": 8,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "SYNCPOINT"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 1,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 436,
+    "translated": 436,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
     "named_by_commands": [],
     "reach": "not measured",
     "source_read": true
@@ -7887,7 +8322,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -7927,7 +8362,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8028,7 +8463,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -8068,7 +8503,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8169,7 +8604,7 @@
        "facade": null,
        "fault_runs": 19,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 105,
        "records_equal": 105,
@@ -8222,7 +8657,7 @@
       "facade": null,
       "fault_runs": 19,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 105,
       "records_equal": 105,
@@ -8323,7 +8758,7 @@
        "facade": null,
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -8363,7 +8798,7 @@
       "facade": null,
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8464,7 +8899,7 @@
        "facade": null,
        "fault_runs": 20,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -8504,7 +8939,7 @@
       "facade": null,
       "fault_runs": 20,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -8605,7 +9040,7 @@
        "facade": null,
        "fault_runs": 28,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 455,
        "records_equal": 455,
@@ -8656,7 +9091,7 @@
       "facade": null,
       "fault_runs": 28,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 455,
       "records_equal": 455,
@@ -8757,7 +9192,7 @@
        "facade": null,
        "fault_runs": 24,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 447,
        "records_equal": 447,
@@ -8797,7 +9232,7 @@
       "facade": null,
       "fault_runs": 24,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 447,
       "records_equal": 447,
@@ -9426,7 +9861,7 @@
        },
        "fault_runs": 6,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 49,
        "records_equal": 49,
@@ -9490,7 +9925,7 @@
       },
       "fault_runs": 6,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 49,
       "records_equal": 49,
@@ -9921,7 +10356,7 @@
        "facade": null,
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+       "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
        "oracle_matches_pin": true,
        "records_compared": 17,
        "records_equal": 17,
@@ -9966,7 +10401,7 @@
       "facade": null,
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92",
+      "oracle_image": "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a",
       "oracle_matches_pin": true,
       "records_compared": 17,
       "records_equal": 17,
@@ -10048,7 +10483,7 @@
       "det": {
        "state": "not run",
        "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+        "a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
        ]
       },
       "record": null,
@@ -10062,7 +10497,7 @@
      "det": {
       "state": "not run",
       "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+       "a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
       ]
      },
      "record": null,
@@ -10075,7 +10510,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
+    "its det port equal on every scenario of carddemo-cobtupdt: a Db2 case: CI's det-sweep skips Db2 cases, no local sweep was given and the det-sweep coverage ledger holds no current entry for it"
    ],
    "oracle_backing": [],
    "program": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
@@ -10100,448 +10535,6 @@
     "source_defects": [],
     "statements": 58,
     "translated": 58,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 75.9,
-    "branch_pct": 75.9,
-    "branches": {
-     "covered": 126,
-     "total": 166
-    },
-    "branches_net": {
-     "covered": 126,
-     "total": 166
-    },
-    "current": false,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 98.4,
-    "paragraphs": {
-     "covered": 62,
-     "live": 63
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cotrtupc",
-      "case_scenarios": 34,
-      "db2": true,
-      "det": {
-       "state": "not run",
-       "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-       ]
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cotrtupc",
-     "case_scenarios": 34,
-     "db2": true,
-     "det": {
-      "state": "not run",
-      "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-      ]
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "its det port equal on every scenario of carddemo-cotrtupc: a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-   ],
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27"
-    ],
-    "branch_outcomes_unrun": 40,
-    "commands": 8,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "SYNCPOINT"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 1,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 436,
-    "translated": 436,
     "whole": true
    }
   },
@@ -12567,7 +12560,7 @@
      "covered": 165,
      "total": 230
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12577,10 +12570,7 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
+    "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
@@ -12592,10 +12582,8 @@
       "case_scenarios": 27,
       "db2": true,
       "det": {
-       "state": "not run",
-       "why": [
-        "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-       ]
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
       },
       "record": null,
       "role": "program"
@@ -12606,10 +12594,8 @@
      "case_scenarios": 27,
      "db2": true,
      "det": {
-      "state": "not run",
-      "why": [
-       "a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given"
-      ]
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
      },
      "record": null,
      "role": "program"
@@ -13668,7 +13654,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:740bd37dd5cd21f52e58199cab1f3c02cc9f73ea6dd199bba8732d7e6fe33d92"
+   "sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status, recomputed now",
@@ -13681,11 +13667,11 @@
  },
  "summary": {
   "cics_programs": 25,
-  "det_equal": 25,
+  "det_equal": 27,
   "histogram": {
    "L0": 14,
-   "L1": 5,
-   "L2": 11,
+   "L1": 4,
+   "L2": 12,
    "L3": 3,
    "L4": 11,
    "L5": 0

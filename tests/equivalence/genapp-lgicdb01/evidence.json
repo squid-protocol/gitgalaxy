@@ -43,7 +43,12 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2"
+   "sha256": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
+   "components": {
+    "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
+    "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+    "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+   }
   },
   "oracle": {
    "paths": [
@@ -56,14 +61,36 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+   "sha256": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+   "components": {
+    "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+    "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+    "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
+    "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+   }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52"
+   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52",
+   "components": {
+    "generator:core": "c8842395391d5f9b24e3191f58709cfacc6e01955765f040203e505d6b60fd38",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "52aa26c06951b4b126c56db5e6580ec47c6ad57e9d5129af42b725e426b3a16a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
+    "generator:det/gen": "28f0eebdddd86c372b6414c26b13b6abee69e84e7d119ccf361728f7aab3f112",
+    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2",
+    "generator:det/stmt": "50a37949ce1b8d53d062bd35243ed7ba6cd87a8be21c832db2a541c8de11e0be"
+   }
   },
   "corpus": {
    "name": "cics-genapp",

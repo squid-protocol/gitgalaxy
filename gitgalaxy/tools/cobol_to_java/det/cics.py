@@ -224,10 +224,14 @@ class Dto:
 
     @property
     def size(self) -> int:
+        """The bytes the COMMAREA's record spans in the port's storage: what a LINK passes, a RETURN / XCTL hands on
+        and EIBCALEN says -- the declared record, never only the bytes the DTO's properties reach."""
         n = self.extent
-        if self.occurs and self.record:
+        if self.record:
             # #4270 (C9) / #4765: a DTO whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts): the
-            # whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
+            # whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's.
+            # #4778: so does one whose record ends in a FILLER no property names (CBSA's CUSTCTRL DFHCOMMAREA, 217
+            # bytes of FILLER after CUSTOMER-CONTROL-FAIL-CODE; GenApp LGICVS01's 60): its caller's bytes, by reference
             n = max(n, self.record + self.wider)
         return n
 
@@ -702,7 +706,7 @@ class Cics:
                 dto = f"DetCics.commareaOut({dto}, {f}, {length}, {d.extent}, CS)"
         elif d.size > d.extent:
             # #4765: a DTO whose OCCURS fields appear once holds the first occurrence only: the record's bytes go, every
-            # occurrence of the table (as a LINK's span, Dto.size)
+            # occurrence of the table (as a LINK's span, Dto.size); #4778: and a trailing FILLER's
             dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
         return dto, length
 

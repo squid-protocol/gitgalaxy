@@ -26,10 +26,19 @@ and the argument is still the item's text before the call. The Java side receive
 by field (decoded with the layout, mapped to the DTO's properties by their offset comments) and writes the DTO it
 gets back; the COBOL side's bytes are decoded with the same layout and every field compared by value, as a LINKed
 program's COMMAREA is (equivalence_cics._same). A DTO property that nests another DTO is Unsupported.
+
+#4778: the item is compared whole, as #4765 compares a COMMAREA: every field of its layout and every occurrence of a
+table, by name and subscript (EPS-X(3)), each side's OCCURS DEPENDING ON tables by its own count. A port that takes
+the items' bytes too (a det port's withCallAreas(byte[]...)) gets each item's bytes, BY REFERENCE, beside its objects
+and gives back what it left there: then the item is compared as bytes are -- every field by value and bytes, a FILLER
+and any byte no field names as bytes. A port that gives back only its DTOs (a model port) has every named field
+compared (one the DTO does not map is absent, never assumed equal); the bytes no field names cannot travel in a DTO,
+so they are listed in the report as not compared (`not_compared`), with that reason.
 """
 
 from __future__ import annotations
 
+import base64
 import json
 import re
 import shutil
@@ -72,11 +81,16 @@ def dto_items(case: dict[str, Any]) -> bool:
     return any(u.get("record") for u in case["using"])
 
 
-def item_layout(case: dict[str, Any], corpus: Path, u: dict[str, Any]) -> list[dict[str, Any]]:
-    """A group USING item's elementary fields, from its copybook (the harness's own reader, never the translator's)."""
+def item_layout(
+    case: dict[str, Any], corpus: Path, u: dict[str, Any], occurrences: bool = False
+) -> list[dict[str, Any]]:
+    """A group USING item's elementary fields, from its copybook (the harness's own reader, never the translator's).
+    #4778 `occurrences`: every occurrence of a table a field of its own, by subscript (common.layout_fields): the
+    layout an item a call left is compared by; without it, the fields as a DTO lists them (an argument is built)."""
     rec = u["record"]
     dirs = [corpus / d for d in case.get("copy_dirs", [])]
-    fields = common.layout_fields(corpus, rec["copybook"], rec.get("name"), copy_dirs=[*dirs, corpus])
+    fields = common.layout_fields(corpus, rec["copybook"], rec.get("name"), copy_dirs=[*dirs, corpus],
+                                  occurrences=occurrences)  # fmt: skip
     end = max((f["offset"] + f["bytes"] for f in fields), default=0)
     if end != u["size"]:
         raise Unsupported(f"{u['name']}: the case says {u['size']} bytes, its layout {end}")
@@ -300,15 +314,28 @@ def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, por
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     (inputs / "calls.json").write_text(json.dumps(dto_args(case, corpus, java_root, types)), encoding="utf-8")
+    if takes_areas(svc.read_text(encoding="utf-8") if svc else ""):
+        test.write_text(java_test_dto(case, types, areas=True), encoding="utf-8")
+        # #4778: each call's items as the very bytes the COBOL side's CALL passed (EQCALLDR's MOVEs)
+        (inputs / "areas.json").write_text(json.dumps([[arg_bytes(case, corpus, u, a).hex().upper()
+                                                         for u, a in zip(case["using"], call["args"])]
+                                                        for call in case["calls"]]), encoding="utf-8")  # fmt: skip
     (work / "java_root.txt").write_text(str(java_root), encoding="utf-8")
     (work / "handle_call_types.json").write_text(json.dumps(types), encoding="utf-8")
     out = ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case))
     return (out / "CALLS.json").read_bytes() if (out / "CALLS.json").is_file() else b""
 
 
-def java_test_dto(case: dict[str, Any], types: list[str]) -> str:
+def takes_areas(svc_text: str) -> bool:
+    """#4778: whether the port takes its USING items' bytes too (a det port's withCallAreas(byte[]... areas))."""
+    return re.search(r"public void withCallAreas\(byte\[\]\.\.\. \w+\)", svc_text) is not None
+
+
+def java_test_dto(case: dict[str, Any], types: list[str], areas: bool = False) -> str:
     """The generated JUnit run for group items: each call's items built (a DTO from its JSON), handleCall, and the
-    items as the call left them written as JSON with the RETURN-CODE."""
+    items as the call left them written as JSON with the RETURN-CODE. #4778 `areas`: the port takes the items' bytes
+    too (withCallAreas): each call's (in/areas.json) passed before handleCall, and what it left in them written
+    beside the items (base64)."""
     import equivalence_java as ej
 
     svc = ej._service_class(case["program"])
@@ -322,14 +349,34 @@ def java_test_dto(case: dict[str, Any], types: list[str]) -> str:
             sets.append(f"            {t} a{i} = mapper.treeToValue(c.get({i}), {t}.class);")
             outs.append(f"            items.add(mapper.valueToTree(a{i}));")
         refs.append(f"a{i}")
+    give = (
+        "            byte[][] areas = new byte[ab.get(n).size()][];\n"
+        "            for (int k = 0; k < areas.length; k++) {\n"
+        "                areas[k] = java.util.HexFormat.of().parseHex(ab.get(n).get(k).asText());\n"
+        "            }\n"
+        f"            {var}.withCallAreas(areas);\n"
+        if areas
+        else ""
+    )
+    left = (
+        "            java.util.List<String> left = new java.util.ArrayList<>();\n"
+        "            for (byte[] a : areas) {\n"
+        "                left.add(java.util.Base64.getEncoder().encodeToString(a));\n"
+        "            }\n"
+        if areas
+        else ""
+    )
     body = (
         "\n".join(sets)
-        + f"\n            int rc = {var}.handleCall({', '.join(refs)});\n"
+        + f"\n{give}            int rc = {var}.handleCall({', '.join(refs)});\n"
         + "            java.util.List<Object> items = new java.util.ArrayList<>();\n"
         + "\n".join(outs)
+        + ("\n" + left.rstrip("\n") if areas else "")
         if types
         else ""
     )
+    read_areas = '        JsonNode ab = mapper.readTree(in.resolve("areas.json").toFile());\n' if areas else ""
+    put_areas = '            rec.put("areas", left);\n' if areas else ""
     cobolref = f"import {ej.PKG}.call.CobolRef;\n" if "CobolRef<String>" in types else ""
     return (
         f"""package {ej.PKG};
@@ -358,11 +405,13 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
         java.util.List<Map<String, Object>> records = new java.util.ArrayList<>();
+{read_areas}        int n = -1;
         for (JsonNode c : mapper.readTree(in.resolve("calls.json").toFile())) {{
+            n++;
 {body}
             Map<String, Object> rec = new LinkedHashMap<>();
             rec.put("items", items);
-            rec.put("rc", rc);
+{put_areas}            rec.put("rc", rc);
             records.add(rec);
         }}
         mapper.writeValue(out.resolve("CALLS.json").toFile(), records);
@@ -381,7 +430,7 @@ class EquivalenceRunTest {{
 
 def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: bytes, java_root: Path,
                 types: list[str]) -> dict[str, Any]:  # fmt: skip
-    """Per call, per item: a text item's text, a group item's every DTO-mapped field by value, then RETURN-CODE."""
+    """Per call, per item: a text item's text, a group item whole (#4778: compare_item), then RETURN-CODE."""
     from decimal import Decimal
 
     import equivalence_cics as ec
@@ -392,13 +441,14 @@ def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: byt
         java = json.loads(java_json.decode("utf-8"), parse_float=Decimal) if java_json else []
     except ValueError:
         java = []
-    diffs, equal = [], 0
+    diffs, equal, not_compared = [], 0, {}
     for i in range(len(case["calls"])):
         rec = cobol[i * n : (i + 1) * n]
         if i >= len(java):
             diffs.append({"record": i + 1, "missing": "java"})
             continue
         jrec, fields, off = java[i], [], 0
+        areas = jrec.get("areas")
         for k, u in enumerate(case["using"]):
             item = rec[off : off + u["size"]]
             jv = jrec["items"][k] if k < len(jrec.get("items", [])) else None
@@ -407,15 +457,11 @@ def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: byt
                 if not ec._same(cv, jv):
                     fields.append({"field": u["name"], "cobol": cv.rstrip(), "java": str(jv or "").rstrip()})
             else:
-                props = dto_properties(java_root, types[k])
-                for f in item_layout(case, corpus, u):
-                    if f["name"] not in props:
-                        continue
-                    cv = _value(common.decode_field(item[f["offset"] : f["offset"] + f["bytes"]], f["pic"], f["usage"],
-                                                    common.sign_page(enc), f.get("sign_separate", False), enc))  # fmt: skip
-                    jval = (jv or {}).get(props[f["name"]][0])
-                    if (cv is None and jval is not None) or not ec._same(cv, jval):
-                        fields.append({"field": f"{u['name']}.{f['name']}", "cobol": cv, "java": jval})
+                area = base64.b64decode(areas[k]) if areas is not None and k < len(areas) else None
+                bad, skipped = compare_item(case, corpus, u, item, jv, area, dto_properties(java_root, types[k]), enc)
+                fields += bad
+                for name in skipped:
+                    not_compared.setdefault(f"{u['name']}.{name}", UNNAMED_IN_A_DTO)
             off += u["size"]
         crc = int(rec[off : off + RC_BYTES].decode("ascii")) if rec[off : off + RC_BYTES].strip() else 0
         if crc != jrec.get("rc"):
@@ -424,7 +470,55 @@ def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: byt
             diffs.append({"record": i + 1, "fields": fields})
         else:
             equal += 1
-    return {"records": len(case["calls"]), "equal": equal, "diffs": diffs}
+    out: dict[str, Any] = {"records": len(case["calls"]), "equal": equal, "diffs": diffs}
+    if not_compared:
+        out["not_compared"] = not_compared
+    return out
+
+
+UNNAMED_IN_A_DTO = ("bytes no field names: the port gave back only its DTO, which has no property for them (a port "
+                    "that takes the items' bytes, withCallAreas, has them compared)")  # fmt: skip
+
+
+def _unnamed(fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """#4778: a FILLER as bytes of its own, named by where it lies (FILLER@20): several share no name, and the
+    caller's storage holds whatever the program left there as surely as in a named field."""
+    return [dict(f, name=f"FILLER@{f['offset']}", pic=f"X({f['bytes']})", usage="DISPLAY", sign_separate=False)
+            if f["name"] == "FILLER" else f for f in fields]  # fmt: skip
+
+
+def compare_item(case: dict[str, Any], corpus: Path, u: dict[str, Any], item: bytes, dto: Any, area: Optional[bytes],
+                 props: dict[str, tuple[str, str]], enc: str) -> tuple[list[dict[str, Any]], list[str]]:  # fmt: skip
+    """#4778: one group USING item as a call left it, whole -- (differences, the unnamed bytes not compared).
+
+    `area`, the bytes the port left in the item (withCallAreas): every field of the layout, every occurrence by its
+    subscripts, by value and then by bytes (common.diff_records: a C vs F sign is a difference), each FILLER as bytes,
+    and the bytes no field covers. Without it, the DTO: every named field of the layout, every occurrence active by
+    the COBOL side's own OCCURS DEPENDING ON counts, against the DTO's property for it -- a table's fields are its
+    first occurrence's (the DTO lists them once); a field the DTO does not map is absent, compared as such."""
+    import equivalence_cics as ec
+
+    layout = item_layout(case, corpus, u, occurrences=True)
+    if area is not None:
+        d = common.diff_records(item, area, u["size"], _unnamed(layout), case.get("code_page", "cp037"), enc)
+        bad = [dict(fd, field=f"{u['name']}.{fd['field']}") for x in d["diffs"] for fd in x.get("fields", [])]
+        bad += [
+            {"field": u["name"], "cobol": "(the item)", "java": "(no bytes)"} for x in d["diffs"] if x.get("missing")
+        ]
+        return bad, []
+    first = {f["base"]: f["name"] for f in layout if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
+    by_name = {first.get(cobol, cobol): prop for cobol, (prop, _t) in props.items()}
+    bad, skipped = [], []
+    for f in common.active_fields(item, layout, enc):
+        if f["name"] == "FILLER":
+            skipped.append(f"FILLER@{f['offset']}")
+            continue
+        cv = _value(common.decode_field(item[f["offset"] : f["offset"] + f["bytes"]], f["pic"], f["usage"],
+                                        common.sign_page(enc), f.get("sign_separate", False), enc))  # fmt: skip
+        jval = (dto or {}).get(by_name[f["name"]]) if f["name"] in by_name else None
+        if (cv is None and jval is not None) or not ec._same(cv, jval):
+            bad.append({"field": f"{u['name']}.{f['name']}", "cobol": cv, "java": jval})
+    return bad, skipped  # (item_layout refuses a layout that does not fill the item: no byte lies outside it)
 
 
 def feedback_md(case: dict[str, Any], diff: dict[str, Any]) -> str:
@@ -470,6 +564,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                                       compiled=program, traces=[work / "cobol" / cov.TRACE_NAME],
                                       compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
     report = {"case": case["name"], "program": case["program"], "kind": "call", "proven": ok,
+              **({"not_compared": diff["not_compared"]} if diff.get("not_compared") else {}),  # #4778
               "outputs": {"CALLS": diff}, "coverage": coverage,
               "oracle": equivalence_oracle.for_case(case),  # #4309
               "feedback": "" if ok else feedback_md(case, diff)}  # fmt: skip

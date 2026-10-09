@@ -843,6 +843,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         body_in: list[str] | None = None
         ins: list[str] = []
         body_out: list[str] = []
+        # #4778: the items' bytes, when the caller passed them too (withCallAreas): each item's storage is its caller's
+        # bytes -- every byte of the record, those no DTO property names (a FILLER, a table's occurrences past the
+        # first) too -- and what the program leaves there goes back to them, BY REFERENCE
+        areas_in: list[str] = []
+        areas_out: list[str] = []
         for k, prm in enumerate(params):
             typ, _ = prm.rsplit(" ", 1)
             name = f"arg{k + 1}"  # the stub's own names may be a field's (LS-DATE -> lsDate): only the type matters
@@ -850,6 +855,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             if item is None:
                 break
             f = gen.ids[id(item)]
+            span = f"Math.min(areas[{k}].length, {f}.length())"
+            areas_in.append(f"            System.arraycopy(areas[{k}], 0, {f}.storage().bytes, {f}.offset(), {span});")
+            areas_out.append(f"            System.arraycopy({f}.storage().bytes, {f}.offset(), areas[{k}], 0, {span});")
             if typ == "CobolRef<String>":
                 ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
                 body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
@@ -863,7 +871,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             ins.append(f"        in_{cls}({name}, {f}.storage(), {f}.offset());")
             body_out.append(f"        fill_{cls}({name}, {f}.storage(), {f}.offset());")
         else:
-            body_in = ins
+            # the bytes, when passed, are the items (the objects carry only what their DTOs name); else the objects
+            body_in = ["        byte[][] areas = callAreas;", "        callAreas = null;", "        if (areas != null) {",
+                       *areas_in, "        } else {", *("    " + x for x in ins), "        }"]  # fmt: skip
+            body_out = [*body_out, "        if (areas != null) {", *areas_out, "        }"]
 
         if body_in is None:
             call_entry = [
@@ -873,7 +884,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "",
             ]
         else:
-            call_entry = [f"    public int handleCall({signature}) {{", *body_in,
+            call_entry = ["    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)", "",
+                          "    /** #4778: the next handleCall's USING items as their caller's bytes too, one array per item, BY",
+                          "     *  REFERENCE: the program runs over them -- every byte, those no DTO property names too -- and leaves",
+                          "     *  its result there as well as in the objects. */",
+                          "    public void withCallAreas(byte[]... areas) {", "        this.callAreas = areas;", "    }", "",
+                          f"    public int handleCall({signature}) {{", *body_in,
                           "        try {", f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
                           "        } catch (Goback g) {", "            // GOBACK", "        }", *body_out,
                           f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();", "    }", ""]  # fmt: skip

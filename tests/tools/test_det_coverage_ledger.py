@@ -212,3 +212,16 @@ def test_migrate_adds_components_only_to_a_current_entry(monkeypatch):
     got = dcl.migrate({CASE: entry(), "cbsa-updcust": entry(inputs={**FP, "harness": "old"})})
     assert got[CASE]["inputs"]["components"] == comps
     assert "components" not in got["cbsa-updcust"]["inputs"]  # stale on the whole input: left for the next sweep
+
+
+def test_an_unchanged_sweep_touches_no_case_file(monkeypatch, tmp_path):
+    """#4789 + #4813: the bot re-sweeping a case whose numbers and inputs did not move rewrites no file (measured_at is
+    kept), so a refresh never touches the file of a case an open PR is changing."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    monkeypatch.setattr(dcl, "_head", lambda: "first")
+    d = tmp_path / "led"
+    det = {CASE: {"proved": True, "coverage": LINE}}
+    dcl.write(dcl.build(det, {}), d)
+    monkeypatch.setattr(dcl, "_head", lambda: "second")
+    changed = dcl.write(dcl.build(det, dcl.load(d)), d)
+    assert changed == [] and dcl.load(d)[CASE]["measured_at"] == "first"

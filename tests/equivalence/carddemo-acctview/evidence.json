@@ -72,7 +72,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 67,
-   "sha256": "645d8151ea3dba13f78232d2c3bf8a3389695b3b86d54b554446dd3c68fb9ac0",
+   "sha256": "6417ab2eca1d4b367afd3b035f0643081dba1aa3059585c6287d05e8f56ac9eb",
    "components": {
     "generator:core": "352ecaeedafd9232085838fb703b1ece3c709ed50a075e766b36ff888ce0455d",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
@@ -81,7 +81,7 @@
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
-    "generator:det/gen": "88e2756f281d33ee5d4ddf1071f2331a98694dc5e4ddb41500625805873bf63e",
+    "generator:det/gen": "0c8257b455aada54e53ff32f70ccb23e5fb336804b24d38fb6f60d9a0f49e965",
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -169,10 +169,10 @@
     }
    }
   },
-  "digest": "a6067de233270866a7068cb610ec77876ea8a1a5748c9ff6fb651c469fa2da4b"
+  "digest": "5976dfd43c400461f994a0205a877d2aba3b1510d799f03866d83ba382895f6b"
  },
  "proof": {
-  "at": "2026-10-09T19:53:04Z",
+  "at": "2026-10-09T20:53:06Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 6,
@@ -273,8 +273,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "8130b9a928c8690aa77504c10bb83c62409a70f0",
-  "inputs_digest": "a6067de233270866a7068cb610ec77876ea8a1a5748c9ff6fb651c469fa2da4b"
+  "harness_commit": "1e86a6bb179bf2156131ab0965fe4482d4f24e11",
+  "inputs_digest": "5976dfd43c400461f994a0205a877d2aba3b1510d799f03866d83ba382895f6b"
  },
  "coverage": {
   "paragraphs": {
@@ -358,7 +358,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "a6067de233270866a7068cb610ec77876ea8a1a5748c9ff6fb651c469fa2da4b"
+  "inputs_digest": "5976dfd43c400461f994a0205a877d2aba3b1510d799f03866d83ba382895f6b"
  },
  "reach": {
   "entry_points": [

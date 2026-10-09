@@ -2678,6 +2678,14 @@ public class CicsTask {
         return abend(abcodeFor(condition), "condition", condition, false);
     }
 
+    /** SEND MAP / RECEIVE MAP naming a map its mapset does not hold (#4270, register X31): IBM abend ABM0 "The map
+     *  specified for a basic mapping support (BMS) request could not be located", the transaction "abnormally
+     *  terminated with a CICS transaction dump". CICS raises no condition for it, so RESP / HANDLE CONDITION do not
+     *  see it; a HANDLE ABEND exit does (cause "system": an abend CICS itself raises). Same result as abend. */
+    public String abendMapNotFound(String map, String mapset) {
+        return abend("ABM0", "system", null, false);
+    }
+
     /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;
      *  the task goes on there. Prefer handleAbend + abend / abendOnCondition, which search the exits. */
     public void abendToExit(String abcode, String cause, String condition, String program, String label) {

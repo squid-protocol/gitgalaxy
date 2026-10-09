@@ -43,8 +43,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WRITE | full | yes (12 options, 1 refused by name) | yes | — | — | 10 (9 / 1) | — |
 | REWRITE | full | yes (7 options, 1 refused by name) | yes | — | — | 11 (10 / 1) | — |
 | DELETE | full | yes (10 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | — |
-| SEND MAP | full | yes (22 options, 1 refused by name) | yes | — | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
-| RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | — | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
+| SEND MAP | full | yes (22 options, 1 refused by name) | yes | X31 | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
+| RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | X31 | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
 | LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |

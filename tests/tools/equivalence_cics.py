@@ -171,6 +171,12 @@ def _transfer(labels: list[str] | None) -> list[str]:
     return ["GO TO"] + [f"    {label}" for label in labels] + ["    DEPENDING ON GG-GOTO"]
 
 
+def _map_abend(labels: list[str] | None) -> list[str]:
+    """#4270 (X31): after SEND MAP / RECEIVE MAP, the ABM0 abend the stub raises for a map its mapset does not hold
+    (GGCSMAP / GGCRECV): the HANDLE ABEND exit's label, or leave the program (GG-GOTO -1); else it falls through."""
+    return _transfer(labels) + ["IF GG-GOTO < 0", "    GOBACK", "END-IF"]
+
+
 def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None = None) -> list[str]:
     """After a command: the EIB's RESP fields, the program's RESP / RESP2, or -- when it tests
     neither and does not say NOHANDLE (which suspend every HANDLE, IBM: "The HANDLE CONDITION
@@ -706,6 +712,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
+                + _map_abend(labels)
                 + _input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
@@ -759,7 +766,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if not src:
                 raise Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
-        return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
+        return lines + _call("GGCSMAP", args) + _map_abend(labels) + _resp(opts, can_fail=False)
     if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
         _check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
         if "CURSOR" in opts and not opts["CURSOR"]:

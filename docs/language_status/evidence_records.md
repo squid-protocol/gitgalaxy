@@ -187,3 +187,5 @@ estate options file (`tests/equivalence/estate_options/<corpus>.json`, #4719) in
 the programs' own found / assumed totals. The resolver is `gitgalaxy.core.estate_options.effective_options`; the same
 values are stored in a record as `inputs.options.effective`. `validate()` requires `options` only of a freshly built
 report (`strict`), so a report committed before #4708 still validates until the evidence-refresh bot regenerates it.
+
+**Assumed options and the customer** (#4709): every `assumed` value is something the customer confirms in writing. [estate_intake.md](estate_intake.md) lists what to request so a value is found, and `tests/tools/estate_intake.py <corpus>` writes the confirmation list.

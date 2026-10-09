@@ -40,13 +40,13 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|---|
 | L0 | 14 | 0 |
 | L1 | 4 | 0 |
-| L2 | 12 | 0 |
+| L2 | 12 | 1 |
 | L3 | 3 | 0 |
 | L4 | 11 | 0 |
 | L5 | 0 | 0 |
 
-- current levels: 44; stale (`*`, last measured): 0
-- L2+: 26 (0 awaiting re-check); L3+: 14 (0 awaiting re-check); L4+: 11 (0 awaiting re-check)
+- stale (`*`, last measured): 1 of 44 programs; the rest are current
+- L2+: 26 (1 awaiting re-check); L3+: 14 (0 awaiting re-check); L4+: 11 (0 awaiting re-check)
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 30; refused whole: 3; holes left: 68
@@ -100,7 +100,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COCRDLIC.cbl | L3 | 500/500 | 0 | carddemo-cardlist | equal | 45 | shown equal, unapproved | 36/36 (100.0%) | 146/149 (98.0%) | 146/147 (99.3%) | not yet measured (#4628) | 5/9 |
 | app/cbl/COMEN01C.cbl | L3 | 91/91 | 0 | carddemo-menu | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/33 (87.9%) | 29/30 (96.7%) | not yet measured (#4628) | 4/5 |
 | app/cbl/CORPT00C.cbl | L3 | 220/220 | 0 | carddemo-report | equal | 25 | shown equal, unapproved | 10/10 (100.0%) | 51/59 (86.4%) | 51/52 (98.1%) | not yet measured (#4628) | 4/5 |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2 | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2* | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
 | app/cbl/CBACT01C.cbl | L2 | 190/190 | 0 | carddemo-readacct | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/CBACT02C.cbl | L2 | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/CBACT03C.cbl | L2 | 64/64 | 0 | carddemo-readxref | equal | 0 | shown equal, unapproved | not measured | not measured | not measured | not yet measured (#4628) | — |
@@ -529,7 +529,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 8 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2
+### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `2b53e918c59d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 34 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 98.4)
@@ -1086,7 +1088,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 - translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
-- crucible pins: cics `v0.6.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.6.0 (b794aa8b)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: `sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa`

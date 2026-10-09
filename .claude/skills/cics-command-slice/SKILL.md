@@ -80,14 +80,14 @@ Traps `--check` exists for:
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the
       holes naming the verb. Quote the summary lines in the PR; name the next blocking holes as follow-ups.
 - [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then
-      `pr_gates.py --fast`. The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
-      runs at once in one worktree; `pr_check.py --merge` merges only on green CI. A skip is not a pass. `proof_sweep.py --det-only --skip-db2` when the runtime changed.
+      `pr_gates.py --fast` (JDK 17 via equivalence_env). The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
+      runs at once in one worktree; `pr_check.py --merge` merges only on green CI. A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
 - [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green), then
       `cics_census.py history append --pr N` (blocker-slice section 4).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /
       legacy-modernization) and the cics-crucible case PR (a "Cross-repo" note: companion PR, merge order, what
       re-runs). No tag or pin bump in either.
-- [ ] **Release (when the owner batches it):** see section 3.
+- [ ] **Release (only on an orchestrator/owner instruction):** see section 3. Never tag or bump the pin on your own.
 
 ## 2. Traps (each cost a slice a round trip)
 
@@ -115,7 +115,7 @@ Traps `--check` exists for:
    only for new cases; a newly failing cell on an unchanged case is a gitgalaxy regression). Do not move the pin.
 4. **Tag** (crucible): only after the owner approves -- `git tag -a vX.Y.Z <commit>`, push, `gh release create`.
 5. **Phase B** (gitgalaxy, one PR): `PINNED_REF`, baseline / coverage, re-prove the committed ports
-   (`crucible_port_provenance.py reprove`), evidence (`evidence.py prove` / `render`), then
+   (`crucible_port_provenance.py reprove`), evidence (`evidence.py prove`; no rendered report), then
    `$PY tests/tools/crucible_release.py pin-check vPREV` -- every mention of the old tag left, provenance history
    excluded, other repos' tags listed apart. Then the RELEASING.md row in the crucible.
 
@@ -139,7 +139,7 @@ are fine). `cics_census.py` warns about a census-root corpus that is not on the 
   `proof.log`; `cics_crucible.py --out O` -> `O/results.json` + `O/report.md`, `--report-dir R` -> `R/report.json`
   (a port proof); `--keep W` keeps `W/<case>/{forge,cobol,java}`.
 - **Re-proving evidence:** `$PY tests/tools/evidence.py status` shows what is stale; re-prove with
-  `evidence.py prove KEY ...` (or `refresh --stale`) and `evidence.py render`. Never hand-edit an evidence record or
+  `evidence.py prove KEY ...` (or `refresh --stale`) (do not commit the rendered report under `docs/language_status/evidence_report/`: the bot regenerates it, #4703). Never hand-edit an evidence record or
   a `reproven` entry, and never drop or write an approval -- only a person runs `evidence.py approve`.
 - Debugging a differing scenario, Db2 cases and the checklists for a translator / runtime / harness change: the
   `det-port` skill.

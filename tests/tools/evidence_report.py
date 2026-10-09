@@ -1141,8 +1141,9 @@ def render(rep: dict[str, Any]) -> str:
     out += [f"| {lv} | {n} | {stale_counts(s)[lv]} |" for lv, n in s["histogram"].items()]
     out += [
         "",
-        f"- current levels: {s['programs'] - sum(stale_counts(s).values())}; stale (`*`, last measured): "
-        f"{sum(stale_counts(s).values())}",
+        # No derived "current = programs - stale" count: every number in the Markdown must be one the JSON holds
+        # (test_every_number_in_the_markdown_comes_from_the_json), and the difference is not.
+        f"- stale (`*`, last measured): {sum(stale_counts(s).values())} of {s['programs']} programs; the rest are current",
         "- "
         + "; ".join(
             f"{lv}+: {plus(s, lv)} ({plus({**s, 'histogram_stale': stale_counts(s)}, lv, 'histogram_stale')} awaiting re-check)"

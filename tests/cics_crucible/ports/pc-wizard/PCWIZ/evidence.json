@@ -46,19 +46,20 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "4cf38f8090bcee6eea5f72f9b0e7075e7a7f283000f6bf3a0ab75bab2d0b6e9d"
+   "sha256": "f3d017b720a009d8f23e90007a2e7434fddd003b01026bb756a823d90bbe3398"
   },
   "oracle": {
    "paths": [],
    "files": 0,
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "components": {}
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 66,
-   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489"
+   "files": 67,
+   "sha256": "29d230032f9afe7c03b300d248173e7624e4e0392c6fc520a90690f7b353ff86"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -94,10 +95,10 @@
     }
    }
   },
-  "digest": "53f26d09cb9fed84e1d2565af08719be759f096dcd620f77978851ab11b1ea74"
+  "digest": "756b29125abde78524d384060866c71703853d5cbaa91ae0481203f117d568a8"
  },
  "proof": {
-  "at": "2026-10-09T12:36:41Z",
+  "at": "2026-10-09T16:29:14Z",
   "verdict": "proven",
   "runs": 6,
   "fault_runs": 0,
@@ -136,8 +137,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted",
-  "inputs_digest": "53f26d09cb9fed84e1d2565af08719be759f096dcd620f77978851ab11b1ea74"
+  "harness_commit": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64+uncommitted",
+  "inputs_digest": "756b29125abde78524d384060866c71703853d5cbaa91ae0481203f117d568a8"
  },
  "coverage": {
   "paragraphs": {
@@ -152,7 +153,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-wizard/PCWIZ",
   "ledger_sha256": "90f306b56fbea5b71e0f3ef7dbb1cbc2a591698cb2c21e58fbe604545fb07576",
-  "inputs_digest": "53f26d09cb9fed84e1d2565af08719be759f096dcd620f77978851ab11b1ea74"
+  "inputs_digest": "756b29125abde78524d384060866c71703853d5cbaa91ae0481203f117d568a8"
  },
  "reach": {
   "entry_points": [

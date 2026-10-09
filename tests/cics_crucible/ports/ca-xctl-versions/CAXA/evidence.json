@@ -45,19 +45,20 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "4cf38f8090bcee6eea5f72f9b0e7075e7a7f283000f6bf3a0ab75bab2d0b6e9d"
+   "sha256": "f3d017b720a009d8f23e90007a2e7434fddd003b01026bb756a823d90bbe3398"
   },
   "oracle": {
    "paths": [],
    "files": 0,
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "components": {}
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 66,
-   "sha256": "1e66f8dda300d3029fcc004eaf8fa2bd51220c4eee8942c6ccd459d664bc4489"
+   "files": 67,
+   "sha256": "29d230032f9afe7c03b300d248173e7624e4e0392c6fc520a90690f7b353ff86"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -93,10 +94,10 @@
     }
    }
   },
-  "digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
+  "digest": "e9ecda29a7847933da3e24aa701404548f70b0e7359482ef4628bd0cac70a638"
  },
  "proof": {
-  "at": "2026-10-09T12:32:05Z",
+  "at": "2026-10-09T16:24:08Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -122,8 +123,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "80caae0e71bfbc317aa0ce80062cfc6579da184e+uncommitted",
-  "inputs_digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
+  "harness_commit": "ac3a8a2b0d34f355673c4dd569fb1c3545656b64+uncommitted",
+  "inputs_digest": "e9ecda29a7847933da3e24aa701404548f70b0e7359482ef4628bd0cac70a638"
  },
  "coverage": {
   "paragraphs": {
@@ -138,7 +139,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXA",
   "ledger_sha256": "b041eb81e33650ada94387af852ac6f6392b6c4d12697d4f71e7365825bffc30",
-  "inputs_digest": "b6e81ac1c7ee664df9d654bd8b5f0a1022f5d453bcd47e6b79ba3ec2842a78a8"
+  "inputs_digest": "e9ecda29a7847933da3e24aa701404548f70b0e7359482ef4628bd0cac70a638"
  },
  "reach": {
   "entry_points": [

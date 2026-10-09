@@ -1,0 +1,244 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COPAUS2C",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+ "copy_dirs": [
+  "app/app-authorization-ims-db2-mq/cpy"
+ ],
+ "transid": "CPVD",
+ "clock": "2022/10/07 10:30:15.00",
+ "datasets": {},
+ "db2": {
+  "ddl": [
+   "app/app-authorization-ims-db2-mq/ddl/AUTHFRDS.ddl",
+   "app/app-authorization-ims-db2-mq/ddl/XAUTHFRD.ddl"
+  ],
+  "include_dirs": [
+   "app/app-authorization-ims-db2-mq/dcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "CARDDEMO.AUTHFRDS"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "report-new-fraud",
+   "commarea": {
+    "WS-ACCT-ID": 20,
+    "WS-CUST-ID": 20,
+    "PA-AUTH-DATE-9C": 77720,
+    "PA-AUTH-TIME-9C": "896984876",
+    "PA-AUTH-ORIG-DATE": "221007",
+    "PA-AUTH-ORIG-TIME": "103015",
+    "PA-CARD-NUM": "4222222222222222",
+    "PA-AUTH-TYPE": "0100",
+    "PA-CARD-EXPIRY-DATE": "1225",
+    "PA-MESSAGE-TYPE": "0100",
+    "PA-MESSAGE-SOURCE": "POS",
+    "PA-AUTH-ID-CODE": "Z9Y8X7",
+    "PA-AUTH-RESP-CODE": "05",
+    "PA-AUTH-RESP-REASON": "4100",
+    "PA-PROCESSING-CODE": 0,
+    "PA-TRANSACTION-AMT": "2400.00",
+    "PA-APPROVED-AMT": "0.00",
+    "PA-MERCHANT-CATAGORY-CODE": "5411",
+    "PA-ACQR-COUNTRY-CODE": "840",
+    "PA-POS-ENTRY-MODE": 5,
+    "PA-MERCHANT-ID": "MERCH0000000077",
+    "PA-MERCHANT-NAME": "ELECTRONICS ONLINE",
+    "PA-MERCHANT-CITY": "AUSTIN",
+    "PA-MERCHANT-STATE": "TX",
+    "PA-MERCHANT-ZIP": "78701",
+    "PA-TRANSACTION-ID": "TXN000000000077",
+    "PA-MATCH-STATUS": "D",
+    "PA-AUTH-FRAUD": " ",
+    "PA-FRAUD-RPT-DATE": " ",
+    "WS-FRD-ACTION": "F",
+    "WS-FRD-UPDATE-STATUS": " ",
+    "WS-FRD-ACT-MSG": " "
+   },
+   "why": "a declined authorization not yet reported: the row is INSERTed (AUTH_TS from PA-AUTH-ORIG-DATE and 999999999 - PA-AUTH-TIME-9C: '22-10-07 10.30.15123000', FRAUD_RPT_DATE CURRENT DATE); SQLCODE 0 -> 'S', 'ADD SUCCESS'; PA-FRAUD-RPT-DATE gets FORMATTIME MMDDYY DATESEP of the task's clock ('10/07/22')"
+  },
+  {
+   "name": "report-fraud-again",
+   "commarea": {
+    "WS-ACCT-ID": 11,
+    "WS-CUST-ID": 11,
+    "PA-AUTH-DATE-9C": 77720,
+    "PA-AUTH-TIME-9C": "908457749",
+    "PA-AUTH-ORIG-DATE": "221005",
+    "PA-AUTH-ORIG-TIME": "091542",
+    "PA-CARD-NUM": "4111111111111111",
+    "PA-AUTH-TYPE": "0100",
+    "PA-CARD-EXPIRY-DATE": "1225",
+    "PA-MESSAGE-TYPE": "0100",
+    "PA-MESSAGE-SOURCE": "POS",
+    "PA-AUTH-ID-CODE": "A1B2C3",
+    "PA-AUTH-RESP-CODE": "00",
+    "PA-AUTH-RESP-REASON": "0000",
+    "PA-PROCESSING-CODE": 0,
+    "PA-TRANSACTION-AMT": "125.50",
+    "PA-APPROVED-AMT": "125.50",
+    "PA-MERCHANT-CATAGORY-CODE": "5411",
+    "PA-ACQR-COUNTRY-CODE": "840",
+    "PA-POS-ENTRY-MODE": 5,
+    "PA-MERCHANT-ID": "MERCH0000000001",
+    "PA-MERCHANT-NAME": "CORNER GROCERY",
+    "PA-MERCHANT-CITY": "SEATTLE",
+    "PA-MERCHANT-STATE": "WA",
+    "PA-MERCHANT-ZIP": "98101",
+    "PA-TRANSACTION-ID": "TXN000000000001",
+    "PA-MATCH-STATUS": "P",
+    "PA-AUTH-FRAUD": " ",
+    "PA-FRAUD-RPT-DATE": " ",
+    "WS-FRD-ACTION": "F",
+    "WS-FRD-UPDATE-STATUS": " ",
+    "WS-FRD-ACT-MSG": " "
+   },
+   "why": "the seed's authorization (card 4111..., 2022-10-05 09.15.42.250000) reported again: the INSERT breaks the primary key (SQLCODE -803) -> FRAUD-UPDATE sets AUTH_FRAUD 'F' and FRAUD_RPT_DATE on that row: 'S', 'UPDT SUCCESS'"
+  },
+  {
+   "name": "remove-fraud",
+   "commarea": {
+    "WS-ACCT-ID": 11,
+    "WS-CUST-ID": 11,
+    "PA-AUTH-DATE-9C": 77720,
+    "PA-AUTH-TIME-9C": "908457749",
+    "PA-AUTH-ORIG-DATE": "221005",
+    "PA-AUTH-ORIG-TIME": "091542",
+    "PA-CARD-NUM": "4111111111111111",
+    "PA-AUTH-TYPE": "0100",
+    "PA-CARD-EXPIRY-DATE": "1225",
+    "PA-MESSAGE-TYPE": "0100",
+    "PA-MESSAGE-SOURCE": "POS",
+    "PA-AUTH-ID-CODE": "A1B2C3",
+    "PA-AUTH-RESP-CODE": "00",
+    "PA-AUTH-RESP-REASON": "0000",
+    "PA-PROCESSING-CODE": 0,
+    "PA-TRANSACTION-AMT": "125.50",
+    "PA-APPROVED-AMT": "125.50",
+    "PA-MERCHANT-CATAGORY-CODE": "5411",
+    "PA-ACQR-COUNTRY-CODE": "840",
+    "PA-POS-ENTRY-MODE": 5,
+    "PA-MERCHANT-ID": "MERCH0000000001",
+    "PA-MERCHANT-NAME": "CORNER GROCERY",
+    "PA-MERCHANT-CITY": "SEATTLE",
+    "PA-MERCHANT-STATE": "WA",
+    "PA-MERCHANT-ZIP": "98101",
+    "PA-TRANSACTION-ID": "TXN000000000001",
+    "PA-MATCH-STATUS": "P",
+    "PA-AUTH-FRAUD": " ",
+    "PA-FRAUD-RPT-DATE": " ",
+    "WS-FRD-ACTION": "R",
+    "WS-FRD-UPDATE-STATUS": " ",
+    "WS-FRD-ACT-MSG": " "
+   },
+   "why": "action 'R' on the reported row: -803, then the UPDATE sets AUTH_FRAUD 'R': 'UPDT SUCCESS'"
+  },
+  {
+   "name": "insert-fails",
+   "commarea": {
+    "WS-ACCT-ID": 20,
+    "WS-CUST-ID": 20,
+    "PA-AUTH-DATE-9C": 77720,
+    "PA-AUTH-TIME-9C": "896984876",
+    "PA-AUTH-ORIG-DATE": "221007",
+    "PA-AUTH-ORIG-TIME": "103015",
+    "PA-CARD-NUM": "4222222222222222",
+    "PA-AUTH-TYPE": "0100",
+    "PA-CARD-EXPIRY-DATE": "1225",
+    "PA-MESSAGE-TYPE": "0100",
+    "PA-MESSAGE-SOURCE": "POS",
+    "PA-AUTH-ID-CODE": "Z9Y8X7",
+    "PA-AUTH-RESP-CODE": "05",
+    "PA-AUTH-RESP-REASON": "4100",
+    "PA-PROCESSING-CODE": 0,
+    "PA-TRANSACTION-AMT": "2400.00",
+    "PA-APPROVED-AMT": "0.00",
+    "PA-MERCHANT-CATAGORY-CODE": "5411",
+    "PA-ACQR-COUNTRY-CODE": "840",
+    "PA-POS-ENTRY-MODE": 5,
+    "PA-MERCHANT-ID": "MERCH0000000077",
+    "PA-MERCHANT-NAME": "ELECTRONICS ONLINE",
+    "PA-MERCHANT-CITY": "AUSTIN",
+    "PA-MERCHANT-STATE": "TX",
+    "PA-MERCHANT-ZIP": "78701",
+    "PA-TRANSACTION-ID": "TXN000000000077",
+    "PA-MATCH-STATUS": "D",
+    "PA-AUTH-FRAUD": " ",
+    "PA-FRAUD-RPT-DATE": " ",
+    "WS-FRD-ACTION": "F",
+    "WS-FRD-UPDATE-STATUS": " ",
+    "WS-FRD-ACT-MSG": " "
+   },
+   "sql_faults": [
+    {
+     "program": "COPAUS2C",
+     "table": "AUTHFRDS",
+     "verb": "INSERT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "the INSERT fails otherwise (SQLCODE -913): 'F' and ' SYSTEM ERROR DB2: CODE:-000913, STATE: ...' (SQLCODE and SQLSTATE edited into PIC +9(06) / +9(09) and STRINGed)"
+  },
+  {
+   "name": "update-fails",
+   "commarea": {
+    "WS-ACCT-ID": 11,
+    "WS-CUST-ID": 11,
+    "PA-AUTH-DATE-9C": 77720,
+    "PA-AUTH-TIME-9C": "908457749",
+    "PA-AUTH-ORIG-DATE": "221005",
+    "PA-AUTH-ORIG-TIME": "091542",
+    "PA-CARD-NUM": "4111111111111111",
+    "PA-AUTH-TYPE": "0100",
+    "PA-CARD-EXPIRY-DATE": "1225",
+    "PA-MESSAGE-TYPE": "0100",
+    "PA-MESSAGE-SOURCE": "POS",
+    "PA-AUTH-ID-CODE": "A1B2C3",
+    "PA-AUTH-RESP-CODE": "00",
+    "PA-AUTH-RESP-REASON": "0000",
+    "PA-PROCESSING-CODE": 0,
+    "PA-TRANSACTION-AMT": "125.50",
+    "PA-APPROVED-AMT": "125.50",
+    "PA-MERCHANT-CATAGORY-CODE": "5411",
+    "PA-ACQR-COUNTRY-CODE": "840",
+    "PA-POS-ENTRY-MODE": 5,
+    "PA-MERCHANT-ID": "MERCH0000000001",
+    "PA-MERCHANT-NAME": "CORNER GROCERY",
+    "PA-MERCHANT-CITY": "SEATTLE",
+    "PA-MERCHANT-STATE": "WA",
+    "PA-MERCHANT-ZIP": "98101",
+    "PA-TRANSACTION-ID": "TXN000000000001",
+    "PA-MATCH-STATUS": "P",
+    "PA-AUTH-FRAUD": " ",
+    "PA-FRAUD-RPT-DATE": " ",
+    "WS-FRD-ACTION": "F",
+    "WS-FRD-UPDATE-STATUS": " ",
+    "WS-FRD-ACT-MSG": " "
+   },
+   "sql_faults": [
+    {
+     "program": "COPAUS2C",
+     "table": "AUTHFRDS",
+     "verb": "UPDATE",
+     "sqlcode": -913
+    }
+   ],
+   "why": "-803 on the INSERT, then the UPDATE fails (SQLCODE -913): 'F' and ' UPDT ERROR DB2: CODE:-000913, STATE: ...'"
+  }
+ ],
+ "notes": "CardDemo's fraud-report service (COPAUS2C), LINKed by COPAUS1C in its task (transaction CPVD, app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd) (the pending-authorization detail screen, held by its IMS DL/I calls) with DFHCOMMAREA: the account and customer ids, the pending authorization (COPY CIPAUDTY, the IMS segment) and the fraud action. It FORMATTIMEs the task's ASKTIME into PA-FRAUD-RPT-DATE, builds AUTH_TS from the authorization's original date and its inverted time key, and INSERTs the authorization into CARDDEMO.AUTHFRDS (FRAUD_RPT_DATE = CURRENT DATE); a duplicate key (-803) UPDATEs AUTH_FRAUD / FRAUD_RPT_DATE of the row instead; any other SQLCODE is 'F' with the SQLCODE / SQLSTATE in the message. The result is the COMMAREA it leaves (\"linked\": true) and the table. Db2 is the DDL's table and unique index with seed.sql's one reported row. FRAUD_RPT_DATE is Db2's CURRENT DATE on both sides (the same container, the same day; a run across midnight would differ). Not exercised: COPAUS1C itself (IMS). Derived from the AWS Mainframe Modernization CardDemo application (Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

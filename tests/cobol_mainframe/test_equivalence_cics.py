@@ -1118,6 +1118,75 @@ def test_a_writeq_ts_is_compared_by_its_queue_data_resp_and_item():
     assert failed["data"] is None  # what a failed write was given is not compared (the stub logs none)
 
 
+def test_the_cobol_side_reports_a_start_as_cicstask_records_it(tmp_path):
+    """#4270 (GenApp LGWEBST5, zECS ZECSPLT): the stub logs each START (GGCSTRT) and CicsTask.start records a START
+    event; the COBOL side used to drop it, so every task that STARTs differed. Its FROM data is compared as text, as
+    a WRITEQ TS item is; the interval, PROTECT, RESP and the expiry ($GGCICS_NOW: the case's clock) too."""
+    import base64
+
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text(
+        "001 START pgm=ZECSPLT transid=ZX01 termid= interval=000000 reqid= protect=0 resp=0 resp2=0 "
+        "expires=2026-10-01T10:30:15 len=4 area=1\n"
+        "002 START pgm=LGWEBST5 transid=SSST termid= interval=000100 reqid= protect=0 resp=0 resp2=0 "
+        "expires=2026-10-01T10:31:15 len=0 area=0\n"
+        "003 START pgm=X transid=T1 termid= interval=000000 reqid= protect=0 resp=16 resp2=5 expires= len=0 area=0\n"
+        "004 RETURN level=1\n",
+        encoding="ascii",
+    )
+    (out / "001.bin").write_bytes(b"ZC01")
+    res = ec.outputs(out, {"name": "x"}, tmp_path, [])
+    res["return"] = {"transid": "", "commarea": None}
+    got = ec.cobol_events(res)
+    assert got[0] == {"event": "START", "transid": "ZX01", "termid": None, "interval": "000000", "protect": False,
+                      "resp": "NORMAL", "expires": "2026-10-01T10:30:15", "from": "ZC01"}  # fmt: skip
+    assert got[1]["from"] is None and got[1]["interval"] == "000100"
+    assert got[2]["resp"] == "INVREQ" and got[2]["resp2"] == 5 and got[2]["expires"] is None
+
+    java = {"event": "START", "transid": "ZX01", "termid": None, "interval": "000000", "protect": False,
+            "resp": "NORMAL", "expires": "2026-10-01T10:30:15", "issuer": "ZECSPLT",
+            "from": base64.b64encode("ZC01".encode("cp037")).decode()}  # fmt: skip
+    j = ec.java_start_as_compared(java)
+    assert j["from"] == "ZC01" and ec.compare_events([got[0]], [j])["equal"] == 1
+    for key, other in (("from", "ZC02"), ("interval", "000100"), ("expires", "2026-10-01T10:31:15"), ("protect", True)):
+        d = ec.compare_events([got[0]], [{**j, key: other}])
+        assert [f["field"] for f in d["diffs"][0]["fields"]] == [key], key
+    assert ec.clock_iso({"clock": "2026/10/01 10:30:15.00"}) == "2026-10-01T10:30:15"
+
+
+def test_a_case_states_the_installed_urimaps_on_both_sides(tmp_path):
+    """#4270 zECS (X32): INQUIRE URIMAP browses the definitions the run states -- a scenario's (else the case's)
+    "urimaps", [NAME, TRANSACTION, PATH] each: the stub's $GGCICS_URIMAPS file, CicsTask.withUrimaps in the generated
+    test. Unstated, none (both runtimes refuse the browse by name); a malformed list is refused."""
+    import equivalence_java as ej
+
+    defs = [["ZC01", "ZC01", "/resources/ecs/a/b*"], ["NOTRAN", "", "/static/*"]]
+    case = {**_facade_case(), "clock": "2026/10/01 10:30:15.00", "screens": {}, "urimaps": defs}
+    assert ec.urimaps(case, {"name": "a"}) == defs
+    assert ec.urimaps(case, {"name": "b", "urimaps": []}) == []
+    assert ec.urimaps({}, {"name": "c"}) is None
+    for bad in ([["ZC01", "ZC01"]], [["ZC01", "ZC01", "/a b"]], [["TOOLONGNAME", "", "/x"]], "ZC01"):
+        with pytest.raises(ec.Unsupported, match="urimaps"):
+            ec.urimaps({}, {"name": "d", "urimaps": bad})
+    svc = tmp_path / "service" / f"{ej._service_class('PROG')}.java"
+    svc.parent.mkdir(parents=True)
+    svc.write_text("public void handleTransaction(String transid, ProgCa request) {}", encoding="utf-8")
+    java = ec.cics_equivalence_test(case, tmp_path, [])
+    assert 'if (sc.hasNonNull("urimaps")) {' in java and "task.withUrimaps(defs);" in java
+
+
+def test_the_facade_side_runs_a_link_channel_target_through_runtask():
+    """#4270 (async SEQPNT): a LINK CHANNEL to a channel program (its handleLink takes a <Program>ChannelIn DTO, not
+    a task) runs through runTask on the facade side, as the scenario's own channel program does (#4343), and
+    `entries` says so -- it used to throw before the LINK's level ran."""
+    enter = ec.FACADE_JAVA[ec.FACADE_JAVA.index("void enter(String p, CicsTask task, Object service)") :]
+    enter = enter[: enter.index("void entry(String p, String method)")]
+    chan = enter.index('getSimpleName().endsWith("ChannelIn")')
+    assert chan < enter.index("linked = task;")
+    assert 'call(method(service, "runTask", 1), service, task);' in enter[chan : enter.index("linked = task;")]
+
+
 def test_a_writeq_past_its_from_area_is_judged_up_to_the_refusal_x6():
     """Owner decision on #4607 (X6): a task the stub stops at a WRITEQ TS / TD whose LENGTH runs past FROM is judged
     up to that statement; any other "not modelled" stop (START / PUT CONTAINER past FROM, an LE model) is not."""

@@ -1539,4 +1539,13 @@ def facades(stub: str) -> list[str]:
                 body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                             else f"        return task.returned({ret}.class);")  # fmt: skip
         out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+    # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its
+    # controller calls: kept so the project compiles, it stops by name -- no task runtime carries a channel's DTO in
+    # (#4342: no generated entry that does nothing).
+    m = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
+    if m:
+        out += [f"    public {m.group(1)} handleChannel({m.group(2)}) {{",
+                ('        throw new UnsupportedOperationException("handleChannel: a channel entry has no task facade; '
+                 'the program runs as runTask or handleTransaction / handleLink");'),
+                "    }", ""]  # fmt: skip
     return out

@@ -1,0 +1,7 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): the program under test (app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl), its copybook CIPAUDTY,
+its DCLGEN AUTHFRDS and the table's DDL (ddl/AUTHFRDS.ddl, ddl/XAUTHFRD.ddl) are CardDemo's, used unmodified.
+seed.sql (one fraud row already reported) and the scenarios in case.json are written for this case.

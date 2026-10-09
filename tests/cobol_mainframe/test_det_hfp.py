@@ -384,3 +384,72 @@ def test_arith_extend_refuses_a_floating_point_expression(tmp_path):
         r = P.translate(cbl, [], "public class FltService {\n}\n", "p", None, tmp_path / "project")
         assert [h for h in r.stats["holes"] if not any(w in h for w in holes)] == [], r.stats["holes"]
         assert len(r.stats["holes"]) == len(holes), r.stats["holes"]
+
+
+# ---- FUNCTION NUMVAL in a fixed-point COMPUTE (#4741) --------------------------------------------------------------
+
+FIXED_PROBE = """
+import p.cobolrt.*;
+import java.math.BigDecimal;
+public class Probe {
+    static String run(String s, int scale, boolean rounded) {
+        try {
+            return Hfp.fixedStore(Hfp.numval(s, false), scale, rounded).toPlainString();
+        } catch (UnsupportedOperationException e) {
+            return "REFUSED " + e.getMessage();
+        }
+    }
+    public static void main(String[] a) {
+        Object[][] cases = {%CASES%};
+        for (Object[] k : cases) System.out.println(run((String) k[0], (Integer) k[1], (Boolean) k[2]));
+    }
+}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_numval_in_a_fixed_point_store_rounds_as_ibms_float_to_fixed_move(tmp_path):
+    """IBM evaluates NUMVAL in long floating point even in a fixed-point COMPUTE and rounds a float moved to a
+    fixed-point item ("Conversions and precision"); the model ASSUMES the store rounds too (register C6, #4702)."""
+    cases = [("12.5", 2, False), ("-0.375", 3, False), ("42", 0, False), ("1024.5", 2, False), ("0.1", 2, False),
+             ("0.1", 2, True), ("123.45", 2, False), ("12.34", 2, False), ("0.125", 2, False), ("12.7", 0, False),
+             ("-0.1", 2, False), ("1234567890123456", 0, False), ("0.00", 2, False)]  # fmt: skip
+    rt = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
+    out = tmp_path / "src/p/cobolrt"
+    out.mkdir(parents=True)
+    for f in rt.glob("*.java"):
+        (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
+    probe = FIXED_PROBE.replace("%CASES%", ", ".join(f'{{"{s}", {n}, {str(r).lower()}}}' for s, n, r in cases))
+    (tmp_path / "src/Probe.java").write_text(probe)
+    jdk = _jdk()
+    files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
+    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert got[:4] == ["12.500", "-0.375", "42", "1024.50"][:0] + ["12.50", "-0.375", "42", "1024.50"]
+    # 0.1 is 0.0999... in long HFP (4019999999999999): truncation would give 0.09, the rounding 0.10
+    assert got[4] == "0.10" and got[5] == "0.10" and got[6] == "123.45" and got[7] == "12.34", got
+    assert got[8] == "0.13" and got[9] == "13" and got[10] == "-0.10", got  # half away from zero
+    assert got[11].startswith("REFUSED") and "more than 15 significant digits" in got[11], got[11]
+    assert got[12] == "0.00"
+
+
+def test_a_numval_compute_is_a_float_statement_with_checked_stores(tmp_path):
+    """No float operand and no float receiver: NUMVAL alone makes the COMPUTE long HFP (IBM: a floating-point
+    function), and the store into the fixed-point receiver goes through Hfp.fixedStore; an ADD likewise; a statement
+    without NUMVAL is unchanged."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    body = ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. NVF.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n       01 T PIC X(8) VALUE '12.5'.\n       01 A PIC 9(5)V99.\n"
+            "       01 B PIC 9(5)V99.\n       PROCEDURE DIVISION.\n"
+            "           COMPUTE A = FUNCTION NUMVAL(T) * 2\n           ADD FUNCTION NUMVAL(T) TO A\n"
+            "           COMPUTE B = A + 1\n           GOBACK.\n")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    cbl = tmp_path / "NVF.cbl"
+    cbl.write_text(body, encoding="ascii")
+    r = P.translate(cbl, [], "public class NvfService {\n}\n", "p", None, tmp_path / "project")
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert r.java.count("Hfp.fixedStore(") == 2, r.java
+    assert "Hfp.multiply(Hfp.numval(" in r.java

@@ -706,6 +706,15 @@ class Cics:
             dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
         return dto, length
 
+    def commarea_bytes(self, opts: dict, program: str | None = None) -> str:
+        """#4806: the COMMAREA's bytes as its DTO spans them (a byte[] expression): passed beside the DTO, they are
+        the target's DFHCOMMAREA as they are -- a numeric field holding spaces too, which the DTO reads as a number."""
+        r = self.ref(opts["COMMAREA"])
+        cls = self.dto_for(r, self.size(opts["COMMAREA"]), program)
+        with self.g.reading():
+            f = self.g.field_expr(r)
+        return f"Cobol.commarea({f}, {self.gp.dto(cls).size}).bytes"
+
     # -- files
     def store(self, opts: dict) -> str:
         """The Store of the command's file (a literal name); a name only known at run time: looked up then."""
@@ -861,8 +870,13 @@ class Cics:
                         f"{ind}{cls} {ca} = out_{cls}({w}, 0);",
                         # #4181 follow-up: the bytes too (by reference), every one the target's DTO does not name
                         f"{ind}String {r} = task.link({prog}, {ca}, {length}, {w}.bytes);",
-                        # what the linked program left in the COMMAREA is the caller's area now
-                        f"{ind}if (\"NORMAL\".equals({r})) {{ in_{cls}({ca}, {w}, 0); Cobol.commareaBack({w}, {f}); }}"]  # fmt: skip
+                        # what the linked program left in the COMMAREA is the caller's area now: #4806 its bytes when
+                        # it took them (task.linkAreaBack: a det port), never its DTO over them -- a numeric field
+                        # holding spaces it did not write would come back as digits; else (it took the object) the DTO
+                        f"{ind}if (\"NORMAL\".equals({r})) {{",
+                        f"{ind}    if (!task.linkAreaBack()) {{ in_{cls}({ca}, {w}, 0); }}",
+                        f"{ind}    Cobol.commareaBack({w}, {f});",
+                        f"{ind}}}"]  # fmt: skip
             ex = g.tmpname("exit")
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
@@ -895,17 +909,29 @@ class Cics:
         if verb == "XCTL":
             prog_lit = _literal(opts["PROGRAM"])
             prog = self.name(_arg(opts["PROGRAM"]))
+            pre: list[str] = []
             if "CHANNEL" in opts:  # #4270: the target's current channel (CicsTask.xctlChannel)
                 if "COMMAREA" in opts or "LENGTH" in opts:
                     raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
                 dto, length = self.commarea_out(opts, prog_lit)
-                call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
+                if not dto.startswith("DetCics.commareaOut("):
+                    # #4806: the bytes too -- a det target's DFHCOMMAREA is them, not the DTO's reading of them
+                    area = self.commarea_bytes(opts, prog_lit)
+                    call = f"task.xctl({prog}, {dto}, {length if length != 'null' else '(Integer) null'}, {area})"
+                elif length != "null" and self.constant_int(opts["LENGTH"]) is None:
+                    # a LENGTH known at run time: the bytes past the DTO (#4501), else the DTO and its bytes (#4806)
+                    xc = g.tmpname("xc")
+                    pre.append(f"{ind}Object {xc} = {dto};")
+                    area = f"({xc} instanceof byte[] ? null : {self.commarea_bytes(opts, prog_lit)})"
+                    call = f"task.xctl({prog}, {xc}, {length}, {area})"
+                else:  # always the bytes past the DTO (#4501 LENGTH, #4765 a table's every occurrence)
+                    call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
-            return ([f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
+            return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
                     *self.outcome(opts, f"DetCics.resp({r})", f"DetCics.xctlResp2({r})", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)

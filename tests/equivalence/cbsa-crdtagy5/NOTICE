@@ -1,0 +1,12 @@
+CICS Bank Sample Application (CBSA)
+https://github.com/cicsdev/cics-banking-sample-application-cbsa
+Copyright IBM Corp. 2023
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, src/base/cobol_src/CRDTAGY5.cbl,
+and its copybooks (SORTCODE, ABNDINFO) are CBSA's, used unmodified from the
+corpus.
+
+The containers in case.json are synthetic test data written for this case in
+the layout of CBSA's CRECUST copybook (the COMMAREA CRECUST puts into them);
+they are not CBSA data. The scenarios in case.json are written for this case.

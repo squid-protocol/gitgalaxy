@@ -1,0 +1,9 @@
+CICS Bank Sample Application (CBSA)
+https://github.com/cicsdev/cics-banking-sample-application-cbsa
+Copyright IBM Corp. 2023
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, src/base/cobol_src/GETCOMPY.cbl,
+and its copybook (GETCOMPY) are CBSA's, used unmodified from the corpus.
+
+The scenarios in case.json are written for this case.

@@ -486,6 +486,35 @@ def test_events_are_compared_field_by_field():
     assert ec.compare_events(cobol, java[:1])["diffs"][-1] == {"event": 2, "cobol": "RETURN", "java": None}
 
 
+def test_send_control_is_an_event_both_sides_compare_by_options_and_cursor():
+    """#4270 (CBSA's CLEAR key): the stub's SEND-CONTROL line is an event like CicsTask's, its options and CURSOR
+    compared -- a port that left it out, or sent other options, differs."""
+    res = {"events": ["SEND-CONTROL pgm=BNKMENU cursor=-1 opts=ERASE FREEKB", "RETURN pgm=BNKMENU level=1 transid= len=0"],
+           "screens": [], "text": [], "return": {"transid": "", "commarea": None}}  # fmt: skip
+    cobol = ec.cobol_events(res)
+    assert cobol[0] == {"event": "SEND-CONTROL", "options": ["ERASE", "FREEKB"], "cursor": None}
+    java = [{"event": "SEND-CONTROL", "options": ["FREEKB", "ERASE"], "cursor": None},
+            {"event": "RETURN", "transid": None, "commarea": None}]  # fmt: skip
+    assert ec.compare_events(cobol, java)["equal"] == 2
+    assert ec.compare_events(cobol, [{**java[0], "options": ["ERASE"]}, java[1]])["equal"] == 1
+    assert ec.compare_events(cobol, java[1:])["equal"] == 0
+
+
+def test_a_tasks_terminal_and_origin_are_stated_facts_or_none():
+    """#4270: "termid" / "uctranst" / "origin" -- the scenario's, else the case's; unstated None (the commands that
+    read them are then refused by both runtimes); a malformed one refused by name."""
+    case = {"termid": "T001", "uctranst": "NOUCTRAN"}
+    assert ec.terminal_facts(case, {"name": "s"}) == {"termid": "T001", "uctranst": "NOUCTRAN", "origin": None}
+    assert ec.terminal_facts({}, {"name": "s"}) == {"termid": None, "uctranst": None, "origin": None}
+    origin = {"applid": "CBSAREGN", "userid": "CICSUSER", "facilname": "T001", "networkid": "NET1",
+              "faciltype": "TERMINAL"}  # fmt: skip
+    assert ec.terminal_facts(case, {"name": "s", "origin": origin})["origin"] == origin
+    for bad in ({"termid": "T 01"}, {"termid": "TOOLONG"}, {"termid": "T001", "uctranst": "YES"},
+                {"uctranst": "UCTRAN"}, {"origin": {**origin, "userid": ""}}, {"origin": {"applid": "A"}}):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "s", **bad})
+
+
 def test_low_values_and_spaces_in_a_commarea_are_different_values():
     """#4635: a field RECEIVE MAP left LOW-VALUES and one the port left spaces are different bytes to the next program
     (COSGN00C: the RETURN COMMAREA's CDEMO-USER-ID); trailing spaces alone are still not data."""

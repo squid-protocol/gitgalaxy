@@ -1,0 +1,414 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1DCS",
+ "program_source": "src/base/cobol_src/BNK1DCS.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODCS",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "UPDCUST",
+   "program_source": "src/base/cobol_src/UPDCUST.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1DCS.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1DC": {
+   "copybook": "@bms/BNK1DCM.cpy",
+   "input": "BNK1DCI",
+   "output": "BNK1DCO"
+  }
+ },
+ "uctranst": "NOUCTRAN",
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "uctranst": "UCTRAN",
+   "why": "EIBCALEN 0 at a terminal with upper-case translation on (UCTRAN): STORE-TERM-DEF INQUIREs UCTRANST, keeps it and SETs NOUCTRAN; the map sent ERASE; RETURN TRANSID('ODCS') LENGTH(266) with the stored CVDA in WS-COMM-TERM"
+  },
+  {
+   "name": "first-entry-nouctran",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0 at a terminal already NOUCTRAN: nothing SET"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PA1: CONTINUE, nothing sent; the DFHCOMMAREA copied to WS-COMM-AREA, RETURN TRANSID"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF3: RESTORE-TERM-DEF SETs the terminal's UCTRANST back to the COMMAREA's (451, NOUCTRAN), RETURN TRANSID('OMEN') IMMEDIATE"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF12: RESTORE-TERM-DEF, the termination message, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "CLEAR: RESTORE-TERM-DEF, SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF7",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with no field modified: RECEIVE MAP ... TERMINAL ASIS is MAPFAIL -- RM010 LINKs ABNDPROC (an ABNDFILE record), RESTORE-TERM-DEF, ABEND HBNK"
+  },
+  {
+   "name": "inquire",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with customer 1: RECEIVE MAP ... TERMINAL ASIS (lower case kept, X28), BIF DEEDIT, LINK INQCUST (run in the task: READ FILE('CUSTOMER') by the program's own sort code) -- the customer shown, name, address split into three lines, dates and credit score",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "inquire-professor",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with customer 4, a longer name and title",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000004",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "inquire-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with customer 5, not on the CUSTOMER file: INQCUST 'N' -- the not-found message",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000005",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "inquire-no-number",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with only the sort code typed (CUSTNOL 0): 'Please enter a customer number.', no LINK",
+   "receive": {
+    "BNK1DC": {
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "inquire-deedited",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER with '00-0000001': BIF DEEDIT leaves 0000000001",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "00-0000001",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "amend",
+   "aid": "DFHPF10",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF10 on customer 2's screen (every shown field comes back with the RECEIVE): EDIT-DATA and VALIDATE-DATA pass, UNPROT-CUST-DATA keeps the shown customer in the COMMAREA (COMM-UPD 'Y'), the name and address fields unprotected, green and underlined -- 'Amend data then press <ENTER>.'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "amend-sortcode-zero",
+   "aid": "DFHPF10",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF10 with sort code 000000: 'The Sort code / Customer number combination is not VALID.'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "000000"
+    }
+   }
+  },
+  {
+   "name": "amend-last-customer",
+   "aid": "DFHPF10",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF10 with customer 9999999999: 'The customer number is not VALID.'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "9999999999",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "delete-customer-zero",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF5 with customer 0000000000: VALIDATE-DATA refuses it, no LINK DELCUS",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000000",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "update",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "ENTER with COMM-UPD 'Y': EDIT-DATA2 accepts the title 'Mrs' and the address, UPDATE-CUST-DATA LINKs UPDCUST (run in the task: the CUSTOMER record rewritten with the new name and address) -- the success message",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-dr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Dr'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Dr Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-bad-title",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update titled 'Captain': 'Valid titles are: Mr,Mrs,Miss,Ms,Dr,Professor,...', no LINK",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Captain Carol Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-blank-address",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with all three address lines blank: 'Address must not be all spaces', no LINK",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": " ",
+     "CUSTAD2I": " ",
+     "CUSTAD3I": " ",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update of customer 5, not on file: UPDCUST 'N' -- its failure message",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000005",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000005",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  }
+ ],
+ "notes": "CBSA's display / amend / delete-customer screen (BNK1DCS, transaction ODCS, BMS map BNK1DC of mapset BNK1DCM: the symbolic map is generated from src/base/bms_src/BNK1DCM.bms, @bms/BNK1DCM.cpy). Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26); a first task stores the terminal's UCTRANST in the COMMAREA and turns translation off, and every exit (PF3 / PF12 / CLEAR, an abend) SETs it back from the COMMAREA (WS-COMM-TERM 451 in every returning scenario). ENTER inquires (LINK INQCUST); PF10 checks the customer and unprotects the name and address for amending (COMM-UPD 'Y'); ENTER with COMM-UPD 'Y' validates the title and address and LINKs UPDCUST; PF5 deletes through DELCUS. INQCUST, UPDCUST and ABNDPROC run in the task, as in cbsa-inqcust / cbsa-updcust. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 266). CUSTOMER and ABNDFILE are compared after every scenario. Not reached: a valid PF5 delete -- DELCUS is not translated whole (cics_census: 4 holes), so no scenario LINKs it --; a terminal whose translation is on when a RECEIVE follows the SET (IBM does not say when a SET UCTRANST takes effect: refused by both runtimes, X26), a customer number with no digit after BIF DEEDIT (not modelled), a PF10 whose date / credit-score fields came back empty (UNPROT-CUST-DATA MOVEs the symbolic map's LOW-VALUES through a 9(8) REDEFINES: non-digit data in a numeric MOVE, oracle_assumptions.md C11 -- the scenarios give PF10 the screen's fields as shown), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE / SET (no fault can be injected on them). Data: customer.txt is cbsa-updcust's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

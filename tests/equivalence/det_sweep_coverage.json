@@ -499,10 +499,10 @@
    "inputs": {
     "case": "32bd7606058e44fc1976bab563073741b843e99ed4e8c2f2382ba46221ee0c26",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "196d39a78bec490ff86e862a0c1acc0e7678e06689e6951b5775456f0e13650f",
-    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
    },
-   "measured_at": "d4b0f9137bffe3856b55de42e87833e3459620b0"
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-custctrl": {
    "scenarios": 6,
@@ -517,9 +517,10 @@
    "inputs": {
     "case": "5abdcd4d81aa4bec7b6474e7659207b876d49926c72fd8262536ac45df3dd604",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-dbcrfun": {
    "scenarios": 25,
@@ -534,9 +535,10 @@
    "inputs": {
     "case": "01ea326724a638ab18518bcd9da7b7701545b804756ea1e33a5204248ebdd1ae",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-delacc": {
    "scenarios": 14,
@@ -551,9 +553,10 @@
    "inputs": {
     "case": "2049daea2586d2211c74ebfb5831a707bb965c4de0ee7bbf6e08f1e30b891c4a",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-inqacc": {
    "scenarios": 17,
@@ -568,9 +571,28 @@
    "inputs": {
     "case": "a39d307ace7093196d4217da06487c426d80acc673d572f5697f7a0c8d23af97",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
+  },
+  "cbsa-inqacccu": {
+   "scenarios": 10,
+   "paragraphs": {
+    "covered": 16,
+    "live": 22
+   },
+   "branches": {
+    "covered": 19,
+    "total": 33
+   },
+   "inputs": {
+    "case": "dde934faa4dddad5a722997a2e4420a87602a7a08489fbc4df0d73235a412170",
+    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-updacc": {
    "scenarios": 12,
@@ -585,9 +607,10 @@
    "inputs": {
     "case": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-updacc-generated": {
    "scenarios": 42,
@@ -602,9 +625,10 @@
    "inputs": {
     "case": "28a4504359e22c2086f18e990f009dc5165131b6a7a0e270bb16f6325ec3c809",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-updcust": {
    "scenarios": 23,
@@ -619,10 +643,10 @@
    "inputs": {
     "case": "c9c76116b6cbd83fb929db7bd58a606bee9479b3baaeec72d146138e5f1af90b",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "196d39a78bec490ff86e862a0c1acc0e7678e06689e6951b5775456f0e13650f",
-    "oracle": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
    },
-   "measured_at": "d4b0f9137bffe3856b55de42e87833e3459620b0"
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "cbsa-xfrfun": {
    "scenarios": 27,
@@ -637,9 +661,10 @@
    "inputs": {
     "case": "7ffdb8e87cf7a2805e24f593a534b1869317be541532206beca022599b11b056",
     "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-    "harness": "de7dd22623f041d8db3887c9455b0a6f5bcf9ed6ade17f94aefdb0d4b7509af8",
-    "oracle": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
-   }
+    "harness": "47dc2d34c83f38e8cc8039da07696b622162e7260c9f128112900effc71e0ec0",
+    "oracle": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   },
+   "measured_at": "5f20bae23b4ae05f2e0fd8765c27e44ddc7f5615"
   },
   "genapp-lgacdb01": {
    "scenarios": 9,

@@ -1378,7 +1378,7 @@ def commarea_record(fields: list[dict[str, Any]], values: dict[str, Any], enc: s
 
 
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
-                  keep_nulls: bool = False, exact: bool = False) -> dict[str, str]:  # fmt: skip
+                  keep_nulls: bool = False, exact: bool = False, unnamed: bool = False) -> dict[str, str]:  # fmt: skip
     """{field name: value as text} -- numeric fields as exact decimals, text with trailing
     spaces and nulls dropped (a screen shows neither). #3815: text and zoned bytes read in `enc`.
     `keep_nulls`: a text ending in LOW-VALUES kept whole -- a COMMAREA handed to the Java side, whose DTO codec pads
@@ -1387,10 +1387,16 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     LOW-VALUES and one it left spaces are different values, as they are to the next program (`IF X = SPACES OR
     LOW-VALUES` exists because they differ). For the COMMAREA a task returns; a screen still shows neither.
     #4765: a layout with every occurrence (layout_fields(..., occurrences=True)) is read by `data`'s own OCCURS
-    DEPENDING ON counts (common.active_fields): an occurrence past its table's count is not part of the record."""
+    DEPENDING ON counts (common.active_fields): an occurrence past its table's count is not part of the record.
+    #4778 `unnamed`: a FILLER too, as its bytes (hex), keyed by where it lies (FILLER@217): a COMMAREA's FILLER is its
+    caller's storage, which holds what the program left there (CBSA's CUSTCTRL DFHCOMMAREA ends in 217 bytes of it).
+    Read so on both sides only when both are bytes: a DTO has no property for it (compare_events: `commarea_dto`)."""
     out = {}
     for f in common.active_fields(data, fields, enc):
         if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
+            raw = data[f["offset"] : f["offset"] + f["bytes"]]
+            if unnamed and len(raw) == f["bytes"]:
+                out[f"FILLER@{f['offset']}"] = raw.hex().upper()
             continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
@@ -1590,7 +1596,19 @@ def task_containers(path: Path) -> dict[str, Any] | None:
 
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
     scr = case["screens"][map_name]
-    return common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
+    return screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
+
+
+def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, Any]]:
+    """A symbolic map's layout (one side's record), as a screen is compared: each field once. #4778: a map whose
+    fields repeat (BMS OCCURS=, an OCCURS in its symbolic map) is refused by name -- a screen's fields are compared
+    by their single-occurrence layout, which would read only the first of them -- until the screen compare names
+    every occurrence, as a COMMAREA's (#4765) does. No case's map has one yet; test_call_compare_4778 keeps it so."""
+    fields = common.layout_fields(corpus, copybook, record)
+    if any(f.get("subscripts") for f in common.layout_fields(corpus, copybook, record, occurrences=True)):
+        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS -- its repeated fields would be compared "
+                          "at their first occurrence only", ["BMS OCCURS"])  # fmt: skip
+    return fields
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
@@ -2180,7 +2198,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(data, ca_fields, enc, exact=True) if data else None
+            ca = decode_record(data, ca_fields, enc, exact=True, unnamed=True) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -2199,7 +2217,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
-        decode_record(left.read_bytes(), ca_fields, enc, exact=True) if left.is_file() and left.stat().st_size else None
+        decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
+        if left.is_file() and left.stat().st_size
+        else None
     )
     return res
 
@@ -2221,7 +2241,7 @@ def map_subfields(
     cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
     out: dict[str, dict[str, int]] = {}
     scr = case["screens"][map_name]
-    layouts = [common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
+    layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
                for side in ("input", "output")]  # fmt: skip
     data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
     space = " ".encode(enc)
@@ -3200,7 +3220,7 @@ def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, A
             raise Unsupported(
                 'a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"]
             )
-        return decode_record(data, ca_fields, enc, exact=True)
+        return decode_record(data, ca_fields, enc, exact=True, unnamed=True)
     return first_occurrences(from_java(value, shape), ca_fields)
 
 
@@ -3220,7 +3240,7 @@ def java_area(area: str, ca_fields: list[dict[str, Any]], enc: str) -> dict[str,
 
     if not ca_fields:
         raise Unsupported('a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"])
-    return decode_record(base64.b64decode(area), ca_fields, enc, exact=True)
+    return decode_record(base64.b64decode(area), ca_fields, enc, exact=True, unnamed=True)
 
 
 def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
@@ -3246,6 +3266,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
+                if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
+                    e["commarea_dto"] = True
                 e["commarea"] = (
                     java_commarea(e["commarea"], shape, ca_fields or [], enc) if e["commarea"] is not None else None
                 )
@@ -3338,6 +3360,8 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
             # from spaces, is the same undefined storage)
             undefined |= {k for k, v in ca.items()
                           if isinstance(v, str) and re.fullmatch(r"<invalid b'(\\x00)+'>|\x00+", v)}  # fmt: skip
+            # #4778: a FILLER's bytes (decode_record `unnamed`), all LOW-VALUES: the same undefined storage
+            undefined |= {k for k, v in ca.items() if k.startswith("FILLER@") and re.fullmatch(r"(00)+", v or "")}
     if not undefined:
         return cev, jev
 
@@ -3530,8 +3554,10 @@ def compare_task_sysout(cobol: bytes, java_file: Path, enc: str) -> dict[str, An
 
 
 def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
-    """Events paired in order; per pair, every differing field. {events, equal, diffs}."""
-    diffs, equal = [], 0
+    """Events paired in order; per pair, every differing field. {events, equal, diffs}, and #4778 `not_compared`:
+    a COMMAREA's FILLER bytes (decode_record `unnamed`) when the Java side gave back a DTO, which has no property for
+    them -- listed with that reason, never counted equal."""
+    diffs, equal, not_compared = [], 0, {}
     for n in range(max(len(cobol), len(java))):
         c = cobol[n] if n < len(cobol) else None
         j = java[n] if n < len(java) else None
@@ -3558,6 +3584,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             cv, jv = c.get(part) or {}, j.get(part) or {}
             same = _same_commarea if part == "commarea" else _same
             for name in cv:
+                if part == "commarea" and name.startswith("FILLER@") and j.get("commarea_dto"):
+                    not_compared[f"commarea.{name}"] = UNNAMED_IN_A_DTO
+                    continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
@@ -3578,7 +3607,15 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:
             equal += 1
-    return {"events": max(len(cobol), len(java)), "equal": equal, "diffs": diffs}
+    out = {"events": max(len(cobol), len(java)), "equal": equal, "diffs": diffs}
+    if not_compared:
+        out["not_compared"] = not_compared
+    return out
+
+
+UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
+                    "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
+                    "compared)")  # fmt: skip
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
@@ -3817,7 +3854,8 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
         cev, jev = mask_absent_commarea(sc, cev, jev, [0])
         d = compare_events(cev, jev)
         o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
-                             "entries": facade["entries"].get(name, [])}  # fmt: skip
+                             "entries": facade["entries"].get(name, []),
+                             **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
         ok = d["equal"] == d["events"]
         if x6:
             o["judged_to"], o["x6"] = judged_to(x6), x6
@@ -3935,7 +3973,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
-                                   "cobol": cev, "java": jev}  # fmt: skip
+                                   "cobol": cev, "java": jev,
+                                   **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
         ok &= d["equal"] == d["events"]
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point

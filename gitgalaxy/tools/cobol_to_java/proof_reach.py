@@ -31,9 +31,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-# The methods a proof calls: equivalence_cics.py / cics_crucible.py (runTask), equivalence_call.py (handleCall),
-# equivalence_java.py (runBatch).
-PROOF_ROOTS = ("runTask", "handleCall", "runBatch")
+# The methods a proof calls: equivalence_cics.py / cics_crucible.py (runTask), equivalence_call.py (handleCall, and
+# withCallAreas before it on a port that has one: #4778, the USING items' bytes), equivalence_java.py (runBatch).
+PROOF_ROOTS = ("runTask", "handleCall", "withCallAreas", "runBatch")
 
 # A declaration's header is the code between the `;`, `{` or `}` before a `{` and that `{`; each pattern below is
 # matched against one header, whole (fullmatch), so a scan is linear in the file. `<type> <name>(...)` headers that

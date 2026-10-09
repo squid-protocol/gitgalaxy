@@ -28,7 +28,7 @@ import cobol_answer_key as ak
 SQLCA = Path(__file__).resolve().parent.parent / "equivalence" / "db2" / "SQLCA.cpy"
 SQLDA = SQLCA.with_name("SQLDA.cpy")  # declared only: dynamic SQL is refused
 STUB = Path(__file__).resolve().parent.parent / "equivalence" / "db2" / "ggsql.c"
-MAX_ARGS = 24  # ggsql.c's GGSQL takes 24 host-variable arguments
+MAX_ARGS = 32  # ggsql.c's GGSQL takes 32 host-variable arguments
 
 
 class Unsupported(Exception):
@@ -181,7 +181,7 @@ class Program:
             raise Unsupported(f"host variable {it['name']}: SIGN SEPARATE")
         if re.fullmatch(r"[XA]+(\(\d+\))?([XA]+(\(\d+\))?)*", pic):
             return HostVar(arg, "X", ak._pic_bytes(pic, None))
-        m = re.fullmatch(r"(S?)((?:9(?:\(\d+\))?)+)(?:V((?:9(?:\(\d+\))?)+))?", pic)
+        m = re.fullmatch(r"(S?)((?:9(?:\(\d+\))?)+)(?:V((?:9(?:\(\d+\))?)*))?", pic)  # a DCLGEN writes S9(11)V
         if not m:
             raise Unsupported(f"host variable {it['name']}: PIC {pic}")
 

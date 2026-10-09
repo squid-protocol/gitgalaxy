@@ -130,3 +130,19 @@ def test_a_positioned_update_runs_as_written_on_its_named_cursor():
         and "S 3 EXEC 1 0 -" in lines
         and "Q UPDATE T SET A = ? WHERE CURRENT OF C1" in lines
     )
+
+
+def test_a_dclgen_picture_with_a_trailing_v_and_a_26_column_insert():
+    """#4270 (CardDemo COPAUS2C): a DCLGEN writes DECIMAL(11) as PIC S9(11)V COMP-3 -- a V with no digits after it,
+    scale 0 -- and COPAUS2C INSERTs 26 columns (25 host variables): the stub takes up to MAX_ARGS (32) arguments."""
+    data = [f"01 HV-{i} PIC X(2)." for i in range(25)] + ["01 HV-ACCT PIC S9(11)V USAGE COMP-3."]
+    vals = [f"  :HV-{i}," for i in range(24)]
+    _, table = precompile(["EXEC SQL INSERT INTO T VALUES (", *vals, "  :HV-ACCT) END-EXEC"], data)
+    lines = _shape(table)
+    assert lines[0] == "S 1 EXEC 25 0 -"
+    assert lines[25] == "I 24 P 6 11 0 1 -1"  # DECIMAL(11,0), packed in 6 bytes
+    assert Q.MAX_ARGS == 32 and "unsigned char *h31) {" in Q.STUB.read_text(encoding="ascii")
+    too_many = [f"01 HV-{i} PIC X(2)." for i in range(33)]
+    with pytest.raises(Q.Unsupported, match="33 host variables"):
+        precompile(["EXEC SQL INSERT INTO T VALUES (", *[f"  :HV-{i}," for i in range(32)], "  :HV-32) END-EXEC"],
+                   too_many)  # fmt: skip

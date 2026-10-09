@@ -65,7 +65,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 67,
-   "sha256": "645d8151ea3dba13f78232d2c3bf8a3389695b3b86d54b554446dd3c68fb9ac0",
+   "sha256": "6417ab2eca1d4b367afd3b035f0643081dba1aa3059585c6287d05e8f56ac9eb",
    "components": {
     "generator:cobolrt/Cobol.java": "f44d59efd09c70486a2b25eb015cbcdccf4e5d7204910eede1c17b61aec36f97",
     "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
@@ -73,7 +73,7 @@
     "generator:cobolrt/Field.java": "4e509ad37fb783dd6c4f2fbbe6e93b10fbaf5dc332ba9955f0cae3f7178732c0",
     "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
     "generator:cobolrt/Funcs.java": "48b7776252cc93254377294d1add8a850d8980315885ce9821664432005c2ce0",
-    "generator:cobolrt/Hfp.java": "091cc29ea443a4d441d63dd60f8629fa5658eb8375a42dcca472259fbe4b1bbd",
+    "generator:cobolrt/Hfp.java": "269002453c18bad6b8f7db97518732610ebf60c92d4a7a79b1e56123405a98e8",
     "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
     "generator:cobolrt/Lossless.java": "5360ac01925ca83215c15dad30e37bb6ed7e9b4e2ae873350681f3cb89d0d491",
     "generator:cobolrt/Sort.java": "6edc1333563834af5976a6682d22b2332678c8f09cf89cfdfb47be5cf56da6f9",
@@ -93,7 +93,7 @@
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
-    "generator:det/gen": "88e2756f281d33ee5d4ddf1071f2331a98694dc5e4ddb41500625805873bf63e",
+    "generator:det/gen": "0c8257b455aada54e53ff32f70ccb23e5fb336804b24d38fb6f60d9a0f49e965",
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -138,10 +138,10 @@
     }
    }
   },
-  "digest": "4510855c9ae130c20c6308e7bf4d8a3a9c344df514ef83199af6d170af39ddf9"
+  "digest": "2a4fdd837c67cec6ed158d9e734bcd99b09f0a76b7e4ce79d135f1ec3e4e006f"
  },
  "proof": {
-  "at": "2026-10-09T20:06:44Z",
+  "at": "2026-10-09T20:50:13Z",
   "verdict": "proven",
   "runs": 5,
   "fault_runs": 0,
@@ -175,8 +175,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "8130b9a928c8690aa77504c10bb83c62409a70f0+uncommitted",
-  "inputs_digest": "4510855c9ae130c20c6308e7bf4d8a3a9c344df514ef83199af6d170af39ddf9"
+  "harness_commit": "1e86a6bb179bf2156131ab0965fe4482d4f24e11+uncommitted",
+  "inputs_digest": "2a4fdd837c67cec6ed158d9e734bcd99b09f0a76b7e4ce79d135f1ec3e4e006f"
  },
  "coverage": {
   "paragraphs": {
@@ -191,7 +191,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/hc-abend-link/HCMAIN",
   "ledger_sha256": "95f8d57261c6f6b47c207fc37718c23892eae9644f6e7c73974ae1a61e779575",
-  "inputs_digest": "4510855c9ae130c20c6308e7bf4d8a3a9c344df514ef83199af6d170af39ddf9"
+  "inputs_digest": "2a4fdd837c67cec6ed158d9e734bcd99b09f0a76b7e4ce79d135f1ec3e4e006f"
  },
  "reach": {
   "entry_points": [

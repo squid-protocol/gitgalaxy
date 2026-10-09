@@ -561,7 +561,8 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
     """One run of the step on both sides: equal when both abend with the same code, or neither does and their
     RETURN-CODE and every compared output are equal. A fault run also needs the same faults fired on both
     sides, and at least one: a planned fault the run never reaches tested nothing. After an abend the outputs
-    are not compared -- what an abended step leaves in its datasets is not defined."""
+    are not compared -- what an abended step leaves in its datasets is not defined -- except its Db2 tables (#4269):
+    the abend backed out the work since the step's last COMMIT, so they hold what it committed."""
     abend = {"cobol": cobol.get("ABEND", b"").decode() or None, "java": java.get("ABEND", b"").decode() or None}
     rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
     run: dict[str, Any] = {"abend": abend, "return_code": rc, "outputs": {}}
@@ -578,6 +579,8 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
     if abend["cobol"] or abend["java"]:
         if abend["cobol"] != abend["java"]:
             why.append(f"ABEND: COBOL {abend['cobol']}, Java {abend['java']}")
+        else:
+            _compare_tables(case, cobol, java, run, why)
     else:
         if rc["cobol"] != rc["java"]:
             why.append(f"RETURN-CODE: COBOL {rc['cobol']}, Java {rc['java']}")
@@ -605,12 +608,7 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             run["outputs"][dd] = d
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
-        for t in (case.get("db2") or {}).get("compare", []):  # a Db2 table: its rows, as text, line by line
-            d = equivalence_db2.diff_dump(cobol.get(f"DB2 {t}", b""), java.get(f"DB2 {t}", b""))
-            run["outputs"][f"DB2 {t}"] = d
-            diffs, rows = d["diffs"], d["records"]
-            if diffs:
-                why.append(f"DB2 {t}: {rows - len(diffs)}/{rows} rows equal")
+        _compare_tables(case, cobol, java, run, why)
         # #4507: what Db2 answered each side's statements (not a run with planned SQL faults: those are compared as
         # fired faults)
         if (case.get("db2") or {}).get("compare_sql") and not (fault or {}).get("sql_plan"):
@@ -634,6 +632,17 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
         run["summary"] += " (C10: " + ", ".join(f"{dd} {n} sign bytes F/C" for dd, n in run["sign_equivalent"].items())
         run["summary"] += ")"
     return run
+
+
+def _compare_tables(case: dict[str, Any], cobol: dict[str, bytes], java: dict[str, bytes], run: dict[str, Any],
+                    why: list[str]) -> None:  # fmt: skip
+    """Each compared Db2 table: its rows, as text, line by line."""
+    for t in (case.get("db2") or {}).get("compare", []):
+        d = equivalence_db2.diff_dump(cobol.get(f"DB2 {t}", b""), java.get(f"DB2 {t}", b""))
+        run["outputs"][f"DB2 {t}"] = d
+        diffs, rows = d["diffs"], d["records"]
+        if diffs:
+            why.append(f"DB2 {t}: {rows - len(diffs)}/{rows} rows equal")
 
 
 # ---- CLI -----------------------------------------------------------------------------
@@ -683,6 +692,9 @@ def main() -> int:
     r.add_argument("--record", action="store_true", help="#4048: write the case's evidence record "
                    "(tests/equivalence/CASE/evidence.json) from this run -- the committed port on the committed case "
                    "only")  # fmt: skip
+    r.add_argument("--corpus-dir", type=Path, help="#4269: the corpus is this directory (a git checkout), not the "
+                   "manifest's clone -- a synthetic estate pinning a construct no corpus program uses (its test "
+                   "translates and proves it); never with --record")  # fmt: skip
     sub.add_parser("list")
     args = ap.parse_args()
     if args.cmd == "list":
@@ -694,10 +706,10 @@ def main() -> int:
     if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
-                        or args.no_facades):  # fmt: skip
+                        or args.no_facades or args.corpus_dir):  # fmt: skip
         raise SystemExit(
             "--record proves the committed port on the committed case as it is: drop --port / "
-            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades "
+            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades / --corpus-dir "
             "and the overrides"
         )
     case = load_case(args.case, args.case_file)
@@ -705,8 +717,11 @@ def main() -> int:
         if getattr(args, key):
             case[key] = getattr(args, key)
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
-    (corpus_entry,) = mc.select([case["corpus"]])
-    corpus = mc.require_clone(corpus_entry)
+    if args.corpus_dir:  # #4269: a synthetic estate (a test's), not a manifest corpus
+        corpus = args.corpus_dir.resolve()
+    else:
+        (corpus_entry,) = mc.select([case["corpus"]])
+        corpus = mc.require_clone(corpus_entry)
     if not args.cobol_only:  # #4271: NUMPROC(PFD) only through a det port's guard (register C5)
         port_dir = None if args.generated_only else args.port or CASES / case.get("port_from", case["name"]) / "port"
         numproc_guard(case, read_program(case, corpus / case["program_source"])[0], port_dir)

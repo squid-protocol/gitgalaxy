@@ -579,7 +579,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
            if s.kind == "EXEC"):  # fmt: skip
         from gitgalaxy.tools.cobol_to_java.det.sql import Sql
 
-        gen.sql = Sql(gen, prog.name, gen.java_root)
+        gen.sql = Sql(gen, prog.name, gen.java_root, "\n".join(ln.text for ln in lines))
     repos = stub_files(stub)
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(

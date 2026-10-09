@@ -6,11 +6,18 @@
  * `U%04d` (the code modulo 4096, as a user completion code is), to the file GG_ABEND names, and ends the
  * process -- libcob's exit handlers close the files, as the step's end would. The Java side's CobolAbend
  * carries the same code, and the harness compares the two.
+ *
+ * #4269: an abend backs out the step's Db2 unit of work (the work since its last COMMIT), as Db2 for z/OS does when
+ * a DSN / CAF batch program ends abnormally -- ggsql.c's ggsql_uow_end, when the program is a Db2 one (a weak
+ * reference: linked without ggsql.c, there is no unit of work to end).
  */
 #include <stdio.h>
 #include <stdlib.h>
 
+extern void ggsql_uow_end(int rollback) __attribute__((weak));
+
 static void record_abend(int code) {
+    if (ggsql_uow_end) ggsql_uow_end(1);
     const char *path = getenv("GG_ABEND");
     FILE *f = path ? fopen(path, "w") : NULL;
     if (f) {

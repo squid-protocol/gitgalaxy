@@ -864,8 +864,8 @@ def generated_seed(case: dict[str, Any], corpus: Path) -> str:
 # Db2 answered -- -304 (a number too big for its host variable), -305 (a NULL with no indicator), -811 (a second row
 # for a SELECT INTO) -- is the stub's, not Db2's: the Java side has no host variables, so those count as the row Db2
 # returned (the program's reaction to them is compared through its outputs). COMMIT / ROLLBACK are not statements
-# the Java side runs (its unit of work is the harness's), so they are not compared; a warning (SQLCODE > 0 other than
-# +100) counts as success.
+# the Java side runs (they end the harness's unit of work, #4269), so they are not compared, nor a FETCH of a cursor
+# they closed (-501, the stub's); a warning (SQLCODE > 0 other than +100) counts as success.
 _ASSIGN = (-304, -305)
 
 
@@ -906,6 +906,9 @@ def cobol_outcomes(text: str) -> list[dict[str, Any]]:
         elif kind == "FETCH":
             e = open_q.get(cursor)
             if e is None:
+                continue
+            if code == -501 and not fault:  # #4269: the stub's "not open" -- the program's COMMIT / ROLLBACK closed
+                del open_q[cursor]  # the cursor (ggsql.c), not Db2's answer to the query: what it read stays
                 continue
             if code == 100:
                 e["ended"] = True

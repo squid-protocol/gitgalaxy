@@ -1,0 +1,15 @@
+CICS Bank Sample Application (CBSA)
+https://github.com/cicsdev/cics-banking-sample-application-cbsa
+Copyright IBM Corp. 2023
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The programs under test -- src/base/cobol_src/BNK1CRA.cbl
+and the programs it LINKs in the task, DBCRFUN.cbl and ABNDPROC.cbl -- their
+copybooks, the BMS mapset its symbolic map is generated from
+(src/base/bms_src/BNK1CDM.bms) and the tables' DDL
+(etc/install/base/db2jcl/CRETB01.jcl, CREI101.jcl, CRETB02.jcl) are CBSA's,
+used unmodified from the corpus.
+
+seed.sql in this directory is synthetic test data written for these cases in
+the layout of CBSA's ACCOUNT and PROCTRAN tables; it is not CBSA data. The
+scenarios in case.json are written for this case.

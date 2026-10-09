@@ -629,6 +629,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("DEFINE", "DELETE") and (
+        {"COUNTER", "DCOUNTER"} & set(opts)
+    ):  # #4270 (X30): DEFINE / DELETE COUNTER -> GGCDCNT / GGCXCNT
+        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
+        head = [name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        if verb == "DELETE":
+            return head + _call("GGCXCNT", []) + _resp(opts, True, labels)
+        return (head + [f"MOVE {opts.get('VALUE') or '0'} TO GG-NUM"] + _call("GGCDCNT", [])
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
@@ -1711,7 +1720,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             (d / "tdqueues.cfg").write_text("".join(f"{q}\n" for q in tdqueues), encoding="ascii")
-        if _counters(case, sc):  # named counters the region has (POOL/NAME: value); absent ones are NOTFND
+        if _counters(
+            case, sc
+        ):  # named counters the region has (POOL/NAME: value); absent ones are INVREQ RESP2 201 (X30)
             (d / "counters.cfg").write_text("".join(f"{k.split('/')[0] or '-'} {k.split('/')[1]} {v}\n"
                                                     for k, v in _counters(case, sc).items()), encoding="ascii")  # fmt: skip
         if case.get("region"):  # ASSIGN APPLID / SYSID: the region's identity, a deployment fact the case states

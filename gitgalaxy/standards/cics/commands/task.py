@@ -68,15 +68,23 @@ GET_COUNTER = Command(
     key="GET COUNTER",
     ibm=ibm("EXEC CICS GET COUNTER and GET DCOUNTER", "summary-get-counter-get-dcounter"),
     status="modelled",
+    register="X30",
     options={
         "COUNTER": Arg("name", width=16),
         "POOL": Arg("name", width=8),
         "VALUE": Arg("area_out", width=4),
         "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
     groups=(required("VALUE", msg="GET COUNTER without VALUE"),),
-    outcomes=(Outcome("NORMAL", 0, "", writes=("VALUE",)), Outcome("NOTFND", None, "the counter is not defined")),
+    # X30: IBM's GET COUNTER page lists no NOTFND; "Named counter not found" is INVREQ RESP2 201
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+    ),
     state=("handle_table",),
 )
 
@@ -102,6 +110,8 @@ QUERY_COUNTER = Command(
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE",)),
         Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
     ),
     runtime_refusals=(
         RuntimeRefusal(
@@ -109,6 +119,79 @@ QUERY_COUNTER = Command(
             "X29",
             java="QUERY COUNTER of a value beyond a fullword",
             c="QUERY COUNTER of a value beyond a fullword",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+# #4270 named counters, register X30. IBM (EXEC CICS DEFINE COUNTER and DEFINE DCOUNTER): VALUE "If you omit both the VALUE
+# and MINIMUM parameters, the named counter is created with an initial value of zero"; INVREQ RESP2 202 "Duplicate counter
+# name. A named counter of this name already exists" (the page lists no DUPREC), 403 / 404 / 406. MINIMUM / MAXIMUM (the
+# default limits are "low-values" / "high values", whose signed reading IBM does not state), NOSUSPEND (BUSY needs a coupling
+# facility structure) and DCOUNTER (unsigned doublewords) are refused; so is a VALUE below zero (at run time).
+DEFINE_COUNTER = Command(
+    key="DEFINE COUNTER",
+    ibm=ibm("EXEC CICS DEFINE COUNTER and DEFINE DCOUNTER", "summary-define-counter-define-dcounter"),
+    status="modelled",
+    register="X30",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "VALUE": Arg("value"),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal(
+        "only a fullword counter with the default limits is modelled (the region states none)", "X30"
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 202, "Duplicate counter name. A named counter of this name already exists"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a VALUE below zero: the default minimum is low-values and IBM does not state how it reads as a signed value",
+            "X30",
+            java="DEFINE COUNTER with a VALUE below zero",
+            c="DEFINE COUNTER with a VALUE below zero",
+        ),
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+DELETE_COUNTER = Command(
+    key="DELETE COUNTER",
+    ibm=ibm("EXEC CICS DELETE COUNTER and DELETE DCOUNTER", "summary-delete-counter-delete-dcounter"),
+    status="modelled",
+    register="X30",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    default_refusal=Refusal("only a fullword counter is modelled", "X30"),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
         ),
     ),
     state=("handle_table",),
@@ -326,6 +409,8 @@ COMMANDS = (
     DELAY,
     GET_COUNTER,
     QUERY_COUNTER,
+    DEFINE_COUNTER,
+    DELETE_COUNTER,
     ASKTIME,
     FORMATTIME,
     INQUIRE_PROGRAM,

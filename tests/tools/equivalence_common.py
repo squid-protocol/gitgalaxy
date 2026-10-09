@@ -289,6 +289,7 @@ def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -
         )
 
 
+NUMVAL_ORACLE_STORE = "Hfp.swapNumvalStore(true)"  # det/program.with_numval_oracle (#4741)
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 
@@ -297,13 +298,22 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Optional[Pat
     for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
     binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
     for conforming values, but nothing guarantees a scenario stays conforming."""
+    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
+    out: list[dict[str, Any]] = []
+    if case.get("numval_fixed_store") == "oracle" and any(NUMVAL_ORACLE_STORE in read_source(p).text for p in services):
+        out.append({"kind": "option", "option": "NUMVAL", "declared": "long HFP, stored as IBM leaves undefined",
+                    "applied": "the oracle's exact decimal",
+                    "note": "FUNCTION NUMVAL / NUMVAL-C in a fixed-point COMPUTE or ADD is evaluated in long floating "
+                            "point on z/OS, and IBM does not document how a float result is stored in a fixed-point "
+                            "receiver (truncated or rounded, oracle_assumptions.md C6, #4741), nor what its long-precision "
+                            "conversion keeps of more than 15 digits: a port without this declaration refuses such "
+                            "a value, this proof claims the oracle's decimal for it"})  # fmt: skip
     trunc = str(effective_with_defaults(effective_options(case).layers, source).get("TRUNC") or "").upper()
     if trunc != "OPT":
-        return []
-    services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
+        return out
     if any(TRUNC_OPT_STOP in read_source(p).text for p in services):
-        return []
-    return [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
+        return out
+    return out + [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
              "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's "
                      "runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result "
                      "only while every binary value fits its PICTURE (#4706)"}]  # fmt: skip

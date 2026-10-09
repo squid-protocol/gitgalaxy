@@ -402,8 +402,36 @@ instrument). Rows for the other options of #4706 follow in its later slices.
     (2026-10-08): NUMVAL('0.7') into a COMP-1 then MOVEd to `9(4)V99` gives 0.69 (det, as IBM rounds: 0.70), NUMVAL
     ('12.34') into a COMP-2 then to `9(10)V99` 12.33 (det 12.34). A CBSA case through BNK1CAC / BNK1UAC (an interest
     rate into a COMP-1) or BNK1TFN / BNK1CRA (an amount into a COMP-2) agrees with the oracle only for values exact
-    in both formats (a binary fraction: 1.5, 2.25, 100.50, 12.75); no case runs them yet. NUMVAL in a *fixed-point*
-    COMPUTE is still exact decimal, as the oracle computes it, though IBM evaluates it in floating point too (#4741).
+    in both formats (a binary fraction: 1.5, 2.25, 100.50, 12.75); no case runs them yet.
+  - **FUNCTION NUMVAL / NUMVAL-C in a fixed-point COMPUTE or ADD / SUBTRACT / MULTIPLY / DIVIDE (#4741).** IBM
+    evaluates it in floating point too: an operand that is "a reference to a numeric intrinsic function results in
+    floating-point arithmetic when ... the function is a floating-point function" (6.4 Programming Guide, SC27-8714-03,
+    "Floating-point evaluations", p. 62), and NUMVAL / NUMVAL-C return long floating point (the same guide p. 115;
+    Language Reference p. 605), so `COMPUTE B = FUNCTION NUMVAL(A)` with B fixed point (IBM's own example, p. 115)
+    is a long-HFP statement. The det translator now makes any arithmetic statement with a NUMVAL / NUMVAL-C operand
+    a long one (`float_mode`), the operand `Hfp.numval` with the same run-time refusals as above (more than 18
+    digits; more than 15 significant digits). The store of the float result into a fixed-point receiver is
+    `Hfp.fixedStore`: **IBM documents the float-to-fixed MOVE (rounded in the low-order position, "Conversions and
+    precision") but not an arithmetic statement's store**, and not how NUMVAL's conversion treats a value that is not
+    a hexadecimal fraction. The ASSUMED rules (truncation unless ROUNDED; NUMVAL truncated to long) and the
+    documented one disagree exactly where the long-HFP value is not on the receiver's scale: `NUMVAL('0.10')` is
+    0.0999... in long HFP (`4019999999999999`), truncated 0.09, rounded 0.10, while the oracle's exact decimal is
+    0.10. So the store is **refused by name** when the value, or the value one unit in the last place further from
+    zero, does not store the same truncated and rounded (rounded alone under ROUNDED); a value exactly at the
+    receiver's scale (12.5, -0.375, 1024.50, an integer into an integer item) stores as it is and agrees with the
+    oracle. Proven against GnuCOBOL by `test_det_programs.py` NUMVALX (those exact shapes, in byte, typed and
+    typed-groups modes) and by `test_det_hfp.py` (the refusals, a vector table). **The oracle DIFFERS** for every
+    other value (0.1, 12.34, 123.45 into `V99`): the det port refuses where GnuCOBOL answers. A proven case whose
+    scenarios hold such a value declares it: `"numval_fixed_store": "oracle"` in case.json builds its det port with
+    `Hfp.swapNumvalStore(true)` (a value within two units in the last place of a point of the receiver's scale stores
+    as that point, and a NUMVAL of more than 15 digits is its exact decimal), a declared difference of its evidence
+    record (#4051, kind `option`, option NUMVAL): the proof claims the oracle's decimal, not z/OS's. CardDemo
+    COTRN02C (carddemo-tranadd: `COMPUTE WS-TRAN-AMT-N = FUNCTION NUMVAL-C(TRNAMTI)`, an amount such as 123.45 into
+    `S9(9)V99`, and a 16-digit card number through NUMVAL into `9(16)`, which IBM's long conversion may not keep) is
+    the one proven case that needs it. **Still exact decimal, as the oracle computes it, though IBM evaluates them in
+    floating point too:** NUMVAL in a comparison, in a MOVE, in a subscript, in another function's argument
+    (`INTEGER(NUMVAL(X))`), and NUMVAL-F (not translated). **Under ARITH(EXTEND)** a fixed-point statement with a
+    NUMVAL operand is refused with the other floating-point expressions.
   - **ASSUMED** (IBM does not document them): a fixed-point value converted to float is truncated to long (then
     rounded to short for a COMP-1); the mantissa of DISPLAY is rounded half away from zero; an arithmetic statement
     that stores a float result in a fixed-point receiver truncates unless ROUNDED (the COBOL rule), and a statement

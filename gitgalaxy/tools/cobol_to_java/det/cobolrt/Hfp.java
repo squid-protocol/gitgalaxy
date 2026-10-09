@@ -154,12 +154,60 @@ public final class Hfp {
                     + " most 18 under ARITH(COMPAT), not modelled (register C6)");
         }
         BigDecimal v = currency ? Funcs.numvalC(s) : Funcs.numval(s);
+        if (v.signum() != 0 && v.precision() > 15 && numvalOracleStore) {
+            return v; // a proof of a case that declares the oracle's NUMVAL (swapNumvalStore): its exact decimal
+        }
         if (v.signum() != 0 && v.precision() > 15) { // (a trailing zero written counts: IBM converts the digits)
             throw new UnsupportedOperationException("FUNCTION NUMVAL of " + v.toPlainString() + " in floating point:"
                     + " more than 15 significant digits, which IBM's long-precision conversion may not keep (Programming"
                     + " Guide, \"Converting to numbers\"), not modelled (register C6)");
         }
         return of(v);
+    }
+
+    /** NUMVAL's store into a fixed-point receiver as the ORACLE computes it (#4741): when on, a value within two units
+     *  in the last place of a point of the receiver's scale stores as that point -- the exact decimal GnuCOBOL
+     *  computes for a NUMVAL argument of at most 15 digits -- where {@link #fixedStore} would refuse, and a NUMVAL of
+     *  more than 15 significant digits is its exact decimal (where {@link #numval} would refuse). Only a proof
+     *  run turns it on, for a case that declares it (case.json "numval_fixed_store": "oracle", a declared difference
+     *  of its evidence record, #4051): IBM's result there is undefined (register C6), so the proof claims the
+     *  oracle's decimal, not z/OS's. The setting before is returned (the caller restores it). */
+    private static boolean numvalOracleStore = false;
+
+    public static boolean swapNumvalStore(boolean on) {
+        boolean before = numvalOracleStore;
+        numvalOracleStore = on;
+        return before;
+    }
+
+    /** The store of a floating-point result into a FIXED-POINT receiver of `scale` decimals, in a statement that is
+     *  floating point only because an operand is FUNCTION NUMVAL / NUMVAL-C (#4741). IBM documents that such a
+     *  statement is evaluated in floating point, and that a float MOVEd to a fixed-point item is rounded in its
+     *  low-order position (Programming Guide, "Conversions and precision"); it does not document how an arithmetic
+     *  statement stores a float result (the model's ASSUMED rule is truncation unless ROUNDED, register C6) nor how
+     *  NUMVAL converts its digits (ASSUMED truncated to long). So the store is checked against both: the value, and
+     *  the value one unit in the last place further from zero (the conversion's other choice), must store the same
+     *  result truncated and rounded (unrounded) or rounded (ROUNDED); a value exactly at the receiver's scale is
+     *  stored as it is. The value is returned unchanged; what the documented and the assumed rules do not agree on
+     *  is refused by name (unless {@link #swapNumvalStore}). */
+    public static BigDecimal fixedStore(BigDecimal v, int scale, boolean rounded) {
+        if (v.signum() == 0 || v.setScale(scale, RoundingMode.DOWN).compareTo(v) == 0) return v; // on the receiver's grid
+        H h = chop(v, LONG);
+        BigDecimal ulp = value(false, BigInteger.ONE, h.e - LONG).multiply(BigDecimal.valueOf(v.signum()));
+        BigDecimal first = v.setScale(scale, RoundingMode.HALF_UP);
+        for (BigDecimal x : new BigDecimal[] {v, v.add(ulp)}) {
+            BigDecimal r = x.setScale(scale, RoundingMode.HALF_UP);
+            BigDecimal t = rounded ? r : x.setScale(scale, RoundingMode.DOWN);
+            if (r.compareTo(first) != 0 || t.compareTo(first) != 0) {
+                if (numvalOracleStore && first.subtract(v).abs().compareTo(ulp.abs().multiply(BigDecimal.valueOf(2))) <= 0) {
+                    return first; // (a NUMVAL of at most 15 digits is that point exactly: the oracle's decimal)
+                }
+                throw new UnsupportedOperationException("FUNCTION NUMVAL in a floating-point COMPUTE stored at "
+                        + scale + " decimals: " + v.toPlainString() + " is not exact there, and IBM does not document"
+                        + " whether the store truncates or rounds a float result (register C6, #4741)");
+            }
+        }
+        return v;
     }
 
     /** A long value rounded to short (LOAD ROUNDED): a one added at the first discarded bit, carry propagated. */

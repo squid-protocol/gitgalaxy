@@ -45,7 +45,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "ece4c26c77b4a36fd6fbc8023f47df4d9f650c6794ce9a37879f79a6d9bb2bee"
+   "sha256": "810401d8a146aaca8fd172c300d9a34d8abcb263c5ac4c576b68df7612d65659"
   },
   "oracle": {
    "paths": [],
@@ -56,8 +56,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 62,
-   "sha256": "4f86801ec17ca2a0e9b4f2ddd2877803d5acf868c28cdae9c884963c9df6db4e"
+   "files": 65,
+   "sha256": "a66ca9853e7dfd55ff5e1b851e66609b5716a893f364a0ee47f2e5a6677d6fa6"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -67,10 +67,36 @@
   "differences": {
    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
-  "digest": "7aabcf5cf15b20e95e0ab9abb152a6764787e06d2750e61eb9dfe40148d03150"
+  "options": {
+   "sha256": "d87806f701d94c84819bc951ae21f409785d0e8001fb9c64fe6abcb54126a236",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": null,
+   "effective": {
+    "estate": null,
+    "compiler": {
+     "product": null,
+     "version": null
+    },
+    "parm": [],
+    "declared_parm": [],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {},
+     "db2": {},
+     "cics": {}
+    }
+   }
+  },
+  "digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
  },
  "proof": {
-  "at": "2026-10-07T17:03:29Z",
+  "at": "2026-10-09T01:02:48Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -100,8 +126,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "ab94c6c7d2b496f26eb5033a1b0f727b841c9106+uncommitted",
-  "inputs_digest": "7aabcf5cf15b20e95e0ab9abb152a6764787e06d2750e61eb9dfe40148d03150"
+  "harness_commit": "e7f2f7dbf6b7b530af74bf57ff96fb4ae1b0c637+uncommitted",
+  "inputs_digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
  },
  "coverage": {
   "paragraphs": {
@@ -116,7 +142,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCMENU",
   "ledger_sha256": "3507a37672aaaa5813c020bbe64d8937ff518cfa3c377af8b85c04629aa93eb6",
-  "inputs_digest": "7aabcf5cf15b20e95e0ab9abb152a6764787e06d2750e61eb9dfe40148d03150"
+  "inputs_digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
  },
  "reach": {
   "entry_points": [

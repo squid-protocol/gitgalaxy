@@ -1481,9 +1481,7 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
             elif kind == "RETURN" and e.get("resp") is not None:  # #4270 (X27): a RETURN IMMEDIATE that failed
-                ev.update(
-                    level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2")
-                )
+                ev.update(level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2"))
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
                 ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
@@ -1973,12 +1971,7 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             pending = last["transid"] if last is not None and task["end"] == "normal" else None
             pending_ca = last["commarea"].data if pending and last is not None and last["commarea"] else None
             if pending and last.get("immediate"):  # #4270 (X27): the next task is not the terminal's next input
-                immediate = {
-                    "transid": pending,
-                    "commarea": pending_ca,
-                    "task": len(tasks),
-                    "event": task["events"].index(last),
-                }
+                immediate = {"transid": pending, "commarea": pending_ca, "task": len(tasks), "event": task["events"].index(last)}
                 pending, pending_ca = None, None
 
     def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],

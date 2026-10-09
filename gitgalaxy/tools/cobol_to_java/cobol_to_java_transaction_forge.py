@@ -1421,7 +1421,23 @@ public class CicsTask {
     /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
      *  writes there its caller sees); null otherwise. */
     public byte[] linkArea() {
+        linkAreaTaken = true;
         return linkArea;
+    }
+
+    private boolean linkAreaTaken;  // #4765: whether the program asked for them (linkArea)
+
+    /** #4765: a level-1 task LINKed with its COMMAREA's bytes as well as its object -- the runner's, as a caller's LINK
+     *  passes both (link(program, commarea, length, area)): the area by reference, every byte of the record, a
+     *  table's every occurrence too, which a DTO listing them once cannot carry. */
+    public CicsTask withLinkArea(byte[] area) {
+        this.linkArea = area;
+        return this;
+    }
+
+    /** #4765: whether the program took its COMMAREA's bytes (linkArea): then they are what it left there. */
+    public boolean linkAreaTaken() {
+        return linkAreaTaken;
     }
 
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
@@ -2676,6 +2692,14 @@ public class CicsTask {
      *  with the condition's code (abcodeFor), with the same exit search and result as abend. */
     public String abendOnCondition(String condition) {
         return abend(abcodeFor(condition), "condition", condition, false);
+    }
+
+    /** SEND MAP / RECEIVE MAP naming a map its mapset does not hold (#4270, register X31): IBM abend ABM0 "The map
+     *  specified for a basic mapping support (BMS) request could not be located", the transaction "abnormally
+     *  terminated with a CICS transaction dump". CICS raises no condition for it, so RESP / HANDLE CONDITION do not
+     *  see it; a HANDLE ABEND exit does (cause "system": an abend CICS itself raises). Same result as abend. */
+    public String abendMapNotFound(String map, String mapset) {
+        return abend("ABM0", "system", null, false);
     }
 
     /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;

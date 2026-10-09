@@ -216,13 +216,18 @@ class Dto:
         return off + shift + sum(p.wider for _, p, o in self.parts if o < off)
 
     @property
-    def size(self) -> int:
+    def extent(self) -> int:
+        """Where the DTO's last property ends, in storage bytes: what its object carries."""
         n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size) for x in self.leaves),
                 default=0)  # fmt: skip
-        n = max([n] + [self.at(off) + p.size for _, p, off in self.parts])
-        if self.wider and self.occurs and self.record:
-            # #4270 (C9): a DTO with a POINTER whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts):
-            # the whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
+        return max([n] + [self.at(off) + p.size for _, p, off in self.parts])
+
+    @property
+    def size(self) -> int:
+        n = self.extent
+        if self.occurs and self.record:
+            # #4270 (C9) / #4765: a DTO whose OCCURS fields appear once (CBSA's INQACCCU-COMMAREA, 20 accounts): the
+            # whole record, every occurrence, travels -- its declared bytes, each POINTER as wide as the storage's
             n = max(n, self.record + self.wider)
         return n
 
@@ -689,12 +694,16 @@ class Cics:
             f = self.g.field_expr(r)
         dto = f"out_{cls}({f}.storage(), {f}.offset())"
         length = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else "null"
+        d = self.gp.dto(cls)
         if length != "null":
             # #4501 / #4679: a LENGTH past the DTO passes that many bytes (DetCics.commareaOut), which the DTO cannot hold
-            size = self.gp.dto(cls).size
             known = self.constant_int(opts["LENGTH"])
-            if known is None or known > size:
-                dto = f"DetCics.commareaOut({dto}, {f}, {length}, {size}, CS)"
+            if known is None or known > d.extent:
+                dto = f"DetCics.commareaOut({dto}, {f}, {length}, {d.extent}, CS)"
+        elif d.size > d.extent:
+            # #4765: a DTO whose OCCURS fields appear once holds the first occurrence only: the record's bytes go, every
+            # occurrence of the table (as a LINK's span, Dto.size)
+            dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
         return dto, length
 
     # -- files
@@ -1374,23 +1383,32 @@ class Cics:
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
 
-    def no_screen(self, m: str, ms: str, opts: dict) -> CicsError:
-        """Why map `m` has no generated screen, by name. IBM CICS TS (SEND MAP / RECEIVE MAP): MAPSET defaults to the
-        MAP name when omitted, and a map is found only inside its own mapset (BMS: DFHMSD names the mapset, each
-        DFHMDI a map). A name that is a mapset of the estate but no map of it asks CICS for a map the mapset does not
-        hold; the condition CICS raises then is not modelled, so the command is refused, never given another map."""
-        if ms in self.gp.mapsets and m not in self.gp.mapsets[ms]:
-            how = "(MAPSET omitted: IBM defaults it to the MAP name) " if not opts.get("MAPSET") else ""
-            held = ", ".join(sorted(self.gp.mapsets[ms]))
-            return CicsError(f"map {m} {how}names no map of mapset {ms} (its maps: {held}): the condition CICS "
-                             "raises for a map the mapset does not hold is not modelled")  # fmt: skip
+    def map_not_found(self, m: str, ms: str, ind: str) -> list[str] | None:
+        """IBM CICS TS (SEND MAP / RECEIVE MAP; abend code ABM0, register X31): a map is found only inside its own
+        mapset (BMS: DFHMSD names the mapset, each DFHMDI a map; MAPSET defaults to the MAP name when omitted). A name
+        that is a mapset of the estate but no map of it asks CICS for a map the mapset does not hold: ABM0, "The map
+        specified for a basic mapping support (BMS) request could not be located", the transaction abnormally
+        terminated. No condition is raised (neither command lists one), so RESP / HANDLE CONDITION do not see it; a
+        HANDLE ABEND exit does -- the lines are EXEC CICS ABEND's, with the abend CICS raises. None: not that case."""
+        if ms not in self.gp.mapsets or m in self.gp.mapsets[ms]:
+            return None
+        lbl = self.g.tmpname("exit")
+        return [f"{ind}String {lbl} = task.abendMapNotFound({G_jstr(m)}, {G_jstr(ms)});",
+                f"{ind}if ({lbl} == null) throw abended();",
+                f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
+
+    def no_screen(self, m: str) -> CicsError:
+        """Why map `m` has no generated screen, by name (a map of no BMS source we hold)."""
         return CicsError(f"no generated screen for map {m}")
 
     def send_map(self, opts: dict, ind: str) -> list[str]:
         m, ms, guard = self.map_names(opts, opts.get("FROM"), "O", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise self.no_screen(m, ms, opts)
+            missing = self.map_not_found(m, ms, ind)
+            if missing is not None:
+                return [*guard, *missing]
+            raise self.no_screen(m)
         self.used_screens.add(cls)
         frm = self.ref(opts["FROM"]).name if opts.get("FROM") else m + "O"
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
@@ -1422,7 +1440,10 @@ class Cics:
         m, ms, guard = self.map_names(opts, opts.get("INTO"), "I", ind)
         cls = self.gp.screens.get(m)
         if cls is None:
-            raise self.no_screen(m, ms, opts)
+            missing = self.map_not_found(m, ms, ind)
+            if missing is not None:
+                return [*guard, *missing]
+            raise self.no_screen(m)
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")

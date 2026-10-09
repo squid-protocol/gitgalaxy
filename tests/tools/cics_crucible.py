@@ -1342,6 +1342,15 @@ def terminal_device(case: cc.Case) -> str:
 UCTRAN_TO_UCTRANST = {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
 
 
+def mapsets_env(case: cc.Case) -> str:
+    """#4270 (X31): the case's mapsets and their maps as the stub's $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a
+    SEND MAP / RECEIVE MAP for a map its mapset does not hold abends ABM0. The case's `maps` name each map's mapset."""
+    held: dict[str, list[str]] = {}
+    for m, spec in sorted(case.data["maps"].items()):
+        held.setdefault(spec["mapset"], []).append(m)
+    return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
+
+
 def origin_env(case: cc.Case) -> Optional[str]:
     """#4415 slice 2 (X29): the case's stated origin data as the stub's $GGCICS_ORIGIN (applid,userid,facilname,
     networkid,faciltype); None when the case states none (INQUIRE ASSOCIATION is then refused by both runtimes)."""
@@ -2120,6 +2129,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
+           f"GGCICS_MAPSETS='{mapsets_env(case)}' "  # #4270 (X31): ABM0 for a map its mapset does not hold
            f"{'GGCICS_RUNCHILD=1 ' if (frame.get('trigger') or {}).get('kind') == 'run' else ''}"  # #4270
            f"{f'GGCICS_STARTCODE={startcode} ' if startcode else ''}GGCICS_USERID={REGION_USERID} "  # #4270 slice 3
            f"GGCICS_FACILITY={frame.get('termid') or ''} GGCICS_SCREEN='{REGION_SCREEN[0]} {REGION_SCREEN[1]}' "

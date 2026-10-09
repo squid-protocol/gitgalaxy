@@ -171,6 +171,12 @@ def _transfer(labels: list[str] | None) -> list[str]:
     return ["GO TO"] + [f"    {label}" for label in labels] + ["    DEPENDING ON GG-GOTO"]
 
 
+def _map_abend(labels: list[str] | None) -> list[str]:
+    """#4270 (X31): after SEND MAP / RECEIVE MAP, the ABM0 abend the stub raises for a map its mapset does not hold
+    (GGCSMAP / GGCRECV): the HANDLE ABEND exit's label, or leave the program (GG-GOTO -1); else it falls through."""
+    return _transfer(labels) + ["IF GG-GOTO < 0", "    GOBACK", "END-IF"]
+
+
 def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None = None) -> list[str]:
     """After a command: the EIB's RESP fields, the program's RESP / RESP2, or -- when it tests
     neither and does not say NOHANDLE (which suspend every HANDLE, IBM: "The HANDLE CONDITION
@@ -706,6 +712,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
+                + _map_abend(labels)
                 + _input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
@@ -759,7 +766,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if not src:
                 raise Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
-        return lines + _call("GGCSMAP", args) + _resp(opts, can_fail=False)
+        return lines + _call("GGCSMAP", args) + _map_abend(labels) + _resp(opts, can_fail=False)
     if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
         _check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
         if "CURSOR" in opts and not opts["CURSOR"]:
@@ -1284,6 +1291,14 @@ def encode_record(
     return bytes(rec)
 
 
+def commarea_record(fields: list[dict[str, Any]], values: dict[str, Any], enc: str) -> bytes:
+    """#4765: a scenario's COMMAREA, the whole record -- every occurrence of a table (`fields`: commarea_fields(...,
+    occurrences=True)), each field not named INITIALIZEd, as INITIALIZE does a group's every occurrence. A value named
+    as the DTO names it (COMM-EYE: an OCCURS group's field, listed once) is the first occurrence's (COMM-EYE(1))."""
+    first = {f["base"]: f["name"] for f in fields if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
+    return encode_record(fields, {first.get(k, k): v for k, v in values.items()}, b"init", enc)
+
+
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
                   keep_nulls: bool = False, exact: bool = False) -> dict[str, str]:  # fmt: skip
     """{field name: value as text} -- numeric fields as exact decimals, text with trailing
@@ -1292,9 +1307,11 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     with spaces: COTRTLIC's unfetched rows are LOW-VALUES, and the program protects exactly those.
     `exact` (#4635): a text keeps its LOW-VALUES -- only the trailing spaces are dropped -- so a field the task left
     LOW-VALUES and one it left spaces are different values, as they are to the next program (`IF X = SPACES OR
-    LOW-VALUES` exists because they differ). For the COMMAREA a task returns; a screen still shows neither."""
+    LOW-VALUES` exists because they differ). For the COMMAREA a task returns; a screen still shows neither.
+    #4765: a layout with every occurrence (layout_fields(..., occurrences=True)) is read by `data`'s own OCCURS
+    DEPENDING ON counts (common.active_fields): an occurrence past its table's count is not part of the record."""
     out = {}
-    for f in fields:
+    for f in common.active_fields(data, fields, enc):
         if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
             continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
@@ -1394,10 +1411,12 @@ def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
     return sorted(set(re.findall(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)", text)))
 
 
-def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
+def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
-    members in the case's copy_dirs."""
+    members in the case's copy_dirs. #4765 `occurrences`: every occurrence of an OCCURS item a field of its own
+    (layout_fields): the layout a COMMAREA a task leaves is READ by, so a table is compared whole; without it, the
+    layout a scenario's COMMAREA is built from (its fields as the DTO names them)."""
     if "commarea" not in case:
         raise Unsupported('the case does not describe its COMMAREA: "commarea": {"segments": [...]}, or "commarea": '
                           "null for a program that takes none", ["COMMAREA"])  # fmt: skip
@@ -1410,7 +1429,7 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
     for seg in case["commarea"]["segments"]:
         src = corpus / seg["copybook"]
         dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
-        fields = common.layout_fields(corpus, seg["copybook"], seg["record"], dirs)
+        fields = common.layout_fields(corpus, seg["copybook"], seg["record"], dirs, occurrences)
         out += [dict(f, offset=f["offset"] + at) for f in fields]
         at += max(f["offset"] + f["bytes"] for f in fields)
     return out
@@ -1619,7 +1638,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             generated[f["base"]] if f["base"] in generated else case_file_records(case, corpus, spec, f["reclen"], enc)
         )
         (work / "files" / f["base"]).write_bytes(data)
-    ca_fields = commarea_fields(corpus, case)
+    ca_fields = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
     subs = []
@@ -1704,7 +1723,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if not ca_fields:
                 raise Unsupported(f'scenario {sc["name"]}: a COMMAREA, in a case whose program takes none ("commarea": '
                                   "null)", ["COMMAREA"])  # fmt: skip
-            area = encode_record(ca_fields, sc["commarea"], b"init", enc)
+            area = commarea_record(ca_fields, sc["commarea"], enc)
             calen = commarea_length(sc, ca_fields)
             if calen is not None:  # #4270 (X23): the stub gives the program exactly those bytes (GGCAREA)
                 area = area[:calen]
@@ -2730,6 +2749,12 @@ class EquivalenceRunTest {{
             if (calen != null) {{
                 task.withExactCommarea();
             }}
+            // #4765: a LINKed task's COMMAREA bytes too, by reference (a caller's LINK passes both): a port that takes
+            // them (task.linkArea()) leaves its result there, every occurrence of a table included
+            byte[] area = sc.hasNonNull("area") ? java.util.HexFormat.of().parseHex(sc.get("area").asText()) : null;
+            if (area != null) {{
+                task.withLinkArea(area);
+            }}
             if (sc.hasNonNull("channel")) {{  // #4270 (X24): the channel the task starts with, its current channel
                 CicsTask.Channel channel = new CicsTask.Channel(sc.get("channel").get("name").asText());
                 for (JsonNode k : sc.get("channel").get("containers")) {{
@@ -2812,6 +2837,9 @@ class EquivalenceRunTest {{
                 Map<String, Object> left = new LinkedHashMap<>();
                 left.put("event", "COMMAREA");
                 left.put("commarea", commarea);
+                if (area != null && task.linkAreaTaken()) {{  // #4765: what the port left in the bytes it took
+                    left.put("area", java.util.Base64.getEncoder().encodeToString(area));
+                }}
                 events.add(left);
             }}
             json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
@@ -2933,15 +2961,14 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
-    ca_fields = commarea_fields(corpus, case)
+    ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
+    ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []
     for sc in case["scenarios"]:
-        ca = None
+        ca, area = None, None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
-            values = decode_record(
-                encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc, keep_nulls=True
-            )
+            values = decode_record(commarea_record(ca_read, sc["commarea"], enc), ca_fields, enc, keep_nulls=True)
             # a value the DTO has no field for would reach the port as nothing at all: the case must name the
             # COMMAREA as the contract DTO's record does
             lost = sorted(set(sc["commarea"]) - shape_names(shape))
@@ -2949,15 +2976,17 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
+            if case.get("linked"):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+                area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
         receive = {
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
-                          "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_fields),
+                          "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
                           "channel": _channel_json(case, sc),
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
@@ -2971,7 +3000,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
-    result = _java_events(case, out, shape, ca_fields)
+    result = _java_events(case, out, shape, ca_read)
     if facade is not None:  # #4449: the java-facade side, the same project and inputs
         try:
             fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
@@ -2979,7 +3008,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             facade["error"] = str(e)
             return result
         facade["out"] = fout
-        facade["events"] = _java_events(case, fout, shape, ca_fields)
+        facade["events"] = _java_events(case, fout, shape, ca_read)
         facade["entries"], facade["refused"] = {}, {}
         for sc in case["scenarios"]:
             ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
@@ -3006,7 +3035,26 @@ def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, A
                 'a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"]
             )
         return decode_record(data, ca_fields, enc, exact=True)
-    return from_java(value, shape)
+    return first_occurrences(from_java(value, shape), ca_fields)
+
+
+def first_occurrences(values: dict[str, Any], fields: list[dict[str, Any]]) -> dict[str, Any]:
+    """#4765: a DTO's values by the layout's names. A generated DTO lists an OCCURS group's fields once ("Fields
+    inside an OCCURS group appear once"), at the first occurrence: COMM-ACC-TYPE is COMM-ACC-TYPE(1) of a layout with
+    every occurrence. The others it does not carry, so they are absent -- compared, never assumed equal."""
+    first = {f["base"]: f["name"] for f in fields if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
+    return {first.get(k, k): v for k, v in values.items()}
+
+
+def java_area(area: str, ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
+    """#4765: the COMMAREA a LINKed task left, as its bytes -- the area the runner passed by reference
+    (CicsTask.withLinkArea) when the port took it (task.linkArea(): a det port, whose DFHCOMMAREA is those bytes) --
+    read by the case's COMMAREA layout, every occurrence of a table, as the COBOL side's (commarea.out) is."""
+    import base64
+
+    if not ca_fields:
+        raise Unsupported('a COMMAREA passed as bytes, in a case that describes none ("commarea": null)', ["COMMAREA"])
+    return decode_record(base64.b64decode(area), ca_fields, enc, exact=True)
 
 
 def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
@@ -3027,7 +3075,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
-            if "commarea" in e:
+            if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
+                e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
+            elif "commarea" in e:
                 e["commarea"] = (
                     java_commarea(e["commarea"], shape, ca_fields or [], enc) if e["commarea"] is not None else None
                 )
@@ -3062,7 +3112,7 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
         if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
             src = corpus / spec["copybook"]
             dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
-            fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs)
+            fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs, occurrences=True)  # #4765
         out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc)
     return out
 

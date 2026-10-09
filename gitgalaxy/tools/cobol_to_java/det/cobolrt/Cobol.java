@@ -446,6 +446,16 @@ public final class Cobol {
                 + "point, register C6) is not modelled");
     }
 
+    /** A hexadecimal literal X'hh..' (one latin-1 character per byte) as the text of exactly those bytes (#4698). */
+    public static String hex(String latin1, Charset cs) {
+        return Lossless.hex(latin1, cs);
+    }
+
+    /** The record charset as the runtime reads and writes it: every byte value kept (#4698). */
+    public static Charset recordCharset(Charset cs) {
+        return Lossless.of(cs);
+    }
+
     public static void move(String nonnumericLiteral, Field to, Charset cs) {
         move(temp(nonnumericLiteral.getBytes(cs)), to, cs);
     }

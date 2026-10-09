@@ -66,13 +66,7 @@ def high_byte_program(name: str) -> str:
 @E2E
 @pytest.mark.parametrize(
     "charset",
-    [
-        "ISO-8859-1",
-        *(
-            pytest.param(c, marks=pytest.mark.xfail(strict=True, reason="#4698: hex-literal bytes do not round-trip"))
-            for c in ("IBM037", "IBM1047", "windows-1252")
-        ),
-    ],
+    ["ISO-8859-1", "IBM037", "IBM1047", "windows-1252"],
 )
 @pytest.mark.parametrize("mode", ["bytes", "typed", "groups"])
 def test_batch_sysout_high_bytes_equal_gnucobols(charset, mode, tmp_path):

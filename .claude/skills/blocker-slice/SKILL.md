@@ -69,8 +69,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   (GnuCOBOL's glibc sequence), written down as C12 -- a proof then says "given the oracle's numbers", never "z/OS's
   numbers". The seed (EIBTASKN, 0 on both sides) is a stated fact of the run; a case that varies it states it on
   both sides first. Seeds IBM does not allow are refused at run time by name.
-- Every new assumption or refusal gets its `oracle_assumptions.md` entry (summary row AND `### Xnn.` / `Cnn.`
-  section) in the same PR.
+- Every new assumption or refusal gets its register entry file (`docs/language_status/register/Xnn.md`, ID from
+  `register.py next X`; then `register.py render`) in the same PR.
 
 ## 4. After it lands
 

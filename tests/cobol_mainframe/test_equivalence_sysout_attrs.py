@@ -30,6 +30,14 @@ def test_sysout_is_compared_line_by_line_trailing_blanks_aside():
     assert s["diffs"][0] == {"line": 2, "cobol": "INVALID CARD NUMBER : 0500", "java": None}  # a missing DISPLAY
 
 
+def test_sysout_records_are_split_on_a_plain_lf_under_an_ebcdic_charset():
+    """#4698: the record separator is the capture's framing (0x0A on both sides), not a character of the code page."""
+    cobol = "HELLO\nWORLD  \n".replace("\n", "\x00").encode("cp037").replace(b"\x00", b"\n")
+    java = "HELLO\x00WORLD\x00".encode("cp037").replace(b"\x00", b"\n")
+    s = eq.compare_sysout(cobol, java, "cp037")
+    assert s["compared"] and not s["diffs"] and s["lines"] == 2
+
+
 def test_sysout_is_not_compared_where_ibms_text_is_not_modelled():
     s = eq.compare_sysout(b"FL=1.5\nGGDISPLAY-NOT-MODELLED\n", b"FL=1.5E0\n", "latin-1")
     assert not s["compared"] and "not modelled" in s["why"] and not s["diffs"]

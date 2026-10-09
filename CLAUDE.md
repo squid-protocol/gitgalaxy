@@ -281,7 +281,7 @@ proves the result (batch, CICS and Db2 cases). Use the `det-port` skill: it cove
 the Db2 container), debugging a differing scenario, and the checklists for a translator, runtime, harness or oracle
 change. After a translator change, `det_port.py check --work DIR` lists the ports it moved against `origin/main`;
 re-prove exactly those. Every known or suspected difference between our oracle (GnuCOBOL plus our CICS, Db2 and LE
-models) and IBM z/OS is in `docs/language_status/oracle_assumptions.md`; a new model or refusal adds its entry there.
+models) and IBM z/OS is in `docs/language_status/oracle_assumptions.md`; a new model or refusal adds an entry file under `docs/language_status/register/` (ID from `python tests/tools/register.py next X`), then `register.py render` regenerates that page (never hand-edit it; CI checks it).
 
 ## Testing conventions
 

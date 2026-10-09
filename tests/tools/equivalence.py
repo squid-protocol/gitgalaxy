@@ -598,14 +598,18 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
                 if n:
                     run.setdefault("sign_equivalent", {})[dd] = n
             if spec.get("record_format") == "V":  # variable-length: each record against its length's layout
-                layouts = {int(n): layout_fields(corpus, spec["copybook"], rec) for n, rec in spec["layouts"].items()}
+                layouts = {int(n): layout_fields(corpus, spec["copybook"], rec, occurrences=True)
+                           for n, rec in spec["layouts"].items()}  # fmt: skip
                 d = diff_varseq(left, right, layouts, case.get("code_page", "cp037"),
                                 data_encoding(case))  # fmt: skip
                 run["outputs"][dd] = d
                 if d["equal"] != d["records"] or d["diffs"]:
                     why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
                 continue
-            fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
+            # #4765: every occurrence of a table a field of its own, named by its subscripts (the bytes past the first
+            # were compared before only as "bytes outside the layout"); a file's record is compared whole, every
+            # occurrence, whatever an OCCURS DEPENDING ON count says: the bytes are the file's
+            fields = layout_fields(corpus, spec["copybook"], spec.get("record"), occurrences=True)
             d = diff_records(left, right, spec["reclen"], fields, case.get("code_page", "cp037"),
                              data_encoding(case))  # fmt: skip
             if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record

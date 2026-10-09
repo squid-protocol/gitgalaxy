@@ -1421,7 +1421,23 @@ public class CicsTask {
     /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
      *  writes there its caller sees); null otherwise. */
     public byte[] linkArea() {
+        linkAreaTaken = true;
         return linkArea;
+    }
+
+    private boolean linkAreaTaken;  // #4765: whether the program asked for them (linkArea)
+
+    /** #4765: a level-1 task LINKed with its COMMAREA's bytes as well as its object -- the runner's, as a caller's LINK
+     *  passes both (link(program, commarea, length, area)): the area by reference, every byte of the record, a
+     *  table's every occurrence too, which a DTO listing them once cannot carry. */
+    public CicsTask withLinkArea(byte[] area) {
+        this.linkArea = area;
+        return this;
+    }
+
+    /** #4765: whether the program took its COMMAREA's bytes (linkArea): then they are what it left there. */
+    public boolean linkAreaTaken() {
+        return linkAreaTaken;
     }
 
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)

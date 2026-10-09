@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**254 entries:** 49 full, 2 engine-only, 203 name-only.
+**254 entries:** 51 full, 2 engine-only, 201 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -64,8 +64,10 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | ENQ | full | yes (9 options) | yes | — | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | — | — | 20 (11 / 9) | — |
-| GET COUNTER | full | yes (5 options) | yes | — | — | 2 (2 / 0) | — |
+| GET COUNTER | full | yes (6 options) | yes | X30 | — | 2 (2 / 0) | — |
 | QUERY COUNTER | full | yes (6 options) | yes | X29 | — | 1 (1 / 0) | — |
+| DEFINE COUNTER | full | yes (6 options) | yes | X30 | — | 1 (1 / 0) | — |
+| DELETE COUNTER | full | yes (5 options) | yes | X30 | — | 1 (1 / 0) | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
 | FORMATTIME | full | yes (13 options) | yes | — | — | 56 (55 / 1) | — |
 | INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
@@ -99,8 +101,6 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 | WEB WRITE HTTPHEADER | 2 (1 / 1) | — |
 | FREEMAIN | 2 (2 / 0) | — |
 | GETMAIN | 2 (2 / 0) | — |
-| DEFINE COUNTER | 1 (1 / 0) | — |
-| DELETE COUNTER | 1 (1 / 0) | — |
 | GETNEXT CONTAINER | 1 (1 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 | WEB EXTRACT | 1 (1 / 0) | — |

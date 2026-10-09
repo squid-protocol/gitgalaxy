@@ -895,6 +895,7 @@ _RESP_SAMPLES = {
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)",
+    "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1199,6 +1200,22 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(KEY)", "only the counter's value"),
                      ("QUERY DCOUNTER(KEY) VALUE(REC)", "DCOUNTER")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+    g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
+    assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
+    assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
+    d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
+    assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]
+    assert any(x.startswith("OUTCOME(counter") for x in d)
+    assert ", 0);" in c.command("DEFINE COUNTER(KEY) RESP(R)", "")[0]  # VALUE omitted: IBM's initial zero
+    x = c.command("DELETE COUNTER(KEY) POOL('GENAPOOL') RESP(R)", "")
+    assert x[0].startswith("int[] counter") and ".deleteCounter(" in x[0]
+    for bad, why in (("DEFINE COUNTER(KEY) VALUE(0) MINIMUM(0)", "only a fullword counter"),
+                     ("DEFINE COUNTER(KEY) VALUE(0) MAXIMUM(5)", "only a fullword counter"),
+                     ("DEFINE COUNTER(KEY) NOSUSPEND", "only a fullword counter"),
+                     ("DEFINE DCOUNTER(KEY) VALUE(0)", "DCOUNTER"), ("DELETE DCOUNTER(KEY)", "DCOUNTER"),
+                     ("DELETE COUNTER(KEY) NOSUSPEND", "only a fullword counter")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
     for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),

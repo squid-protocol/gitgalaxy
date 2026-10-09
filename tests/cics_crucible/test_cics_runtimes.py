@@ -1784,6 +1784,7 @@ def test_cics_task_uctranst_and_deedit_as_the_stub_does(tmp_path):
 
 _X29_MAIN = r"""
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
                  char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
@@ -1791,6 +1792,9 @@ typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[4
 int GGCDELQ(gg_cics *c);
 int GGCINQA(gg_cics *c);
 int GGCQCNT(gg_cics *c);
+int GGCGCNT(gg_cics *c);
+int GGCDCNT(gg_cics *c);
+int GGCXCNT(gg_cics *c);
 static gg_cics c;
 int main(int argc, char **argv) {
     memset(c.qname, ' ', 16);
@@ -1812,7 +1816,11 @@ int main(int argc, char **argv) {
     } else {
         memcpy(c.qname, argv[2], strlen(argv[2]));
         if (argc > 3) memcpy(c.name1, argv[3], strlen(argv[3]));
-        GGCQCNT(&c);
+        if (argc > 4) c.num = atoi(argv[4]);
+        if (strcmp(argv[1], "gcnt") == 0) GGCGCNT(&c);
+        else if (strcmp(argv[1], "dcnt") == 0) GGCDCNT(&c);
+        else if (strcmp(argv[1], "xcnt") == 0) GGCXCNT(&c);
+        else GGCQCNT(&c);
         printf("%d/%d/%d\n", c.resp, c.resp2, c.num);
     }
     return 0;
@@ -1861,6 +1869,41 @@ def test_the_stub_deleteq_ts_inquire_association_and_query_counter(tmp_path):
     assert big.returncode == 98 and "beyond a fullword" in big.stdout
 
 
+@needs_cc
+def test_the_stub_defines_gets_and_deletes_named_counters(tmp_path):
+    """#4270 (register X30), IBM EXEC CICS DEFINE / GET / DELETE COUNTER: DEFINE creates a counter (VALUE, else zero),
+    INVREQ RESP2 202 for one that exists; GET answers the value then adds one, and INVREQ RESP2 201 -- not NOTFND --
+    for one that is not there; DELETE removes it (INVREQ 201 when it is not there); a pool outside IBM's characters is
+    INVREQ 403, a counter name 404 (not for DELETE); a VALUE below zero and a blank name are refused."""
+    exe = _stub(tmp_path, _X29_MAIN)
+
+    def run(*args, check=True):
+        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)}
+        return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
+
+    assert run("gcnt", "GENACNT", "GENAPOOL").stdout.strip() == "16/201/0"  # (IBM lists no NOTFND)
+    assert run("xcnt", "GENACNT", "GENAPOOL").stdout.strip() == "16/201/0"
+    assert run("dcnt", "GENACNT", "GENAPOOL", "11").stdout.strip() == "0/0/11"
+    assert run("dcnt", "GENACNT", "GENAPOOL", "5").stdout.strip() == "16/202/5"  # duplicate: the first value stays
+    assert run("dcnt", "GENACNT", "", "0").stdout.strip() == "0/0/0"  # the same name in another pool (8 blanks)
+    assert run("qcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/11"
+    assert run("gcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/11"
+    assert run("gcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/12"
+    assert run("xcnt", "GENACNT", "GENAPOOL").stdout.strip() == "0/0/0"
+    assert run("qcnt", "GENACNT", "GENAPOOL").stdout.strip() == "16/201/0"
+    assert run("qcnt", "GENACNT").stdout.strip() == "0/0/0"  # (the other pool's, untouched)
+    assert run("dcnt", "genacnt", "GENAPOOL", "1").stdout.strip() == "16/404/1"
+    assert run("dcnt", "1CNT", "GENAPOOL", "1").stdout.strip() == "16/404/1"
+    assert run("dcnt", "A-B", "GENAPOOL", "1").stdout.strip() == "16/404/1"
+    assert run("dcnt", "A_1$#@", "BAD POOL", "1").stdout.strip() == "16/403/1"
+    assert run("xcnt", "genacnt", "GENAPOOL").stdout.strip() == "16/201/0"  # (IBM's DELETE page lists no 404)
+    assert run("xcnt", "GENACNT", "gena").stdout.strip() == "16/403/0"
+    neg = run("dcnt", "NEGCNT", "GENAPOOL", "-1", check=False)
+    assert neg.returncode == 98 and "VALUE below zero" in neg.stdout
+    blank = run("dcnt", "", "GENAPOOL", "1", check=False)  # (an empty argv word is a name of blanks)
+    assert blank.returncode == 98 and "blank name" in blank.stdout
+
+
 @needs_javac
 def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_does(tmp_path):
     """#4415 slice 2: CicsTask answers as the stub does (above): DELETEQ TS the whole queue and its NEXT position, QIDERR /
@@ -1894,6 +1937,26 @@ def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_
                 + java.util.Arrays.toString(t.queryCounter("GENAPOOL", "GENACNT"))
                 + java.util.Arrays.toString(t.queryCounter("", "PLAIN"))
                 + java.util.Arrays.toString(t.queryCounter("GENAPOOL", "NOPE")));
+        System.out.println(java.util.Arrays.toString(t.getCounter("GENAPOOL", "NOPE"))
+                + java.util.Arrays.toString(t.getCounter("GENAPOOL", "GENACNT"))
+                + java.util.Arrays.toString(t.getCounter("GENAPOOL", "GENACNT")));
+        System.out.println(java.util.Arrays.toString(t.defineCounter("GENAPOOL", "GENACNT", 5))
+                + java.util.Arrays.toString(t.defineCounter("GENAPOOL", "NEWCNT", 0))
+                + java.util.Arrays.toString(t.defineCounter("", "GENACNT", 3))
+                + java.util.Arrays.toString(t.defineCounter("BAD POOL", "X", 1))
+                + java.util.Arrays.toString(t.defineCounter("GENAPOOL", "x", 1))
+                + java.util.Arrays.toString(t.defineCounter("GENAPOOL", "1X", 1)));
+        System.out.println(java.util.Arrays.toString(t.deleteCounter("GENAPOOL", "NEWCNT"))
+                + java.util.Arrays.toString(t.deleteCounter("GENAPOOL", "NEWCNT"))
+                + java.util.Arrays.toString(t.deleteCounter("gena", "NEWCNT"))
+                + java.util.Arrays.toString(t.queryCounter("", "GENACNT")));
+        for (Runnable bad : new Runnable[] {() -> t.defineCounter("GENAPOOL", "NEG", -1), () -> t.getCounter("", "  ")}) {
+            try {
+                bad.run();
+            } catch (UnsupportedOperationException e) {
+                System.out.println("refused " + e.getMessage().contains("below zero") + " " + e.getMessage().contains("blank"));
+            }
+        }
         try {
             t.queryCounter("BIG", "BIGCNT");
         } catch (UnsupportedOperationException e) {
@@ -1901,7 +1964,10 @@ def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_
         }""",
     )
     assert out.splitlines() == ["0 QIDERR 44", "16", "[GTCICS01][CICSUSER][T001    ][GTNET   ] 213", "unstated",
-                                "bad type", "[0, 0, 41][0, 0, 41][0, 0, 7][16, 201, 0]", "refused"]  # fmt: skip
+                                "bad type", "[0, 0, 41][0, 0, 41][0, 0, 7][16, 201, 0]",
+                                "[16, 201, 0][0, 0, 41][0, 0, 42]", "[16, 202][0, 0][0, 0][16, 403][16, 404][16, 404]",
+                                "[0, 0][16, 201][16, 403][0, 0, 3]", "refused true false", "refused false true",
+                                "refused"]  # fmt: skip
 
 
 def test_scheduler_states_each_tasks_startcode():

@@ -85,7 +85,7 @@
     "CA-CUSTOMER-NUM": "0",
     "CA-REQUEST-SPECIFIC": "Charles   Babbage             1791-12-26Dorset Street       1   W1U6QN  000                                        cb@engine.example                                                                                   "
    },
-   "why": "no named counter (NOTFND): INSERT with DEFAULT, the identity gives 1000001 (START WITH, restarted each run), SET :H = IDENTITY_VAL_LOCAL() reads it back on the INSERT's own connection"
+   "why": "no named counter (GET COUNTER is INVREQ RESP2 201, which the program reads as not NORMAL): INSERT with DEFAULT, the identity gives 1000001 (START WITH, restarted each run), SET :H = IDENTITY_VAL_LOCAL() reads it back on the INSERT's own connection"
   },
   {
    "name": "add-blank-optional-fields",

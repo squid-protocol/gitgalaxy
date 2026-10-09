@@ -894,6 +894,7 @@ _RESP_SAMPLES = {
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
+    "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1174,6 +1175,37 @@ def test_bif_deedit_and_the_terminal_uctranst_cvdas():
             c.command(bad, "")
     with pytest.raises(C.CicsError, match="without UCTRANST"):
         c.command("SET TERMINAL(KEY)", "")
+
+
+def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option():
+    """#4415 slice 2 (register X29), IBM EXEC CICS DELETEQ TS / INQUIRE ASSOCIATION / RECEIVE MAP: DELETEQ TS deletes the
+    whole queue (QIDERR for one that is not there, RESP2 0); INQUIRE ASSOCIATION(EIBTASKN) takes the origin data the run
+    states (none: refused); RECEIVE MAP's TERMINAL is the task's terminal, which it reads anyway."""
+    c = _ChanCics()
+    assert c.command("DELETEQ TS QUEUE('Q') RESP(R) RESP2(R)", "") == ["int ts1 = task.deleteqTs('Q'.strip());",
+                                                                       "OUTCOME(ts1, 0);"]  # fmt: skip
+    assert c.command("DELETEQ QUEUE('Q') NOHANDLE", "")[0].startswith("int ts")  # (TS is the default)
+    for bad, why in (("DELETEQ TS", "without QUEUE / QNAME"), ("DELETEQ TS QUEUE('Q') SYSID('A')", "SYSID")):
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+    a = c.command("INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC) ODUSERID(REC) ODFACILNAME(REC) ODNETWORKID(REC) "
+                  "ODFACILTYPE(KEY) RESP(R)", "")  # fmt: skip
+    assert a[0].startswith("CicsTask.Origin assoc") and a[0].endswith("= task.inquireAssociation();")
+    assert sum("putText" in x for x in a) == 4 and any(".faciltype()" in x for x in a)
+    with pytest.raises(C.CicsError, match="without an origin option"):
+        c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
+    q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
+    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
+    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(KEY)", "only the counter's value"),
+                     ("QUERY DCOUNTER(KEY) VALUE(REC)", "DCOUNTER")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+    for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),
+                     ("INQUIRE ASSOCIATION(EIBTASKN) ODTASKID(REC)", "only the origin data"),
+                     ("INQUIRE ASSOCIATION ODAPPLID(REC)", "needs an argument")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
 
 
 @pytest.mark.parametrize(

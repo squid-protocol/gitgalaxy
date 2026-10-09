@@ -131,6 +131,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X26 | CICS | BIF DEEDIT FIELD [LENGTH] edited in place in the region's EBCDIC page (CCSID 037); INQUIRE / SET TERMINAL UCTRANST as the CVDAs UCTRAN 450 / NOUCTRAN 451 / TRANIDONLY 452, the terminal's value stated by the run (the case TYPETERM's UCTRAN), a terminal RECEIVE after a SET refused; DFHVALUE(name) in the stub's programs is IBM's CVDA number; a DEEDIT field with no digit left, beyond 7-bit ASCII or past LENGTH, and the UCTRANST of a terminal other than the task's, refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-deedit-uctranst, unreleased) |
 | X27 | CICS | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | yes (cics-crucible pc-return-immediate, unreleased) |
 | X28 | CICS | FORMATTIME with RESP / RESP2: INVREQ RESP2 1 for an ABSTIME below zero, nothing formatted (without RESP the INVREQ's handling is refused at run time); ASKTIME with NOHANDLE and without ABSTIME (EIBDATE / EIBTIME as dispatched, X4); READQ TS ... LENGTH(LENGTH OF area): the most INTO takes, LENGERR truncation, no length stored back; RECEIVE MAP ... ASIS: input delivered as typed, lower case kept; an ABSTIME that is not packed decimal (the port reads the field by its declared usage), STRINGFORMAT (RESP2 2) and the output areas of an INVREQ FORMATTIME not modelled / not read | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-resp-options, unreleased) |
+| X29 | CICS | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL: yes (cics-crucible hc-inquire-deleteq, unreleased); QUERY COUNTER: no (the reference region has no named counters; unit tests on both runtimes) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -1446,6 +1447,53 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (REFUSED where IBM is silent: the page does not tabulate UCTRAN against ASIS).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-resp-options (4) on the
   cobol-stub side and the det port.
+
+### X29. INQUIRE ASSOCIATION, DELETEQ TS, QUERY COUNTER, RECEIVE MAP TERMINAL — ASSUMED, REFUSED where IBM is silent (#4415 slice 2)
+- **INQUIRE ASSOCIATION** (CICS TS 6.x, CICS SPI command INQUIRE ASSOCIATION,
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-association). ASSOCIATION "Specifies the 4-byte number of the
+  task for which you want to retrieve association data"; ODAPPLID "the 8-character APPLID taken from the origin descriptor
+  associated with this task"; ODUSERID "the 8-character user ID under which the originating task ran"; ODFACILNAME "the
+  8-character name of the facility" (a transient data queue, terminal or system); ODNETWORKID "the 8-character network
+  qualifier for the origin region APPLID"; ODFACILTYPE a CVDA for the facility type that started the originating task (APPC,
+  ASRUNTRAN, BRIDGE, EVENT, IIOP, IPECI, IPIC, JVMSERVER, LU61, MRO, NODEJSAPP, NONE, RRSUR, RZINSTOR, SCHEDULER, SOCKET,
+  START, STARTTERM, TERMINAL, TRANDATA, WEB, XMRUNTRAN; numbers: det/cvda.py). Conditions: INVREQ RESP2 2 "The command was
+  specified with no arguments", NOTAUTH RESP2 100, TASKIDERR RESP2 1 "The task specified on the ASSOCIATION option was not
+  found". The origin data page (Association data, "Origin data characteristics": "details of its point of origin is placed
+  into task context information called origin data", "created when a new request first arrives at a CICS region") does not
+  say what the five fields hold for a task a terminal started, so they are **a fact the run states** (`CicsTask.withOrigin`,
+  the stub's `$GGCICS_ORIGIN` = `applid,userid,facilname,networkid,faciltype`; the cics-crucible runner takes them from the
+  case's optional `origin` object, for a task that terminal input started -- a START, RUN or RETURN IMMEDIATE task is not
+  stated): never a default; unstated, INQUIRE ASSOCIATION is refused at run time on both sides. Only the task's own number
+  is modelled: the operand must be `EIBTASKN` itself (IBM gives no representation for the 4 bytes; a literal or a copy is
+  refused by the translator and the stub's harness), so TASKIDERR does not arise (the task exists) and NOTAUTH does not
+  (the reference region has no security). A command with no origin option is REFUSED (the INVREQ RESP2 2 sentence does not
+  say whether ASSOCIATION alone is "no arguments"; a case does not use it either). Every other option
+  (ODTASKID, ODTRANSID, the previous-hop and other association-data options) is refused by name.
+- **DELETEQ TS** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-deleteq-ts). QUEUE / QNAME; "Every condition
+  below has the default action of terminating the task abnormally": INVREQ (16) "The queue was created by CICS internal code, or
+  the queue name is all binary zeroes", ISCINVREQ (54), LOCKED (100) "restricted because a unit of work failed indoubt",
+  NOTAUTH (70), QIDERR (44) "the queue can't be found in main or auxiliary storage", SYSIDERR (53). The page lists **no
+  RESP2**, so 0 is written. Modelled: the whole queue and its READQ NEXT position are removed (`CicsTask.deleteqTs`, the
+  stub's `GGCDELQ`); QIDERR for a queue that is not there; INVREQ for a name whose bytes up to its trailing blanks are all
+  binary zeros. ISCINVREQ / SYSIDERR need SYSID (refused), LOCKED needs a recoverable queue (the region's are not, SPEC 2),
+  NOTAUTH needs security (none). A DELETEQ TS leaves no event of its own in the log: its effect is what a later READQ TS /
+  WRITEQ TS answers.
+- **QUERY COUNTER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-query-counter-query-dcounter). "VALUE ... Returns the
+  current value. CICS returns a fullword signed binary value for the COUNTER command"; INVREQ RESP2 201 "Named counter not
+  found"; LENGERR RESP2 1-3 for a value too large for a fullword. Modelled: COUNTER, POOL (omitted: the 8 blanks), VALUE, the
+  value left as it is (unlike GET COUNTER) from the region's named counters (`CicsTask.withCounters`, the stub's
+  `counters.cfg`); a counter beyond a fullword is refused by name (IBM returns the low-order 32 bits with LENGERR; not
+  modelled); MINIMUM / MAXIMUM (the counters' limits are not stated by the run) and NOSUSPEND (BUSY needs a coupling-facility
+  structure) are refused as options. **Not proven through the crucible**: the reference region has no named counters, so
+  this is proven by unit tests of both runtimes on IBM's text (tests/cics_crucible/test_cics_runtimes.py). Note: the existing
+  GET COUNTER answers NOTFND for a counter that is not there, where IBM's GET COUNTER page lists INVREQ RESP2 201 -- a
+  separate item, not changed here.
+- **RECEIVE MAP ... TERMINAL** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map). TERMINAL "specifies that
+  input data is to be read from the terminal that originated the transaction". The task's terminal is the only one the
+  region has, and the one every RECEIVE MAP already reads, so the option changes nothing. (The page does not say whether it is
+  the default; for a terminal task the two are the same.)
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-inquire-deleteq on the
+  cobol-stub side and the det port (INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL).
 
 ## Language Environment
 

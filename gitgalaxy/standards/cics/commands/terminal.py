@@ -43,7 +43,9 @@ RECEIVE_MAP = Command(
     status="modelled",
     # #4737 (X28): ASIS -- IBM: "lowercase characters in the 3270 input data stream are not translated to uppercase". The
     # region delivers the operator's input as typed, so ASIS changes nothing
-    options={**_MAP, "INTO": Arg("area_out"), "ASIS": Arg("flag"), **RESP_OPTIONS},
+    # #4415 (X29): TERMINAL -- IBM: "specifies that input data is to be read from the terminal that originated the
+    # transaction". The region's task has that one terminal, which every RECEIVE MAP reads, so it changes nothing
+    options={**_MAP, "INTO": Arg("area_out"), "ASIS": Arg("flag"), "TERMINAL": Arg("flag"), **RESP_OPTIONS},
     refused={"SET": SET_POINTER},
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO",)),

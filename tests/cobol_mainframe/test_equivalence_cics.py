@@ -943,6 +943,44 @@ def test_bif_deedit_terminal_uctranst_and_dfhvalue_become_stub_calls():
     )
 
 
+def test_deleteq_ts_inquire_association_and_query_counter_become_stub_calls():
+    """#4415 slice 2 (register X29): DELETEQ TS -> GGCDELQ (the queue in GG-QNAME); INQUIRE ASSOCIATION(EIBTASKN) -> one
+    GGCINQA call per origin option (GG-FLAGS names it; the 8 characters in GG-NAME1, the CVDA in GG-NUM), refused with
+    none; QUERY COUNTER -> GGCQCNT (the value in GG-NUM). Other operands and options are refused by name."""
+    d = ec.translate_command("DELETEQ TS QUEUE(WS-Q) RESP(R)")
+    assert d[:2] == ["MOVE WS-Q TO GG-QNAME", "CALL 'GGCDELQ' USING GG-CICS"] and "MOVE GG-RESP TO R" in d
+    assert ec.translate_command("DELETEQ QNAME('LONGQUEUENAME') NOHANDLE")[1] == "CALL 'GGCDELQ' USING GG-CICS"
+    with pytest.raises(ec.Unsupported, match="QUEUE"):
+        ec.translate_command("DELETEQ TS")
+    with pytest.raises(ec.Unsupported, match="SYSID"):
+        ec.translate_command("DELETEQ TS QUEUE(WS-Q) SYSID('AAAA')")
+    a = ec.translate_command("INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(WS-A) ODFACILTYPE(WS-T)")
+    assert (
+        a[:4]
+        == [
+            "MOVE 'ODAPPLID' TO GG-FLAGS",
+            "CALL 'GGCINQA' USING GG-CICS",
+            "MOVE GG-NAME1 TO WS-A",
+            "MOVE 'ODFACILTYPE' TO GG-FLAGS",
+        ]
+        and "MOVE GG-NUM TO WS-T" in a
+    )
+    with pytest.raises(ec.Unsupported, match="without an origin option"):
+        ec.translate_command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R2)")
+    with pytest.raises(ec.Unsupported, match="only the task's own number, EIBTASKN"):
+        ec.translate_command("INQUIRE ASSOCIATION(WS-N) ODAPPLID(WS-A)")
+    with pytest.raises(ec.Unsupported, match="only the origin data"):
+        ec.translate_command("INQUIRE ASSOCIATION(EIBTASKN) ODTASKID(WS-A)")
+    q = ec.translate_command("QUERY COUNTER(WS-C) POOL(WS-P) VALUE(WS-V) RESP(R)")
+    assert q[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCQCNT' USING GG-CICS"]
+    assert "    MOVE GG-NUM TO WS-V" in q
+    with pytest.raises(ec.Unsupported, match="MINIMUM"):
+        ec.translate_command("QUERY COUNTER(WS-C) VALUE(WS-V) MINIMUM(WS-M)")
+    with pytest.raises(ec.Unsupported, match="VALUE"):
+        ec.translate_command("QUERY COUNTER(WS-C)")
+    assert "MOVE GG-NAME1 TO" not in " ".join(ec.translate_command("RECEIVE MAP('M') MAPSET('S') INTO(WS-I) TERMINAL"))
+
+
 def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
     case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""

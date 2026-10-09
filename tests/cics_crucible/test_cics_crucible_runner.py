@@ -111,6 +111,18 @@ def test_the_csd_names_each_terminals_uctran():
     assert runner.UCTRAN_TO_UCTRANST == {"YES": "UCTRAN", "NO": "NOUCTRAN", "TRANID": "TRANIDONLY"}
 
 
+def test_a_cases_stated_origin_is_the_stubs_origin_env():
+    """#4415 slice 2 (register X29): the case's `origin` -- applid, userid, facilname, networkid, faciltype, as the case
+    states them -- is $GGCICS_ORIGIN in that order; a case that states none gives none (INQUIRE ASSOCIATION is refused)."""
+    import cics_crucible as runner
+
+    origin = {"faciltype": "TERMINAL", "applid": "GTCICS01", "userid": "CICSUSER", "facilname": "T001",
+              "networkid": "GTNET"}  # fmt: skip
+    case = type("C", (), {"data": {"origin": origin}})()
+    assert runner.origin_env(case) == "GTCICS01,CICSUSER,T001,GTNET,TERMINAL"
+    assert runner.origin_env(type("C", (), {"data": {}})()) is None
+
+
 def test_a_case_is_read_with_its_expected_logs_and_csd():
     case = _case()
     assert (case.id, case.trap, case.programs) == ("fx-text-chain", "pseudo-conversational", ["FXCHAIN", "FXLAST"])

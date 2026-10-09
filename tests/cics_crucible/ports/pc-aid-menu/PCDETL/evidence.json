@@ -46,7 +46,7 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "810401d8a146aaca8fd172c300d9a34d8abcb263c5ac4c576b68df7612d65659"
+   "sha256": "5062d92ab3cc0b53b487be797591fd7cb52e69c33e3d1f641a499a4445446621"
   },
   "oracle": {
    "paths": [],
@@ -58,7 +58,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 65,
-   "sha256": "a66ca9853e7dfd55ff5e1b851e66609b5716a893f364a0ee47f2e5a6677d6fa6"
+   "sha256": "e888ec5f8bcaed0f6b5dfabe1d87bb3251398815ec41aaf4ce7af7743a47aba5"
   },
   "corpus": {
    "name": "cics-crucible",
@@ -94,10 +94,10 @@
     }
    }
   },
-  "digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
+  "digest": "6a77243baf7e92f60decf02b6c3b1411d7ff6272f72d334897e9062b80e316cb"
  },
  "proof": {
-  "at": "2026-10-09T01:02:19Z",
+  "at": "2026-10-09T05:39:20Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -124,8 +124,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "e7f2f7dbf6b7b530af74bf57ff96fb4ae1b0c637+uncommitted",
-  "inputs_digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
+  "harness_commit": "5abdf0c03706a49b6a6571a4a03545ce578fd8b7+uncommitted",
+  "inputs_digest": "6a77243baf7e92f60decf02b6c3b1411d7ff6272f72d334897e9062b80e316cb"
  },
  "coverage": {
   "paragraphs": {
@@ -140,7 +140,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-aid-menu/PCDETL",
   "ledger_sha256": "7e84773fcc0ea91e7c202508d32b419f56f6723aa0cdccc570061d636889223f",
-  "inputs_digest": "9d5bb14f3427dc780efb6fffb0fc1dbb969daf5fc30fd7fc0d8dd691a16e8a0a"
+  "inputs_digest": "6a77243baf7e92f60decf02b6c3b1411d7ff6272f72d334897e9062b80e316cb"
  },
  "reach": {
   "entry_points": [

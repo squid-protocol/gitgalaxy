@@ -12,6 +12,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **What a level means.** Each program gets the highest level whose conditions hold; levels are cumulative and the numbers under a level are always shown. The coverage bars are parameters of this report (paragraphs 100.0%, branches 100.0% net of the reviewed infeasible outcomes each program lists as stated assumptions). Oracle backing per CICS command is a separate column, not a level. Det-port mutation (the top level): not yet measured (#4628). The evidence record of a program's case (the committed hand or model port's proof) is reported beside each program, and is not a condition of any level.
 
+**Stale levels (`L3*`).** A level marked `*` is the program's LAST MEASURED level, shown because the measurement it rests on was made against an earlier harness or oracle: the det-sweep coverage ledger entry's input fingerprints no longer match the tree on a scheduled input (harness, oracle). It means "measured against the previous harness, not yet re-checked", not "regressed"; the program table names `stale since <commit>` (the commit the level was last measured at) and the changed inputs, and the scheduled re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared differences or options) is not shown as stale: the level drops, as the old measurement no longer describes it. A stale level is never a current one: the summary counts them apart, and the release gate (`evidence_report.py --check --live`) fails while any program's level is stale.
+
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
@@ -32,14 +34,17 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 ## Summary
 
-| level | programs |
-|---|---|
-| L0 | 3 |
-| L1 | 1 |
-| L2 | 2 |
-| L3 | 0 |
-| L4 | 0 |
-| L5 | 0 |
+| level | programs | of which stale (awaiting re-check) |
+|---|---|---|
+| L0 | 3 | 0 |
+| L1 | 1 | 0 |
+| L2 | 2 | 0 |
+| L3 | 0 | 0 |
+| L4 | 0 | 0 |
+| L5 | 0 | 0 |
+
+- current levels: 6; stale (`*`, last measured): 0
+- L2+: 2 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 3; refused whole: 0; holes left: 23
@@ -51,7 +56,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not run | 8 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not run | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L0 | 12/13 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L0 | 25/27 | 2 | mortgage-mpmt | not equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
@@ -81,9 +86,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | STARTBR | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 1 branch outcomes unrun; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsnbrvl.cbl -- L2
 
@@ -104,7 +109,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Translation:** 61/61 statements, 0 holes; whole: yes
 - **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port not run (a Db2 case: CI's det-sweep skips Db2 cases and no local sweep was given)
   - evidence record: none (8 scenarios in case.json)
-- **Coverage:** not measured
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -115,9 +120,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 live paragraphs unrun; 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
 
@@ -155,9 +160,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SOAPFAULT CREATE | name-only | none | no |
   | STARTBROWSE CONTAINER | name-only | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 20 holes; ASSUMED / DIFFERS entries named: X17; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 20 holes; ASSUMED / DIFFERS entries named: X17, X27; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrt.cbl -- L0
 
@@ -193,6 +198,7 @@ From the spec entries of the commands the programs use, with the register's stat
 |---|---|---|---|
 | X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
+| X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 
 ## Reproducibility
 

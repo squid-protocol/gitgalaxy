@@ -43,7 +43,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "a585b5a15ba0e74d5d4dcebf7f00406b6569a1545712cb8061996fdb493513b8"
+   "sha256": "831ac2f61613229a4ac1ce480ee3d734301c2f93a32eedcdbc5cb24adb4fac79"
   },
   "oracle": {
    "paths": [
@@ -55,15 +55,15 @@
     "tests/equivalence/db2/**",
     "tests/tools/equivalence_sql.py"
    ],
-   "files": 17,
-   "sha256": "34e4374b3f771d8a11ed9471e6ec942784f1f5435a723bdd080f8567eda4171c"
+   "files": 21,
+   "sha256": "7106cdfcac1b90111b7ebd1f0f25e6dcd1f9da3a87f71db7cf1dc90239ab7ea7"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 65,
-   "sha256": "a66ca9853e7dfd55ff5e1b851e66609b5716a893f364a0ee47f2e5a6677d6fa6"
+   "sha256": "e888ec5f8bcaed0f6b5dfabe1d87bb3251398815ec41aaf4ce7af7743a47aba5"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -145,10 +145,10 @@
     }
    }
   },
-  "digest": "a267291e4755e48eeb943f0f2578af067fdfd6da67e8b9efc82cdb45a71aebf1"
+  "digest": "2191c5bb33f33f1172429eabe01f13e817d918c3d3471c02de420247fe590b86"
  },
  "proof": {
-  "at": "2026-10-09T00:47:38Z",
+  "at": "2026-10-09T05:24:35Z",
   "verdict": "proven",
   "runs": 15,
   "fault_runs": 1,
@@ -229,8 +229,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "e7f2f7dbf6b7b530af74bf57ff96fb4ae1b0c637+uncommitted",
-  "inputs_digest": "a267291e4755e48eeb943f0f2578af067fdfd6da67e8b9efc82cdb45a71aebf1"
+  "harness_commit": "5abdf0c03706a49b6a6571a4a03545ce578fd8b7+uncommitted",
+  "inputs_digest": "2191c5bb33f33f1172429eabe01f13e817d918c3d3471c02de420247fe590b86"
  },
  "coverage": {
   "paragraphs": {
@@ -254,7 +254,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "a267291e4755e48eeb943f0f2578af067fdfd6da67e8b9efc82cdb45a71aebf1"
+  "inputs_digest": "2191c5bb33f33f1172429eabe01f13e817d918c3d3471c02de420247fe590b86"
  },
  "reach": {
   "entry_points": [
@@ -287,7 +287,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:4c27d864c487c92b3d344c580c354a460f150d5b4639078efb70c4ddc1cc1b56",
+   "id": "sha256:0b5252212276148928e65394c304ef12c993cae68a4b866d5ab00bfb770e7b77",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -307,7 +307,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "f3fb46bc9971d8a2236611f3b211ca86778dac1e29c4809ac2dbe2240378f6fc"
+    "sha256": "62b4b4c8dd54b45eb350e1a901bdbc4658c3ca988b3f421fc93ea26cd938cb93"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
@@ -323,15 +323,31 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "979c4f9918aefe0aa8d89750137e9dd454bae3884e43b43cedc471a9bc56fb5b"
+    "sha256": "42dac4f30a953b633e2c1b3bf5fb64ae57e8da9bb9d2474311d9b6a5c8ab49d9"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",
     "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
    },
    {
+    "path": "tests/equivalence/db2/uow/cbl/UOWDEMO.cbl",
+    "sha256": "e2760b97b7a7d20153c2da0a13b838d586342078eb57724fef53dbb626af5f82"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/ddl/ACCT.ddl",
+    "sha256": "7e555c6935585c64bbe4e0c9bbb341f86fd5629f1af4b1288f46a6c89e5b2ff2"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/jcl/UOWDEMO.jcl",
+    "sha256": "12b0639e1f29cc6f9b6aa9631ae639b498ed6eda8789dadbf6d2b08dd94edc44"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/seed.sql",
+    "sha256": "60a4043a04f8ef42b05718e215aca89897404385a6fe3c660b5932ce0514e78a"
+   },
+   {
     "path": "tests/equivalence/faults/ggabend.c",
-    "sha256": "6ef6042ded87f2651bcd38ce997895d277164501252756b0e5ee565765dc75bf"
+    "sha256": "d10fab112cf8c0549c7d163d3c4907ce4bc84785170d8b2ea680946658ffbcf2"
    },
    {
     "path": "tests/equivalence/faults/ggdisplay.c",
@@ -359,7 +375,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "f559af88445cfae17e422e4eef5c4cef57fc43ecc06263646cd26ceae4feafc9"
+    "sha256": "ab94a145393162be61aa38bc1085b4d738b41682f8000eff2fc07c39e4641499"
    }
   ],
   "assumptions": null

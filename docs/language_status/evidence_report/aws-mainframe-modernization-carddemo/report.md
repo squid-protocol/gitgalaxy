@@ -50,7 +50,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 30; refused whole: 3; holes left: 68
-- with an equivalence case: 29; det port equal on its case: 27; with an evidence record: 23; record current at build: 23
+- with an equivalence case: 30; det port equal on its case: 28; with an evidence record: 23; record current at build: 23
 
 ## Options the estate compiles and runs under
 
@@ -120,7 +120,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L0 | 356/370 | 14 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/6 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | L0 | 178/193 | 15 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/7 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L0 | 55/56 | 1 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L0 | 55/56 | 1 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | L0 | 62/67 | 5 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | L0 | 84/88 | 4 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | L0 | 70/73 | 3 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
@@ -531,7 +531,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2*
 
-- **Stale level:** L2 is the last measurement, stale since `2b53e918c59d` (harness, oracle); not yet re-checked
+- **Stale level:** L2 is the last measurement, stale since `da4433e72b92` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 34 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 98.4)
@@ -904,8 +904,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Translation:** 55/56 statements, 1 holes; whole: no
   - hole: EXEC EXEC CICS: EXEC CICS ASKTIME NOHANDLE not modelled
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Executed equivalence** (carddemo-copaus2c, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
+  - evidence record: none (5 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 2/2 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1099,7 +1100,7 @@ Regenerate this report and re-run its proofs:
 python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (3) need the Db2 container
+python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

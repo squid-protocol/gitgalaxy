@@ -1,0 +1,369 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGTESTC1",
+ "program_source": "base/src/lgtestc1.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "SSC1",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGICUS01",
+   "program_source": "base/src/lgicus01.cbl"
+  },
+  {
+   "program": "LGICDB01",
+   "program_source": "base/src/lgicdb01.cbl"
+  },
+  {
+   "program": "LGACUS01",
+   "program_source": "base/src/lgacus01.cbl"
+  },
+  {
+   "program": "LGACDB01",
+   "program_source": "base/src/lgacdb01.cbl"
+  },
+  {
+   "program": "LGACVS01",
+   "program_source": "base/src/lgacvs01.cbl"
+  },
+  {
+   "program": "LGACDB02",
+   "program_source": "base/src/lgacdb02.cbl"
+  },
+  {
+   "program": "LGUCUS01",
+   "program_source": "base/src/lgucus01.cbl"
+  },
+  {
+   "program": "LGUCDB01",
+   "program_source": "base/src/lgucdb01.cbl"
+  },
+  {
+   "program": "LGUCVS01",
+   "program_source": "base/src/lgucvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgtestc1.cbl",
+    "record": "COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "SSMAPC1": {
+   "copybook": "@bms/SSMAP.cpy",
+   "input": "SSMAPC1I",
+   "output": "SSMAPC1O"
+  }
+ },
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "first-entry-inquire",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "1",
+     "ENT1CNOI": "0000000001"
+    }
+   },
+   "why": "EIBCALEN 0: the map initialised (customer number '0000000000') and sent ERASE, then the same task's RECEIVE: option 1 inquires customer 1 (LINK LGICUS01 -> LGICDB01); the customer shown, RETURN TRANSID('SSC1') with COMM-AREA"
+  },
+  {
+   "name": "inquire",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "1",
+     "ENT1CNOI": "0000000007"
+    }
+   },
+   "why": "option 1 on a returning task (EIBCALEN > 0: GO TO A-GAIN): customer 7 (no phone numbers)"
+  },
+  {
+   "name": "inquire-not-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "1",
+     "ENT1CNOI": "0000009999"
+    }
+   },
+   "why": "option 1 for a customer not on file: LGICDB01 sets CA-RETURN-CODE '01' -> NO-DATA ('No data was returned.'), ERROR-OUT sends the map and initialises the areas"
+  },
+  {
+   "name": "add",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "2",
+     "ENT1FNAI": "Ada",
+     "ENT1LNAI": "Lovelace",
+     "ENT1DOBI": "1815-12-10",
+     "ENT1HNMI": "Ockham Park",
+     "ENT1HNOI": "12",
+     "ENT1HPCI": "kt246hp",
+     "ENT1HP1I": "01483222111",
+     "ENT1HP2I": "07700900123",
+     "ENT1HMOI": "ada@analytical.example"
+    }
+   },
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000001",
+     "HIGH CUSTOMER=0000000010"
+    ]
+   },
+   "why": "option 2: LINK LGACUS01 ('01ACUS') adds the customer (GET COUNTER GENACUSTNUM 1000011, INSERT CUSTOMER, LGACVS01's VSAM copy, LGACDB02's CUSTOMER_SECURE row); the postcode upper-cased first; WRITE-GENACNTL finds GENACNTL's HIGH CUSTOMER item and REWRITEs it with the new number; 'New Customer Inserted'"
+  },
+  {
+   "name": "add-first-customer",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "2",
+     "ENT1FNAI": "Ada",
+     "ENT1LNAI": "Lovelace",
+     "ENT1DOBI": "1815-12-10",
+     "ENT1HNMI": "Ockham Park",
+     "ENT1HNOI": "12",
+     "ENT1HPCI": "kt246hp",
+     "ENT1HP1I": "01483222111",
+     "ENT1HP2I": "07700900123",
+     "ENT1HMOI": "ada@analytical.example"
+    }
+   },
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "why": "option 2 with no GENACNTL queue: the customer is added, then WRITE-GENACNTL WRITEQs '**** GENAPP CNTL' and then 'LOW CUSTOMER=' FROM(WRITE-MSG-L) X(13) LENGTH(23), past its FROM item: X6, the task judged up to it"
+  },
+  {
+   "name": "add-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "2",
+     "ENT1FNAI": "Ada",
+     "ENT1LNAI": "Lovelace",
+     "ENT1DOBI": "1815-12-10",
+     "ENT1HNMI": "Ockham Park",
+     "ENT1HNOI": "12",
+     "ENT1HPCI": "kt246hp",
+     "ENT1HP1I": "01483222111",
+     "ENT1HP2I": "07700900123",
+     "ENT1HMOI": "ada@analytical.example"
+    }
+   },
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000001",
+     "HIGH CUSTOMER=0000000010"
+    ]
+   },
+   "sql_faults": [
+    {
+     "program": "LGACDB01",
+     "table": "CUSTOMER",
+     "verb": "INSERT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "option 2 with LGACDB01's INSERT into CUSTOMER failing (SQLCODE -913): CA-RETURN-CODE '90'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  },
+  {
+   "name": "update",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "4",
+     "ENT1CNOI": "0000000005",
+     "ENT1FNAI": "Graham",
+     "ENT1LNAI": "Cuthbert",
+     "ENT1DOBI": "1967-01-03",
+     "ENT1HNMI": "",
+     "ENT1HNOI": "55",
+     "ENT1HPCI": "tr68bk",
+     "ENT1HP1I": "00007700100100",
+     "ENT1HP2I": "02083443444",
+     "ENT1HMOI": "g.cuthbert@new.example"
+    }
+   },
+   "why": "option 4: inquire customer 5 (LGICUS01), SEND MAP, RECEIVE MAP again (the harness gives a task one input per map: the second RECEIVE reads the same fields), then LINK LGUCUS01 ('01UCUS') with the fields typed: CUSTOMER updated, LGUCVS01 rewrites the VSAM copy; 'Customer details updated'"
+  },
+  {
+   "name": "update-not-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "4",
+     "ENT1CNOI": "0000009999",
+     "ENT1FNAI": "Graham",
+     "ENT1LNAI": "Cuthbert",
+     "ENT1DOBI": "1967-01-03",
+     "ENT1HNMI": "",
+     "ENT1HNOI": "55",
+     "ENT1HPCI": "tr68bk",
+     "ENT1HP1I": "00007700100100",
+     "ENT1HP2I": "02083443444",
+     "ENT1HMOI": "g.cuthbert@new.example"
+    }
+   },
+   "why": "option 4 for a customer not on file: the inquiry returns '01' -> NO-DATA before any update"
+  },
+  {
+   "name": "update-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "4",
+     "ENT1CNOI": "0000000005",
+     "ENT1FNAI": "Graham",
+     "ENT1LNAI": "Cuthbert",
+     "ENT1DOBI": "1967-01-03",
+     "ENT1HNMI": "",
+     "ENT1HNOI": "55",
+     "ENT1HPCI": "tr68bk",
+     "ENT1HP1I": "00007700100100",
+     "ENT1HP2I": "02083443444",
+     "ENT1HMOI": "g.cuthbert@new.example"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "LGUCDB01",
+     "table": "CUSTOMER",
+     "verb": "UPDATE",
+     "sqlcode": -913
+    }
+   ],
+   "why": "option 4 with LGUCDB01's UPDATE of CUSTOMER failing (SQLCODE -913): CA-RETURN-CODE non-zero; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+  },
+  {
+   "name": "update-row-gone",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "4",
+     "ENT1CNOI": "0000000005",
+     "ENT1FNAI": "Graham",
+     "ENT1LNAI": "Cuthbert",
+     "ENT1DOBI": "1967-01-03",
+     "ENT1HNMI": "",
+     "ENT1HNOI": "55",
+     "ENT1HPCI": "tr68bk",
+     "ENT1HP1I": "00007700100100",
+     "ENT1HP2I": "02083443444",
+     "ENT1HMOI": "g.cuthbert@new.example"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "LGUCDB01",
+     "table": "CUSTOMER",
+     "verb": "UPDATE",
+     "sqlcode": 100
+    }
+   ],
+   "why": "option 4 with LGUCDB01's UPDATE of CUSTOMER finding no row (SQLCODE +100: the row went between the inquiry and the update): CA-RETURN-CODE '01', no error message; LGUCVS01 still rewrites the VSAM copy; back in LGTESTC1, IF CA-RETURN-CODE > 0 -> NO-UPD 'Error Updating Customer', ERROR-OUT"
+  },
+  {
+   "name": "bad-option",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "9"
+    }
+   },
+   "why": "option '9': WHEN OTHER -- 'Please enter a valid option', the option field's length -1 (cursor), SEND MAP ... CURSOR"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "1"
+    }
+   },
+   "why": "CLEAR: HANDLE AID CLEAR(CLEARIT) -- the map sent MAPONLY, RETURN TRANSID"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "receive": {
+    "SSMAPC1": {
+     "ENT1OPTI": "1"
+    }
+   },
+   "why": "PF3: HANDLE AID PF3(ENDIT) -- SEND TEXT 'Transaction ended' ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no input: the RECEIVE raises MAPFAIL, HANDLE CONDITION MAPFAIL(ENDIT)"
+  }
+ ],
+ "notes": "GenApp's customer test transaction (LGTESTC1, transid SSC1, BMS map SSMAPC1 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGICUS01), add (2: LGACUS01, a failure is SYNCPOINT ROLLBACK; a success updates TS queue GENACNTL's HIGH CUSTOMER item, WRITE-GENACNTL) or inquire-then-update (4: LGICUS01, SEND MAP, a second RECEIVE MAP -- the harness gives a task one input per map, so it reads the same fields -- then LGUCUS01). The case runs the whole chain in the task: the three front ends, their Db2 back ends, the VSAM services, LGACDB02 and LGSTSQ (eleven programs). The VSAM file and its data are genapp-lgacus01's; Db2 is db2cre.jcl's tables and rows; the named counter GENACUSTNUM and the queue GENACNTL are stated by the scenarios that add. Judged up to a refused WRITEQ (oracle_assumptions.md X6): WRITE-GENACNTL with no HIGH CUSTOMER item (its second WRITEQ, FROM(WRITE-MSG-L) X(13) LENGTH(23)), and every back-end failure, which LINKs LGSTSQ before it returns. NO-UPD is reached by update-row-gone (LGUCDB01's UPDATE answered +100, which LGUCDB01 returns as '01' without its error logger). Uncovered: IF CA-RETURN-CODE > 0 true after the add LINK, and NO-ADD: every failure of the add chain LINKs LGSTSQ first and the task is judged up to its refused WRITEQ (X6), so what follows is not compared or counted; the plain RETURN after END-EVALUATE, which no WHEN falls through to. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

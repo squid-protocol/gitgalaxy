@@ -1,0 +1,98 @@
+{
+ "kind": "cics",
+ "corpus": "zecs",
+ "program": "ZECSPLT",
+ "program_source": "Source/ZECSPLT.cbl",
+ "copy_dirs": [],
+ "transid": "ZPLT",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": null,
+ "linked": false,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "one-instance",
+   "commarea": null,
+   "urimaps": [
+    [
+     "ZC01",
+     "ZC01",
+     "/resources/ecs/walmart/cache*"
+    ],
+    [
+     "ZC01D",
+     "ZD01",
+     "/deplicate/ecs/walmart/cache*"
+    ],
+    [
+     "ZC01R",
+     "ZR01",
+     "/replicate/ecs/walmart/cache*"
+    ]
+   ],
+   "why": "one zECS instance installed (CSDZC##.rdo with @id@ = 01): INQUIRE URIMAP START / NEXT ... browses ZC01, ZC01D, ZC01R; only ZC01 (prefix 'ZC', no suffix) starts its expiration task: START TRANSID('ZX01') FROM(URI-TRAN = 'ZC01') LENGTH(4), WRITEQ TD '@tdq' and WRITE OPERATOR 'zECS start ZX01 for ZC01 /resources/ecs/walmart/cache*'; NEXT past the last is END (RESP2 2), INQUIRE URIMAP END, RETURN"
+  },
+  {
+   "name": "other-urimaps",
+   "commarea": null,
+   "urimaps": [
+    [
+     "DFHWEB01",
+     "CWBA",
+     "/cics/web/*"
+    ],
+    [
+     "ZCABX",
+     "ZCAB",
+     "/resources/ecs/x/y*"
+    ],
+    [
+     "ZD02",
+     "ZD02",
+     "/zd/*"
+    ],
+    [
+     "NOTRAN",
+     "",
+     "/static/*"
+    ],
+    [
+     "ZC07",
+     "ZC07",
+     "/resources/ecs/acme/sessions*"
+    ],
+    [
+     "ZC07D",
+     "ZD07",
+     "/deplicate/ecs/acme/sessions*"
+    ],
+    [
+     "ZC07R",
+     "ZR07",
+     "/replicate/ecs/acme/sessions*"
+    ]
+   ],
+   "why": "definitions that are not a zECS instance -- another prefix (DFHWEB01, ZD02), a 'ZC' name with a suffix (ZCABX), one with no alias transaction (NOTRAN: TRANSACTION blank) -- start nothing; instance 07 among them starts ZX07"
+  },
+  {
+   "name": "short-name",
+   "commarea": null,
+   "urimaps": [
+    [
+     "ZC",
+     "ZC",
+     "/resources/ecs/a/b*"
+    ]
+   ],
+   "why": "a URIMAP named just 'ZC': URI-PREFIX(3:2) is blank, so START TRANSID('ZX  ') and the message says 'zECS start ZX   for ZC'"
+  },
+  {
+   "name": "no-urimaps",
+   "commarea": null,
+   "urimaps": [],
+   "why": "no URIMAP installed: the first NEXT is END (RESP2 2), EOF; nothing started; INQUIRE URIMAP END, RETURN"
+  }
+ ],
+ "notes": "zECS's start-up program (ZECSPLT: a PLTPI program, or transaction ZPLT in Source/CSDZECS.rdo). It browses the URIMAP definitions installed in the region (INQUIRE URIMAP START, NEXT until a condition, END; NOHANDLE throughout) and, for each one named 'ZC' + a two-character instance id with no suffix, STARTs that instance's expiration transaction ZX<id> FROM its alias transaction (LENGTH 4), writes 'zECS start ZX<id> for <transaction> <path>' to TD queue '@tdq' (CSSL is PIC X(4) VALUE '@tdq@': the install's placeholder, truncated) and to the console (WRITE OPERATOR). The installed definitions are a fact of the region, stated per scenario on both sides (\"urimaps\": the stub's $GGCICS_URIMAPS, CicsTask.withUrimaps; oracle_assumptions.md X32), following zECS's CSD template Source/CSDZC##.rdo (three URIMAPs per instance). The browse order IBM leaves open (X32): every scenario has at most one zECS instance, so nothing compared depends on it. Every transaction is defined (the case states no CSD transactions), so each START is NORMAL; its expiry is the case's clock + 0 (no INTERVAL). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

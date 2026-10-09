@@ -181,6 +181,9 @@ class Gen:
         self._value_use = 0  # > 0 while value_field asks
         self._init_bytes = 0  # > 0 inside INITIALIZE: a group is walked to its elementary items, never copied
         self.float_top: int = 0  # id of the COMPUTE expression whose own division may be libcob's NaN (#4675)
+        self.numval_store = (
+            False  # the statement is float only through FUNCTION NUMVAL: its fixed-point stores are checked (#4741)
+        )
         self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
@@ -343,10 +346,14 @@ class Gen:
         exponentiation, else "LONG" (ARITH(COMPAT))."""
         refs: list = list(receivers)
         other = False  # an operand that is no data item (a literal, a function, a figurative)
+        numval = False  # an operand that is FUNCTION NUMVAL / NUMVAL-C: a long floating-point value (#4741)
 
         def walk(e) -> None:
-            nonlocal other, multiply
-            if isinstance(e, E.Ref):
+            nonlocal other, multiply, numval
+            if self.is_numval(e):
+                numval = True
+                other = True
+            elif isinstance(e, E.Ref):
                 refs.append(e)
             elif isinstance(e, E.Bin):
                 multiply = multiply or e.op in ("*", "**")
@@ -360,12 +367,26 @@ class Gen:
         for e in exprs:
             walk(e)
         items = [self.float_item(r) for r in refs]
-        if not any(items):
+        # IBM: an operand that is "a reference to a numeric intrinsic function results in floating-point arithmetic
+        # when ... the function is a floating-point function" (Programming Guide, "Floating-point evaluations");
+        # NUMVAL and NUMVAL-C return long floating point (register C6, #4741)
+        self.numval_store = numval and not any(items)
+        if not any(items) and not numval:
             return None
         return (
             "SHORT"
             if not other and not multiply and all(x is not None and x.usage == "COMP-1" for x in items)
             else "LONG"
+        )
+
+    @staticmethod
+    def is_numval(e) -> bool:
+        """FUNCTION NUMVAL / NUMVAL-C of one argument (a long HFP operand, Hfp.numval)."""
+        return (
+            isinstance(e, E.Func)
+            and e.name in ("NUMVAL", "NUMVAL-C")
+            and len(e.args) == 1
+            and not isinstance(e.args[0], tuple)
         )
 
     # ---- ARITHMETIC-OSVS (#4287) ------------------------------------------------------------------------------
@@ -1778,28 +1799,34 @@ class Gen:
             return [c, f"{ind}Sysout.display({', '.join(parts)});"]
         if k == "COMPUTE":
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
-            if mode is not None:
-                self.float_statement(s.data["targets"])
-            self.p_scaled_expr(s.data["expr"], False)
-            plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
-            plan = {} if mode is not None else plan
-            self.float_top = id(s.data["expr"]) if mode is not None else 0
-            with self.floating(mode), self.osvs_plan(plan):
-                value = self.num(s.data["expr"])
-            self.float_top = 0
-            return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"])]
+            try:
+                if mode is not None:
+                    self.float_statement(s.data["targets"])
+                self.p_scaled_expr(s.data["expr"], False)
+                plan = self.plan_arith(s.data["expr"], [t for t, _ in s.data["targets"]])
+                plan = {} if mode is not None else plan
+                self.float_top = id(s.data["expr"]) if mode is not None else 0
+                with self.floating(mode), self.osvs_plan(plan):
+                    value = self.num(s.data["expr"])
+                self.float_top = 0
+                return [c, *self.store_all(s, s.data["targets"], value, ind, s.data["expr"])]
+            finally:
+                self.numval_store = False  # (set by float_mode for this statement's stores only)
         if k == "ARITH":
             d = s.data
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
             receivers += [d["remainder"]] if d.get("remainder") is not None else []
             mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
-            if mode is not None:
-                self.float_statement(list(d.get("targets") or []) + list(d.get("giving") or []))
-                if d.get("remainder") is not None:
-                    raise Untranslatable(f"DIVIDE REMAINDER in floating point ({FLOAT_BYTES})")
-                with self.floating(mode):
-                    return [c, *self.arith_float(s, ind)]
-            return [c, *self.arith(s, ind)]
+            try:
+                if mode is not None:
+                    self.float_statement(list(d.get("targets") or []) + list(d.get("giving") or []))
+                    if d.get("remainder") is not None:
+                        raise Untranslatable(f"DIVIDE REMAINDER in floating point ({FLOAT_BYTES})")
+                    with self.floating(mode):
+                        return [c, *self.arith_float(s, ind)]
+                return [c, *self.arith(s, ind)]
+            finally:
+                self.numval_store = False
         if k == "SET-NULL":
             # #4270 (CBSA CREACC's SET COMM-PCB-POINTER TO NULL): a data pointer set to NULL holds no address --
             # binary zeros, as INITIALIZE leaves one (oracle_assumptions.md C9: GnuCOBOL's NULL is a zero
@@ -2101,7 +2128,8 @@ class Gen:
         out.append(f"{ind}BigDecimal {v} = {value};")
         out.append(f"{ind}boolean {err} = {'Cobol.sizeRaised()' if sized else 'false'};")
         for t, rounded in targets:
-            out.append(f"{ind}{err} |= Cobol.storeChecked({self.value_field(t)}, {v}, {_b(rounded)}, CS);")
+            sv = self.checked_store(t, v, rounded)
+            out.append(f"{ind}{err} |= Cobol.storeChecked({self.value_field(t)}, {sv}, {_b(rounded)}, CS);")
         out += after(v) if after else []
         if "SIZE-ERROR" in s.phrases:
             out += [f"{ind}if ({err}) {{", *self.phrase_block(s.phrases["SIZE-ERROR"], ind + "    "), f"{ind}}}"]
@@ -2114,8 +2142,19 @@ class Gen:
         with self.floating(None):
             return self.block(body, ind)
 
+    def checked_store(self, t: E.Ref, value: str, rounded: bool) -> str:
+        """`value`, wrapped in Hfp.fixedStore when it is a NUMVAL-only floating-point result stored in a fixed-point
+        receiver (#4741): what IBM leaves undefined there is refused at run time."""
+        if not self.numval_store:
+            return value
+        it = self.resolve(t)
+        if it.category not in ("NUMERIC", "NUMERIC-EDITED"):
+            return value
+        return f"Hfp.fixedStore({value}, {it.scale}, {_b(rounded)})"
+
     def store_into(self, t: E.Ref, value: str, rounded: bool) -> str:
         """An arithmetic result (no ON SIZE ERROR) stored in a target: a lifted binary item through Cobol.binary."""
+        value = self.checked_store(t, value, rounded)
         lt = self.lift(t)
         if lt and lt[0] == "BIN":
             it = lt[2]

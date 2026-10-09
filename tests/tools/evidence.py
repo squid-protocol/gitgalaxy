@@ -20,6 +20,12 @@ differences makes the record stale and fails CI (test_every_committed_record_is_
 the oracle or the generator makes it stale too -- it is shown as stale, never as proven -- but it is re-proven by
 the scheduled job (.github/workflows/evidence-refresh.yml: `evidence.py refresh --stale`), not by the PR.
 
+Component fingerprints (#4731): the harness, the oracle and the generator are also fingerprinted per component (the
+CICS stub and equivalence_cics.py, the Db2 layer, batch file I/O, the LE models, each det module and cobolrt runtime
+class, ...; see COMPONENTS), and a record stores the components its target uses under `inputs.<input>.components`. A
+record that holds them is stale on that input only when a component it uses changed; one that does not (proven before
+#4731) keeps the whole-input comparison. `migrate` adds them where that is sound; `evidence_history.py replay` measures.
+
 Unproven methods (#4255, owner decision Q7): proof_reach sorts the methods no proof runs into stubs, left as
 generated, and ported_unproven (behaviour the port added that no proof runs). PORTED_UNPROVEN_POLICY = "block": a
 record with any ported_unproven method is NOT proven. "report" (the other value) keeps them as counts only. Stubs and
@@ -28,6 +34,7 @@ left-as-generated methods are always counts only.
     python tests/tools/evidence.py status [KEY ...] [--json] [--ci]     # computed status of every record
     python tests/tools/evidence.py prove KEY [KEY ...] | --all           # run the proof and write the record
     python tests/tools/evidence.py refresh --stale                       # re-prove every record that is stale
+    python tests/tools/evidence.py migrate [KEY ...] [--check]           # #4731: component fingerprints for current records
     python tests/tools/evidence.py mutation                              # refresh `mutation` from mutation_scores.json
     python tests/tools/evidence.py render [--check]                      # docs/language_status/evidence/
     python tests/tools/evidence.py approve KEY --by NAME --for PURPOSE [--note TEXT]   # a person, at a terminal
@@ -147,6 +154,244 @@ def json_sha256(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+# ---- #4731: component fingerprints ---------------------------------------------------------------------------------
+# One harness / oracle / generator fingerprint covering everything staled every record on any edit. Each of those three
+# inputs is now ALSO fingerprinted per component (a partition of the same files: every file is in exactly one
+# component, the remainder in "<input>:core"), and a record stores the components ITS target uses. A record whose
+# stored input carries `components` is stale on that input only when a component it uses changed; one without them
+# (proven before #4731) keeps the whole-input comparison until it is re-proven or migrated (`evidence.py migrate`).
+# Conservative by construction: a component is unused only where the code path is known not to run for the target
+# (the `why` of each below, pinned by tests/cobol_mainframe/test_evidence_components.py); whatever is not attributable
+# is "<input>:core", used by every target, and a crucible port uses every component.
+#
+# What the generator input is for a record: the proof generates the WHOLE estate's Java with the cobol-to-java controller
+# and its forges (core: every forge, java_target, CicsSpec ... -- a forge change can break any case's build, so no case is
+# spared it), overlays the port, and runs it. The deterministic translator (det/*.py) and its runtime (det/cobolrt) run
+# in a record's proof only for a case that LINKs programs (equivalence_java.linked_programs: P.translate), and the
+# harness imports a few det modules (source; cvda / cics through equivalence_cics). A port that names a runtime class
+# ships it. Everything else under det/ is unused by a record whose case does neither.
+COMPONENT_INPUTS = ("harness", "oracle", "generator")
+RT_DIR = "gitgalaxy/tools/cobol_to_java/det/cobolrt/"
+DET_DIR = "gitgalaxy/tools/cobol_to_java/det/"
+_ALWAYS_DET = ("__init__", "source")  # the package; equivalence_common imports det.source (bms_copybooks): any case
+_CICS_DET = ("cics", "cvda")  # equivalence_cics imports them: wherever harness:cics is used
+
+
+@dataclass
+class Use:
+    """What decides whether a target uses a component: its kind, Db2 flag, LINKed programs and (generator) its port's Java."""
+
+    kind: str
+    db2: bool
+    programs: bool = False
+    port_text: Callable[[], str] = lambda: ""
+
+    @property
+    def crucible(self) -> bool:
+        return self.kind == "crucible"
+
+    @property
+    def online(self) -> bool:
+        return self.kind in ("cics", "crucible")
+
+    @property
+    def cics_harness(self) -> bool:
+        return self.kind != "batch" or self.db2
+
+    @property
+    def det_all(self) -> bool:
+        return self.crucible or self.programs
+
+
+@dataclass(frozen=True)
+class Component:
+    name: str
+    input: str
+    paths: tuple[str, ...]
+    uses: Callable[[Use], bool]
+    why: str = ""
+
+
+# Everything else of each input is "<input>:core", used by every target.
+COMPONENTS: tuple[Component, ...] = (
+    Component(
+        "harness:cics",
+        "harness",
+        ("tests/tools/equivalence_cics.py",),
+        lambda u: u.cics_harness,
+        "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
+    ),
+    Component(
+        "harness:call",
+        "harness",
+        ("tests/tools/equivalence_call.py",),
+        lambda u: u.kind in ("call", "crucible"),
+        "run_case for kind call only",
+    ),
+    Component(
+        "harness:db2",
+        "harness",
+        ("tests/tools/equivalence_db2.py",),
+        lambda u: u.db2 or u.crucible,
+        "the Db2 container / tables / JDBC props: Db2 cases only",
+    ),
+    Component(
+        "harness:crucible",
+        "harness",
+        ("tests/tools/cics_crucible.py", "tests/tools/cics_crucible_compare.py"),
+        lambda u: u.crucible,
+        "the crucible runner",
+    ),
+    Component(
+        "oracle:image-db2",
+        "oracle",
+        ("tests/equivalence/gnucobol-db2.Dockerfile",),
+        lambda u: u.db2,
+        "the Db2 CLI layer of the oracle image",
+    ),
+    Component(
+        "oracle:le",
+        "oracle",
+        ("tests/equivalence/le/**",),
+        lambda u: True,
+        "the LE service models (CEEDAYS, COBDATFT) are linked into every batch, call and CICS program",
+    ),
+    Component(
+        "oracle:cics-stub",
+        "oracle",
+        ("tests/equivalence/cics/**",),
+        lambda u: u.online,
+        "ggcics.c, its spec and the DFH copybooks: linked into CICS tasks only",
+    ),
+    Component(
+        "oracle:db2",
+        "oracle",
+        ("tests/equivalence/db2/**", "tests/tools/equivalence_sql.py"),
+        lambda u: u.db2,
+        "ggsql.c / ggsqlrun.c, the Db2 units of work and the SQL precompiler: Db2 cases only",
+    ),
+    Component(
+        "oracle:file-io",
+        "oracle",
+        ("tests/equivalence/faults/ggfault.c",),
+        lambda u: u.kind == "batch",
+        "the LD_PRELOAD file I/O fault injector: batch steps only",
+    ),
+)
+
+
+def _names(u: Use, *stems: str) -> bool:
+    text = u.port_text()
+    return any(re.search(rf"\b{s}\b", text) for s in stems)
+
+
+def _java_code(text: str) -> str:
+    """Java source without comments (a class named in a comment is not a reference)."""
+    return re.sub(r"(?<![:\"'])//[^\n]*", "", re.sub(r"/\*.*?\*/", "", text, flags=re.S))
+
+
+@functools.lru_cache(maxsize=256)
+def det_imports(source: str) -> frozenset[str]:
+    """The det/ modules a det module's source imports, anywhere in it (a function-level import counts)."""
+    import ast  # noqa: PLC0415
+
+    pkg = "gitgalaxy.tools.cobol_to_java.det"
+    out: set[str] = set()
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return frozenset()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.ImportFrom):
+            m = n.module or ""
+            if n.level:
+                out |= {m.split(".")[0]} if m else {a.name for a in n.names}
+            elif m == pkg:
+                out |= {a.name for a in n.names}
+            elif m.startswith(pkg + "."):
+                out.add(m[len(pkg) + 1 :].split(".")[0])
+        elif isinstance(n, ast.Import):
+            out |= {a.name[len(pkg) + 1 :].split(".")[0] for a in n.names if a.name.startswith(pkg + ".")}
+    return frozenset(out)
+
+
+def component_shas(
+    input_name: str, matched: list[str], t: Target, files: tuple[str, ...], read: Any = None
+) -> dict[str, str]:
+    """{component: sha256} of the components of `input_name` this target USES, over the input's matched files."""
+    left = set(matched)
+    parts: dict[str, list[str]] = {}
+    for c in COMPONENTS:
+        if c.input == input_name:
+            hit = [p for p in sorted(left) if any(p == pat or fnmatch.fnmatchcase(p, pat) for pat in c.paths)]
+            if hit:
+                parts[c.name] = hit
+                left -= set(hit)
+    rt: dict[str, str] = {}  # generator: the runtime classes, then the det modules
+    det: dict[str, str] = {}
+    if input_name == "generator":
+        rt = {p: p[len(RT_DIR) :] for p in sorted(left) if p.startswith(RT_DIR)}
+        det = {p: p[len(DET_DIR) :][:-3] for p in sorted(left)
+               if p.startswith(DET_DIR) and p.endswith(".py") and "/" not in p[len(DET_DIR) :]}  # fmt: skip
+        left -= set(rt) | set(det)
+    if left:
+        parts[f"{input_name}:core"] = sorted(left)
+
+    def source(p: str) -> str:
+        return (read(p) if read else (REPO_ROOT / p).read_bytes()).decode("utf-8", "replace")
+
+    def port_text() -> str:
+        return " ".join(
+            _java_code(source(p))
+            for p in _match(files, t.specs["port"]["paths"], t.specs["port"]["exclude"])
+            if p.endswith(".java")
+        )
+
+    u = Use(t.kind, t.db2, t.programs, functools.lru_cache(maxsize=1)(port_text))
+    out: dict[str, str] = {}
+    for c in COMPONENTS:
+        if c.name in parts and (u.crucible or c.uses(u)):
+            out[c.name] = tree_sha256(parts[c.name], read)
+    if f"{input_name}:core" in parts:
+        out[f"{input_name}:core"] = tree_sha256(parts[f"{input_name}:core"], read)
+    if det:
+        used = (
+            set(det.values())
+            if u.det_all
+            else _closure(
+                {*_ALWAYS_DET, *(_CICS_DET if u.cics_harness else ())},
+                {m: det_imports(source(p)) for p, m in det.items()},
+            )
+        )
+        for p, m in det.items():
+            if m in used:
+                out[f"generator:det/{m}"] = tree_sha256([p], read)
+    if rt:
+        stems = {Path(rel).stem: p for p, rel in rt.items() if rel.endswith(".java")}
+        code = {s: _java_code(source(p)) for s, p in stems.items()}
+        used = set(stems) if u.det_all else _closure({s for s in stems if _names(u, s)}, _rt_edges(tuple(code.items())))
+        for p, rel in rt.items():
+            if not rel.endswith(".java") or Path(rel).stem in used or u.det_all:  # (a non-Java file there: with them)
+                out[f"generator:cobolrt/{rel}"] = tree_sha256([p], read)
+    return dict(sorted(out.items()))
+
+
+@functools.lru_cache(maxsize=32)
+def _rt_edges(code: tuple[tuple[str, str], ...]) -> dict[str, set[str]]:
+    """{runtime class: the runtime classes its code names}."""
+    return {s: {x for x, _ in code if re.search(rf"\b{x}\b", c)} for s, c in code}
+
+
+def _closure(roots: set[str], edges: dict[str, set[str]]) -> set[str]:
+    seen, todo = set(roots), list(roots)
+    while todo:
+        for nxt in edges.get(todo.pop(), ()):
+            if nxt not in seen:
+                seen.add(nxt)
+                todo.append(nxt)
+    return seen
+
+
 # ---- what a record is about ------------------------------------------------------------------------------------------
 @dataclass
 class Target:
@@ -159,6 +404,7 @@ class Target:
     specs: dict[str, dict[str, Any]] = field(default_factory=dict)
     corpus: dict[str, str] = field(default_factory=dict)
     db2: bool = False
+    programs: bool = False  # the case LINKs programs, whose Java the proof translates with det (linked_programs)
 
     @property
     def slug(self) -> str:
@@ -207,7 +453,8 @@ def equivalence_target(case: str) -> Target:
     }  # fmt: skip
     return Target(key=case, kind=data.get("kind", "batch"), case=case, program=data["program"].upper(),
                   record=CASES / case / RECORD_NAME, port_dir=CASES / port_case / "port", specs=specs,
-                  corpus={"name": corpus, "ref": _corpus_refs().get(corpus, "")}, db2=bool(data.get("db2")))  # fmt: skip
+                  corpus={"name": corpus, "ref": _corpus_refs().get(corpus, "")}, db2=bool(data.get("db2")),
+                  programs=bool(data.get("programs")))  # fmt: skip
 
 
 def crucible_target(case: str, program: str) -> Target:
@@ -263,14 +510,23 @@ def options_input(t: Target) -> dict[str, Any]:
             "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp}  # fmt: skip
 
 
-def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: Any = None,
-                   read: Any = None) -> dict[str, Any]:  # fmt: skip
-    """The fingerprints of the target's inputs in the tree now (or, with files / read, at a commit)."""
-    files = files if files is not None else _files_now()
+def spec_inputs(t: Target, files: Any, read: Any = None) -> dict[str, Any]:
+    """The fingerprints of the target's file-spec inputs (port, case, harness, oracle, generator) over `files`; the
+    harness / oracle / generator ones carry their per-component fingerprints (#4731)."""
     out: dict[str, Any] = {}
     for name, spec in t.specs.items():
         matched = _match(files, spec["paths"], spec["exclude"])
         out[name] = {"paths": spec["paths"], "files": len(matched), "sha256": tree_sha256(matched, read)}
+        if name in COMPONENT_INPUTS:  # #4731: the same files, per component (those this target uses)
+            out[name]["components"] = component_shas(name, matched, t, files, read)
+    return out
+
+
+def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: Any = None,
+                   read: Any = None) -> dict[str, Any]:  # fmt: skip
+    """The fingerprints of the target's inputs in the tree now (or, with files / read, at a commit)."""
+    files = files if files is not None else _files_now()
+    out = spec_inputs(t, files, read)
     out["corpus"] = {**t.corpus, "sha256": json_sha256(t.corpus)}
     out["differences"] = {"sha256": json_sha256(differences or [])}
     out["options"] = options_input(t)
@@ -314,8 +570,21 @@ def changed(stored: Optional[dict[str, Any]], now: dict[str, Any], names: tuple[
             if now[n]["semantic_sha256"] != now[n]["legacy_semantic_sha256"]:
                 out.append(n)
         elif (stored.get(n) or {}).get("sha256") != now[n]["sha256"]:
-            out.append(n)
+            comps = component_changed(stored.get(n) or {}, now[n])
+            if comps is None or comps:  # (None: a whole-input record; [] only a component this target never uses)
+                out.append(n)
     return out
+
+
+def component_changed(stored: dict[str, Any], now: dict[str, Any]) -> Optional[list[str]]:
+    """#4731: the components (that the tree's target uses) whose fingerprint differs from the record's; None when the
+    comparison cannot be made per component (a record proven before #4731 stored none: the whole input then decides),
+    [] when the whole input changed but no component this target uses did. A used component the record does not
+    hold counts as changed."""
+    sc, nc = stored.get("components"), now.get("components")
+    if not isinstance(sc, dict) or not isinstance(nc, dict):
+        return None
+    return sorted(c for c, sha in nc.items() if sc.get(c) != sha)
 
 
 # ---- the sections tools write ----------------------------------------------------------------------------------------
@@ -619,6 +888,8 @@ def status(rec: Optional[dict[str, Any]], t: Target, *, live: bool = True,
         if proof.get("inputs_digest") != (rec.get("inputs") or {}).get("digest"):
             stale = list(INPUTS)
     blocking = [s for s in stale if s in BLOCKING]
+    components = {n: c for n in stale if n in COMPONENT_INPUTS and now is not None
+                  and (c := component_changed((rec.get("inputs") or {}).get(n) or {}, now[n])) is not None}  # fmt: skip
     reach = rec.get("reach") or {}
     ported = [m for m in reach.get("unproven", []) if m["kind"] == "ported_unproven"]
     if now is not None and reach and reach.get("port_sha256") != tree_sha256(port_files(t)):
@@ -673,7 +944,7 @@ def status(rec: Optional[dict[str, Any]], t: Target, *, live: bool = True,
         if approved and not approved["current"]:
             reasons.append(f"{approved['decision']} by {approved['by']} for an earlier version")
     return {"status": st, "reasons": reasons, "stale": stale, "blocking": blocking, "approved": approved,
-            "sections": sections, "policy": policy}  # fmt: skip
+            "sections": sections, "policy": policy, "stale_components": components}  # fmt: skip
 
 
 # ---- the claim (derived, never typed) ---------------------------------------------------------------------------------
@@ -912,6 +1183,10 @@ def validate(rec: dict[str, Any]) -> list[str]:
             continue  # #4704: a record proven before the options input existed; its next proof stores it
         if not _SHA.match(str((inp.get(k) or {}).get("sha256", ""))):
             errs.append(f"inputs.{k}.sha256 is not a sha256")
+    for k in COMPONENT_INPUTS:  # #4731: optional; a record proven before it has none
+        comps = (inp.get(k) or {}).get("components")
+        if comps is not None and not (isinstance(comps, dict) and all(_SHA.match(str(v)) for v in comps.values())):
+            errs.append(f"inputs.{k}.components is not a map of sha256")
     if not _SHA.match(str(inp.get("digest", ""))):
         errs.append("inputs.digest is not a sha256")
     p = rec.get("proof")
@@ -935,6 +1210,45 @@ def validate(rec: dict[str, Any]) -> list[str]:
         if a.get("decision") not in ("approved", "rejected"):
             errs.append(f"approvals[{i}].decision {a.get('decision')!r}")
     return errs
+
+
+def migrate_components(
+    keys: Optional[list[str]] = None, write: bool = True, history: bool = True
+) -> dict[str, list[str]]:
+    """#4731: add the per-component fingerprints to the records proven before them -- only where that is sound. An input
+    whose stored fingerprint EQUALS the tree's was proven against exactly this tree, so the tree's component
+    fingerprints are the ones it was proven against. An input stale on the whole (the tree moved on since) is migrated
+    only if some commit's files reproduce its stored fingerprint byte for byte (evidence_history.components_from_history:
+    the files the proof ran against, so their component fingerprints are the proof's); if none does (a shallow clone, a
+    commit no longer reachable) it keeps the whole-input comparison and the scheduled re-proof (`refresh --stale`)
+    stores the components. Nothing else in the record changes (digest, proof, approvals). Returns {key: [inputs]}."""
+    done: dict[str, list[str]] = {}
+    for t in targets():
+        if keys and t.key not in keys:
+            continue
+        rec = load(t)
+        if not rec or not rec.get("proof") or not rec.get("inputs"):
+            continue
+        now = compute_inputs(t, rec.get("differences"))
+        todo = [n for n in COMPONENT_INPUTS if "components" not in (rec["inputs"].get(n) or {})]
+        moved = []
+        for n in list(todo):
+            held = rec["inputs"].get(n) or {}
+            if held.get("sha256") == now[n]["sha256"]:
+                rec["inputs"][n] = {**held, "components": now[n]["components"]}
+                moved.append(n)
+                todo.remove(n)
+        if todo and history:
+            import evidence_history  # noqa: PLC0415 -- git history, only for a record that is stale on the whole
+
+            for n, comps in evidence_history.components_from_history(t, rec, todo).items():
+                rec["inputs"][n] = {**rec["inputs"][n], "components": comps}
+                moved.append(n)
+        if moved:
+            done[t.key] = moved
+            if write:
+                save(t, rec)
+    return done
 
 
 # ---- running proofs ----------------------------------------------------------------------------------------------------
@@ -1026,6 +1340,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         p.add_argument("--shard", type=_parse_shard, metavar="I/N",
                        help="only the I-th of N slices of the records this run would prove (#4744: parallel runners)")  # fmt: skip
     sub.add_parser("mutation")
+    m = sub.add_parser("migrate", help="#4731: add per-component fingerprints to the records that are current on them")
+    m.add_argument("keys", nargs="*")
+    m.add_argument("--check", action="store_true", help="write nothing; exit 1 when a record could be migrated")
+    m.add_argument("--no-history", action="store_true", help="only records that are current on the input (no git log)")
     r = sub.add_parser("render")
     r.add_argument("--check", action="store_true", help="exit 1 when a page is not current")
     for name in ("approve", "reject"):
@@ -1065,6 +1383,12 @@ def main(argv: Optional[list[str]] = None) -> int:
             print(f"{t.key}: {st['status']} {'; '.join(st['reasons'])}")
         write_pages()
         return 1 if failed else 0
+    if args.cmd == "migrate":
+        done = migrate_components(args.keys, write=not args.check, history=not args.no_history)
+        for k, ins in sorted(done.items()):
+            print(f"{k}: {', '.join(ins)}")
+        print(f"{len(done)} record(s) {'could be' if args.check else ''} migrated to component fingerprints")
+        return 1 if args.check and done else 0
     if args.cmd == "mutation":
         done = refresh_mutation()
         write_pages()

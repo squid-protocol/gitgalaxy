@@ -1,0 +1,9 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgastat1.cbl, and its
+copybook (base/src/lgcmarea.cpy) are GenApp's, used unmodified from the corpus.
+
+The scenarios in case.json are written for this case.

@@ -801,6 +801,38 @@ PROGRAMS = {
             "   DISPLAY 'LT' ELSE DISPLAY 'GE' END-IF",
         ],
     ),
+    # #4741: FUNCTION NUMVAL / NUMVAL-C in a FIXED-POINT COMPUTE / ADD (no COMP-1 / COMP-2 operand): IBM evaluates it
+    # in long floating point too, so the statement is an HFP one (Hfp.numval) and its store into the fixed-point
+    # receiver is checked (Hfp.fixedStore). Every value here is exact in HFP and at its receiver's scale, so GnuCOBOL's
+    # exact decimal agrees; the inexact ones (0.1 into 9V99, 12.34) are refused at run time (test_det_hfp.py).
+    "NUMVALX": program(
+        "NUMVALX",
+        [
+            "01 T1 PIC X(8) VALUE '  12.5 '.",
+            "01 T2 PIC X(8) VALUE '-0.375'.",
+            "01 T3 PIC X(12) VALUE '$1,024.50'.",
+            "01 T4 PIC X(6) VALUE '42'.",
+            "01 T5 PIC X(8) VALUE '3.25 CR'.",
+            "01 A PIC S9(5)V99 SIGN LEADING SEPARATE.",
+            "01 B PIC S9(3)V999 SIGN LEADING SEPARATE.",
+            "01 C PIC S9(7) SIGN LEADING SEPARATE.",
+            "01 D PIC S9(9)V99 SIGN LEADING SEPARATE.",
+        ],
+        [
+            "COMPUTE A = FUNCTION NUMVAL(T1) DISPLAY A",
+            "COMPUTE B = FUNCTION NUMVAL(T2) DISPLAY B",
+            "COMPUTE D = FUNCTION NUMVAL-C(T3) DISPLAY D",
+            "COMPUTE C = FUNCTION NUMVAL(T4) DISPLAY C",
+            "COMPUTE A = FUNCTION NUMVAL(T1) + FUNCTION NUMVAL(T5)",
+            "DISPLAY A",
+            "COMPUTE A = FUNCTION NUMVAL(T1) * 4 - 1 DISPLAY A",
+            "COMPUTE B ROUNDED = FUNCTION NUMVAL(T2) / 2 DISPLAY B",
+            "COMPUTE C = FUNCTION NUMVAL(T4) + C DISPLAY C",
+            "ADD FUNCTION NUMVAL(T1) TO A DISPLAY A",
+            "COMPUTE A = FUNCTION NUMVAL(T1(1:5)) DISPLAY A",
+            "COMPUTE A = FUNCTION NUMVAL('  2.5') + 0 DISPLAY A",
+        ],
+    ),
     # #4501: a COMP-5 VALUE beyond its PICTURE keeps its value (IBM: the native binary capacity), little-endian as
     # the runtime reads it -- 32767 read back as -12534 before
     "COMP5": program(

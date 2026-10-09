@@ -1,0 +1,162 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGASTAT1",
+ "program_source": "base/src/lgastat1.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGST",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "linked": false,
+ "screens": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgastat1.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "event-first",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "01ICUS"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "00"
+     }
+    }
+   },
+   "counters": {
+    "GENA/GENA01ICUS00": 41
+   },
+   "why": "an event's channel: GET CONTAINER DFHEP.DATA.00001 / 00002 (NORMAL) give the request '01ICUS' and return code '00'; TS queue GENASTRT is not there (QIDERR): ASKTIME, FORMATTIME DDMMYYYY / TIME of the pinned clock, WRITEQ TS GENASTRT with the start date and time; GET COUNTER 'GENA01ICUS00    ' POOL('GENA') (NORMAL, 41), RETURN"
+  },
+  {
+   "name": "event-queue-exists",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "01ICUS"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "00"
+     }
+    }
+   },
+   "ts": {
+    "GENASTRT": [
+     "01102026  103015"
+    ]
+   },
+   "counters": {
+    "GENA/GENA01ICUS00": 7
+   },
+   "why": "GENASTRT already holds the start item: READQ TS is NORMAL, nothing written; the counter is read"
+  },
+  {
+   "name": "event-add-customer-renamed",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "02ACUS"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "00"
+     }
+    }
+   },
+   "counters": {
+    "GENA/GENA01ACUS00": 3
+   },
+   "why": "request '02ACUS' (the add-customer back end's own id) is counted as '01ACUS'"
+  },
+  {
+   "name": "event-commercial-renamed-failed",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "03ICOM"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "90"
+     }
+    }
+   },
+   "counters": {
+    "GENA/GENA01ICOM99": 0
+   },
+   "why": "request '03ICOM' is counted as '01ICOM'; a return code other than '00' is counted as '99'"
+  },
+  {
+   "name": "event-commercial-05",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "05ICOM"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "00"
+     }
+    }
+   },
+   "counters": {
+    "GENA/GENA01ICOM00": 12
+   },
+   "why": "request '05ICOM' is counted as '01ICOM' too"
+  },
+  {
+   "name": "event-no-counter",
+   "commarea": null,
+   "channel": {
+    "name": "DFHEP.EVENT",
+    "containers": {
+     "DFHEP.DATA.00001": {
+      "text": "01IMOT"
+     },
+     "DFHEP.DATA.00002": {
+      "text": "00"
+     }
+    }
+   },
+   "counters": {},
+   "why": "no named counter GENA01IMOT00 in pool GENA: GET COUNTER fails (caught by RESP), RETURN"
+  },
+  {
+   "name": "no-channel-no-commarea",
+   "commarea": null,
+   "why": "no current channel: GET CONTAINER is INVREQ (caught by RESP); EIBCALEN 0 -> RETURN at once"
+  },
+  {
+   "name": "no-channel-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-RETURN-CODE": "00"
+   },
+   "counters": {
+    "GENA/GENA01ICOM00": 5
+   },
+   "why": "no channel, a COMMAREA: the request id and return code come from CA-REQUEST-ID / CA-RETURN-CODE ('02ICOM' counted as '01ICOM'); QIDERR -> the start item written; GET COUNTER"
+  }
+ ],
+ "notes": "GenApp's transaction-throughput event consumer (LGASTAT1, transaction LGST in base/cntl/cdef125.jcl: started by the CICS event processing adapter, or LINKed with a GenApp COMMAREA). It GETs containers DFHEP.DATA.00001 (the request id, 6 bytes) and DFHEP.DATA.00002 (the return code, 2 bytes) of the task's current channel; without them it takes CA-REQUEST-ID / CA-RETURN-CODE from the COMMAREA, or RETURNs when EIBCALEN is 0. It keeps the statistics' start time in TS queue GENASTRT (READQ TS; on QIDERR ASKTIME, FORMATTIME DDMMYYYY / TIME and WRITEQ TS), folds request ids 02ACUS / 02ICOM / 03ICOM / 05ICOM into 01ACUS / 01ICOM and any return code but '00' into '99', and GETs the named counter 'GENA' + request + code (16 bytes) from pool GENA, discarding its value. The start item WRITEQ'd is '01011900  hhmmss': WS-ABSTIME is PIC S9(8) COMP, narrower than ABSTIME's S9(15) COMP-3, and both sides store into the declared 4 bytes (oracle_assumptions.md X11, DIFFERS: z/OS writes past the item). GET COUNTER is not an event: its value is discarded, so a scenario's counter only decides NORMAL or not. The channel is stated by each scenario (its name DFHEP.EVENT, as the adapter's), the TS queue and the named counters too. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

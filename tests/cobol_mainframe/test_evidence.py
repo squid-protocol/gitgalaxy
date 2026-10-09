@@ -193,6 +193,9 @@ def test_a_port_or_case_change_is_blocking_a_harness_change_is_not():
     assert st["status"] == "stale" and st["blocking"] == ["port"]
     harness = copy.deepcopy(rec)
     harness["inputs"]["harness"]["sha256"] = "0" * 64
+    del harness["inputs"]["harness"][
+        "components"
+    ]  # (#4731: a record proven before components compares the whole input)
     st = ev.status(harness, t)
     assert st["status"] == "stale" and st["stale"] == ["harness"] and st["blocking"] == []
     assert "stale: harness changed since the proof" in st["reasons"]
@@ -323,6 +326,7 @@ def test_an_approval_is_signed_by_a_person_at_a_terminal(tmp_path):
     # and any later change to an input makes it an approval of an earlier version
     moved = ev.load(tt)
     moved["inputs"]["harness"]["sha256"] = "0" * 64
+    del moved["inputs"]["harness"]["components"]  # (#4731: compare the whole input)
     st = ev.status(moved, tt)
     assert st["status"] == "stale" and not st["approved"]["current"]
 

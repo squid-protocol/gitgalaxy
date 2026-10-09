@@ -829,7 +829,7 @@ The combined method runs in the porting loop like any other backend, and every e
 - **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
   from z/OS, with its status; a z/OS session would settle most. Two bound what is proven today: **C9**, a POINTER is
   8 bytes under the harness's 64-bit GnuCOBOL and 4 on z/OS, so a COMMAREA that carries one (CBSA's INQACCCU, DELCUS,
-  CREACC) cannot be compared byte for byte yet; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
+  CREACC) is compared field by field, each side read by its own layout, and the POINTER only as NULL or not; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
 - **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other

@@ -1261,7 +1261,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             except C.CicsError as e:
                 if cls != cx.gp.contract:
                     continue
-                # the program's own COMMAREA cannot be carried (INQACCCU: data after a POINTER, register C9): the task
+                # the program's own COMMAREA cannot be carried (a POINTER under an OCCURS, register C9): the task
                 # stops by name when it gets one, rather than run as if there were no COMMAREA
                 kw = "if" if not ca_in else "} else if"
                 ca_in += [f"        {kw} (ca instanceof {cls}) {{",

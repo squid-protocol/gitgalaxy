@@ -1432,25 +1432,94 @@ public class CicsTask {
         return this;
     }
 
-    /** GET COUNTER (IBM CICS TS): the named counter's current value, after which it is one more; null (NOTFND)
-     *  for a counter the region does not have. */
-    public Long getCounter(String pool, String name) {
-        java.util.Map<String, Long> all = root().counters;
-        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
-        Long v = all.get(key);
-        if (v != null) {
-            all.put(key, v + 1);
+    /** The INVREQ RESP2 IBM gives a counter or pool name outside its rules (X30): 403 for the pool (A-Z 0-9 $ @ # _, no
+     *  embedded spaces), 404 for the counter (A-Z 0-9 _ $ # @, not starting with a digit or an underscore, no embedded
+     *  spaces); 0 for a valid pair. A counter name of blanks only is not covered by IBM's rules: refused. */
+    private static int counterNameResp2(String pool, String name) {
+        String p = pool == null ? "" : pool.stripTrailing();
+        for (int i = 0; i < p.length(); i++) {
+            char c = p.charAt(i);
+            if (!((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '$' || c == '@' || c == '#' || c == '_')) {
+                return 403;
+            }
         }
-        return v;
+        String n = name == null ? "" : name.stripTrailing();
+        if (n.isEmpty()) {
+            throw refused("a named counter with a blank name");
+        }
+        for (int i = 0; i < n.length(); i++) {
+            char c = n.charAt(i);
+            boolean ok = (c >= 'A' && c <= 'Z') || c == '$' || c == '@' || c == '#' || (i > 0 && ((c >= '0' && c <= '9') || c == '_'));
+            if (!ok) {
+                return 404;
+            }
+        }
+        return 0;
+    }
+
+    private static String counterKey(String pool, String name) {
+        return (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
+    }
+
+    /** GET COUNTER (IBM CICS TS): {RESP, RESP2, value} -- the named counter's current value, after which it is one more;
+     *  INVREQ (16) RESP2 201 "Named counter not found" (the page lists no NOTFND; X30), 403 / 404 for a name outside
+     *  IBM's rules. */
+    public long[] getCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new long[] {16, bad, 0};
+        }
+        java.util.Map<String, Long> all = root().counters;
+        String key = counterKey(pool, name);
+        Long v = all.get(key);
+        if (v == null) {
+            return new long[] {16, 201, 0};
+        }
+        all.put(key, v + 1);
+        return new long[] {0, 0, v};
+    }
+
+    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30): {RESP, RESP2} -- the counter created with VALUE (the caller
+     *  passes zero when it is omitted: IBM's initial value); INVREQ 202 when one of that name exists, 403 / 404 for a name
+     *  outside IBM's rules. A VALUE below zero is refused (IBM does not state how the default minimum reads signed). */
+    public int[] defineCounter(String pool, String name, int value) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (value < 0) {
+            throw refused("DEFINE COUNTER with a VALUE below zero");
+        }
+        java.util.Map<String, Long> all = root().counters;
+        String key = counterKey(pool, name);
+        if (all.containsKey(key)) {
+            return new int[] {16, 202};
+        }
+        all.put(key, (long) value);
+        return new int[] {0, 0};
+    }
+
+    /** DELETE COUNTER (IBM CICS TS, DELETE COUNTER; X30): {RESP, RESP2} -- INVREQ 201 "Named counter not found"
+     *  (the page lists no NOTFND), 403 for a pool outside IBM's rules. */
+    public int[] deleteCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad == 403) {
+            return new int[] {16, bad};
+        }
+        java.util.Map<String, Long> all = root().counters;
+        return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
     }
 
     /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER): {RESP, RESP2, value} -- the named counter's current value, which stays;
-     *  INVREQ (16) RESP2 201 "Named counter not found". The region's counters are fullwords: one beyond it (IBM's LENGERR)
-     *  is refused. */
+     *  INVREQ (16) RESP2 201 "Named counter not found", 403 / 404 for a name outside IBM's rules. The region's counters
+     *  are fullwords: one beyond it (IBM's LENGERR) is refused. */
     public int[] queryCounter(String pool, String name) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad, 0};
+        }
         java.util.Map<String, Long> all = root().counters;
-        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
-        Long v = all.get(key);
+        Long v = all.get(counterKey(pool, name));
         if (v == null) {
             return new int[] {16, 201, 0};
         }

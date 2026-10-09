@@ -981,6 +981,33 @@ def test_deleteq_ts_inquire_association_and_query_counter_become_stub_calls():
     assert "MOVE GG-NAME1 TO" not in " ".join(ec.translate_command("RECEIVE MAP('M') MAPSET('S') INTO(WS-I) TERMINAL"))
 
 
+def test_define_and_delete_counter_become_stub_calls():
+    """#4270 (register X30): DEFINE COUNTER -> GGCDCNT (VALUE in GG-NUM, zero when omitted), DELETE COUNTER -> GGCXCNT;
+    MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER are refused by name; GET COUNTER takes RESP2."""
+    d = ec.translate_command("DEFINE COUNTER(WS-C) POOL(WS-P) VALUE(WS-V) RESP(R) RESP2(R2)")
+    assert d[:4] == [
+        "MOVE WS-C TO GG-QNAME",
+        "MOVE WS-P TO GG-NAME1",
+        "MOVE WS-V TO GG-NUM",
+        "CALL 'GGCDCNT' USING GG-CICS",
+    ]
+    assert "MOVE GG-RESP2 TO R2" in d
+    assert "MOVE 0 TO GG-NUM" in ec.translate_command("DEFINE COUNTER(WS-C) RESP(R)")
+    x = ec.translate_command("DELETE COUNTER(WS-C) POOL(WS-P) RESP(R)")
+    assert x[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCXCNT' USING GG-CICS"]
+    for bad in (
+        "DEFINE COUNTER(WS-C) MINIMUM(WS-M)",
+        "DEFINE COUNTER(WS-C) MAXIMUM(WS-M)",
+        "DEFINE COUNTER(WS-C) NOSUSPEND",
+        "DEFINE DCOUNTER(WS-C)",
+        "DELETE DCOUNTER(WS-C)",
+        "DELETE COUNTER(WS-C) NOSUSPEND",
+    ):
+        with pytest.raises(ec.Unsupported, match="COUNTER|DCOUNTER"):
+            ec.translate_command(bad)
+    assert "MOVE GG-RESP2 TO R2" in ec.translate_command("GET COUNTER(WS-C) VALUE(WS-V) RESP(R) RESP2(R2)")
+
+
 def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
     case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""

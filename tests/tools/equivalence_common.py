@@ -432,6 +432,8 @@ def decode_field(
     `data_encoding`; bytes that are not text there are `<undecodable ...>` (the raw bytes kept, never dropped)."""
     num = _pic_numeric(pic) if pic else None
     u = (usage or "DISPLAY").upper()
+    if u == "POINTER" and not pic:  # #4270 (C9): NULL or not, never the address
+        return decode_pointer(raw)
     if num is None:
         text = _decode_text(raw, data_encoding)
         return f"<undecodable {raw!r} in {data_encoding}>" if text is None else text
@@ -540,6 +542,26 @@ def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, st
     return out
 
 
+# #4270 (oracle_assumptions.md C9): a POINTER as the oracle lays it out -- GnuCOBOL on x86-64, 8 bytes; Enterprise
+# COBOL's (AMODE 31) is 4. A record is laid out as the oracle stores it, so each side's fields are read where its own
+# program put them and compared by NAME (never as raw bytes across the two layouts). A POINTER's value is an address,
+# meaningless across sides: it is compared only as NULL or not (decode_field / decode_pointer).
+ORACLE_POINTER_BYTES = 8
+POINTER_NULL = "NULL"
+POINTER_SET = "<a POINTER holding an address: not portable, never equal>"
+
+
+def _pointer(it: dict[str, Any]) -> bool:
+    return not it.get("pic") and (it.get("usage") or "").upper() == "POINTER"
+
+
+def decode_pointer(raw: bytes) -> str:
+    """A POINTER's bytes as compared: NULL (all zero, as SET ... TO NULL and INITIALIZE leave it), else POINTER_SET --
+    an address, which no other run of either side would hold (IBM gives it no stable value), so it never compares
+    equal to anything."""
+    return POINTER_NULL if not any(raw) else POINTER_SET
+
+
 def layout_fields(
     corpus: Path, copybook: str, record: Optional[str] = None, copy_dirs: Optional[list[Path]] = None
 ) -> list[dict[str, Any]]:
@@ -563,7 +585,9 @@ def layout_fields(
         kids.setdefault(it["parent"], []).append(it)
 
     def size(it: dict[str, Any]) -> int:
-        if it.get("pic"):
+        if _pointer(it):
+            own = ORACLE_POINTER_BYTES
+        elif it.get("pic"):
             own = ak._pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False))
         else:
             own = sum(size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))
@@ -572,6 +596,10 @@ def layout_fields(
     out: list[dict[str, Any]] = []
 
     def place(it: dict[str, Any], at: int) -> None:
+        if _pointer(it):  # #4270 (C9): as the oracle stores it, so the fields after it sit where its program reads them
+            out.append({"name": it["name"], "offset": at, "bytes": size(it), "pic": None, "usage": "POINTER",
+                        "sign_separate": False})  # fmt: skip
+            return
         if it.get("pic"):
             out.append(
                 {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),

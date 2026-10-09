@@ -7,7 +7,7 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-"""Every command the spec has an entry for, by its key: full entries for the 49 commands det/cics.py models and
+"""Every command the spec has an entry for, by its key: full entries for the 51 commands det/cics.py models and
 LOAD / RELEASE (engine-only), and name-only entries for every other CICS application (API) command (api.py)."""
 
 from __future__ import annotations

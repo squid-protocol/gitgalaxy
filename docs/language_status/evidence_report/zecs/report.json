@@ -664,6 +664,121 @@
    "what": "the switch-over plan: parallel run, fallback, data freeze"
   }
  ],
+ "options": {
+  "compiler": {
+   "product": {
+    "applied_value": null,
+    "option": "product",
+    "provenance": "found",
+    "source": "System Requirements and Considerations.md:12",
+    "value": "Enterprise COBOL"
+   },
+   "version": {
+    "applied_value": null,
+    "option": "version",
+    "provenance": "found",
+    "source": "System Requirements and Considerations.md:12",
+    "value": "4.2"
+   }
+  },
+  "counts": {
+   "assumed": 16,
+   "found": 3
+  },
+  "estate_file": "tests/equivalence/estate_options/zecs.json",
+  "installation_defaults": [
+   {
+    "applied_value": null,
+    "option": "ARITH",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "CODEPAGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "1140"
+   },
+   {
+    "applied_value": null,
+    "option": "DISPSIGN",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "INTDATE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "ANSI"
+   },
+   {
+    "applied_value": null,
+    "option": "NOSSRANGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "NSYMBOL",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NATIONAL"
+   },
+   {
+    "applied_value": null,
+    "option": "NUMPROC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NOPFD"
+   },
+   {
+    "applied_value": null,
+    "option": "OPTIMIZE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "0"
+   },
+   {
+    "applied_value": null,
+    "option": "TRUNC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "STD"
+   }
+  ],
+  "parm_default": [
+   {
+    "applied_value": null,
+    "option": "CICS",
+    "provenance": "assumed",
+    "source": "assumed: owner decision",
+    "value": ""
+   }
+  ],
+  "parm_programs": [],
+  "programs_assumed": 30,
+  "programs_found": 0,
+  "programs_with_deviation": 0,
+  "sections": {
+   "cics": {
+    "assumed": 2,
+    "found": 1
+   },
+   "db2": {
+    "assumed": 1,
+    "found": 0
+   },
+   "le": {
+    "assumed": 3,
+    "found": 0
+   }
+  }
+ },
  "oracle": {
   "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -727,6 +842,61 @@
    "next": [
     "translated whole (5 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -1134,6 +1304,61 @@
    "next": [
     "translated whole (13 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -1613,6 +1838,61 @@
    "next": [
     "translated whole (39 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -2118,6 +2398,61 @@
    "next": [
     "translated whole (10 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -2425,6 +2760,61 @@
    "next": [
     "translated whole (4 holes left)"
    ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,

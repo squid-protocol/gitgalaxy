@@ -59,6 +59,12 @@
    "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
    "id": "X27",
    "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+   "id": "X31",
+   "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
   }
  ],
  "bars": {
@@ -1391,6 +1397,191 @@
    "what": "the switch-over plan: parallel run, fallback, data freeze"
   }
  ],
+ "options": {
+  "compiler": {
+   "product": {
+    "applied_value": null,
+    "option": "product",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/DEFAULT.jcl:7",
+    "value": "Enterprise COBOL"
+   },
+   "version": {
+    "applied_value": null,
+    "option": "version",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/DEFAULT.jcl:7",
+    "value": "6.3"
+   }
+  },
+  "counts": {
+   "assumed": 19,
+   "found": 19
+  },
+  "estate_file": "tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json",
+  "installation_defaults": [
+   {
+    "applied_value": null,
+    "option": "ARITH",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "CODEPAGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "1140"
+   },
+   {
+    "applied_value": null,
+    "option": "DISPSIGN",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "INTDATE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "ANSI"
+   },
+   {
+    "applied_value": null,
+    "option": "NOSSRANGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "NSYMBOL",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NATIONAL"
+   },
+   {
+    "applied_value": null,
+    "option": "NUMPROC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NOPFD"
+   },
+   {
+    "applied_value": null,
+    "option": "OPTIMIZE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "0"
+   },
+   {
+    "applied_value": null,
+    "option": "TRUNC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "STD"
+   },
+   {
+    "applied_value": null,
+    "option": "ZONEDATA",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "PFD"
+   }
+  ],
+  "parm_default": [
+   {
+    "applied_value": null,
+    "option": "NODYNAM",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "LIB",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "RENT",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "LIST",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "MAP",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "XREF",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "OPTIMIZE",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:6",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "APOST",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:7",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "TRUNC",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:7",
+    "value": "OPT"
+   },
+   {
+    "applied_value": null,
+    "option": "CICS",
+    "provenance": "found",
+    "source": "etc/install/base/buildjcl/CICS.jcl:7",
+    "value": ""
+   }
+  ],
+  "parm_programs": [],
+  "programs_assumed": 155,
+  "programs_found": 31,
+  "programs_with_deviation": 1,
+  "sections": {
+   "cics": {
+    "assumed": 1,
+    "found": 4
+   },
+   "db2": {
+    "assumed": 5,
+    "found": 3
+   },
+   "le": {
+    "assumed": 3,
+    "found": 0
+   }
+  }
+ },
  "oracle": {
   "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -1492,7 +1683,16 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
+       "option_differences": [
+        {
+         "applied": "STD",
+         "declared": "OPT",
+         "kind": "option",
+         "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result only while every binary value fits its PICTURE (#4706)",
+         "option": "TRUNC"
+        }
+       ],
+       "oracle_image": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -1503,6 +1703,17 @@
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-inqacccu",
+      "case_scenarios": 8,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
+      },
+      "record": null,
       "role": "linked"
      },
      {
@@ -1537,6 +1748,61 @@
    "next": [
     "every surviving mutant of the det port accounted for: not yet measured (#4628)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -1749,7 +2015,8 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
+       "option_differences": [],
+       "oracle_image": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -1803,7 +2070,8 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
+      "option_differences": [],
+      "oracle_image": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -1825,6 +2093,61 @@
    "next": [
     "every surviving mutant of the det port accounted for: not yet measured (#4628)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -2061,6 +2384,61 @@
    "next": [
     "every surviving mutant of the det port accounted for: not yet measured (#4628)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -2320,6 +2698,61 @@
    "next": [
     "branch coverage >= 100.0 net (now 75.0 raw, 75.0 net of the reviewed infeasible outcomes)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -2580,6 +3013,61 @@
    "next": [
     "branch coverage >= 100.0 net (now 92.9 raw, 92.9 net of the reviewed infeasible outcomes)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -2799,6 +3287,61 @@
    "next": [
     "paragraph coverage >= 100.0 (now 72.7)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -3152,7 +3695,16 @@
        },
        "fault_runs": 0,
        "java_failed": false,
-       "oracle_image": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
+       "option_differences": [
+        {
+         "applied": "STD",
+         "declared": "OPT",
+         "kind": "option",
+         "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result only while every binary value fits its PICTURE (#4706)",
+         "option": "TRUNC"
+        }
+       ],
+       "oracle_image": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -3206,7 +3758,16 @@
       },
       "fault_runs": 0,
       "java_failed": false,
-      "oracle_image": "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6",
+      "option_differences": [
+       {
+        "applied": "STD",
+        "declared": "OPT",
+        "kind": "option",
+        "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result only while every binary value fits its PICTURE (#4706)",
+        "option": "TRUNC"
+       }
+      ],
+      "oracle_image": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -3228,6 +3789,68 @@
    "next": [
     "paragraph coverage >= 100.0 (now 88.0)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [
+     {
+      "applied": "STD",
+      "declared": "OPT",
+      "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's runtime has one, oracle_assumptions.md C5), so it is shown equal as TRUNC(STD) -- IBM's OPT result only while every binary value fits its PICTURE (#4706)",
+      "option": "TRUNC"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -3488,6 +4111,860 @@
      "userid"
     ],
     "facts_unstated": [
+     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)",
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 57.6,
+    "branch_pct": 57.6,
+    "branches": {
+     "covered": 19,
+     "total": 33
+    },
+    "branches_net": {
+     "covered": 19,
+     "total": 33
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 72.7,
+    "paragraphs": {
+     "covered": 16,
+     "live": 22
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-inqacccu",
+      "case_scenarios": 8,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-inqacccu",
+     "case_scenarios": 8,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (now 72.7)"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT ROLLBACK",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/INQACCCU.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X19",
+     "X27"
+    ],
+    "branch_outcomes_unrun": 14,
+    "commands": 8,
+    "commands_backed": 5,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME",
+     "SYNCPOINT ROLLBACK"
+    ],
+    "facts_unstated": 2,
+    "holes": 0,
+    "paragraphs_unrun": 6,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 186,
+    "translated": 186,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-inqacccu",
+      "case_scenarios": 8,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-inqacccu",
+     "case_scenarios": 8,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "linked"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (coverage not measured for a LINKed program: the case's coverage is its main program's)"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELAY",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ENDBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READPREV",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "STARTBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT ROLLBACK",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/INQCUST.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X19",
+     "X22",
+     "X27"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 13,
+    "commands_backed": 5,
+    "commands_not_backed": [
+     "ASKTIME",
+     "DELAY",
+     "ENDBR",
+     "FORMATTIME",
+     "READ",
+     "READPREV",
+     "STARTBR",
+     "SYNCPOINT ROLLBACK"
+    ],
+    "facts_unstated": 1,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 162,
+    "translated": 162,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
     "named_by_commands": [
@@ -3573,6 +5050,61 @@
    "next": [
     "paragraph coverage >= 100.0 (now 96.4)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -3897,6 +5429,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -4231,6 +5818,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -4565,6 +6207,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -4899,6 +6596,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -5233,6 +6985,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -5547,6 +7354,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -5721,6 +7583,61 @@
    "next": [
     "an equivalence case that runs it"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -5853,699 +7770,6 @@
   },
   {
    "assumptions": {
-    "facts_stated": [
-     "facility",
-     "screen",
-     "startcode",
-     "userid"
-    ],
-    "facts_unstated": [
-     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)",
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
-     "ASSIGN APPLID (the case states no region)"
-    ],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
-      "id": "X19",
-      "status": "ASSUMED (REFUSED where the harness cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "an equivalence case that runs it"
-   ],
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "ASSIGN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [
-      "startcode",
-      "userid",
-      "facility",
-      "screen"
-     ],
-     "registers": [
-      "X19"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT ROLLBACK",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/INQACCCU.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X19",
-     "X27"
-    ],
-    "branch_outcomes_unrun": null,
-    "commands": 8,
-    "commands_backed": 5,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME",
-     "SYNCPOINT ROLLBACK"
-    ],
-    "facts_unstated": 3,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 186,
-    "translated": 186,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [
-     "facility",
-     "screen",
-     "startcode",
-     "userid"
-    ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
-     "ASSIGN APPLID (the case states no region)"
-    ],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
-      "id": "X19",
-      "status": "ASSUMED (REFUSED where the harness cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "an equivalence case that runs it"
-   ],
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "ASSIGN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [
-      "startcode",
-      "userid",
-      "facility",
-      "screen"
-     ],
-     "registers": [
-      "X19"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "DELAY",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ENDBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READPREV",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "STARTBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT ROLLBACK",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/INQCUST.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X19",
-     "X22",
-     "X27"
-    ],
-    "branch_outcomes_unrun": null,
-    "commands": 13,
-    "commands_backed": 5,
-    "commands_not_backed": [
-     "ASKTIME",
-     "DELAY",
-     "ENDBR",
-     "FORMATTIME",
-     "READ",
-     "READPREV",
-     "STARTBR",
-     "SYNCPOINT ROLLBACK"
-    ],
-    "facts_unstated": 2,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 162,
-    "translated": 162,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
     "named_by_commands": [
@@ -6588,6 +7812,61 @@
    "next": [
     "translated whole (3 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -6778,6 +8057,61 @@
    "next": [
     "translated whole (6 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [],
    "program": "src/base/cobol_src/BANKDATA.cbl",
    "residual": {
@@ -6856,6 +8190,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -6890,6 +8230,61 @@
    "next": [
     "translated whole (6 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -7019,7 +8414,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7165,7 +8562,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7261,7 +8660,8 @@
      "X15",
      "X19",
      "X26",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 11,
@@ -7336,6 +8736,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -7370,6 +8776,61 @@
    "next": [
     "translated whole (3 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -7489,7 +8950,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7635,7 +9098,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7730,7 +9195,8 @@
     "assumed_or_differs_named": [
      "X15",
      "X19",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 10,
@@ -7796,6 +9262,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -7830,6 +9302,61 @@
    "next": [
     "translated whole (10 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -7979,7 +9506,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8109,7 +9638,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8203,7 +9734,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X19",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 12,
@@ -8288,6 +9820,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -8322,6 +9860,61 @@
    "next": [
     "translated whole (6 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -8459,7 +10052,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8605,7 +10200,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8701,7 +10298,8 @@
      "X15",
      "X19",
      "X26",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 12,
@@ -8785,6 +10383,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -8819,6 +10423,61 @@
    "next": [
     "translated whole (8 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -8948,7 +10607,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9094,7 +10755,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9190,7 +10853,8 @@
      "X15",
      "X19",
      "X26",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 11,
@@ -9271,6 +10935,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -9305,6 +10975,61 @@
    "next": [
     "translated whole (13 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -9464,7 +11189,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9610,7 +11337,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9706,7 +11435,8 @@
      "X15",
      "X19",
      "X26",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 14,
@@ -9795,6 +11525,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -9829,6 +11565,61 @@
    "next": [
     "translated whole (6 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -9958,7 +11749,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10104,7 +11897,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10200,7 +11995,8 @@
      "X15",
      "X19",
      "X26",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 11,
@@ -10275,6 +12071,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -10309,6 +12111,61 @@
    "next": [
     "translated whole (6 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -10428,7 +12285,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10574,7 +12433,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10669,7 +12530,8 @@
     "assumed_or_differs_named": [
      "X15",
      "X19",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 10,
@@ -10743,6 +12605,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
      }
     ],
     "reach": "not measured",
@@ -10777,6 +12645,61 @@
    "next": [
     "translated whole (8 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -10896,7 +12819,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11042,7 +12967,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X31"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11137,7 +13064,8 @@
     "assumed_or_differs_named": [
      "X15",
      "X19",
-     "X27"
+     "X27",
+     "X31"
     ],
     "branch_outcomes_unrun": null,
     "commands": 10,
@@ -11227,6 +13155,61 @@
    "next": [
     "translated whole (2 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -11559,6 +13542,61 @@
    "next": [
     "translated whole (refused whole by the translator)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": false,
@@ -11970,6 +14008,61 @@
    "next": [
     "translated whole (5 holes left)"
    ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
    "oracle_backing": [
     {
      "backed": true,
@@ -12242,7 +14335,7 @@
    "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-inqacc,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (7) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-inqacc,cbsa-inqacccu,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -12257,7 +14350,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6"
+   "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status, recomputed now",
@@ -12270,11 +14363,11 @@
  },
  "summary": {
   "cics_programs": 30,
-  "det_equal": 8,
+  "det_equal": 10,
   "histogram": {
    "L0": 14,
-   "L1": 9,
-   "L2": 3,
+   "L1": 7,
+   "L2": 5,
    "L3": 2,
    "L4": 3,
    "L5": 0
@@ -12294,7 +14387,7 @@
   "refused_whole": 1,
   "source_unread": 0,
   "translated_whole": 17,
-  "with_case": 8,
+  "with_case": 10,
   "with_record": 2
  }
 }

@@ -14,6 +14,8 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 **Stale levels (`L3*`).** A level marked `*` is the program's LAST MEASURED level, shown because the measurement it rests on was made against an earlier harness or oracle: the det-sweep coverage ledger entry's input fingerprints no longer match the tree on a scheduled input (harness, oracle). It means "measured against the previous harness, not yet re-checked", not "regressed"; the program table names `stale since <commit>` (the commit the level was last measured at) and the changed inputs, and the scheduled re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared differences or options) is not shown as stale: the level drops, as the old measurement no longer describes it. A stale level is never a current one: the summary counts them apart, and the release gate (`evidence_report.py --check --live`) fails while any program's level is stale.
 
+**Options.** A result holds under the compile and runtime options it was produced with, so each program lists the options that change results (TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE ...) as the resolver (`gitgalaxy/core/estate_options.py`) applies them: IBM defaults, overridden by the estate's compile PARM, overridden by the program's own CBL / PROCESS cards. Each value says where it came from: `found at <file>:<line>` in the corpus, or `assumed: IBM default` / `assumed: owner decision` / `assumed: not stated in the corpus`. A **declared option difference** is an option the estate uses that the proof does not run under (for example TRUNC(OPT) run as TRUNC(STD)): the level holds under the applied option, not the declared one. The estate-level table gives the compiler product and version, the PARM defaults, and how many values were found versus assumed.
+
 | level | name | condition |
 |---|---|---|
 | L0 | inventoried | the program is in the estate's survey |
@@ -49,6 +51,36 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 25; refused whole: 0; holes left: 123
 - with an equivalence case: 26; det port equal on its case: 26; with an evidence record: 3; record current at build: 3
+
+## Options the estate compiles and runs under
+
+From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the corpus, 18 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 31 found, 155 assumed; programs with a declared option difference: 0.
+
+| item | value | provenance | source |
+|---|---|---|---|
+| compiler | product: Enterprise COBOL | found | base/cntl/cobol.jcl:12 |
+| compiler | version: 6.1 | found | base/Installation.md:85 |
+| installation default | ARITH(COMPAT) | assumed | assumed: IBM default |
+| installation default | CODEPAGE(1140) | assumed | assumed: IBM default |
+| installation default | DISPSIGN(COMPAT) | assumed | assumed: IBM default |
+| installation default | INTDATE(ANSI) | assumed | assumed: IBM default |
+| installation default | NOSSRANGE | assumed | assumed: IBM default |
+| installation default | NSYMBOL(NATIONAL) | assumed | assumed: IBM default |
+| installation default | NUMPROC(NOPFD) | assumed | assumed: IBM default |
+| installation default | OPTIMIZE(0) | assumed | assumed: IBM default |
+| installation default | TRUNC(STD) | assumed | assumed: IBM default |
+| installation default | ZONEDATA(PFD) | assumed | assumed: IBM default |
+| PARM | NODYNAM | found | base/cntl/cobol.jcl:45 |
+| PARM | RENT | found | base/cntl/cobol.jcl:46 |
+| PARM | APOST | found | base/cntl/cobol.jcl:47 |
+| PARM | CICS | found | base/cntl/cobol.jcl:48 |
+| PARM | CODEPAGE(285) | found | base/cntl/cobol.jcl:49 |
+
+| runtime section | found | assumed |
+|---|---|---|
+| LE | 0 | 3 |
+| DB2 | 6 | 4 |
+| CICS | 2 | 1 |
 
 ## Programs
 
@@ -93,6 +125,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 10 scenarios of genapp-lgacdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 39/39 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgacdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgacdb02, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -120,6 +153,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 45/45 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgdpdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (11 scenarios in case.json)
 - **Executed equivalence** (genapp-lgdpol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -153,6 +187,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 92.9 raw, 92.9 net of the reviewed infeasible outcomes)
 - **Translation:** 61/61 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgacdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgacus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -169,16 +204,17 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X30; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacus01.cbl -- L3
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgacus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
 - **Translation:** 34/34 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgacus01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (5 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 3/3 (100.0%), branch outcomes 4/8 (50.0%) raw, 4/8 (50.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -202,6 +238,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 6 scenarios of genapp-lgapol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
 - **Translation:** 30/30 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgapol01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -233,6 +270,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 66.7 raw, 66.7 net of the reviewed infeasible outcomes)
 - **Translation:** 36/36 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgdpol01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (11 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -264,6 +302,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 5 scenarios of genapp-lgicus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
 - **Translation:** 34/34 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgicus01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (5 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 4/4 (100.0%), branch outcomes 4/8 (50.0%) raw, 4/8 (50.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -287,6 +326,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 46 scenarios of genapp-lgipdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 98.6 raw, 98.6 net of the reviewed infeasible outcomes)
 - **Translation:** 238/238 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgipdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (46 scenarios in case.json)
 - **Executed equivalence** (genapp-lgipol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -320,6 +360,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 10 scenarios of genapp-lgipol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
 - **Translation:** 26/26 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgipol01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -351,6 +392,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 6 scenarios of genapp-lgucdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 90.0 raw, 90.0 net of the reviewed infeasible outcomes)
 - **Translation:** 39/39 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgucdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -376,6 +418,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 5 scenarios of genapp-lgucus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
 - **Translation:** 32/32 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgucus01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (5 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 4/4 (100.0%), branch outcomes 5/8 (62.5%) raw, 5/8 (62.5%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -399,6 +442,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 5 scenarios of genapp-lgupdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)
 - **Translation:** 116/116 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp2, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -433,6 +477,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 10 scenarios of genapp-lgupol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 81.2 raw, 81.2 net of the reviewed infeasible outcomes)
 - **Translation:** 45/45 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp2, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -464,6 +509,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 4 scenarios of genapp-lgacvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 25/25 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgacdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgacus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -491,6 +537,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 4 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 85.7)
 - **Translation:** 124/124 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgapdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -524,6 +571,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 8 scenarios of genapp-lgapvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 47/47 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgapdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -558,6 +606,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 5 scenarios of genapp-lgdpvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 28/28 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgdpdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (11 scenarios in case.json)
 - **Executed equivalence** (genapp-lgdpol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -592,6 +641,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 12 scenarios of genapp-lgicdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 75.0)
 - **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgicdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 12/12 scenarios equal, 24/24 records equal, 12 runs (0 fault runs); through its deployed entry points 12/12
 - **Executed equivalence** (genapp-lgicus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -617,6 +667,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (coverage not measured for a LINKed program: the case's coverage is its main program's)
 - **Translation:** 26/26 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgacdb01, linked, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgacdb02, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -671,6 +722,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
 - **Translation:** 152/152 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp1, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 7/10 (70.0%), branch outcomes 14/19 (73.7%) raw, 14/19 (73.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -687,15 +739,16 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT ROLLBACK | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp2.cbl -- L2
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp2 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
 - **Translation:** 140/140 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp2, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 7/10 (70.0%), branch outcomes 14/19 (73.7%) raw, 14/19 (73.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -712,15 +765,16 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT ROLLBACK | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp3.cbl -- L2
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp3 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
 - **Translation:** 137/137 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp3, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 7/10 (70.0%), branch outcomes 14/19 (73.7%) raw, 14/19 (73.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -737,15 +791,16 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT ROLLBACK | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestp4.cbl -- L2
 
 - **Executed equivalent** on the 16 scenarios of genapp-lgtestp4 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 77.8)
 - **Translation:** 144/144 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp4, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (16 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 7/9 (77.8%), branch outcomes 18/22 (81.8%) raw, 18/22 (81.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -762,15 +817,16 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT ROLLBACK | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 2 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgucvs01.cbl -- L2
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgucvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 32/32 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgucdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -799,6 +855,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Executed equivalent** on the 6 scenarios of genapp-lgupvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
 - **Translation:** 55/55 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp2, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
@@ -835,6 +892,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Next level needs:** translated whole (1 holes left)
 - **Translation:** 29/30 statements, 1 holes; whole: no
   - hole: EXEC EXEC CICS: not a data area: Length of WS-Qarea
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -849,16 +907,17 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27, X30; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicvs01.cbl -- L0
 
 - **Next level needs:** translated whole (1 holes left)
 - **Translation:** 50/51 statements, 1 holes; whole: no
   - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (genapp-lgicvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 1/1 (100.0%), branch outcomes 7/12 (58.3%) raw, 7/12 (58.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -888,6 +947,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 - **Next level needs:** translated whole (1 holes left)
 - **Translation:** 30/31 statements, 1 holes; whole: no
   - hole: EXEC EXEC CICS: READ GENERIC GTEQ: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -914,29 +974,31 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: DEFINE COUNTER: named counters are not modelled
   - hole: EXEC EXEC CICS: DELETE COUNTER: named counters are not modelled
   - hole: EXEC EXEC CICS: EXEC CICS DELETEQ TS not modelled (deleting a temporary-storage queue is not modelled)
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
-  | DEFINE COUNTER | name-only | none | no |
-  | DELETE COUNTER | name-only | none | no |
+  | DEFINE COUNTER | full | none | no |
+  | DELETE COUNTER | full | none | no |
   | DELETEQ TS | full | none | no |
   | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X29 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X29 (ASSUMED (REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 78 holes; ASSUMED / DIFFERS entries named: X15, X27, X29; commands without oracle backing: DEFINE COUNTER, DELETE COUNTER, DELETEQ TS; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 78 holes; ASSUMED / DIFFERS entries named: X15, X27, X29, X30; commands without oracle backing: DEFINE COUNTER, DELETE COUNTER, DELETEQ TS; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgtestc1.cbl -- L0
 
 - **Next level needs:** translated whole (2 holes left)
 - **Translation:** 128/130 statements, 2 holes; whole: no
   - hole: EXEC EXEC CICS: RECEIVE MAP ASIS: option not modelled
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -956,9 +1018,9 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   | SYNCPOINT ROLLBACK | full | none | no |
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 2 holes; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 holes; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgwebst5.cbl -- L0
 
@@ -968,6 +1030,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
   - hole: EXEC EXEC CICS: QUERY COUNTER: named counters are not modelled
   - hole: EXEC EXEC CICS: not a data area: Length of WS-OLDV
   - hole: EXEC EXEC CICS: not a data area: Length of WS-TSQdata
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -1008,6 +1071,8 @@ From the spec entries of the commands the programs use, with the register's stat
 | X22 | CICS | ASSUMED (REFUSED where IBM is silent or the layout decides) | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X29 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP |
+| X30 | CICS | ASSUMED (REFUSED where IBM is silent) | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused |
+| X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 
 ## Reproducibility
 
@@ -1016,7 +1081,7 @@ From the spec entries of the commands the programs use, with the register's stat
 - crucible pins: cics `v0.6.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.6.0 (b794aa8b)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:0ac5b4464f050db803d75a329d41296ba638a5e0a6fb57ee184c443c0d6c1f1a`, `sha256:f346a1ba589f63246f7390cea94681af70485471189e56f481055cdc8ffd6fb6`
+- oracle images the evidence records ran on: `sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa`, `sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85`
 
 Regenerate this report and re-run its proofs:
 

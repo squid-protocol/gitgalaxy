@@ -42,7 +42,10 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "a4180d0a5e85ece10f97288b0e0ddbf8b86331c752840fe6b90fc46bcb45988e"
+   "sha256": "a4180d0a5e85ece10f97288b0e0ddbf8b86331c752840fe6b90fc46bcb45988e",
+   "components": {
+    "harness:core": "2d7439b3aae32c3d707c2e748f6a332f1eed11803dbe4ca5155ec8412da8a5cb"
+   }
   },
   "oracle": {
    "paths": [
@@ -55,14 +58,36 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3"
+   "sha256": "520883d8fbd8fedd9141ef6fc275eda91ca42d54dbe16d14dac0386a0ab285b3",
+   "components": {
+    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+    "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
+    "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
+   }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0"
+   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0",
+   "components": {
+    "generator:cobolrt/Cobol.java": "96b2a0472a6ddde32dbda40fb3241bd1caeb2d67848a48b1c5d8d7d3a8ad425b",
+    "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
+    "generator:cobolrt/Editing.java": "d509f18b7698d1b4c8390a9c0b9db106f69749d2e4f3258fc9a482fbd8ae5038",
+    "generator:cobolrt/Field.java": "4e509ad37fb783dd6c4f2fbbe6e93b10fbaf5dc332ba9955f0cae3f7178732c0",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/Funcs.java": "48b7776252cc93254377294d1add8a850d8980315885ce9821664432005c2ce0",
+    "generator:cobolrt/Hfp.java": "091cc29ea443a4d441d63dd60f8629fa5658eb8375a42dcca472259fbe4b1bbd",
+    "generator:cobolrt/Sort.java": "6edc1333563834af5976a6682d22b2332678c8f09cf89cfdfb47be5cf56da6f9",
+    "generator:cobolrt/Storage.java": "28338ff6c17d773d0ceed66255f4085c1a0ffd08bde07dae4ba94f4a8ae8b653",
+    "generator:cobolrt/Zoned.java": "26d267a5a582f0e8cb769b3b6f2aab5c171db2c74e086be510060502a50ce71c",
+    "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
+    "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
+    "generator:core": "376c7eb7d1a9cc33b893bcb062cc038f6dfadae7948d97571b51047450da9d05",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2"
+   }
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",

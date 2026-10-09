@@ -3,6 +3,7 @@
 
     python tests/tools/det_coverage_ledger.py update SWEEP [SWEEP ...]   # write tests/equivalence/det_sweep_coverage.json
     python tests/tools/det_coverage_ledger.py check  SWEEP [SWEEP ...]   # the ratchet CI's det-sweep applies
+    python tests/tools/det_coverage_ledger.py migrate                    # #4731: add component fingerprints to current entries
 
 SWEEP is a `proof_sweep.py --det-only` work directory (or its sweep.json): per case the proof's coverage line,
 "proven on N scenarios, covering P/L paragraphs and B/T branches". The ledger keeps those numbers for each PROVEN
@@ -11,7 +12,13 @@ directory, the corpus pin, the harness, the oracle -- not the Java generator, wh
 
   {"format": "det-sweep-coverage/1", "about": ..., "cases": {CASE: {"scenarios": N,
      "paragraphs": {"covered": P, "live": L}, "branches": {"covered": B, "total": T},
-     "inputs": {"case": SHA, "corpus": SHA, "harness": SHA, "oracle": SHA}}}}
+     "inputs": {"case": SHA, "corpus": SHA, "harness": SHA, "oracle": SHA,
+                "components": {"harness": {COMPONENT: SHA}, "oracle": {COMPONENT: SHA}}}}}}
+
+#4731: `components` holds the fingerprints of the harness / oracle components the case uses (tests/tools/evidence.py
+COMPONENTS: the CICS stub and equivalence_cics.py, the Db2 layer, batch file I/O, ...). An entry that has them is stale on
+harness / oracle only when a component it uses changed; one written before them (no `components`) keeps the whole-input
+comparison until `update` rewrites it, or `migrate` adds them while the entry is current on the whole input.
 
 Every number in it is read off a sweep's coverage line, none is computed or written by hand. A reader
 (proof_blockers.py) trusts an entry as CURRENT only while `fresh_coverage()`; a missing entry is "unknown". #4730: a
@@ -47,6 +54,7 @@ CASES = REPO / "tests" / "equivalence"
 LEDGER = CASES / "det_sweep_coverage.json"
 FORMAT = "det-sweep-coverage/1"
 INPUTS = ("case", "corpus", "harness", "oracle")
+COMPONENT_INPUTS = ("harness", "oracle")  # #4731: also fingerprinted per component (evidence.py COMPONENTS)
 BLOCKING = ("case", "corpus")  # stale here: the change re-proves the case, so the ledger is refreshed in the same PR
 _LINE = re.compile(r"proven on (\d+) scenarios?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 ABOUT = ("#4270: the paragraph / branch coverage of each det-proven case, as `proof_sweep.py --det-only` reported it; "
@@ -63,21 +71,33 @@ def parse_line(line: str) -> dict[str, Any] | None:
     return {"scenarios": n, "paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": bc, "total": bt}}
 
 
-def fingerprints(case: str) -> dict[str, str]:
-    """The case's input fingerprints in the tree now (tests/tools/evidence.py's scheme)."""
+def fingerprints(case: str) -> dict[str, Any]:
+    """The case's input fingerprints in the tree now (tests/tools/evidence.py's scheme), plus (#4731) under `components`
+    the per-component fingerprints of the harness / oracle components the case uses."""
     import evidence as ev  # noqa: PLC0415 -- git-backed; only when a ledger is written / checked
 
     now = ev.compute_inputs(ev.equivalence_target(case))
-    return {name: now[name]["sha256"] for name in INPUTS}
+    return {**{name: now[name]["sha256"] for name in INPUTS},
+            "components": {name: now[name]["components"] for name in COMPONENT_INPUTS}}  # fmt: skip
 
 
 def load(path: Path = LEDGER) -> dict[str, dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8")).get("cases", {}) if path.is_file() else {}
 
 
-def stale(entry: dict[str, Any], now: dict[str, str]) -> list[str]:
-    """The inputs whose fingerprint differs from the tree's."""
-    return [n for n in INPUTS if (entry.get("inputs") or {}).get(n) != now.get(n)]
+def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
+    """The inputs whose fingerprint differs from the tree's. #4731: a harness / oracle fingerprint that differs is stale
+    only when a component the case uses changed (an entry written before components kept none: the whole input decides)."""
+    held = entry.get("inputs") or {}
+    out = []
+    for n in INPUTS:
+        if held.get(n) == now.get(n):
+            continue
+        before, after = (held.get("components") or {}).get(n), (now.get("components") or {}).get(n)
+        if isinstance(before, dict) and isinstance(after, dict) and all(before.get(c) == v for c, v in after.items()):
+            continue
+        out.append(n)
+    return out
 
 
 def fresh_coverage(case: str, ledger: dict[str, dict[str, Any]]) -> tuple[int, int, int, int] | None:
@@ -198,11 +218,42 @@ def write(cases: dict[str, dict[str, Any]], path: Path = LEDGER) -> None:
     path.write_text(json.dumps({"format": FORMAT, "about": ABOUT, "cases": cases}, indent=1) + "\n", encoding="utf-8")
 
 
+def migrate(ledger: dict[str, dict[str, Any]], history: bool = True) -> dict[str, dict[str, Any]]:
+    """#4731: `ledger` with the per-component fingerprints added to every entry that has none AND whose harness / oracle
+    fingerprints equal the tree's (so those are the components it was measured against), or equal those of the commit it
+    was `measured_at` (evidence_history.ledger_components). Nothing else changes; any other entry is left for the next
+    sweep's `update`."""
+    out = {}
+    for case, entry in ledger.items():
+        inputs = entry.get("inputs") or {}
+        if "components" not in inputs and (CASES / case / "case.json").is_file():
+            now = fingerprints(case)
+            comps = now["components"] if all(inputs.get(n) == now[n] for n in INPUTS) else None
+            if comps is None and history:  # the commit the entry was measured at, if its files reproduce the entry
+                import evidence_history  # noqa: PLC0415
+
+                comps = evidence_history.ledger_components(case, entry)
+            if comps is not None:
+                entry = {**entry, "inputs": {**inputs, "components": comps}}
+        out[case] = entry
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=("update", "check"))
-    ap.add_argument("sweep", type=Path, nargs="+", help="proof_sweep.py work directories (or sweep.json files)")
+    ap.add_argument("mode", choices=("update", "check", "migrate"))
+    ap.add_argument("sweep", type=Path, nargs="*", help="proof_sweep.py work directories (or sweep.json files)")
     args = ap.parse_args(argv)
+    if args.mode == "migrate":  # #4731: no sweep needed
+        old = load()
+        cases = migrate(old)
+        write(cases)
+        print(
+            f"{LEDGER.relative_to(REPO)}: {sum(1 for c in cases if cases[c] != old[c])} of {len(cases)} entries migrated"
+        )
+        return 0
+    if not args.sweep:
+        ap.error("update / check need the sweep's work directories")
     det = sweep_rows(args.sweep)
     if args.mode == "update":
         cases = build(det, load())

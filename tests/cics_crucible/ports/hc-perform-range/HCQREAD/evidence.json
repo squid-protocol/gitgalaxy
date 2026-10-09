@@ -45,19 +45,63 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 13,
-   "sha256": "db8da5a347f551ea0867f8cd399f76bcaef5fd56fb3a08a84b40ef34ec8ab9f3"
+   "sha256": "db8da5a347f551ea0867f8cd399f76bcaef5fd56fb3a08a84b40ef34ec8ab9f3",
+   "components": {
+    "harness:call": "9fc3abd81ee72d5068a139f9589fd9907ce0ae401520744d1bc6b8f02136dec3",
+    "harness:cics": "174af38d64970991776131eefc3700331a4c38b4d686d0f5d078588949f0e3d2",
+    "harness:core": "2d7439b3aae32c3d707c2e748f6a332f1eed11803dbe4ca5155ec8412da8a5cb",
+    "harness:crucible": "ece27cf6a71fa09ae2443e2afd2bb697a74e98ae095b91a51077d994610113d5",
+    "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
+   }
   },
   "oracle": {
    "paths": [],
    "files": 0,
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "components": {}
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0"
+   "sha256": "c62975b16125f305071dec7dd54d41505f0b46104f4260aabb21def6e3713cc0",
+   "components": {
+    "generator:cobolrt/Cobol.java": "96b2a0472a6ddde32dbda40fb3241bd1caeb2d67848a48b1c5d8d7d3a8ad425b",
+    "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
+    "generator:cobolrt/Editing.java": "d509f18b7698d1b4c8390a9c0b9db106f69749d2e4f3258fc9a482fbd8ae5038",
+    "generator:cobolrt/Field.java": "4e509ad37fb783dd6c4f2fbbe6e93b10fbaf5dc332ba9955f0cae3f7178732c0",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/Funcs.java": "48b7776252cc93254377294d1add8a850d8980315885ce9821664432005c2ce0",
+    "generator:cobolrt/Hfp.java": "091cc29ea443a4d441d63dd60f8629fa5658eb8375a42dcca472259fbe4b1bbd",
+    "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
+    "generator:cobolrt/Sort.java": "6edc1333563834af5976a6682d22b2332678c8f09cf89cfdfb47be5cf56da6f9",
+    "generator:cobolrt/Storage.java": "28338ff6c17d773d0ceed66255f4085c1a0ffd08bde07dae4ba94f4a8ae8b653",
+    "generator:cobolrt/Zoned.java": "26d267a5a582f0e8cb769b3b6f2aab5c171db2c74e086be510060502a50ce71c",
+    "generator:cobolrt/batch/DetFiles.java": "fd71099ad4cc4912d8bd65010f30c7ae563c7736832ade87b5563b0b5ecaf37d",
+    "generator:cobolrt/cics/DetCics.java": "2b210c836ba54292458d8cde11d17602ee8f064345e35a59008c5920405eba8f",
+    "generator:cobolrt/le/Ceedays.java": "bce70a862aa5df406d3d4410adfa66d4301aa8ab6bb9f2e06b8df4b4a9bffd64",
+    "generator:cobolrt/le/Cobdatft.java": "1eb9edc24c8fd4914e72204465f60257a56dd44c51a1ca0a82040dceec43550c",
+    "generator:cobolrt/sql/DetSql.java": "95725d0ad31cef578bc7bb3e9a2f5697105a7f498c56138625c6b39a50e99c33",
+    "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
+    "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
+    "generator:core": "376c7eb7d1a9cc33b893bcb062cc038f6dfadae7948d97571b51047450da9d05",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "f15c7d0ac7692ca1eb3690b26bda36ee870e6ec3c5dc9b659a9c9a1068bf11c1",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
+    "generator:det/gen": "28f0eebdddd86c372b6414c26b13b6abee69e84e7d119ccf361728f7aab3f112",
+    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/program": "b44c409e9d7d087a94ca33c72da72b73a139f5ff52f8a7209784d5dc70fa5369",
+    "generator:det/refine": "542ea38e67d5ffdfecdd0d9319c208a2aebc3538205b4d52e0fc2134cc7a758d",
+    "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2",
+    "generator:det/sql": "7e45e405297510ec80e92b82c55d58e861bcfb37af4bc6a26a475798795ffd45",
+    "generator:det/stmt": "50a37949ce1b8d53d062bd35243ed7ba6cd87a8be21c832db2a541c8de11e0be"
+   }
   },
   "corpus": {
    "name": "cics-crucible",

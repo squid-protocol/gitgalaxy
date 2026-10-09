@@ -110,8 +110,8 @@ class _Gen:
 @pytest.mark.parametrize(
     "stmt, cics, why",
     [
-        ("ROLLBACK TO SAVEPOINT S1", False, "ROLLBACK TO SAVEPOINT"),
         ("COMMIT WORK HOLD", False, "COMMIT WORK HOLD"),
+        ("ROLLBACK WORK HOLD", False, "ROLLBACK WORK HOLD"),
         ("ROLLBACK", True, "-926"),
         ("ROLLBACK WORK", True, "-926"),
     ],
@@ -123,6 +123,22 @@ def test_a_unit_of_work_end_not_modelled_is_refused_by_name(stmt, cics, why):
     g.cics = object() if cics else None
     with pytest.raises(SqlError, match=why):
         Sql(g, "P", None).command(f"EXEC SQL {stmt} END-EXEC", 7, "")
+
+
+def test_a_savepoint_statement_runs_as_written_in_batch_and_is_refused_in_cics():
+    from gitgalaxy.tools.cobol_to_java.det.sql import Sql, SqlError
+
+    g = _Gen()
+    for stmt in ("SAVEPOINT SP1 ON ROLLBACK RETAIN CURSORS", "ROLLBACK TO SAVEPOINT SP_CONTO",
+                 "ROLLBACK WORK TO SAVEPOINT", "RELEASE SAVEPOINT SP1"):  # fmt: skip
+        assert Sql(g, "P", None).command(f"EXEC SQL {stmt} END-EXEC", 7, "") == [
+            f'DetSql.savepoint(ca, "P:7", "{stmt}", CS);'
+        ]
+    with pytest.raises(SqlError, match="host variable"):
+        Sql(g, "P", None).command("EXEC SQL SAVEPOINT :SP ON ROLLBACK RETAIN CURSORS END-EXEC", 7, "")
+    g.cics = object()
+    with pytest.raises(SqlError, match="CICS"):
+        Sql(g, "P", None).command("EXEC SQL ROLLBACK TO SAVEPOINT SP1 END-EXEC", 7, "")
 
 
 def test_commit_in_a_cics_program_is_the_tasks_and_in_batch_ends_the_unit_of_work():
@@ -144,6 +160,11 @@ def test_the_precompiler_marks_a_held_cursors_open_for_ggsql():
     assert opens[1].endswith(" C2 UOWHOLD 15 H")
     kinds = [ln.split()[2] for ln in table.splitlines() if ln.startswith("S ")]
     assert kinds == ["EXEC", "COMMIT", "OPEN", "OPEN", "ROLLBACK"]
+    sp = prog.replace("EXEC SQL ROLLBACK WORK END-EXEC.", "EXEC SQL ROLLBACK TO SAVEPOINT SP1 END-EXEC.")
+    _, table = es.precompile(sp, [], Path("uowhold.cbl"), program="uowhold")
+    assert "Q ROLLBACK TO SAVEPOINT SP1" in table.splitlines()  # an EXEC, run as written
+    with pytest.raises(es.Unsupported):
+        es.precompile(prog.replace("ROLLBACK WORK", "ROLLBACK WORK HOLD"), [], Path("u.cbl"), program="u")
 
 
 def test_a_db2_batch_step_runs_as_one_unit_of_work_in_the_harness():
@@ -230,6 +251,28 @@ public class Main {
         });
         DetSql.commit(ca, "P:10", CS);
         System.out.println("failed commit " + sqlcode(ca));
+        // a savepoint statement: run on the unit's connection, Db2's error its SQLCODE; refused with no unit
+        DetSql.unitOfWork(new DetSql.UnitOfWork() {
+            public void commit() { }
+            public void rollback() { }
+            public void execute(String sql) {
+                log.append("[" + sql + "]");
+                if (sql.contains("NOPE")) {
+                    throw new RuntimeException(new java.sql.SQLException("x", "3B001", -880));
+                }
+            }
+        });
+        DetSql.savepoint(ca, "P:12", "SAVEPOINT S ON ROLLBACK RETAIN CURSORS", CS);
+        System.out.println("savepoint " + sqlcode(ca));
+        DetSql.savepoint(ca, "P:13", "ROLLBACK TO SAVEPOINT NOPE", CS);
+        System.out.println("rollback to nope " + sqlcode(ca));
+        DetSql.unitOfWork(null);
+        try {
+            DetSql.savepoint(ca, "P:14", "SAVEPOINT S ON ROLLBACK RETAIN CURSORS", CS);
+            System.out.println("savepoint alone answered");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("savepoint alone refused");
+        }
         // a planned SQL fault on the COMMIT (#4173): the unit of work not ended
         DetSql.withFaults(List.of("P 11 1 -911 40001"), null);
         DetSql.unitOfWork(new DetSql.UnitOfWork() {
@@ -274,16 +317,22 @@ def test_detsql_ends_the_runners_unit_of_work_and_closes_cursors_as_db2_does(tmp
         "fetch C2 -501",  # ROLLBACK closes a held cursor too
         "close -501",
         "failed commit -913",
+        "savepoint 0",
+        "rollback to nope -880",
+        "savepoint alone refused",
         "faulted commit -911",
-        "unit CR",  # the COMMIT and the ROLLBACK; the failed and the faulted COMMIT end nothing
+        # the COMMIT, the ROLLBACK, the savepoint statements; the failed and the faulted COMMIT end nothing
+        "unit CR[SAVEPOINT S ON ROLLBACK RETAIN CURSORS][ROLLBACK TO SAVEPOINT NOPE]",
     ]
 
 
 # ---- the end-to-end proof on Db2: a synthetic estate (tests/equivalence/db2/uow), traced by hand ------------------
 # No burned estate's program issues EXEC SQL ROLLBACK (the census, #4269), so UOWDEMO pins it: a change committed, two
 # backed out, an error then ROLLBACK, a cursor closed by COMMIT, a WITH HOLD cursor kept by it and closed by ROLLBACK,
-# and work left uncommitted -- kept at the step's normal end, backed out by an abend (INPFILE `A`). Each SQLCODE below
-# is IBM's (Db2 for z/OS SQL Reference: COMMIT, ROLLBACK, FETCH -501 "the cursor is not open", INSERT -803).
+# a savepoint (the insert after it backed out, the one before kept; a rollback to it once released), and work left
+# uncommitted -- kept at the step's normal end, backed out by an abend (INPFILE `A`). Each SQLCODE below is IBM's
+# (Db2 for z/OS SQL Reference: COMMIT, ROLLBACK, SAVEPOINT, RELEASE SAVEPOINT; -501 "the cursor is not open", -803,
+# -880 "the savepoint does not exist or is invalid in this context").
 UOW = Path(__file__).resolve().parents[1] / "equivalence" / "db2" / "uow"
 TRACED = """A UPDATE          0
 A COMMIT          0
@@ -303,10 +352,15 @@ F ROW          2
 F CLOSE          0
 G FETCH AFTER ROLLBACK       -501
 G CLOSE       -501
+I SAVEPOINT          0
+I ROLLBACK TO          0
+I RELEASE          0
+I ROLLBACK TO RELEASED       -880
+I ROWS          4
 H DELETE          0
 """
-ROWS = {"N": ["[1]|[111.00]", "[2]|[200.00]"],  # row 3's DELETE committed at the step's end
-        "A": ["[1]|[111.00]", "[2]|[200.00]", "[3]|[300.00]"]}  # backed out by the abend  # fmt: skip
+ROWS = {"N": ["[1]|[111.00]", "[2]|[200.00]", "[5]|[500.00]"],  # row 3's DELETE committed at the step's end
+        "A": ["[1]|[111.00]", "[2]|[200.00]", "[3]|[300.00]", "[5]|[500.00]"]}  # backed out by the abend  # fmt: skip
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")

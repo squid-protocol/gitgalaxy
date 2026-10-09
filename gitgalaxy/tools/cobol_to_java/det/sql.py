@@ -19,8 +19,11 @@ DSN / CAF batch program (oracle_assumptions Q3). COMMIT closes the cursors not d
 cursor. In a CICS program the unit of work is the task's: COMMIT stays a reset of the SQLCA (each task's work is
 committed with the task), ROLLBACK is refused -- Db2 for z/OS answers it -926 in CICS (SYNCPOINT ROLLBACK backs out).
 
+SAVEPOINT, ROLLBACK TO SAVEPOINT and RELEASE SAVEPOINT run as written on the batch unit of work's connection
+(DetSql.savepoint), Db2 answering them; in a CICS program they are refused.
+
 Not modelled (a Hole naming it): WHENEVER (the program tests SQLCODE itself or the port would guess its branches),
-ROLLBACK TO SAVEPOINT, dynamic SQL, host variable arrays, a statement the generator has no method for."""
+dynamic SQL, host variable arrays, a statement the generator has no method for."""
 
 from __future__ import annotations
 
@@ -100,6 +103,9 @@ def _set_parts(sql: str) -> tuple[list[str], list[str]]:
     return [t.strip() for t in targets], [e.strip() for e in exprs]
 
 
+# #4269: the savepoint statements (Db2 for z/OS SQL Reference: SAVEPOINT, ROLLBACK ... TO SAVEPOINT, RELEASE SAVEPOINT)
+_SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|RELEASE(?:\s+TO)?\s+SAVEPOINT\s+"
+                        r"[A-Z0-9_]+", re.S)  # fmt: skip
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
@@ -224,6 +230,8 @@ class Sql:
         assigns = verb == "SET" and re.match(r"SET\s*\(?\s*:", sql, re.I)  # SET :H = expr (not SET CURRENT ...)
         if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
+        if _SAVEPOINT.fullmatch(u):
+            return self._savepoint(sql, u, line, ind)
         if verb in ("COMMIT", "ROLLBACK"):
             return self._end_unit_of_work(verb, u, line, ind)
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
@@ -282,7 +290,7 @@ class Sql:
     def _end_unit_of_work(self, verb: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: COMMIT / ROLLBACK [WORK] (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements)."""
         if not re.fullmatch(rf"{verb}(\s+WORK)?", u):
-            raise SqlError(f"EXEC SQL {u[:50]}")  # ROLLBACK TO SAVEPOINT, COMMIT / ROLLBACK with a HOLD option
+            raise SqlError(f"EXEC SQL {u[:50]}")  # COMMIT / ROLLBACK with another option
         if self.g.cics is not None:
             if verb == "ROLLBACK":  # Db2 for z/OS: -926, SQLSTATE 2D521 -- ROLLBACK not valid in CICS
                 raise SqlError("ROLLBACK in a CICS program: Db2 for z/OS answers -926 (the task's unit of work is "
@@ -290,6 +298,17 @@ class Sql:
             return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // the task's unit of work commits with the task"]
         at = self.g_str(f"{self.program}:{line}")
         return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS);"]
+
+    def _savepoint(self, sql: str, u: str, line: int, ind: str) -> list[str]:
+        """#4269: SAVEPOINT, ROLLBACK [WORK] TO SAVEPOINT, RELEASE SAVEPOINT (IBM Db2 for z/OS SQL Reference): run as
+        written on the unit of work's connection, Db2 answering (-880: no such savepoint, -881: UNIQUE reused)."""
+        if self.g.cics is not None:
+            raise SqlError(f"EXEC SQL {u.split()[0]} SAVEPOINT in a CICS program: the task's unit of work is not "
+                           "modelled for it (a later slice)")  # fmt: skip
+        if ":" in sql:
+            raise SqlError(f"EXEC SQL {u[:50]}: a host variable in a savepoint statement")
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(sql)}, CS);"]
 
     def _cursor_sql(self, meth: Method) -> str:
         """The host variables a cursor's query takes (its parameters): as `:NAME` references for _params."""

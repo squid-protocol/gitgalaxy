@@ -771,7 +771,8 @@ NULL is distinct.
     when the step ends normally, backed out when it abends (ggabend.c ends it before the process exits; the Java
     side's equivalence test runs the step in one transaction). EXEC SQL COMMIT / ROLLBACK end it in between
     (DetSql.commit / rollback, given the step's unit of work by the runner): COMMIT closes the cursors not declared
-    WITH HOLD, ROLLBACK every cursor, on both sides (ggsql.c closes the CLI handles itself). After an abend the Db2
+    WITH HOLD, ROLLBACK every cursor, on both sides (ggsql.c closes the CLI handles itself). SAVEPOINT, ROLLBACK TO
+    SAVEPOINT and RELEASE SAVEPOINT run as written on the unit's connection, Db2 answering. After an abend the Db2
     tables are compared too: they hold what the step committed. Proven on a synthetic estate
     (`tests/equivalence/db2/uow`, `test_sql_unit_of_work.py`, EQUIVALENCE_E2E=1): no burned program issues a
     ROLLBACK. A CICS program's ROLLBACK is refused (Db2 for z/OS: -926; SYNCPOINT ROLLBACK is the task's).

@@ -232,7 +232,8 @@ class EquivalenceRunTest {{
 # #4269: a Db2 case's step runs as ONE Db2 unit of work, as Db2 for z/OS runs a batch program's (DSN / CAF): committed
 # when the step ends normally, backed out when it abends (the exception passes on, the test records the abend). A
 # det port's EXEC SQL COMMIT / ROLLBACK end that unit in between: the det runtime's DetSql.unitOfWork is given the
-# step's connection (by reflection: a model port has no det runtime, an older det runtime no unit of work).
+# step's connection (by reflection: a model port has no det runtime, an older det runtime no unit of work), and runs
+# its savepoint statements there.
 DB2_STEP = f"""
     @Autowired org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate db2Jdbc;  // EquivalenceDb2Config
 
@@ -252,6 +253,12 @@ DB2_STEP = f"""
                                             .getConnection(ds).commit();
                                     case "rollback" -> org.springframework.jdbc.datasource.DataSourceUtils
                                             .getConnection(ds).rollback();
+                                    case "execute" -> {{  // a savepoint statement, on the step's connection
+                                        try (java.sql.Statement st = org.springframework.jdbc.datasource
+                                                .DataSourceUtils.getConnection(ds).createStatement()) {{
+                                            st.execute((String) a[0]);
+                                        }}
+                                    }}
                                     case "hashCode" -> {{
                                         return System.identityHashCode(p);
                                     }}

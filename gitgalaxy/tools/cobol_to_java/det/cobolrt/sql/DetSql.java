@@ -43,7 +43,8 @@ import java.util.function.Supplier;
  * every cursor not declared WITH HOLD (a held one stays open, with no current row until its next FETCH); ROLLBACK
  * backs it out and closes every cursor (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements). With no
  * unit of work given, each statement was committed as it ran: COMMIT has nothing more to commit, and ROLLBACK cannot
- * undo it -- it is refused (UnsupportedOperationException), never answered.
+ * undo it -- it is refused (UnsupportedOperationException), never answered. SAVEPOINT, ROLLBACK TO SAVEPOINT and
+ * RELEASE SAVEPOINT run as written on the unit's connection (savepoint), Db2 answering them.
  */
 public final class DetSql {
     private DetSql() {
@@ -372,6 +373,11 @@ public final class DetSql {
 
         /** Back out the work done since the last commit point; the unit goes on. */
         void rollback();
+
+        /** Run a statement as written on the unit's connection (a savepoint statement); Db2's error as thrown. */
+        default void execute(String sql) {
+            throw new UnsupportedOperationException("this unit of work runs no statement: " + sql);
+        }
     }
 
     private static UnitOfWork unitOfWork;
@@ -422,6 +428,25 @@ public final class DetSql {
         }
         OPEN.clear();
         CURRENT.clear();
+    }
+
+    /** EXEC SQL SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT at `at`: `sql` as written, on the unit of
+     *  work's connection, Db2 answering (-880: no such savepoint). The cursors are not touched: a savepoint is set ON
+     *  ROLLBACK RETAIN CURSORS. Refused with no unit of work, as ROLLBACK is. */
+    public static void savepoint(Field ca, String at, String sql, Charset cs) {
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        if (unitOfWork == null) {
+            throw new UnsupportedOperationException("EXEC SQL " + sql + " at " + at + ": no unit of work -- each "
+                    + "statement was committed as it ran (the runner gives the step one: DetSql.unitOfWork)");
+        }
+        try {
+            unitOfWork.execute(sql);
+        } catch (RuntimeException e) {
+            failed(ca, e, cs);
+        }
     }
 
     // ---- cursors --------------------------------------------------------------------------------------------

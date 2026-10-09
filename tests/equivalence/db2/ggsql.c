@@ -555,7 +555,7 @@ static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     } else if (rc != SQL_NO_DATA) {
         SQLLEN rows = 0;
         SQLRowCount(s->h, &rows);
-        c->sqlerrd[2] = (int)rows;
+        if (rows >= 0) c->sqlerrd[2] = (int)rows;  /* (CLI's -1: no row count -- a SAVEPOINT; SQLERRD(3) stays 0) */
     }
     SQLFreeHandle(SQL_HANDLE_STMT, s->h);
     s->h = 0;

@@ -275,7 +275,15 @@ class Precompiler:
         if pos and (verb not in ("UPDATE", "DELETE") or pos.group(1) not in self.cursors):
             raise Unsupported(f"EXEC SQL {verb} ... WHERE CURRENT OF {pos.group(1)}: not a declared cursor")
         # a positioned UPDATE / DELETE runs as written: ggsql.c names each cursor (SQLSetCursorName) at its OPEN
-        if verb in ("COMMIT", "ROLLBACK"):
+        if re.fullmatch(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|"
+                        r"RELEASE(?:\s+TO)?\s+SAVEPOINT\s+[A-Z0-9_]+", u, re.S):  # fmt: skip
+            # #4269: a savepoint statement runs as written, Db2 answering it (the det port's DetSql.savepoint)
+            if ":" in text:
+                raise Unsupported(f"EXEC SQL {u[:60]}: a host variable in a savepoint statement")
+            # IBM's CLI takes `ROLLBACK WORK ...` for a ROLLBACK of the whole unit of work (measured: it backed out
+            # past the savepoint and answered 0 where Db2 answers -880); WORK is a noise word (SQL Reference)
+            st = Statement(sid, "EXEC", re.sub(r"^ROLLBACK\s+WORK\s+", "ROLLBACK ", _norm(text), flags=re.I))
+        elif verb in ("COMMIT", "ROLLBACK"):
             if not re.fullmatch(r"(COMMIT|ROLLBACK)(\s+WORK)?", u):
                 raise Unsupported(f"EXEC SQL {u}")
             st = Statement(sid, verb)

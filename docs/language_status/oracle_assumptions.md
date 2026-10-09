@@ -111,8 +111,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
-| Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays, ROLLBACK TO SAVEPOINT | REFUSED | — |
+| Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
+| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -1266,7 +1266,15 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   data: commit and rollback"). EXEC SQL COMMIT [WORK] commits and closes every cursor not declared WITH HOLD (a held
   one stays open, positioned before its next row); ROLLBACK [WORK] backs out and closes every cursor, held or not
   (Db2 for z/OS SQL Reference, COMMIT statement and ROLLBACK statement); a FETCH or CLOSE of a cursor so closed is
-  -501. ROLLBACK TO SAVEPOINT and COMMIT / ROLLBACK with other options are REFUSED by name.
+  -501. COMMIT / ROLLBACK with other options are REFUSED by name.
+  - **Savepoints.** SAVEPOINT name [UNIQUE] ON ROLLBACK RETAIN CURSORS, ROLLBACK [WORK] TO SAVEPOINT [name] and
+    RELEASE [TO] SAVEPOINT name (SQL Reference, SAVEPOINT / ROLLBACK / RELEASE SAVEPOINT) run as written on the
+    unit of work's connection on both sides (DetSql.savepoint; the precompiler makes each an EXEC), so Db2 itself
+    answers them: -880 for a savepoint that does not exist or was released, -881 for a UNIQUE one set again. The
+    cursors stay open (RETAIN CURSORS is required). A host variable in one, or one in a CICS program, is REFUSED.
+    Oracle instrument quirks, measured and neutralised: IBM's CLI runs `ROLLBACK WORK TO SAVEPOINT x` as a ROLLBACK
+    of the whole unit of work (answering 0 where Db2 answers -880), so the precompiler drops the noise word WORK;
+    CLI's row count -1 for a statement with none no longer reaches SQLERRD(3), which stays 0 as on z/OS.
   - **The det port.** DetSql.commit / rollback end the unit of work the runner gives (DetSql.unitOfWork); with none
     given, each statement commits as it runs: COMMIT has nothing more to commit and ROLLBACK is refused at run time
     (UnsupportedOperationException), never answered. The equivalence test runs the step in one transaction on the
@@ -1283,13 +1291,16 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   - **Reached.** No burned program issues EXEC SQL ROLLBACK (#4269 census: NEND-DAY / NINT-CALC, non-burned, are
     the programs it unblocks), so a synthetic estate pins it: `tests/equivalence/db2/uow` (UOWDEMO, traced by hand;
     `tests/cobol_mainframe/test_sql_unit_of_work.py`, EQUIVALENCE_E2E=1) -- a commit, two changes backed out, -803
-    then ROLLBACK, a cursor closed by COMMIT, a WITH HOLD cursor kept by it and closed by ROLLBACK, work uncommitted
-    at a normal end (kept) and at an abend (backed out). Proven on both sides, SYSOUT, table and statement outcomes.
+    then ROLLBACK, a cursor closed by COMMIT, a WITH HOLD cursor kept by it and closed by ROLLBACK, a savepoint (the
+    insert after it backed out, a rollback to it once released -880), work uncommitted at a normal end (kept) and at
+    an abend (backed out). Proven on both sides: SYSOUT, the table, and every statement's SQLCODE / SQLSTATE / rows.
 
 ### Q4. Unsupported embedded SQL — REFUSED
 - **Refused.** WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, SCROLL
-  cursors, host-variable arrays and ROLLBACK TO SAVEPOINT (Q3) stop the precompiler and the det translator by name,
-  as does an undeclared host variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
+  cursors, host-variable arrays and a host variable in a savepoint statement (Q3) stop the precompiler and the det
+  translator by name (and a savepoint statement in a CICS program the det translator), as does an undeclared host
+  variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared
+  cursor runs (Q8).
 
 ### Q5. DSNTIAC / DSNTIAR — REFUSED
 - **What.** IBM's message formatter is not modelled. COTRTLIC's call to it, on the Db2-error path, is its one

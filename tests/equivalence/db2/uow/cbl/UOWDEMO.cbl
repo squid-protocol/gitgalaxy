@@ -131,6 +131,36 @@
            EXEC SQL CLOSE C2 END-EXEC
            MOVE SQLCODE TO WS-CODE
            DISPLAY 'G CLOSE ' WS-CODE
+      * I. a savepoint: the work after it backed out, before it kept
+           MOVE 5 TO WS-ID
+           MOVE 500.00 TO WS-BAL
+           EXEC SQL
+               INSERT INTO GGUOW.ACCT (ID, BAL) VALUES (:WS-ID, :WS-BAL)
+           END-EXEC
+           EXEC SQL
+               SAVEPOINT SP1 ON ROLLBACK RETAIN CURSORS
+           END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'I SAVEPOINT ' WS-CODE
+           MOVE 6 TO WS-ID
+           EXEC SQL
+               INSERT INTO GGUOW.ACCT (ID, BAL) VALUES (:WS-ID, :WS-BAL)
+           END-EXEC
+           EXEC SQL ROLLBACK TO SAVEPOINT SP1 END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'I ROLLBACK TO ' WS-CODE
+           EXEC SQL RELEASE SAVEPOINT SP1 END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'I RELEASE ' WS-CODE
+           EXEC SQL ROLLBACK WORK TO SAVEPOINT SP1 END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'I ROLLBACK TO RELEASED ' WS-CODE
+           EXEC SQL
+               SELECT COUNT(*) INTO :WS-N FROM GGUOW.ACCT
+           END-EXEC
+           MOVE WS-N TO WS-CODE
+           DISPLAY 'I ROWS ' WS-CODE
+           EXEC SQL COMMIT END-EXEC
       * H. work left uncommitted: kept at a normal end, backed out
       *    by an abend
            MOVE 3 TO WS-ID

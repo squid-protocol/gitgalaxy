@@ -521,7 +521,16 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
           REPO: ${{ github.repository }}
-        run: gh pr merge "$PR" --repo "$REPO" --auto --squash
+        # Right after the PR is opened its checks may not have registered yet, and GitHub then refuses auto-merge on a
+        # "clean" PR ("Pull request is in clean status"). Retry until the checks exist; never merge before CI has run
+        # (if it never gets there, the PR stays open for a person / the merge watcher).
+        run: |
+          for i in $(seq 1 20); do
+            if out=$(gh pr merge "$PR" --repo "$REPO" --auto --squash 2>&1); then echo "$out"; exit 0; fi
+            echo "$out"
+            case "$out" in *"clean status"*) sleep 30 ;; *) exit 1 ;; esac
+          done
+          echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
         if: steps.refresh.outcome == 'failure' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'

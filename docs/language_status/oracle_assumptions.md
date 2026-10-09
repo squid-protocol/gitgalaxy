@@ -96,7 +96,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
-| D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
+| D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every record charset, the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
 | D4 | data | An alphanumeric literal holding a character no single-byte code page holds (a UTF-8 em dash): the statement is a hole by name, the program translates; in a VALUE, a national / DBCS literal or a name the program stays refused (#4272) | REFUSED (the statement) | no |
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
@@ -783,6 +783,20 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   - CBSA's PROCTRAN.cpy uses `X'FF'`, which is the same byte in both.
 - **Screen attributes.** The DFHBMSCA stand-in holds the EBCDIC byte values, as the program's symbolic map expects
   them.
+
+- **Raw bytes, not characters (#4698).** IBM: a hexadecimal literal `X'hh..'` denotes exactly those bytes, with no
+  code-page translation (Enterprise COBOL for z/OS Language Reference, "Hexadecimal notation for alphanumeric
+  literals"); an ordinary literal `'...'` is characters, in the code page of the compiler's CODEPAGE option. The port
+  keeps that difference under every record charset: `Cobol.hex` gives the text the record charset encodes back to
+  the literal's bytes, an ordinary literal is encoded by the charset as before, and a field's bytes (EBCDIC data a
+  program read or moved) are shown as the bytes they are. The runtime's record charset keeps all 256 byte values
+  (`cobolrt/Lossless`): a byte a single-byte charset leaves unmapped, such as X'81' in windows-1252, is its latin-1
+  character and encodes back to that byte. GnuCOBOL writes the same raw bytes.
+- **The line separator is framing, not data (#4698).** A DISPLAY to SYSOUT on z/OS writes a record of the item's
+  bytes; there is no newline byte. Our SYSOUT capture needs a separator, so the Sysout (batch and standalone) writes a
+  plain LF (0x0A, as cobc does) after each DISPLAY in every record charset, not the charset's encoding of `"\n"`
+  (0x15 / 0x25 on EBCDIC). The harness compares records: it splits both captures on the LF byte, then decodes each
+  record (`equivalence_common.sysout_lines` / `compare_sysout`).
 
 ### D3. Zoned signs in ASCII data — MATCHED
 - `-fsign=EBCDIC` reads the corpora's ASCII data with EBCDIC-style overpunch (`{` = +0, A–I positive, `}` J–R

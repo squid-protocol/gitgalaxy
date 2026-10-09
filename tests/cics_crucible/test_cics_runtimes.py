@@ -1970,6 +1970,133 @@ def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_
                                 "refused"]  # fmt: skip
 
 
+_X32_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCURIB(gg_cics *c);
+int GGCURIP(gg_cics *c, char *area, int len);
+int GGCWTO(gg_cics *c, char *from);
+static gg_cics c;
+static void step(const char *what) {
+    memset(c.flags, ' ', 40);
+    memcpy(c.flags, what, strlen(what));
+}
+int main(int argc, char **argv) {
+    char name[8], path[258], tran[4];
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "wto") == 0) {
+            c.len = (int)strlen(argv[i + 1]);
+            GGCWTO(&c, argv[++i]);
+            printf("wto %d/%d\n", c.resp, c.resp2);
+            continue;
+        }
+        step(argv[i]);
+        GGCURIB(&c);
+        printf("%s %d/%d", argv[i], c.resp, c.resp2);
+        if (strcmp(argv[i], "NEXT") == 0 && c.resp == 0) {
+            memset(path, '#', sizeof path);
+            step("URIMAP"); GGCURIP(&c, name, 8);
+            step("PATH"); GGCURIP(&c, path, 257);
+            step("TRANSACTION"); GGCURIP(&c, tran, 4);
+            printf(" [%.8s] [%.255s] [%.4s]", name, path, tran);
+            printf(" tail=%c%c", path[255], path[256]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_inquire_urimap_browse_and_write_operator(tmp_path):
+    """#4270 zECS (register X32), IBM INQUIRE URIMAP (browse) / WRITE OPERATOR: START opens the browse (ILLOGIC RESP2 1 when one
+    is open), NEXT returns the stated definitions in order (name 8, PATH 255, TRANSACTION 4, blank-padded, an area longer
+    than IBM's length keeps its tail) then END RESP2 2, END closes it; the definitions unstated, and a NEXT / END with no
+    browse, are refused; WRITE OPERATOR records its text, refusing one IBM reformats."""
+    exe = _stub(tmp_path, _X32_MAIN)
+    cfg = tmp_path / "urimaps.cfg"
+    cfg.write_text("ZCEXAMPL ZC01 /zecs/*\nZCPLAIN - /plain\n", encoding="ascii")
+
+    def run(*args, env=None, check=True):
+        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+                "GGCICS_URIMAPS": str(cfg), **(env or {})}  # fmt: skip
+        (tmp_path / "out").mkdir(exist_ok=True)
+        return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
+
+    out = run("START", "START", "NEXT", "NEXT", "NEXT", "END").stdout.splitlines()
+    assert out[0] == "START 0/0" and out[1] == "START 21/1"  # ILLOGIC RESP2 1: a browse is already in progress
+    assert out[2].startswith("NEXT 0/0 [ZCEXAMPL] [/zecs/*") and out[2].endswith(
+        "[ZC01] tail=##"
+    )  # (the 256th-257th bytes: the program's own, untouched)
+    assert out[3].startswith("NEXT 0/0 [ZCPLAIN ] [/plain") and out[3].endswith(
+        "[    ] tail=##"
+    )  # no transaction: blanks
+    assert out[4] == "NEXT 83/2" and out[5] == "END 0/0"  # END RESP2 2: no more resource definitions of this type
+    for args in (("NEXT",), ("END",)):
+        bad = run(*args, check=False)
+        assert bad.returncode == 98 and "no browse started" in bad.stdout
+    cfg.write_text("", encoding="ascii")
+    assert run("START", "NEXT", "END").stdout.splitlines() == ["START 0/0", "NEXT 83/2", "END 0/0"]
+    unstated = subprocess.run(
+        [str(exe), "START"],
+        env={"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)},
+        capture_output=True,
+        text=True,
+        check=False,
+    )  # noqa: S603
+    assert unstated.returncode == 98 and "URIMAP definitions are not stated" in unstated.stdout
+    assert run("wto", "zECS start ZXAA for ZCAA").stdout.strip() == "wto 0/0"
+    events = (tmp_path / "out" / "events.txt").read_text(encoding="ascii")
+    assert "WRITE-OPERATOR" in events and "len=24" in events
+    for text in ("DFH1234 something", "DFHAA1234 more", "x" * 114):
+        refused = run("wto", text, check=False)
+        assert refused.returncode == 98 and "IBM reformats" in refused.stdout, text
+    assert run("wto", "DFHx plain").stdout.strip() == "wto 0/0"  # (not DFHnnnn / DFHaannnn)
+
+
+@needs_javac
+def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp_path):
+    """#4270 zECS (X32): CicsTask answers as the stub does (above): the stated definitions in order, blank-padded; ILLOGIC
+    RESP2 1 for a second START; END RESP2 2 past the last; NEXT / END with no browse and unstated definitions refused;
+    WRITE OPERATOR recorded as an event, a text IBM reformats refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC41", "ENTER", null, null).withUrimaps(java.util.List.of(
+                new String[] {"ZCEXAMPL", "ZC01", "/zecs/*"}, new String[] {"ZCPLAIN", "", "/plain"}));
+        System.out.println(java.util.Arrays.toString(t.inquireUrimapStart()) + java.util.Arrays.toString(t.inquireUrimapStart()));
+        for (int i = 0; i < 3; i++) {
+            int[] r = t.inquireUrimapNext();
+            System.out.println(java.util.Arrays.toString(r) + (r[0] == 0 ? "[" + t.urimapName() + "][" + t.urimapPath().strip()
+                    + "|" + t.urimapPath().length() + "][" + t.urimapTransaction() + "]" : ""));
+        }
+        System.out.println(java.util.Arrays.toString(t.inquireUrimapEnd()));
+        for (Runnable bad : new Runnable[] {t::inquireUrimapEnd, () -> t.inquireUrimapNext(),
+                () -> new CicsTask("HC41", "ENTER", null, null).inquireUrimapStart(),
+                () -> t.writeOperator("DFH1234 something"), () -> t.writeOperator("x".repeat(114))}) {
+            try {
+                bad.run();
+            } catch (UnsupportedOperationException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.println(t.writeOperator("DFHx plain") + " " + t.writeOperator("zECS start ZXAA"));
+        System.out.println(t.events().stream().filter(e -> "WRITE-OPERATOR".equals(e.get("event"))).map(e -> e.get("text"))
+                .collect(java.util.stream.Collectors.toList()));""",
+    )
+    assert out.splitlines() == [
+        "[0, 0][21, 1]", "[0, 0][ZCEXAMPL][/zecs/*|255][ZC01]", "[0, 0][ZCPLAIN ][/plain|255][    ]", "[83, 2]", "[0, 0]",
+        "INQUIRE URIMAP NEXT or END with no browse started: not modelled",
+        "INQUIRE URIMAP NEXT or END with no browse started: not modelled",
+        "the installed URIMAP definitions are not stated (withUrimaps): not modelled",
+        "WRITE OPERATOR text IBM reformats: not modelled", "WRITE OPERATOR text IBM reformats: not modelled",
+        "0 0", "[DFHx plain, zECS start ZXAA]"]  # fmt: skip
+
+
 def test_scheduler_states_each_tasks_startcode():
     """#4270 slice 3: a terminal step's task is STARTCODE TD; a START-triggered one S / SD by its requests' FROM, a
     group that mixes them none (refused)."""

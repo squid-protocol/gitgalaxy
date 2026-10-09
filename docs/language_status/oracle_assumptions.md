@@ -134,6 +134,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X29 | CICS | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL: yes (cics-crucible hc-inquire-deleteq, unreleased); QUERY COUNTER: no (the reference region has no named counters; unit tests on both runtimes) |
 | X30 | CICS | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-named-counters, unreleased) |
 | X31 | CICS | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | yes (cics-crucible hc-map-not-in-mapset, unreleased) |
+| X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -1564,6 +1565,37 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).
+
+### X32. INQUIRE URIMAP's browse, WRITE OPERATOR — ASSUMED, REFUSED where IBM is silent (#4270, zECS ZECSPLT)
+- **INQUIRE URIMAP** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-urimap; "Browsing resource definitions",
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-browsing-resource-definitions). "You can also browse through all the URIMAP
+  definitions installed in the region, using the browse options (START, NEXT, and END)"; START "does not produce any
+  information". Conditions: END RESP2 2 "There are no more resource definitions of this type" (RESP2 8, the definition deleted since the browse began, cannot
+  arise: nothing installs or discards a definition in a task); ILLOGIC RESP2 1 "You have issued a START command when a browse of
+  this resource type is already in progress" (the page words a NEXT or END with no browse as ILLOGIC too and gives it no RESP2 of
+  its own); NOTFND RESP2 3 "The URIMAP cannot be found" (the direct form); NOTAUTH RESP2 100 (no security in the region).
+  URIMAP "Returns the 8-character name", PATH "a 255-character data area containing the path component of the URL", TRANSACTION
+  "the 4-character name of an alias transaction". Modelled (`CicsTask.inquireUrimapStart` / `Next` / `End`, the stub's `GGCURIB`
+  and `GGCURIP`): the browse over the definitions the run states, END RESP2 2, ILLOGIC RESP2 1.
+- **What IBM leaves open, and what we do.** (1) The browse order: stated, with the definitions, by whoever runs the task (the
+  crucible runner states the CSD's order; a case must not depend on it). (2) The padding of a value shorter than its length:
+  blanks (ASSUMED, as every character value CICS returns), at most the program's area (an area longer than IBM's length keeps
+  its tail, which is how a PIC X(256) takes the 255-character PATH). (3) The data areas on END, ILLOGIC or any other condition:
+  left alone (ASSUMED; they are written on NORMAL only). **Refused by name**: the direct form INQUIRE URIMAP(name) (the translator),
+  every attribute but URIMAP / PATH / TRANSACTION (HOST, SCHEME, USAGE ...), an output area with START or END, a NEXT or END with
+  no browse started (the ILLOGIC RESP2 is not stated: both runtimes stop the run), and definitions the run does not state.
+- **WRITE OPERATOR** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-write-operator). TEXT "a data value containing the text
+  to be sent" (COBOL: "a data-area"); TEXTLENGTH "required only for C and C++" (the area's length is the text's); "If the data value begins with DFHnnnn or DFHaannnn, the message is treated as a
+  CICS message and is reformatted accordingly"; over 113 characters CICS formats a multi-line WTO. Modelled: the plain message,
+  recorded as a WRITE-OPERATOR event with its text (`CicsTask.writeOperator`, the stub's `GGCWTO`); RESP NORMAL (ERROR RESP2 1,
+  the MVS WTO failing, cannot arise here). **Refused by name**: every option but TEXT (ROUTECODES, NUMROUTES, CONSNAME, ACTION and
+  its CVDAs, REPLY, TIMEOUT ...), a literal TEXT, and at run time a text IBM reformats or splits (DFHnnnn / DFHaannnn prefix, over 113
+  characters).
+- **Not modelled / unobserved**: the console itself (the event is the message sent, not a screen); whether the case's browse order
+  matches z/OS (it cannot be told from IBM's pages, so the case counts and never orders).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `gt-urimap-browse` on the cobol-stub
+  side and the det port; unit-proven on `CicsTask` and the stub C (tests/cics_crucible/test_cics_runtimes.py). zECS's ZECSPLT
+  translates whole and compiles.
 
 ## Language Environment
 

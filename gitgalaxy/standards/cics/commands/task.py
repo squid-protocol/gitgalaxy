@@ -14,7 +14,17 @@ this region, register X3)."""
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Fact, Outcome, Refusal, RuntimeRefusal, required
+from gitgalaxy.standards.cics.model import (
+    Arg,
+    Command,
+    EngineFacts,
+    Fact,
+    Outcome,
+    Refusal,
+    RuntimeRefusal,
+    one_of,
+    required,
+)
 
 _NORMAL = Outcome("NORMAL", 0, "")
 _NOHANDLE = {"NOHANDLE": Arg("flag")}
@@ -403,6 +413,95 @@ INQUIRE_ASSOCIATION = Command(
     state=("handle_table",),
 )
 
+# #4270 zECS, register X32: INQUIRE URIMAP's browse (START / NEXT / END) and WRITE OPERATOR, the two commands that stop zECS's
+# ZECSPLT. IBM (CICS SPI command INQUIRE URIMAP; "Browsing resource definitions"): the browse lists "all the URIMAP
+# definitions installed in the region"; END RESP2 2 "There are no more resource definitions of this type"; ILLOGIC RESP2 1
+# "a START command when a browse of this resource type is already in progress" (the page words a NEXT or END with no browse
+# as ILLOGIC too, with no RESP2 of its own: refused at run time). URIMAP returns the 8-character name, PATH 255 characters,
+# TRANSACTION 4. IBM states neither the browse order nor the padding of a short value nor what a data area holds after END:
+# the order is a fact whoever runs the task states (the installed definitions, in the region's order), a value is padded
+# with blanks, and the areas are left alone on any condition. The direct form (URIMAP(name) without a browse option, NOTFND
+# RESP2 3) and every other attribute (HOST, SCHEME, USAGE ...) are refused: no corpus program asks for them
+INQUIRE_URIMAP = Command(
+    key="INQUIRE URIMAP",
+    ibm=ibm("CICS SPI command INQUIRE URIMAP", "commands-inquire-urimap"),
+    status="modelled",
+    register="X32",
+    options={
+        "URIMAP": Arg("area_out", width=8),
+        "PATH": Arg("area_out", width=255),
+        "TRANSACTION": Arg("area_out", width=4),
+        "START": Arg("flag"),
+        "NEXT": Arg("flag"),
+        "END": Arg("flag"),
+        **RESP_OPTIONS,
+    },
+    default_refusal=Refusal(
+        "only the URIMAP's name, PATH and TRANSACTION are modelled (no corpus program asks for more)", "X32"
+    ),
+    groups=(
+        one_of("START", "NEXT", "END", msg="INQUIRE URIMAP without START, NEXT or END: only the browse is modelled"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("URIMAP", "PATH", "TRANSACTION")),
+        Outcome(
+            "ILLOGIC", 1, "a START when a browse of this resource type is already in progress", raised_by=("START",)
+        ),
+        Outcome("END", 2, "There are no more resource definitions of this type", raised_by=("NEXT",)),
+    ),
+    facts=(
+        Fact(
+            "urimaps",
+            java="withUrimaps",
+            env="GGCICS_URIMAPS",
+            region_default=None,
+            options=("URIMAP", "PATH", "TRANSACTION"),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the installed URIMAP definitions are not stated for the task",
+            "X32",
+            java="the installed URIMAP definitions are not stated (withUrimaps)",
+            c="INQUIRE URIMAP: the installed URIMAP definitions are not stated for this task",
+        ),
+        RuntimeRefusal(
+            "a NEXT or END with no browse started: IBM's ILLOGIC page gives that case no RESP2 of its own",
+            "X32",
+            java="INQUIRE URIMAP NEXT or END with no browse started",
+            c="INQUIRE URIMAP NEXT or END with no browse started",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+# WRITE OPERATOR (EXEC CICS WRITE OPERATOR): a message to the system console; TEXTLENGTH "is required only for C and C++"
+# (a COBOL program names a data area, whose length is the text's). IBM's INVREQ RESP2 1-8 are for values the program gives
+# (TEXTLENGTH, NUMROUTES, ROUTECODES, MAXLENGTH, TIMEOUT, ACTION, CONSNAME), none of which is modelled; ERROR (the MVS WTO
+# failed) cannot arise in this region. A text IBM reformats (DFHnnnn / DFHaannnn: a CICS message) or splits into lines (over
+# 113 characters) is refused: only the plain single-line message is modelled
+WRITE_OPERATOR = Command(
+    key="WRITE OPERATOR",
+    ibm=ibm("EXEC CICS WRITE OPERATOR", "summary-write-operator"),
+    status="modelled",
+    register="X32",
+    options={"TEXT": Arg("area_in"), **RESP_OPTIONS},
+    default_refusal=Refusal(
+        "only the plain message to the console is modelled (no routing, reply, action or console name)", "X32"
+    ),
+    groups=(required("TEXT", msg="WRITE OPERATOR without TEXT"),),
+    outcomes=(Outcome("NORMAL", 0, ""),),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a text over 113 characters, or one that begins DFHnnnn / DFHaannnn: IBM reformats it, not modelled",
+            "X32",
+            java="WRITE OPERATOR text IBM reformats",
+            c="WRITE OPERATOR text IBM reformats",
+        ),
+    ),
+    state=("handle_table",),
+)
+
 COMMANDS = (
     ENQ,
     DEQ,
@@ -420,4 +519,6 @@ COMMANDS = (
     INQUIRE_TERMINAL,
     SET_TERMINAL,
     INQUIRE_ASSOCIATION,
+    INQUIRE_URIMAP,
+    WRITE_OPERATOR,
 )

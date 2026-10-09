@@ -94,7 +94,7 @@ def command_key(words: list[str], opts: dict) -> str:
 _FORM_OPTION = {
     "RECEIVE": ("MAP",),
     "GET": ("COUNTER",),
-    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION"),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
 }
 
@@ -990,6 +990,14 @@ class Cics:
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if key == "INQUIRE ASSOCIATION":  # #4415 slice 2: the origin data of the task's own association (register X29)
             return self.inquire_association(opts, ind)
+        if key == "INQUIRE URIMAP":  # #4270 zECS: the browse of the installed URIMAPs (register X32)
+            return self.inquire_urimap(opts, ind)
+        if key == "WRITE OPERATOR":  # #4270 zECS: a plain message to the console (register X32)
+            if not opts.get("TEXT"):
+                raise CicsError(_msg("WRITE OPERATOR", "required", "TEXT"))
+            r = g.tmpname("wto")
+            f = self.read_field(_arg(opts["TEXT"]))
+            return [f"{ind}int {r} = task.writeOperator(Cobol.text({f}, CS));", *self.outcome(opts, r, "0", ind)]
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:
                 raise CicsError(f"{key} without UCTRANST")
@@ -1267,6 +1275,29 @@ class Cics:
                 + self.g.store_into(self.ref(_arg(opts["ODFACILTYPE"])), f"BigDecimal.valueOf({r}.faciltype())", False)
             )
         return out + self.outcome(opts, "0", "0", ind)
+
+    def inquire_urimap(self, opts: dict, ind: str) -> list[str]:
+        """INQUIRE URIMAP START / NEXT / END (IBM CICS TS, INQUIRE URIMAP, "Browsing resource definitions"): the browse of
+        the URIMAP definitions the run states are installed (CicsTask.withUrimaps; unstated, refused). NEXT hands back the
+        definition's name (8), PATH (255) and TRANSACTION (4), blank-padded, only on NORMAL; END (RESP2 2) and ILLOGIC
+        (RESP2 1) leave the areas alone. START / END name no output area."""
+        g = self.g
+        form = [f for f in ("START", "NEXT", "END") if f in opts]
+        if len(form) != 1:
+            raise CicsError(_msg("INQUIRE URIMAP", "one_of", "START"))
+        r = g.tmpname("urimap")
+        call = {"START": "inquireUrimapStart", "NEXT": "inquireUrimapNext", "END": "inquireUrimapEnd"}[form[0]]
+        outs = [k for k in ("URIMAP", "PATH", "TRANSACTION") if k in opts]
+        if form[0] != "NEXT" and outs:
+            raise CicsError(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition")
+        out = [f"{ind}int[] {r} = task.{call}();"]
+        if outs:
+            out.append(f"{ind}if ({r}[0] == 0) {{")
+            for k, acc in (("URIMAP", "urimapName"), ("PATH", "urimapPath"), ("TRANSACTION", "urimapTransaction")):
+                if k in opts:
+                    out.append(f"{ind}    DetCics.putText({self.field(_arg(opts[k]))}, task.{acc}(), CS);")
+            out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the

@@ -894,7 +894,7 @@ _RESP_SAMPLES = {
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
-    "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)",
+    "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
@@ -1221,6 +1221,33 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),
                      ("INQUIRE ASSOCIATION(EIBTASKN) ODTASKID(REC)", "only the origin data"),
                      ("INQUIRE ASSOCIATION ODAPPLID(REC)", "needs an argument")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_inquire_urimap_browse_and_write_operator():
+    """#4270 zECS (register X32), IBM INQUIRE URIMAP ("Browsing resource definitions") / WRITE OPERATOR: START, NEXT and END
+    are the CicsTask browse (ILLOGIC RESP2 1, END RESP2 2 through RESP / HANDLE CONDITION); NEXT hands the definition's name,
+    PATH and TRANSACTION to the areas only on NORMAL; WRITE OPERATOR sends the text area. Everything IBM leaves open is
+    refused by name."""
+    c = _ChanCics()
+    s = c.command("INQUIRE URIMAP START NOHANDLE", "")
+    assert s[0].startswith("int[] urimap") and s[0].endswith("= task.inquireUrimapStart();")
+    n = c.command("INQUIRE URIMAP(REC) PATH(REC) TRANSACTION(KEY) NEXT RESP(R)", "")
+    assert n[0].endswith("= task.inquireUrimapNext();") and n[1].endswith("[0] == 0) {")
+    assert sum("DetCics.putText(" in x for x in n) == 3 and "task.urimapPath()" in " ".join(n)
+    assert any("OUTCOME(urimap" in x for x in n)
+    e = c.command("INQUIRE URIMAP END NOHANDLE", "")
+    assert e[0].endswith("= task.inquireUrimapEnd();")
+    w = c.command("WRITE OPERATOR TEXT(REC) NOHANDLE", "")
+    assert w[0].startswith("int wto") and ".writeOperator(Cobol.text(" in w[0]
+    for bad, why in (("INQUIRE URIMAP(REC) PATH(REC)", "only the browse is modelled"),
+                     ("INQUIRE URIMAP(REC) NEXT START", "only the browse is modelled"),
+                     ("INQUIRE URIMAP START PATH(REC)", "returns no definition"),
+                     ("INQUIRE URIMAP(REC) HOST(REC) NEXT", "only the URIMAP's name, PATH and TRANSACTION"),
+                     ("WRITE OPERATOR", "without TEXT"),
+                     ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
+                     ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

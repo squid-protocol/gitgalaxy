@@ -44,7 +44,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "17baadebc525d1bfa3b896e32b4fd4af41e65bd73037815e175f24cc26dabe15"
+   "sha256": "2df01dde126b29e5be6f1f90d7a4d3a5d0f1afdb3ef233f230f50155c9e22504"
   },
   "oracle": {
    "paths": [
@@ -57,14 +57,14 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47"
+   "sha256": "baf3bfc2d245d0466d0d7e5d1a14e9bd8aa861f6b5681f44ba788e7f5af7c5ec"
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 66,
-   "sha256": "1d297da399e0998024c8d920c54bf311141d494565764ff88b0b94da040f8969"
+   "sha256": "7a83c3d669c36d98f9e2d4fd677ab90349ea78e99335b55126f27de4814632aa"
   },
   "corpus": {
    "name": "aws-mainframe-modernization-carddemo",
@@ -146,10 +146,10 @@
     }
    }
   },
-  "digest": "d090684a116daa050efcf844ba95b3af1b7c90457f2ac4bc7016c58a35a7adb7"
+  "digest": "f873d006c051f522561cff4e080c926f02a87330df0586eac060d93a1f37f97c"
  },
  "proof": {
-  "at": "2026-10-09T11:04:04Z",
+  "at": "2026-10-09T14:08:43Z",
   "verdict": "proven",
   "runs": 46,
   "fault_runs": 8,
@@ -354,8 +354,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "9131c40743fc8f9793a14e33525de4ade4053620+uncommitted",
-  "inputs_digest": "d090684a116daa050efcf844ba95b3af1b7c90457f2ac4bc7016c58a35a7adb7"
+  "harness_commit": "cd74ca786974a0e9e810a9c821bcaf2eed8c9412+uncommitted",
+  "inputs_digest": "f873d006c051f522561cff4e080c926f02a87330df0586eac060d93a1f37f97c"
  },
  "coverage": {
   "paragraphs": {
@@ -391,7 +391,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d090684a116daa050efcf844ba95b3af1b7c90457f2ac4bc7016c58a35a7adb7"
+  "inputs_digest": "f873d006c051f522561cff4e080c926f02a87330df0586eac060d93a1f37f97c"
  },
  "reach": {
   "entry_points": [
@@ -456,7 +456,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "015a3536bdb24d59061562d3d883b076ea65b0b6e6c8b019100d78350b22fbf3"
+    "sha256": "24de9dea8f26297955df28f960d9b5d8548d58630ede71eae018e908d140fa6b"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",

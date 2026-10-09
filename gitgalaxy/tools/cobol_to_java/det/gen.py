@@ -184,9 +184,6 @@ class Gen:
         self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
-        # TRUNC(OPT) in effect (program.trunc_mode, #4706): a value MOVEd into a typed binary item goes through the
-        # runtime's store, which stops by name where it would not fit the item's PICTURE (Cobol.swapTruncOpt)
-        self.trunc_opt = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
@@ -772,17 +769,52 @@ class Gen:
             return jstr(str(self.fig_char(e.kind)) * n)
         return None
 
-    def bin_value(self, it: L.Item, v: Decimal) -> int:
-        """A numeric literal stored in a binary item and read back (TRUNC(BIN), as the runtime: the integer part,
-        the sign dropped for an unsigned item, wrapped to the item's 2 / 4 / 8 bytes)."""
+    @staticmethod
+    def bin_limit(it: L.Item) -> int:
+        """The largest magnitude a binary item keeps under every TRUNC mode (#4749): its bytes' range for COMP-5
+        (no TRUNC truncates it), else also its PICTURE's digits (TRUNC(STD) truncates to them, TRUNC(OPT) stops past
+        them, TRUNC(BIN) keeps the bytes)."""
+        bits = 8 * it.size - (1 if it.signed else 0)
+        top = (1 << bits) - 1
+        return top if it.usage == "COMP-5" else min(top, 10**it.digits - 1)
+
+    def bin_value(self, it: L.Item, v: Decimal) -> int | None:
+        """A numeric literal MOVEd to a binary item, as the item then holds it under every TRUNC mode: the integer
+        part, the sign dropped for an unsigned item, wrapped to a COMP-5 item's 2 / 4 / 8 bytes. None where the
+        mode decides (#4749): a COMP / COMP-4 / BINARY receiver the literal does not fit -- its PICTURE's digits
+        under TRUNC(STD), its bytes under TRUNC(BIN), the named stop under TRUNC(OPT)."""
         n = int(v)  # toward zero
         if not it.signed:
             n = abs(n)
+        if it.usage != "COMP-5" and abs(n) > self.bin_limit(it):
+            return None
         bits = 8 * it.size
         n &= (1 << bits) - 1
         if it.signed and n >= 1 << (bits - 1):
             n -= 1 << bits
         return n
+
+    def store_bin(self, lt, src) -> str | None:
+        """The one store into a typed (lifted) binary item from a MOVE (#4749): what its byte storage would keep under
+        the TRUNC mode the run is in -- folded at translation time only where every mode keeps the same value, else
+        through the runtime's store (Cobol.binary: TRUNC(STD) / (BIN) / (OPT)'s stop, COMP-5's bytes; register
+        C1). None: not a sender a typed binary item takes (the item stays byte storage)."""
+        _kind, name, it = lt
+        if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
+            n = self.bin_value(it, src.value)
+            return f"{name} = {n}L;" if n is not None else self.store_into(E.Ref(it.name), self.const(src.value), False)
+        if isinstance(src, E.Fig) and src.kind == "ZEROS":
+            return f"{name} = 0L;"
+        ls = self.lift(src)
+        if ls and ls[0] == "BIN":
+            s = ls[2]
+            # a sender's long holds whatever its bytes hold (past its PICTURE after a group write, a COMP-5, under
+            # TRUNC(BIN)): copied as is only when the receiver keeps every such value under every mode
+            most = 1 << (8 * s.size - 1) if s.signed else (1 << (8 * s.size)) - 1  # -32768: a magnitude of 2 ** 15
+            if (it.signed or not s.signed) and most <= self.bin_limit(it):
+                return f"{name} = {ls[1]};"
+            return self.store_into(E.Ref(it.name), f"BigDecimal.valueOf({ls[1]})", False)
+        return None
 
     def move_lifted(self, src, lt) -> str:
         kind, name, it = lt
@@ -809,19 +841,8 @@ class Gen:
             if self.is_numeric(src) and not (isinstance(src, E.Ref) and self.resolve(src).category != "NUMERIC"):
                 return self.store_into(E.Ref(it.name), self.num(src), False)
             return self.violate(it)
-        checked = self.trunc_opt and it.usage != "COMP-5"  # #4706: TRUNC(OPT), a value past the PICTURE stops
-        if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
-            if checked and abs(int(src.value)) >= 10**it.digits:
-                return self.store_into(E.Ref(it.name), self.const(src.value), False)
-            return f"{name} = {self.bin_value(it, src.value)}L;"
-        if isinstance(src, E.Fig) and src.kind == "ZEROS":
-            return f"{name} = 0L;"
-        ls = self.lift(src)
-        if ls and ls[0] == "BIN" and ls[2].size == it.size and ls[2].signed == it.signed:
-            if checked:
-                return self.store_into(E.Ref(it.name), f"BigDecimal.valueOf({ls[1]})", False)
-            return f"{name} = {ls[1]};"
-        return self.violate(it)
+        stored = self.store_bin(lt, src)
+        return stored if stored is not None else self.violate(it)
 
     def literal_moved(self, v: Decimal, target: E.Ref) -> Decimal:
         """The literal a MOVE stores. GnuCOBOL (-std=ibm) folds an integer literal MOVEd to a zoned item of scale 0

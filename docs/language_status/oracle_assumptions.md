@@ -178,6 +178,17 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   service -- is proven as TRUNC(STD): a declared difference of kind `option` in its evidence record
   (`equivalence_common.option_differences`). Pinned by `tests/cobol_mainframe/test_trunc_opt.py` (conforming values
   equal cobc's STD output; each non-conforming shape stops).
+- **Typed (lifted) binary items (#4749, fixed).** A det port's typed binary item (a Java `long`, det-port B3) stores
+  what its bytes would under every mode: a literal MOVE is folded at translation time only where STD, BIN and OPT
+  agree (it fits the PICTURE; a COMP-5 item's bytes), an item MOVE is copied as is only where the receiver keeps
+  every value the sender's bytes can hold, and anything else goes through the runtime's store under the run's TRUNC
+  (`Cobol.binary`, as an arithmetic result). Before, a literal MOVE wrapped at the item's bytes and a same-size
+  binary MOVE was copied as is under every mode (`MOVE 12345 TO PIC S9(3) COMP` held 12345, not STD's 345). A
+  synced group's bytes are written back from its typed fields as they are (`Cobol.putBinary`), never stored again: a
+  group MOVE that left X'FFFF' in a `PIC 9(4) COMP` keeps it (STD would have re-truncated it to 5535 on the next
+  whole-group use, OPT would have stopped). Pinned by `tests/cobol_mainframe/test_lifted_binary_trunc.py` (bytes =
+  typed = cobc `-fbinary-truncate` / `-fnotrunc`, signed / unsigned, COMP / COMP-4 / BINARY / COMP-5, halfword /
+  fullword / doubleword, literal and item senders).
 - **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
   would now behave as on z/OS.
 

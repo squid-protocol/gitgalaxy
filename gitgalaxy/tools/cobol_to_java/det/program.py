@@ -578,8 +578,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.write_only_pointers = write_only_pointers(records, proc)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
-    # #4706: under TRUNC(OPT) a typed (lifted) binary item takes no value the runtime has not checked against its PICTURE
-    gen.trunc_opt = trunc_mode(program, options, engine.page(program) if engine is not None else None) == "OPT"
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
     for rec in records:
         gen.root_of[id(rec)] = id(roots[id(rec)])
@@ -1211,7 +1209,7 @@ def sync_code(gen: G.Gen, records: list, roots: dict) -> list[str]:
                 pack.append(f"        Cobol.putText({f}, {name}, CS);")
                 unpack.append(f"        {name} = Cobol.text({f}, CS);")
             elif kind == "BIN":
-                pack.append(f"        Cobol.store({f}, BigDecimal.valueOf({name}), false, CS);")
+                pack.append(f"        Cobol.putBinary({f}, {name});")  # its bytes as they are: no new value (#4749)
                 unpack.append(f"        {name} = Cobol.num({f}, CS).longValue();")
             else:  # NUM: packed for a read; never unpacked (a written group's numbers stay byte storage)
                 pack.append(f"        Cobol.store({f}, {name}, false, CS);")

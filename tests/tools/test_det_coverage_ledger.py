@@ -71,3 +71,26 @@ def test_missing_ledger_fails(monkeypatch, tmp_path):
     monkeypatch.setattr(dcl, "LEDGER", tmp_path / "nope.json")
     problems, _ = dcl.check({}, {})
     assert "not a committed file" in problems[0]
+
+
+def test_last_coverage_keeps_a_scheduled_stale_entry_and_flags_a_blocking_one(monkeypatch):
+    """#4730: harness / oracle staleness leaves the last measurement readable; case / corpus makes it unknown."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    e = entry(measured_at="abc123")
+    assert dcl.last_coverage(CASE, {CASE: e}) == {"coverage": (4, 4, 2, 2), "stale_inputs": [], "blocking": False,
+                                                  "measured_at": "abc123"}  # fmt: skip
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "harness": "z", "oracle": "z"})
+    got = dcl.last_coverage(CASE, {CASE: e})
+    assert got["stale_inputs"] == ["harness", "oracle"] and not got["blocking"] and got["coverage"] == (4, 4, 2, 2)
+    assert dcl.fresh_coverage(CASE, {CASE: e}) is None  # still not "current"
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "harness": "z", "case": "z"})
+    assert dcl.last_coverage(CASE, {CASE: e})["blocking"] is True
+    assert dcl.last_coverage(CASE, {}) is None
+    assert dcl.last_coverage(CASE, {CASE: entry()})["measured_at"] is None  # an entry from before measured_at
+
+
+def test_update_records_the_commit_measured_at(monkeypatch):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    monkeypatch.setattr(dcl, "_head", lambda: "feedface")
+    built = dcl.build({CASE: {"proved": True, "coverage": LINE}}, {})
+    assert built[CASE]["measured_at"] == "feedface"

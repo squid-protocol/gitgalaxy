@@ -14,7 +14,10 @@ directory, the corpus pin, the harness, the oracle -- not the Java generator, wh
      "inputs": {"case": SHA, "corpus": SHA, "harness": SHA, "oracle": SHA}}}}
 
 Every number in it is read off a sweep's coverage line, none is computed or written by hand. A reader
-(proof_blockers.py) trusts an entry only while `fresh()`; a stale or missing entry is "unknown", as before.
+(proof_blockers.py) trusts an entry as CURRENT only while `fresh_coverage()`; a missing entry is "unknown". #4730: a
+stale entry stays readable through `last_coverage()` (the evidence report shows it as the last measurement, marked
+stale) unless a BLOCKING input (case, corpus) changed, which makes it unknown as before. `update` also records
+`measured_at`, the commit the numbers were measured at.
 
 The check (run by `proof_sweep.py --aggregate` in CI's det-sweep, after the verdict ratchet): for every proven case
 in the sweep, the ledger must hold its numbers. It FAILS on a missing entry, on numbers the sweep disagrees with, and on
@@ -76,16 +79,33 @@ def stale(entry: dict[str, Any], now: dict[str, str]) -> list[str]:
 
 def fresh_coverage(case: str, ledger: dict[str, dict[str, Any]]) -> tuple[int, int, int, int] | None:
     """(paragraphs covered, live, branches covered, total) of a case whose entry is fresh in the tree, else None."""
+    last = last_coverage(case, ledger)
+    return last["coverage"] if last and not last["stale_inputs"] else None
+
+
+def measured_at(entry: dict[str, Any]) -> str | None:
+    """The commit an entry was measured at: the `measured_at` recorded by `update` (None for an older entry)."""
+    sha = entry.get("measured_at")
+    return sha if isinstance(sha, str) and sha else None
+
+
+def last_coverage(case: str, ledger: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    """#4730: the case's LAST MEASURED coverage and whether it is still current, or None (no entry / no case).
+
+    {"coverage": (P covered, live, B covered, total), "stale_inputs": [...], "blocking": bool, "measured_at": sha|None}.
+    stale_inputs lists the changed fingerprints; `blocking` is True when a BLOCKING one (case, corpus) changed: that
+    is a real change to the program, the numbers no longer describe it, and a reader must treat it as unknown. A
+    stale harness / oracle only means "not re-checked since": the numbers are still the last measurement."""
     entry = ledger.get(case)
     if not entry or not (CASES / case / "case.json").is_file():
         return None
     try:
-        if stale(entry, fingerprints(case)):
-            return None
+        bad = stale(entry, fingerprints(case))
     except (RuntimeError, KeyError, OSError):
         return None
     p, b = entry["paragraphs"], entry["branches"]
-    return p["covered"], p["live"], b["covered"], b["total"]
+    return {"coverage": (p["covered"], p["live"], b["covered"], b["total"]), "stale_inputs": bad,
+            "blocking": any(n in BLOCKING for n in bad), "measured_at": measured_at(entry)}  # fmt: skip
 
 
 def sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
@@ -100,10 +120,11 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
     """`old` with the entries of the sweep's proven cases rewritten (others kept; an entry for a case no longer
     in the tree dropped)."""
     cases = {c: e for c, e in old.items() if (CASES / c / "case.json").is_file()}
+    head = _head()
     for case, row in sorted(det.items()):
         nums = parse_line(row.get("coverage", "")) if row.get("proved") else None
         if nums is not None:
-            cases[case] = {**nums, "inputs": fingerprints(case)}
+            cases[case] = {**nums, "inputs": fingerprints(case), **({"measured_at": head} if head else {})}
     return dict(sorted(cases.items()))
 
 
@@ -138,6 +159,15 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
         elif bad:
             warnings.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed); refresh when convenient")
     return problems, warnings
+
+
+def _head() -> str | None:
+    """HEAD's sha: the commit a refreshed entry is measured at (#4730; the report's "stale since", never a date)."""
+    import subprocess  # noqa: PLC0415
+
+    r = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],  # noqa: S603, S607
+                       capture_output=True, text=True, check=False)  # fmt: skip
+    return (r.stdout.strip() or None) if r.returncode == 0 else None
 
 
 def _tracked(path: Path) -> bool:

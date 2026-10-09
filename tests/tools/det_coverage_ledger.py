@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """#4270: the det sweep's coverage, committed -- so main can see it.
 
-    python tests/tools/det_coverage_ledger.py update SWEEP [SWEEP ...]   # write tests/equivalence/det_sweep_coverage.json
+    python tests/tools/det_coverage_ledger.py update SWEEP [SWEEP ...]   # write tests/equivalence/det_sweep_coverage/<CASE>.json
     python tests/tools/det_coverage_ledger.py check  SWEEP [SWEEP ...]   # the ratchet CI's det-sweep applies
     python tests/tools/det_coverage_ledger.py migrate                    # #4731: add component fingerprints to current entries
+    python tests/tools/det_coverage_ledger.py split --all | --base REV   # #4789: the retired single file -> per-case files
 
 SWEEP is a `proof_sweep.py --det-only` work directory (or its sweep.json): per case the proof's coverage line,
 "proven on N scenarios, covering P/L paragraphs and B/T branches". The ledger keeps those numbers for each PROVEN
@@ -51,15 +52,13 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 CASES = REPO / "tests" / "equivalence"
-LEDGER = CASES / "det_sweep_coverage.json"
-FORMAT = "det-sweep-coverage/1"
+LEDGER_DIR = CASES / "det_sweep_coverage"  # #4789: one <CASE>.json per case
+LEGACY = CASES / "det_sweep_coverage.json"  # the retired single file (det-sweep-coverage/1)
+FORMAT = "det-sweep-coverage/2"
 INPUTS = ("case", "corpus", "harness", "oracle")
 COMPONENT_INPUTS = ("harness", "oracle")  # #4731: also fingerprinted per component (evidence.py COMPONENTS)
 BLOCKING = ("case", "corpus")  # stale here: the change re-proves the case, so the ledger is refreshed in the same PR
 _LINE = re.compile(r"proven on (\d+) scenarios?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
-ABOUT = ("#4270: the paragraph / branch coverage of each det-proven case, as `proof_sweep.py --det-only` reported it; "
-         "written only by `tests/tools/det_coverage_ledger.py update SWEEP_DIR...`, checked by CI's det-sweep. An entry is "
-         "trusted only while its input fingerprints match the tree (proof_blockers.py); stale or missing stays unknown.")  # fmt: skip
 
 
 def parse_line(line: str) -> dict[str, Any] | None:
@@ -81,8 +80,25 @@ def fingerprints(case: str) -> dict[str, Any]:
             "components": {name: now[name]["components"] for name in COMPONENT_INPUTS}}  # fmt: skip
 
 
-def load(path: Path = LEDGER) -> dict[str, dict[str, Any]]:
-    return json.loads(path.read_text(encoding="utf-8")).get("cases", {}) if path.is_file() else {}
+def path_of(case: str, directory: Path | None = None) -> Path:
+    """#4789: the file of a case's entry."""
+    return (directory or LEDGER_DIR) / f"{case}.json"
+
+
+def load(directory: Path | None = None) -> dict[str, dict[str, Any]]:
+    """{CASE: entry} from the per-case files (#4789); {} when there are none."""
+    directory = directory or LEDGER_DIR
+    out = {}
+    for f in sorted(directory.glob("*.json")) if directory.is_dir() else ():
+        entry = json.loads(f.read_text(encoding="utf-8"))
+        entry.pop("format", None)
+        out[f.stem] = entry
+    return out
+
+
+def render(entry: dict[str, Any]) -> str:
+    """A case file's text: deterministic, so an unchanged entry is an unchanged file."""
+    return json.dumps({"format": FORMAT, **entry}, indent=1) + "\n"
 
 
 def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
@@ -159,8 +175,12 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
 def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
     """(problems, warnings) of the sweep against the ledger."""
     problems, warnings = [], []
-    if not LEDGER.is_file() or not _tracked(LEDGER):
-        problems.append(f"coverage ledger: {LEDGER.name} is not a committed file (git-ignored?)")
+    if LEGACY.exists():
+        problems.append(legacy_problem())
+    if _ignored(path_of("any-case")):
+        problems.append(
+            f"coverage ledger: {LEDGER_DIR.relative_to(REPO)}/*.json is git-ignored, so it cannot be committed"
+        )
     fix = "python tests/tools/det_coverage_ledger.py update <the sweep's DIR(s)>"
     for case in sorted(ledger):
         if not (CASES / case / "case.json").is_file():
@@ -198,12 +218,27 @@ def _head() -> str | None:
     return (r.stdout.strip() or None) if r.returncode == 0 else None
 
 
-def _tracked(path: Path) -> bool:
-    """The file is in git's index (an ignored, uncommitted ledger is not)."""
+def _ignored(path: Path) -> bool:
+    """git would ignore the file (a `*.json` ignore rule once kept the ledger out of PR #4606)."""
     import subprocess  # noqa: PLC0415
 
-    return subprocess.run(["git", "-C", str(REPO), "ls-files", "--error-unmatch", str(path)],  # noqa: S603, S607
+    return subprocess.run(["git", "-C", str(REPO), "check-ignore", "-q", "--no-index", str(path)],  # noqa: S603, S607
                           capture_output=True, check=False).returncode == 0  # fmt: skip
+
+
+SPLIT_RECIPE = (
+    "the single-file coverage ledger tests/equivalence/det_sweep_coverage.json is retired (#4789: one file per case under "
+    "tests/equivalence/det_sweep_coverage/). Move your branch's entries over: while merging origin/main (the modify/delete "
+    "conflict), run\n"
+    '    python tests/tools/det_coverage_ledger.py split --base "$(git merge-base HEAD MERGE_HEAD)"\n'
+    "    git add -A tests/equivalence/det_sweep_coverage.json tests/equivalence/det_sweep_coverage/\n"
+    '(after the merge is committed: --base "$(git merge-base HEAD^1 HEAD^2)"), or delete the file and re-run '
+    "`det_coverage_ledger.py update <your sweep DIR(s)>`."
+)
+
+
+def legacy_problem() -> str:
+    return f"coverage ledger: {SPLIT_RECIPE}"
 
 
 def _show(n: dict[str, Any]) -> str:
@@ -214,8 +249,67 @@ def _show(n: dict[str, Any]) -> str:
         return "?"
 
 
-def write(cases: dict[str, dict[str, Any]], path: Path = LEDGER) -> None:
-    path.write_text(json.dumps({"format": FORMAT, "about": ABOUT, "cases": cases}, indent=1) + "\n", encoding="utf-8")
+def write(cases: dict[str, dict[str, Any]], directory: Path | None = None) -> list[str]:
+    """Make the per-case files exactly `cases` (#4789): write a file only when its text changes, delete the file of a case
+    not in `cases`. Returns the cases whose file changed."""
+    directory = directory or LEDGER_DIR
+    directory.mkdir(parents=True, exist_ok=True)
+    changed = []
+    for case, entry in sorted(cases.items()):
+        f, text = path_of(case, directory), render(entry)
+        if not f.is_file() or f.read_text(encoding="utf-8") != text:
+            f.write_text(text, encoding="utf-8")
+            changed.append(case)
+    for f in sorted(directory.glob("*.json")):
+        if f.stem not in cases:
+            f.unlink()
+            changed.append(f.stem)
+    return changed
+
+
+def legacy_cases(text: str) -> dict[str, dict[str, Any]]:
+    """The entries of a det-sweep-coverage/1 single file."""
+    return dict(json.loads(text).get("cases", {}))
+
+
+def _show_at(rev: str, path: Path) -> str | None:
+    import subprocess  # noqa: PLC0415
+
+    r = subprocess.run(["git", "-C", str(REPO), "show", f"{rev}:{path.relative_to(REPO).as_posix()}"],  # noqa: S603, S607
+                       capture_output=True, text=True, check=False)  # fmt: skip
+    return r.stdout if r.returncode == 0 else None
+
+
+def split(base: str | None, legacy: Path | None = None, directory: Path | None = None) -> list[str]:
+    """#4789: move the retired single file's entries into the per-case files, then delete it. Returns the cases changed.
+
+    base None (`--all`): the per-case files become exactly the single file's entries (the one-shot migration; re-run it
+    after merging a main that still changed the single file). base REV (`--base`): only the entries the single file
+    changed since REV (added, rewritten or dropped) are applied to the per-case files; every other case keeps the file
+    main has. That is the merge of a branch from before #4789: REV is the merge base, where the single file still
+    existed, so the branch's own sweeps land and main's newer entries for other cases stay."""
+    legacy = legacy or LEGACY
+    if not legacy.is_file():
+        raise SystemExit(f"split: no {legacy.relative_to(REPO)} -- nothing to move")
+    mine = legacy_cases(legacy.read_text(encoding="utf-8"))
+    if base is None:
+        cases = mine
+    else:
+        text = _show_at(base, legacy)
+        if text is None:
+            raise SystemExit(f"split: {base} has no {legacy.relative_to(REPO)}: --base must be the merge base from BEFORE "
+                             f"the merge (the commit your branch started from), where the single file still existed")  # fmt: skip
+        then, cases = legacy_cases(text), load(directory)
+        for case in sorted(set(mine) | set(then)):
+            if mine.get(case) == then.get(case):
+                continue
+            if case in mine:
+                cases[case] = mine[case]
+            else:
+                cases.pop(case, None)
+    changed = write(cases, directory)
+    legacy.unlink()
+    return changed
 
 
 def migrate(ledger: dict[str, dict[str, Any]], history: bool = True) -> dict[str, dict[str, Any]]:
@@ -241,24 +335,38 @@ def migrate(ledger: dict[str, dict[str, Any]], history: bool = True) -> dict[str
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=("update", "check", "migrate"))
+    ap.add_argument("mode", choices=("update", "check", "migrate", "split"))
     ap.add_argument("sweep", type=Path, nargs="*", help="proof_sweep.py work directories (or sweep.json files)")
+    how = ap.add_mutually_exclusive_group()
+    how.add_argument(
+        "--all", action="store_true", help="split: every entry of the single file (the one-shot migration)"
+    )
+    how.add_argument("--base", metavar="REV", help="split: only the entries the single file changed since REV")
     args = ap.parse_args(argv)
+    where = LEDGER_DIR.relative_to(REPO)
+    if args.mode == "split":  # #4789
+        if not (args.all or args.base):
+            ap.error("split needs --all (the whole single file) or --base REV (only what your branch changed)")
+        changed = split(None if args.all else args.base)
+        print(f"{where}/: {len(changed)} case file(s) written or removed; {LEGACY.relative_to(REPO)} deleted -- now "
+              f"git add -A {LEGACY.relative_to(REPO)} {where}/")  # fmt: skip
+        return 0
+    if LEGACY.exists() and args.mode in ("update", "migrate"):
+        print(legacy_problem(), file=sys.stderr)
+        return 1
     if args.mode == "migrate":  # #4731: no sweep needed
         old = load()
         cases = migrate(old)
         write(cases)
-        print(
-            f"{LEDGER.relative_to(REPO)}: {sum(1 for c in cases if cases[c] != old[c])} of {len(cases)} entries migrated"
-        )
+        print(f"{where}/: {sum(1 for c in cases if cases[c] != old[c])} of {len(cases)} entries migrated")
         return 0
     if not args.sweep:
         ap.error("update / check need the sweep's work directories")
     det = sweep_rows(args.sweep)
     if args.mode == "update":
         cases = build(det, load())
-        write(cases)
-        print(f"{LEDGER.relative_to(REPO)}: {len(cases)} cases")
+        changed = write(cases)
+        print(f"{where}/: {len(cases)} cases, {len(changed)} file(s) written or removed")
         return 0
     problems, warnings = check(det, load())
     for w in warnings:

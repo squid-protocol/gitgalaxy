@@ -22,7 +22,9 @@ from collections.abc import Callable
 from typing import Any
 
 # Smallest CPU time we trust as a ratio denominator: below this the clock tick, not the code, dominates.
-MIN_RELIABLE_S = 0.002
+# Windows `thread_time` advances in ~15.6 ms ticks, so a 16 ms sample can be a single tick (#4840: 0.0156 s
+# vs 0.1250 s read as 8.0x for a 4x input). 50 ms is >= 3 ticks; size `small` so honest work clears it.
+MIN_RELIABLE_S = 0.05
 
 
 def best_cpu_seconds(work: Callable[[], Any], repeats: int = 5) -> float:
@@ -48,7 +50,7 @@ def assert_scales_linearly(
 
     The default `max_ratio` is the geometric middle between linear (k) and quadratic (k*k), so a
     quadratic regression is caught at k >= 3 with room for noise on both sides. Pick `small` so that
-    `work(small)` takes a few milliseconds of CPU at least (MIN_RELIABLE_S floors the denominator).
+    `work(small)` takes 50+ ms of CPU (several Windows clock ticks) (MIN_RELIABLE_S floors the denominator).
     Returns the measured ratio."""
     k = large / small
     limit = max_ratio if max_ratio is not None else k**1.5

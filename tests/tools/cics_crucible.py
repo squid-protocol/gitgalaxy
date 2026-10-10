@@ -932,6 +932,12 @@ class EquivalenceRunTest {
                             u.get(2).asText()}));
                     t.withUrimaps(defs);
                 }
+                if (plan.hasNonNull("doctemplates")) {
+                    // #4769 zECS (X33): DOCUMENT CREATE TEMPLATE -- the installed DOCTEMPLATEs, name -> the text each yields
+                    Map<String, String> templates = new LinkedHashMap<>();
+                    plan.get("doctemplates").fields().forEachRemaining(e -> templates.put(e.getKey(), e.getValue().asText()));
+                    t.withDoctemplates(templates);
+                }
                 if (plan.hasNonNull("uctranst")) {
                     t.withUctranst(plan.get("uctranst").asText());  // #4415: INQUIRE TERMINAL UCTRANST
                 }
@@ -1336,6 +1342,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
+        "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
@@ -2120,6 +2127,11 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     # #4270 zECS (X32): the URIMAP definitions the case CSD installs, `NAME TRANSACTION PATH` ('-': no transaction)
     (d / "urimaps.cfg").write_text("".join(f"{n} {t or '-'} {p}\n" for n, t, p in case.csd.get("urimaps") or []),
                                    encoding="ascii")  # fmt: skip
+    if (
+        case.data.get("doctemplates") is not None
+    ):  # #4769 zECS (X33): `NAME TEXT-IN-HEX` ('-': empty), the text in latin-1
+        (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode('latin-1').hex().upper() or '-'}\n"
+                                                    for n, t in case.data["doctemplates"].items()), encoding="ascii")  # fmt: skip
     (d / "requests.cfg").write_text("".join(f"{r} {e}\n" for r, e in requests or []), encoding="ascii")
     for i, item in enumerate(data or [], 1):  # #4270: a record's FROM data, and its other data options beside it
         rec = item if isinstance(item, dict) else {"data": item}
@@ -2153,6 +2165,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"GGCICS_URIMAPS=/work/{rel}/urimaps.cfg "  # #4270 zECS (X32)
+           f"{f'GGCICS_DOCTEMPLATES=/work/{rel}/doctemplates.cfg ' if case.data.get('doctemplates') is not None else ''}"  # #4769 (X33)
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
            f"GGCICS_MAPSETS='{mapsets_env(case)}' "  # #4270 (X31): ABM0 for a map its mapset does not hold

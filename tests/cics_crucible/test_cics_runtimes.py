@@ -2097,6 +2097,195 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
         "0 0", "[DFHx plain, zECS start ZXAA]"]  # fmt: skip
 
 
+_X33_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen);
+int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen);
+static gg_cics c;
+static void flags(const char *what) {
+    memset(c.flags, ' ', 40);
+    memcpy(c.flags, what, strlen(what));
+}
+/* argv: `data TEXT LEN`, `tpl NAME`, `empty`, `get MAXLEN INTOSIZE TOKEN` (- : the last token); every create keeps its token */
+int main(int argc, char **argv) {
+    char tok[17] = "                ", last[17] = "                ", into[64], name[48];
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "data") == 0) {
+            flags("DATA");
+            c.len = atoi(argv[i + 2]);
+            GGCDOCC(&c, argv[i + 1], (int)strlen(argv[i + 1]), tok, 16);
+            i += 2;
+            printf("data %d/%d [%.16s]\n", c.resp, c.resp2, tok);
+        } else if (strcmp(argv[i], "tpl") == 0) {
+            flags("TEMPLATE");
+            memset(name, ' ', sizeof name);
+            memcpy(name, argv[i + 1], strlen(argv[i + 1]));
+            GGCDOCC(&c, name, 48, tok, 16);
+            i += 1;
+            printf("tpl %d/%d [%.16s]\n", c.resp, c.resp2, tok);
+        } else if (strcmp(argv[i], "empty") == 0) {
+            flags("EMPTY");
+            GGCDOCC(&c, tok, 0, tok, 16);
+            printf("empty %d/%d [%.16s]\n", c.resp, c.resp2, tok);
+        } else if (strcmp(argv[i], "get") == 0) {
+            int max = atoi(argv[i + 1]), size = atoi(argv[i + 2]);
+            const char *use = i + 3 < argc && strcmp(argv[i + 3], "-") != 0 ? argv[i + 3] : tok;
+            char t[16];
+            memset(t, ' ', 16);
+            memcpy(t, use, strlen(use) < 16 ? strlen(use) : 16);
+            memset(into, '#', sizeof into);
+            c.len = max;
+            GGCDOCR(&c, t, 16, into, size);
+            printf("get %d/%d len=%d [", c.resp, c.resp2, c.len);
+            for (int k = 0; k < size; k++) putchar(into[k] < 32 ? '|' : into[k]); /* (a CR or LF shows as |) */
+            printf("]\n");
+            i += 3;
+        }
+    }
+    (void)last;
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_document_create_and_retrieve(tmp_path):
+    """#4769 (register X33), IBM DOCUMENT CREATE / RETRIEVE: TEXT / BINARY keep LENGTH bytes unchanged; a TEMPLATE yields the
+    installed definition's text (NOTFND RESP2 3 when absent, refused when unstated or when it holds symbols / template
+    commands); a negative LENGTH is LENGERR RESP2 1; RETRIEVE copies at most MAXLENGTH bytes (rest of INTO untouched),
+    LENGTH the document's length, a short buffer LENGERR RESP2 2 with the length it needs, a negative MAXLENGTH LENGERR
+    RESP2 1 (LENGTH untouched), an unknown token NOTFND RESP2 1, MAXLENGTH beyond INTO refused."""
+    exe = _stub(tmp_path, _X33_MAIN)
+    cfg = tmp_path / "doctemplates.cfg"
+    text = "type: AS\r\nhttp://h:1\r\n"
+    cfg.write_text(
+        f"ZC01DC {text.encode().hex().upper()}\nBLANK -\nSYMB {b'Hello &name; there'.hex().upper()}\n"
+        f"CMD {b'a #set x=1 b'.hex().upper()}\nINC {b'#INCLUDE t'.hex().upper()}\n",
+        encoding="ascii",
+    )
+
+    def run(*args, templates=True, check=True):
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+        if templates:
+            env["GGCICS_DOCTEMPLATES"] = str(cfg)
+        (tmp_path / "out").mkdir(exist_ok=True)
+        return subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=check)  # noqa: S603
+
+    out = run(
+        "data", "HELLO WORLD", "5", "get", "20", "20", "-", "tpl", "ZC01DC", "get", "100", "30", "-"
+    ).stdout.splitlines()
+    assert out[0] == "data 0/0 [GGDOC00000000001]"
+    assert out[1] == "get 0/0 len=5 [HELLO###############]"  # the rest of INTO is untouched, LENGTH is the document's
+    assert out[2] == "tpl 0/0 [GGDOC00000000002]"
+    assert out[3] == "get 0/0 len=22 [type: AS||http://h:1||########]"  # (CR, LF each shown as |)
+    o = run(
+        "data",
+        "ABCDEFGH",
+        "8",
+        "get",
+        "3",
+        "8",
+        "-",
+        "get",
+        "0",
+        "8",
+        "-",
+        "get",
+        "-1",
+        "8",
+        "-",
+        "get",
+        "8",
+        "8",
+        "-",
+        "get",
+        "8",
+        "8",
+        "GGDOC9",
+        "data",
+        "X",
+        "-2",
+        "tpl",
+        "NOPE",
+        "empty",
+        "get",
+        "4",
+        "4",
+        "-",
+    ).stdout.splitlines()
+    assert o[1] == "get 22/2 len=8 [ABC#####]"  # truncated to MAXLENGTH; LENGTH is the length the whole document needs
+    assert o[2] == "get 22/2 len=8 [########]"  # a zero-length buffer: the dummy-buffer sizing call IBM describes
+    assert o[3] == "get 22/1 len=-1 [########]"  # MAXLENGTH below zero: LENGTH is not returned (left as the program's)
+    assert o[4] == "get 0/0 len=8 [ABCDEFGH]" and o[5] == "get 1/1 len=8 [########]".replace("1/1", "13/1")
+    assert o[6] == "data 22/1 [GGDOC00000000001]"  # LENGTH negative: LENGERR RESP2 1, the token left alone
+    assert o[7].startswith("tpl 13/3") and o[8] == "empty 0/0 [GGDOC00000000002]"
+    assert o[9] == "get 0/0 len=0 [####]"  # an empty document
+    assert run("tpl", "BLANK", "get", "5", "5", "-").stdout.splitlines()[1] == "get 0/0 len=0 [#####]"
+    for args, why in ((("tpl", "SYMB"), "symbols or template commands"), (("tpl", "CMD"), "symbols or template commands"),
+                      (("tpl", "INC"), "symbols or template commands"), (("data", "ABCDEFGH", "8", "get", "8", "4", "-"), "MAXLENGTH beyond INTO"),
+                      (("data", "AB", "3"), "DOCUMENT CREATE LENGTH")):  # fmt: skip
+        bad = run(*args, check=False)
+        assert bad.returncode == 98 and why in bad.stdout, (args, bad.stdout)
+    unstated = run("tpl", "ZC01DC", templates=False, check=False)
+    assert unstated.returncode == 98 and "document templates are not stated" in unstated.stdout
+
+
+@needs_javac
+def test_cics_task_document_create_and_retrieve_as_the_stub_does(tmp_path):
+    """#4769 (X33): CicsTask answers as the stub does (above): the same tokens, LENGERR RESP2 1 / 2, NOTFND RESP2 1 / 3,
+    the truncation length, the template text, an unstated or symbol-bearing template refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.nio.charset.Charset cs = java.nio.charset.StandardCharsets.ISO_8859_1;
+        CicsTask t = new CicsTask("HC41", "ENTER", null, null).withDoctemplates(java.util.Map.of(
+                "ZC01DC", "type: AS\\r\\nhttp://h:1\\r\\n", "BLANK", "", "SYMB", "Hello &name; there",
+                "CMD", "a #set x=1 b", "INC", "#INCLUDE t"));
+        CicsTask.DocumentCreated d = t.documentCreateData("ABCDEFGH".getBytes(cs), 8);
+        System.out.println(d.resp() + "/" + d.resp2() + " " + d.doctoken());
+        for (int max : new int[] {3, 0, -1, 8, 20}) {
+            CicsTask.DocumentData r = t.documentRetrieve(d.doctoken() + "   ", max);
+            System.out.println(r.resp() + "/" + r.resp2() + " " + r.length() + " " + (r.data() == null ? "-" : new String(r.data(), cs)));
+        }
+        CicsTask.DocumentData bad = t.documentRetrieve("GGDOC9", 8);
+        System.out.println(bad.resp() + "/" + bad.resp2() + " " + bad.length() + " " + bad.data());
+        CicsTask.DocumentCreated neg = t.documentCreateData(null, -2);
+        System.out.println(neg.resp() + "/" + neg.resp2() + " " + neg.doctoken());
+        CicsTask.DocumentCreated tp = t.documentCreateTemplate("ZC01DC".concat(" ".repeat(42)), cs);
+        System.out.println(tp.resp() + "/" + tp.resp2() + " " + tp.doctoken());
+        CicsTask.DocumentData tr = t.documentRetrieve(tp.doctoken(), 100);
+        System.out.println(tr.resp() + "/" + tr.length() + " " + new String(tr.data(), cs).replace("\\r\\n", "|"));
+        CicsTask.DocumentCreated none = t.documentCreateTemplate("NOPE", cs);
+        System.out.println(none.resp() + "/" + none.resp2() + " " + none.doctoken());
+        CicsTask.DocumentCreated e = t.documentCreateEmpty();
+        CicsTask.DocumentData er = t.documentRetrieve(e.doctoken(), 4);
+        System.out.println(e.doctoken() + " " + er.resp() + "/" + er.length() + "/" + er.data().length);
+        System.out.println(t.documentRetrieve(t.documentCreateTemplate("BLANK", cs).doctoken(), 5).length());
+        for (String name : new String[] {"SYMB", "CMD", "INC"}) {
+            try {
+                t.documentCreateTemplate(name, cs);
+            } catch (UnsupportedOperationException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+        try {
+            new CicsTask("HC41", "ENTER", null, null).documentCreateTemplate("ZC01DC", cs);
+        } catch (UnsupportedOperationException ex) {
+            System.out.println(ex.getMessage());
+        }""",
+    )
+    sym = "DOCUMENT CREATE TEMPLATE text with symbols or template commands: not modelled"
+    assert out.splitlines() == [
+        "0/0 GGDOC00000000001", "22/2 8 ABC", "22/2 8 ", "22/1 -1 -", "0/0 8 ABCDEFGH", "0/0 8 ABCDEFGH",
+        "13/1 -1 null", "22/1 null", "0/0 GGDOC00000000002", "0/22 type: AS|http://h:1|", "13/3 null",
+        "GGDOC00000000003 0/0/0", "0", sym, sym, sym,
+        "the installed document templates are not stated (withDoctemplates): not modelled"]  # fmt: skip
+
+
 def test_scheduler_states_each_tasks_startcode():
     """#4270 slice 3: a terminal step's task is STARTCODE TD; a START-triggered one S / SD by its requests' FROM, a
     group that mixes them none (refused)."""

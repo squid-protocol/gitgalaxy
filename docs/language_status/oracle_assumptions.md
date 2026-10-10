@@ -135,6 +135,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X30 | CICS | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-named-counters, unreleased) |
 | X31 | CICS | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | yes (cics-crucible hc-map-not-in-mapset, unreleased) |
 | X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
+| X33 | CICS | DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1642,6 +1643,44 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `gt-urimap-browse` on the cobol-stub
   side and the det port; unit-proven on `CicsTask` and the stub C (tests/cics_crucible/test_cics_runtimes.py). zECS's ZECSPLT
   translates whole and compiles.
+
+### X33. DOCUMENT CREATE and DOCUMENT RETRIEVE (the document handler) — ASSUMED, REFUSED where IBM is silent (#4769, zECS)
+- **DOCUMENT CREATE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-document-create). DOCTOKEN "a 16-byte area that
+  receives the CICS-generated token"; TEXT "copied unchanged"; BINARY "used unchanged as the document content"; TEMPLATE "the
+  48-byte name of an RDO-defined template, padded with blanks"; LENGTH "the length of the TEXT, BINARY or FROM buffer".
+  Conditions: LENGERR RESP2 1 "LENGTH is negative"; NOTFND RESP2 3 "The TEMPLATE was not found or was misnamed" (the page words
+  TEMPLATERR as "the template does not exist" too: the table's NOTFND 3 is taken); NOTAUTH (no security in the region).
+  Modelled (`CicsTask.documentCreateEmpty` / `documentCreateData` / `documentCreateTemplate`, the stub's `GGCDOCC`): a
+  document is the bytes the task built, in the program's own code page, kept as long as the task (every program it LINKs to
+  shares it); the token goes to the area on NORMAL only.
+- **DOCUMENT RETRIEVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-document-retrieve). MAXLENGTH "the maximum
+  amount of data the buffer can receive"; LENGTH "the amount of data returned. If the document is truncated, this is the exact
+  length required to return the whole document"; there is no TRUNCATE option, "truncation is reported through LENGERR with
+  RESP2 2". Conditions: LENGERR RESP2 1 "MAXLENGTH is less than zero. LENGTH is not returned", RESP2 2 "The receiving buffer is
+  zero length or too short", NOTFND RESP2 1 "The document was not created, or the name is incorrectly specified".
+  Modelled (`CicsTask.documentRetrieve`, `DetCics.putDocument`, the stub's `GGCDOCR`).
+- **What IBM leaves open, and what we do.** (1) The DOCTOKEN's value is ours (`GGDOC` and eleven digits, blank-padded to the
+  area); a program must not read meaning into it. (2) The installed DOCTEMPLATEs are a fact whoever runs the task states
+  (`CicsTask.withDoctemplates`, `$GGCICS_DOCTEMPLATES`, an equivalence case's "doctemplates", name to text), after the
+  definition's own attributes (zECS's `APPENDCRLF(YES) TYPE(EBCDIC)`: the record's CRLF) are applied by whoever states it;
+  unstated, a TEMPLATE is refused. (3) The rest of INTO after a short document, and LENGTH on any condition but NORMAL and
+  LENGERR RESP2 2: left alone (ASSUMED). (4) Bytes are kept as the program holds them, with no host code-page conversion
+  (IBM says TEXT is "copied unchanged"; the conversion only happens on a SEND). **Refused by name**: FROM and FROMDOC (the
+  retrieved-document format and its embedded tags, and the template language run over it), SYMBOLLIST / LISTLENGTH /
+  DELIMITER / UNESCAPED (the symbol table), DOCSIZE (the size CICS counts, tags included), HOSTCODEPAGE / CHARACTERSET /
+  CLNTCODEPAGE (code pages), a RETRIEVE without DATAONLY (the tags CICS embeds are not laid out) or without MAXLENGTH (no
+  stated default), a CREATE of TEXT / BINARY without LENGTH (no stated default), a literal TEXT / BINARY / DOCTOKEN (the
+  COBOL form takes a data area); at run time a template whose text holds symbols (`&name;`) or template commands (`#set`,
+  `#include`, `#echo`), a LENGTH past the TEXT / BINARY area and a document longer than INTO that MAXLENGTH lets through
+  (CICS reads or writes the storage that follows, which GnuCOBOL lays out unlike IBM's compiler: X6), and templates the run
+  does not state. DOCUMENT INSERT / SET / DELETE stay refused whole: no corpus program uses them.
+- **Not modelled / unobserved**: a document built from several parts (INSERT, bookmarks), the symbol table and the template
+  language, code-page conversion, a document kept past its task. No cics-crucible case proves it yet: the crucible's case
+  format has no way to state the installed template text (a SPEC change, a separate PR in that repository).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on `CicsTask` and the stub C
+  (tests/cics_crucible/test_cics_runtimes.py: both answer alike); the translators' refusals are tested in
+  tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. zECS's ZECS000 / ZECS001 / ZECS003 DOCUMENT
+  statements translate (ZECS001's five and ZECS000 / ZECS003's remaining statements still need WEB).
 
 ## Language Environment
 

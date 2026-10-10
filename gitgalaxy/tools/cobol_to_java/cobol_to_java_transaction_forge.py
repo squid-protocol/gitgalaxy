@@ -798,6 +798,87 @@ public class CicsTask {
         return 0;
     }
 
+    // #4769 zECS (register X33): the document handler's DOCUMENT CREATE and DOCUMENT RETRIEVE (IBM CICS TS, EXEC CICS
+    // DOCUMENT CREATE, DOCUMENT RETRIEVE). A document is the bytes the task built, named by a 16-byte DOCTOKEN CICS gives;
+    // it lives as long as the task (every program the task LINKs to shares it). The installed DOCTEMPLATEs (name and the
+    // text each yields) are a fact whoever runs the task states, never guessed.
+    private java.util.Map<String, String> doctemplates;
+    private final java.util.Map<String, byte[]> documents = new LinkedHashMap<>();
+    private int documentSeq;
+
+    /** The DOCTEMPLATE definitions installed in the region: name -> the text the template yields (whoever states it has
+     *  applied the definition's own attributes, APPENDCRLF and TYPE). Not stated (never called), a CREATE of a TEMPLATE is
+     *  refused. */
+    public CicsTask withDoctemplates(java.util.Map<String, String> templates) {
+        this.doctemplates = templates;
+        return this;
+    }
+
+    /** DOCUMENT CREATE's outcome: RESP, RESP2 and the DOCTOKEN (null unless NORMAL). */
+    public record DocumentCreated(int resp, int resp2, String doctoken) {
+    }
+
+    /** DOCUMENT RETRIEVE's outcome: RESP, RESP2, the LENGTH it returns (-1: none) and the data moved INTO (null: none). */
+    public record DocumentData(int resp, int resp2, int length, byte[] data) {
+    }
+
+    private DocumentCreated newDocument(byte[] data) {
+        CicsTask r = root();
+        String token = String.format(java.util.Locale.ROOT, "GGDOC%011d", ++r.documentSeq);
+        r.documents.put(token, data.clone());
+        return new DocumentCreated(0, 0, token);
+    }
+
+    /** DOCUMENT CREATE DOCTOKEN with no source: an empty document. */
+    public DocumentCreated documentCreateEmpty() {
+        return newDocument(new byte[0]);
+    }
+
+    /** DOCUMENT CREATE TEXT / BINARY(data) LENGTH(length): the document is the data, unchanged. LENGERR RESP2 1 for a
+     *  negative LENGTH (data is null then). */
+    public DocumentCreated documentCreateData(byte[] data, int length) {
+        if (length < 0 || data == null) {
+            return new DocumentCreated(22, 1, null);
+        }
+        return newDocument(data);
+    }
+
+    /** DOCUMENT CREATE TEMPLATE(name): the text the installed DOCTEMPLATE of that name yields (a 48-byte name is
+     *  blank-padded, so trailing blanks are not part of it), in the program's code page `cs`. NOTFND RESP2 3 for a
+     *  template that is not installed. Symbols (&name;) and template commands (#set, #include, #echo) in the text are
+     *  refused: the template language is not modelled. */
+    public DocumentCreated documentCreateTemplate(String name, java.nio.charset.Charset cs) {
+        java.util.Map<String, String> t = root().doctemplates;
+        if (t == null) {
+            throw refused("the installed document templates are not stated (withDoctemplates)");
+        }
+        String text = t.get(name.stripTrailing());
+        if (text == null) {
+            return new DocumentCreated(13, 3, null);
+        }
+        if (java.util.regex.Pattern.compile("(?is)#(set|include|echo)|&[A-Za-z][A-Za-z0-9._-]*;").matcher(text).find()) {
+            throw refused("DOCUMENT CREATE TEMPLATE text with symbols or template commands");
+        }
+        return newDocument(text.getBytes(cs));
+    }
+
+    /** DOCUMENT RETRIEVE DOCTOKEN INTO MAXLENGTH(maxLength) DATAONLY: the document, truncated to maxLength with LENGERR
+     *  RESP2 2 when longer (LENGTH is then the length the whole document needs); NOTFND RESP2 1 for a token CICS did not
+     *  give; LENGERR RESP2 1 for a negative MAXLENGTH (no LENGTH). */
+    public DocumentData documentRetrieve(String doctoken, int maxLength) {
+        byte[] doc = root().documents.get(doctoken.stripTrailing());
+        if (doc == null) {
+            return new DocumentData(13, 1, -1, null);
+        }
+        if (maxLength < 0) {
+            return new DocumentData(22, 1, -1, null);
+        }
+        if (doc.length > maxLength) {
+            return new DocumentData(22, 2, doc.length, Arrays.copyOf(doc, maxLength));
+        }
+        return new DocumentData(0, 0, doc.length, doc.clone());
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;

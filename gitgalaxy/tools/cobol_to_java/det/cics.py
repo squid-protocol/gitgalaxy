@@ -1068,48 +1068,59 @@ class Cics:
             return self.send_control(opts, ind)
         if verb == "RECEIVE":
             return self.receive(opts, ind)
-        if verb.startswith("DOCUMENT "):
-            return self.document(verb, opts, ind)
+        if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
+            return self.document(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
         raise CicsError(known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled")
 
-    def document(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """DOCUMENT (IBM CICS TS, EXEC CICS DOCUMENT CREATE / RETRIEVE / INSERT / SET)."""
-        r = self.g.tmpname("resp")
-        doctoken = self.read_field(_arg(opts.get("DOCTOKEN"))) if "DOCTOKEN" in opts else "null"
-        
-        if verb == "DOCUMENT CREATE":
-            template = self.name(_arg(opts.get("TEMPLATE"))) if "TEMPLATE" in opts else "null"
-            frm = self.read_field(_arg(opts.get("FROM"))) if "FROM" in opts else "null"
-            length = self.int_(_arg(opts.get("LENGTH"))) if "LENGTH" in opts else (f"DetCics.size({frm})" if frm != "null" else (f"DetCics.size({self.read_field(_arg(opts['TEXT']))})" if "TEXT" in opts else "0"))
-            text = self.read_field(_arg(opts.get("TEXT"))) if "TEXT" in opts else "null"
-            out = [f"{ind}CicsTask.DocumentResult {r} = task.documentCreate({template}, {frm}, {length}, {text});",
-                   self.g.store_into(self.ref(_arg(opts["DOCTOKEN"])), f"{r}.doctoken", False),
-                   *self.outcome(opts, f"{r}.resp", "0", ind)]
-            return out
-        elif verb == "DOCUMENT RETRIEVE":
-            into = self.ref(_arg(opts["INTO"]))
-            length_ref = self.ref(_arg(opts["LENGTH"]))
-            maxlength = self.int_(_arg(opts.get("MAXLENGTH"))) if "MAXLENGTH" in opts else (f"DetCics.size({into})" if into != "null" else "0")
-            dataonly = "true" if "DATAONLY" in opts else "false"
-            out = [f"{ind}CicsTask.DocumentResult {r} = task.documentRetrieve({doctoken}, {maxlength}, {dataonly});",
-                   self.g.store_into(into, f"{r}.data", False),
-                   self.g.store_into(length_ref, f"BigDecimal.valueOf({r}.length)", False),
-                   *self.outcome(opts, f"{r}.resp", "0", ind)]
-            return out
-        elif verb in ("DOCUMENT INSERT", "DOCUMENT SET"):
-            template = self.name(_arg(opts.get("TEMPLATE"))) if "TEMPLATE" in opts else "null"
-            frm = self.read_field(_arg(opts.get("FROM"))) if "FROM" in opts else "null"
-            length = self.int_(_arg(opts.get("LENGTH"))) if "LENGTH" in opts else (f"DetCics.size({frm})" if frm != "null" else (f"DetCics.size({self.read_field(_arg(opts['TEXT']))})" if "TEXT" in opts else "0"))
-            text = self.read_field(_arg(opts.get("TEXT"))) if "TEXT" in opts else "null"
-            method_name = "documentInsert" if verb == "DOCUMENT INSERT" else "documentSet"
-            out = [f"{ind}int {r} = task.{method_name}({doctoken}, {template}, {frm}, {length}, {text});",
-                   *self.outcome(opts, r, "0", ind)]
-            return out
-        else:
-            raise CicsError(f"EXEC CICS {verb} not modelled")
+    def document(self, key: str, opts: dict, ind: str) -> list[str]:
+        """DOCUMENT CREATE / DOCUMENT RETRIEVE (IBM CICS TS, EXEC CICS DOCUMENT CREATE, DOCUMENT RETRIEVE; register X33)
+        on the task's documents (CicsTask). CREATE: an empty document, TEXT / BINARY(area) LENGTH(n) (the area's bytes,
+        unchanged) or TEMPLATE(name) (the text the installed DOCTEMPLATE yields, as the run states it), its DOCTOKEN
+        written on NORMAL only; LENGERR RESP2 1 (negative LENGTH), NOTFND RESP2 3 (no such template). RETRIEVE: the
+        document INTO the area, at most MAXLENGTH bytes (rest of INTO left alone), LENGTH its length (the length it needs
+        when truncated: LENGERR RESP2 2); NOTFND RESP2 1 (no such token); LENGERR RESP2 1 (MAXLENGTH below zero, no LENGTH).
+        Every other option is refused by name by the spec entry (check_options); the rules that need the options together
+        are the entry's groups."""
+        g = self.g
+        r = g.tmpname("doc")
+        if not opts.get("DOCTOKEN"):
+            raise CicsError(_msg(key, "required", "DOCTOKEN"))
+        if key == "DOCUMENT CREATE":
+            given = [o for o in ("TEXT", "BINARY", "TEMPLATE") if o in opts]
+            if len(given) > 1:
+                raise CicsError(_msg(key, "at_most_one", "TEXT"))
+            for o in ("TEXT", "BINARY"):
+                if o in opts and "LENGTH" not in opts:
+                    raise CicsError(_msg(key, "requires", "TEXT"))
+            if "LENGTH" in opts and not ("TEXT" in opts or "BINARY" in opts):
+                raise CicsError(_msg(key, "requires", "LENGTH"))
+            if "TEXT" in opts or "BINARY" in opts:
+                area = _arg(opts["TEXT"] if "TEXT" in opts else opts["BINARY"])
+                n = self.int_(_arg(opts["LENGTH"]))
+                call = f"task.documentCreateData(DetCics.documentBytes({self.read_field(area)}, {n}), {n})"
+            elif "TEMPLATE" in opts:
+                call = f"task.documentCreateTemplate({self.name(_arg(opts['TEMPLATE']))}, CS)"
+            else:
+                call = "task.documentCreateEmpty()"
+            return [f"{ind}CicsTask.DocumentCreated {r} = {call};",
+                    f"{ind}if ({r}.resp() == 0) DetCics.putText({self.field(_arg(opts['DOCTOKEN']))}, {r}.doctoken(), CS);",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        for o in ("INTO", "MAXLENGTH", "DATAONLY"):
+            if o not in opts:
+                raise CicsError(_msg(key, "required", o))
+        token = self.read_field(_arg(opts["DOCTOKEN"]))
+        maxlength = self.int_(_arg(opts["MAXLENGTH"]))
+        out = [f"{ind}CicsTask.DocumentData {r} = task.documentRetrieve(Cobol.text({token}, CS), {maxlength});",
+               f"{ind}if ({r}.data() != null) DetCics.putDocument({self.field(_arg(opts['INTO']))}, {r}.data());"]  # fmt: skip
+        if "LENGTH" in opts:  # (written after MAXLENGTH was read: ZECS gives both the same area)
+            out.append(
+                f"{ind}if ({r}.length() >= 0) "
+                + g.store_into(self.ref(_arg(opts["LENGTH"])), f"BigDecimal.valueOf({r}.length())", False)
+            )
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     # -- #4270: channels and containers
     def container(self, key: str, opts: dict, ind: str) -> list[str]:

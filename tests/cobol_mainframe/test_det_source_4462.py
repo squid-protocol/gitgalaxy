@@ -1,6 +1,6 @@
 """#4462: what the det translator reads before it parses -- the code page the estate declares (estate-crucible
 `key/manifest.json` `code_pages`, which the engine reads through `--source-encoding`), free-format source, and the
-text it refuses by name instead of crashing (national / DBCS text, a national letter in a name), and DECIMAL-POINT IS
+text it refuses by name instead of crashing (national / DBCS text; a national letter in a name is read since #4664), and DECIMAL-POINT IS
 COMMA (read; a literal written with a decimal point under it refused by name)."""
 
 from __future__ import annotations
@@ -102,10 +102,6 @@ def test_engine_copies_carry_the_pages_from_the_ir_and_the_port_ticket(tmp_path)
         (("01  F02 PIC X.", "PROCEDURE DIVISION.", "    MOVE N'漢字' TO F02", "    GOBACK."),
          r"PROG\.cbl:7: national / DBCS text"),
         (("01　F02 PIC X.", "PROCEDURE DIVISION.", "    GOBACK."), r"U\+3000"),  # an ideographic space
-        # ZINSBER read in cp273: a national letter in a name the grammar cannot read (it refused the line unnamed)
-        (("01  BETRÄGE PIC 9(3).", "PROCEDURE DIVISION.", "    GOBACK."),
-         r"PROG\.cbl:5: the name BETRÄGE holds a national letter"),
-        (("01  B PIC X(4).", "PROCEDURE DIVISION.", "    MOVE 'Ä' TO GEBÜHR", "    GOBACK."), r"the name GEBÜHR"),
         # under DECIMAL-POINT IS COMMA, `1.5` is no number the compiler reads (`1,5` is: test_decimal_point_is_comma_*)
         (("01  B PIC 9(7)V99 VALUE 1000,00.", "PROCEDURE DIVISION.", "    MOVE 1.5 TO B", "    GOBACK."), None),
     ],
@@ -126,6 +122,19 @@ def test_text_the_translator_cannot_read_is_refused_by_name(body, why):
         L.parse(lines)
     with pytest.raises(E.ExprError, match=why):
         ST.parse(lines)
+
+
+def test_a_single_byte_national_letter_in_a_name_is_read_under_its_own_name():
+    """#4664 (was refused since #4462): ZINSBER read in cp273 names GEBÜHR / BETRÄGE. The grammar reads ASCII words
+    only, so it is handed a same-length copy (each such byte an `a`); names and literals are cut from the source."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    lines = _lines("01  BETRÄGE PIC X(4).", "01  BETRAGE PIC X(4).", "PROCEDURE DIVISION.", "    MOVE 'GEBÜ' TO BETRÄGE",
+                   "    GOBACK.")  # fmt: skip
+    assert [r.name for r in L.parse(lines)] == ["BETRÄGE", "BETRAGE"]  # two names, not one
+    assert "'GEBÜ'" in repr(ST.parse(lines)) and "BETRÄGE" in repr(ST.parse(lines))
 
 
 def _dpc(*body: str) -> list:

@@ -131,9 +131,111 @@ def required_checks(api: pr_check.Api) -> set[str] | None:
             for c in r.get("parameters", {}).get("required_status_checks", [])}  # fmt: skip
 
 
+def _rerun_why(state: dict[str, Any], n: int, sha: str, key: str, tries: int) -> str:
+    seen = state["seen"].get(str(n), {})
+    used = seen.get(key) if seen.get("sha") == sha and isinstance(seen.get(key), list) else []
+    if len(used) >= tries:
+        return f"{tries} reruns used up"
+    return f"{len(used)}/{tries} reruns used; the next waits {RETRY_GAP // 60} min after the last"
+
+
+def _pass_one(
+    state: dict[str, Any],
+    n: int,
+    res: dict[str, Any],
+    api: pr_check.Api,
+    run: Run,
+    digest: Callable[[int], dict[str, Any]],
+    settle: float,
+    did: list[str],
+) -> None:
+    """One open PR's part of a pass. Appends what it did, or why it did nothing."""
+    base = state["after"].get(str(n))
+    if base and base in state["queue"]:
+        did.append(f"#{n} waits for #{base}")
+        return
+    sha = res["head_sha"]
+    if res["ready"]:
+        errors = pr_check.merge(res, run)
+        if errors:
+            did.append(f"#{n} merge failed: {'; '.join(errors)}")
+            return
+        state["queue"].remove(n)
+        did.append(f"#{n} MERGED (head {sha[:12]})")
+        if any(f["path"] == pr_check.PIN_FILE for f in res["files"]):
+            did.append(pr_check.sync_pins(run))
+        time.sleep(settle)  # GitHub recomputes the others' mergeability
+        return
+    failed = res["checks"]["failed"]
+    if not failed and not res["checks"]["pending"] and res["mergeable_state"] == "behind":
+        if once(state, n, sha, "update-branch"):
+            r = run(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG])
+            did.append(f"#{n} behind: branch updated" if not r.returncode
+                       else f"#{n} behind: update-branch failed: {r.stderr.strip()[:120]}")  # fmt: skip
+        else:
+            did.append(f"#{n} behind main: branch already updated for head {sha[:12]}, waiting for its checks")
+        return
+    if not failed and res["mergeable_state"] != "dirty":
+        did.append(f"#{n} waiting: {len(res['checks']['pending'])} pending")
+        return
+    d = digest(n)
+    kinds = {f["triage"] for f in d["failed"]} or ({"dirty"} if res["mergeable_state"] == "dirty" else set())
+    if "main" in kinds:
+        did.append(f"#{n} waits for main: {', '.join(f['check'] for f in d['failed'] if f['triage'] == 'main')} "
+                   "fails on main too (no PR note)")  # fmt: skip
+    # An infra failure of a check main does not require (muninn on a Docker Hub outage) stops blocking once its
+    # reruns are used up; a real finding there still blocks, and a required check always does.
+    required = required_checks(api)
+    if (d["failed"] and kinds == {"infra"} and required is not None and not res["checks"]["pending"]
+            and res["mergeable_state"] not in ("dirty", "behind", "blocked")
+            and all(f["check"] not in required for f in d["failed"])
+            and all(reruns_used_up(state, n, sha, f"rerun:{f['check']}", INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
+        errors = pr_check.merge(res, run)
+        names = ", ".join(f["check"] for f in d["failed"])
+        if errors:
+            did.append(f"#{n} merge failed: {'; '.join(errors)}")
+        else:
+            state["queue"].remove(n)
+            did.append(f"#{n} MERGED past non-required infra failure(s) after {INFRA_RETRIES} reruns: {names}")
+            comment(n, f"CI shepherd: merged with {names} failing for infrastructure reasons only (not a "
+                       f"required check; rerun {INFRA_RETRIES} times, 15 min apart). Its next run on main "
+                       "will report again.", run)  # fmt: skip
+        return
+    for f in d["failed"]:
+        tries = INFRA_RETRIES if f["triage"] == "infra" else 1
+        if f["triage"] not in ("infra", "flake"):
+            continue
+        key = f"rerun:{f['check']}"
+        if not f.get("run_id"):
+            did.append(f"#{n} blocked: {f['check']} ({f['triage']}) -- no action: no run id in its URL to rerun")
+        elif retry_due(state, n, sha, key, tries, now()):
+            r = run(["gh", "run", "rerun", str(f["run_id"]), "--failed", "-R", REPO_SLUG])
+            did.append(f"#{n} rerun {f['check']} ({f['triage']}): "
+                       f"{'ok' if not r.returncode else r.stderr.strip()[:120]}")  # fmt: skip
+        else:
+            did.append(f"#{n} blocked: {f['check']} ({f['triage']}) -- no action: {_rerun_why(state, n, sha, key, tries)}")  # fmt: skip
+    if "dirty" in kinds and once(state, n, sha, "note:dirty"):
+        comment(n, "CI shepherd: this PR conflicts with main, so no checks ran. Merge `origin/main` into it and "
+                   "regenerate generated files with their tools (never hand-merge them; see "
+                   "`.claude/agents/gitgalaxy-pr-worker.md`), then push.", run)  # fmt: skip
+        did.append(f"#{n} dirty: noted")
+    if "real" in kinds and once(state, n, sha, "note:real"):
+        real = {**d, "failed": [f for f in d["failed"] if f["triage"] == "real"]}
+        comment(n, "CI shepherd: real failure(s) on this head. Reproduce locally with the `repro` line; don't "
+                   "re-push to find out.\n\n```\n" + ci_digest.render(real) + "\n```", run)  # fmt: skip
+        did.append(f"#{n} real failure: digest posted")
+        fixer = os.environ.get("CI_SHEPHERD_FIXER")
+        if fixer:
+            path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
+            path.write_text(json.dumps(real, indent=1), encoding="utf-8")
+            subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
+            did.append(f"#{n} fixer started: {fixer} {n} {path}")
+
+
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
          digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
-    """One pass over the queue. Returns what it did (for the log and the tests)."""
+    """One pass over the queue. Returns what it did (for the log and the tests). Every queued PR gets at least one
+    line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837)."""
     digest = digest or (lambda n: ci_digest.digest(n, api))
     did: list[str] = []
     for n in list(state["queue"]):
@@ -142,82 +244,14 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
             state["queue"].remove(n)
             did.append(f"#{n} {res['state']}: left the queue")
             continue
-        base = state["after"].get(str(n))
-        if base and base in state["queue"]:
-            did.append(f"#{n} waits for #{base}")
-            continue
-        sha = res["head_sha"]
-        if res["ready"]:
-            errors = pr_check.merge(res, run)
-            if errors:
-                did.append(f"#{n} merge failed: {'; '.join(errors)}")
-                continue
-            state["queue"].remove(n)
-            did.append(f"#{n} MERGED (head {sha[:12]})")
-            if any(f["path"] == pr_check.PIN_FILE for f in res["files"]):
-                did.append(pr_check.sync_pins(run))
-            time.sleep(settle)  # GitHub recomputes the others' mergeability
-            continue
-        failed = res["checks"]["failed"]
-        if not failed and not res["checks"]["pending"] and res["mergeable_state"] == "behind":
-            if once(state, n, sha, "update-branch"):
-                r = run(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG])
-                did.append(f"#{n} behind: branch updated" if not r.returncode
-                           else f"#{n} behind: update-branch failed: {r.stderr.strip()[:120]}")  # fmt: skip
-            continue
-        if not failed and res["mergeable_state"] != "dirty":
-            did.append(f"#{n} waiting: {len(res['checks']['pending'])} pending")
-            continue
-        d = digest(n)
-        kinds = {f["triage"] for f in d["failed"]} or ({"dirty"} if res["mergeable_state"] == "dirty" else set())
-        if "main" in kinds:
-            did.append(f"#{n} waits for main: {', '.join(f['check'] for f in d['failed'] if f['triage'] == 'main')} "
-                       "fails on main too (no PR note)")  # fmt: skip
-        # An infra failure of a check main does not require (muninn on a Docker Hub outage) stops blocking once its
-        # reruns are used up; a real finding there still blocks, and a required check always does.
-        required = required_checks(api)
-        if (d["failed"] and kinds == {"infra"} and required is not None and not res["checks"]["pending"]
-                and res["mergeable_state"] not in ("dirty", "behind", "blocked")
-                and all(f["check"] not in required for f in d["failed"])
-                and all(reruns_used_up(state, n, sha, f"rerun:{f['check']}", INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
-            errors = pr_check.merge(res, run)
-            names = ", ".join(f["check"] for f in d["failed"])
-            if errors:
-                did.append(f"#{n} merge failed: {'; '.join(errors)}")
-            else:
-                state["queue"].remove(n)
-                did.append(f"#{n} MERGED past non-required infra failure(s) after {INFRA_RETRIES} reruns: {names}")
-                comment(n, f"CI shepherd: merged with {names} failing for infrastructure reasons only (not a "
-                           f"required check; rerun {INFRA_RETRIES} times, 15 min apart). Its next run on main "
-                           "will report again.", run)  # fmt: skip
-            continue
-        for f in d["failed"]:
-            tries = INFRA_RETRIES if f["triage"] == "infra" else 1
-            if (
-                f["triage"] in ("infra", "flake")
-                and f.get("run_id")
-                and retry_due(state, n, sha, f"rerun:{f['check']}", tries, now())
-            ):
-                r = run(["gh", "run", "rerun", str(f["run_id"]), "--failed", "-R", REPO_SLUG])
-                did.append(
-                    f"#{n} rerun {f['check']} ({f['triage']}): {'ok' if not r.returncode else r.stderr.strip()[:120]}"
-                )
-        if "dirty" in kinds and once(state, n, sha, "note:dirty"):
-            comment(n, "CI shepherd: this PR conflicts with main, so no checks ran. Merge `origin/main` into it and "
-                       "regenerate generated files with their tools (never hand-merge them; see "
-                       "`.claude/agents/gitgalaxy-pr-worker.md`), then push.", run)  # fmt: skip
-            did.append(f"#{n} dirty: noted")
-        if "real" in kinds and once(state, n, sha, "note:real"):
-            real = {**d, "failed": [f for f in d["failed"] if f["triage"] == "real"]}
-            comment(n, "CI shepherd: real failure(s) on this head. Reproduce locally with the `repro` line; don't "
-                       "re-push to find out.\n\n```\n" + ci_digest.render(real) + "\n```", run)  # fmt: skip
-            did.append(f"#{n} real failure: digest posted")
-            fixer = os.environ.get("CI_SHEPHERD_FIXER")
-            if fixer:
-                path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
-                path.write_text(json.dumps(real, indent=1), encoding="utf-8")
-                subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
-                did.append(f"#{n} fixer started: {fixer} {n} {path}")
+        before = len(did)
+        _pass_one(state, n, res, api, run, digest, settle, did)
+        if len(did) == before:  # the fallback: no code path returns silently for a PR
+            failed = ", ".join(res["checks"]["failed"]) or "none"
+            did.append(
+                f"#{n} no action: head {res['head_sha'][:12]}, mergeable_state {res['mergeable_state']}, "
+                f"failed: {failed}, pending: {len(res['checks']['pending'])}"
+            )
     return did
 
 

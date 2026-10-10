@@ -2,6 +2,7 @@ import re
 from unittest.mock import patch
 
 import pytest
+from _timing import assert_cpu_below, assert_scales_linearly
 
 # Adjust this import to match your project structure
 from gitgalaxy.core.prism import Prism, PrismError
@@ -840,8 +841,6 @@ def test_prism_real_family_patterns_are_redos_immune():
     pathological payload. This does, using the same "must resolve well
     under a generous timeout" bar as test_prism_suppression_regex_bomb.
     """
-    import time
-
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -864,10 +863,12 @@ def test_prism_real_family_patterns_are_redos_immune():
         "scheme": "#| " * 5000 + "unterminated",
     }
     for lang, payload in poison_cases.items():
-        start = time.perf_counter()
-        real_prism.split_streams(payload, lang)
-        duration = time.perf_counter() - start
-        assert duration < 2.0, f"{lang}: real family pattern took {duration:.2f}s on a pathological payload"
+        # CPU time, best of 3 (#4477): ~10 ms honest, catastrophic backtracking is minutes
+        assert_cpu_below(
+            lambda payload=payload, lang=lang: real_prism.split_streams(payload, lang),
+            2.0,
+            what=f"{lang}: real family pattern on a pathological payload",
+        )
 
 
 # ==============================================================================
@@ -912,9 +913,6 @@ def test_prism_inline_suppression_extraction(prism_engine):
 # ==============================================================================
 # TEST 11: THE SUPPRESSION REGEX BOMB (Memory / ReDoS Exhaustion)
 # ==============================================================================
-import time
-
-
 def test_prism_suppression_regex_bomb(prism_engine):
     """
     DEVIOUS EDGE CASE: An attacker uploads a file with 100,000 inline suppressions
@@ -924,14 +922,17 @@ def test_prism_suppression_regex_bomb(prism_engine):
     # Generate a massive file with 100,000 suppression tags
     massive_content = "// galaxyscope:ignore everything \n" * 100000
 
-    start_time = time.time()
     result = prism_engine.split_streams(massive_content, primary_lang="javascript")
-    duration = time.time() - start_time
-
     mitigations = result.get("mitigations", [])
 
-    # Assert it processed the 100k tags in under 1 second (proving O(N) linear time)
-    assert duration < 1.0, f"Suppression regex triggered ReDoS! Took {duration}s"
+    # Proving O(N) as a SCALING RATIO of CPU time (#4477), not a wall-clock bound that measures the runner:
+    # 4x the tags must cost ~4x (linear), nowhere near 16x (quadratic / backtracking).
+    assert_scales_linearly(
+        lambda n: prism_engine.split_streams("// galaxyscope:ignore everything \n" * n, primary_lang="javascript"),
+        25_000,
+        100_000,
+        what="suppression tags",
+    )
 
     # Assert the array handled the mass allocation without dropping data
     assert len(mitigations) == 100000, "Failed to allocate massive mitigation array."
@@ -1092,10 +1093,8 @@ def test_prism_single_line_delimiter_pattern_redos_immune():
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     poison = "x" * 80000 + "#" * 20000
-    start = time.time()
-    real_prism.split_streams(poison, "python")
-    duration = time.time() - start
-    assert duration < 2.0, f"line_exclusive delimiter pattern shows non-linear scaling: {duration}s"
+    # CPU time, best of 3 (#4477): ~10 ms honest, catastrophic backtracking is minutes
+    assert_cpu_below(lambda: real_prism.split_streams(poison, "python"), 2.0, what="line_exclusive delimiter pattern")
 
 
 # ==============================================================================
@@ -1256,10 +1255,8 @@ def test_prism_recursive_block_lisp_redos_immunity():
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     poison = "#| " * 20000 + "unterminated"
-    start = time.time()
-    real_prism.split_streams(poison, "scheme")
-    duration = time.time() - start
-    assert duration < 2.0, f"recursive_block_lisp took {duration:.2f}s on a pathological unterminated payload"
+    # CPU time, best of 3 (#4477): ~10 ms honest, catastrophic backtracking is minutes
+    assert_cpu_below(lambda: real_prism.split_streams(poison, "scheme"), 2.0, what="recursive_block_lisp")
 
 
 def test_prism_assembly_strips_c_style_block_comments(prism_engine):
@@ -1318,7 +1315,5 @@ def test_prism_assembly_block_comment_redos_immunity():
 
     real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     poison = "/* " + ("a" * 50000) + "\nreal_func:\n\tret\n"
-    start = time.time()
-    real_prism.split_streams(poison, "assembly")
-    duration = time.time() - start
-    assert duration < 2.0, f"assembly block-comment stripping took {duration:.2f}s on an unterminated payload"
+    # CPU time, best of 3 (#4477): ~10 ms honest, catastrophic backtracking is minutes
+    assert_cpu_below(lambda: real_prism.split_streams(poison, "assembly"), 2.0, what="assembly block-comment stripping")

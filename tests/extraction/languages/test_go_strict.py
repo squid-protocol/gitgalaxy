@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -405,16 +406,13 @@ def test_go_scope_filter_is_declared_for_globals():
 
 def test_go_declaration_group_walk_is_linear_on_pathological_input():
     """The member walk is a single tokenizer pass, not backtracking."""
-    import time
-
     from gitgalaxy.core.detector import StructuralExtractor
 
     d = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     payloads = ["var (\n" + "\tx = 1\n" * 20000 + ")\n", "(" * 60000, "`" * 60000, "\t" * 60000 + "x"]
     for p in payloads:
-        t = time.perf_counter()
-        d._go_declaration_group_member_offsets(p)
-        assert time.perf_counter() - t < 1.0
+        # CPU-time bound (#4477): ~0.01 s honest, a backtracking walk costs minutes on these payloads
+        assert_cpu_below(lambda p=p: d._go_declaration_group_member_offsets(p), 1.0, what="go declaration group walk")
 
 
 def test_go_unknown_scope_filter_name_is_ignored_not_zeroed():

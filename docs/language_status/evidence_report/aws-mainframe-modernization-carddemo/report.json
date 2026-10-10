@@ -1670,7 +1670,7 @@
      "covered": 8,
      "live": 8
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -2182,7 +2182,7 @@
      "covered": 16,
      "live": 16
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -2764,7 +2764,7 @@
      "covered": 30,
      "live": 30
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -3359,7 +3359,7 @@
      "covered": 6,
      "live": 6
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -3962,7 +3962,7 @@
      "covered": 16,
      "live": 16
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -4453,7 +4453,7 @@
      "covered": 9,
      "live": 9
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -4934,7 +4934,7 @@
      "covered": 18,
      "live": 18
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -5463,7 +5463,7 @@
      "covered": 16,
      "live": 16
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -5942,7 +5942,7 @@
      "covered": 9,
      "live": 9
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -6408,7 +6408,7 @@
      "covered": 11,
      "live": 11
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -6890,7 +6890,7 @@
      "covered": 11,
      "live": 11
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -7366,7 +7366,7 @@
      "covered": 36,
      "live": 36
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -7947,7 +7947,7 @@
      "covered": 7,
      "live": 7
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -8457,7 +8457,7 @@
      "covered": 10,
      "live": 10
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -8906,7 +8906,7 @@
      "covered": 126,
      "total": 166
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8915,12 +8915,9 @@
      "covered": 62,
      "live": 63
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "da4433e72b92b986fa8c886ba648acfd8d16b404",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8931,7 +8928,7 @@
       "case_scenarios": 34,
       "db2": true,
       "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
        "state": "equal"
       },
       "record": null,
@@ -8943,7 +8940,7 @@
      "case_scenarios": 34,
      "db2": true,
      "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
       "state": "equal"
      },
      "record": null,
@@ -8951,7 +8948,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9353,11 +9350,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "da4433e72b92b986fa8c886ba648acfd8d16b404",
+   "stale_inputs": [],
+   "stale_since": null,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10984,7 +10978,7 @@
      "covered": 89,
      "live": 95
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -11525,7 +11519,7 @@
      "covered": 31,
      "live": 32
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -14456,7 +14450,7 @@
      "covered": 2,
      "live": 2
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -14469,7 +14463,7 @@
       "case_scenarios": 5,
       "db2": true,
       "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
        "state": "equal"
       },
       "record": null,
@@ -14481,7 +14475,7 @@
      "case_scenarios": 5,
      "db2": true,
      "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
       "state": "equal"
      },
      "record": null,
@@ -15120,7 +15114,7 @@
      "covered": 165,
      "total": 230
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15129,12 +15123,9 @@
      "covered": 56,
      "live": 59
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "2b53e918c59de134e98e0ab795255afabd21437e",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -15145,7 +15136,7 @@
       "case_scenarios": 27,
       "db2": true,
       "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
        "state": "equal"
       },
       "record": null,
@@ -15157,7 +15148,7 @@
      "case_scenarios": 27,
      "db2": true,
      "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)",
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
       "state": "equal"
      },
      "record": null,
@@ -16577,13 +16568,13 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 1,
+   "L2": 0,
    "L3": 0,
    "L4": 0,
    "L5": 0
   },
   "holes": 68,
-  "levels_stale": 1,
+  "levels_stale": 0,
   "programs": 44,
   "records_current": 23,
   "refused_whole": 3,

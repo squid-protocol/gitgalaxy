@@ -3,6 +3,7 @@ import os
 from unittest.mock import patch
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.security.security_lens import SecurityLens
 
@@ -553,8 +554,6 @@ def test_self_propagation_redos_immunity(lens):
     adversarial inputs target each new branch's gap: the flag repeat, the
     normalization wrapper, and the read-then-write span.
     """
-    import time
-
     payloads = [
         "cp " + "-a " * 20000,
         "shutil.copy(" + "os.path.abspath(" * 5000,
@@ -562,9 +561,10 @@ def test_self_propagation_redos_immunity(lens):
         "Copy-Item " + " " * 100000,
     ]
     for payload in payloads:
-        start = time.perf_counter()
-        lens.scan_content(payload)
-        assert time.perf_counter() - start < 3.0, f"pathological backtracking on {payload[:30]!r}"
+        # CPU time, best of 3 (#4477): ms honest, backtracking is minutes
+        assert_cpu_below(
+            lambda payload=payload: lens.scan_content(payload), 3.0, what=f"backtracking on {payload[:30]!r}"
+        )
 
 
 def test_self_propagation_ignores_ordinary_path_resolution_and_self_reads(lens):

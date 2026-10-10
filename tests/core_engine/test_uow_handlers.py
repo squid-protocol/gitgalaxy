@@ -5,7 +5,7 @@ LABEL, SYNCPOINT ROLLBACK, ABEND ABCODE NODUMP, EXEC SQL COMMIT WORK) and
 CardDemo (HANDLE CONDITION PGMIDERR, RESP fields tested or never tested).
 """
 
-import time
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
@@ -112,9 +112,8 @@ def test_numbered_source_reads_the_same():
 
 def test_the_resp_window_is_bounded():
     src = "           EXEC CICS READ FILE('F') RESP(V) END-EXEC\n" * 3000 + "MOVE V TO X " * 20000
-    started = time.perf_counter()
-    extract_uow_handlers(src)
-    assert time.perf_counter() - started < 10.0
+    # # CPU time, best of 3 (#4477): ms honest, an unbounded window is many seconds
+    assert_cpu_below(lambda: extract_uow_handlers(src), 10.0, what="resp window")
 
 
 def test_resp_codes_tested_by_number_count_as_checks():

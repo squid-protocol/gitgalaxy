@@ -2763,7 +2763,7 @@
      "covered": 11,
      "live": 11
     },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)",
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],

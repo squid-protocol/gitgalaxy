@@ -14,10 +14,10 @@ follow the IBM JCL Reference's own procedure examples.
 """
 
 import sys
-import time
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.prism import Prism
@@ -267,9 +267,8 @@ def test_a_cobol_binding_carries_no_resolution():
     ids=["many-refs", "long-chain", "unbalanced-quotes", "long-continuation"],
 )
 def test_pathological_input_stays_linear(src):
-    start = time.perf_counter()
-    extract_boundary("jcl", src)
-    assert time.perf_counter() - start < 2.0
+    # CPU time, best of 3 (#4477): honest cost is milliseconds, a quadratic scan of these payloads is many seconds
+    assert_cpu_below(lambda: extract_boundary("jcl", src), 2.0, what="jcl pathological input")
 
 
 # ------------------------------------------------------------------------------

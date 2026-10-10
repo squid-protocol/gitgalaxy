@@ -40,13 +40,13 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 |---|---|---|
 | L0 | 3 | 0 |
 | L1 | 0 | 0 |
-| L2 | 3 | 1 |
+| L2 | 3 | 0 |
 | L3 | 0 | 0 |
 | L4 | 0 | 0 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 1 of 6 programs; the rest are current
-- L2+: 3 (1 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
+- stale (`*`, last measured): 0 of 6 programs; the rest are current
+- L2+: 3 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 3; refused whole: 0; holes left: 23
@@ -82,7 +82,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2* | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2 | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L2 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 38/58 | 20 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
@@ -91,17 +91,15 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 ## Per program
 
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2*
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2
 
-- **Stale level:** L2 is the last measurement, stale since `2b53e918c59d` (harness, oracle); not yet re-checked
-
-- **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json)), given the assumptions below
+- **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 50.0)
 - **Translation:** 61/61 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
+- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (8 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -122,13 +120,13 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Next level needs:** paragraph coverage >= 100.0 (now 83.3)
 - **Translation:** 51/51 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence** (mortgage-cmort, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage.json))
+- **Executed equivalence** (mortgage-cmort, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (mortgage-mlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (mortgage-mlist-generated, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 5/6 (83.3%), branch outcomes 14/15 (93.3%) raw, 14/15 (93.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 5/6 (83.3%), branch outcomes 14/15 (93.3%) raw, 14/15 (93.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |

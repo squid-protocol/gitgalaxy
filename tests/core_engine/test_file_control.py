@@ -5,7 +5,7 @@ COPY members, and IDCAMS DEFINE CLUSTER / AIX / PATH in JCL in-stream data
 (CardDemo XREFFILE.jcl, ESDSRRDS.jcl).
 """
 
-import time
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -162,10 +162,8 @@ def test_idcams_cluster_aix_path():
 def test_the_scans_are_bounded():
     src = "       FILE-CONTROL.\n" + "           SELECT A ASSIGN TO B " * 5000 + "\n"
     jcl = "   DEFINE CLUSTER (NAME(X) -\n" * 5000
-    started = time.perf_counter()
-    cobol_file_control(src)
-    jcl_vsam_defines(jcl)
-    assert time.perf_counter() - started < 5.0
+    # # CPU time, best of 3 (#4477): ms honest, a rescan per statement is many seconds
+    assert_cpu_below(lambda: (cobol_file_control(src), jcl_vsam_defines(jcl)), 5.0, what="file control scans")
 
 
 def test_sequential_synonyms():

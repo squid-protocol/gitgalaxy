@@ -10,7 +10,8 @@ token and the channel, and how a STRING-built transaction id becomes a pattern.
 """
 
 import fnmatch
-import time
+
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.cics_tasks import _pic_pattern, extract_cics_tasks
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -192,6 +193,5 @@ def test_pli_statements_end_at_semicolon():
 def test_the_string_reader_and_blocks_are_bounded():
     unterminated = "           STRING 'A' " + "WS-X DELIMITED BY SIZE " * 5000 + "\n"
     openers = "           EXEC CICS RUN TRANSID(X)\n" * 5000
-    started = time.perf_counter()
-    extract_cics_tasks(unterminated + openers)
-    assert time.perf_counter() - started < 5.0
+    # # CPU time, best of 3 (#4477): ms honest, a rescan from every opener is many seconds
+    assert_cpu_below(lambda: extract_cics_tasks(unterminated + openers), 5.0, what="cics tasks scan")

@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -714,9 +715,8 @@ def test_yaml_api_contract_2730():
     api = YAML_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('on:\n  workflow_call:\n'), 'reusable-workflow trigger'
-    assert api.search('on:\n  push:\n'), 'push trigger (kept)'
-
+    assert api.search("on:\n  workflow_call:\n"), "reusable-workflow trigger"
+    assert api.search("on:\n  push:\n"), "push trigger (kept)"
 
 
 # ==============================================================================
@@ -904,7 +904,6 @@ def test_yaml_parameter_walk_is_linear_on_pathological_input():
     regex timer doesn't apply; time it directly on the shapes that would hurt a
     walk that rescanned or backtracked.
     """
-    import time
 
     from gitgalaxy.core.detector import StructuralExtractor
 
@@ -915,9 +914,10 @@ def test_yaml_parameter_walk_is_linear_on_pathological_input():
         "- run: |\n" + "    text: not structure\n" * 20000,  # one enormous block scalar
     ]
     for payload in payloads:
-        start = time.perf_counter()
-        d._yaml_parameter_child_offsets(payload)
-        assert time.perf_counter() - start < 3.0, "yaml parameter walk is not linear"
+        # # CPU time, best of 3 (#4477): ~0.03 s honest, minutes if the walk is quadratic
+        assert_cpu_below(
+            lambda payload=payload: d._yaml_parameter_child_offsets(payload), 3.0, what="yaml parameter walk"
+        )
 
 
 def test_yaml_args_redos_immunity_on_the_key_pattern():

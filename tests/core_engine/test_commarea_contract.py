@@ -12,9 +12,8 @@ OF CARDDEMO-COMMAREA)` with a space before each paren, and CBSA's
 `01 DFHCOMMAREA.` + `COPY INQCUST.` / section-level `COPY INQACC REPLACING ...`.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 
@@ -204,7 +203,9 @@ def test_several_copies_after_one_entry_keep_source_order():
     ],
 )
 def test_pathological_shapes_stay_linear(payload):
-    start = time.perf_counter()
-    extract_boundary("cobol", "       PROCEDURE DIVISION.\n           " + payload + "\n")
-    extract_boundary("cobol", "       WORKING-STORAGE SECTION.\n" + payload + "\n")
-    assert time.perf_counter() - start < 2.0
+    def run() -> None:
+        extract_boundary("cobol", "       PROCEDURE DIVISION.\n           " + payload + "\n")
+        extract_boundary("cobol", "       WORKING-STORAGE SECTION.\n" + payload + "\n")
+
+    # CPU time, best of 3 (#4477): honest cost is milliseconds, a quadratic scan of these payloads is many seconds
+    assert_cpu_below(run, 2.0, what="commarea pathological shape")

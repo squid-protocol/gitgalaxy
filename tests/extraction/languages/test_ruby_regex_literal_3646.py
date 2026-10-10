@@ -10,9 +10,8 @@ Two more shapes ran a method to EOF the same way (brew's download_strategy.rb), 
 - `@module = T.let(` counted `module` as a scope opener. `@`/`$` variables are names, never keywords.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.prism import Prism
@@ -101,9 +100,9 @@ def test_regex_inside_a_string_or_comment_is_left_to_that_literal():
 )
 def test_ruby_regex_shield_is_linear(payload):
     # The regex alternative runs inside the whole shield pass; time that pass directly.
-    start = time.perf_counter()
-    _shield(payload)
-    assert time.perf_counter() - start < 3.0
+    assert_cpu_below(
+        lambda: _shield(payload), 3.0, what="ruby regex shield"
+    )  # # CPU time, best of 3 (#4477): ms honest, minutes if backtracking
 
 
 def _scan(code: str) -> dict[str, dict]:

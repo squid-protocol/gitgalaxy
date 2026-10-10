@@ -8,7 +8,7 @@ decision: which commands draw a row, which operand is the name, how a data-name
 resolves (VALUE, then a single MOVEd literal), and that every scan is bounded.
 """
 
-import time
+from _timing import assert_scales_linearly
 
 from gitgalaxy.core.cics_resources import extract_cics_resources
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -325,30 +325,25 @@ def test_pli_commands_end_at_semicolon_and_resolve_through_init():
 
 
 def test_an_unterminated_exec_is_capped_and_linear():
-    src = "           EXEC CICS READ FILE('F') " + "(" * 20000 + " 'x" * 20000
-    start = time.perf_counter()
-    extract_cics_resources(src)
-    extract_boundary("cobol", "           EXEC CICS\n" * 5000)
-    assert time.perf_counter() - start < 2.0
+    def run(n: int) -> None:
+        src = "           EXEC CICS READ FILE('F') " + "(" * n + " 'x" * n
+        extract_cics_resources(src)
+        extract_boundary("cobol", "           EXEC CICS\n" * (n // 4))
+
+    # CPU-time ratio, not a wall-clock bound (#4477): 4x the input must cost ~4x, not ~16x
+    assert_scales_linearly(run, 5_000, 20_000, what="unterminated EXEC")
 
 
-def _best_boundary_time(statements: int, repeats: int = 3) -> float:
-    src = "           MOVE 'X' TO " * statements + "\n           EXEC CICS READ FILE(A) END-EXEC\n"
-    best = float("inf")
-    for _ in range(repeats):
-        start = time.perf_counter()
-        extract_boundary("cobol", src)
-        best = min(best, time.perf_counter() - start)
-    return best
+def _move_statements(statements: int) -> str:
+    return "           MOVE 'X' TO " * statements + "\n           EXEC CICS READ FILE(A) END-EXEC\n"
 
 
 def test_many_move_statements_stay_linear():
-    """Linearity as a ratio, not an absolute wall-clock bound (#4477: `< 2.0` s failed on every shared runner,
-    whatever the code did). 4x the statements must cost about 4x (linear), nowhere near 16x (quadratic); the
-    best of a few repeats keeps scheduling noise out, and the same run's small case calibrates the machine."""
-    small, large = 10_000, 40_000
-    ratio = _best_boundary_time(large) / _best_boundary_time(small)
-    assert ratio < 8, f"{large} MOVEs cost {ratio:.1f}x {small} MOVEs: linear is ~4x, quadratic ~16x"
+    """Linearity as a CPU-time ratio, not an absolute wall-clock bound (#4477: `< 2.0` s failed on every shared
+    runner, whatever the code did). 4x the statements must cost about 4x (linear), nowhere near 16x (quadratic)."""
+    assert_scales_linearly(
+        lambda n: extract_boundary("cobol", _move_statements(n)), 10_000, 40_000, what="MOVE statements"
+    )
 
 
 # ---- WEB / SERVICE / TRANSFORM (#3512) ----------------------------------------

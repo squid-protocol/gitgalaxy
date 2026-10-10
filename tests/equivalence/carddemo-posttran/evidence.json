@@ -42,7 +42,7 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "de02ccecbdaf08d0486082ee759f7243000751df69c42588e269caa3ae9ff7a9",
+   "sha256": "85f9bb956f7e7ecd0e4a4df9c3f6b70305863b24053ad9351b8d2b3316c73777",
    "components": {
     "harness:core": "af315f3088e082a3e3b4aab8d88c95d825a05c8cb934a0e0c77f6a3500303b39"
    }
@@ -70,11 +70,11 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 67,
-   "sha256": "645d8151ea3dba13f78232d2c3bf8a3389695b3b86d54b554446dd3c68fb9ac0",
+   "sha256": "c5d9fe61cdcda76f3fb18d9c73d7101c68858369404ca86c8d9a383d83175882",
    "components": {
     "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
     "generator:cobolrt/standalone/Sysout.java": "43e1b84823d738d62e4b752137d4e45d9fc5df01fe1f842528c2bdc6fd22d9c2",
-    "generator:core": "352ecaeedafd9232085838fb703b1ece3c709ed50a075e766b36ff888ce0455d",
+    "generator:core": "30c9d5bac3ac7f70afd2dfefe7608ab8cbc07d42bbd969de48093267b2701f94",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2"
    }
@@ -161,10 +161,10 @@
     }
    }
   },
-  "digest": "7fc6bd3b79ef84c238eec63f74d021ef334b8a82ee0b3e31ef17d709a9db8ace"
+  "digest": "ed3048569b6cfad4de2967d6460c940bcb7e573f40ca783c584d3ee30a176f0b"
  },
  "proof": {
-  "at": "2026-10-09T19:59:56Z",
+  "at": "2026-10-10T10:05:29Z",
   "verdict": "proven",
   "runs": 29,
   "fault_runs": 28,
@@ -191,8 +191,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "8130b9a928c8690aa77504c10bb83c62409a70f0+uncommitted",
-  "inputs_digest": "7fc6bd3b79ef84c238eec63f74d021ef334b8a82ee0b3e31ef17d709a9db8ace"
+  "harness_commit": "d6cbc1fc382124012f0364012d3f51ab2a2b15b3+uncommitted",
+  "inputs_digest": "ed3048569b6cfad4de2967d6460c940bcb7e573f40ca783c584d3ee30a176f0b"
  },
  "coverage": {
   "paragraphs": {
@@ -216,7 +216,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7fc6bd3b79ef84c238eec63f74d021ef334b8a82ee0b3e31ef17d709a9db8ace"
+  "inputs_digest": "ed3048569b6cfad4de2967d6460c940bcb7e573f40ca783c584d3ee30a176f0b"
  },
  "reach": {
   "entry_points": [

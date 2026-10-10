@@ -1,8 +1,8 @@
 import sys
-import time
 from unittest.mock import patch
 
 import pytest
+from _timing import assert_cpu_below
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect as dag_module
@@ -215,13 +215,12 @@ def test_open_operand_run_is_linear_on_unterminated_input(tmp_path):
         encoding="utf-8",
     )
 
-    start = time.perf_counter()
     lineage = dag_module.extract_lineage(pgm)
-    elapsed = time.perf_counter() - start
 
     # No period anywhere, so no OPEN is a statement -- the old pattern's rule, kept.
     assert not lineage["inputs"] and not lineage["outputs"]
-    assert elapsed < 5.0, f"OPEN scan took {elapsed:.2f}s on 20k unterminated OPENs"
+    # # CPU time, best of 3 (#4477): the old pattern cost 24s, the fix ~1ms; 5s CPU separates them on any machine
+    assert_cpu_below(lambda: dag_module.extract_lineage(pgm), 5.0, what="OPEN scan on 20k unterminated OPENs")
 
 
 def test_open_statements_still_read_every_mode_after_anchoring(tmp_path):

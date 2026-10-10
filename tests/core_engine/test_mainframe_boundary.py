@@ -14,6 +14,7 @@ first draft of this module.
 """
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.mainframe_boundary import BOUNDARY_DIALECTS, extract_boundary
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -342,12 +343,9 @@ _PATHOLOGICAL = {
 @pytest.mark.parametrize("shape", sorted(_PATHOLOGICAL))
 def test_pathological_input_is_bounded(dialect, shape):
     """No input may take super-linear time: every scan here is a bounded one."""
-    import time
-
     payload = _PATHOLOGICAL[shape]()
-    start = time.perf_counter()
-    extract_boundary(dialect, payload)
-    assert time.perf_counter() - start < 2.0, f"{dialect}/{shape} took too long on {len(payload)} chars"
+    # CPU time, best of 3 (#4477): ~10 ms honest; a quadratic scan of these 40k-char payloads costs many seconds
+    assert_cpu_below(lambda: extract_boundary(dialect, payload), 2.0, what=f"{dialect}/{shape} on {len(payload)} chars")
 
 
 def test_an_unterminated_exec_cics_cannot_scan_the_whole_file():

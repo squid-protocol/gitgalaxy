@@ -271,6 +271,7 @@ public class CicsTask {
     private Object xctlCommarea;
     private Integer xctlLength;
     private Channel xctlChannel;                            // #4270: the channel an XCTL passed (null: none)
+    private byte[] xctlArea;                                // #4806: the XCTL COMMAREA's bytes, when passed
     private Channel currentChannel;                         // #4270: the channel this program was passed
     private Map<String, Channel> channels = new HashMap<>();  // #4270: the channels in this program's scope, by name
     private java.util.Set<String> droppedChannels = java.util.Set.of();  // #4270: left behind by an XCTL
@@ -402,6 +403,7 @@ public class CicsTask {
     }
 
     private String link(String program, Object commarea, int length, byte[] area, Channel linkChannel) {
+        linkAreaBack = false;
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -426,6 +428,7 @@ public class CicsTask {
         callee.linkLength = len;
         callee.linkArea = area;
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
+        CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
             programs.run(callee.program, callee);
             if (callee.xctlTarget != null) {
@@ -436,6 +439,7 @@ public class CicsTask {
                 callee.invoker = by;
                 callee.passChannel(prev.xctlChannel, prev.inScope());  // #4270
                 callee.linkLength = len;
+                callee.linkArea = prev.xctlArea;  // #4806: the XCTL COMMAREA's bytes, the target's DFHCOMMAREA
             } else {
                 if (!callee.ended) {
                     callee.returnTransid(null, null);  // a GOBACK is a RETURN
@@ -443,7 +447,19 @@ public class CicsTask {
                 callee = null;
             }
         }
+        // #4806: a program that took the bytes (linkArea) wrote back what it left in them, every byte -- the ones
+        // its DTO cannot decode too (a PIC 9 holding spaces): they are the caller's COMMAREA as they are
+        linkAreaBack = area != null && linked.linkAreaTaken;
         return resp;
+    }
+
+    private boolean linkAreaBack;  // #4806: whether the last LINK's program took the COMMAREA's bytes
+
+    /** #4806: whether the program the last LINK ran took the COMMAREA's bytes (linkArea): then those bytes are what
+     *  it left in the caller's COMMAREA (IBM: the area is passed by address), and its DTO -- which reads a numeric
+     *  field holding spaces as a number -- is not written back over them. */
+    public boolean linkAreaBack() {
+        return linkAreaBack;
     }
 
     /** Runs the task (#4004): `program` at level 1 through the Programs given, then any program it XCTLs
@@ -458,6 +474,7 @@ public class CicsTask {
             if (next != null) {
                 next.invoker = current.program;
                 next.passChannel(current.xctlChannel, current.inScope());  // #4270
+                next.linkArea = current.xctlArea;  // #4806: the XCTL COMMAREA's bytes, the target's DFHCOMMAREA
             }
             current = next;
         }
@@ -2690,7 +2707,17 @@ public class CicsTask {
      *  item (#4008). It fails, and the program goes on, with LENGERR (RESP2 11) for a LENGTH outside 0-32763 or
      *  PGMIDERR (RESP2 1) for a program the CSD does not define; the result is the condition. */
     public String xctl(String program, Object commarea, Integer length) {
-        return xctl(program, commarea, length, null);
+        return xctl(program, commarea, length, (Channel) null);
+    }
+
+    /** XCTL with the COMMAREA's bytes as well (#4806): the target's DFHCOMMAREA is those bytes, every one -- a
+     *  numeric field holding spaces too, which the DTO reads as a number -- as a LINK's (linkArea). */
+    public String xctl(String program, Object commarea, Integer length, byte[] area) {
+        String resp = xctl(program, commarea, length, (Channel) null);
+        if ("NORMAL".equals(resp)) {
+            xctlArea = area;
+        }
+        return resp;
     }
 
     private String xctl(String program, Object commarea, Integer length, Channel pendingChannel) {

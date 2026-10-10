@@ -2256,9 +2256,14 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
     )
     assert any("DetCics.xctlResp2(xr1)" in x for x in out)
     within = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(80)", "")
-    assert "commareaOut" not in within[0] and within[0].endswith(", INT(80));")
+    # #4806: a DTO's XCTL passes the bytes it spans too: a det target's DFHCOMMAREA is them, not the DTO's reading
+    assert "commareaOut" not in within[0] and within[0].endswith(", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);")
     unknown = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(WS-N)", "")
     assert "commareaOut" in unknown[0]  # a length only known at run time is decided there
+    assert unknown[1] == (
+        "String xr4 = task.xctl('XB'.strip(), xc3, INT(WS-N), "
+        "(xc3 instanceof byte[] ? null : Cobol.commarea(f_WS-V1, 80).bytes));"
+    )  # (the DTO: its bytes)
     ret = c.command("RETURN TRANSID('TRN1') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", "")
     assert any("commareaOut" in x for x in ret)  # #4679: a RETURN's too (below)
 

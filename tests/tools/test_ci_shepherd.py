@@ -36,6 +36,8 @@ class Gh:
         parts = path.split("?")[0].split("/")
         if "check-runs" in parts:
             return {"check_runs": self.runs[parts[-2]]}
+        if parts[-2:] == ["commits", "main"]:
+            return {"sha": "m" * 40}
         if parts[-1] == "status":
             return {"statuses": []}
         if parts[-1] == "files":
@@ -206,3 +208,34 @@ def test_a_behind_pr_with_a_failed_check_is_not_updated():
     gh.pr(1, mstate="behind", runs=[("full-suite", "failure")])
     step(gh, state, failing("real"))
     assert not any(c[:3] == ["gh", "pr", "update-branch"] for c in gh.calls)
+
+
+def test_a_cancelled_non_required_matrix_leg_is_rerun_once_and_logged(monkeypatch):
+    """#4790 / PR #4837 (2026-10-10): two CANCELLED `full-suite-matrix (macos-...)` legs were never rerun and the pass
+    logged nothing. The check name holds a ` (` of its own, which the digest used to cut at the first one."""
+    gh, state, clock = Gh(), {"queue": [1], "after": {}, "seen": {}}, [1000.0]
+    monkeypatch.setattr(cs, "now", lambda: clock[0])
+    gh.pr(1, mstate="unstable", runs=[("full-suite-matrix (macos-14)", "cancelled"),
+                                     ("full-suite-matrix (ubuntu)", "success")])  # fmt: skip
+    for r in gh.runs["a" * 40]:
+        r["details_url"] = f"https://github.com/squid-protocol/gitgalaxy/actions/runs/{100 + r['id']}/job/{r['id']}"
+    gh.runs["m" * 40] = []  # main's newest commit: nothing failing there
+    digest = lambda n: cs.ci_digest.digest(n, gh.api, logs=lambda job: "")  # noqa: E731
+    did = cs.step(state, gh.api, gh.run, digest, settle=0)
+    reruns = [c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]
+    assert reruns == [["gh", "run", "rerun", "101", "--failed", "-R", cs.REPO_SLUG]]
+    assert any("rerun full-suite-matrix (macos-14) (infra): ok" in d for d in did), did
+    # the next pass, inside RETRY_GAP: a log line, no second rerun
+    clock[0] += 60
+    did = cs.step(state, gh.api, gh.run, digest, settle=0)
+    assert len([c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]) == 1
+    assert any(d.startswith("#1 blocked: full-suite-matrix (macos-14) (infra) -- no action:") for d in did), did
+
+
+def test_a_pass_that_would_be_silent_logs_the_pr_state(monkeypatch):
+    """Every queued PR gets a line per pass: a behind PR whose branch was already updated says so."""
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, mstate="behind", runs=[("ruff-audit", "success")])
+    step(gh, state)
+    did = step(gh, state)  # the same head: nothing to do, and the log says so
+    assert did and did[0].startswith("#1 behind main: branch already updated"), did

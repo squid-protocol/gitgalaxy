@@ -18,6 +18,9 @@ name: Det Sweep
 # restored from cache. (A cache of the COBOL-side step outputs was tried and dropped: it saved no measurable time --
 # the Java build and the fault runs dominate a proof, not the COBOL step.)
 # `det` (the required check, named as before) merges the shards' results and applies the two-way ratchet.
+# Balancing (#4847): the shards are balanced by the durations file, which every run restores from the newest
+# nightly's cache (`durations-cache/`, saved by the nightly `det` job from the shards' measured seconds) and
+# falls back to the committed tests/equivalence/det_sweep_durations.json on a miss.
 #
 # Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
 # the harness and oracle, the cases, the corpus pin.
@@ -199,6 +202,19 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
 
+      - name: Restore the newest measured durations (#4847)
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-durations-
+
+      - name: Balance by the restored durations (else the committed file)
+        if: steps.durations.outputs.cache-matched-key != ''
+        run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+
       - name: Re-prove this shard's det ports (no Db2)
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
         env:
@@ -260,6 +276,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Restore the newest measured durations (nightly merge base, #4847)
+        if: github.event_name == 'schedule'
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-durations-
+
+      - name: Merge into the restored durations (nightly)
+        if: github.event_name == 'schedule' && steps.durations.outputs.cache-matched-key != ''
+        run: cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+
       - name: Download the shards' results
         if: needs.plan.outputs.shards != '0'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -269,12 +299,14 @@ jobs:
         continue-on-error: true  # no shard reported: the merge below names every case missing
 
       - name: Apply the ratchet to the merged sweep
+        id: aggregate
         shell: bash
         env:
           PLAN_RESULT: ${{ needs.plan.result }}
           MODE: ${{ needs.plan.outputs.mode }}
           CASES: ${{ needs.plan.outputs.cases }}
           SHARDS: ${{ needs.plan.outputs.shards }}
+          EVENT: ${{ github.event_name }}
         run: |
           if [ "$PLAN_RESULT" != "success" ]; then echo "the plan job did not succeed ($PLAN_RESULT)"; exit 1; fi
           if [ "$SHARDS" = "0" ]; then echo "no det-sweep case is affected by this change: nothing to prove"; exit 0; fi
@@ -282,10 +314,25 @@ jobs:
           if [ "$MODE" != "full" ]; then expect="$CASES"; fi
           found=$(ls shards/*/sweep.json 2>/dev/null || true)
           if [ -z "$found" ]; then echo "no shard reported a sweep.json"; exit 1; fi
-          PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" | tee agg.txt
+          extra=()  # the nightly writes the merged seconds to tests/equivalence/det_sweep_durations.json (#4847)
+          if [ "$EVENT" = "schedule" ]; then extra=(--update-durations); fi
+          PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" "${extra[@]}" | tee agg.txt
           {
             echo "## Det sweep (merged)"
             echo '```'
             grep -v '^ *$' agg.txt | tail -80
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage the merged durations for the cache (nightly, #4847)
+        if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'
+        run: |
+          mkdir -p durations-cache
+          cp tests/equivalence/det_sweep_durations.json durations-cache/
+
+      - name: Cache the merged durations (nightly, #4847)
+        if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}

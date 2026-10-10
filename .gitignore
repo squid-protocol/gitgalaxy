@@ -226,3 +226,7 @@ tests/telemetry_out/
 !docs/language_status/register/_layout.json
 !tests/tools/feature_inventory.schema.json
 !tests/fixtures/feature_inventory/*.json
+
+# #4825: the per-program evidence pages are rendered from the records and published to the `generated` branch by
+# .github/workflows/evidence-pages.yml; main never commits them (PRs collided on them).
+docs/language_status/evidence/

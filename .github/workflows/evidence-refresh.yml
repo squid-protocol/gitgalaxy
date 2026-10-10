@@ -6,7 +6,7 @@ name: Evidence Refresh
 # differences fails the PR that makes it (tests/cobol_mainframe/test_evidence.py), so that PR re-proves the record.
 # A change to the harness, the oracle or the generator stales EVERY record at once; the record then shows as stale
 # (never as proven), and this job re-proves it: `evidence.py refresh --stale` runs each stale record's proof on the
-# committed port and case, writes the new proof (proven or not) and re-renders docs/language_status/evidence/.
+# committed port and case, writes the new proof (proven or not); its page is published from main by evidence-pages.yml (#4825).
 #
 # #4703: the rendered evidence report (docs/language_status/evidence_report/) is derived output. It is regenerated HERE, on
 # main, and not in feature PRs (which would conflict on the same generated files); per-PR CI only prints the level deltas
@@ -65,8 +65,9 @@ name: Evidence Refresh
 # (setup, merge, report, PR): ~25 min instead of 75-100.
 
 on:
-  push:
-    branches: [main]
+  # #4825 (owner, 2026-10-09): nightly + on demand only. The push lane rewrote generated files under every open PR all day
+  # (8 commits on 2026-10-09; PRs went dirty, 40-min CI restarted, #4820 turned main red). The rendered pages are no
+  # longer committed on main at all (evidence-pages.yml publishes them to the `generated` branch).
   schedule:
     - cron: "17 3 * * *"  # nightly
   workflow_dispatch:
@@ -722,8 +723,7 @@ jobs:
             if [ -n "$bad" ]; then echo "::error title=record shards::unexpected files in a shard artifact: $bad"; exit 1; fi
             cp -r "$in"/. gitgalaxy/
           fi
-          # what `evidence.py refresh` did at its end on one runner: the pages are rendered from the records
-          cd gitgalaxy && python tests/tools/evidence.py render
+          # (#4825: the pages are no longer committed here; evidence-pages.yml renders them from main after merge)
 
       - name: Take the det sweep shards' results (#4744)
         id: sweep_in
@@ -830,7 +830,7 @@ jobs:
 
             Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
             Each record's proof was run again on the committed port and case; the records and
-            docs/language_status/evidence/ are rewritten from those runs. A proof that now fails is recorded as
+            the records are rewritten from those runs (their pages are published from main to the `generated` branch by evidence-pages.yml, #4825). A proof that now fails is recorded as
             not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703),
             the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/, one file per case: #4789) from the
             sweep, and the CICS spec status page (docs/language_status/cics_spec_status.md, #4789) from main.
@@ -842,7 +842,6 @@ jobs:
             docs/language_status/cics_spec_status.md
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
-            docs/language_status/evidence/*.md
             docs/language_status/evidence_report/**
 
       - name: Enable squash auto-merge on the bot PR

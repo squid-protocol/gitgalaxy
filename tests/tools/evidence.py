@@ -7,7 +7,8 @@ A record is `gitgalaxy-evidence/1` JSON, committed next to the port:
     tests/equivalence/<case>/evidence.json                        an equivalence case's port
     tests/cics_crucible/ports/<case>/<PROGRAM>/evidence.json      a CICS crucible port
 
-and rendered (never edited) to docs/language_status/evidence/. docs/language_status/evidence_records.md explains
+and rendered (never edited) to docs/language_status/evidence/ -- git-ignored on main since #4825; evidence-pages.yml
+publishes the pages to the `generated` branch. docs/language_status/evidence_records.md explains
 the record; the schema is the one approved in the #4048 proposal.
 
 **Status is computed, never stored.** A record stores the fingerprints of the inputs its proof ran against (the

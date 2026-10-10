@@ -1,0 +1,113 @@
+name: Small Audits
+
+# #4825: the four quick, non-required audits that ran as one runner each on
+# every PR, folded into one job so a PR takes one runner slot instead of four.
+# Each audit is its own step with `if: always()`, so one failure does not hide
+# the others. The check name is now "Small audits" (the old per-audit check
+# names are gone; none of them is a required check).
+#
+# Folded: dead-key-audit (#325), ast-accuracy-audit (#1200; needs full history
+# for its pinned corpus tag), signal-contract-audit (contract roadmap Phase 1),
+# and golden-master-guard (#330; non-blocking summary only).
+#
+# Triggers are the union of the four: dead-key / ast / golden-master ran on
+# main PRs and golden-master on v6-dev too, so the job runs on both branches
+# and on every PR (no paths filter; golden-master had none, and signal-contract's
+# docs/signal_contracts.md path would be lost by a docs/** ignore).
+
+on:
+  pull_request:
+    branches:
+      - main
+      - v6-dev
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per workflow per PR (or per ref outside a PR). Without this, a PR
+  # that picks up several labels in one `gh pr create` starts a separate,
+  # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
+  # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
+  # re-push leaves the superseded run occupying the queue. cancel-in-progress
+  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
+  # ones that commit (docs, history charts, releases), and cancelling one
+  # mid-write is how you get a half-written commit.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  small-audits:
+    name: Small audits
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # ast-accuracy-audit imports the package (regex extraction path only);
+      # the other three are stdlib-only and do not need this install.
+      - name: Install GitGalaxy (for ast-accuracy-audit)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: dead-key-audit -- baseline-gated regression check (#325)
+        if: always()
+        run: python tests/dead_key_audit.py --ci
+
+      - name: ast-accuracy-audit -- baseline-gated regression check (#1200)
+        if: always()
+        run: python tests/ast_accuracy_audit.py --ci
+
+      - name: signal-contract-audit -- baseline-gated contract check (docs/contract_roadmap.md Phase 1)
+        if: always()
+        run: python tests/signal_contract_audit.py --ci
+
+      # Non-blocking (#330): flags any PR that modifies a golden-crucible fixture
+      # so it's never invisible in a large diff, without stopping legitimate
+      # intentional updates. Updates should come from
+      # tests/tools/update_golden_master.py and be explained in the PR
+      # description -- see CONTRIBUTING.md.
+      - name: golden-master-guard -- flag golden fixture changes
+        if: always()
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # Since #3384 each fixture is a directory of per-section files
+          # (tests/golden_store.py); the pathspecs match everything under them.
+          # The pre-split monolith names are kept so a PR that resurrects one
+          # is flagged too.
+          CHANGED=$(git diff --name-only "origin/${BASE_REF}...HEAD" -- \
+            tests/golden_master_audit tests/golden_master_zero_dep_audit \
+            tests/golden_master_audit.json tests/golden_master_zero_dep_audit.json)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No golden master fixture changes in this PR."
+            exit 0
+          fi
+
+          {
+            echo "## ⚠️ This PR modifies a golden-crucible fixture"
+            echo ""
+            echo "Files changed ($(echo "$CHANGED" | wc -l) golden-master part(s)):"
+            echo '```'
+            echo "$CHANGED" | head -n 100
+            echo '```'
+            echo ""
+            echo "These files should only ever change via \`tests/tools/update_golden_master.py\`,"
+            echo "and the PR description should explain *why* GitGalaxy's output was expected to"
+            echo "change. Reviewers: confirm the description covers this before approving."
+            echo "For the semantic diff: \`python tests/tools/bless_scope.py --from-head tests/golden_master_audit\`."
+          } >> "$GITHUB_STEP_SUMMARY"

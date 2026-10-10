@@ -145,7 +145,7 @@ Closes #NNNN
 ```
 
 Every golden channel listed must have a sentence in "Fix" or "Before -> after" saying why
-it moved (the golden-master-guard check expects it).
+it moved (the small-audits golden-master step expects it).
 
 ## 5. Push, PR, CI
 

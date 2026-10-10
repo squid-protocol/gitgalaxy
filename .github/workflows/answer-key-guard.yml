@@ -13,7 +13,7 @@ name: Answer Key Guard
 #     real defect green without fixing it).
 # It never fails the build. mainframe-ground-truth.yml and
 # test_small_corpus_keys_are_fully_censused are the gates. Mirrors
-# golden-master-guard.yml. See the mainframe-ground-truth skill.
+# small-audits.yml (golden-master-guard). See the mainframe-ground-truth skill.
 
 on:
   pull_request:

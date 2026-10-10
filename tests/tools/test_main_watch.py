@@ -98,3 +98,12 @@ def test_post_merge_dispatches_with_the_pat():
     wf = read("post-merge.yml")
     assert "DISPATCH_TOKEN: ${{ secrets.AUTOMATION_PAT }}" in wf
     assert 'GH_TOKEN="${DISPATCH_TOKEN:-$GH_TOKEN}" gh workflow run' in wf
+
+
+def test_a_cancelled_leg_says_how_long_it_ran():
+    jobs = [
+        {"name": "mac 3", "conclusion": "cancelled", "started_at": "2026-10-10T20:44:16Z",
+         "completed_at": "2026-10-10T21:29:35Z"},
+        {"name": "old", "conclusion": "cancelled"},  # no timestamps: the bare name
+    ]  # fmt: skip
+    assert mw.legs(jobs) == ([], ["mac 3 after 45 min", "old"])

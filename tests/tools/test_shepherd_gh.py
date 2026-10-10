@@ -146,6 +146,25 @@ def test_new_commits_drop_the_merge_label_so_an_unreviewed_head_never_merges():
     assert "automerge" in kinds(acts) and "ready" not in kinds(acts)
 
 
+def test_a_dropped_merge_label_leaves_reapprove_so_the_pr_is_findable():
+    acts = sg.decide(snap(action="synchronize", auto_merge=True, approved=False, labels=[sg.MERGE, sg.NEEDS]))
+    assert by_op(acts, "labels") == [{"op": "labels", "add": [sg.REAPPROVE], "remove": [sg.NEEDS]}]
+    assert sg.REAPPROVE in by_op(acts, "comment")[0]["body"]
+
+
+def test_reapprove_outlives_the_request_labels_until_merge_comes_back():
+    assert "labels" not in kinds(sg.decide(snap(labels=[sg.REAPPROVE])))  # no request label left: it stays
+    back = sg.decide(snap(labels=[sg.MERGE, sg.REAPPROVE], approved=True))  # a maintainer re-added the label
+    assert by_op(back, "labels") == [{"op": "labels", "add": [], "remove": [sg.REAPPROVE]}]
+    assert by_op(back, "automerge") == [{"op": "automerge", "on": True, "sha": SHA}]
+
+
+def test_hold_or_a_manual_removal_clears_reapprove():
+    held = sg.decide(snap(labels=[sg.HOLD, sg.REAPPROVE]))
+    assert by_op(held, "labels") == [{"op": "labels", "add": [], "remove": [sg.REAPPROVE]}]
+    assert "labels" not in kinds(sg.decide(snap(labels=[])))  # removed by hand: never re-added
+
+
 def test_the_bot_own_update_branch_keeps_the_label():
     acts = sg.decide(snap(action="synchronize", approved=True))
     assert "unlabel" not in kinds(acts)

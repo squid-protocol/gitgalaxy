@@ -26,6 +26,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import datetime
 from typing import Any
 
 LABEL = "ci-red-main"
@@ -45,11 +46,12 @@ def legs_note(failed: list[str], cancelled: list[str]) -> str:
     if not failed:
         return (
             f"\n\nNo job failed on its own: {len(cancelled)} were cancelled ({', '.join(cancelled[:8])}), "
-            "so this is not a verdict on the code. Rerun the cancelled legs."
+            "so this is not a verdict on the code, unless a leg ran into its job time limit (a hang: compare the run "
+            "times with the job's timeout-minutes). Otherwise rerun the cancelled legs."
         )
     return (
         f"\n\n{len(failed)} job(s) failed ({', '.join(failed[:8])}); {len(cancelled)} more were cancelled "
-        f"({', '.join(cancelled[:8])}) and say nothing about the code."
+        f"({', '.join(cancelled[:8])}); those say nothing about the code unless one ran into its job time limit (a hang)."
     )
 
 
@@ -97,9 +99,23 @@ def latest_verdicts(runs: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return out
 
 
+def _minutes(job: dict[str, Any]) -> int | None:
+    try:
+        start, end = (datetime.fromisoformat(job[k].replace("Z", "+00:00")) for k in ("started_at", "completed_at"))
+    except (KeyError, TypeError, AttributeError, ValueError):
+        return None
+    return int((end - start).total_seconds() // 60)
+
+
 def legs(jobs: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
+    """(failed, cancelled) job names. A cancelled leg carries its run time: a job that hit its `timeout-minutes` is
+    reported as cancelled too, and "after 45 min" is what tells a hang from a superseded run (#4840)."""
     failed = [j["name"] for j in jobs if j.get("conclusion") in FAILED_JOB]
-    cancelled = [j["name"] for j in jobs if j.get("conclusion") == "cancelled"]
+    cancelled = []
+    for j in jobs:
+        if j.get("conclusion") == "cancelled":
+            m = _minutes(j)
+            cancelled.append(j["name"] if m is None else f"{j['name']} after {m} min")
     return failed, cancelled
 
 

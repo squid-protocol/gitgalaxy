@@ -52,7 +52,9 @@ entries at build time; everything else is recomputed from the repo. So `--refres
 without corpora, and `--check` (tests/tools/test_evidence_report.py; CI runs this, owner decision on #4601) fails
 when a committed report is not what the repo makes now. `--check --live` / `--refresh --live` also recompute the
 records' status and the ledger's freshness (a harness, oracle or generator change stales every record; the
-scheduled evidence-refresh job re-proves them and runs `--refresh --live`).
+scheduled evidence-refresh job re-proves them). That job also re-measures the translation (#4863): it surveys its
+commit (`cics_census.py survey --baseline --no-census`) and builds every burned report from it (`--all --baseline
+--sha`), falling back to `--refresh --live` only when the survey cannot run.
 
 Only burned estates are committed (docs/language_status/evidence_report/<estate>/report.{md,json}). A non-burned
 estate's report is written only with --out outside the repository: census repos never have anything but counts

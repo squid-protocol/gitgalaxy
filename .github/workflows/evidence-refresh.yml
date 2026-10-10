@@ -677,6 +677,35 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      - name: Setup JDK 17 (the translation survey, as blocker-baseline.yml)
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # #4863: the report's translation column (programs translated whole, holes, refusals) is a cics_census survey. It was
+      # frozen into report.json and only re-rendered here, so the reports kept the translator of 2026-10-07 for days and
+      # showed programs made whole since then at L0. Survey the run's pinned commit of main on the burned / pinned corpora
+      # (translation only, no census repos in CI: the same survey blocker-baseline.yml runs, ~5 min) and build the reports
+      # from it below. A survey that cannot run never holds back the records: the reports are then re-rendered from their
+      # last measured survey, as before, and the run warns.
+      - name: Survey the translation (#4863)
+        id: survey
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/cics_census.py survey --baseline --no-census --no-fetch \
+            --sha "$SHA" --root "$GG_SCRATCH"
+          {
+            echo "## Translation survey (${SHA::12}, burned / pinned corpora, no census)"
+            echo '```'
+            head -4 "$GG_SCRATCH/census-cache/$SHA/blockers.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # #4744: the proofs ran in the `sweep` and `records` jobs, in parallel on their own runners; this job only merges them.
       #
       # #4270: the det-sweep coverage ledger is keyed to harness / oracle fingerprints, so a harness change blanks every
@@ -767,13 +796,23 @@ jobs:
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
         if: always()
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+          SURVEYED: ${{ steps.survey.outcome == 'success' }}
         run: |
           cd gitgalaxy
-          # the records' status is recomputed now; the measured translation stays (it needs corpora this job lacks).
+          # #4863: built from this run's translation survey (above), so the translation column is of this commit; the
+          # records' status and the coverage ledger's freshness are recomputed at build time as with --refresh --live.
           # #4758: a Db2 case's det verdict comes from the coverage ledger rewritten above (an entry = the last sweep of
           # that case proved it): this run's Db2 sweep on a full run, the last nightly's on a push run (stale, not L1,
           # once its inputs move: #4730), so no sweep is passed here.
-          python tests/tools/evidence_report.py --refresh --live
+          if [ "$SURVEYED" = "true" ]; then
+            PYTHONPATH="$PWD" python tests/tools/evidence_report.py --all --baseline --sha "$SHA" --root "$GG_SCRATCH"
+          else
+            echo "::warning title=Evidence refresh::the translation survey failed; the reports keep their last measured translation (#4863)"
+            python tests/tools/evidence_report.py --refresh --live
+          fi
 
       - name: Re-render the CICS spec status page (#4789)
         # Derived output like the report above: PRs no longer commit docs/language_status/cics_spec_status.md (parallel

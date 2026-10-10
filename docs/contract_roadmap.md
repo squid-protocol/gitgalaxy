@@ -153,7 +153,7 @@ units come from the sheet.
   count contract as module constants; one `SignalContract` per registry key, sentences
   transcribed from the schema comments as `draft`, `api`/`args` as `stated`.
   `tests/signal_contract_audit.py` (new, baseline-gated, its own workflow beside
-  `dead-key-audit.yml`). `docs/signal_contracts.md` rendered from the module.
+  `small-audits.yml`). `docs/signal_contracts.md` rendered from the module.
   `how_to_add_a_language.md`: the stream contract as CRITICAL ENGINE RULE 18, pointer above the
   schema. `.claude/skills/rule-contract-audit/SKILL.md`: the #2730/#2743 method as a repeatable
   workflow. `docs/ecosystem.md` skills table and the rosetta workflow row.

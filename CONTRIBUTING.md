@@ -142,7 +142,7 @@ one manifest line and lists the baselines that must move in the same PR.
 
 `rosetta-audit` needs no escape hatch: it always checks out keyword-rosetta's `main` (that repo is
 public), so it runs for real on a fork PR too. Every other check — `full-suite`, the `smoke-test` matrix,
-`ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs normally on a fork PR too.
+`ruff-audit`, `mypy-audit`, `small-audits` (ast-accuracy) — runs normally on a fork PR too.
 
 ### Engine bug fixes: `tests/tools/bugfix_kit.py`
 

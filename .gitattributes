@@ -35,7 +35,7 @@
 #   them out of the repo's language statistics.
 #
 # Neither attribute affects `git diff --name-only`, so the change-detection in
-# .github/workflows/golden-master-guard.yml still fires on these paths, and
+# .github/workflows/small-audits.yml still fires on these paths, and
 # neither changes merge behaviour. `text eol=lf` keeps every part LF on every OS:
 # golden_store.check_canonical compares bytes, and a Windows checkout's autocrlf
 # would otherwise rewrite all ~200 parts to CRLF and fail

@@ -57,8 +57,8 @@ REPRO: list[tuple[str, str]] = [
         "python tests/tools/cics_crucible.py --ci --out /tmp/gitgalaxy-scratch/ci-digest/cics",
     ),
 ]
-NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|dead-key-audit|ast-accuracy-audit|rosetta-audit|"
-                      r"flag-golden-master-changes|Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
+NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|Small audits|rosetta-audit|"
+                      r"Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
 
 FLAKY = {  # #4477: wall-clock bound under CI load
     "test_regex_redos",

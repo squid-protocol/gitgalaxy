@@ -140,16 +140,22 @@ jobs:
               --comment "Superseded by a full (${EVENT}) evidence refresh, which re-proves everything this one did, plus the Db2 cases (#4743)."
           done
 
-  # #4733: the Db2 half of the sweep and the Db2 records. Its own runner: IBM's Db2 Community container needs --privileged
+  # #4733: the Db2 half of the sweep and the Db2 records. Its own runners: IBM's Db2 Community container needs --privileged
   # and a few GB of memory (a GitHub-hosted ubuntu-latest runner has both: 4 vCPU, 16 GB, root docker).
-  db2:
+  # #4863 step 6: one runner took ~34 min (38 cases, 673 scenarios at ~9 s a scenario per slot, then the stale records
+  # re-proved after the sweep), the refresh's critical path. Now 5 runners, each with its own Db2: the sweep in 4 shards
+  # (proof_sweep.py --shard I/4 --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
+  # `db2` job below merges the shards and applies the ratchet, as the `refresh` job does for the non-Db2 shards.
+  db2-part:
+    name: db2 ${{ matrix.part }}
     needs: lane
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2)
     runs-on: ubuntu-latest
-    timeout-minutes: 150
-    outputs:
-      sweep_ok: ${{ steps.db2_sweep.outcome == 'success' }}
-      sha: ${{ steps.db2_asof.outputs.sha }}  # the commit the Db2 results are of: the refresh job works from the same one
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ["1/4", "2/4", "3/4", "4/4", "records"]
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -163,10 +169,6 @@ jobs:
           ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
           fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
           persist-credentials: false
-
-      - name: Record the commit the Db2 results are of
-        id: db2_asof
-        run: echo "sha=$(git -C gitgalaxy rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Clone cics-crucible at the pin
         run: |
@@ -233,21 +235,25 @@ jobs:
           docker pull -q "$image"
           echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Re-sweep the Db2 det ports for the coverage ledger (#4733)
+      - name: Re-sweep this shard's Db2 det ports for the coverage ledger (#4733)
         id: db2_sweep
+        if: matrix.part != 'records'
         continue-on-error: true
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
+        env:
+          PART: ${{ matrix.part }}
         run: |
           cd gitgalaxy
           start=$(date +%s)
-          # The same ratchet as the non-Db2 sweep: a Db2 case that stops proving fails the job, and its coverage is not
-          # written to the ledger.
-          python tests/tools/proof_sweep.py --det-only --db2-only --jobs 4 --work "$RUNNER_TEMP/db2-sweep" \
-            | tee "$RUNNER_TEMP/db2-sweep.txt"
+          # The ratchet (a Db2 case that stops proving fails the run, and its coverage is not written to the ledger) is
+          # applied to the merged shards by the `db2` job (#4863).
+          python tests/tools/proof_sweep.py --det-only --db2-only --jobs 4 --shard "$PART" --no-ratchet \
+            --work "$RUNNER_TEMP/db2-sweep" | tee "$RUNNER_TEMP/db2-sweep.txt"
           echo "sweep_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
 
       - name: Re-prove the stale Db2 records (#4733)
         id: db2_records
+        if: matrix.part == 'records'
         continue-on-error: true
         shell: bash
         env:
@@ -260,13 +266,16 @@ jobs:
             | tee "$RUNNER_TEMP/db2-refresh.txt"
           echo "records_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
 
-      - name: Stage what the refresh job takes
+      - name: Stage what the db2 job takes
         if: always()
         shell: bash
+        env:
+          PART: ${{ matrix.part }}
         run: |
           out="$RUNNER_TEMP/db2-out"
           mkdir -p "$out/sweep"
           if [ -f "$RUNNER_TEMP/db2-sweep/sweep.json" ]; then cp "$RUNNER_TEMP/db2-sweep/sweep.json" "$out/sweep/sweep.json"; fi
+          [ "$PART" = "records" ] || { find "$out" -type f | sort; exit 0; }  # a sweep shard writes no records
           cd gitgalaxy
           # only the evidence records the proofs wrote (the refresh job re-renders the pages from them)
           git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/*/evidence.json' \
@@ -279,15 +288,118 @@ jobs:
         env:
           SWEEP_SECONDS: ${{ steps.db2_sweep.outputs.sweep_seconds }}
           RECORDS_SECONDS: ${{ steps.db2_records.outputs.records_seconds }}
+          PART: ${{ matrix.part }}
         run: |
           {
-            echo "## Db2 cases (#4733)"
+            echo "## Db2 cases, $PART (#4733, #4863)"
             echo "sweep: ${SWEEP_SECONDS:-?} s, records: ${RECORDS_SECONDS:-?} s"
             echo '```'
             grep -v '^ *$' "$RUNNER_TEMP/db2-sweep.txt" 2>/dev/null | grep -v 'WARNING\|INFO' | tail -60 || echo "(no sweep output)"
             echo '```'
             echo '```'
             cat "$RUNNER_TEMP/db2-refresh.txt" 2>/dev/null || echo "(no records output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep this part's results for the db2 job
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: db2-part-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/db2-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Keep the Db2 proofs' logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: db2-sweep-logs-${{ strategy.job-index }}
+          path: |
+            ${{ runner.temp }}/db2-sweep/det/*/proof.log
+            ${{ runner.temp }}/db2-sweep/det/*/proof/report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Fail when the Db2 sweep or a Db2 re-proof failed
+        if: steps.db2_sweep.outcome == 'failure' || steps.db2_records.outcome == 'failure'
+        run: |
+          echo "::error title=Db2 cases::the Db2 det sweep or a Db2 record's proof failed or could not run -- see the summary"
+          exit 1
+
+  # #4863 step 6: the Db2 shards and records merged, with the outputs and the `db2-results` artifact the `refresh` job has
+  # always taken from the Db2 job. The ratchet: every Db2 case must be in the merged shards (a shard that died fails it)
+  # and prove as det_sweep_baseline.json says (`--aggregate --expect db2`); the committed ledger is not checked here, as the
+  # refresh job rewrites it from these sweeps.
+  db2:
+    needs: [lane, db2-part]
+    if: ${{ !cancelled() && needs.db2-part.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      sweep_ok: ${{ steps.db2_sweep.outcome == 'success' }}
+      sha: ${{ needs.lane.outputs.sha }}  # the commit the Db2 results are of: every part checked it out
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          ref: ${{ needs.lane.outputs.sha }}
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "./gitgalaxy"
+
+      - name: Take the parts' results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: db2-part-*
+          path: ${{ runner.temp }}/db2-in
+        continue-on-error: true
+
+      - name: Merge the Db2 shards and apply the ratchet
+        id: db2_sweep
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the aggregate's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          shopt -s nullglob
+          found=("$RUNNER_TEMP"/db2-in/*/sweep/sweep.json)
+          echo "shards found: ${#found[@]}"
+          python tests/tools/proof_sweep.py --aggregate "${found[@]}" --expect db2 --skip-ledger-check \
+            | tee "$RUNNER_TEMP/db2-sweep.txt"
+
+      - name: Stage what the refresh job takes
+        if: always()
+        shell: bash
+        run: |
+          shopt -s nullglob
+          out="$RUNNER_TEMP/db2-out"
+          mkdir -p "$out/sweep"
+          i=0
+          for f in "$RUNNER_TEMP"/db2-in/*/sweep/sweep.json; do
+            i=$((i + 1)); mkdir -p "$out/sweep/shard-$i"; cp "$f" "$out/sweep/shard-$i/sweep.json"
+          done
+          for d in "$RUNNER_TEMP"/db2-in/*/records; do cp -r "$d" "$out/"; done
+          find "$out" -type f | sort
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Db2 cases merged (#4863)"
+            echo '```'
+            grep -v '^ *$' "$RUNNER_TEMP/db2-sweep.txt" 2>/dev/null | grep -v 'WARNING\|INFO' | tail -60 || echo "(no aggregate output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -300,21 +412,10 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
-      - name: Keep the Db2 proofs' logs
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: db2-sweep-logs
-          path: |
-            ${{ runner.temp }}/db2-sweep/det/*/proof.log
-            ${{ runner.temp }}/db2-sweep/det/*/proof/report.json
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Fail when the Db2 sweep or a Db2 re-proof failed
-        if: steps.db2_sweep.outcome == 'failure' || steps.db2_records.outcome == 'failure'
+      - name: Fail when the Db2 ratchet failed or a part failed
+        if: steps.db2_sweep.outcome == 'failure' || needs.db2-part.result == 'failure'
         run: |
-          echo "::error title=Db2 cases::the Db2 det sweep or a Db2 record's proof failed or could not run -- see the summary"
+          echo "::error title=Db2 cases::a Db2 shard or the Db2 records failed, or the merged sweep broke the ratchet -- see the summaries"
           exit 1
 
   # #4744: the non-Db2 det sweep for the coverage ledger, in parallel shards (proof_sweep.py --shard I/N, balanced by
@@ -789,8 +890,8 @@ jobs:
           sweeps=("$RUNNER_TEMP"/sweep-in/*/sweep.json)
           # #4733: the Db2 job's sweep too, when it ran and passed its ratchet; otherwise the Db2 entries stay as they were
           # (stale, not zero, once their inputs move: #4730)
-          if [ "$DB2_SWEEP_OK" = "true" ] && [ -f "$RUNNER_TEMP/db2-in/sweep/sweep.json" ]; then
-            sweeps+=("$RUNNER_TEMP/db2-in/sweep/sweep.json")
+          if [ "$DB2_SWEEP_OK" = "true" ]; then
+            sweeps+=("$RUNNER_TEMP"/db2-in/sweep/*/sweep.json)  # one per Db2 shard (#4863)
           fi
           python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
 

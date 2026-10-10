@@ -1,4 +1,5 @@
 import argparse
+import dataclasses
 import json
 import os
 import re
@@ -158,6 +159,25 @@ def walk_stmt(stmt):
             yield from walk_stmt(b)
 
 
+def census_lines(lines: list[S.Line]) -> tuple[list[S.Line], bool]:
+    """#4664: the translator refuses a program holding national / DBCS data (PIC N / G, USAGE NATIONAL / DISPLAY-1, an N / G
+    literal) whole, since it would lay it out one byte a character. A census counts what the source declares, so the same
+    lines with that data read as plain text (PIC X, no usage, no literal prefix) -- a stand-in for counting only, never a
+    translation -- and whether any was there (counted as NATIONAL). Everything else a program holds is counted as before."""
+    out, seen = [], False
+    for ln in lines:
+        text = ln.text
+        if S._national_data(S._outside_literals(text[: S._comment_at(text)])) is not None:
+            seen = True
+            text = re.sub(
+                r"(?<![\w-])(PIC(?:TURE)?(?:\s+IS)?\s+)(?=\S*[NGng])\S+?(?=\.?(?:\s|$))", r"\1X", text, flags=re.I
+            )
+            text = re.sub(r"(?:USAGE\s+(?:IS\s+)?)?" + S._NATIONAL_USAGE.pattern, "", text, flags=re.I)
+            text = S._NATIONAL_LITERAL.sub("", text)
+        out.append(dataclasses.replace(ln, text=text) if text != ln.text else ln)
+    return out, seen
+
+
 def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_copy_dirs: list[Path]):
     rel_prog = str(prog.relative_to(estate_dir)).replace("\\", "/")
 
@@ -192,17 +212,17 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
         return
 
     for unit in units:
+        unit_lines, national = census_lines(unit.lines)
+        if national:
+            count_item(inv, "data_types", "NATIONAL", rel_prog)
         # Data Division
         try:
-            records = L.parse(unit.lines)
+            records = L.parse(unit_lines)
             for rec in records:
                 for it in rec.walk():
                     u = it.usage.upper() if it.usage else ""
                     if u in {"COMP-1", "COMP-2", "COMP-3", "COMP-5", "BINARY", "PACKED", "NATIONAL"}:
                         count_item(inv, "data_types", u, rel_prog)
-                    if it.pic and it.pic.upper().startswith("N"):
-                        count_item(inv, "data_types", "NATIONAL", rel_prog)
-
                     if it.p_scaled:
                         count_item(inv, "data_types", "P-SCALED", rel_prog)
 
@@ -213,7 +233,7 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
 
         # Procedure Division
         try:
-            proc = ST.parse(unit.lines)
+            proc = ST.parse(unit_lines)
             for paragraph in proc.paragraphs:
                 for top_stmt in paragraph.body:
                     for stmt in walk_stmt(top_stmt):

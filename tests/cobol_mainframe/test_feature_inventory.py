@@ -213,3 +213,28 @@ def test_feature_inventory_cli_check():
     res = subprocess.run([sys.executable, str(TOOLS / "feature_inventory.py"), "--all-burned", "--check"],  # noqa: S603
                          capture_output=True, text=True, check=False)  # fmt: skip
     assert res.returncode == 0  # noqa: S101
+
+
+@pytest.mark.parametrize("national", ["PIC N(4)", "PIC G(4)", "PIC X(4) USAGE NATIONAL", "PIC X(4) USAGE IS DISPLAY-1"])
+def test_national_data_does_not_hide_the_rest_of_the_program(national):
+    """#4664: the translator refuses PIC N / G, USAGE NATIONAL / DISPLAY-1 and N / G literals whole; the census still reads
+    every other data type and statement of that program, whichever national form it holds."""
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "tools"))
+    import feature_inventory as FI
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import source as S
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    rows = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. P.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", f"01 N1 {national}.",
+            "01 B1 PIC S9(4) BINARY.", "01 P1 PIC S9(4) COMP-3.", "01 F1 USAGE COMP-1.", "PROCEDURE DIVISION.",
+            "    MOVE N'AB' TO N1", "    GOBACK."]  # fmt: skip
+    lines = [S.Line(t, "/x/P.cbl", n) for n, t in enumerate(rows, 1)]
+    with pytest.raises(L.LayoutError):
+        L.parse(lines)  # the translator itself still refuses it
+    census, seen = FI.census_lines(lines)
+    assert seen
+    usages = {it.name: it.usage for r in L.parse(census) for it in r.walk()}
+    assert usages["B1"] == "BINARY" and usages["P1"] == "PACKED" and usages["F1"] == "COMP-1"
+    assert [s.kind for pg in ST.parse(census).paragraphs for s in pg.body] == ["MOVE", "GOBACK"]

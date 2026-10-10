@@ -209,6 +209,26 @@ public final class DetCics {
         return n;
     }
 
+    /** #4769 (X33): DOCUMENT CREATE TEXT / BINARY LENGTH(n): `n` bytes of the area, null for a negative `n` (the task
+     *  answers LENGERR), refused (PastFrom) when `n` runs past the area, as a WRITEQ's LENGTH past FROM is. */
+    public static byte[] documentBytes(Field f, int n) {
+        if (n < 0) {
+            return null;
+        }
+        return bytes(f, within(f, n, "DOCUMENT CREATE"));
+    }
+
+    /** #4769 (X33): DOCUMENT RETRIEVE INTO(into): the document's bytes (at most MAXLENGTH of them) go INTO, the rest of INTO
+     *  as it was. More bytes than INTO holds are refused (PastFrom): CICS writes the storage that follows INTO, which
+     *  GnuCOBOL lays out unlike IBM's compiler (oracle_assumptions.md X6). */
+    public static void putDocument(Field into, byte[] data) {
+        if (data.length > into.length()) {
+            throw new PastFrom("DOCUMENT RETRIEVE MAXLENGTH beyond INTO: " + data.length + " > " + into.length()
+                    + " bytes: not modelled");
+        }
+        put(into, data);
+    }
+
     /** #4270: `n` bytes from a field's first byte within its record -- a SEND TEXT FROM(f) LENGTH(n) past FROM sends
      *  the items that follow it in its record (GenApp LGICVS01). Past the record's end the bytes are those of the
      *  compiler's WORKING-STORAGE layout, unlike IBM's under GnuCOBOL: refused as X6 is (PastFrom). */

@@ -53,6 +53,7 @@
  * options into GG-NAME1 / GG-NAME2 / GG-FLAGS.
  */
 #define _DEFAULT_SOURCE /* timegm, gmtime_r */
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2848,6 +2849,132 @@ int GGCWTO(gg_cics *c, char *from) {
     }
     snprintf(ev, sizeof ev, "WRITE-OPERATOR len=%d resp=0", c->len);
     event(ev, from, c->len);
+    return 0;
+}
+
+/* ---- #4769 zECS: the document handler's DOCUMENT CREATE and DOCUMENT RETRIEVE (IBM CICS TS, EXEC CICS DOCUMENT
+ * CREATE, DOCUMENT RETRIEVE; register X33) ----
+ * A document is the bytes the task built, named by a 16-byte DOCTOKEN ("GGDOC" and eleven digits); it lasts as long as
+ * the task (one process here). The installed DOCTEMPLATEs are a fact the runner states: the file $GGCICS_DOCTEMPLATES
+ * names, one `NAME TEXT-IN-HEX` per line (the text, hex, because it can hold line ends; '-' for an empty text); unstated, refused. */
+#define GG_MAXDOCS 64
+static unsigned char *docs[GG_MAXDOCS];
+static int doc_len[GG_MAXDOCS];
+static int ndocs = 0;
+
+static int doc_new(const unsigned char *data, int len, char *tok, int toklen) {
+    char t[17];
+    int i;
+    if (ndocs >= GG_MAXDOCS) refuse("DOCUMENT CREATE of more than 64 documents");
+    docs[ndocs] = malloc(len > 0 ? (size_t)len : 1);
+    memcpy(docs[ndocs], data, (size_t)(len > 0 ? len : 0));
+    doc_len[ndocs] = len;
+    ndocs++;
+    snprintf(t, sizeof t, "GGDOC%011d", ndocs);
+    for (i = 0; i < toklen && i < 16; i++) tok[i] = t[i];
+    for (; i < toklen; i++) tok[i] = ' ';
+    return 0;
+}
+
+/* The text the template `name` yields (malloc'd, `*len` bytes); NULL when it is not installed. */
+static unsigned char *doctemplate(const char *name, int *len) {
+    const char *env = getenv("GGCICS_DOCTEMPLATES");
+    char line[65536], n[100], hex[65000];
+    FILE *f;
+    if (!env) refuse("DOCUMENT CREATE: the installed document templates are not stated for this task");
+    f = fopen(env, "r");
+    if (!f) refuse("DOCUMENT CREATE: the installed document templates are not stated for this task");
+    while (fgets(line, sizeof line, f)) {
+        int hl, k;
+        unsigned char *out;
+        hex[0] = '\0';
+        if (sscanf(line, "%99s %64999s", n, hex) < 1 || strcmp(n, name) != 0) continue;
+        fclose(f);
+        hl = strcmp(hex, "-") == 0 ? 0 : (int)strlen(hex);
+        out = malloc((size_t)(hl / 2 + 1));
+        for (k = 0; k + 1 < hl; k += 2) {
+            unsigned int b;
+            sscanf(hex + k, "%2x", &b);
+            out[k / 2] = (unsigned char)b;
+        }
+        *len = hl / 2;
+        return out;
+    }
+    fclose(f);
+    return NULL;
+}
+
+/* Does `text` (`left` bytes) begin with `word`, in either case? */
+static int doc_word(const unsigned char *text, int left, const char *word) {
+    int n = (int)strlen(word), i;
+    if (left < n) return 0;
+    for (i = 0; i < n; i++)
+        if (tolower(text[i]) != word[i]) return 0;
+    return 1;
+}
+
+/* DOCUMENT CREATE DOCTOKEN(tok): GG-FLAGS names the source -- EMPTY; DATA (TEXT / BINARY: `src`, GG-LEN bytes, `srclen`
+ * the area's own length; a negative GG-LEN is LENGERR RESP2 1, one past the area is refused); TEMPLATE (`src` is the
+ * 48-byte name, `srclen` its length: NOTFND RESP2 3 when not installed). The token goes to `tok` (16 bytes, blank-padded)
+ * on NORMAL only. */
+int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen) {
+    char flags[41];
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strcmp(flags, "DATA") == 0) {
+        if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
+        if (c->len > srclen) refuse("DOCUMENT CREATE LENGTH past the TEXT / BINARY area");
+        return doc_new((unsigned char *)src, c->len, tok, toklen);
+    }
+    if (strcmp(flags, "TEMPLATE") == 0) {
+        char name[100];
+        int len = 0, i;
+        unsigned char *text;
+        trim(src, srclen < 99 ? srclen : 99, name);
+        text = doctemplate(name, &len);
+        if (!text) { c->resp = NOTFND; c->resp2 = 3; return 0; }
+        for (i = 0; i < len; i++) {
+            if (text[i] == '#' && (doc_word(text + i + 1, len - i - 1, "set") || doc_word(text + i + 1, len - i - 1, "include")
+                                   || doc_word(text + i + 1, len - i - 1, "echo")))
+                refuse("DOCUMENT CREATE TEMPLATE text with symbols or template commands");
+            if (text[i] == '&' && i + 1 < len && isalpha(text[i + 1])) {
+                int j = i + 1;
+                while (j < len && (isalnum(text[j]) || text[j] == '.' || text[j] == '_' || text[j] == '-')) j++;
+                if (j < len && text[j] == ';')
+                    refuse("DOCUMENT CREATE TEMPLATE text with symbols or template commands");
+            }
+        }
+        doc_new(text, len, tok, toklen);
+        free(text);
+        return 0;
+    }
+    return doc_new((unsigned char *)"", 0, tok, toklen);
+}
+
+/* DOCUMENT RETRIEVE DOCTOKEN(tok) INTO(into) MAXLENGTH(GG-LEN) DATAONLY: at most GG-LEN bytes go INTO (the rest of INTO
+ * is left alone), GG-LEN is set to the document's length -- the length it needs when truncated, LENGERR RESP2 2. NOTFND
+ * RESP2 1 for a token CICS did not give; LENGERR RESP2 1 for a negative MAXLENGTH (GG-LEN left alone). More bytes than
+ * INTO holds are refused. */
+int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen) {
+    char want[100];
+    int i, n, copied;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    trim(tok, toklen < 99 ? toklen : 99, want);
+    for (i = 0; i < ndocs; i++) {
+        char t[17];
+        snprintf(t, sizeof t, "GGDOC%011d", i + 1);
+        if (strcmp(t, want) == 0) break;
+    }
+    if (i == ndocs) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
+    n = doc_len[i];
+    copied = n < c->len ? n : c->len;
+    if (copied > intolen) refuse("DOCUMENT RETRIEVE MAXLENGTH beyond INTO");
+    memcpy(into, docs[i], (size_t)copied);
+    if (n > c->len) { c->resp = LENGERR; c->resp2 = 2; }
+    c->len = n;
     return 0;
 }
 

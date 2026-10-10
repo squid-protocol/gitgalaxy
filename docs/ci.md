@@ -65,3 +65,12 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
+
+## Main is red (main-watch)
+
+`.github/workflows/main-watch.yml` opens one `ci-red-main` issue per workflow that fails on main and closes it when
+the workflow next succeeds. Rules live in `tests/tools/main_watch.py` (`decide()` is pure, tested in
+`tests/tools/test_main_watch.py`). A run created with the repo `GITHUB_TOKEN` raises no `workflow_run` event (#4859),
+so `post-merge.yml` dispatches the Full Suite Gate with `AUTOMATION_PAT` (needs `actions: write`), and an hourly
+`reconcile` job reads the latest completed non-cancelled run of each open issue's workflow and comments or closes, so
+a dropped event is picked up within the hour. A failure caused only by cancelled legs says so in the comment.

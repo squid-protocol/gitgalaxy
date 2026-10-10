@@ -2426,3 +2426,49 @@ def test_asktime_nohandle_formattime_resp_and_readq_length_of():
     assert any("readqTsNext" in x for x in out)
     stored = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(KEY) RESP(R)", "")
     assert any("Cobol.store" in x and "length()" in x for x in stored)
+
+def test_cics_document_create_retrieve_insert_set(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    prog = tmp_path / "T2.cbl"
+    prog.write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. T2.\n"
+        "       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01  WS-TOKEN              PIC X(16).\n"
+        "       01  WS-TEMPLATE           PIC X(48) VALUE 'MYDOC'.\n"
+        "       01  WS-DATA               PIC X(100).\n"
+        "       01  WS-LEN                PIC S9(8) COMP VALUE 100.\n"
+        "       01  WS-RESP               PIC S9(8) COMP.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS DOCUMENT CREATE DOCTOKEN(WS-TOKEN)\n"
+        "                     TEMPLATE(WS-TEMPLATE) FROM(WS-DATA)\n"
+        "                     LENGTH(WS-LEN) RESP(WS-RESP)\n"
+        "           END-EXEC\n"
+        "           EXEC CICS DOCUMENT INSERT DOCTOKEN(WS-TOKEN)\n"
+        "                     FROM(WS-DATA) LENGTH(WS-LEN) RESP(WS-RESP)\n"
+        "           END-EXEC\n"
+        "           EXEC CICS DOCUMENT SET DOCTOKEN(WS-TOKEN)\n"
+        "                     TEXT(WS-DATA) LENGTH(WS-LEN) RESP(WS-RESP)\n"
+        "           END-EXEC\n"
+        "           EXEC CICS DOCUMENT RETRIEVE DOCTOKEN(WS-TOKEN)\n"
+        "                     INTO(WS-DATA) LENGTH(WS-LEN) DATAONLY\n"
+        "                     RESP(WS-RESP) END-EXEC\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T2Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(prog, [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    for call in (
+        "task.documentCreate(",
+        "task.documentInsert(",
+        "task.documentSet(",
+        "task.documentRetrieve(",
+    ):
+        assert call in r.java, call

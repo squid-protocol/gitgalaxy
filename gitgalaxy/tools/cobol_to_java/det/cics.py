@@ -1068,10 +1068,48 @@ class Cics:
             return self.send_control(opts, ind)
         if verb == "RECEIVE":
             return self.receive(opts, ind)
+        if verb.startswith("DOCUMENT "):
+            return self.document(verb, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
         raise CicsError(known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled")
+
+    def document(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """DOCUMENT (IBM CICS TS, EXEC CICS DOCUMENT CREATE / RETRIEVE / INSERT / SET)."""
+        r = self.g.tmpname("resp")
+        doctoken = self.read_field(_arg(opts.get("DOCTOKEN"))) if "DOCTOKEN" in opts else "null"
+        
+        if verb == "DOCUMENT CREATE":
+            template = self.name(_arg(opts.get("TEMPLATE"))) if "TEMPLATE" in opts else "null"
+            frm = self.read_field(_arg(opts.get("FROM"))) if "FROM" in opts else "null"
+            length = self.int_(_arg(opts.get("LENGTH"))) if "LENGTH" in opts else (f"DetCics.size({frm})" if frm != "null" else (f"DetCics.size({self.read_field(_arg(opts['TEXT']))})" if "TEXT" in opts else "0"))
+            text = self.read_field(_arg(opts.get("TEXT"))) if "TEXT" in opts else "null"
+            out = [f"{ind}CicsTask.DocumentResult {r} = task.documentCreate({template}, {frm}, {length}, {text});",
+                   self.g.store_into(self.ref(_arg(opts["DOCTOKEN"])), f"{r}.doctoken", False),
+                   *self.outcome(opts, f"{r}.resp", "0", ind)]
+            return out
+        elif verb == "DOCUMENT RETRIEVE":
+            into = self.ref(_arg(opts["INTO"]))
+            length_ref = self.ref(_arg(opts["LENGTH"]))
+            maxlength = self.int_(_arg(opts.get("MAXLENGTH"))) if "MAXLENGTH" in opts else (f"DetCics.size({into})" if into != "null" else "0")
+            dataonly = "true" if "DATAONLY" in opts else "false"
+            out = [f"{ind}CicsTask.DocumentResult {r} = task.documentRetrieve({doctoken}, {maxlength}, {dataonly});",
+                   self.g.store_into(into, f"{r}.data", False),
+                   self.g.store_into(length_ref, f"BigDecimal.valueOf({r}.length)", False),
+                   *self.outcome(opts, f"{r}.resp", "0", ind)]
+            return out
+        elif verb in ("DOCUMENT INSERT", "DOCUMENT SET"):
+            template = self.name(_arg(opts.get("TEMPLATE"))) if "TEMPLATE" in opts else "null"
+            frm = self.read_field(_arg(opts.get("FROM"))) if "FROM" in opts else "null"
+            length = self.int_(_arg(opts.get("LENGTH"))) if "LENGTH" in opts else (f"DetCics.size({frm})" if frm != "null" else (f"DetCics.size({self.read_field(_arg(opts['TEXT']))})" if "TEXT" in opts else "0"))
+            text = self.read_field(_arg(opts.get("TEXT"))) if "TEXT" in opts else "null"
+            method_name = "documentInsert" if verb == "DOCUMENT INSERT" else "documentSet"
+            out = [f"{ind}int {r} = task.{method_name}({doctoken}, {template}, {frm}, {length}, {text});",
+                   *self.outcome(opts, r, "0", ind)]
+            return out
+        else:
+            raise CicsError(f"EXEC CICS {verb} not modelled")
 
     # -- #4270: channels and containers
     def container(self, key: str, opts: dict, ind: str) -> list[str]:

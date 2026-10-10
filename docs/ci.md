@@ -11,7 +11,7 @@ checks on `main` are green.
 | `shepherd:merge` | Marks the PR ready and turns on auto-merge (squash). GitHub merges it when the required checks pass. |
 | `shepherd:hold` | Never auto-merge. Wins over `shepherd:merge`. |
 | `shepherd:matrix` | Runs the full OS x Python matrix (`full-suite-gate.yml`) on the PR's head. Auto-merge stays off until a green run exists for that head. Same-repo branches only; for a fork, run the matrix by hand. |
-| `shepherd:full` | The det sweep plans a full sweep instead of narrowing it to the changed cases. |
+| `shepherd:full` | The det sweep plans a full sweep instead of narrowing it to the changed cases: the shepherd reruns the latest sweep, which reads the label when it plans. (Label changes do not start the det sweep by themselves.) |
 
 A label added by someone without write access is removed by the bot, with a comment.
 

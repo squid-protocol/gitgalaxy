@@ -359,6 +359,26 @@ def test_approval_comes_from_the_labeled_event_payload_head():
     assert merged_by(gh)
 
 
+def test_the_approval_this_pass_wrote_counts_even_before_the_api_returns_it():
+    """Seen on #4854: the comment list read right after the marker's POST did not hold it yet, so the newest marker
+    read back was the previous head's and the label was dropped as unapproved."""
+    gh = Gh()
+    gh.dep_state = "closed"
+    old = "c" * 40
+    gh.comments = [bot_comment(f"<!-- shepherd:approved sha={old} by=joe -->")]  # an earlier head's approval
+    visible = list(gh.comments)
+    real_run = gh.run
+
+    def lagging_run(argv):  # the POST lands, but the next read of the comments does not show it yet
+        r = real_run(argv)
+        gh.comments, gh.posted = visible, gh.comments
+        return r
+
+    lines = sg.process(7, gh.api, lagging_run, {"action": "labeled", "label": sg.MERGE, "sender": "joe", "head": SHA})
+    assert lines[0].startswith("#7 approval marker for aaaaaaaaaaaa: ok")
+    assert merged_by(gh) and not any("label was removed" in ln for ln in lines)
+
+
 def test_a_marker_written_by_someone_else_is_ignored():
     gh = Gh()
     gh.dep_state = "closed"
@@ -528,3 +548,35 @@ def test_shepherd_workflow_follows_the_security_rules(path):
             assert step["with"].get("persist-credentials") is False
     if "pull_request_target" in on:
         assert set(on["pull_request_target"]["types"]) <= {"labeled", "unlabeled", "synchronize"}
+
+
+def test_shepherd_full_by_a_writer_reruns_the_det_sweep_and_status_labels_do_not():
+    """#4854: det-sweep no longer runs on label events (the shepherd's own status labels had cancelled the required
+    `det` sweep, over and over); a maintainer's shepherd:full reruns the latest sweep, whose plan reads it live."""
+    acts = sg.decide(
+        snap(labels=[sg.FULL], action="labeled", event_label=sg.FULL, sender={"login": "joe", "permission": "admin"})
+    )
+    assert by_op(acts, "rerun_det") == [{"op": "rerun_det", "sha": SHA}]
+    acts = sg.decide(
+        snap(labels=[sg.FULL], action="labeled", event_label=sg.FULL, sender={"login": "x", "permission": "read"})
+    )
+    assert not by_op(acts, "rerun_det")  # a non-writer's label is removed, nothing reruns
+    assert not by_op(sg.decide(snap(labels=[sg.RETRYING], action="labeled", event_label=sg.RETRYING)), "rerun_det")
+
+
+def test_det_sweep_does_not_run_on_label_events_and_reads_labels_live():
+    wf = (Path(__file__).resolve().parents[2] / ".github/workflows/det-sweep.yml").read_text(encoding="utf-8")
+    types = re.search(r"types: \[([^\]]*)\]", wf).group(1)
+    assert "labeled" not in types and "unlabeled" not in types
+    assert '--labels "$labels"' in wf and "issues/$PR/labels" in wf
+
+
+def test_plan_labels_option_overrides_the_event(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(dsp, "case_dirs", lambda: {"alpha": {"port_from": None}})
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["det_sweep_plan.py", "--files", "tests/equivalence/alpha/case.json", "--labels", "docs,shepherd:full"],
+    )
+    dsp.main()
+    assert json.loads(capsys.readouterr().out)["mode"] == "full"

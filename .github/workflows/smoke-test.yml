@@ -114,8 +114,9 @@ jobs:
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.
   # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in 3 parts, each on its own
-  # runner and each still -n auto (pytest-split --splits 3 --group N; balanced by test count until a durations file
-  # exists). `full-suite` below -- the required check -- passes only when every part passed.
+  # runner and each still -n auto (pytest-split --splits 3 --group N, balanced by .test_durations: per-test seconds,
+  # refreshed now and then with `pytest tests/ -n 8 --store-durations` (pytest-split installed); a test it does not
+  # list counts at the average). `full-suite` below -- the required check -- passes only when every part passed.
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
     runs-on: ubuntu-latest

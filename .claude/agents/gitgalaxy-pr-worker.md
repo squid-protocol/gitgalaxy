@@ -65,6 +65,8 @@ Do NOT commit the rendered evidence report (`docs/language_status/evidence_repor
 Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Route around a permission denial or classifier block -- on ANY denial, STOP and report it instead.
 
 ## After pushing
+To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md; the label rules run on GitHub). The local `python tests/tools/box/ci_shepherd.py add N` still works as the fallback.
+
 Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures; report what it said, not what you expect. A conclusion of `action_required` together with a CONFLICTING PR means merge main (no checks ran); it is not a failure. A killed background watcher is not a CI failure.
 
 ## Final report (under 200 words plus the handoff)

@@ -96,6 +96,13 @@ If your PR touches any baseline fixtures, **explain why in the PR description** 
 
 ---
 
+### Merging: labels (maintainers)
+
+A maintainer adds `shepherd:merge` to a green PR, and the bot marks it ready and merges it once the required checks
+pass. The status labels (`shepherd:needs-fix`, `shepherd:waiting-on-main`, `shepherd:retrying`) say where your PR is,
+and the one digest comment says what failed. Pushing new commits removes `shepherd:merge`: re-add it when the new head is
+ready. Full table: [`docs/ci.md`](docs/ci.md).
+
 ## 🍴 Corpus-backed checks
 
 Four checks scan the [language-crucible](https://github.com/squid-protocol/language-crucible)

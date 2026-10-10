@@ -28,6 +28,7 @@ name: Det Sweep
 on:
   pull_request:  # #4825: no path filter -- `det` is a required check; det_sweep_plan.py proves nothing (mode none)
     branches: [main]  # when no changed file is a det input (DET_INPUTS), so a docs-only PR passes `det` in about a minute
+    types: [opened, synchronize, reopened, labeled, unlabeled]  # #4847: the shepherd:full label reruns it (see plan)
   schedule:
     - cron: "41 4 * * *"  # nightly: the scan engine moves too (#4245 broke the mortgage ports from an engine change)
   workflow_dispatch:
@@ -42,6 +43,8 @@ concurrency:
 jobs:
   plan:
     name: plan
+    # #4847: a label event reruns the sweep only for shepherd:full (any other label is not a det input)
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled' || github.event.label.name == 'shepherd:full'
     runs-on: ubuntu-latest
     timeout-minutes: 25  # a minute normally; ~10 when a translator change needs the port diff (#4814)
     env:
@@ -65,7 +68,7 @@ jobs:
         run: |
           git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
           python3 tests/tools/det_sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
-            --github-output "$GITHUB_OUTPUT" | tee plan.json
+            --labels-from-event --github-output "$GITHUB_OUTPUT" | tee plan.json
           {
             echo "## Det sweep plan"
             echo '```json'

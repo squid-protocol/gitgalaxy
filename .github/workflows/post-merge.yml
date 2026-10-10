@@ -33,6 +33,11 @@ jobs:
       - name: Dispatch post-merge checks when PR runners are idle
         env:
           GH_TOKEN: ${{ github.token }}
+          # #4859: a run created with the repo GITHUB_TOKEN raises no `workflow_run` when it completes, so main-watch
+          # never saw the dispatched Full Suite Gate fail. The dispatch uses the PAT (a real actor); everything else
+          # here stays on the read-only token. Falls back to GITHUB_TOKEN if the secret is missing (main-watch's
+          # scheduled reconcile still catches the result).
+          DISPATCH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           REPO: ${{ github.repository }}
           # Workflows dispatched on main, one run per main SHA. Start small: the OS matrix only.
           WORKFLOWS: full-suite-gate.yml
@@ -64,5 +69,5 @@ jobs:
               continue
             fi
             echo "Dispatching $wf on main ($sha)."
-            gh workflow run "$wf" --repo "$REPO" --ref main
+            GH_TOKEN="${DISPATCH_TOKEN:-$GH_TOKEN}" gh workflow run "$wf" --repo "$REPO" --ref main
           done

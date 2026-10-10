@@ -183,3 +183,26 @@ def test_run_keeps_watching_an_empty_queue_unless_told(tmp_path, monkeypatch):
     except KeyboardInterrupt:
         pass
     assert sleeps == [5]  # an empty queue: it slept and would pass again
+
+
+def test_a_green_pr_behind_main_gets_its_branch_updated_once_per_head():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, mstate="behind", runs=[("ruff-audit", "success")])
+    did = step(gh, state)
+    assert "#1 behind: branch updated" in did and state["queue"] == [1]
+    assert gh.calls == [["gh", "pr", "update-branch", "1", "-R", cs.REPO_SLUG]]
+    step(gh, state)  # the same head: no second update
+    assert len(gh.calls) == 1
+
+
+def test_a_pending_pr_behind_main_is_not_updated_yet():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, mstate="behind", runs=[("ruff-audit", None)])
+    assert "#1 waiting: 1 pending" in step(gh, state) and gh.calls == []
+
+
+def test_a_behind_pr_with_a_failed_check_is_not_updated():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, mstate="behind", runs=[("full-suite", "failure")])
+    step(gh, state, failing("real"))
+    assert not any(c[:3] == ["gh", "pr", "update-branch"] for c in gh.calls)

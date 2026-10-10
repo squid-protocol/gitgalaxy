@@ -32,7 +32,7 @@ import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -209,7 +209,7 @@ def build_example(slug: str, corpus_name: str, what: str, out: Path, work: Path,
 
 
 # ---- equivalence ---------------------------------------------------------------------
-def build_equivalence(out: Path, work: Path, finished: Optional[Path]) -> list[dict[str, Any]]:
+def build_equivalence(out: Path, work: Path, finished: Path | None) -> list[dict[str, Any]]:
     import equivalence as eq
 
     results = []

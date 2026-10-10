@@ -45,7 +45,7 @@ import sys
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parents[1]
@@ -72,15 +72,15 @@ PANEL_SUB = {
 
 @dataclass
 class Cell:
-    precision: Optional[float]
-    recall: Optional[float]
+    precision: float | None
+    recall: float | None
     n_precision: int  # what precision is out of (engine edges / calls / judged links)
     n_recall: int  # what recall is out of (import statements / calls / reference edges)
     open_shapes: int = 0
     open_precision: int = 0  # shapes without a verdict on the precision (GitGalaxy-only) side
     open_recall: int = 0  # ... and on the recall (reference-only) side
-    raw_precision: Optional[float] = None
-    raw_recall: Optional[float] = None
+    raw_precision: float | None = None
+    raw_recall: float | None = None
     reference: str = ""  # call resolution: "tsc 6.0.2"
     corpus: str = ""  # the repos, for the tooltip
     unit: str = ""  # what n counts: imports / calls / edges
@@ -149,7 +149,7 @@ def _validated_cells(
     symbol_type: str,
     counts: tuple[str, str, str, str],
     ledger_path: Path,
-    corpus_key: Optional[str] = None,
+    corpus_key: str | None = None,
 ) -> dict[str, Cell]:
     open_by_side = _ledger_results(results, symbol_type, ledger_path)
     v = gl.validated(results, symbol_type, counts, ledger_path)
@@ -232,7 +232,7 @@ def load(ledger_path: Path = gl.LEDGER) -> dict[str, dict[str, Cell]]:
 # ----------------------------------------------------------------------------- rendering
 
 
-def _pct(x: Optional[float]) -> str:
+def _pct(x: float | None) -> str:
     return "-" if x is None else f"{x:.1f}%"
 
 
@@ -479,7 +479,7 @@ def _head_sha() -> str:
         return ""
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true", help=f"write {CHART_PATH.relative_to(REPO_ROOT)}")
     ap.add_argument("--check", action="store_true", help="fail if the committed SVG differs from a fresh render")

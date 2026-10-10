@@ -17,7 +17,7 @@
 import json
 import sqlite3
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.call_resolver import decode_qualifiers
 from gitgalaxy.core.unicode_paths import nfc
@@ -102,7 +102,7 @@ class StateRehydrator:
     def __init__(self, db_path: str):
         self.db_path = Path(db_path)
 
-    def load_state(self, repo_name: str, commit_hash: Optional[str] = None) -> Optional[dict[str, Any]]:
+    def load_state(self, repo_name: str, commit_hash: str | None = None) -> dict[str, Any] | None:
         """
         Rebuild the RAM dictionary from a baseline commit's state in SQLite.
 
@@ -217,7 +217,7 @@ class StateRehydrator:
                 # raw_signals). It is the exact inverse of hit_vector, so reconstruct it
                 # here -- without it, _calculate_risk_exposures recomputes every unchanged
                 # file's risk vector from an empty signal dict (all-zero drift).
-                equations = dict(zip(signal_names, hit_vector))
+                equations = dict(zip(signal_names, hit_vector, strict=True))
                 # #3220: the proximity-mitigation tally re-weights cognitive_load /
                 # safety_score / state_flux in the score layer (_proximity_tally ->
                 # _weighted). Restore it from the persisted JSON so the rehydrated file's
@@ -1236,7 +1236,7 @@ class StateRehydrator:
             print(f"⚠️ Database corruption or read error at {self.db_path}: {e}")
             return None
 
-    def load_latest_state(self, repo_name: str) -> Optional[dict[str, Any]]:
+    def load_latest_state(self, repo_name: str) -> dict[str, Any] | None:
         """Back-compat alias for `load_state(repo_name)` — the latest-by-date
         baseline. Prefer `load_state(repo_name, commit_hash=...)` with an explicit
         parent for longitudinal history walks (#2983)."""

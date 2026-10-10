@@ -354,7 +354,7 @@ def dumps(case: dict[str, Any], tables: list[str]) -> dict[str, bytes]:
         elif ln.startswith("[") or ln.startswith("NULL"):
             sections[-1].append(ln.rstrip())  # (CLP pads rows)
     return {t: ("|".join(names[t]) + "\n" + "\n".join(rows) + "\n").encode("latin-1")
-            for t, rows in zip(tables, sections)}  # fmt: skip
+            for t, rows in zip(tables, sections, strict=False)}  # fmt: skip  # reason: length may differ
 
 
 def split_sql(text: str, name: str = "SQL") -> list[str]:
@@ -460,7 +460,9 @@ def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
         elif a != b:  # #4507: field by field, by the table's columns (the whole line when it does not split)
             names, av, bv = head.split("|"), split_row(a), split_row(b)
             if len(av) == len(bv) == len(names):
-                fields = [{"field": c, "cobol": x, "java": y} for c, x, y in zip(names, av, bv) if x != y]
+                fields = [
+                    {"field": c, "cobol": x, "java": y} for c, x, y in zip(names, av, bv, strict=False) if x != y
+                ]  # reason: length may differ
             else:
                 fields = [{"field": head, "cobol": a, "java": b}]
             diffs.append({"record": i + 1, "fields": fields})
@@ -823,7 +825,7 @@ def generate_rows(case: dict[str, Any], corpus: Path, tables: dict[str, dict[str
                 pcols = fk["parent_columns"] or tables[fk["parent"]]["keys"][0]
                 optional = all(next(c for c in cols if c["name"] == x)["nullable"] for x in fk["columns"])
                 p = None if optional and len(made) % 9 == 8 else rng.choice(parent)
-                for x, pc in zip(fk["columns"], pcols):
+                for x, pc in zip(fk["columns"], pcols, strict=False):  # reason: length may differ
                     row[x] = None if p is None else p[pc]
             for c in cols:
                 cn, rule = c["name"], rules.get(c["name"], {})
@@ -851,11 +853,11 @@ def generate_rows(case: dict[str, Any], corpus: Path, tables: dict[str, dict[str
                          else (None if i == null_at else _spread(rng, c)))  # fmt: skip
                 row[cn] = _fits(c, v)
             tups = [tuple(row.get(c) for c in k) for k in keys]
-            if any(tup in s for tup, s in zip(tups, seen)):
+            if any(tup in s for tup, s in zip(tups, seen, strict=False)):  # reason: length may differ
                 for c in key_cols:  # the next attempt: in-between values for the key's columns
                     idx[c] = max(idx[c], 99)
                 continue
-            for tup, s in zip(tups, seen):
+            for tup, s in zip(tups, seen, strict=False):  # reason: length may differ
                 s.add(tup)
             for c in cols:
                 idx[c["name"]] += 1

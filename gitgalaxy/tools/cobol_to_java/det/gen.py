@@ -287,7 +287,7 @@ class Gen:
             levels = list(_occurs_chain(it))
             if len(levels) != len(ref.subscripts):
                 raise Untranslatable(f"{ref.name}: {len(ref.subscripts)} subscripts for {len(levels)} OCCURS levels")
-            for lvl, sub in zip(levels, ref.subscripts):
+            for lvl, sub in zip(levels, ref.subscripts, strict=True):
                 out += f".at({self.int_expr(sub)}, {lvl.size})"
         elif _occurs_chain(it):
             pass  # an unsubscripted table reference: the first occurrence (a group / whole-table move uses the group)
@@ -1427,7 +1427,7 @@ class Gen:
         levels = _occurs_chain(parent)
         if len(levels) != len(subscripts):
             raise Untranslatable(f"88 {cn.name}: {len(subscripts)} subscripts for {len(levels)} OCCURS levels")
-        for lvl, sub in zip(levels, subscripts):
+        for lvl, sub in zip(levels, subscripts, strict=True):
             f += f".at({self.int_expr(sub)}, {lvl.size})"
         return f
 
@@ -2369,7 +2369,9 @@ class Gen:
                 for objs in conds:
                     if len(objs) != len(subjects):
                         raise Untranslatable("WHEN with a different number of ALSO objects")
-                    alts.append(" && ".join(self.when_test(subj, obj) for subj, obj in zip(subjects, objs)))
+                    alts.append(
+                        " && ".join(self.when_test(subj, obj) for subj, obj in zip(subjects, objs, strict=True))
+                    )
                 test = " || ".join(f"({a})" for a in alts)
             kw = "if" if first else "} else if"
             if conds is not None:  # cb_end_cond after the WHEN's objects: its statements start clean

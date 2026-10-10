@@ -40,7 +40,7 @@
 #     that is a consumer's derivation from these rows.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 # Column 72 (index 71) is the continuation indicator; a continued line resumes
 # in column 16 (index 15). Columns 73-80 are sequence numbers and never read.
@@ -89,14 +89,14 @@ def _scan_operands(segment: str, text: list[str], state: dict[str, Any]) -> bool
     return False
 
 
-def _statements(code_stream: str) -> list[tuple[int, Optional[str], str, str]]:
+def _statements(code_stream: str) -> list[tuple[int, str | None, str, str]]:
     """(line, name, OPERATION, operands) for every DFHMSD/DFHMDI/DFHMDF statement.
 
     `operands` is the statement's operand field joined across its continuation
     lines, remarks dropped. Every other statement (TITLE, PRINT, COPY, END,
     conditional assembly) is consumed with its continuations and skipped."""
     lines = code_stream.split("\n")
-    out: list[tuple[int, Optional[str], str, str]] = []
+    out: list[tuple[int, str | None, str, str]] = []
     i = 0
     while i < len(lines):
         line = lines[i]
@@ -185,7 +185,7 @@ def _unparen(value: str) -> str:
     return value.replace(" ", "").upper()
 
 
-def _as_int(value: str) -> Optional[int]:
+def _as_int(value: str) -> int | None:
     value = value.strip()
     return int(value) if _INTEGER.fullmatch(value) else None
 
@@ -234,8 +234,8 @@ def bms_screen_fields(code_stream: str) -> list[dict[str, Any]]:
     A map outside any mapset, or a field before any map, is a root/partial tree
     rather than an error: the rows still describe what the file declares."""
     rows: list[dict[str, Any]] = []
-    mapset_ordinal: Optional[int] = None
-    map_ordinal: Optional[int] = None
+    mapset_ordinal: int | None = None
+    map_ordinal: int | None = None
     for line, name, operation, operands in _statements(code_stream):
         kind = _MACROS[operation]
         if kind == "mapset" and re.search(r"(?<![A-Za-z0-9])TYPE=FINAL(?![A-Za-z0-9])", operands, re.I):

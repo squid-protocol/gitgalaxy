@@ -44,7 +44,8 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards import analysis_lens
@@ -160,7 +161,11 @@ def audit(processor: SignalProcessor, case: EquationCase, jump_flag: float) -> t
     for fname, sig in ROSETTA_VECTORS.items():
         for tier in ("tier1", "tier2", "tier3"):
             scores = [float(case.call(processor, loc, sig, _tv(processor, tier))) for loc in locs]
-            below = scores if case.invariant_everywhere else [s for loc, s in zip(locs, scores) if loc < floor]
+            below = (
+                scores
+                if case.invariant_everywhere
+                else [s for loc, s in zip(locs, scores, strict=False) if loc < floor]
+            )  # reason: length may differ
             flags = []
             if below and (max(below) - min(below)) > INVARIANCE_EPSILON:
                 flags.append("INVARIANCE VIOLATION")

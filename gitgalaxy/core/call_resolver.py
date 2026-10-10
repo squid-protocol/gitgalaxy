@@ -54,7 +54,7 @@
 # ==============================================================================
 import posixpath
 from collections import Counter
-from typing import Any, Optional
+from typing import Any
 
 # Languages whose identifiers are case-insensitive, so `CALL Foo` reaches a
 # `FOO` definition. The detector's calls_out ignore uses the same list for its
@@ -252,7 +252,7 @@ _PACKAGE_SCOPED_LANGS = _PACKAGE_DIR_LANGS | frozenset(
 )
 
 
-def encode_qualifiers(calls_out_to: list[str], qualifiers: dict[str, list[str]]) -> Optional[list[Any]]:
+def encode_qualifiers(calls_out_to: list[str], qualifiers: dict[str, list[str]]) -> list[Any] | None:
     """The persisted form of `calls_out_qualifiers` (#3329): a list aligned with
     `calls_out_to`, so the callee names are not stored twice. Each element is the
     single receiver chain as a string (`""` for a bare call -- the common case),
@@ -273,7 +273,7 @@ def decode_qualifiers(calls_out_to: list[str], encoded: Any) -> dict[str, list[s
     if not isinstance(encoded, list) or len(encoded) != len(calls_out_to):
         return {}
     out: dict[str, list[str]] = {}
-    for callee, q in zip(calls_out_to, encoded):
+    for callee, q in zip(calls_out_to, encoded, strict=True):
         if isinstance(q, str):
             out[callee] = [q]
         elif isinstance(q, list) and all(isinstance(x, str) for x in q):
@@ -291,7 +291,7 @@ def _key(name: str, lang: str) -> str:
     return name.casefold() if lang in CASE_INSENSITIVE_CALL_LANGS else name
 
 
-def _leaf(name: str) -> tuple[str, Optional[str]]:
+def _leaf(name: str) -> tuple[str, str | None]:
     """`Foo::bar` / `Foo.bar` -> (`bar`, `Foo`); a plain name -> (name, None).
 
     Out-of-line C++ definitions (`int Foo::bar(...)`) and some method forms are
@@ -324,7 +324,8 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
     """`path_proximity.proximity_rank` over pre-split directories (same order,
     same ties) -- the resolver ranks millions of candidates on a large repo."""
     shared = 0
-    for a, b in zip(src_parts, d.parts):
+    # reason: path parts may differ in length
+    for a, b in zip(src_parts, d.parts, strict=False):
         if a != b:
             break
         shared += 1
@@ -342,10 +343,10 @@ class _Definition:
         stem: str,
         name: str,
         line: int,
-        owner_key: Optional[str],
+        owner_key: str | None,
         kind: str,
-        shape: Optional[str] = None,
-        arity: Optional[int] = None,
+        shape: str | None = None,
+        arity: int | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -375,7 +376,7 @@ class _Set:
         # #3836: a class that only DECLARES it (an interface, an `abstract` method)
         # counts too: a receiver may be that type, so it is one more candidate
         # class, though never a target itself.
-        self.owners: dict[str, set[Optional[str]]] = {}
+        self.owners: dict[str, set[str | None]] = {}
         for d in signatures:
             self.owners.setdefault(d.path, set()).add(d.owner_key)
         for d in defs:
@@ -384,9 +385,9 @@ class _Set:
                 self.by_path[d.path] = d
                 self.by_dir.setdefault(d.dir, []).append(d)
         self.n_paths = len(self.by_path)
-        self._prefix: Optional[dict[tuple[str, ...], list[_Definition]]] = None
+        self._prefix: dict[tuple[str, ...], list[_Definition]] | None = None
 
-    def nearest(self, src_parts: tuple[str, ...]) -> Optional[_Definition]:
+    def nearest(self, src_parts: tuple[str, ...]) -> _Definition | None:
         """`_nearest_of` over the whole set, through a directory-prefix index.
 
         The deepest directory prefix of the caller that any candidate shares is
@@ -427,9 +428,9 @@ class _Bucket:
         # `abstract` method): never targets (#3757), but they say the call
         # dispatches to an override the scan cannot pick
         self.signatures: list[_Definition] = []
-        self._all: Optional[_Set] = None
-        self._free: Optional[_Set] = None
-        self._methods: Optional[_Set] = None
+        self._all: _Set | None = None
+        self._free: _Set | None = None
+        self._methods: _Set | None = None
 
     def add(self, d: _Definition) -> None:
         self.defs.append(d)
@@ -545,7 +546,7 @@ _CONSTRUCTOR_NAMES: dict[str, tuple[str, ...]] = {
 _CLASS_NAMED_CONSTRUCTOR_LANGS = frozenset({"java", "csharp", "cpp", "dart", "apex", "objective-c"})
 
 
-def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, lang: str) -> Optional[_Definition]:
+def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, lang: str) -> _Definition | None:
     """The constructor method of class definition `cls`, if the scan extracted one.
 
     One in the class's own file, else one beside it with the same stem (a C++
@@ -572,7 +573,7 @@ def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, l
     return None
 
 
-def _imports_by_file(dependency_edges: Optional[list[dict[str, Any]]]) -> dict[str, set[str]]:
+def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for e in dependency_edges or []:
         if e.get("edge_kind", "import") == "import":
@@ -638,7 +639,7 @@ def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, la
     return bucket is not None and any(d.kind == "class" for d in bucket.defs)
 
 
-def _lineage(owner: Optional[str], group: str, lang: str, parents: dict[tuple[str, str], set[str]]) -> list[str]:
+def _lineage(owner: str | None, group: str, lang: str, parents: dict[tuple[str, str], set[str]]) -> list[str]:
     """The caller's class followed by its ancestors, nearest first (bounded)."""
     if not owner:
         return []
@@ -655,11 +656,11 @@ def _lineage(owner: Optional[str], group: str, lang: str, parents: dict[tuple[st
     return out
 
 
-def _nearest_of(defs: list[_Definition], src_parts: tuple[str, ...]) -> Optional[_Definition]:
+def _nearest_of(defs: list[_Definition], src_parts: tuple[str, ...]) -> _Definition | None:
     """The nearest of definitions in DISTINCT files, or None on an exact tie."""
     if len(defs) == 1:
         return defs[0]
-    best: Optional[_Definition] = None
+    best: _Definition | None = None
     best_rank = second_rank = (1, 0)
     for d in defs:
         r = _rank(src_parts, d)
@@ -692,7 +693,7 @@ class _File:
 
     __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
 
-    def __init__(self, path: str, lang: str, imported: set[str], aliases: Optional[dict[str, set[str]]] = None) -> None:
+    def __init__(self, path: str, lang: str, imported: set[str], aliases: dict[str, set[str]] | None = None) -> None:
         self.path = path
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
@@ -704,10 +705,10 @@ class _File:
         self.imported_dirs = {posixpath.basename(_dirname(p)) for p in imported}
 
 
-_Cache = dict[tuple[str, str, int], Optional[_Definition]]
+_Cache = dict[tuple[str, str, int], _Definition | None]
 
 
-def _nearest(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Definition]:
+def _nearest(cset: _Set, caller: _File, cache: _Cache) -> _Definition | None:
     """Nearest file in the whole set; depends only on the caller's directory."""
     ck = ("dir", caller.dir, id(cset))
     if ck not in cache:
@@ -715,7 +716,7 @@ def _nearest(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Definition]:
     return cache[ck]
 
 
-def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Definition]:
+def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> _Definition | None:
     """Nearest file among those the caller imports; depends on the caller's file.
     A tie among imported files still picks one (first path): both are visible."""
     ck = ("imp", caller.path, id(cset))
@@ -728,7 +729,7 @@ def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Def
     return cache[ck]
 
 
-def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Definition]:
+def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> _Definition | None:
     """Nearest file in the caller's own directory (a package)."""
     ck = ("loc", caller.dir, id(cset))
     if ck not in cache:
@@ -737,7 +738,7 @@ def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Defini
     return cache[ck]
 
 
-def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Optional[_Definition]]:
+def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _Definition | None]:
     """An untyped receiver (`x.save()`): confident only when exactly ONE visible
     class defines the method -- in the caller's own file, else among the files
     it imports, else (package-scoped languages only) in its own directory. Several classes at the first level
@@ -772,7 +773,7 @@ def _other_visible_class(cset: _Set, caller: _File) -> bool:
     return False
 
 
-def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, Optional[_Definition]]:
+def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, _Definition | None]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
     `visible_only` is the unknown-receiver case: the method's defining file must
@@ -798,19 +799,19 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
 
 
 def _resolve_one(
-    bucket: Optional[_Bucket],
+    bucket: _Bucket | None,
     caller: _File,
     lineage: list[str],
-    qualifier: Optional[str],
+    qualifier: str | None,
     cache: _Cache,
-    typed: Optional[dict[str, list[str]]] = None,
-) -> tuple[str, Optional[_Definition]]:
+    typed: dict[str, list[str]] | None = None,
+) -> tuple[str, _Definition | None]:
     """One (caller, callee, qualifier) lookup. `qualifier` None = not captured."""
     if bucket is None:
         return "none", None
     by_owner = bucket.by_owner
 
-    def owned(owner_key: str) -> Optional[_Definition]:
+    def owned(owner_key: str) -> _Definition | None:
         """The caller's own file's definition on that class, else the nearest one."""
         defs = by_owner.get(owner_key)
         if not defs:
@@ -820,7 +821,7 @@ def _resolve_one(
                 return d
         return _nearest_of(defs, caller.parts) or min(defs, key=lambda d: d.path)
 
-    def walk(owners: list[str]) -> Optional[tuple[str, Optional[_Definition]]]:
+    def walk(owners: list[str]) -> tuple[str, _Definition | None] | None:
         """The caller's lineage, nearest class first: the first class with a body
         for the name wins (`class`). #3836: a class that only DECLARES it -- an
         `abstract` method, an interface's -- ends the walk: the call dispatches to
@@ -921,7 +922,7 @@ def _resolve_one(
 _BLOCK_SCOPED_LANGS = frozenset({"typescript", "javascript"})
 
 
-def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> Optional[_Definition]:
+def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> _Definition | None:
     """Among several same-file bindings a bare call can reach (`bucket.free`), the
     one a call at `caller_line` sees; None with fewer than two."""
     same = [d for d in bucket.free.defs if d.path == path and d.kind == "function"]
@@ -969,8 +970,8 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
 
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
-    dependency_edges: Optional[list[dict[str, Any]]] = None,
-    namespace_aliases: Optional[dict[str, dict[str, str]]] = None,
+    dependency_edges: list[dict[str, Any]] | None = None,
+    namespace_aliases: dict[str, dict[str, str]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
 
@@ -1057,7 +1058,7 @@ def resolve_calls(
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
-                options: list[Optional[str]] = list(quals.get(callee) or []) or [None]
+                options: list[str | None] = list(quals.get(callee) or []) or [None]
                 step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
                 used = options[0]
                 for q in options[1:]:
@@ -1105,7 +1106,7 @@ def resolve_calls(
                 # its argument counts pick, each its own row; a count that cannot
                 # choose leaves an ambiguous `overload` row (the first overload kept
                 # as the guess), which is never an edge
-                targets: list[tuple[str, Optional[_Definition]]] = [(step, dst)]
+                targets: list[tuple[str, _Definition | None]] = [(step, dst)]
                 if (
                     kind == "call"
                     and lang in OVERLOAD_LANGS

@@ -16,7 +16,7 @@
 
 import logging
 import statistics
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.spatial_correlation import weighted_view
 
@@ -53,8 +53,8 @@ class StatisticalAuditor:
 
     def __init__(
         self,
-        parent_logger: Optional[logging.Logger] = None,
-        lang_defs: Optional[dict[str, Any]] = None,
+        parent_logger: logging.Logger | None = None,
+        lang_defs: dict[str, Any] | None = None,
     ):
         """Initializes the statistical auditor and synchronizes telemetry."""
 

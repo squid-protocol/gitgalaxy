@@ -25,7 +25,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
@@ -56,7 +56,7 @@ def _in_file(node: dict[str, Any], uri: str) -> bool:
     return node.get("locality", {}).get("uri", "").rstrip("/") == uri
 
 
-def _name(node: dict[str, Any]) -> Optional[str]:
+def _name(node: dict[str, Any]) -> str | None:
     if node.get("name"):
         return str(node["name"]).upper()
     for c in node.get("children", []):
@@ -65,7 +65,7 @@ def _name(node: dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _first(clauses: list[Any]) -> Optional[str]:
+def _first(clauses: list[Any]) -> str | None:
     if not clauses:
         return None
     c = clauses[0]
@@ -77,12 +77,12 @@ def _first(clauses: list[Any]) -> Optional[str]:
     return str(c)
 
 
-def _usage(clauses: list[Any]) -> Optional[str]:
+def _usage(clauses: list[Any]) -> str | None:
     u = _first(clauses)
     return u.replace("_", "-") if u else None  # Che4z writes the enum name, COMP_3
 
 
-def _occurs(clauses: list[Any]) -> tuple[Optional[int], Optional[int], Optional[str]]:
+def _occurs(clauses: list[Any]) -> tuple[int | None, int | None, str | None]:
     if not clauses or not isinstance(clauses[0], dict):
         return None, None, None
     c = clauses[0]
@@ -96,7 +96,7 @@ def _occurs(clauses: list[Any]) -> tuple[Optional[int], Optional[int], Optional[
     return lo, hi, (str(dep) if dep else None)
 
 
-def _value(clauses: list[Any]) -> Optional[str]:
+def _value(clauses: list[Any]) -> str | None:
     if not clauses or not isinstance(clauses[0], dict):
         return None
     iv = clauses[0].get("valueIntervals") or []
@@ -110,7 +110,7 @@ def ast_facts(doc: dict[str, Any], path: Path) -> dict[str, set[str]]:
     programs: list[str] = []
     spans: dict[str, list[int]] = {}
 
-    def visit(n: dict[str, Any], unit: Optional[str], in_proc: bool, prog: int) -> None:
+    def visit(n: dict[str, Any], unit: str | None, in_proc: bool, prog: int) -> None:
         t = n.get("nodeType")
         if t == "PROGRAM_ID" and n.get("programId"):
             programs.append(str(n["programId"]).upper())
@@ -159,10 +159,12 @@ def ast_facts(doc: dict[str, Any], path: Path) -> dict[str, set[str]]:
 
 
 def copy_dirs(root: Path) -> list[str]:
-    return sorted({str(p.parent) for p in root.rglob("*") if p.is_file() and ".git" not in p.parts and p.suffix in COPY_EXTS})
+    return sorted(
+        {str(p.parent) for p in root.rglob("*") if p.is_file() and ".git" not in p.parts and p.suffix in COPY_EXTS}
+    )
 
 
-def run_member(jar: Path, path: Path, dirs: list[str], work: Path, ast: bool) -> tuple[Optional[dict[str, Any]], str]:
+def run_member(jar: Path, path: Path, dirs: list[str], work: Path, ast: bool) -> tuple[dict[str, Any] | None, str]:
     cmd = ["java", "-Xss64m", "-jar", str(jar), "analysis", "-s", str(path)]
     cmd += [f"-cf={d}" for d in dirs] + [f"-ce={e.lstrip('.')}" for e in COPY_EXTS] + (["--ast"] if ast else [])
     out = work / "out.json"

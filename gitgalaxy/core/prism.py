@@ -9,7 +9,7 @@
 # ==============================================================================
 import logging
 import re
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 from gitgalaxy.core.cobol_source_format import blank_identification_area, blank_sequence_area, line_formats
 from gitgalaxy.standards.language_standards import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, PRISM_CONFIG
@@ -118,7 +118,7 @@ class Prism:
         self,
         comment_definitions: dict[str, Any],
         language_definitions: dict[str, Any],
-        parent_logger: Optional[logging.Logger] = None,
+        parent_logger: logging.Logger | None = None,
     ):
         """Initializes the Prism and pre-compiles the regex matrix."""
 
@@ -547,7 +547,7 @@ class Prism:
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
         carry_aware = lang_id in ("python", "micropython", "embedded_python", "ruby", "shell")
         out: list[str] = []
-        carry_quote: Optional[str] = None
+        carry_quote: str | None = None
 
         # Compiled unconditionally (not just `if lang_id == "perl"`): cheap,
         # and it lets `_mask_perl_line_positional` close over plain
@@ -925,7 +925,7 @@ class Prism:
         code = pattern.sub(strip_callback, text)
         return code, "\n".join(lits)
 
-    def _generic_family_pattern(self, lang_id: str, family: str) -> Optional[re.Pattern]:
+    def _generic_family_pattern(self, lang_id: str, family: str) -> re.Pattern | None:
         """Picks the generic comment-stripping pattern for one segment.
 
         #1718: a C++ `standard_block` segment uses CPP_REGEX_MATRIX, whose
@@ -941,7 +941,7 @@ class Prism:
                 return cpp_pattern
         return self.REGEX_MATRIX.get(family)
 
-    def _compile_regex_matrix(self, literal_pattern: Optional[str] = None) -> dict[str, re.Pattern]:
+    def _compile_regex_matrix(self, literal_pattern: str | None = None) -> dict[str, re.Pattern]:
         """Safely pre-compiles the standard regex matrix based on dynamic config lengths."""
         matrix = {}
 
@@ -1338,7 +1338,7 @@ class Prism:
         enclosing real string. Detected via an unclosed quote in the line
         prefix."""
         seg = text[text.rfind("\n", 0, opener_start) + 1 : opener_start]
-        in_q: Optional[str] = None
+        in_q: str | None = None
         i = 0
         while i < len(seg):
             c = seg[i]
@@ -1475,7 +1475,7 @@ class Prism:
     def _find_balanced_end(self, text: str, start_pos: int, opener: str, closer: str) -> int:
         """Balanced scoping implementation for paired-bracket embedded segments."""
         depth = 0
-        in_string: Optional[str] = None
+        in_string: str | None = None
         limit = int(min(start_pos + self.EMBEDDED_LOOKAHEAD_LIMIT, len(text)))
 
         i = start_pos
@@ -1720,7 +1720,7 @@ class Prism:
         # inline-split step below entirely.
         if bms_mode:
             col1_anchors: set[str] = {"*"}
-            col7_anchors: Optional[set[str]] = None
+            col7_anchors: set[str] | None = None
         elif abap_mode:
             col1_anchors = {"*"}
             col7_anchors = None
@@ -1734,7 +1734,7 @@ class Prism:
         # SOURCE-COMPUTER says WITH DEBUGGING MODE, otherwise the compiler reads it as a comment (Enterprise
         # COBOL LR, "Debugging lines"). Read as code, CBSA BANKDATA's trailing `D    DISPLAY` lines extended
         # CDW010 past its last statement.
-        debug_comments: Optional[list[bool]] = None
+        debug_comments: list[bool] | None = None
         if cobol_mode and ("D" in text or "d" in text):
             formats = line_formats(text)
             plain = "\n".join(ln for ln in text.split("\n") if not (len(ln) >= 7 and ln[6] in "*/"))
@@ -1748,7 +1748,7 @@ class Prism:
                     and len(ln) >= 7
                     and ln[6] in "Dd"
                     and (" " not in ln[:6] if ln[:6].strip() else ln[7:8] in ("", " ", "\t"))
-                    for ln, f in zip(text.split("\n"), formats)
+                    for ln, f in zip(text.split("\n"), formats, strict=True)
                 ]
 
         for n, line in enumerate(text.split("\n")):
@@ -1890,7 +1890,7 @@ class Prism:
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
         carry_aware = lang_id in ("python", "micropython", "embedded_python", "ruby", "shell")
         code, comments = [], []
-        carry_quote: Optional[str] = None
+        carry_quote: str | None = None
 
         if lang_id == "perl":
             perl_bare_regex_preceding = re.compile(
@@ -2038,7 +2038,7 @@ class Prism:
 
         return "\n".join(code), "\n".join(comments)
 
-    def _mask_line_literals(self, line: str, pattern: Optional[str] = None) -> tuple[str, list[str]]:
+    def _mask_line_literals(self, line: str, pattern: str | None = None) -> tuple[str, list[str]]:
         """Replaces each string/char literal on a single line with a `__MASK_N__` placeholder, returning the masked line and the literals in match order. `pattern` overrides the default LITERAL_MASK_PATTERN (e.g. #259's ABAP mask, which must not treat `"` as a quote)."""
         masked_literals: list[str] = []
 

@@ -48,7 +48,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.cics_resources import _BLOCK_LIMIT, _END_EXEC, _EXEC_CICS, _options
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
@@ -147,8 +148,8 @@ def _word_boundary_find(text: str, word: str) -> int:
 
 def extract_uow_handlers(
     code_stream: str,
-    values: Optional[dict[str, str]] = None,
-    shielded: Optional[Callable[[int], bool]] = None,
+    values: dict[str, str] | None = None,
+    shielded: Callable[[int], bool] | None = None,
 ) -> list[dict[str, Any]]:
     """Every unit-of-work point, handler, explicit ABEND and RESP check in one
     COBOL file, as source-ordered rows (see the module header)."""
@@ -179,7 +180,7 @@ def extract_uow_handlers(
         out.update(extra)
         return out
 
-    def resolved(operand: Optional[str]) -> Optional[str]:
+    def resolved(operand: str | None) -> str | None:
         if not operand:
             return None
         op = operand.strip()
@@ -189,7 +190,7 @@ def extract_uow_handlers(
 
     headers = [m.start() for m in _HEADER.finditer(text)]
     rows: list[tuple[int, dict[str, Any]]] = []
-    blocks: list[tuple[int, int, list[tuple[str, Optional[str]]]]] = []
+    blocks: list[tuple[int, int, list[tuple[str, str | None]]]] = []
     matches = [m for m in _EXEC_CICS.finditer(text) if shielded is None or not shielded(m.start())]
     for index, match in enumerate(matches):
         stop_at = matches[index + 1].start() if index + 1 < len(matches) else len(text)
@@ -231,7 +232,7 @@ def extract_uow_handlers(
         elif verb == "HANDLE" and rest and rest[0][0] == "ABEND":
             opts = dict(rest[1:])
             label, program = opts.get("LABEL"), opts.get("PROGRAM")
-            target: Optional[str]
+            target: str | None
             if label:
                 target, tkind = label.upper(), "LABEL"
             elif program:

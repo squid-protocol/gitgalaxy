@@ -60,7 +60,7 @@ import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TESTS = REPO_ROOT / "tests"
@@ -107,7 +107,7 @@ class Check:
     member: str
     fact: str
     status: str
-    horror: Optional[str] = None
+    horror: str | None = None
     detail: str = ""
     # horrors this fact can only pass after (a call to a program whose PROGRAM-ID is a horror)
     depends_on: list = field(default_factory=list)
@@ -125,9 +125,9 @@ class Score:
         member: str,
         fact: str,
         status: str,
-        horror: Optional[str] = None,
+        horror: str | None = None,
         detail: str = "",
-        depends_on: Optional[list] = None,
+        depends_on: list | None = None,
     ) -> None:
         self.checks.append(Check(channel, member, fact, status, horror, detail, list(depends_on or [])))
 
@@ -135,7 +135,7 @@ class Score:
 # ----------------------------------------------------------------------------- inputs
 
 
-def crucible_path(arg: Optional[Path]) -> Path:
+def crucible_path(arg: Path | None) -> Path:
     """--crucible, else $ESTATE_CRUCIBLE_PATH, else ../estate-crucible beside the main checkout."""
     if arg:
         return arg
@@ -240,7 +240,7 @@ class Engine:
         self.ir = load_galaxy_ir(db)
         self.files = self.ir.files
         # the scan's COPY collision report (#4421: persisted in repo_data); None: no copy libraries declared
-        self.collisions: Optional[list[dict[str, Any]]] = self.ir.copy_member_collisions
+        self.collisions: list[dict[str, Any]] | None = self.ir.copy_member_collisions
         conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
         try:
             ids = {
@@ -308,7 +308,7 @@ class Engine:
             conn.close()
 
 
-def _json_list(raw: Optional[str]) -> list[str]:
+def _json_list(raw: str | None) -> list[str]:
     try:
         v = json.loads(raw) if raw else []
     except ValueError:
@@ -320,7 +320,7 @@ def _u(v: Any) -> Any:
     return v.upper() if isinstance(v, str) else v
 
 
-def _val(v: Optional[str]) -> Optional[str]:
+def _val(v: str | None) -> str | None:
     """A VALUE as its content: quotes dropped, blanks inside a literal kept."""
     if v is None:
         return None
@@ -350,7 +350,7 @@ def score_programs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> 
         sc.add("programs", path, extra, "phantom")
 
 
-def _owner(eng: Engine, path: str, unit: Optional[str], start: Optional[int]) -> Optional[dict[str, Any]]:
+def _owner(eng: Engine, path: str, unit: str | None, start: int | None) -> dict[str, Any] | None:
     """The engine unit that holds a key unit: by name (the one nearest `start` when a member
     holds several programs with the same paragraph names), or, for the main line (no name),
     a synthetic_unit_data row or a function_data unit at its first line."""
@@ -675,7 +675,7 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             sc.add("sql_tables", path, f["table"], "missing", f.get("horror"))
             continue
         problems = [_diff([("line", f["line"], t.line), ("columns", len(f["columns"]), len(t.columns))])]
-        for kc, ec in zip(f["columns"], t.columns):
+        for kc, ec in zip(f["columns"], t.columns, strict=False):  # reason: length may differ
             problems.append(
                 _diff(
                     [
@@ -1282,7 +1282,7 @@ def text(sc: Score, crucible: Path) -> str:
     return "\n".join(lines) + "\n"
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument(
         "--crucible", type=Path, help=f"estate-crucible checkout (default ${PATH_ENV} or ../estate-crucible)"

@@ -21,7 +21,7 @@ import sys
 import unicodedata
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.special_names import special_names
@@ -29,7 +29,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precisi
 
 
 def parse_cobol_picture(
-    pic_clause: str, decimal_comma: bool = False, usage: Optional[str] = None, currency_symbols: Iterable[str] = ()
+    pic_clause: str, decimal_comma: bool = False, usage: str | None = None, currency_symbols: Iterable[str] = ()
 ) -> dict:
     """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type. #3910: `currency_symbols` are the
     program's declared PICTURE SYMBOLs (`U` for 'EUR '), each a currency position like `$`."""
@@ -145,7 +145,7 @@ def data_entries(content: str) -> list[dict]:
 
 
 def forge_schemas(
-    filepath: Path, ignore_vars: Optional[set] = None, corporate_header: str = "", declared: Optional[str] = None
+    filepath: Path, ignore_vars: set | None = None, corporate_header: str = "", declared: str | None = None
 ):
     """
     Analyzes a COBOL/Copybook file and generates modern schemas.
@@ -182,11 +182,11 @@ def forge_schemas(
 def render_schemas(
     entries: list[dict],
     table_name: str,
-    ignore_vars: Optional[set] = None,
+    ignore_vars: set | None = None,
     corporate_header: str = "",
     decimal_comma: bool = False,
     currency_symbols: Iterable[str] = (),
-) -> Optional[dict]:
+) -> dict | None:
     """The SQL DDL and JSON Schema of a program's data description entries, in source order.
 
     #3348: `entries` come from this forge's own reader (`data_entries`) or from the

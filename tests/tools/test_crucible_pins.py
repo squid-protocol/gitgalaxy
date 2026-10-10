@@ -35,7 +35,7 @@ def commit(repo, msg):
 def world(tmp_path, monkeypatch):
     """A manifest plus, per crucible, an upstream repo (tags v1.0.0, v2.0.0) and a shared clone at v1.0.0."""
     lines = []
-    for name, env in zip(manifest.NAMES, ENV_VARS):
+    for name, env in zip(manifest.NAMES, ENV_VARS, strict=False):  # reason: length may differ
         upstream = tmp_path / f"{name}-upstream"
         upstream.mkdir()
         git(upstream, "init", "-q", "-b", "main")

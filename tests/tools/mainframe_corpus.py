@@ -46,7 +46,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "tests" / "cobol_mainframe" / "corpora.json"
@@ -67,7 +67,7 @@ def cache_root() -> Path:
     return Path(os.environ.get(CACHE_ENV) or REPO_ROOT / ".mainframe_corpora").resolve()
 
 
-def select(names: list[str], corpora: Optional[list[dict[str, Any]]] = None) -> list[dict[str, Any]]:
+def select(names: list[str], corpora: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     corpora = load_manifest() if corpora is None else corpora
     if not names:
         return corpora
@@ -150,7 +150,7 @@ def engine_key() -> str:
     return f"{head}-dirty{h.hexdigest()[:8]}"
 
 
-def db_path(corpus: dict[str, Any], engine: Optional[str] = None) -> Path:
+def db_path(corpus: dict[str, Any], engine: str | None = None) -> Path:
     scan_dir = cache_root() / "_scans" / corpus["name"] / f"{corpus['ref'][:12]}-{engine or engine_key()}"
     return scan_dir / f"{corpus['name']}_galaxy_master.db"
 

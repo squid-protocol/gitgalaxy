@@ -26,7 +26,7 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -101,7 +101,7 @@ def compare(base: dict[str, Any], now: dict[str, Any]) -> tuple[list[str], list[
     return bad, good
 
 
-def report(base: Optional[dict[str, Any]], now: dict[str, Any], bad: list[str], good: list[str]) -> str:
+def report(base: dict[str, Any] | None, now: dict[str, Any], bad: list[str], good: list[str]) -> str:
     passed = sum(1 for v in now["horrors"].values() if v == "PASS")
     out = [f"### estate-crucible gate ({now['pinned_ref']}): horrors {passed}/{len(now['horrors'])}", ""]
     out += ["| channel | pass | fail | missing | phantom | unscored | baseline pass |", "|---|--:|--:|--:|--:|--:|--:|"]
@@ -118,7 +118,7 @@ def report(base: Optional[dict[str, Any]], now: dict[str, Any], bad: list[str], 
     return "\n".join(out) + "\n"
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument(
         "--crucible", type=Path, help=f"estate-crucible checkout (default ${ec.PATH_ENV} or ../estate-crucible)"

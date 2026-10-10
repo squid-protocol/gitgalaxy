@@ -23,7 +23,6 @@
 import re
 import unicodedata
 from pathlib import Path
-from typing import Optional
 
 # `COBOL__SAM2` -> ["COBOL", "SAM2"]; `WS-CUST_REC` -> ["WS", "CUST", "REC"].
 _SEPARATORS = re.compile(r"[^A-Za-z0-9]+")
@@ -142,7 +141,7 @@ def java_url_segment(key: str) -> str:
     return "-".join(word.lower() for word in _SEPARATORS.split(key) if word) or "legacy"
 
 
-def program_key_from_ir(ir_state: dict, explicit: Optional[str] = None) -> str:
+def program_key_from_ir(ir_state: dict, explicit: str | None = None) -> str:
     """`explicit` (the caller's clean-room key) when given, else the IR's own file
     name. The fallback keeps the single-file CLIs and older callers working."""
     if explicit:

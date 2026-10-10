@@ -38,7 +38,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
@@ -137,8 +137,8 @@ def _events(project: Path) -> list[dict[str, Any]]:
     return [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()] if log.is_file() else []
 
 
-def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Optional[str],
-             backend_command: Optional[str]) -> dict[str, Any]:  # fmt: skip
+def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: str | None,
+             backend_command: str | None) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
 
     case = eq.load_case(case_name)
@@ -252,7 +252,7 @@ def strip_comments(java: str) -> str:
             j = i + 1
             while j < n and java[j] != c:
                 j += 2 if java[j] == "\\" else 1
-            out.append(java[i:j + 1])
+            out.append(java[i : j + 1])
             i = j + 1
         else:
             out.append(c)
@@ -267,9 +267,9 @@ def _body_after(java: str, pos: int) -> str:
     while i < len(java):
         depth += {"{": 1, "}": -1}.get(java[i], 0)
         if depth == 0:
-            return java[start + 1:i]
+            return java[start + 1 : i]
         i += 1
-    return java[start + 1:]
+    return java[start + 1 :]
 
 
 def tidy_scaffold(java: str) -> tuple[str, int, int]:
@@ -282,7 +282,7 @@ def tidy_scaffold(java: str) -> tuple[str, int, int]:
         if _STUB_BODY.fullmatch(_body_after(tidied, end)):
             pos = k + len(SCAFFOLD_TODO)
             continue
-        tidied, dropped = tidied[:k] + tidied[k + len(SCAFFOLD_TODO):], dropped + 1
+        tidied, dropped = tidied[:k] + tidied[k + len(SCAFFOLD_TODO) :], dropped + 1
         pos = k
     retagged = tidied.count(RESP_TODO)
     tidied = tidied.replace(RESP_TODO, RESP_NOTE)
@@ -374,7 +374,7 @@ def run_many(cases: list[str], root: Path, jobs: int, attempts: int, model: str)
     return results
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")

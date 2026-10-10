@@ -75,7 +75,7 @@
 import bisect
 import json
 import re
-from typing import Any, Optional
+from typing import Any
 
 # #3344: the DB2 DECLARE TABLE / DCLGEN channel lives in its own module (it is
 # not a DATA DIVISION construct) and rides out of extract_boundary as `sql_tables`.
@@ -548,7 +548,7 @@ _VALUE_CLAUSE = re.compile(
 _COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
 
 
-def _continued_literal(code_stream: str, open_at: int) -> Optional[str]:
+def _continued_literal(code_stream: str, open_at: int) -> str | None:
     """#4391: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
     continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
     quote through column 72, then each continuation line's (`-` in column 7) characters after its
@@ -637,7 +637,7 @@ _REPLACING_PAIR = re.compile(
 )
 
 
-def _copy_replacing(window: str, at: int) -> Optional[list[list[str]]]:
+def _copy_replacing(window: str, at: int) -> list[list[str]] | None:
     """#4265: the [from, to] pairs of the REPLACING phrase of the COPY whose text-name ends at `at` -- a
     third element LEADING / TRAILING when the phrase says so (partial-word replacement)."""
     head = _COPY_REPLACING_HEAD.match(window, at)
@@ -812,7 +812,7 @@ def _cics_contract_operands(block: str) -> dict[str, str]:
     return out
 
 
-def _identifier_value(values: dict[str, str], operand: str) -> Optional[str]:
+def _identifier_value(values: dict[str, str], operand: str) -> str | None:
     """The fixed value of a data name, or of a PL/I qualified reference's field
     (`TRANS_OPPL_OMR.TRANSKODE` -> the INIT of TRANSKODE): the INIT belongs to the field."""
     return values.get(operand) or (values.get(operand.rsplit(".", 1)[-1]) if "." in operand else None)
@@ -1045,7 +1045,7 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
                 break
             anchor = found.end()
             at = line_no + upper.count("\n", 0, found.start())
-            mode: Optional[str] = None
+            mode: str | None = None
             for token in upper[found.end() :].replace(",", " ").replace(".", " ").split():
                 if token in _OPEN_MODES:
                     mode = token
@@ -1071,7 +1071,7 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
 _SIGN_SEPARATE_CLAUSE = re.compile(r"(?:\b(LEADING)\s+|\bTRAILING\s+|\bSIGN\s+(?:IS\s+)?)SEPARATE\b", re.IGNORECASE)
 
 
-def _sign_separate(window: str) -> Optional[int]:
+def _sign_separate(window: str) -> int | None:
     """#3694: 1 for SIGN [TRAILING] SEPARATE, 2 for SIGN LEADING SEPARATE, None for an embedded sign."""
     m = _SIGN_SEPARATE_CLAUSE.search(window)
     if not m:
@@ -1080,7 +1080,7 @@ def _sign_separate(window: str) -> Optional[int]:
 
 
 def _cobol_records(
-    code_stream: str, decimal_comma: Optional[bool] = None, section_copies: Optional[list[dict[str, Any]]] = None
+    code_stream: str, decimal_comma: bool | None = None, section_copies: list[dict[str, Any]] | None = None
 ) -> list[dict[str, Any]]:
     """The DATA DIVISION item tree and FD record layouts of one COBOL file (#3246).
 
@@ -1135,7 +1135,7 @@ def _cobol_records(
         windows.append((data_start, data_end))
     window_starts = [w[0] for w in windows]
 
-    def _window_end(offset: int) -> Optional[int]:
+    def _window_end(offset: int) -> int | None:
         """The end of the DATA DIVISION window holding `offset`, or None when it is in none."""
         i = bisect.bisect_right(window_starts, offset) - 1
         return windows[i][1] if i >= 0 and windows[i][0] <= offset < windows[i][1] else None
@@ -1151,7 +1151,7 @@ def _cobol_records(
     section_offsets = [s[0] for s in sections]
     fd_offsets = [f[0] for f in fds]
 
-    def _context(offset: int) -> tuple[Optional[str], Optional[str]]:
+    def _context(offset: int) -> tuple[str | None, str | None]:
         """The (section, fd_name) in force at `offset`. fd only inside FILE SECTION."""
         s_idx = bisect.bisect_right(section_offsets, offset) - 1
         section = sections[s_idx][1] if s_idx >= 0 else None
@@ -1183,9 +1183,9 @@ def _cobol_records(
     records: list[dict[str, Any]] = []
     entry_starts: list[tuple[int, int]] = []  # (offset, ordinal) of each entry, for the #4457 section COPYs
     captured: set[int] = set()  # offsets of the COPY statements an entry carries
-    stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, usage) of the open group items
-    last_item_ordinal: Optional[int] = None
-    open_window: Optional[int] = None
+    stack: list[tuple[int, int, str | None]] = []  # (level, ordinal, usage) of the open group items
+    last_item_ordinal: int | None = None
+    open_window: int | None = None
 
     for pos, level_match in enumerate(entries):
         start = level_match.start()
@@ -1207,7 +1207,7 @@ def _cobol_records(
 
         ordinal = len(records)
         if level in _CONDITION_LEVELS:
-            parent_ordinal: Optional[int] = last_item_ordinal
+            parent_ordinal: int | None = last_item_ordinal
             parent_usage = stack[-1][2] if stack else None
         else:
             while stack and (stack[-1][0] >= level or level == 77):
@@ -1224,7 +1224,7 @@ def _cobol_records(
         # DIVISION, where a `DISPLAY` verb or a `'BINARY'` literal became its USAGE (and `PIC 9(4)` sized
         # as 2 bytes). A usage is read only from the entry's own text too.
         entry = _ENTRY_END.split(_QUOTED.sub(lambda q: " " * len(q.group(0)), window), maxsplit=1)[0]
-        usage: Optional[str]
+        usage: str | None
         if _NATIONAL_USAGE.search(entry):
             usage = "NATIONAL"
         else:
@@ -1474,7 +1474,7 @@ def _pli_split(text: str, sep: str) -> list[tuple[int, str]]:
     """(offset, piece) for `text` split on `sep` outside quotes and parentheses."""
     pieces: list[tuple[int, str]] = []
     depth = 0
-    quote: Optional[str] = None
+    quote: str | None = None
     start = 0
     for i, ch in enumerate(text):
         if quote is not None:
@@ -1496,7 +1496,7 @@ def _pli_split(text: str, sep: str) -> list[tuple[int, str]]:
 def _pli_balanced(text: str, open_at: int) -> int:
     """The index just past the `)` closing the `(` at `open_at` (quote-aware), or len(text)."""
     depth = 0
-    quote: Optional[str] = None
+    quote: str | None = None
     for i in range(open_at, len(text)):
         ch = text[i]
         if quote is not None:
@@ -1517,7 +1517,7 @@ def _pli_upper(text: str) -> str:
     """Upper-cased outside quoted literals, whitespace runs collapsed to one space
     and dropped just inside parentheses (`POS( 4)` reads `POS(4)`)."""
     out: list[str] = []
-    quote: Optional[str] = None
+    quote: str | None = None
     for ch in text:
         if quote is not None:
             out.append(ch)
@@ -1543,7 +1543,7 @@ def _pli_tokens(text: str) -> list[str]:
     raw: list[str] = []
     buf: list[str] = []
     depth = 0
-    quote: Optional[str] = None
+    quote: str | None = None
     for ch in text:
         if quote is not None:
             buf.append(ch)
@@ -1575,7 +1575,7 @@ def _pli_tokens(text: str) -> list[str]:
     return [_pli_upper(t) for t in tokens if not t.isdigit()]
 
 
-def _pli_unquote(literal: str) -> Optional[str]:
+def _pli_unquote(literal: str) -> str | None:
     """The body of a single quoted literal (`''` folded to `'`), or None if it is not one."""
     literal = literal.strip()
     if len(literal) >= 2 and literal[0] in "'\"" and literal[-1] == literal[0]:
@@ -1586,7 +1586,7 @@ def _pli_unquote(literal: str) -> Optional[str]:
     return None
 
 
-def _pli_extent(dims: str) -> tuple[Optional[int], Optional[str]]:
+def _pli_extent(dims: str) -> tuple[int | None, str | None]:
     """(extent, REFER name) of the first dimension of a `(...)` dimension list."""
     first = _pli_split(dims, ",")[0][1].strip()
     refer = None
@@ -1604,7 +1604,7 @@ def _pli_extent(dims: str) -> tuple[Optional[int], Optional[str]]:
         return None, refer
 
 
-def _pli_item_attributes(tokens: list[str]) -> Optional[dict[str, Any]]:
+def _pli_item_attributes(tokens: list[str]) -> dict[str, Any] | None:
     """The record_data fields of one item from its attribute tokens, or None when
     the declaration is not data (a FILE, BUILTIN, CONDITION, ENTRY constant ...)."""
     parsed: list[tuple[str, str]] = []
@@ -1660,7 +1660,7 @@ def _pli_item_attributes(tokens: list[str]) -> Optional[dict[str, Any]]:
             section = keyword
 
     if scale or base:
-        usage: Optional[str] = " ".join(x for x in (scale, base) if x) + (precision or "")
+        usage: str | None = " ".join(x for x in (scale, base) if x) + (precision or "")
     elif string_type:
         usage = string_type + (f" {varying}" if varying else "")
     else:
@@ -1676,7 +1676,7 @@ def _pli_item_attributes(tokens: list[str]) -> Optional[dict[str, Any]]:
     }
 
 
-def _pli_items(body: str) -> list[tuple[int, Optional[int], str, Optional[str], list[str]]]:
+def _pli_items(body: str) -> list[tuple[int, int | None, str, str | None, list[str]]]:
     """Split one DECLARE body into (offset, level, name, dims, attribute tokens) items.
 
     A factored declaration (`DCL (A, B) CHAR(5)`, `2 (X, Y) FIXED BIN`) expands to
@@ -1686,7 +1686,7 @@ def _pli_items(body: str) -> list[tuple[int, Optional[int], str, Optional[str], 
     it comes back as a marker, (offset, None, "%INCLUDE", member, []), where it sits
     (#3728).
     """
-    out: list[tuple[int, Optional[int], str, Optional[str], list[str]]] = []
+    out: list[tuple[int, int | None, str, str | None, list[str]]] = []
     for offset, piece in _pli_split(body, ","):
         i = _pli_skip_leading(piece)
         if i >= len(piece):
@@ -1776,7 +1776,7 @@ def _pli_records(code_stream: str) -> list[dict[str, Any]]:
             continue
         body_start = start + i + (declare.end() if declare else 0)
         statement_first = len(records)
-        stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, root storage class)
+        stack: list[tuple[int, int, str | None]] = []  # (level, ordinal, root storage class)
         for offset, level, name, dims, tokens in _pli_items(text[body_start : start + len(statement)]):
             if name == "%INCLUDE":  # #3728: the member expands right after the item before it
                 if len(records) > statement_first:
@@ -1846,7 +1846,7 @@ def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     the continuing comma nor joins the operands (#3345).
     """
     statements: list[tuple[int, str, str, str]] = []
-    pending: Optional[list] = None
+    pending: list | None = None
 
     for idx, line in enumerate(code_stream.split("\n"), start=1):
         stripped = line.rstrip()
@@ -1885,7 +1885,7 @@ def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return statements
 
 
-def _jcl_operands(field: str) -> list[tuple[Optional[str], str]]:
+def _jcl_operands(field: str) -> list[tuple[str | None, str]]:
     """One operand field split on its top-level commas into (KEY, value) pairs.
 
     Commas inside apostrophes or parentheses do not split
@@ -1910,7 +1910,7 @@ def _jcl_operands(field: str) -> list[tuple[Optional[str], str]]:
             start = idx + 1
     parts.append(field[start:])
 
-    out: list[tuple[Optional[str], str]] = []
+    out: list[tuple[str | None, str]] = []
     for part in parts:
         key = _JCL_OPERAND_KEY.match(part)
         if key:
@@ -1966,7 +1966,7 @@ def _jcl_substitute(text: str, table: dict[str, str], depth: int = 0) -> tuple[s
     return _JCL_SYMBOL_REF.sub(_replace, text), complete
 
 
-def _jcl_resolve_dsn(dsn: str, table: dict[str, str]) -> Optional[str]:
+def _jcl_resolve_dsn(dsn: str, table: dict[str, str]) -> str | None:
     """The DSN with its symbols substituted, or None unless every one resolved.
 
     After substitution JCL re-reads the operand, so a blank or comma a value
@@ -1999,7 +1999,7 @@ def _jcl_resolve_datasets(
     Precedence inside a procedure is EXEC override > PROC default > SET.
     """
 
-    def _mark(row: dict[str, Any], resolved: Optional[str], status: str) -> None:
+    def _mark(row: dict[str, Any], resolved: str | None, status: str) -> None:
         row["dsn_resolved"] = resolved
         row["dsn_resolution"] = status
 
@@ -2088,7 +2088,7 @@ def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
     job_rows: list[tuple[dict[str, Any], dict[str, str]]] = []
     procs: list[dict[str, Any]] = []
     procs_by_name: dict[str, dict[str, Any]] = {}
-    current: Optional[dict[str, Any]] = None
+    current: dict[str, Any] | None = None
 
     for line, name, operation, operands in _jcl_statements(code_stream):
         if operation == "JOB":
@@ -2198,7 +2198,7 @@ def _csd_attributes(record: str) -> dict[str, str]:
         # characters is unterminated, and without the bound a record of stray
         # parens or quotes rescans to its end from every keyword (quadratic).
         stop = min(len(record), i + _CSD_VALUE_MAX)
-        quote: Optional[str] = None
+        quote: str | None = None
         chars: list[str] = []
         while i < stop and depth > 0:
             ch = record[i]
@@ -2240,7 +2240,7 @@ def _csd_records(code_stream: str) -> list[tuple[int, str]]:
     and so cleanly separate the DEFINE records they surround.
     """
     records: list[tuple[int, list[str]]] = []
-    current: Optional[tuple[int, list[str]]] = None
+    current: tuple[int, list[str]] | None = None
 
     def _flush() -> None:
         nonlocal current
@@ -2323,13 +2323,13 @@ def _jcl_csd_transactions(code_stream: str) -> list[dict[str, Any]]:
     return _csd_transactions(code_stream)
 
 
-def _csd_int(value: Optional[str]) -> Optional[int]:
+def _csd_int(value: str | None) -> int | None:
     """A numeric CSD attribute (`KEYLENGTH(16)`), or None when absent or not a number."""
     value = (value or "").strip()
     return int(value) if value.isdigit() and len(value) <= 9 else None
 
 
-def _csd_upper(value: Optional[str]) -> Optional[str]:
+def _csd_upper(value: str | None) -> str | None:
     """A name-valued CSD attribute, upper-cased, or None when absent or empty."""
     return (value or "").strip().upper() or None
 
@@ -2374,7 +2374,7 @@ def _csd_resources(code_stream: str) -> list[dict[str, Any]]:
         name = head.group(2).upper()
         attrs = _csd_attributes(record[head.end() :])
         if resource == _CSD_TXN_RESOURCE:
-            transid: Optional[str] = name
+            transid: str | None = name
         else:
             transid = _csd_upper(attrs.get("TRANSID") or attrs.get("TRANSACTION"))
         program = name if resource == _CSD_PGM_RESOURCE else _csd_upper(attrs.get("PROGRAM"))

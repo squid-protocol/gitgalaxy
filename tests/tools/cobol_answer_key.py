@@ -83,7 +83,8 @@ import re
 import sys
 import unicodedata
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from key_text import read_key_text  # noqa: E402 -- #3869: the key's own decoder, never the engine's
@@ -234,7 +235,7 @@ def _blank_literals(text: str) -> str:
 class Source:
     """One program's code lines, split into divisions, with literal-blanked twins."""
 
-    def __init__(self, path: Path, lines: Optional[list[tuple[int, str]]] = None):
+    def __init__(self, path: Path, lines: list[tuple[int, str]] | None = None):
         """`lines` is another reading's (line, text) pairs (#3495: HlasmSource);
         without it the file is read as fixed-format COBOL."""
         self.path = path
@@ -257,7 +258,7 @@ class Source:
     def line_of(self, offset: int) -> int:
         return self._line_at[min(offset, len(self._line_at) - 1)] if self._line_at else 0
 
-    def _procedure_start(self) -> Optional[int]:
+    def _procedure_start(self) -> int | None:
         """Index into self.lines of the first line AFTER the PROCEDURE DIVISION header sentence."""
         for i, (_, area) in enumerate(self.lines):
             if re.search(r"\bPROCEDURE\s+DIVISION\b", _blank_literals(area)):
@@ -267,7 +268,7 @@ class Source:
                 return j + 1
         return None
 
-    def program_id(self) -> Optional[str]:
+    def program_id(self) -> str | None:
         m = re.search(r"\bPROGRAM-ID\.?\s+['\"]?([A-Z0-9@#$-]+)", self.raw_text)
         return m.group(1) if m else None
 
@@ -321,10 +322,10 @@ class HlasmSource(Source):
             lines.extend(group)
         super().__init__(path, lines)
 
-    def _procedure_start(self) -> Optional[int]:
+    def _procedure_start(self) -> int | None:
         return 0  # no divisions: every statement is procedure code
 
-    def program_id(self) -> Optional[str]:
+    def program_id(self) -> str | None:
         return None
 
 
@@ -354,10 +355,10 @@ class PliSource(Source):
         self.inits = pli_char_inits(raw)
         super().__init__(path, list(enumerate("".join(out).split("\n"), 1)))
 
-    def _procedure_start(self) -> Optional[int]:
+    def _procedure_start(self) -> int | None:
         return 0  # no divisions: every statement is procedure code
 
-    def program_id(self) -> Optional[str]:
+    def program_id(self) -> str | None:
         return None
 
 
@@ -440,7 +441,7 @@ def program_spans(src: Source) -> list[dict[str, Any]]:
         span["end_line"] = src.lines[-1][0]
         if span["stop"] is None:
             span["stop"] = len(src.lines)
-    for span, start in zip(spans, starts):
+    for span, start in zip(spans, starts, strict=False):  # reason: length may differ
         # Read over the header lines joined: the name may sit on the line after
         # `PROGRAM-ID.` (#3418).
         head_end = next((x for x in (span["proc"], span["stop"]) if x is not None), len(src.lines))
@@ -476,7 +477,7 @@ def keyed_dead(prog: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def sibling_at(prog: dict[str, Any], line: int) -> Optional[str]:
+def sibling_at(prog: dict[str, Any], line: int) -> str | None:
     """The innermost sibling program whose lines hold `line`, or None for the
     entry's own (first) program (#4206)."""
     inside = [(s["line"], pid) for pid, s in prog.get("siblings", {}).items() if s["line"] <= line <= s["end_line"]]
@@ -489,7 +490,7 @@ def keyed_unit_name(prog: dict[str, Any], name: str, line: int) -> str:
     return sibling_unit(pid, name) if pid else name
 
 
-def _units(src: Source, start: Optional[int] = None, stop: Optional[int] = None) -> list[dict[str, Any]]:
+def _units(src: Source, start: int | None = None, stop: int | None = None) -> list[dict[str, Any]]:
     """Paragraph/section headers in Area A of the PROCEDURE DIVISION, with bodies.
 
     An implicit unit holds any statements between the division header and the
@@ -620,7 +621,7 @@ def unit_edges(u: dict[str, Any], names: set[str]) -> list[dict[str, Any]]:
     return [e for _, e in sorted(edges, key=lambda x: x[0])]
 
 
-def main_line_unit(units: list[dict[str, Any]], names: set[str]) -> Optional[dict[str, Any]]:
+def main_line_unit(units: list[dict[str, Any]], names: set[str]) -> dict[str, Any] | None:
     """#4318/#4302: a program's main line as a key pseudo-unit (`line`, `end`,
     `edges`), or None when its first header follows the division header directly."""
     if not units or units[0]["name"]:
@@ -630,7 +631,7 @@ def main_line_unit(units: list[dict[str, Any]], names: set[str]) -> Optional[dic
 
 
 def _copied_unit_names(
-    src: Source, start: Optional[int], stop: Optional[int], copybooks: list[dict[str, Any]], repo: Path
+    src: Source, start: int | None, stop: int | None, copybooks: list[dict[str, Any]], repo: Path
 ) -> set[str]:
     """#4318: the paragraph and section names the procedure copybooks of one
     program's PROCEDURE DIVISION (`src.lines[start:stop]`) bring in -- PERFORM
@@ -747,7 +748,7 @@ def _is_terminal(text: str) -> bool:
     return any(_sentence_is_terminal(s) for s in _sentences(text))
 
 
-def _tail_perform(text: str) -> list[tuple[str, Optional[str]]]:
+def _tail_perform(text: str) -> list[tuple[str, str | None]]:
     """(target, thru) for every sentence of the unit that is exactly an
     unconditional out-of-line PERFORM -- any one of a range that never returns
     makes the unit terminal, wherever it sits in the unit."""
@@ -797,13 +798,13 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
                     terminal[i] = changed = True
 
     reached: dict[int, str] = {}
-    queue: list[tuple[int, Optional[int], str]] = [(0, None, "entry")]
+    queue: list[tuple[int, int | None, str]] = [(0, None, "entry")]
     for i, u in enumerate(units):
         for m in _CICS_HANDLE.finditer(u["text"]):
             for tok in re.findall(rf"\(\s*({NAME})\s*\)", m.group(1)):
                 if tok in index:
                     queue.append((index[tok], None, f"EXEC CICS HANDLE label in {u['name'] or '(procedure division)'}"))
-    seen: set[tuple[int, Optional[int]]] = set()
+    seen: set[tuple[int, int | None]] = set()
     while queue:
         start, end, why = queue.pop(0)
         if (start, end) in seen:
@@ -867,7 +868,7 @@ def _zapp_locations(zapp: Path) -> dict[str, list[str]]:
     return libs
 
 
-def _nearest_zapp(program: Path, repo: Path) -> Optional[Path]:
+def _nearest_zapp(program: Path, repo: Path) -> Path | None:
     d = program.parent
     while True:
         if (d / "zapp.yaml").is_file():
@@ -890,7 +891,7 @@ def _library_dirs(zapp: Path, library: str, repo: Path) -> list[Path]:
     return out
 
 
-def resolve_copybook(name: str, library: Optional[str], program: Path, repo: Path, files: list[Path]) -> dict[str, Any]:
+def resolve_copybook(name: str, library: str | None, program: Path, repo: Path, files: list[Path]) -> dict[str, Any]:
     for prefix, owner in _SYSTEM_COPY:
         if name.startswith(prefix):
             return {"resolves_to": None, "why": owner}
@@ -973,7 +974,7 @@ def redraft_records(repo: Path, key: dict[str, Any], note: str) -> int:
         new = _data_items(Source(path))
         old = prog["records"]
         if len(new) == len(old):
-            new = [{k: n.get(k) for k in o} for o, n in zip(old, new)]
+            new = [{k: n.get(k) for k in o} for o, n in zip(old, new, strict=False)]  # reason: length may differ
         if new != old:
             prog["records"] = new
             prog.setdefault("verification", {}).setdefault("notes", []).append(note)
@@ -1001,13 +1002,13 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
     if not windows:
         windows = [(0, len(text))]
 
-    def _window_of(off: int) -> Optional[int]:
+    def _window_of(off: int) -> int | None:
         return next((i for i, (a, b) in enumerate(windows) if a <= off < b), None)
 
     sections = [(m.start(), m.group(1)) for m in _DD_SECTION.finditer(text)]
     fds = [(m.start(), m.group(1)) for m in _DD_FD.finditer(text)]
 
-    def _context(off: int) -> tuple[Optional[str], Optional[str]]:
+    def _context(off: int) -> tuple[str | None, str | None]:
         section = next((name for pos, name in reversed(sections) if pos <= off), None)
         fd_name = None
         if section == "FILE":
@@ -1375,7 +1376,7 @@ def _pli_words(attributes: str) -> list[str]:
     return re.findall(r"[A-Z@#$][\w@#$]*|\d+|'[^']*'|[(),:]", attributes.upper())
 
 
-def _pli_extent(dims: Optional[str]) -> Optional[int]:
+def _pli_extent(dims: str | None) -> int | None:
     """Elements of an array from its dimension text (`3`, `2,4`, `0:9`); None when not fixed."""
     if dims is None:
         return 1
@@ -1388,7 +1389,7 @@ def _pli_extent(dims: Optional[str]) -> Optional[int]:
     return n
 
 
-def _pli_picture_bytes(pic: str) -> Optional[int]:
+def _pli_picture_bytes(pic: str) -> int | None:
     body = re.sub(r"F\(\s*[+-]?\d+\s*\)", "", pic.upper())
     total, rep = 0, 1
     for m in re.finditer(r"\(\s*(\d+)\s*\)|CR|DB|(.)", body):
@@ -1408,7 +1409,7 @@ def _pli_picture_bytes(pic: str) -> Optional[int]:
     return total
 
 
-def _pli_element(attributes: str, aligned: Optional[bool]) -> tuple[Optional[tuple[int, int]], str]:
+def _pli_element(attributes: str, aligned: bool | None) -> tuple[tuple[int, int] | None, str]:
     """((bits, alignment in bits), "") of one elementary member, or (None, reason).
     `aligned` is the inherited (UN)ALIGNED, None when nothing above says."""
     words = _pli_words(attributes)
@@ -1417,13 +1418,13 @@ def _pli_element(attributes: str, aligned: Optional[bool]) -> tuple[Optional[tup
         if w in top:
             return None, reason
     if "UNALIGNED" in top or "UNAL" in top:
-        own: Optional[bool] = False
+        own: bool | None = False
     elif "ALIGNED" in top:
         own = True
     else:
         own = aligned
 
-    def arg(after: set[str]) -> Optional[int]:
+    def arg(after: set[str]) -> int | None:
         for i, w in enumerate(words[:-2]):
             if w in after and words[i + 1] == "(" and words[i + 2].isdigit():
                 return int(words[i + 2])
@@ -1473,7 +1474,7 @@ def _pli_string_or_picture(attributes: str) -> bool:
     return bool(top & {"CHAR", "CHARACTER", "BIT", "PIC", "PICTURE"})
 
 
-def _pli_map(item: dict[str, Any], kids: dict[int, list], aligned: Optional[bool]) -> tuple[Any, str]:
+def _pli_map(item: dict[str, Any], kids: dict[int, list], aligned: bool | None) -> tuple[Any, str]:
     """((bits, alignment, start residue, {ordinal: (bit offset, bits)}), "") of an item and
     all under it, or (None, reason). `aligned` is what the enclosing structure passes down."""
     top = set(_pli_words(item["attributes"]))
@@ -1669,7 +1670,7 @@ def pli_units(text: str, included: frozenset[str] = frozenset()) -> list[dict[st
     stmts = _pli_statements(tokens)
     procs: list[dict[str, Any]] = []
     stack: list[dict[str, Any]] = []  # {"labels": [...], "proc": index into procs or None}
-    owner: list[Optional[int]] = []  # per statement: the innermost open procedure
+    owner: list[int | None] = []  # per statement: the innermost open procedure
     for stmt in stmts:
         if not stmt:
             owner.append(stack_proc(stack))
@@ -1704,7 +1705,7 @@ def pli_units(text: str, included: frozenset[str] = frozenset()) -> list[dict[st
                 stack.append({"labels": labels, "proc": None})
                 break
     local = {p["name"] for p in procs} | included
-    for stmt, here in zip(stmts, owner):
+    for stmt, here in zip(stmts, owner, strict=False):  # reason: length may differ
         if here is None or not stmt:
             continue
         words = [t[1] if t[0] != "string" else None for t in stmt]
@@ -1718,7 +1719,7 @@ def pli_units(text: str, included: frozenset[str] = frozenset()) -> list[dict[st
     return procs
 
 
-def stack_proc(stack: list[dict[str, Any]]) -> Optional[int]:
+def stack_proc(stack: list[dict[str, Any]]) -> int | None:
     """The innermost open procedure on a `pli_units` block stack."""
     return next((b["proc"] for b in reversed(stack) if b["proc"] is not None), None)
 
@@ -1856,7 +1857,7 @@ def _pli_is_number(tok: tuple) -> bool:
     return tok[0] == "word" and tok[1][:1].isdigit()
 
 
-def _pli_ref(stmt: list, i: int) -> tuple[Optional[str], int]:
+def _pli_ref(stmt: list, i: int) -> tuple[str | None, int]:
     """A data reference at stmt[i] (a word not starting with a digit): the qualified
     name without subscripts, and the index after it."""
     if i >= len(stmt) or stmt[i][0] != "word" or _pli_is_number(stmt[i]):
@@ -1903,7 +1904,7 @@ def _pli_mv_sources(expr: list) -> list[tuple[str, str]]:
     return out
 
 
-def _pli_mv_single(expr: list) -> Optional[tuple[str, str]]:
+def _pli_mv_single(expr: list) -> tuple[str, str] | None:
     body = expr[1:] if expr and expr[0][1] in ("-", "+") else expr
     # A literal: one string, or one number (`1`, `1.5` = word . word).
     if len(body) == 1 and (body[0][0] == "string" or _pli_is_number(body[0])):
@@ -2135,9 +2136,7 @@ def sql_table_columns(text: str, pli: bool = False) -> list[dict[str, Any]]:
     return out
 
 
-def sql_column_key(
-    table: str, name: str, sql_type: str, length: Optional[int], scale: Optional[int], nullable: bool
-) -> str:
+def sql_column_key(table: str, name: str, sql_type: str, length: int | None, scale: int | None, nullable: bool) -> str:
     """The cross-reader comparison key for one column: its full declared shape, so a
     disagreement on type, length, scale or nullability is a delta, not just a name."""
     args = "" if length is None else f"({length})" if scale is None else f"({length},{scale})"
@@ -2594,7 +2593,7 @@ def _jcl_key_statements(text: str) -> list[tuple[int, str, str, str]]:
     return [tuple(s) for s in out]
 
 
-def _jcl_key_split(field: str) -> list[tuple[Optional[str], str]]:
+def _jcl_key_split(field: str) -> list[tuple[str | None, str]]:
     """Top-level comma split (not inside '...' or (...)) into (KEY or None, value)."""
     pieces, buf, depth, quoted = [], [], 0, False
     for ch in field:
@@ -2610,7 +2609,7 @@ def _jcl_key_split(field: str) -> list[tuple[Optional[str], str]]:
             continue
         buf.append(ch)
     pieces.append("".join(buf))
-    out: list[tuple[Optional[str], str]] = []
+    out: list[tuple[str | None, str]] = []
     for p in pieces:
         eq = p.find("=")
         head = p[:eq] if eq > 0 else ""
@@ -2667,7 +2666,7 @@ def _jcl_key_subst(text: str, table: dict[str, str], depth: int = 0) -> tuple[st
     return "".join(out), ok
 
 
-def _jcl_key_dsn(dsn: str, table: dict[str, str]) -> Optional[str]:
+def _jcl_key_dsn(dsn: str, table: dict[str, str]) -> str | None:
     text, ok = _jcl_key_subst(dsn, table)
     if not ok:
         return None
@@ -2689,7 +2688,7 @@ def jcl_dataset_bindings(text: str) -> list[dict[str, Any]]:
     sets: dict[str, str] = {}
     procs: list[dict[str, Any]] = []
     named: dict[str, dict[str, Any]] = {}
-    proc: Optional[dict[str, Any]] = None
+    proc: dict[str, Any] | None = None
     step, last_dd = "", ""
     for no, name, op, field in _jcl_key_statements(text):
         if op == "JOB":
@@ -2808,9 +2807,9 @@ CSD_KEY_FIELDS = (
 )  # fmt: skip
 
 
-def _csd_key_operands(text: str) -> list[tuple[str, Optional[str]]]:
+def _csd_key_operands(text: str) -> list[tuple[str, str | None]]:
     """(KEYWORD, value or None) per operand of one record, in order."""
-    out: list[tuple[str, Optional[str]]] = []
+    out: list[tuple[str, str | None]] = []
     i, n = 0, len(text)
     while i < n:
         if not (text[i].isalpha() or text[i] in "@#$"):
@@ -2898,10 +2897,10 @@ def csd_resource_definitions(text: str) -> list[dict[str, Any]]:
             if value is not None and word not in vals:
                 vals[word] = value
 
-        def up(key: str, _vals: dict = vals) -> Optional[str]:
+        def up(key: str, _vals: dict = vals) -> str | None:
             return _vals[key].upper() if _vals.get(key) else None
 
-        def num(key: str, _vals: dict = vals) -> Optional[int]:
+        def num(key: str, _vals: dict = vals) -> int | None:
             v = _vals.get(key, "")
             return int(v) if v.isdigit() else None
 
@@ -2970,7 +2969,7 @@ def draft_csd(repo: Path) -> dict[str, dict[str, Any]]:
 _KEY_CICS_EXEC = re.compile(r"\bEXEC\s+CICS\s+(LINK|XCTL|RETURN)\b")
 
 
-def _key_paren_operand(block: str, keyword: str) -> Optional[str]:
+def _key_paren_operand(block: str, keyword: str) -> str | None:
     """`KEYWORD( ... )` inside one EXEC block, paren-balanced, whitespace-collapsed.
     The keyword must stand alone (`DFHCOMMAREA(`/`DATALENGTH(` are other words)."""
     for m in re.finditer(rf"(?<![A-Z0-9-]){keyword}\s*\(", block):
@@ -3082,7 +3081,7 @@ _CICS_TWO_WORD = {
 }
 
 
-def _cics_value_of(src: Source, ident: str) -> Optional[str]:
+def _cics_value_of(src: Source, ident: str) -> str | None:
     """`ident`'s quoted VALUE, first declaration wins. Unlike `_value_of` (80 chars)
     the entry may run up to its terminating period, because carddemo pads PIC to
     column 72 and writes VALUE on the next line."""
@@ -3113,7 +3112,7 @@ def _cics_moved(src: Any) -> Callable[[str], set[str]]:
         if m.group(1) not in _CICS_FIGURATIVE and m.group(1) != m.group(2) and not m.group(1)[0].isdigit():
             moved_from.setdefault(m.group(2), set()).add(m.group(1))
 
-    def held(ident: str, hops: int = 0, seen: Optional[set[str]] = None) -> set[str]:
+    def held(ident: str, hops: int = 0, seen: set[str] | None = None) -> set[str]:
         seen = seen or {ident}
         out = set(moves.get(ident, set()))
         if hops < 3:
@@ -3131,7 +3130,7 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
     src = _key_source(path)  # #3495: or an assembler source
     held = _cics_moved(src)
 
-    def resolve(operand: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    def resolve(operand: str | None) -> tuple[str | None, str | None, str | None]:
         if operand is None:
             return None, None, None
         op = operand.strip()
@@ -3153,14 +3152,14 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
     for m in _CICS_EXEC.finditer(src.text):
         end = _CICS_END.search(src.text, m.end())
         body = src.raw_text[m.end() : end.start() if end else len(src.raw_text)]
-        opts: list[tuple[str, Optional[str]]] = [
+        opts: list[tuple[str, str | None]] = [
             (o.group(1), " ".join(o.group(2)[1:-1].split()) if o.group(2) else None)
             for o in _CICS_OPTION.finditer(body)
         ]
         if not opts or opts[0][1] is not None:
             continue
         verb = opts[0][0]
-        d: dict[str, Optional[str]] = {}
+        d: dict[str, str | None] = {}
         for k, v in opts[1:]:
             d.setdefault(k, v)
         if verb in _CICS_CONTAINER and "CONTAINER" in d:
@@ -3215,7 +3214,7 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
 _RIDFLD = re.compile(r"\bRIDFLD\s*\(((?:[^()]|\([^()]*\))*)\)", re.I)
 
 
-def _ridfld_unit(line: int, verb: str, name: Optional[str], ridfld: str) -> str:
+def _ridfld_unit(line: int, verb: str, name: str | None, ridfld: str) -> str:
     operand = re.sub(r"\s*([(:)])\s*", r"\1", " ".join(ridfld.split())).upper()  # `X (1 : 4)` == `X(1:4)`
     return f"L{line} {verb} FILE {(name or '?').upper()} RIDFLD={operand}"
 
@@ -3326,7 +3325,7 @@ _KEY_STRING_SRC = re.compile(
 )
 
 
-def _key_pic(src: Source, ident: str) -> Optional[str]:
+def _key_pic(src: Source, ident: str) -> str | None:
     """`ident`'s PIC string, first declaration wins (this reader's own lookup)."""
     m = re.search(
         rf"(?m)^\s*\d{{1,2}}\s+{re.escape(ident)}\s+[^.]{{0,200}}?\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+)", src.raw_text
@@ -3334,7 +3333,7 @@ def _key_pic(src: Source, ident: str) -> Optional[str]:
     return m.group(1).rstrip(".") if m else None
 
 
-def _key_pic_glob(pic: Optional[str]) -> str:
+def _key_pic_glob(pic: str | None) -> str:
     if not pic:
         return "*"
     body = pic.upper()
@@ -3383,7 +3382,7 @@ def cics_task_ops(path: Path) -> list[dict[str, Any]]:
     held = _cics_moved(src)  # #3578: + MOVE chains
     globs = _key_string_globs(src)
 
-    def resolve(operand: Optional[str], built: bool) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    def resolve(operand: str | None, built: bool) -> tuple[str | None, str | None, str | None]:
         if operand is None:
             return None, None, None
         op = operand.strip()
@@ -3409,7 +3408,7 @@ def cics_task_ops(path: Path) -> list[dict[str, Any]]:
     for m in _CICS_EXEC.finditer(src.text):
         end = _CICS_END.search(src.text, m.end())
         body = src.raw_text[m.end() : end.start() if end else len(src.raw_text)]
-        opts: list[tuple[str, Optional[str]]] = [
+        opts: list[tuple[str, str | None]] = [
             (o.group(1), " ".join(o.group(2)[1:-1].split()) if o.group(2) else None)
             for o in _CICS_OPTION.finditer(body)
         ]
@@ -3425,7 +3424,7 @@ def cics_task_ops(path: Path) -> list[dict[str, Any]]:
             verb, rest, token = first, opts[1:], None
         else:
             continue
-        d: dict[str, Optional[str]] = {}
+        d: dict[str, str | None] = {}
         for k, v in rest:
             d.setdefault(k, v)
         if verb in _TASK_TOKEN:
@@ -3538,7 +3537,7 @@ _KEY_EXEC_CARD = re.compile(r"[\"']//(?:[A-Z@#$][A-Z0-9@#$]{0,7})?\s+EXEC\s+(?:(
 _KEY_INTRDR = re.compile(r"SYSOUT=\([^,()]*,\s*INTRDR\s*[,)]", re.I)
 
 
-def _key_jcl_member(repo: Path, name: str, proc: bool) -> Optional[str]:
+def _key_jcl_member(repo: Path, name: str, proc: bool) -> str | None:
     hits = sorted(
         p.relative_to(repo).as_posix()
         for p in repo.rglob("*")
@@ -3548,12 +3547,12 @@ def _key_jcl_member(repo: Path, name: str, proc: bool) -> Optional[str]:
     return wanted[0] if len(wanted) == 1 else None
 
 
-def _key_intrdr_steps(text: str) -> list[tuple[Optional[str], str, Optional[str]]]:
+def _key_intrdr_steps(text: str) -> list[tuple[str | None, str, str | None]]:
     """(step, ddname, SYSUT1 DSN of the step) for each DD routed to the internal reader."""
-    out: list[tuple[Optional[str], str, Optional[str]]] = []
-    step: Optional[str] = None
-    pending: list[tuple[Optional[str], str]] = []
-    sysut1: Optional[str] = None
+    out: list[tuple[str | None, str, str | None]] = []
+    step: str | None = None
+    pending: list[tuple[str | None, str]] = []
+    sysut1: str | None = None
     for raw in text.split("\n") + ["// EXEC"]:
         line = raw[:72].rstrip()
         if not line.startswith("//") or line.startswith("//*"):
@@ -3579,7 +3578,7 @@ def draft_job_submissions(repo: Path) -> dict[str, dict[str, Any]]:
     """Drafted job submissions per submitting file (#3448), as `via X -> ...`
     strings. Adjudicates nothing until signed off with `submissions_validated`."""
     files = [p for p in sorted(repo.rglob("*")) if p.is_file() and ".git" not in p.parts]
-    tdqs: dict[str, Optional[str]] = {}
+    tdqs: dict[str, str | None] = {}
     intrdr: dict[str, list] = {}
     for p in files:
         suffix = p.suffix.lower()
@@ -3679,7 +3678,7 @@ def mq_call_ops(path: Path) -> list[dict[str, Any]]:
     toks = [(m.group(0), m.start()) for m in _MQ_TOKEN.finditer(src.raw_text)]
     n = len(toks)
 
-    def name_at(i: int) -> tuple[Optional[str], int]:
+    def name_at(i: int) -> tuple[str | None, int]:
         """(data-name at i, index after it and any `OF qualifier`)."""
         if i >= n or toks[i][0][0] in "'\"=+.,":
             return None, i
@@ -3746,7 +3745,7 @@ def mq_call_ops(path: Path) -> list[dict[str, Any]]:
             out |= {x} if x.startswith("'") else (values_of(x, depth + 1) if depth < 3 else set())
         return out
 
-    def read(operand: Optional[str]) -> tuple[Optional[str], str, Optional[str]]:
+    def read(operand: str | None) -> tuple[str | None, str, str | None]:
         if operand is None:
             return None, "unresolved", None
         if operand[0] in "'\"":
@@ -3762,11 +3761,11 @@ def mq_call_ops(path: Path) -> list[dict[str, Any]]:
         return None, "unresolved", None
 
     family = {"MQOPEN": "MQOO-", "MQPUT": "MQPMO-", "MQPUT1": "MQPMO-", "MQGET": "MQGMO-"}
-    objname: dict[Optional[str], str] = {}
+    objname: dict[str | None, str] = {}
     opts_by_field: dict[str, list[str]] = {}
     into_handle: dict[str, str] = {}
     opens: list[dict[str, Any]] = []
-    fresh: Optional[dict[str, Any]] = None
+    fresh: dict[str, Any] | None = None
     out: list[dict[str, Any]] = []
     for ev in events:
         if ev[0] == "move":
@@ -3793,7 +3792,7 @@ def mq_call_ops(path: Path) -> list[dict[str, Any]]:
                     opts = words
                     break
         if verb in ("MQPUT", "MQPUT1"):
-            direction: Optional[str] = "put"
+            direction: str | None = "put"
         elif verb == "MQGET":
             direction = "get"
         elif verb == "MQOPEN":
@@ -3960,7 +3959,7 @@ def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
     source, this tool's own reading (see the section header)."""
     src = _key_source(path)  # #3495: or an assembler source
 
-    def value(op: Optional[str]) -> Optional[str]:
+    def value(op: str | None) -> str | None:
         if not op:
             return None
         op = op.strip()
@@ -4107,7 +4106,7 @@ _PLI_FILE_CONDITIONS = {"ENDFILE", "ENDPAGE", "KEY", "NAME", "RECORD", "TRANSMIT
                         "CONDITION", "COND"}  # fmt: skip
 
 
-def _pli_condition_at(stmt: list, i: int) -> tuple[Optional[str], int]:
+def _pli_condition_at(stmt: list, i: int) -> tuple[str | None, int]:
     """(the condition written at stmt[i], the index after it) or (None, i)."""
     if i >= len(stmt) or stmt[i][0] != "word":
         return None, i
@@ -4256,7 +4255,7 @@ def file_control_rows(path: Path) -> list[dict[str, Any]]:
         r: dict[str, Any] = {"select": words[0], "assign": None, "org": None, "access": None, "key": None}
         r.update({"alt": [], "rel": None, "status": None, "line": src.line_of(fc.end() + m.start())})
 
-        def val(i: int) -> Optional[str]:
+        def val(i: int) -> str | None:
             while i < len(words) and words[i] in ("IS", "ARE", "MODE", "KEY", "TO", "USING"):
                 i += 1
             return words[i] if i < len(words) else None
@@ -4362,14 +4361,14 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         # object's -- GenApp's adef121.jcl; never on INDEX)
         data = next((parts[j + 1] for j in range(1, len(parts) - 1, 2) if parts[j] == "DATA"), "")
 
-        def one(*names: str, block: Optional[str] = None) -> Optional[str]:
+        def one(*names: str, block: str | None = None) -> str | None:
             for n in names:
                 m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own if block is None else block)
                 if m2:
                     return m2.group(1)
             return None
 
-        def nums(v: Optional[str]) -> list[int]:
+        def nums(v: str | None) -> list[int]:
             return [int(x) for x in re.findall(r"\d+", v or "")]
 
         keys = nums(one("KEYS") or one("KEYS", block=data))
@@ -4461,7 +4460,7 @@ def draft_file_defs(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, di
 # continuations (a dotted override name kept), IF ... THEN / ELSE / ENDIF
 # tracked as a stack, and per statement the operands this reader needs pulled
 # out by its own depth-aware operand scan. Same contract as core/job_flow.py.
-def _jf_operand(field: str, key: str) -> Optional[str]:
+def _jf_operand(field: str, key: str) -> str | None:
     depth, quote, i = 0, False, 0
     starts = [0]
     for j, ch in enumerate(field):
@@ -4671,8 +4670,8 @@ def runner_step_units(text: str) -> set[str]:
     """The runner units of one JCL member (see above)."""
     lines = text.upper().split("\n")
     units: set[str] = set()
-    prefix: Optional[str] = None
-    runner: Optional[str] = None
+    prefix: str | None = None
+    runner: str | None = None
     i = 0
     while i < len(lines):
         line = lines[i][:72].rstrip()
@@ -4733,7 +4732,9 @@ def engine_runner_units(ef: Any) -> set[str]:
         if r.kind != "STEP" or not (r.runs or r.systsin_member):
             continue
         prefix = f"L{r.line} {r.step_name or '-'} {r.program}"
-        for prog, via in zip((r.runs or "").split(","), (r.runs_via or "").split(",")):
+        for prog, via in zip(
+            (r.runs or "").split(","), (r.runs_via or "").split(","), strict=False
+        ):  # reason: length may differ
             if prog:
                 out.add(f"{prefix} RUNS={prog}/{via}")
         if r.systsin_member:
@@ -4774,7 +4775,7 @@ _CU_VERBS = set(
 )
 
 
-def _cu_list(raw: str) -> Optional[str]:
+def _cu_list(raw: str) -> str | None:
     words = re.findall(r"'[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*|[(),.]", raw)
     if not words or words[0] != "USING":
         return None
@@ -4893,7 +4894,7 @@ _DLI_ACCESS = {"GU": "read", "GHU": "read", "GN": "read", "GHN": "read", "GNP": 
                "ISRT": "insert", "REPL": "update", "DLET": "delete"}  # fmt: skip
 
 
-def _dli_width(pic: str, usage: str) -> Optional[int]:
+def _dli_width(pic: str, usage: str) -> int | None:
     body = pic.upper().lstrip("S")
     n = 0
     for ch, rep in re.findall(r"([9XAV])(?:\((\d+)\))?", body):
@@ -4922,7 +4923,7 @@ def _dli_sources(path: Path, repo: Path) -> list[list[str]]:
     return out
 
 
-def _dli_value(path: Path, repo: Path, name: str) -> Optional[str]:
+def _dli_value(path: Path, repo: Path, name: str) -> str | None:
     for lines in _dli_sources(path, repo):
         for i, line in enumerate(lines):
             m = re.match(rf"\s*(\d+)\s+{re.escape(name)}(?![A-Z0-9-])(.*)", line)
@@ -4945,7 +4946,7 @@ def _dli_value(path: Path, repo: Path, name: str) -> Optional[str]:
                     kids[-1][1] += " " + lines[j]
                 j += 1
 
-            def text_of(desc: str) -> Optional[str]:
+            def text_of(desc: str) -> str | None:
                 pic = re.search(r"\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+?)\.?(?:\s|$)", desc)
                 if not pic:
                     return ""  # a group line
@@ -5091,7 +5092,7 @@ def _ims_ops(text: str) -> dict[str, str]:
     return {m.group(1): m.group(2) for m in _IMS_OPERAND.finditer(field) if m.group(1)}
 
 
-def _ims_name(v: Optional[str]) -> Optional[str]:
+def _ims_name(v: str | None) -> str | None:
     names = re.findall(r"[A-Z0-9@#$]+", v or "")
     return names[0] if names else None
 
@@ -5332,7 +5333,7 @@ def _mv_matches(text: str) -> list[re.Match]:
 
 
 def _mv_operands(
-    text: str, items_only: bool = False, lits: Optional[list] = None, scan: bool = False
+    text: str, items_only: bool = False, lits: list | None = None, scan: bool = False
 ) -> list[tuple[str, str, bool]]:
     """(text, kind, refmod) per operand of one phrase, qualifiers as `A OF B`.
     `lits` restores the literals `_mv_statement_pairs` parked as `'<n>'`; `scan`
@@ -5369,7 +5370,7 @@ def _mv_operands(
     return [o for o in out if o[1] == "item"] if items_only else out
 
 
-def _refmod_text(parens: str) -> Optional[str]:
+def _refmod_text(parens: str) -> str | None:
     """The reference modification among an operand's parenthesized groups (`(I)(1:4)`):
     the top-level group with a `:`, its text normalized (see _norm_refmod); None without."""
     depth, start = 0, None
@@ -5387,7 +5388,7 @@ def _refmod_text(parens: str) -> Optional[str]:
     return None
 
 
-def _top_refmod(parens: str) -> Optional[str]:
+def _top_refmod(parens: str) -> str | None:
     """The reference modification among parenthesized groups whose colon is at the
     group's own top level (a function result's `(1:4)`, never an argument's), normalized."""
     depth, start, colon = 0, None, False
@@ -5417,7 +5418,7 @@ def _mv_expression_items(text: str) -> list[tuple[str, str, bool]]:
     return _mv_operands(text, items_only=True, scan=True)
 
 
-def _mv_statement_pairs(verb: str, body: str) -> list[tuple[Optional[tuple], tuple, bool]]:
+def _mv_statement_pairs(verb: str, body: str) -> list[tuple[tuple | None, tuple, bool]]:
     # Literals are parked as '<n>' first, so a keyword inside one ('FAILED TO READ')
     # never splits the statement.
     lits: list[str] = []
@@ -5493,7 +5494,7 @@ def _mv_statement_pairs(verb: str, body: str) -> list[tuple[Optional[tuple], tup
 _IO_VERBS = ("READ", "RETURN", "WRITE", "REWRITE", "RELEASE", "ACCEPT")  # #3492
 
 
-def _io_statement_pairs(verb: str, body: str) -> list[tuple[Optional[tuple], tuple, bool]]:
+def _io_statement_pairs(verb: str, body: str) -> list[tuple[tuple | None, tuple, bool]]:
     """#3492: READ / RETURN f ... INTO t (f's record -> t), WRITE / REWRITE /
     RELEASE r FROM s (s -> r), ACCEPT t [FROM w [w]] (w -> t, SYSIN when no FROM)."""
     lits: list[str] = []
@@ -5624,7 +5625,7 @@ def engine_data_move_row(m: Any) -> dict[str, Any]:
             "corr": m.corresponding, "srm": m.source_refmod, "trm": m.target_refmod, "line": m.line}  # fmt: skip
 
 
-def _mv_pic_width(pic: str, usage: str) -> tuple[Optional[int], str]:
+def _mv_pic_width(pic: str, usage: str) -> tuple[int | None, str]:
     """(one occurrence's bytes, class X | 9 | other) of a PIC + USAGE."""
     body = ""
     for ch, rep in re.findall(r"([A-Z9$,.+*/-]|\()(?:\((\d+)\))?", _currency_as_dollar(pic.upper().rstrip("."))):
@@ -5655,7 +5656,7 @@ def _mv_entries(lines: list[str], repo: Path, stems: dict, depth: int = 0) -> li
                 stmt += " " + lines[j]
                 j += 1
             i = j - 1
-            
+
             for cb in stems.get(cp.group(1), [])[:1]:
                 cb_lines = [a for _, a in Source(cb).lines]
                 repl = re.search(r"\bREPLACING\b(.*)", stmt, re.IGNORECASE | re.DOTALL)
@@ -5675,7 +5676,7 @@ def _mv_entries(lines: list[str], repo: Path, stems: dict, depth: int = 0) -> li
                 out.extend(_mv_entries(cb_lines, repo, stems, depth + 1))
             i += 1
             continue
-            
+
         m = re.match(r"\s*(\d+)\s+([A-Z0-9-]+)(.*)", line)
         if m:
             out.append((int(m.group(1)), m.group(2), m.group(3)))
@@ -5685,7 +5686,7 @@ def _mv_entries(lines: list[str], repo: Path, stems: dict, depth: int = 0) -> li
     return out
 
 
-def _mv_width(entries: list[tuple[int, str, str]], i: int) -> tuple[Optional[int], str]:
+def _mv_width(entries: list[tuple[int, str, str]], i: int) -> tuple[int | None, str]:
     """(one occurrence's bytes, class | 'group') of entry i."""
     level, _name, desc = entries[i]
     pic = re.search(r"\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+)", desc)
@@ -5733,7 +5734,7 @@ def data_move_truncations(path: Path, repo: Path, rows: list[dict[str, Any]]) ->
                     nm, _, rest = u.partition(" @")
                     sym[nm] = int(rest.split("+")[1])
 
-    def width(name: str) -> tuple[Optional[int], str]:
+    def width(name: str) -> tuple[int | None, str]:
         parts = name.split(" OF ")
         if parts[0] in sym and not any(e[1] == parts[0] for e in entries):
             # L is S9(4) COMP; the F / A / attribute bytes and I / O data are PIC X.
@@ -5873,7 +5874,7 @@ def jcics_units(text: str) -> list[str]:
         for v, t in re.findall(r"\b(\w+)\s*=\s*new\s+(" + "|".join(_JC_TYPES) + r")\s*\(", ln):
             types[v] = t
     joined = "\n".join(code)
-    names: dict[str, list[tuple[int, Optional[str]]]] = {}
+    names: dict[str, list[tuple[int, str | None]]] = {}
     for m in re.finditer(r"\b(\w+)\s*\.\s*setName\s*\(\s*([^),]*)", joined):
         if m.group(1) in types:
             arg = m.group(2).strip()
@@ -6026,7 +6027,7 @@ def _dyn_sites(src: Source) -> list[tuple[int, str, str]]:
     return out
 
 
-def _dyn_group_text(entries: list[tuple[int, str, str]], base: int) -> Optional[str]:
+def _dyn_group_text(entries: list[tuple[int, str, str]], base: int) -> str | None:
     """A group's load-time text: its elementary VALUEs at their PIC widths ('?' unknown)."""
     text, j = "", base + 1
     while j < len(entries) and entries[j][0] > entries[base][0]:
@@ -6047,7 +6048,7 @@ def _dyn_group_text(entries: list[tuple[int, str, str]], base: int) -> Optional[
     return text
 
 
-def _dyn_offset(entries: list[tuple[int, str, str]], group: int, target: int) -> Optional[int]:
+def _dyn_offset(entries: list[tuple[int, str, str]], group: int, target: int) -> int | None:
     """Bytes before entry `target` inside entry `group` (children walked in order)."""
     off, k, glv = 0, group + 1, entries[group][0]
     while k < len(entries) and entries[k][0] > glv:
@@ -6190,7 +6191,7 @@ def _sym_statements(text: str) -> dict[int, str]:
     return out
 
 
-def _sym_attrs(stmt: str) -> Optional[list[str]]:
+def _sym_attrs(stmt: str) -> list[str] | None:
     """The extended-attribute letters a DFHMSD / DFHMDI statement declares, or None."""
     m = re.search(r"DSATTS=\(([^)]*)\)|DSATTS=([A-Z]+)", stmt.upper())
     if m:
@@ -6270,7 +6271,7 @@ def _currency_as_dollar(pic: str) -> str:
     return "".join("$" if unicodedata.category(ch) == "Sc" else ch for ch in pic)
 
 
-def _pic_bytes(pic: str, usage: Optional[str], sign_separate: bool = False) -> int:
+def _pic_bytes(pic: str, usage: str | None, sign_separate: bool = False) -> int:
     p = _currency_as_dollar(pic.upper())
     # #3602: CR / DB take two positions, N / G (national, DBCS) two bytes each, E one;
     # S, V and P take none -- except a DISPLAY sign coded SEPARATE, which takes one (census
@@ -6293,7 +6294,7 @@ def _pic_bytes(pic: str, usage: Optional[str], sign_separate: bool = False) -> i
 def copybook_layout_units(path: Path) -> set[str]:
     """`NAME @offset+bytes` of every named item of a COBOL copybook (see above)."""
     items = [it for it in _data_items(Source(path)) if it["level"] not in (66, 88)]
-    kids: dict[Optional[int], list[dict[str, Any]]] = {}
+    kids: dict[int | None, list[dict[str, Any]]] = {}
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
     sizes: dict[int, int] = {}
@@ -6338,13 +6339,13 @@ _PICLESS_BYTES = {"POINTER": 4, "PROCEDURE-POINTER": 8, "FUNCTION-POINTER": 4, "
 _COPY_STMT = re.compile(r"^.{6}[ ]+COPY[ ]+[A-Z0-9]", re.I | re.M)
 
 
-def copybook_record_units(path: Path) -> Optional[set[str]]:
+def copybook_record_units(path: Path) -> set[str] | None:
     """`ROOT/NAME @offset+bytes` of a copybook's elementary PIC items, or None when it COPYs."""
     text = read_key_text(path)
     if _COPY_STMT.search(text):
         return None
     items = [it for it in _data_items(Source(path)) if it["level"] not in (66, 88)]
-    kids: dict[Optional[int], list[dict[str, Any]]] = {}
+    kids: dict[int | None, list[dict[str, Any]]] = {}
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
     sizes: dict[int, int] = {}
@@ -6396,7 +6397,7 @@ def draft_copybook_layouts(repo: Path) -> dict[str, dict[str, Any]]:
     return out
 
 
-def engine_copybook_units(ir: Any, rel: str) -> Optional[set[str]]:
+def engine_copybook_units(ir: Any, rel: str) -> set[str] | None:
     """The engine's side of a copybook's layout units: GalaxyIR.record_layout per root."""
     ef = ir.files.get(rel) if ir is not None else None
     if ef is None:
@@ -6411,7 +6412,7 @@ def engine_copybook_units(ir: Any, rel: str) -> Optional[set[str]]:
     return out
 
 
-def engine_pli_layout_units(ir: Any, rel: str, skipped: set[str]) -> Optional[set[str]]:
+def engine_pli_layout_units(ir: Any, rel: str, skipped: set[str]) -> set[str] | None:
     """#3727: the engine's side of a PL/I file's layout units -- GalaxyIR.record_layout of
     each structure the key laid out (the roots it skipped are left out on both sides)."""
     ef = ir.files.get(rel) if ir is not None else None
@@ -6471,7 +6472,7 @@ def _operand(src: Source, offset: int) -> tuple[str, str]:
     return "identifier", m.group(1) if m else ""
 
 
-def _value_of(src: Source, ident: str) -> Optional[str]:
+def _value_of(src: Source, ident: str) -> str | None:
     m = re.search(
         rf"\b(?:0?[1-9]|[1-4][0-9]|77)\s+{re.escape(ident)}\s[^.]{{0,80}}?\bVALUE\s+(?:IS\s+)?['\"]([^'\"]*)['\"]",
         src.raw_text,
@@ -6481,7 +6482,7 @@ def _value_of(src: Source, ident: str) -> Optional[str]:
 
 def _common_prefix(a: str, b: str) -> list[str]:
     out = []
-    for x, y in zip(a.split("/"), b.split("/")):
+    for x, y in zip(a.split("/"), b.split("/"), strict=False):  # reason: length may differ
         if x != y:
             break
         out.append(x)
@@ -6517,7 +6518,7 @@ def draft_program(
     repo: Path,
     files: list[Path],
     pid_to_path: dict[str, list[str]],
-    tx_map: Optional[dict[str, set[str]]] = None,
+    tx_map: dict[str, set[str]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, str]]:
     src = Source(path)
     # #4206: a source holding several programs keys its first as the entry and the
@@ -6881,7 +6882,7 @@ def engine_unit_graph(db: Path, repo_name: str, commit_hash: str) -> dict[str, l
         }
         out: dict[str, list[dict[str, Any]]] = {}
 
-        def edges(raw: Optional[str]) -> list[str]:
+        def edges(raw: str | None) -> list[str]:
             return [str(x).upper() for x in (json.loads(raw) if raw else [])]
 
         for fid, name, start, loc, calls, transfers in con.execute(
@@ -6912,7 +6913,7 @@ def engine_unit_graph(db: Path, repo_name: str, commit_hash: str) -> dict[str, l
         con.close()
 
 
-def _keyed_programs(prog: dict[str, Any]) -> list[tuple[Optional[str], dict[str, Any]]]:
+def _keyed_programs(prog: dict[str, Any]) -> list[tuple[str | None, dict[str, Any]]]:
     """(sibling PROGRAM-ID or None for the first program, its block) for a key entry."""
     return [(None, prog), *prog.get("siblings", {}).items()]
 
@@ -6992,7 +6993,7 @@ def lines_outside_units(path: Path, prog: dict[str, Any], units: list[dict[str, 
     return lines_outside(code, spans, units)
 
 
-def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
+def score(repo: Path, key: dict[str, Any], db: Path | None) -> tuple[dict[str, Any], str]:
     from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code

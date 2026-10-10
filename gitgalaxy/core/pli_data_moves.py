@@ -37,7 +37,7 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.pli_calls import blank_sequence_fields
 
@@ -247,7 +247,7 @@ def _group_end(toks: list, i: int) -> int:
     return len(toks)
 
 
-def _reference(toks: list, i: int) -> tuple[Optional[str], int]:
+def _reference(toks: list, i: int) -> tuple[str | None, int]:
     """A data reference at toks[i]: `A`, `A.B(I).C`, `P->X` (qualified name without
     subscripts), and the index after it; (None, i) when toks[i] is no word."""
     if i >= len(toks) or toks[i][0] != "word":
@@ -293,7 +293,7 @@ def _sources(toks: list) -> list[tuple[str, str]]:
     return out
 
 
-def _single_value(toks: list) -> Optional[tuple[str, str]]:
+def _single_value(toks: list) -> tuple[str, str] | None:
     """An item-free expression's one row: a (signed) literal, or a lone built-in call."""
     body = toks[1:] if toks and toks[0][1] in ("-", "+") else toks
     if len(body) == 1 and body[0][0] in ("string", "number"):

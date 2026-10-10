@@ -39,11 +39,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -55,6 +54,7 @@ import mainframe_corpus as mc  # noqa: E402
 from equivalence_common import _fixed, _input_path, sysout_lines  # noqa: E402
 
 from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
+import subprocess  # noqa: F401 -- kept (#4496)
 
 ADAPTER = TOOLS / "thirdparty" / "adapter"
 LOGBACK = ADAPTER / "logback-message-only.xml"
@@ -179,8 +179,8 @@ def records_from_lines(text: bytes, reclen: int) -> bytes:
     return b"".join(out)
 
 
-def stage(case: dict[str, Any], corpus: Path, into: Path, names: Optional[dict[str, str]] = None,
-          absent: Optional[str] = None) -> dict[str, Path]:  # fmt: skip
+def stage(case: dict[str, Any], corpus: Path, into: Path, names: dict[str, str] | None = None,
+          absent: str | None = None) -> dict[str, Path]:  # fmt: skip
     """{DD: file}: each input as text lines (an indexed one in key order); an output, no file. `names`: the file
     name a port expects per DD; `absent`: an input left out (an external fault)."""
     into.mkdir(parents=True, exist_ok=True)
@@ -198,7 +198,7 @@ def stage(case: dict[str, Any], corpus: Path, into: Path, names: Optional[dict[s
 
 
 def read_outputs(
-    case: dict[str, Any], files: dict[str, Path], fallback: Optional[dict[str, Path]] = None
+    case: dict[str, Any], files: dict[str, Path], fallback: dict[str, Path] | None = None
 ) -> dict[str, bytes]:
     """Every compared data set back as fixed records ({} entries for a file the port never wrote). `fallback`: where
     an in-place data set lives when the port publishes nothing (Lightyear's all-or-nothing output: an account
@@ -252,7 +252,7 @@ def mask_clock(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], java
 
 # ---- running a port -----------------------------------------------------------------------------------------------------
 def run_lightyear(port: dict[str, Any], prog: dict[str, Any], case: dict[str, Any], corpus: Path, tree: Path,
-                  run_dir: Path, env: dict[str, str], absent: Optional[str], work: Path) -> tuple[dict[str, bytes], Any]:  # fmt: skip
+                  run_dir: Path, env: dict[str, str], absent: str | None, work: Path) -> tuple[dict[str, bytes], Any]:  # fmt: skip
     names = prog["files"]
     inputs = stage(case, corpus, run_dir / "in", names, absent)
     outdir = run_dir / "out"
@@ -272,7 +272,7 @@ def run_lightyear(port: dict[str, Any], prog: dict[str, Any], case: dict[str, An
 
 
 def run_sentinel(port: dict[str, Any], prog: dict[str, Any], case: dict[str, Any], corpus: Path, classpath: str,
-                 run_dir: Path, env: dict[str, str], absent: Optional[str], work: Path, program: str) -> tuple[dict[str, bytes], Any]:  # fmt: skip
+                 run_dir: Path, env: dict[str, str], absent: str | None, work: Path, program: str) -> tuple[dict[str, bytes], Any]:  # fmt: skip
     dds = stage(case, corpus, run_dir, None, absent)
     args = [case["parm"] if a == "PARM" else str(dds[a]) for a in prog["args"]]
     launcher = adapter_classes(work, classpath)
@@ -290,7 +290,7 @@ def run_sentinel(port: dict[str, Any], prog: dict[str, Any], case: dict[str, Any
 
 
 def verdicts(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], java: dict[str, bytes],
-             clock_fields: Optional[dict[str, list[str]]], ran_at: datetime) -> dict[str, Any]:  # fmt: skip
+             clock_fields: dict[str, list[str]] | None, ran_at: datetime) -> dict[str, Any]:  # fmt: skip
     full = eq.compare_run(case, corpus, cobol, java)
     data = eq.compare_run({**case, "sysout": False}, corpus, cobol, java)
     out = {"full": {"ok": full["ok"], "summary": full["summary"], "first": dp.first_difference(full)},
@@ -337,7 +337,7 @@ def judge(name: str, program: str, work: Path, envs: list[str], with_faults: boo
         result["build_error"] = str(e)[:2000]
         return result
 
-    def one(env_name: str, run_dir: Path, absent: Optional[str]) -> tuple[dict[str, bytes], Any, datetime]:
+    def one(env_name: str, run_dir: Path, absent: str | None) -> tuple[dict[str, bytes], Any, datetime]:
         env = ej.environment(env_name)
         ran_at = datetime.now()
         if name == "lightyear":
@@ -368,7 +368,7 @@ def judge(name: str, program: str, work: Path, envs: list[str], with_faults: boo
     return result
 
 
-def devin_external_faults(work: Path, jdk21: Optional[Path]) -> list[dict[str, Any]]:
+def devin_external_faults(work: Path, jdk21: Path | None) -> list[dict[str, Any]]:
     """Devin's eval arms with an input file absent, against the COBOL fault run (the same external-fault rule)."""
     out = []
     for name, port in dp.PORTS.items():

@@ -19,7 +19,7 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.cobol_source_format import ispf_screens
 from gitgalaxy.core.source_text import read_source
@@ -65,7 +65,7 @@ def calibrate_ir_medium(
     target_path: Path,
     max_files=2000,
     max_mb=200,
-    cobol_files: Optional[list[Path]] = None,
+    cobol_files: list[Path] | None = None,
 ) -> tuple:
     """Scouts the repository to determine the safest IR storage medium.
 
@@ -229,19 +229,19 @@ def _output_keys(cobol_files: list[Path], target_path: Path) -> dict[Path, str]:
     return keys
 
 
-def _rel(filepath: Path, root: Optional[Path]) -> Path:
+def _rel(filepath: Path, root: Path | None) -> Path:
     return filepath.relative_to(root) if root and filepath.is_relative_to(root) else Path(filepath.name)
 
 
 def process_payload(
     filepath: Path,
     state_manager: IRStateManager,
-    target_var: Optional[str] = None,
-    engine_file: Optional[EngineFile] = None,
-    patched_dir: Optional[Path] = None,
-    source_root: Optional[Path] = None,
-    program_key: Optional[str] = None,
-    declared: Optional[str] = None,
+    target_var: str | None = None,
+    engine_file: EngineFile | None = None,
+    patched_dir: Path | None = None,
+    source_root: Path | None = None,
+    program_key: str | None = None,
+    declared: str | None = None,
 ) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline.
 
@@ -460,8 +460,8 @@ def main():
         directories.append(slice_dir)
 
     # 0. Optional engine IR source (#3120)
-    galaxy_ir: Optional[GalaxyIR] = None
-    program_files: Optional[list[Path]] = None
+    galaxy_ir: GalaxyIR | None = None
+    program_files: list[Path] | None = None
     if args.galaxy_db or args.scan:
         scan_args = ("--source-encoding", args.source_encoding) if args.source_encoding else ()  # #3909
         db_path = scan_to_db(target_path, ir_dir, extra_args=scan_args) if args.scan else args.galaxy_db.resolve()

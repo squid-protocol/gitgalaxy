@@ -64,14 +64,14 @@ def test_func_start_anchor_equivalence_3182(lang):
         if a == b:
             continue
         assert len(a) == len(b), repr(text)
-        for (sa, ga), (sb, gb) in zip(a, b):
+        for (sa, ga), (sb, gb) in zip(a, b, strict=False):  # reason: length may differ
             assert sa[1] == sb[1] and ga == gb, repr(text)
             if sa[0] == sb[0]:
                 continue
             gap = text[sa[0] : sb[0]]
             prev_line = text[: sa[0]].rsplit("\n", 2)[-2] if "\n" in text[: sa[0]] else ""
             assert sb[0] > sa[0] and not gap.strip() and "\n" in gap, repr(text)
-            assert text[sa[0]:].split("\n", 1)[0].strip() == "", repr(text)
+            assert text[sa[0] :].split("\n", 1)[0].strip() == "", repr(text)
             assert prev_line.endswith((" ", "\t")), repr(text)
             shifted += 1
     assert shifted, "the documented shift case should be exercised"

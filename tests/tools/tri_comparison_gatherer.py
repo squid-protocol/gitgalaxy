@@ -67,7 +67,6 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 import importlib.util
-from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 import ctags_reader  # noqa: E402
@@ -96,8 +95,8 @@ import tree_sitter_language_pack  # noqa: E402
 @dataclass(frozen=True)
 class Occurrence:
     name: str
-    line: Optional[int]  # None where the tool structurally can't report one (GitGalaxy classes)
-    args: Optional[int]  # None where the tool didn't/can't report a parameter count here
+    line: int | None  # None where the tool structurally can't report one (GitGalaxy classes)
+    args: int | None  # None where the tool didn't/can't report a parameter count here
 
 
 @dataclass
@@ -242,7 +241,7 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
             if name:
                 classes.append(Occurrence(name=name, line=node.start_point[0] + 1, args=None))
 
-        last_clause_name: Optional[str] = None
+        last_clause_name: str | None = None
         for child in node.children:
             if lang == "haskell" and child.type == "comment":
                 walk(child)
@@ -305,7 +304,7 @@ def _is_ctags_synthetic_anon_name(name: str, lang: str) -> bool:
     return lang == "javascript" and bool(_CTAGS_JS_ANON_NAME_RE.match(name))
 
 
-def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileReadings]:
+def gather_language(lang: str, corpus_dir: Path | None = None) -> list[FileReadings]:
     """Runs GitGalaxy always, tree-sitter if this language has a NODE_MAPS entry, and ctags if
     ctags_reader.ctags_available(lang) -- over every corpus file for `lang`, returns one
     FileReadings per file. Both tree-sitter and ctags are independently optional per language
@@ -404,7 +403,7 @@ def gather_language(lang: str, corpus_dir: Optional[Path] = None) -> list[FileRe
             conn.close()
 
 
-def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
+def _count_ctags_signature_params(signature: str | None) -> int | None:
     """ctags' `signature:` field is free text, e.g. `(cx: &Ctxt, name: &Name) -> Result<X, ()>`
     -- not a count. Returns None (not 0) when the field wasn't populated at all, so callers can
     tell "no params" apart from "this language/parser doesn't report a signature here" (confirmed
@@ -481,7 +480,7 @@ def _count_ctags_signature_params(signature: Optional[str]) -> Optional[int]:
         see the docstring's bug #4 note on why an unbounded scan is wrong for `'`, e.g. Rust
         lifetimes) so callers can skip bracket/comma handling while inside one."""
         out = []
-        quote_char: Optional[str] = None
+        quote_char: str | None = None
         escape = False
         i = 0
         n = len(s)

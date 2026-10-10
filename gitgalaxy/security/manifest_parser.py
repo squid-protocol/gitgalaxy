@@ -9,7 +9,6 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import open_source, read_source
 
@@ -609,8 +608,8 @@ class UniversalManifestSlicer:
 
     @staticmethod
     def locate_physical_package(
-        target_path: Path, pkg_name: str, ecosystem: str, repo_root: Optional[Path] = None
-    ) -> Optional[Path]:
+        target_path: Path, pkg_name: str, ecosystem: str, repo_root: Path | None = None
+    ) -> Path | None:
         """
         Hunts for the physical location of a package within the project bounds.
 

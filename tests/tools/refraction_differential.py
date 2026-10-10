@@ -74,7 +74,7 @@ import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Import the engine from this checkout whether run as a script or imported by a
 # test, without an editable install (as mainframe_corpus.py / refraction_snapshot.py do).
@@ -181,7 +181,7 @@ def _forge_record_fields(path: Path) -> set[str]:
     return {name.replace("-", "_").upper() for name in schema["json"]["properties"]}
 
 
-def _lineage_values(lineage: Optional[dict[str, Any]]) -> list[str]:
+def _lineage_values(lineage: dict[str, Any] | None) -> list[str]:
     """#3348: a program's DD lineage and dynamic CALLs as comparable strings
     (`inputs:DD`, `outputs:DD`, `unresolved_calls:NAME`)."""
     if not lineage:
@@ -281,7 +281,7 @@ def compare_bms(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     generated symbolic-map copybook, that copybook's field names vs the engine's
     named fields (`bms_symbolic`, None when there is no such copybook)."""
     rows = []
-    copybooks: Optional[dict[str, Path]] = None
+    copybooks: dict[str, Path] | None = None
     for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
         if ef.language != "bms":
             continue
@@ -831,7 +831,7 @@ def _build_ctx(repo: Path, rel: str, ak, files: list[Path], stem_counts: Counter
         else:
             units = ak._units(src, span["proc"], span["stop"]) if span["proc"] is not None else []
 
-        def keyed(name: str, n: int = n, span: Optional[dict[str, Any]] = span) -> str:
+        def keyed(name: str, n: int = n, span: dict[str, Any] | None = span) -> str:
             return ak.sibling_unit(span["program_id"], name) if n and span else name
 
         unit_kind.update({keyed(u["name"]): u["kind"] for u in units if u["name"]})
@@ -966,7 +966,7 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
     return UNEXPLAINED
 
 
-def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+def _key_verdict(d: Delta, key: dict[str, Any] | None) -> dict[str, Any] | None:
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
@@ -1104,7 +1104,7 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     return {"verdict": verdict, "confidence": confidence, "decided": True}
 
 
-def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any]]) -> list[Delta]:
+def classify(repo: Path, rows: list[dict[str, Any]], key: dict[str, Any] | None) -> list[Delta]:
     """Attaches a `cause` (and, where a validated key adjudicates, a `verdict`) to
     every delta, reading source with the answer key's own fixed-format model."""
     files = [p for p in repo.rglob("*") if p.is_file() and ".git" not in p.parts]
@@ -1195,7 +1195,7 @@ def _manifest():
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import mainframe_corpus as mc  # lazy: only the gate needs the manifest
 
-    keys: dict[str, Optional[dict[str, Any]]] = {}
+    keys: dict[str, dict[str, Any] | None] = {}
     for c in mc.load_manifest():
         key = None
         if c.get("answer_key") and (REPO_ROOT / c["answer_key"]).is_file():
@@ -1204,7 +1204,7 @@ def _manifest():
     return mc, keys
 
 
-def _targets(names: Optional[list[str]]) -> list[tuple[str, Path, Optional[dict[str, Any]], Optional[Path]]]:
+def _targets(names: list[str] | None) -> list[tuple[str, Path, dict[str, Any] | None, Path | None]]:
     """(name, source, key, db). db is None for excerpts (scanned into a tempdir);
     for the full corpora it is the cache from mainframe_corpus (scanned per engine)."""
     mc, keys = _manifest()
@@ -1235,7 +1235,7 @@ def _scan_env():
                 os.environ[k] = v
 
 
-def run_target(source: Path, key: Optional[dict[str, Any]], db: Optional[Path]) -> tuple[dict[str, Any], list[Delta]]:
+def run_target(source: Path, key: dict[str, Any] | None, db: Path | None) -> tuple[dict[str, Any], list[Delta]]:
     """Scan (or load) one target and classify its deltas. The full corpora arrive
     with a `db` already scanned by mainframe_corpus (its own subprocess env); only
     the in-process excerpt scan needs, and scopes, the scan environment."""

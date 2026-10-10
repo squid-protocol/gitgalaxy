@@ -21,7 +21,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import cobol_answer_key as ak
 
@@ -185,7 +185,7 @@ class Program:
         if not m:
             raise Unsupported(f"host variable {it['name']}: PIC {pic}")
 
-        def count(s: Optional[str]) -> int:
+        def count(s: str | None) -> int:
             return sum(int(r) if r else 1 for r in re.findall(r"9(?:\((\d+)\))?", s or ""))
 
         whole, scale = count(m.group(2)), count(m.group(3))
@@ -211,9 +211,9 @@ class Precompiler:
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
         self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
 
-    def _bind(self, text: str, args: list[str]) -> tuple[str, list[tuple[list[int], Optional[int]]]]:
+    def _bind(self, text: str, args: list[str]) -> tuple[str, list[tuple[list[int], int | None]]]:
         """The SQL with every host variable a `?`, and per marker (the elementary items, the indicator)."""
-        refs: list[tuple[list[int], Optional[int]]] = []
+        refs: list[tuple[list[int], int | None]] = []
 
         def marker(m: re.Match) -> str:
             elems = self.p.elementary(self.p.find(m.group(1)))
@@ -225,7 +225,7 @@ class Precompiler:
 
         return _HOST.sub(marker, text), refs
 
-    def _vars(self, refs: list[tuple[list[int], Optional[int]]], args: list[str]) -> list[HostVar]:
+    def _vars(self, refs: list[tuple[list[int], int | None]], args: list[str]) -> list[HostVar]:
         out = []
         for elems, ind in refs:
             for e in elems:
@@ -243,7 +243,7 @@ class Precompiler:
             args.append(ref)
         return args.index(ref)
 
-    def statement(self, body: str) -> Optional[tuple[Statement, list[str]]]:
+    def statement(self, body: str) -> tuple[Statement, list[str]] | None:
         """One EXEC SQL block's statement and the CALL's arguments, or None (no code: DECLARE)."""
         text = _norm(body)
         u = text.upper()

@@ -17,7 +17,6 @@
 
 
 import json
-from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.java_target import Culture, JavaTarget
 
@@ -26,7 +25,7 @@ from gitgalaxy.tools.cobol_to_java.java_target import Culture, JavaTarget
 SPRINGDOC_VERSION = "2.5.0"
 
 
-def ui_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
+def ui_dependencies(t: JavaTarget) -> list[tuple[str, str, str | None]]:
     """(group, artifact, version or None) the BMS screens' UI flavour needs (#3619)."""
     if t.ui.flavour == "thymeleaf":
         return [("org.springframework.boot", "spring-boot-starter-thymeleaf", None),
@@ -37,7 +36,7 @@ def ui_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
     return []
 
 
-def messaging_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
+def messaging_dependencies(t: JavaTarget) -> list[tuple[str, str, str | None]]:
     """(group, artifact, version or None) the TD / MQ message port's adapter needs (#3620)."""
     if t.integration.messaging == "jms":
         return [("org.springframework.boot", "spring-boot-starter-artemis", None)]
@@ -47,7 +46,7 @@ def messaging_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]
 
 
 def _dependency(
-    group: str, artifact: str, scope: Optional[str] = None, optional: bool = False, version: Optional[str] = None
+    group: str, artifact: str, scope: str | None = None, optional: bool = False, version: str | None = None
 ) -> str:
     lines = [
         "        <dependency>",
@@ -64,7 +63,7 @@ def _dependency(
     return "\n".join(lines) + "\n"
 
 
-def generate_pom_xml(group_id: str, artifact_id: str, target: Optional[JavaTarget] = None) -> str:
+def generate_pom_xml(group_id: str, artifact_id: str, target: JavaTarget | None = None) -> str:
     """Scaffolds a production-ready Maven pom.xml for the microservice.
 
     `target` (#3613) picks the Java and Spring Boot versions, the JDBC driver, and
@@ -203,7 +202,7 @@ def generate_settings_gradle(artifact_id: str) -> str:
     return f"rootProject.name = '{artifact_id}'\n"
 
 
-def generate_application_yml(artifact_id: str, target: Optional[JavaTarget] = None) -> str:
+def generate_application_yml(artifact_id: str, target: JavaTarget | None = None) -> str:
     """Scaffolds the application.yml: datasource, JPA and (when enabled) Spring Batch,
     for the target's database (#3613); the default target writes the historic file."""
     t = target or JavaTarget()

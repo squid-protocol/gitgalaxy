@@ -33,7 +33,7 @@
 #     dataset reader does not keep, are read here.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
 
@@ -57,7 +57,7 @@ def _operand_field(text: str) -> str:
     return text
 
 
-def _split(field: str) -> list[tuple[Optional[str], str]]:
+def _split(field: str) -> list[tuple[str | None, str]]:
     """Top-level `KEY=value` operands (commas inside parens / quotes kept)."""
     parts, depth, quoted, start = [], 0, False, 0
     for i, ch in enumerate(field):
@@ -73,7 +73,7 @@ def _split(field: str) -> list[tuple[Optional[str], str]]:
             parts.append(field[start:i])
             start = i + 1
     parts.append(field[start:])
-    out: list[tuple[Optional[str], str]] = []
+    out: list[tuple[str | None, str]] = []
     for p in parts:
         m = re.match(r"([A-Z" + NATIONAL + r"@#$][A-Z" + NATIONAL + r"0-9@#$.]{0,24})=", p, re.I)
         out.append((m.group(1).upper(), p[m.end() :]) if m else (None, p))
@@ -83,7 +83,7 @@ def _split(field: str) -> list[tuple[Optional[str], str]]:
 def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     """(line, name, op, operands) with continuations joined; IF keeps its whole condition."""
     out: list[tuple[int, str, str, str]] = []
-    pending: Optional[list] = None
+    pending: list | None = None
     for no, raw in enumerate(code_stream.split("\n"), 1):
         line = raw[:72].rstrip()
         # A `//*` comment -- or the empty line PRISM leaves for one -- may sit inside a
@@ -123,7 +123,7 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return out
 
 
-def _disp(value: Optional[str]) -> Optional[str]:
+def _disp(value: str | None) -> str | None:
     if value is None:
         return None
     v = value.strip("()").split(",")[0].strip().upper()
@@ -133,7 +133,7 @@ def _disp(value: Optional[str]) -> Optional[str]:
 _NORMAL_ENDS = ("KEEP", "CATLG", "DELETE", "PASS", "UNCATLG")
 
 
-def _disp_normal(value: Optional[str]) -> Optional[str]:
+def _disp_normal(value: str | None) -> str | None:
     """#3622: DISP's normal-end disposition -- `(MOD,DELETE,DELETE)` -> DELETE -- or None."""
     if value is None:
         return None
@@ -148,7 +148,7 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
-def _parm(value: Optional[str]) -> Optional[str]:
+def _parm(value: str | None) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
     `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
     if value is None:
@@ -182,10 +182,10 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
         "generation": None,
         "line": 0,
     }
-    in_proc: Optional[str] = None
+    in_proc: str | None = None
     ordinal = 0
-    step: Optional[str] = None
-    last_dd: Optional[str] = None
+    step: str | None = None
+    last_dd: str | None = None
     ifs: list[str] = []
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":

@@ -2904,7 +2904,7 @@ class TestPopularityTallyExtensionAgreement(unittest.TestCase):
                 "FAIL_ON_MALWARE": False,
             },
         )
-        scope.stem_map = dict(zip(files, files))
+        scope.stem_map = dict(zip(files, files, strict=False))  # reason: length may differ
         # Pass 0 normally builds ext_tally; without it every extension looks
         # unknown to the tally and `foo.h` is rewritten to `foo/h` before any
         # of this is reached -- which makes the negative cases below pass for

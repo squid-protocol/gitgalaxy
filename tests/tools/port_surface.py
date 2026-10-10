@@ -48,7 +48,6 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PORTS = REPO_ROOT / "tests" / "cics_crucible" / "ports"
@@ -124,7 +123,7 @@ def _uses(text: str, imp: str) -> bool:
     return name == "*" or re.search(rf"\b{re.escape(name)}\b", text) is not None
 
 
-def resurface(port: Path, generated: Path, text: Optional[str] = None) -> tuple[str, Change]:
+def resurface(port: Path, generated: Path, text: str | None = None) -> tuple[str, Change]:
     """The port's text with its facades brought to the generated file's, and what changed."""
     src = port.read_text(encoding="utf-8") if text is None else text
     gen = generated.read_text(encoding="utf-8")
@@ -210,7 +209,7 @@ def record(prov_path: Path, ch: Change, generated_from: str) -> None:
     prov_path.write_text(json.dumps(prov, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def crucible(work: Path, cases: Optional[list[str]], check: bool, offline: bool) -> int:
+def crucible(work: Path, cases: list[str] | None, check: bool, offline: bool) -> int:
     argv = [sys.executable, str(REPO_ROOT / "tests" / "tools" / "cics_crucible.py"), "--sides", "java-ported",
             "--keep", str(work)] + (["--cases", *cases] if cases else []) + (["--offline"] if offline else [])  # fmt: skip
     if not all((work / c).is_dir() for c in (cases or [p.name for p in PORTS.iterdir() if p.is_dir()])):
@@ -238,7 +237,7 @@ def crucible(work: Path, cases: Optional[list[str]], check: bool, offline: bool)
     return 1 if check and differs else 0
 
 
-def equivalence(work: Path, cases: Optional[list[str]], check: bool) -> int:
+def equivalence(work: Path, cases: list[str] | None, check: bool) -> int:
     """#4441: resurface the equivalence ports against their corpus's fresh generation."""
     sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
     import equivalence_java as ej
@@ -274,7 +273,7 @@ def equivalence(work: Path, cases: Optional[list[str]], check: bool) -> int:
     return 1 if check and differs else 0
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("apply")

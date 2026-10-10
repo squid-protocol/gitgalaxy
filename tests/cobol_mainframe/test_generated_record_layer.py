@@ -15,7 +15,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -33,12 +32,12 @@ PKG = "com.test"
 
 
 # ---- a synthetic VSAM store ---------------------------------------------------------------------------------
-def _fld(name: str, pic: str, offset: int, size: int, cls: str, usage: Optional[str] = None) -> dict:
+def _fld(name: str, pic: str, offset: int, size: int, cls: str, usage: str | None = None) -> dict:
     return {"name": name, "level": "05", "pic": pic, "usage": usage, "class": cls, "offset": offset,
             "bytes": size, "occurs": None}  # fmt: skip
 
 
-def _forge(fields: list[dict], *, org: str = "INDEXED", key: Optional[tuple] = (0, 8), config=None,
+def _forge(fields: list[dict], *, org: str = "INDEXED", key: tuple | None = (0, 8), config=None,
            access: str = "SEQUENTIAL") -> RepositoryForge:  # fmt: skip
     width = sum(f["bytes"] for f in fields)
     layout = {"bytes": width, "fields": fields}
@@ -66,7 +65,9 @@ NUMERIC_KEY = [_fld("CUST-ID", "9(8)", 0, 8, "9"), _fld("CUST-NAME", "X(12)", 8,
 def test_a_ksds_text_key_reads_in_its_code_page_order():
     """#3945: under key_collation ebcdic (the default) the sort column -- the key's code-page bytes (#3822)."""
     forge = _forge(TEXT_KEY)
-    assert _read_all(forge) == 'return custRecRepository.findAll(org.springframework.data.domain.Sort.by("custKeySort"))'
+    assert (
+        _read_all(forge) == 'return custRecRepository.findAll(org.springframework.data.domain.Sort.by("custKeySort"))'
+    )
     assert "private String custKeySort;" in forge.entity_source(forge.stores[0])
 
 
@@ -126,7 +127,7 @@ def test_a_vsam_bigdecimal_column_carries_its_pictures_precision_and_scale():
     assert _column(entity, "custShown") == 'name = "CUST_SHOWN", length = 10'
     assert "private String custShown;" in entity
     assert _column(entity, "custCount") == 'name = "CUST_COUNT"'  # an Integer needs none
-    assert "@Column(name = \"CUST_ID\")" in entity  # the key keeps its attributes
+    assert '@Column(name = "CUST_ID")' in entity  # the key keeps its attributes
     # the same precision the schema forge (and the Spring entity) computes from the PICTURE
     assert parse_pic_precision("S9(5)V9(4)", False) == (9, 4)
 
@@ -152,12 +153,18 @@ def test_a_currency_edited_spring_entity_field_keeps_3910s_precision():
 def test_four_decimals_survive_a_round_trip_through_the_generated_column(tmp_path):
     """The generated @Column as Hibernate's DDL renders it (the Cultural Gauntlet's entity_ddl: precision and
     scale verbatim, numeric(38, 2) without them) in a real H2: 12345.6789 comes back whole."""
-    forge = _forge([_fld("CUST-KEY", "X(8)", 0, 8, "X"), _fld("CUST-RATE", "S9(5)V9(4)", 8, 9, "9")],
-                   config={"database": {"engine": "h2"}})
+    forge = _forge(
+        [_fld("CUST-KEY", "X(8)", 0, 8, "X"), _fld("CUST-RATE", "S9(5)V9(4)", 8, 9, "9")],
+        config={"database": {"engine": "h2"}},
+    )
     table, ddl = entity_ddl(forge.entity_source(forge.stores[0]))
     assert "CUST_RATE numeric(9, 4)" in ddl
     ddl_java = ddl.replace('"', '\\"')  # escaped for a Java string literal (no backslash in an f-string on 3.9)
-    got = _run(tmp_path, {}, "Trip", f"""
+    got = _run(
+        tmp_path,
+        {},
+        "Trip",
+        f"""
 import java.sql.*;
 public class Trip {{
     public static void main(String[] a) throws Exception {{
@@ -171,7 +178,9 @@ public class Trip {{
         }}
     }}
 }}
-""", classpath=_maven_jar("com.h2database", "h2") or "")
+""",
+        classpath=_maven_jar("com.h2database", "h2") or "",
+    )
     assert got == ["12345.6789"]
 
 
@@ -236,7 +245,7 @@ def test_parse_timestamp_takes_ascii_digits_only(tmp_path):
                       for t, _ in TIMESTAMPS)  # fmt: skip
     got = _run(tmp_path, src, "Ts", "import com.test.repository.db2.Db2Dates;\npublic class Ts {\n"
                f"    public static void main(String[] a) {{\n{calls}\n    }}\n{_ATTEMPT}}}\n")  # fmt: skip
-    for (text, want), line in zip(TIMESTAMPS, got):
+    for (text, want), line in zip(TIMESTAMPS, got, strict=False):  # reason: length may differ
         if want == "invalid":
             # the way parseDate reports an invalid value: a DateTimeParseException (DB2's -180 / -181)
             assert line.startswith("DateTimeParseException: not a DB2 "), (text, line)
@@ -261,7 +270,7 @@ PACKED = [
 
 
 def _bytes(hexs: str) -> str:
-    return "new byte[] {" + ", ".join(f"(byte) 0x{hexs[i:i + 2]}" for i in range(0, len(hexs), 2)) + "}"
+    return "new byte[] {" + ", ".join(f"(byte) 0x{hexs[i : i + 2]}" for i in range(0, len(hexs), 2)) + "}"
 
 
 @pytest.mark.skipif(jdk() is None, reason="no JDK (javac + java)")
@@ -276,7 +285,7 @@ def test_unpack_comp3_throws_on_invalid_packed_data(tmp_path):
                "        } catch (NumberFormatException e) {\n"  # still a NumberFormatException to old catches
                "            System.out.println(e instanceof EbcdicDecoderUtil.PackedDecimalDataException);\n"
                f"        }}\n    }}\n{_ATTEMPT}}}\n")  # fmt: skip
-    for (h, _, want), line in zip(PACKED, got):
+    for (h, _, want), line in zip(PACKED, got, strict=False):  # reason: length may differ
         if "nibble" in want:
             assert line.startswith("PackedDecimalDataException: invalid packed decimal (S0C7 data exception) in "
                                    f"WS-AMT: {want} at byte "), (h, line)  # fmt: skip
@@ -297,7 +306,7 @@ def test_the_entity_codec_rejects_invalid_packed_data_too(tmp_path):
                       "));" for h, s, _ in PACKED)  # fmt: skip
     got = _run(tmp_path, src, "Cr", "import com.test.entity.vsam.CobolRecords;\npublic class Cr {\n"
                f"    public static void main(String[] a) {{\n{calls}\n    }}\n{_ATTEMPT}}}\n")  # fmt: skip
-    for (h, _, want), line in zip(PACKED, got):
+    for (h, _, want), line in zip(PACKED, got, strict=False):  # reason: length may differ
         if "nibble" in want:
             assert line == "null", (h, line)
         else:

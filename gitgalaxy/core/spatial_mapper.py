@@ -10,7 +10,7 @@
 import hashlib
 import logging
 import math
-from typing import Any, Optional
+from typing import Any
 
 # ------------------------------------------------------------------------------
 # SPATIAL MAPPER (Phase 7.5: Spatial Positioning Engine)
@@ -31,7 +31,7 @@ class SpatialMapper:
     securing O(1) collision avoidance. This guarantees extreme velocity even on massive enterprise monoliths.
     """
 
-    def __init__(self, parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, parent_logger: logging.Logger | None = None):
         # --- TELEMETRY SYNC ---
         if parent_logger:
             self.logger = parent_logger.getChild("spatial_mapper")

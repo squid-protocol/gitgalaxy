@@ -39,7 +39,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
@@ -126,7 +127,7 @@ def _one_select(toks: list[str], line: int) -> dict[str, Any]:
         row["select_name"] = toks[i]
         i += 1
 
-    def after(j: int) -> tuple[Optional[str], int]:
+    def after(j: int) -> tuple[str | None, int]:
         """The next word after the clause words at j, skipping IS / MODE / KEY / TO."""
         while j < len(toks) and toks[j] in _NOISE:
             j += 1
@@ -214,9 +215,9 @@ def _balanced(text: str, open_at: int) -> int:
     return len(text)
 
 
-def _params(text: str) -> list[tuple[str, Optional[str]]]:
+def _params(text: str) -> list[tuple[str, str | None]]:
     """Top-level `KEYWORD(value)` / `KEYWORD` pairs of one IDCAMS parameter list."""
-    out: list[tuple[str, Optional[str]]] = []
+    out: list[tuple[str, str | None]] = []
     i = 0
     while i < len(text):
         m = _PARAM.search(text, i)
@@ -235,12 +236,12 @@ def _params(text: str) -> list[tuple[str, Optional[str]]]:
     return out
 
 
-def _pair(value: Optional[str]) -> tuple[Optional[int], Optional[int]]:
+def _pair(value: str | None) -> tuple[int | None, int | None]:
     nums = re.findall(r"[0-9]{1,9}", value or "")
     return (int(nums[0]) if nums else None), (int(nums[1]) if len(nums) > 1 else None)
 
 
-def _define_row(kind: str, body: str, step: Optional[str], line: int) -> dict[str, Any]:
+def _define_row(kind: str, body: str, step: str | None, line: int) -> dict[str, Any]:
     top = _params(body)
     # CLUSTER( ... ) DATA( ... ) INDEX( ... ): the object's own block comes first.
     own = next((v for k, v in top if k in _DEFINE_KINDS and v is not None), None)
@@ -293,7 +294,7 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
         return []
     lines = code_stream.split("\n")
     rows: list[dict[str, Any]] = []
-    step: Optional[str] = None
+    step: str | None = None
     i = 0
     while i < len(lines):
         raw = lines[i]

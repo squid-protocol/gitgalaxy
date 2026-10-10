@@ -819,7 +819,9 @@ def check(dialect: str, column: str, obs: dict[str, Any]) -> dict[str, list[str]
 
     seed = seed_text(dialect).splitlines()
     decoded = obs["decoded"]
-    bad = next((i for i, (a, b) in enumerate(zip(seed, decoded)) if a.rstrip() != b), None)
+    bad = next(
+        (i for i, (a, b) in enumerate(zip(seed, decoded, strict=False)) if a.rstrip() != b), None
+    )  # reason: length may differ
     if bad is not None or len(seed) != len(decoded):
         n = bad if bad is not None else min(len(seed), len(decoded))
         was, now = [*seed, ""][n].strip(), [*decoded, ""][n].strip()
@@ -1658,7 +1660,7 @@ def run(work: Path, full: bool = False, jobs: int = 4, only: set[str] | None = N
         with ProcessPoolExecutor(max_workers=max(1, jobs)) as pool:
             observed = list(pool.map(_run_cell, [(d, c, str(work), execute, dbs) for d, c in pairs]))
     results: dict[str, Any] = {}
-    for (dialect, column), obs in zip(pairs, observed):
+    for (dialect, column), obs in zip(pairs, observed, strict=False):  # reason: length may differ
         if "skipped" in obs:
             for g in groups(dialect, execute, db):
                 results[f"{dialect}|{column}|{g}"] = {"dialect": dialect, "page": column, "group": g,

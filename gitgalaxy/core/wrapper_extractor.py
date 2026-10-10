@@ -39,7 +39,8 @@
 # ==============================================================================
 import collections
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 # The callee names the engine never treats as calls (keywords only -- built-ins
 # like `printf` are calls, #3361), shared with detector.py's own `calls_out_to`
@@ -119,7 +120,7 @@ def extract_wrapper_facts(
     raw_text: str,
     functions: list[dict[str, Any]],
     shield: Callable[[str], str],
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """The wrapper channel's raw per-file facts, or None when the file has none.
 
     `functions` are the detector's extracted units for this file (spans index

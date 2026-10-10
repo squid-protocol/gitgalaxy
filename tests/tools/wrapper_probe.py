@@ -75,7 +75,7 @@ import random
 import re
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -295,7 +295,7 @@ def macro_aliases(
     return out
 
 
-def run(langs: Optional[list[str]], rules: tuple[str, ...], max_loc: int) -> dict[str, Any]:
+def run(langs: list[str] | None, rules: tuple[str, ...], max_loc: int) -> dict[str, Any]:
     crucible = rule_probe.CRUCIBLE
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     groups = []
@@ -351,7 +351,7 @@ def score_filters(data: dict[str, Any], labels: dict[str, Any], max_loc: int) ->
         )
 
 
-def summarize(data: dict[str, Any], labels: Optional[dict[str, Any]] = None) -> None:
+def summarize(data: dict[str, Any], labels: dict[str, Any] | None = None) -> None:
     cands = all_candidates(data)
     print(f"{'rule':20} {'max_loc':>7} {'literal':>8} {'wrappers':>8} {'sites':>6}  labelled precision")
     for rule in data["rules"]:

@@ -29,7 +29,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 KEY_DIR = "tests/cobol_mainframe/answer_key"
@@ -37,7 +37,7 @@ LEDGER = "tests/cobol_mainframe/ground_truth_ledger.json"
 TRUTH_KEYS = ("program_id", "units", "dead", "copybooks", "calls", "files")
 
 
-def _show(rev: str, path: str) -> Optional[dict[str, Any]]:
+def _show(rev: str, path: str) -> dict[str, Any] | None:
     """The JSON at `path` in `rev`, or None if it does not exist there."""
     try:
         out = subprocess.run(  # noqa: S603
@@ -123,7 +123,7 @@ def diff_keys(base: dict[str, Any], head: dict[str, Any]) -> tuple[list[str], li
     return lines, warnings
 
 
-def diff_ledger(base: Optional[dict[str, Any]], head: Optional[dict[str, Any]]) -> tuple[list[str], list[str]]:
+def diff_ledger(base: dict[str, Any] | None, head: dict[str, Any] | None) -> tuple[list[str], list[str]]:
     lines: list[str] = []
     warnings: list[str] = []
     base = base or {"causes": {}, "corpora": {}}
@@ -162,7 +162,7 @@ def diff_ledger(base: Optional[dict[str, Any]], head: Optional[dict[str, Any]]) 
                 h = (hsb.get(field) or {}).get(side)
                 if b != h:
 
-                    def fmt(x: Optional[dict[str, int]]) -> str:
+                    def fmt(x: dict[str, int] | None) -> str:
                         return f"P {x['tp']}/{x['got']} R {x['tp']}/{x['truth']}" if x else "n/a"
 
                     sb_rows.append(f"| {corpus} | {field} | {side} | {fmt(b)} | {fmt(h)} |")

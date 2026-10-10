@@ -46,6 +46,7 @@ on candidate cases fast, before committing them to a real per-language test
 file under tests/extraction/languages/.
 """
 
+import itertools
 import argparse
 import sys
 import time
@@ -132,7 +133,7 @@ def check_redos_scaling(lang: str, rule_key: str, payload_fn, sizes=(2000, 4000,
         durations.append(dur)
         print(f"  n={n:>7} dur={dur:.4f}s")
 
-    print("  ratios:", ", ".join(f"{b / a:.2f}x" if a > 0 else "n/a" for a, b in zip(durations, durations[1:])))
+    print("  ratios:", ", ".join(f"{b / a:.2f}x" if a > 0 else "n/a" for a, b in itertools.pairwise(durations)))
     return True
 
 

@@ -27,7 +27,7 @@
 #   - DSN SYSTEM(...), END, FREE, BIND and other commands run nothing.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 _TSO_RUNNERS = frozenset({"IKJEFT01", "IKJEFT1A", "IKJEFT1B"})
 _STMT = re.compile(r"^//([A-Z0-9@#$.]{0,17})[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
@@ -49,7 +49,7 @@ _PERCENT = re.compile(r"^%([A-Z0-9@#$]{1,8})\b", re.I)
 def _commands(lines: list[tuple[int, str]]) -> list[tuple[int, str]]:
     """(line, command) from in-stream TSO input: `-` / `+` at the end continues a command."""
     out: list[tuple[int, str]] = []
-    pending: Optional[list] = None
+    pending: list | None = None
     for no, raw in lines:
         text = raw[:72].strip()
         if not text:
@@ -92,7 +92,7 @@ def runner_targets(code_stream: str) -> list[dict[str, Any]]:
     """Every program a runner step runs (see above), in source order."""
     lines = code_stream.split("\n")
     rows: list[dict[str, Any]] = []
-    step: Optional[dict[str, Any]] = None  # the current EXEC: line, step, runner
+    step: dict[str, Any] | None = None  # the current EXEC: line, step, runner
     i = 0
     while i < len(lines):
         line = lines[i][:72].rstrip()

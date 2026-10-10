@@ -20,7 +20,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
 from gitgalaxy.core.source_text import open_source, read_source
@@ -55,10 +55,10 @@ class GuideStarLens:
 
     def __init__(
         self,
-        root_path: Union[str, Path],
-        priority_whitelist: Optional[list[str]] = None,
-        parent_logger: Optional[logging.Logger] = None,
-        guidestar_config: Optional[dict[str, Any]] = None,
+        root_path: str | Path,
+        priority_whitelist: list[str] | None = None,
+        parent_logger: logging.Logger | None = None,
+        guidestar_config: dict[str, Any] | None = None,
     ):
         """Initializes the Intelligence Engine and calibrates the lock maps."""
         if parent_logger:
@@ -121,7 +121,7 @@ class GuideStarLens:
             f"{len(self.pattern_locks)} pattern rules, and {len(self.documentation_coverage)} documentation shields."
         )
 
-    def get_intent_status(self, path: Union[str, Path]) -> tuple[bool, dict[str, Any]]:
+    def get_intent_status(self, path: str | Path) -> tuple[bool, dict[str, Any]]:
         """Returns the specific Intent Lock for a given file path based on strict, pattern, or sector match."""
         path_obj = Path(path)
         filename = path_obj.name

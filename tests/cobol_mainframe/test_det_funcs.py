@@ -54,7 +54,7 @@ def test_test_numval_is_gnucobols(tmp_path):
     subprocess.run([str(java / "javac"), "-d", "out", "p/cobolrt/Funcs.java", "TN.java"], cwd=tmp_path, check=True)
     got = subprocess.run([str(java / "java"), "-cp", "out", "TN"], cwd=tmp_path, capture_output=True, text=True,
                          check=True).stdout.splitlines()  # fmt: skip
-    diffs = [(c, w, g) for c, w, g in zip(NUMVAL_CASES, want, got) if w != g]
+    diffs = [(c, w, g) for c, w, g in zip(NUMVAL_CASES, want, got, strict=False) if w != g]  # reason: length may differ
     assert len(want) == len(NUMVAL_CASES) and not diffs, diffs
 
 

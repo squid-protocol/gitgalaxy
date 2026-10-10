@@ -153,7 +153,9 @@ def test_decimal_point_is_comma_hands_the_grammar_each_literal_with_a_point():
     assert got == ["01  B PIC 9(7)V99 VALUE 1000.00.", "01  E PIC ZZZ.ZZ9,99.", "01  F PIC 99,99 VALUE '1,5'.",
                    "01  T.", "    05 W PIC 9V9 OCCURS 3.", "PROCEDURE DIVISION.", "    MOVE 0.5 TO W (2)",
                    "    COMPUTE B = -12.5 * B, 3", "    CALL 'X' USING A-1,5 B", "    GOBACK."]  # fmt: skip
-    assert all(len(a.text) == len(b.text) for a, b in zip(SRC.comma_literals(_dpc(*body)), _dpc(*body)))
+    assert all(
+        len(a.text) == len(b.text) for a, b in zip(SRC.comma_literals(_dpc(*body)), _dpc(*body), strict=False)
+    )  # reason: length may differ
     plain = _lines(*body)
     assert SRC.comma_literals(plain) is plain and not SRC.decimal_comma(plain)
 

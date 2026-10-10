@@ -19,7 +19,6 @@ import random
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from operator import mul, sub, truediv
-from typing import Optional
 
 
 def _bucket(keys: list[int], n: int) -> tuple[list[int], list[int]]:
@@ -94,7 +93,7 @@ class GraphIndex:
 
         # Total outgoing weight per node, accumulated in input edge order.
         self.out_weight = [0.0] * n
-        for s, w in zip(src, weight):
+        for s, w in zip(src, weight, strict=True):
             self.out_weight[s] += w
 
 
@@ -168,7 +167,7 @@ def pagerank(index: GraphIndex, alpha: float = 0.85, max_iter: int = 100, tol: f
         shares = list(map(truediv, map(mul, map(x.__getitem__, in_sources), in_weights), source_out_weight))
         # A node nothing imports receives only the dangling share and the teleport.
         x_next = [dangling_share + teleport] * n
-        for v, inflow in zip(receivers, map(sum, map(shares.__getitem__, runs))):
+        for v, inflow in zip(receivers, map(sum, map(shares.__getitem__, runs)), strict=True):
             x_next[v] = alpha * inflow + dangling_share + teleport
         err = sum(map(abs, map(sub, x_next, x)))
         x = x_next
@@ -177,9 +176,7 @@ def pagerank(index: GraphIndex, alpha: float = 0.85, max_iter: int = 100, tol: f
     raise RuntimeError(f"pagerank failed to converge in {max_iter} iterations")
 
 
-def closeness_and_path_length(
-    index: GraphIndex, budget: Optional[WorkBudget] = None
-) -> tuple[list[float], Optional[float]]:
+def closeness_and_path_length(index: GraphIndex, budget: WorkBudget | None = None) -> tuple[list[float], float | None]:
     """
     #3037: both hop-count path metrics come from ONE breadth-first search per node
     over the reversed graph (each node's incoming runs), since both need the same
@@ -430,7 +427,7 @@ def degree_assortativity(index: GraphIndex) -> float:
     return covariance / math.sqrt(variance_x * variance_y)
 
 
-def betweenness_centrality(index: GraphIndex, budget: Optional[WorkBudget] = None) -> list[float]:
+def betweenness_centrality(index: GraphIndex, budget: WorkBudget | None = None) -> list[float]:
     """
     #3038: exact betweenness centrality, one value per node id: the share of
     shortest import paths between other files that pass through each file.
@@ -579,11 +576,11 @@ def _modularity(adjacency: list[dict[int, float]], communities: list[set[int]]) 
 
 def _louvain_level(
     adjacency: list[dict[int, float]],
-    members: Optional[list[set[int]]],
+    members: list[set[int]] | None,
     m: float,
     partition: list[set[int]],
     rng: random.Random,
-    budget: Optional[WorkBudget],
+    budget: WorkBudget | None,
 ) -> tuple[list[set[int]], list[set[int]], bool]:
     """
     One call of networkx's `_one_level` (undirected, resolution 1), move for
@@ -637,7 +634,7 @@ def _louvain_level(
 
 
 def _aggregate(
-    adjacency: list[dict[int, float]], members: Optional[list[set[int]]], inner: list[set[int]]
+    adjacency: list[dict[int, float]], members: list[set[int]] | None, inner: list[set[int]]
 ) -> tuple[list[dict[int, float]], list[set[int]]]:
     """networkx's `_gen_graph`: one node per community, edge weights summed in edge order."""
     node2com: dict[int, int] = {}
@@ -658,7 +655,7 @@ def _aggregate(
 
 
 def _louvain(
-    undirected: list[dict[int, float]], seed: int, threshold: float, budget: Optional[WorkBudget]
+    undirected: list[dict[int, float]], seed: int, threshold: float, budget: WorkBudget | None
 ) -> list[set[int]]:
     """networkx's `louvain_partitions` loop, returning its last yielded partition."""
     n = len(undirected)
@@ -672,7 +669,7 @@ def _louvain(
     m = sum(_weighted_degree(adjacency, v) for v in range(n)) / 2
     partition = [{v} for v in range(n)]
     mod = _modularity(undirected, partition)
-    members: Optional[list[set[int]]] = None
+    members: list[set[int]] | None = None
     partition, inner, _ = _louvain_level(adjacency, members, m, partition, rng, budget)
     improvement = True
     communities = partition
@@ -687,7 +684,7 @@ def _louvain(
     return communities
 
 
-def louvain_communities(index: GraphIndex, seed: int = 42, budget: Optional[WorkBudget] = None) -> list[set[int]]:
+def louvain_communities(index: GraphIndex, seed: int = 42, budget: WorkBudget | None = None) -> list[set[int]]:
     """
     #3039: seeded Louvain communities of the undirected import graph, as sets of
     node ids. It returns the same communities, in the same order, as
@@ -696,7 +693,7 @@ def louvain_communities(index: GraphIndex, seed: int = 42, budget: Optional[Work
     return _louvain(_undirected_weights(index), seed, 1e-7, budget)
 
 
-def louvain_modularity(index: GraphIndex, seed: int = 42, budget: Optional[WorkBudget] = None) -> Optional[float]:
+def louvain_modularity(index: GraphIndex, seed: int = 42, budget: WorkBudget | None = None) -> float | None:
     """
     #3039: the modularity of the seeded Louvain partition: the engine's
     `network_modularity`. Strict parity with networkx's
@@ -721,7 +718,7 @@ def _popcount(bits: int) -> int:
     return _bit_count(bits) if _bit_count is not None else bin(bits).count("1")
 
 
-def reach_counts(index: GraphIndex, budget: Optional[WorkBudget] = None) -> tuple[list[int], list[int]]:
+def reach_counts(index: GraphIndex, budget: WorkBudget | None = None) -> tuple[list[int], list[int]]:
     """
     #3040: for every node, how many other nodes it reaches (its descendants:
     the files it depends on, directly or transitively) and how many reach it

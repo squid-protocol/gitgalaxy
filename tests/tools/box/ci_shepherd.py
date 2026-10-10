@@ -12,6 +12,8 @@ Per queued PR, each pass (tests/tools/pr_check.py for the state, tests/tools/ci_
   green + mergeable       `pr_check.merge` (marks ready, squash-merges pinned to the checked head); a merge that moved
                           the crucible pin syncs the shared checkouts, as `pr_check.py --merge` does
   checks pending          waits
+  behind main, no failed/pending checks  `gh pr update-branch`, ONCE per head SHA (#4790): the push restarts
+                          its checks, and a later pass merges it
   failed: infra / flake   `gh run rerun RUN --failed`, ONCE per (head SHA, check)
   failed: dirty           one PR comment per head SHA: merge origin/main, regenerate generated files with their tools
   failed: real            one PR comment per head SHA with the digest (error lines, log tail, local repro) -- the
@@ -157,6 +159,12 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
             time.sleep(settle)  # GitHub recomputes the others' mergeability
             continue
         failed = res["checks"]["failed"]
+        if not failed and not res["checks"]["pending"] and res["mergeable_state"] == "behind":
+            if once(state, n, sha, "update-branch"):
+                r = run(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG])
+                did.append(f"#{n} behind: branch updated" if not r.returncode
+                           else f"#{n} behind: update-branch failed: {r.stderr.strip()[:120]}")  # fmt: skip
+            continue
         if not failed and res["mergeable_state"] != "dirty":
             did.append(f"#{n} waiting: {len(res['checks']['pending'])} pending")
             continue

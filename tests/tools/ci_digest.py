@@ -5,7 +5,8 @@
     python tests/tools/ci_digest.py N --json     # the same, machine-readable (the CI shepherd reads this)
     python tests/tools/pr_check.py N --digest    # the same, after pr_check's report
 
-Per failed check: its triage -- `dirty` (`action_required` on a PR that conflicts with main: no checks ran; merge
+Per failed check: its triage -- `main` (a real failure of a check that also fails on main's newest commit:
+main's to fix, not this PR's), `dirty` (`action_required` on a PR that conflicts with main: no checks ran; merge
 origin/main and regenerate the generated files with their tools, never hand-merge them), `infra` (the runner, not the code: cancelled / startup failure / lost runner / disk /
 rate limit; rerun it once), `flake` (a test listed in FLAKY failed and nothing else did; rerun it once) or `real` (a
 fixer's job) -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
@@ -114,6 +115,8 @@ def triage(conclusion: str, log: str, tests: list[str], mergeable_state: str | N
 
 
 def repro(name: str, ex: dict[str, Any], kind: str = "real") -> str | None:
+    if kind == "main":
+        return "fails on main too: fix main (then merge origin/main here)"
     if kind == "dirty":
         return "git merge origin/main  (then regenerate generated files with their tools; see the PR worker rules)"
     if NO_LOCAL.match(name):
@@ -124,7 +127,18 @@ def repro(name: str, ex: dict[str, Any], kind: str = "real") -> str | None:
     return GATES + " --fast"
 
 
+def main_failures(api: pr_check.Api) -> set[str]:
+    """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main."""
+    try:
+        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
+        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    except (SystemExit, KeyError, TypeError):
+        return set()
+    return {x.split(" (")[0] for x in pr_check.classify(runs, [])["failed"]}
+
+
 def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) -> dict[str, Any]:
+    on_main = main_failures(api)
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
@@ -139,6 +153,8 @@ def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) ->
         log = logs(r["id"]) if actions else ""
         ex = extract(log)
         kind = triage(r.get("conclusion") or "", log, ex["tests"], pr.get("mergeable_state"))
+        if kind == "real" and name in on_main:
+            kind = "main"  # the same check fails on main: fix main, not this PR
         ids = RUN_JOB.search(r.get("details_url") or "")
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
                     "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,

@@ -20,7 +20,15 @@ class Gh:
         self.runs[sha] = [{"id": i, "name": name, "status": "completed" if c else "in_progress", "conclusion": c,
                            "app": {"slug": "github-actions"}} for i, (name, c) in enumerate(runs, 1)]  # fmt: skip
 
+    required = ["det", "full-suite"]
+    rules_ok = True
+
     def api(self, path):
+        if path.endswith("/rules/branches/main"):
+            if not self.rules_ok:
+                raise SystemExit("gh api failed")
+            return [{"type": "required_status_checks",
+                     "parameters": {"required_status_checks": [{"context": c} for c in self.required]}}]  # fmt: skip
         parts = path.split("?")[0].split("/")
         if "check-runs" in parts:
             return {"check_runs": self.runs[parts[-2]]}
@@ -35,9 +43,9 @@ class Gh:
         return subprocess.CompletedProcess(argv, 0, "", "")
 
 
-def failing(kind, run_id=99):
+def failing(kind, run_id=99, check="full-suite"):
     return lambda n: {"number": n, "head_sha": "x", "mergeable_state": "clean",
-                      "failed": [{"check": "full-suite", "conclusion": "failure", "url": "u", "run_id": run_id,
+                      "failed": [{"check": check, "conclusion": "failure", "url": "u", "run_id": run_id,
                                   "job_id": 1, "triage": kind, "repro": "pytest t", "errors": ["E"], "tail": ["t"],
                                   "tests": [], "cases": [], "more_errors": 0}]}  # fmt: skip
 
@@ -126,3 +134,34 @@ def test_one_run_at_a_time(tmp_path, monkeypatch):
         assert cs.main(["run", "--once"]) == 1
     assert cs.main(["add", "5", "6", "--after", "5"]) == 0
     assert cs.load(tmp_path / "s.json")["queue"] == [5, 6]
+
+
+def test_a_failure_main_has_too_gets_no_pr_note():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, runs=[("full-suite", "failure")])
+    did = step(gh, state, failing("main"))
+    assert any("waits for main" in d for d in did) and gh.calls == []
+
+
+def test_a_non_required_infra_failure_stops_blocking_once_its_reruns_are_used_up(monkeypatch):
+    gh, state, clock = Gh(), {"queue": [1], "after": {}, "seen": {}}, [1000.0]
+    monkeypatch.setattr(cs, "now", lambda: clock[0])
+    gh.pr(1, runs=[("muninn", "failure"), ("det", "success")])
+    for _ in range(cs.INFRA_RETRIES):
+        step(gh, state, failing("infra", check="muninn"))
+        clock[0] += cs.RETRY_GAP
+    assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.calls)  # still rerunning
+    did = step(gh, state, failing("infra", check="muninn"))
+    assert any("MERGED past non-required infra" in d for d in did) and state["queue"] == []
+
+
+def test_a_required_or_real_failure_or_unknown_rules_never_merges_past(monkeypatch):
+    for check, kind, rules_ok in (("full-suite", "infra", True), ("muninn", "real", True), ("muninn", "infra", False)):
+        gh, state, clock = Gh(), {"queue": [1], "after": {}, "seen": {}}, [1000.0]
+        gh.rules_ok = rules_ok
+        monkeypatch.setattr(cs, "now", lambda: clock[0])
+        gh.pr(1, runs=[(check, "failure")])
+        for _ in range(cs.INFRA_RETRIES + 2):
+            step(gh, state, failing(kind, check=check))
+            clock[0] += cs.RETRY_GAP
+        assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.calls), (check, kind, rules_ok)

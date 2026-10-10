@@ -111,6 +111,24 @@ def retry_due(state: dict[str, Any], n: int, sha: str, key: str, tries: int, t: 
     return True
 
 
+def reruns_used_up(state: dict[str, Any], n: int, sha: str, key: str, tries: int) -> bool:
+    """True when `key` already had `tries` reruns on this head (what retry_due counts)."""
+    seen = state["seen"].get(str(n), {})
+    done = seen.get(key) if seen.get("sha") == sha else None
+    return isinstance(done, list) and len(done) >= tries
+
+
+def required_checks(api: pr_check.Api) -> set[str] | None:
+    """The status checks the rules on main require (#4825 ruleset); None when they cannot be read (then every
+    check counts as required)."""
+    try:
+        rules = api(f"repos/{REPO_SLUG}/rules/branches/main")
+    except SystemExit:
+        return None
+    return {c["context"] for r in rules if r.get("type") == "required_status_checks"
+            for c in r.get("parameters", {}).get("required_status_checks", [])}  # fmt: skip
+
+
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
          digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests)."""
@@ -144,6 +162,27 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
             continue
         d = digest(n)
         kinds = {f["triage"] for f in d["failed"]} or ({"dirty"} if res["mergeable_state"] == "dirty" else set())
+        if "main" in kinds:
+            did.append(f"#{n} waits for main: {', '.join(f['check'] for f in d['failed'] if f['triage'] == 'main')} "
+                       "fails on main too (no PR note)")  # fmt: skip
+        # An infra failure of a check main does not require (muninn on a Docker Hub outage) stops blocking once its
+        # reruns are used up; a real finding there still blocks, and a required check always does.
+        required = required_checks(api)
+        if (d["failed"] and kinds == {"infra"} and required is not None and not res["checks"]["pending"]
+                and res["mergeable_state"] not in ("dirty", "behind", "blocked")
+                and all(f["check"] not in required for f in d["failed"])
+                and all(reruns_used_up(state, n, sha, f"rerun:{f['check']}", INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
+            errors = pr_check.merge(res, run)
+            names = ", ".join(f["check"] for f in d["failed"])
+            if errors:
+                did.append(f"#{n} merge failed: {'; '.join(errors)}")
+            else:
+                state["queue"].remove(n)
+                did.append(f"#{n} MERGED past non-required infra failure(s) after {INFRA_RETRIES} reruns: {names}")
+                comment(n, f"CI shepherd: merged with {names} failing for infrastructure reasons only (not a "
+                           f"required check; rerun {INFRA_RETRIES} times, 15 min apart). Its next run on main "
+                           "will report again.", run)  # fmt: skip
+            continue
         for f in d["failed"]:
             tries = INFRA_RETRIES if f["triage"] == "infra" else 1
             if (

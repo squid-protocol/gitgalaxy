@@ -41,11 +41,9 @@ concurrency:
   # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
   # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
   # re-push leaves the superseded run occupying the queue. cancel-in-progress
-  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
-  # ones that commit (docs, history charts, releases), and cancelling one
-  # mid-write is how you get a half-written commit.
+  # #4825: on for every event; these runs commit nothing, so a superseded run is safe to cancel.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
   tree-sitter-accuracy-audit:

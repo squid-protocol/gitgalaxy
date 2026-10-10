@@ -1,0 +1,60 @@
+name: post-merge
+
+# #4825: heavy read-only checks on main run only when no PR job is waiting for a runner. Every 20 minutes this reads
+# main's head SHA; if a dispatched workflow has not yet run for that SHA and no PR job is queued, it dispatches the
+# workflow on main. A SHA is dispatched at most once. Nothing here writes to the repo.
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write   # gh workflow run
+  contents: read
+
+concurrency:
+  group: post-merge
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Dispatch post-merge checks when PR runners are idle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          # Workflows dispatched on main, one run per main SHA. Start small: the OS matrix only.
+          WORKFLOWS: full-suite-gate.yml
+          # Defer while more PR jobs than this are waiting (queued) for a runner.
+          WAITING_MAX: "0"
+        run: |
+          set -euo pipefail
+
+          sha=$(gh api "repos/$REPO/branches/main" -q .commit.sha)
+          echo "main is at $sha"
+
+          # Count PR work waiting for a runner: queued PR runs, plus queued jobs inside PR runs that are in progress.
+          waiting=$(gh api "repos/$REPO/actions/runs?event=pull_request&status=queued&per_page=100" -q '.workflow_runs | length')
+          for id in $(gh api "repos/$REPO/actions/runs?event=pull_request&status=in_progress&per_page=100" -q '.workflow_runs[].id'); do
+            n=$(gh api "repos/$REPO/actions/runs/$id/jobs?filter=latest&per_page=100" -q '[.jobs[] | select(.status == "queued")] | length')
+            waiting=$((waiting + n))
+          done
+          echo "PR jobs waiting for a runner: $waiting (max $WAITING_MAX)"
+          if [ "$waiting" -gt "$WAITING_MAX" ]; then
+            echo "Deferring: PR checks are waiting for runners."
+            exit 0
+          fi
+
+          for wf in $WORKFLOWS; do
+            # Already dispatched or scheduled for this SHA? Then skip.
+            seen=$(gh api "repos/$REPO/actions/workflows/$wf/runs?branch=main&per_page=50" -q "[.workflow_runs[] | select(.head_sha == \"$sha\")] | length")
+            if [ "$seen" -gt 0 ]; then
+              echo "$wf already has a run for $sha; skipping."
+              continue
+            fi
+            echo "Dispatching $wf on main ($sha)."
+            gh workflow run "$wf" --repo "$REPO" --ref main
+          done

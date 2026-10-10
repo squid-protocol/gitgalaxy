@@ -31,7 +31,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
   gauntlet:

@@ -359,6 +359,26 @@ def test_approval_comes_from_the_labeled_event_payload_head():
     assert merged_by(gh)
 
 
+def test_the_approval_this_pass_wrote_counts_even_before_the_api_returns_it():
+    """Seen on #4854: the comment list read right after the marker's POST did not hold it yet, so the newest marker
+    read back was the previous head's and the label was dropped as unapproved."""
+    gh = Gh()
+    gh.dep_state = "closed"
+    old = "c" * 40
+    gh.comments = [bot_comment(f"<!-- shepherd:approved sha={old} by=joe -->")]  # an earlier head's approval
+    visible = list(gh.comments)
+    real_run = gh.run
+
+    def lagging_run(argv):  # the POST lands, but the next read of the comments does not show it yet
+        r = real_run(argv)
+        gh.comments, gh.posted = visible, gh.comments
+        return r
+
+    lines = sg.process(7, gh.api, lagging_run, {"action": "labeled", "label": sg.MERGE, "sender": "joe", "head": SHA})
+    assert lines[0].startswith("#7 approval marker for aaaaaaaaaaaa: ok")
+    assert merged_by(gh) and not any("label was removed" in ln for ln in lines)
+
+
 def test_a_marker_written_by_someone_else_is_ignored():
     gh = Gh()
     gh.dep_state = "closed"

@@ -31,6 +31,8 @@ on:
       - "tests/tools/tri_comparison_ledger.py"
       - "tests/tri_comparison_baseline_*.json"
       - ".github/workflows/tri-comparison-audit.yml"
+      - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
 
 permissions:
   contents: read

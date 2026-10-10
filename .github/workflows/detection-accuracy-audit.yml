@@ -20,6 +20,8 @@ on:
       - "tests/tools/detection_accuracy_audit.py"
       - "tests/detection_accuracy_baseline.json"
       - ".github/workflows/detection-accuracy-audit.yml"
+      - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
 
 permissions:
   contents: read

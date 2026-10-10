@@ -15,6 +15,16 @@ checks on `main` are green.
 
 A label added by someone without write access is removed by the bot, with a comment.
 
+**A label is bound to the head it was approved on.** When a maintainer with write access adds `shepherd:merge`, the
+bot's own account writes an approval marker naming the head that was labelled (from the event). Only the bot's
+markers count; anyone can post a comment. If the head later moves (new commits, a force-push), the label is removed,
+whatever noticed. The one exception is the bot's own `gh pr update-branch` (behind main): the bot leaves a marker pair
+before and after it, and the approval carries over only through that pair and a first-parent check. With no approval
+marker yet (the labelled run did not happen, or was dropped), the bot does nothing and says so in its log: re-add the
+label.
+
+A label added by someone without write access is removed by the bot, with a comment.
+
 **A label is bound to the head it was added on.** GitHub's timeline records who added `shepherd:merge` and on
 which commit. If the head has moved since (new commits, a force-push), the label is removed, whatever event noticed:
 push, then re-add the label. The one exception is the bot's own `gh pr update-branch` (behind main): the bot leaves a

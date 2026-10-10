@@ -24,7 +24,7 @@ def snap(**kw):
          "mergeable_state": "clean", "auto_merge": False, "labels": [sg.MERGE], "depends_open": [], "matrix": "none",
          "action": None, "event_label": None, "removed": None, "sender": None, "failed": [],
          "pending": 0, "digest_text": "", "digest_posted": False, "now": NOW,
-         "label_actors": {x: {"login": "joe", "permission": "admin", "commit_id": SHA} for x in sg.REQUESTS},
+         "label_actors": {x: {"login": "joe", "permission": "admin"} for x in sg.REQUESTS},
          "approved": True, "pending_update": False}  # fmt: skip
     s.update(kw)
     return s
@@ -109,7 +109,7 @@ def test_depends_on_an_open_pr_blocks_auto_merge():
 
 def test_a_label_by_a_non_writer_seen_only_in_the_timeline_is_removed():
     # reconcile after a dropped event: no event facts, the timeline names the labeler
-    actors = {sg.MERGE: {"login": "rando", "permission": "read", "commit_id": SHA}}
+    actors = {sg.MERGE: {"login": "rando", "permission": "read"}}
     acts = sg.decide(snap(label_actors=actors, auto_merge=True))
     assert by_op(acts, "unlabel") == [{"op": "unlabel", "label": sg.MERGE}]
     assert "automerge" not in kinds(acts) or by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
@@ -224,6 +224,13 @@ def test_closed_pr_only_loses_its_labels_it_was_vetted_on():
 # --- apply and gather, against a fake gh -----------------------------------------------------------------------------
 
 
+BOT = "shepherd-bot"
+
+
+def bot_comment(body, user=BOT):
+    return {"body": body, "user": {"login": user}}
+
+
 class Gh:
     """A fake `gh api` (for pr_check / ci_digest / gather) and a recorder for the gh commands apply() runs."""
 
@@ -243,17 +250,19 @@ class Gh:
         self.perm = "write"
         self.matrix_runs = []
         self.dep_state = "closed"
-        # the timeline: who added each label, on which head (GitHub's commit_id at that moment)
+        # the timeline: who added each label
         self.events = [
-            {"event": "labeled", "label": {"name": x}, "actor": {"login": "joe"}, "commit_id": SHA}
-            for x in (sg.MERGE, sg.MATRIX)
+            {"event": "labeled", "label": {"name": x}, "actor": {"login": "joe"}} for x in (sg.MERGE, sg.MATRIX)
         ]
-        self.comments = []  # the bot's markers live here
+        # the bot's own comments: the approval marker of the labelled head, written by the bot's account (BOT)
+        self.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->")]
         self.parents = {}  # commit sha -> parent shas
 
     def api(self, path):
         self.calls.append(path)
         bare = path.split("?")[0]
+        if path == "user":
+            return {"login": BOT}
         if re.search(r"/commits/[0-9a-f]{40}/pulls$", bare):
             return [self.pr]
         if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
@@ -288,6 +297,9 @@ class Gh:
 
     def run(self, argv):
         self.cmds.append(argv)
+        for arg in argv:  # a comment the module posted: the bot's account wrote it
+            if arg.startswith("body="):
+                self.comments.append(bot_comment(arg[len("body=") :]))
         out = "d" * 40 if "-q" in argv else ""
         return subprocess.CompletedProcess(argv, 0, out, "")
 
@@ -301,7 +313,7 @@ def test_reconcile_after_an_unapproved_push_drops_the_label_and_never_merges():
     gh = Gh()
     gh.dep_state = "closed"
     gh.pr["head"]["sha"] = "b" * 40
-    gh.parents = {"b" * 40: ["a" * 40, "c" * 40]}
+    gh.parents = {"b" * 40: ["a" * 40, "c" * 40]}  # the marker names A; B came from nowhere the bot knows
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines)
     assert not merged_by(gh) and not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
@@ -312,7 +324,7 @@ def test_reconcile_keeps_the_label_through_the_bot_update_branch():
     gh.dep_state = "closed"
     gh.pr["head"]["sha"] = "b" * 40
     gh.parents = {"b" * 40: [SHA, "c" * 40]}  # the bot's merge of main on the labelled head
-    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"}]
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"))
     lines = sg.process(7, gh.api, gh.run, None)
     assert not any("unlabel" in x for x in lines)
     assert merged_by(gh)
@@ -323,7 +335,7 @@ def test_a_push_after_the_bot_update_is_not_carried():
     gh.dep_state = "closed"
     gh.pr["head"]["sha"] = "d" * 40  # a force-push: a merge commit on the approved head, not the bot's
     gh.parents = {"d" * 40: [SHA, "c" * 40]}
-    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"}]
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"))
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
 
@@ -332,15 +344,44 @@ def test_a_bot_update_without_its_result_marker_is_pending_not_approved():
     gh = Gh()
     gh.dep_state = "closed"
     gh.pr["head"]["sha"] = "b" * 40
-    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} -->"}]
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} -->"))
     lines = sg.process(7, gh.api, gh.run, None)
     assert not any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_approval_comes_from_the_labeled_event_payload_head():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.comments = []  # the labeled run has not approved anything yet
+    lines = sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe", "head": SHA})
+    assert lines[0].startswith("#7 approval marker for aaaaaaaaaaaa: ok")
+    assert any(f"shepherd:approved sha={SHA} by=joe" in c["body"] for c in gh.comments)
+    assert merged_by(gh)
+
+
+def test_a_marker_written_by_someone_else_is_ignored():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->", user="mallory")]
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not any("unlabel" in x for x in lines) and not merged_by(gh)
+    assert any("awaiting" in x for x in lines)
+
+
+def test_no_marker_yet_is_quiet_no_drop_no_merge():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.comments = []
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not any("unlabel" in x for x in lines) and not merged_by(gh)
+    assert lines == ["#7 shepherd:merge: awaiting approval marker; re-add the label to approve (no action)"]
+    assert not any(c[:3] == ["gh", "api", f"repos/{sg.REPO_SLUG}/issues/7/labels/shepherd%3Amerge"] for c in gh.cmds)
 
 
 def test_reconcile_drops_a_label_added_by_a_non_writer_in_the_timeline():
     gh = Gh()
     gh.dep_state = "closed"
-    gh.events = [{"event": "labeled", "label": {"name": sg.MERGE}, "actor": {"login": "rando"}, "commit_id": SHA}]
+    gh.events = [{"event": "labeled", "label": {"name": sg.MERGE}, "actor": {"login": "rando"}}]
     gh.perm = "read"
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines) and not merged_by(gh)

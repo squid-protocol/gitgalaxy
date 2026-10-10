@@ -131,7 +131,7 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         return acts
     dropped = False
     pending = bool(s.get("pending_update"))
-    if MERGE in labels and not pending and not s.get("approved"):
+    if MERGE in labels and not pending and not s.get("approved") and not s.get("awaiting"):
         # the head moved since a maintainer's label, or was never approved: nothing merges the unreviewed head
         labels.discard(MERGE)
         dropped = True
@@ -155,6 +155,13 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         blocked.append(f"full-suite matrix {MATRIX_TEXT.get(s['matrix'], s['matrix'])}")
     if pending and MERGE in labels:
         blocked.append("a bot update of the branch is in progress")
+    if s.get("awaiting") and MERGE in labels and not pending:
+        blocked.append("no approval marker yet")
+        acts.append(
+            {"op": "note", "msg": f"{MERGE}: awaiting approval marker; re-add the label to approve (no action)"}
+        )
+    if s.get("carried") and MERGE in labels:
+        acts.append({"op": "approve", "sha": sha, "by": "carried from the bot's update"})
     want = MERGE in labels and not blocked
     if want and s["draft"]:
         acts.append({"op": "ready"})
@@ -205,6 +212,7 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
 # --- gather: the snapshot, from the API ------------------------------------------------------------------------------
 
 
+APPROVE_MARK = re.compile(r"<!-- shepherd:approved sha=([0-9a-f]{40}) by=([A-Za-z0-9_.-]+) -->")
 UPDATE_MARK = re.compile(r"<!-- shepherd-update from=([0-9a-f]{40})(?: to=([0-9a-f]{40}))? -->")
 
 
@@ -213,27 +221,35 @@ def _attempts(api: Api, run_id: int) -> tuple[int, float | None]:
     return int(r.get("run_attempt") or 1) - 1, _to_epoch(r.get("updated_at"))
 
 
+def _perm(api: Api, login: str) -> str | None:
+    try:
+        return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
+    except SystemExit:
+        return None  # unreadable: not a writer
+
+
 def gather(
     n: int, api: Api = pr_check.gh_api, event: dict[str, Any] | None = None, now: float | None = None
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
-    (action, label, sender), when there was one. Reconcile passes have none: they read the timeline instead, so a
-    dropped event never changes what is merged.
+    (action, label, sender), when there was one. Reconcile passes have none.
 
-    Approval (#4847 review): the latest `labeled` event of shepherd:merge in the PR's timeline names its actor and the
-    head it was added on (`commit_id`, set by GitHub at that moment). The label is approved only while the head is
-    that commit, or while the head is the merge this bot made with `gh pr update-branch` (its marker pair
-    `from=<approved> to=<head>`, and the head's first parent is the approved commit). A head that moved any other way
-    is unapproved, whatever the trigger."""
+    Approval (#4853 review): a maintainer's `shepherd:merge` is approved by a marker the bot writes itself, when the
+    labeled event arrives from a writer: `<!-- shepherd:approved sha=<head> by=<login> -->`, with the head from the
+    event payload (the head the maintainer labelled). Trust: only comments written by the bot's own account (the
+    AUTOMATION_PAT user) count; anyone can post a comment. The newest trusted marker decides:
+      * its sha is the current head -> approved;
+      * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
+        first parent is the approved commit) -> approved, carried over;
+      * the bot's update is between its two markers -> pending, no decision;
+      * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
+      * otherwise the head moved without approval -> the label is dropped."""
     event = event or {}
     perms: dict[str, str | None] = {}
 
     def perm(login: str) -> str | None:
         if login not in perms:
-            try:
-                perms[login] = api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
-            except SystemExit:
-                perms[login] = None  # unreadable: not a writer
+            perms[login] = _perm(api, login)
         return perms[login]
 
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
@@ -250,7 +266,7 @@ def gather(
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
                 f["attempts"], f["updated_at"] = _attempts(api, f["run_id"])
-    # who added each request label, and the head it was added on
+    # who last added each request label (the timeline; no commit ids are used)
     events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
     actors: dict[str, dict[str, Any] | None] = {}
     for name in labels:
@@ -261,9 +277,7 @@ def gather(
             if ev.get("event") == "labeled" and (ev.get("label") or {}).get("name") == name:
                 last = ev
         login = ((last or {}).get("actor") or {}).get("login")
-        actors[name] = (
-            {"login": login, "permission": perm(login), "commit_id": last.get("commit_id")} if last and login else None
-        )
+        actors[name] = {"login": login, "permission": perm(login)} if last and login else None
     depends_open: list[int] = []
     for d in sorted({int(x) for x in DEPENDS.findall(pr.get("body") or "")}):
         try:
@@ -272,20 +286,24 @@ def gather(
             state = "open"  # unreadable: treat as open, so auto-merge waits
         if state == "open":
             depends_open.append(d)
-    # approval of shepherd:merge (see the docstring)
-    approved = pending = False
+    # approval of shepherd:merge (see the docstring): only the bot's own comments are trusted
+    bot = (api("user") or {}).get("login") or ""
+    trusted = "\n".join(c.get("body") or "" for c in comments if bot and (c.get("user") or {}).get("login") == bot)
+    approvals = APPROVE_MARK.findall(trusted)
+    approved_sha = approvals[-1][0] if approvals else None
+    updates = UPDATE_MARK.findall(trusted)
+    frm, to = updates[-1] if updates else ("", "")
+    approved = pending = carried = False
+    awaiting = MERGE in labels and approved_sha is None
     m = actors.get(MERGE)
-    base = (m or {}).get("commit_id")
-    if MERGE in labels and m and writer(m["permission"]) and base:
-        marks = UPDATE_MARK.findall("\n".join(c.get("body") or "" for c in comments))
-        frm, to = marks[-1] if marks else ("", "")
-        if base == sha:
+    if MERGE in labels and approved_sha and m and writer(m["permission"]):
+        if approved_sha == sha:
             approved = True
-        elif frm == base and to == sha:
+        elif frm == approved_sha and to == sha:
             parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{sha}").get("parents", [])]
-            approved = len(parents) == 2 and parents[0] == base
-        elif frm == base and not to:
-            pending = True  # the bot is between its marker and its result: no decision yet
+            carried = approved = len(parents) == 2 and parents[0] == approved_sha
+        elif frm == approved_sha and not to:
+            pending = True
     head_fork = head_repo != REPO_SLUG
     matrix = "none"
     matrix_url = ""
@@ -328,6 +346,8 @@ def gather(
         "matrix": matrix,
         "label_actors": actors,
         "approved": approved,
+        "carried": carried,
+        "awaiting": awaiting,
         "pending_update": pending,
         "action": event.get("action"),
         "event_label": event.get("label") if event.get("action") == "labeled" else None,
@@ -374,6 +394,19 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
                 )
         elif op == "comment":
             gh(["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f", f"body={a['body'][:60000]}"], "comment")
+        elif op == "approve":
+            gh(
+                [
+                    "gh",
+                    "api",
+                    f"repos/{REPO_SLUG}/issues/{n}/comments",
+                    "-f",
+                    f"body=<!-- shepherd:approved sha={a['sha']} by=shepherd-update -->",
+                ],
+                "approval marker (carried)",
+            )
+        elif op == "note":
+            log.append(f"#{n} {a['msg']}")
         elif op == "ready":
             gh(["gh", "pr", "ready", str(n), "-R", REPO_SLUG], "ready for review")
         elif op == "automerge" and a["on"]:
@@ -426,16 +459,41 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
 
 
 def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry_run: bool = False) -> list[str]:
+    event = event or {}
+    lines: list[str] = []
+    sender, head = event.get("sender"), event.get("head")
+    # the approval: a writer's labeled event names the head the maintainer labelled (the payload's head sha)
+    if (
+        event.get("action") == "labeled"
+        and event.get("label") == MERGE
+        and sender
+        and head
+        and not dry_run
+        and writer(_perm(api, sender))
+    ):
+        r = run(
+            [
+                "gh",
+                "api",
+                f"repos/{REPO_SLUG}/issues/{n}/comments",
+                "-f",
+                f"body=<!-- shepherd:approved sha={head} by={sender} -->",
+            ]
+        )
+        lines.append(f"#{n} approval marker for {head[:12]}: " + ("ok" if not r.returncode
+                     else "FAILED: " + (r.stderr or r.stdout).strip()[:200]))  # fmt: skip
+        if r.returncode:
+            return lines  # no approval, so no auto-merge
     try:
         s = gather(n, api, event)
     except SystemExit as e:  # one PR's failed read must not stop the others
-        return [f"#{n} skipped: {e}"]
+        return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
     if not acts:
-        return [f"#{n} no action (labels: {', '.join(s['labels']) or 'none'})"]
+        return lines + [f"#{n} no action (labels: {', '.join(s['labels']) or 'none'})"]
     if dry_run:
-        return [f"#{n} would: {json.dumps(acts)}"]
-    return apply(n, s, acts, run)
+        return lines + [f"#{n} would: {json.dumps(acts)}"]
+    return lines + apply(n, s, acts, run)
 
 
 # --- entry points ----------------------------------------------------------------------------------------------------
@@ -453,6 +511,9 @@ def event_facts(path: Path) -> tuple[int, dict[str, Any]]:
     label = (payload.get("label") or {}).get("name")
     if isinstance(label, str):
         facts["label"] = label
+    head = (pr.get("head") or {}).get("sha")
+    if isinstance(head, str) and re.fullmatch(r"[0-9a-f]{40}", head):
+        facts["head"] = head
     login = (payload.get("sender") or {}).get("login")
     if isinstance(login, str) and re.fullmatch(r"[A-Za-z0-9-]+", login):
         facts["sender"] = login

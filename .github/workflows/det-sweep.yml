@@ -28,7 +28,9 @@ name: Det Sweep
 on:
   pull_request:  # #4825: no path filter -- `det` is a required check; det_sweep_plan.py proves nothing (mode none)
     branches: [main]  # when no changed file is a det input (DET_INPUTS), so a docs-only PR passes `det` in about a minute
-    types: [opened, synchronize, reopened, labeled, unlabeled]  # #4847: the shepherd:full label reruns it (see plan)
+    types: [opened, synchronize, reopened]  # no label events: any label change (the shepherd's status labels too) had
+    # cancelled the running sweep and failed the required `det` check (#4854). shepherd:full is read live by the plan
+    # step, and the shepherd reruns the latest sweep when a maintainer adds it (tests/tools/shepherd_gh.py)
   schedule:
     - cron: "41 4 * * *"  # nightly: the scan engine moves too (#4245 broke the mortgage ports from an engine change)
   workflow_dispatch:
@@ -43,9 +45,10 @@ concurrency:
 jobs:
   plan:
     name: plan
-    # #4847: a label event reruns the sweep only for shepherd:full (any other label is not a det input)
-    if: github.event.action != 'labeled' && github.event.action != 'unlabeled' || github.event.label.name == 'shepherd:full'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read  # the PR's labels, read live (shepherd:full)
     timeout-minutes: 25  # a minute normally; ~10 when a translator change needs the port diff (#4814)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -65,10 +68,16 @@ jobs:
 
       - name: Plan the sweep
         id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
         run: |
           git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          labels=""
+          if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
           python3 tests/tools/det_sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
-            --labels-from-event --github-output "$GITHUB_OUTPUT" | tee plan.json
+            --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee plan.json
           {
             echo "## Det sweep plan"
             echo '```json'

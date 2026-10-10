@@ -181,8 +181,13 @@ def main() -> int:
         const=Path(os.environ.get("GITHUB_EVENT_PATH", "")),
         help="read the PR's labels (shepherd:full forces a full sweep) from this event payload",
     )
+    ap.add_argument(
+        "--labels", help="the PR's labels, comma-separated, read live when the job runs (a rerun sees a new one)"
+    )
     args = ap.parse_args()
     labels = labels_from_event(args.labels_from_event) if args.labels_from_event else []
+    if args.labels is not None:
+        labels = [x for x in args.labels.split(",") if x]
     cases = case_dirs()
     if args.ports:
         p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)

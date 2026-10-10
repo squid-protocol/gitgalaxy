@@ -56,6 +56,7 @@ WRITE = {"admin", "maintain", "write"}  # the collaborator permissions that may 
 INFRA_RERUNS = 3  # an outage (Docker Hub 429/504, 2026-10-09) outlasts one rerun
 RETRY_GAP = 15 * 60  # seconds between reruns of the same run's failed jobs
 MATRIX_WORKFLOW = "full-suite-gate.yml"
+DET_WORKFLOW = "det-sweep.yml"  # shepherd:full reruns its latest pull_request run (it no longer runs on label events)
 DEPENDS = re.compile(r"Depends on #(\d+)", re.I)
 DOCS = "docs/ci.md"
 MATRIX_TEXT = {
@@ -129,6 +130,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
             )
     if s["state"] != "open":
         return acts
+    if ev_label == FULL and FULL in labels:  # a writer's (a non-writer's was removed above): the plan reads it live
+        acts.append({"op": "rerun_det", "sha": s["head_sha"]})
     dropped = False
     pending = bool(s.get("pending_update"))
     if MERGE in labels and not pending and not s.get("approved") and not s.get("awaiting"):
@@ -418,6 +421,14 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             )
         elif op == "automerge":
             gh(["gh", "pr", "merge", str(n), "-R", REPO_SLUG, "--disable-auto"], "auto-merge off")
+        elif op == "rerun_det":
+            r = run(["gh", "run", "list", "-R", REPO_SLUG, "--workflow", DET_WORKFLOW, "--commit", a["sha"],
+                     "--event", "pull_request", "--limit", "1", "--json", "databaseId", "-q", ".[0].databaseId"])  # fmt: skip
+            rid = (r.stdout or "").strip()
+            if r.returncode or not rid.isdigit():
+                log.append(f"#{n} rerun {DET_WORKFLOW}: no pull_request run found for {a['sha'][:12]}")
+            else:
+                gh(["gh", "run", "rerun", rid, "-R", REPO_SLUG], f"rerun {DET_WORKFLOW} (run {rid}) for {FULL}")
         elif op == "dispatch":
             gh(
                 ["gh", "workflow", "run", MATRIX_WORKFLOW, "-R", REPO_SLUG, "--ref", a["ref"]],

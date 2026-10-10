@@ -289,6 +289,8 @@ def gather(
     # approval of shepherd:merge (see the docstring): only the bot's own comments are trusted
     bot = (api("user") or {}).get("login") or ""
     trusted = "\n".join(c.get("body") or "" for c in comments if bot and (c.get("user") or {}).get("login") == bot)
+    if (event or {}).get("approved"):  # this pass just wrote it: a comment read right after its POST can lag behind it
+        trusted += f"\n<!-- shepherd:approved sha={event['approved']} by={event.get('sender')} -->"
     approvals = APPROVE_MARK.findall(trusted)
     approved_sha = approvals[-1][0] if approvals else None
     updates = UPDATE_MARK.findall(trusted)
@@ -484,6 +486,7 @@ def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry
                      else "FAILED: " + (r.stderr or r.stdout).strip()[:200]))  # fmt: skip
         if r.returncode:
             return lines  # no approval, so no auto-merge
+        event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
         s = gather(n, api, event)
     except SystemExit as e:  # one PR's failed read must not stop the others

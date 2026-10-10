@@ -8,6 +8,7 @@ explains it.
 import ast
 import copy
 import json
+import subprocess
 import sys
 import warnings
 from pathlib import Path
@@ -75,11 +76,20 @@ def test_no_record_lies_where_it_lives():
             assert rec["port"]["paths"] == ev.port_files(t), t.key
 
 
-def test_the_rendered_pages_are_current():
+def test_every_record_renders_a_page_deterministically():
+    """#4825: the pages are no longer committed (evidence-pages.yml publishes them from main to the `generated` branch),
+    so this checks the render itself: one page per record plus the index, the same text twice."""
     pages = ev.rendered()
-    stale = [ev.rel_path(p) for p, text in pages.items() if not p.is_file() or p.read_text(encoding="utf-8") != text]
-    extra = [ev.rel_path(p) for p in ev.PAGES.glob("*.md") if p not in pages]
-    assert not stale and not extra, f"run python tests/tools/evidence.py render: {stale + extra}"
+    assert ev.PAGES / "README.md" in pages
+    assert sum(1 for _, rec in ((t, ev.load(t)) for t in ev.targets()) if rec is not None) == len(pages) - 1
+    assert pages == ev.rendered()
+
+
+def test_main_does_not_commit_the_pages():
+    """#4825: PRs collided on the rendered pages; they live on the `generated` branch only."""
+    tracked = subprocess.run(["git", "ls-files", "docs/language_status/evidence"], cwd=ev.REPO_ROOT,  # noqa: S603, S607
+                             capture_output=True, text=True, check=True).stdout.split()  # fmt: skip
+    assert tracked == [], f"remove from git (they are published to the generated branch): {tracked[:5]}"
 
 
 def test_committed_approvals_name_a_person_and_what_they_attest():

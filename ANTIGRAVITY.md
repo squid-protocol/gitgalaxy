@@ -53,7 +53,7 @@ These files are written by tools, and CI fails when they differ from a fresh reg
 |---|---|
 | `tests/golden_master_audit/`, `tests/golden_master_zero_dep_audit/` | `python tests/tools/crucible_check.py --update --yes` |
 | `tests/cobol_mainframe/ground_truth_ledger.json` | `python tests/tools/ground_truth_ledger.py update` (after `python tests/tools/mainframe_corpus.py fetch`) |
-| `docs/language_status/evidence/*.md` | `python tests/tools/evidence.py render` |
+| `docs/language_status/evidence/*.md` | not committed (#4825): published to the `generated` branch by evidence-pages.yml |
 | `docs/language_status/cics_field_testing.md`, `gitgalaxy/standards/fact_channel_confidence.json` | `python tests/tools/field_testing.py report --write` |
 | `docs/language_status/fresh_estate_trials.md` / `.svg` | `python tests/tools/trial.py report --write` |
 | ruff / mypy / dead-key baselines | `python tests/tools/audit_check.py --regenerate` |

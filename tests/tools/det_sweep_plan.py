@@ -3,11 +3,15 @@
 
     python tests/tools/det_sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--github-output PATH]
 
-A pull request that changes only files under tests/equivalence/<case>/ re-proves those cases (and the cases that
-take that case's port: `port_from`, `uses_ports`, transitively). Anything else -- the translator, the harness, the tools,
-the corpora pin, the workflow, the baseline, a file straight under tests/equivalence/, a case directory with no case.json
-(a case added or removed), an unreadable diff -- is a full sweep, as is every event that is not a pull request (nightly,
-manual). When in doubt, full. Stdlib only: the job runs before anything is installed.
+A pull request that changes no det input (DET_INPUTS: docs, other engine code ...) proves nothing (mode "none"; #4825,
+so the workflow can run -- and report its required `det` check -- on every PR). One that changes only files under
+tests/equivalence/<case>/ re-proves those cases (and the cases that
+take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
+tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). Anything
+else -- the translator, the harness, the tools, the corpora pin, the workflow, the baseline, a file straight under
+tests/equivalence/, a case directory with no case.json (a case added or removed), an unreadable diff -- is a full
+sweep, as is every event that is not a pull request (nightly, manual). When in doubt, full. Stdlib only: the job runs
+before anything is installed.
 
 Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names; `matrix` the shard labels "I/N".
 """
@@ -15,6 +19,7 @@ Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import subprocess
 import sys
@@ -22,9 +27,37 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
-MAX_SHARDS = 6  # full sweep: runners
+MAX_SHARDS = 20  # full sweep: runners (#4814: work-sized; a narrow plan starts one per PER_SHARD cases)
 PER_SHARD = 3  # narrow: about this many cases per runner
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
+# #4814: a change confined to these is judged by what it does to the generated ports: `det_port.py check` translates
+# every case at the base and at HEAD and names the ports that differ; only those (and their dependents) are proven.
+# Only the translator + runtime -- everything a port's bytes come from. Anything else that can move a verdict without
+# moving a byte (the harness, proof_reach.py, the oracle) stays a full sweep.
+PORT_DIFF = "gitgalaxy/tools/cobol_to_java/det/"
+
+# What a det proof reads (#4825: moved here from det-sweep.yml's trigger, so the workflow runs -- and reports `det` --
+# on every PR). A PR that changes none of these proves nothing (mode "none"). fnmatch: `*` also crosses `/`.
+DET_INPUTS = (
+    "gitgalaxy/tools/cobol_to_java/*",
+    "tests/tools/det_port.py",
+    "tests/tools/det_parity.py",
+    "tests/tools/proof_sweep.py",
+    "tests/tools/det_sweep_plan.py",
+    "tests/tools/equivalence*.py",
+    "tests/tools/mainframe_corpus.py",
+    "tests/equivalence/*",
+    "tests/cobol_mainframe/corpora.json",
+    ".github/workflows/det-sweep.yml",
+)
+
+
+def det_input(path: str) -> bool:
+    return not path.endswith(".md") and any(fnmatch.fnmatch(path, p) for p in DET_INPUTS)
+
+
+# #4789: <case>.json, the det-sweep coverage ledger's entry of a case
+LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
 
 
 def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
@@ -54,13 +87,27 @@ def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
     full = {"mode": "full", "cases": "all"}
     if event != "pull_request":
         return {**full, "reason": f"{event}: always a full sweep"}
-    files = [f for f in files if f not in IGNORED]
+    files = [f for f in files if f not in IGNORED and det_input(f)]
+    if not files:
+        return {"mode": "none", "cases": [], "reason": "no changed file is a det-sweep input (DET_INPUTS)"}
     touched: set[str] = set()
+    translator = sorted(f for f in files if f.startswith(PORT_DIFF))
     for f in files:
+        if f.startswith(PORT_DIFF):
+            continue
+        if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
+            touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
         parts = f.split("/")
         if len(parts) < 4 or parts[:2] != ["tests", "equivalence"] or parts[2] not in cases:
             return {**full, "reason": f"{f} is not inside one existing case directory"}
         touched.add(parts[2])
+    if translator:  # the port diff decides (the workflow runs det_port.py check, then --ports)
+        return {
+            "mode": "ports",
+            "cases": sorted(touched),
+            "reason": f"translator changed ({len(translator)} file(s)): prove the ports it changes",
+        }
     affected = sorted(dependents(touched, cases))
     runnable = [c for c in affected if not is_db2(cases[c])]  # (the sweep is --skip-db2)
     return {"mode": "narrow", "cases": runnable,
@@ -68,8 +115,27 @@ def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
 
 
+def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> dict:
+    """#4814: the plan after `det_port.py check`: the ports that differ from the base, the touched cases, and their
+    dependents. A missing or unreadable check is a full sweep (when in doubt, full)."""
+    try:
+        rows = json.loads(check.read_text(encoding="utf-8"))
+        moved = {r["case"] for r in rows if r.get("status") != "unchanged"}
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        return {"mode": "full", "cases": "all", "reason": f"no usable port diff ({e}): a full sweep"}
+    affected = sorted(dependents(moved | set(touched), cases) & set(cases))
+    runnable = [c for c in affected if not is_db2(cases[c])]
+    db2 = [c for c in affected if is_db2(cases[c])]
+    return {"mode": "narrow", "cases": runnable, "carried": len(cases) - len(affected),
+            "db2_not_swept": db2,
+            "reason": f"port diff: {len(moved)} port(s) changed of {len(rows)}; "
+                      f"{len(cases) - len(affected)} case(s) carried forward unchanged"}  # fmt: skip
+
+
 def shards_for(p: dict) -> list[str]:
     """The runner labels for a plan: MAX_SHARDS for a full sweep, one per PER_SHARD cases when narrow, none for no cases."""
+    if p["mode"] == "ports":
+        return []  # not final: --ports turns it into a narrow (or full) plan
     if p["mode"] == "full":
         n = MAX_SHARDS
     else:
@@ -91,19 +157,28 @@ def main() -> int:
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
     ap.add_argument("--github-output", type=Path, help="append mode / cases / matrix / shards for later jobs")
+    ap.add_argument("--ports", type=Path, help="#4814: det_port.py check's check.json -- plan from the port diff")
+    ap.add_argument("--touched", default="", help="with --ports: case directories the PR changed (comma-separated)")
     args = ap.parse_args()
     cases = case_dirs()
+    if args.ports:
+        p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)
+        return emit(p, args.github_output)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
         p = plan(files, args.event, cases) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "reason": f"cannot diff ({e})"}
+    return emit(p, args.github_output)
+
+
+def emit(p: dict, github_output: Path | None) -> int:
     p["matrix"] = shards_for(p)
     p["shards"] = len(p["matrix"])
     print(json.dumps(p, indent=1))
-    if args.github_output:
-        with args.github_output.open("a", encoding="utf-8") as fh:
+    if github_output:
+        with github_output.open("a", encoding="utf-8") as fh:
             fh.write(f"mode={p['mode']}\n")
             fh.write(f"cases={'all' if p['cases'] == 'all' else ','.join(p['cases'])}\n")
             fh.write(f"matrix={json.dumps(p['matrix'])}\n")

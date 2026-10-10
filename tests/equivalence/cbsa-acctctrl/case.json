@@ -1,0 +1,70 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "ACCTCTRL",
+ "program_source": "src/base/cobol_src/ACCTCTRL.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_copy/ACCTCTRL.cpy",
+    "record": "ACCOUNT-CONTROL-RECORD"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "count-accounts",
+   "commarea": {},
+   "why": "SELECT COUNT(*) FROM ACCOUNT WHERE ACCOUNT_SORTCODE = '987654' (the program's own sort code): SQLCODE 0 -- 'Y' and NUMBER-OF-ACCOUNTS 13 (the seed's 987654 rows; the 123456 one is not counted)"
+  },
+  {
+   "name": "caller-data-initialised",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "99",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "12345678",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "N",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "why": "a COMMAREA full of the caller's values: INITIALIZE DFHCOMMAREA blanks / zeroes the named items (not the FILLERs), then the count and 'Y'"
+  },
+  {
+   "name": "select-fails",
+   "commarea": {},
+   "sql_faults": [
+    {
+     "program": "ACCTCTRL",
+     "table": "ACCOUNT",
+     "verb": "SELECT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "the SELECT fails -913: 'N', NUMBER-OF-ACCOUNTS left at the INITIALIZE's zero (FAIL-CODE not set)"
+  }
+ ],
+ "notes": "CBSA's account-control service (ACCTCTRL; no program in the corpus LINKs it -- the transaction OCAC is the create-account one, which the program never reads -- so the COMMAREA is its own DFHCOMMAREA, the ACCTCTRL copybook's ACCOUNT-CONTROL-RECORD). It INITIALIZEs the COMMAREA and counts the ACCOUNT rows of the program's own sort code (987654) with SELECT COUNT(*) INTO from Db2 (unqualified: the bind's QUALIFIER, IBMUSER); SQLCODE 0 gives 'Y' and the count in NUMBER-OF-ACCOUNTS, any other 'N'. POPULATE-TIME-DATE is never PERFORMed (dead code). The table is compared after every scenario. Data: seed.sql is cbsa-creacc's (SYNTHETIC; CONTROL rows left out: only ACCOUNT is created). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

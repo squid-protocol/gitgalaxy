@@ -4,6 +4,7 @@
     python tests/tools/pr_check.py N            # report; exit 0 when ready to merge, 1 otherwise
     python tests/tools/pr_check.py N --merge    # `gh pr ready` + `gh pr merge --squash`, ONLY when everything is green
     python tests/tools/pr_check.py N --json
+    python tests/tools/pr_check.py N --digest   # also: per failed check, its triage, error lines and local repro (ci_digest.py)
 
 Four REST calls through `gh api` (gh pr view / edit / issue view fail on this repo's Projects-classic GraphQL): the pull
 request (mergeable state, draft, head SHA), the head SHA's check runs and its combined commit status (paginated at
@@ -195,9 +196,14 @@ def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
     ap.add_argument("number", type=int)
     ap.add_argument("--merge", action="store_true", help="mark ready + squash-merge, only when everything is green")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--digest", action="store_true", help="also print each failed check's digest (ci_digest.py)")
     args = ap.parse_args(argv)
     res = check(args.number, api)
     print(json.dumps(res, indent=1) if args.json else report(res))
+    if args.digest and res["checks"]["failed"]:
+        import ci_digest  # noqa: PLC0415 -- fetches job logs; only when asked
+
+        print("\n" + ci_digest.render(ci_digest.digest(args.number, api)))
     if not args.merge:
         return 0 if res["ready"] else 1
     if not res["ready"]:

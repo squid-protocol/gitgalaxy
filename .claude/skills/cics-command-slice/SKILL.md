@@ -42,8 +42,8 @@ Traps `--check` exists for:
       leave refused and why.
 - [ ] **Spec entry first** (`gitgalaxy/standards/cics`): promote the command's name-only entry to a full one
       (options, refusals with reasons and register, groups, outcomes with RESP2, facts); `det/cics.py` and the stub
-      read it. The runtimes stay hand-written, and no crucible log is derived from the spec. Then
-      `cics_spec_status.py render`.
+      read it. The runtimes stay hand-written, and no crucible log is derived from the spec. Do not commit
+      `cics_spec_status.md` (#4789: the evidence-refresh bot renders it on main).
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).

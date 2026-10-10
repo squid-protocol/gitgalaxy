@@ -50,7 +50,7 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 - programs: 5 (with an EXEC CICS command: 5; source not read: 0)
 - translated whole: 0; refused whole: 0; holes left: 71
-- with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
+- with an equivalence case: 1; det port equal on its case: 1; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -85,7 +85,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | Source/ZECS000.cbl | L0 | 160/173 | 13 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/22 |
 | Source/ZECS001.cbl | L0 | 522/561 | 39 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
 | Source/ZECS003.cbl | L0 | 63/73 | 10 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
-| Source/ZECSPLT.cbl | L0 | 23/27 | 4 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/6 |
+| Source/ZECSPLT.cbl | L0 | 23/27 | 4 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 2/6 |
 
 ## Per program
 
@@ -278,8 +278,9 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Executed equivalence** (zecs-zecsplt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage.json)): paragraphs 11/11 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -326,5 +327,6 @@ Regenerate this report and re-run its proofs:
 python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py zecs --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
 python tests/tools/evidence_report.py --refresh
+python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

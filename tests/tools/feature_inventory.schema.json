@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "statements": { "$ref": "#/$defs/category" },
+    "data_types": { "$ref": "#/$defs/category" },
+    "cics_commands": { "$ref": "#/$defs/category" },
+    "cics_options": { "$ref": "#/$defs/category" },
+    "sql_forms": { "$ref": "#/$defs/category" },
+    "intrinsic_functions": { "$ref": "#/$defs/category" },
+    "compile_options": { "$ref": "#/$defs/category" },
+    "copybook_resolution_gaps": { "$ref": "#/$defs/category" },
+    "unparsed_programs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "program": { "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "required": ["program", "reason"]
+      }
+    }
+  },
+  "required": [
+    "statements",
+    "data_types",
+    "cics_commands",
+    "cics_options",
+    "sql_forms",
+    "intrinsic_functions",
+    "compile_options",
+    "copybook_resolution_gaps",
+    "unparsed_programs"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "category": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "minimum": 0 },
+          "programs": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["count", "programs"],
+        "additionalProperties": false
+      },
+      "required": ["unknown"]
+    }
+  }
+}

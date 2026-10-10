@@ -1,9 +1,8 @@
 name: GitGalaxy Smoke Tests
 
 on:
-  pull_request:
+  pull_request:  # #4825: full-suite / smoke-test are required checks -- they run on every PR
     branches: [main]
-    paths-ignore: ["docs/**"]
   # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
   push:
     branches: [main]
@@ -154,3 +153,14 @@ jobs:
         if: always()
         continue-on-error: true
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
+
+      - name: CICS spec status page (advisory, #4789)
+        if: always()
+        continue-on-error: true
+        run: |
+          {
+            echo "## CICS spec status page (advisory)"
+            if python tests/tools/cics_spec_status.py render --check 2>&1; then :; else
+              echo "The evidence-refresh bot re-renders docs/language_status/cics_spec_status.md on main after merge; do not commit it here."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

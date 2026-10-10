@@ -76,3 +76,11 @@ def test_skip_ledger_check_leaves_the_ledger_out_of_the_aggregate_ratchet(monkey
     assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=False)) == 1 and calls
     calls.clear()
     assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=True)) == 0 and not calls
+
+
+def test_durations_are_recorded_from_the_proven_seconds(tmp_path):
+    """The nightly aggregate's durations (#4847): a case's seconds merge into the file; cases not swept keep theirs."""
+    path = tmp_path / "durations.json"
+    path.write_text('{"format": "det-sweep-durations/1", "det": {"keep": 7, "old": 5}}', encoding="utf-8")
+    ps.write_durations({"old": {"seconds": 12.4}, "zero": {"seconds": 0}, "new": {"seconds": 30.6}}, path)
+    assert ps.load_durations(path) == {"keep": 7.0, "old": 12.0, "new": 31.0}

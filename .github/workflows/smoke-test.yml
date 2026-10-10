@@ -115,6 +115,8 @@ jobs:
   # runner and each still -n auto (pytest-split --splits 3 --group N, balanced by .test_durations: per-test seconds,
   # refreshed now and then with `pytest tests/ -n 8 --store-durations` (pytest-split installed); a test it does not
   # list counts at the average). `full-suite` below -- the required check -- passes only when every part passed.
+  # #4847: every run restores the newest nightly's durations (the cache saved by `full-suite-durations`), falling
+  # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
     runs-on: ubuntu-latest
@@ -152,6 +154,19 @@ jobs:
           pip install "tree-sitter-language-pack==1.20.0"
           pip install --no-build-isolation -e .
 
+      - name: Restore the newest measured durations (#4847)
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            test-durations-
+
+      - name: Balance by the restored durations (else the committed .test_durations)
+        if: steps.durations.outputs.cache-matched-key != ''
+        run: cp durations-cache/test_durations.json .test_durations
+
       - name: Entry point --help - Core Engine
         if: matrix.group == 1
         run: python -m gitgalaxy.galaxyscope --help
@@ -175,7 +190,24 @@ jobs:
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
         env:
           GROUP: ${{ matrix.group }}
-        run: pytest tests/ -n auto -q -ra --durations=25 --splits 3 --group "$GROUP"
+          EVENT: ${{ github.event_name }}
+        run: |
+          # the nightly stores this part's seconds (--clean-durations: only the tests it ran) for full-suite-durations
+          store=()
+          if [ "$EVENT" = "schedule" ]; then store=(--store-durations --clean-durations); fi
+          pytest tests/ -n auto -q -ra --durations=25 --splits 3 --group "$GROUP" "${store[@]}"
+
+      - name: Keep this part's durations (nightly, #4847)
+        if: github.event_name == 'schedule' && success()
+        run: cp .test_durations "$RUNNER_TEMP/durations-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's durations (nightly, #4847)
+        if: github.event_name == 'schedule' && success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-durations-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/durations-part-${{ matrix.group }}.json
+          retention-days: 7
 
       - name: Evidence report level deltas (advisory, #4703)
         if: always() && matrix.group == 3  # part 1 runs the entry-point checks (#4829 balance)
@@ -192,3 +224,36 @@ jobs:
               echo "The evidence-refresh bot re-renders docs/language_status/cics_spec_status.md on main after merge; do not commit it here."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # #4847: the nightly's three parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
+  # under `test-durations-<run id>`; the next run of every part restores the newest one. Not a required check.
+  full-suite-durations:
+    name: store the suite's durations
+    needs: full-suite-part
+    if: github.event_name == 'schedule' && success()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download the parts' durations
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: test-durations-part-*
+          path: parts
+
+      - name: Merge the parts into one durations file
+        run: |
+          parts=$(find parts -name 'durations-part-*.json' | sort)
+          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' durations:"; echo "$parts"; exit 1; }
+          mkdir -p durations-cache
+          python3 tests/tools/merge_test_durations.py durations-cache/test_durations.json $parts
+
+      - name: Cache the merged durations
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: test-durations-${{ github.run_id }}

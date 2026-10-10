@@ -7,7 +7,8 @@ name: CI shepherd (label events)
 # request's code: it checks out main, and the module reads the PR's metadata, check runs and labels through the API.
 # The event payload is read from $GITHUB_EVENT_PATH as data; no ${{ github.event.* }} text reaches a run: script.
 # A label added by someone without write access is removed by the module (the labeler check is in decide()).
-# Synchronize (new commits) drops shepherd:merge, so an unreviewed head never merges by label.
+# New commits: shepherd:merge approves a head only if a writer added it AFTER that head was pushed (or the bot
+# carried it through its own update), so an unreviewed head never merges by label (#4854: decided from state).
 
 on:
   pull_request_target:
@@ -15,12 +16,9 @@ on:
 
 permissions: {}
 
-concurrency:
-  # per PR: one pass at a time for a PR, and no pass is dropped by another PR's (a group of one pending run would
-  # drop events). Reconcile re-reads all state from the timeline, so a replaced event loses nothing.
-  group: shepherd-pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
-
+# no concurrency group (#4854): GitHub keeps one PENDING run per group and cancels the rest, which lost a labeled
+# event (no approval was recorded). Every pass reads all state (level-triggered) and its actions are idempotent, so
+# passes may overlap.
 jobs:
   shepherd:
     name: shepherd (label event)

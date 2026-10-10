@@ -163,6 +163,9 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append(
             {"op": "note", "msg": f"{MERGE}: awaiting approval marker; re-add the label to approve (no action)"}
         )
+    if s.get("record_approval") and MERGE in labels and not s.get("carried"):
+        actor = (s.get("label_actors") or {}).get(MERGE) or {}
+        acts.append({"op": "approve", "sha": sha, "login": actor.get("login") or "shepherd"})
     if s.get("carried") and MERGE in labels:
         acts.append({"op": "approve", "sha": sha, "by": "carried from the bot's update"})
     want = MERGE in labels and not blocked
@@ -231,6 +234,16 @@ def _perm(api: Api, login: str) -> str | None:
         return None  # unreadable: not a writer
 
 
+def head_pushed_at(api: Api, sha: str) -> str | None:
+    """When `sha` became a head on GitHub: its earliest check suite's created_at (ISO 8601, so strings compare)."""
+    try:
+        suites = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-suites", "check_suites")
+    except (SystemExit, KeyError, TypeError):
+        return None
+    stamps = sorted(x["created_at"] for x in suites if x.get("created_at"))
+    return stamps[0] if stamps else None
+
+
 def gather(
     n: int, api: Api = pr_check.gh_api, event: dict[str, Any] | None = None, now: float | None = None
 ) -> dict[str, Any]:
@@ -280,7 +293,9 @@ def gather(
             if ev.get("event") == "labeled" and (ev.get("label") or {}).get("name") == name:
                 last = ev
         login = ((last or {}).get("actor") or {}).get("login")
-        actors[name] = {"login": login, "permission": perm(login)} if last and login else None
+        actors[name] = (
+            {"login": login, "permission": perm(login), "at": last.get("created_at")} if last and login else None
+        )
     depends_open: list[int] = []
     for d in sorted({int(x) for x in DEPENDS.findall(pr.get("body") or "")}):
         try:
@@ -298,17 +313,26 @@ def gather(
     approved_sha = approvals[-1][0] if approvals else None
     updates = UPDATE_MARK.findall(trusted)
     frm, to = updates[-1] if updates else ("", "")
-    approved = pending = carried = False
-    awaiting = MERGE in labels and approved_sha is None
+    approved = pending = carried = record = False
     m = actors.get(MERGE)
-    if MERGE in labels and approved_sha and m and writer(m["permission"]):
-        if approved_sha == sha:
-            approved = True
-        elif frm == approved_sha and to == sha:
+    # level-triggered (#4854): GitHub drops and reorders events (a pending run is replaced by the next; a handler can
+    # start minutes late), so approval is read from state, never from which event arrived. The head was pushed when
+    # GitHub created its first check suite (set by GitHub, unlike a commit date); a writer's label added after that is
+    # an approval of this head, whichever pass sees it first -- that pass records the marker.
+    pushed = head_pushed_at(api, sha) if MERGE in labels else None
+    labelled = m.get("at") if m else None
+    after_push = bool(pushed and labelled and labelled > pushed)
+    if MERGE in labels and m and writer(m["permission"]) and (approved_sha == sha or after_push):
+        approved = True
+        record = approved_sha != sha
+    elif MERGE in labels and approved_sha and m and writer(m["permission"]):
+        if frm == approved_sha and to == sha:
             parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{sha}").get("parents", [])]
             carried = approved = len(parents) == 2 and parents[0] == approved_sha
         elif frm == approved_sha and not to:
             pending = True
+    # no decision either way: the push time or the label time is unknown (a read failed, or the timeline lags)
+    awaiting = MERGE in labels and not (approved or pending) and not (pushed and labelled)
     head_fork = head_repo != REPO_SLUG
     matrix = "none"
     matrix_url = ""
@@ -351,6 +375,7 @@ def gather(
         "matrix": matrix,
         "label_actors": actors,
         "approved": approved,
+        "record_approval": record,
         "carried": carried,
         "awaiting": awaiting,
         "pending_update": pending,
@@ -406,9 +431,9 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
                     "api",
                     f"repos/{REPO_SLUG}/issues/{n}/comments",
                     "-f",
-                    f"body=<!-- shepherd:approved sha={a['sha']} by=shepherd-update -->",
+                    f"body=<!-- shepherd:approved sha={a['sha']} by={a.get('login') or 'shepherd-update'} -->",
                 ],
-                "approval marker (carried)",
+                f"approval marker for {a['sha'][:12]}",
             )
         elif op == "note":
             log.append(f"#{n} {a['msg']}")

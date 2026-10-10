@@ -252,11 +252,13 @@ class Gh:
         self.dep_state = "closed"
         # the timeline: who added each label
         self.events = [
-            {"event": "labeled", "label": {"name": x}, "actor": {"login": "joe"}} for x in (sg.MERGE, sg.MATRIX)
+            {"event": "labeled", "label": {"name": x}, "actor": {"login": "joe"}, "created_at": "2026-10-10T19:00:00Z"}
+            for x in (sg.MERGE, sg.MATRIX)
         ]
         # the bot's own comments: the approval marker of the labelled head, written by the bot's account (BOT)
         self.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->")]
         self.parents = {}  # commit sha -> parent shas
+        self.pushed_at = "2026-10-10T19:59:00Z"  # when the head became the head (its first check suite)
 
     def api(self, path):
         self.calls.append(path)
@@ -285,6 +287,8 @@ class Gh:
             }
         if bare.endswith("/status"):
             return {"statuses": []}
+        if bare.endswith("/check-suites"):
+            return {"check_suites": [{"created_at": self.pushed_at}] if self.pushed_at else []}
         if bare.endswith("/events"):
             return self.events
         if bare.endswith("/comments"):
@@ -383,15 +387,15 @@ def test_a_marker_written_by_someone_else_is_ignored():
     gh = Gh()
     gh.dep_state = "closed"
     gh.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->", user="mallory")]
-    lines = sg.process(7, gh.api, gh.run, None)
-    assert not any("unlabel" in x for x in lines) and not merged_by(gh)
-    assert any("awaiting" in x for x in lines)
+    lines = sg.process(7, gh.api, gh.run, None)  # the label predates the head, and mallory's marker counts for nothing
+    assert not merged_by(gh) and any("unlabel shepherd:merge" in x for x in lines)
 
 
 def test_no_marker_yet_is_quiet_no_drop_no_merge():
     gh = Gh()
     gh.dep_state = "closed"
     gh.comments = []
+    gh.pushed_at = None  # #4854: only an unknown push (or label) time leaves it undecided
     lines = sg.process(7, gh.api, gh.run, None)
     assert not any("unlabel" in x for x in lines) and not merged_by(gh)
     assert lines == ["#7 shepherd:merge: awaiting approval marker; re-add the label to approve (no action)"]
@@ -580,3 +584,57 @@ def test_plan_labels_option_overrides_the_event(tmp_path, monkeypatch, capsys):
     )
     dsp.main()
     assert json.loads(capsys.readouterr().out)["mode"] == "full"
+
+
+# --- level-triggered approval (#4854: events are dropped and reordered) -----------------------------------------------
+
+OLD = "c" * 40
+
+
+def _relabelled(gh, labelled_at):
+    """The head moved after an earlier approval (OLD); a writer's shepherd:merge was (re)added at `labelled_at`."""
+    gh.dep_state = "closed"
+    gh.comments = [bot_comment(f"<!-- shepherd:approved sha={OLD} by=joe -->")]
+    gh.events = [
+        {"event": "labeled", "label": {"name": sg.MERGE}, "actor": {"login": "joe"}, "created_at": labelled_at}
+    ]
+
+
+def test_a_label_added_after_the_push_approves_the_head_whichever_event_runs():
+    """#4854: the label was added while the slow synchronize pass was still running; that pass (and any later one,
+    the labeled event's own run having been dropped) must approve the new head, not remove the label."""
+    for event in (None, {"action": "synchronize"}, {"action": "unlabeled", "label": sg.RETRYING}):
+        gh = Gh()
+        _relabelled(gh, "2026-10-10T20:00:52Z")
+        lines = sg.process(7, gh.api, gh.run, event)
+        assert merged_by(gh), (event, lines)
+        assert any(f"shepherd:approved sha={SHA} by=joe" in c["body"] for c in gh.comments)  # recorded
+        assert not any("label was removed" in ln for ln in lines)
+
+
+def test_a_label_from_before_the_push_does_not_approve_the_new_head():
+    gh = Gh()
+    _relabelled(gh, "2026-10-10T19:58:00Z")  # before pushed_at: it approved the previous head
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not merged_by(gh) and any("unlabel shepherd:merge" in ln for ln in lines), lines
+
+
+def test_an_unknown_push_time_decides_nothing():
+    gh = Gh()
+    _relabelled(gh, "2026-10-10T20:00:52Z")
+    gh.pushed_at = None  # the check suites could not be read
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not merged_by(gh) and not any("unlabel shepherd:merge" in ln for ln in lines), lines
+
+
+def test_a_non_writers_label_after_the_push_approves_nothing():
+    gh = Gh()
+    _relabelled(gh, "2026-10-10T20:00:52Z")
+    gh.perm = "read"
+    sg.process(7, gh.api, gh.run, None)
+    assert not merged_by(gh) and not any(f"sha={SHA}" in c["body"] for c in gh.comments)
+
+
+def test_the_event_workflow_has_no_concurrency_group():
+    wf = (Path(__file__).resolve().parents[2] / ".github/workflows/shepherd-event.yml").read_text(encoding="utf-8")
+    assert not re.search(r"^concurrency:", wf, re.M)  # a group keeps one pending run and cancels the rest

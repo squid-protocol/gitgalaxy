@@ -37,6 +37,7 @@ on:
       - "tests/cobol_mainframe/answer_key/**"
       - "tests/equivalence/*/case.json"
       - ".github/workflows/fact-crosscheck.yml"
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       - "!**/*.md"
   push:
     branches: [main]

@@ -41,6 +41,8 @@ on:
       - "tests/call_graph_resolution_java_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
+      - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
 
 permissions:
   contents: read

@@ -20,7 +20,7 @@ import math
 import sqlite3
 import statistics
 from pathlib import Path
-from typing import Any, Optional, TypedDict, cast
+from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
 from gitgalaxy.core.function_population import population_functions
@@ -49,7 +49,7 @@ EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["EVIDENCE_MASS_FLOOR"])
 _FILE_FEATURE_ZSTATS = frozenset({"func_z_max", "func_z_mean", "func_z_median", "pct_z_above_5", "pct_z_above_15"})
 
 
-def _file_feature_kind(feature_name: str) -> Optional[str]:
+def _file_feature_kind(feature_name: str) -> str | None:
     """Which value source feeds this FEATURE_NAME, or None if the engine has none."""
     if feature_name == "log_coding_loc":
         return "coding_loc"
@@ -181,20 +181,20 @@ def _ordered_raw_imports(raw_imports: Any) -> list:
     )
 
 
-def _arities_json(func: dict[str, Any]) -> Optional[str]:
+def _arities_json(func: dict[str, Any]) -> str | None:
     """#3835: function_data.calls_out_arities -- callee -> its call-site argument
     counts, NULL where the language records none."""
     arities = {c: a for c, a in (func.get("calls_out_arities") or {}).items() if a}
     return json.dumps(arities, sort_keys=True, separators=(",", ":")) if arities else None
 
 
-def _qualifiers_json(func: dict) -> Optional[str]:
+def _qualifiers_json(func: dict) -> str | None:
     """#3329: function_data.calls_out_qualifiers -- NULL where none are captured."""
     encoded = encode_qualifiers(list(func.get("calls_out_to") or []), func.get("calls_out_qualifiers") or {})
     return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
 
 
-def _aligned_json(func: dict, names_key: str, quals_key: str) -> Optional[str]:
+def _aligned_json(func: dict, names_key: str, quals_key: str) -> str | None:
     """A qualifier column aligned with a name column (`encode_qualifiers`), NULL when none."""
     if not func.get(names_key):
         return None
@@ -202,7 +202,7 @@ def _aligned_json(func: dict, names_key: str, quals_key: str) -> Optional[str]:
     return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
 
 
-def _decorators_json(func: dict) -> Optional[str]:
+def _decorators_json(func: dict) -> str | None:
     """function_data.decorated_by_qualifiers -- aligned with decorated_by, NULL when none."""
     return _aligned_json(func, "decorated_by", "decorated_by_qualifiers")
 
@@ -222,7 +222,7 @@ class RecordKeeper:
     a time-series schema perfectly aligned for Enterprise Data Warehouse (EDW) aggregation.
     """
 
-    def __init__(self, parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, parent_logger: logging.Logger | None = None):
         self.logger = parent_logger.getChild("record_keeper") if parent_logger else logging.getLogger("record_keeper")
 
         schemas = RECORDING_SCHEMAS
@@ -361,7 +361,7 @@ class RecordKeeper:
         inherit when #3061 moved classification here.
         """
         b = cast("dict[str, Any]", GENERAL_FILE_INFERENCE_MODEL)
-        self._file_brain: Optional[dict[str, Any]] = None
+        self._file_brain: dict[str, Any] | None = None
         if not b.get("FEATURE_NAMES") or not b.get("SCALER_MEDIANS"):
             return
         ak = next((k for k in b if k.startswith("ARCHETYPES_K")), None)
@@ -417,14 +417,14 @@ class RecordKeeper:
         fn_model = cast("dict[str, Any]", GENERAL_FUNCTION_INFERENCE_MODEL)
         self._func_name_to_idx: dict[str, int] = {n: i for i, n in enumerate(fn_model.get("cluster_names", []))}
 
-    def _classify_file_archetype(self, ctx: dict, hv: list) -> Optional[str]:
+    def _classify_file_archetype(self, ctx: dict, hv: list) -> str | None:
         """Nearest-centroid file archetype from the assembled metrics, mirroring the
         offline apply_file_clusters. Returns the archetype name, or None if the brain
         is unavailable/degenerate (caller keeps its fallback label)."""
         detail = self._classify_file_archetype_detail(ctx, hv)
         return detail[0] if detail else None
 
-    def _classify_file_archetype_detail(self, ctx: dict, hv: list) -> Optional[tuple[str, float, dict[str, float]]]:
+    def _classify_file_archetype_detail(self, ctx: dict, hv: list) -> tuple[str, float, dict[str, float]] | None:
         """``(name, distance, fingerprint)``: the nearest archetype, the Euclidean
         distance to its centroid in the brain's scaled+weighted space, and the
         distance to every centroid (#4106 -- these were placeholders since #3061
@@ -498,13 +498,13 @@ class RecordKeeper:
         summary: dict,
         session_meta: dict,
         output_path: str,
-        dependency_edges: Optional[list[dict]] = None,
-        call_sites: Optional[list[dict]] = None,
-        invocation_edges: Optional[list[dict]] = None,
-        transactions: Optional[list[dict]] = None,
-        wrappers: Optional[list[dict]] = None,
-        fcall_sites: Optional[list[dict]] = None,
-        call_resolution: Optional[dict] = None,
+        dependency_edges: list[dict] | None = None,
+        call_sites: list[dict] | None = None,
+        invocation_edges: list[dict] | None = None,
+        transactions: list[dict] | None = None,
+        wrappers: list[dict] | None = None,
+        fcall_sites: list[dict] | None = None,
+        call_resolution: dict | None = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -2280,8 +2280,8 @@ class RecordKeeper:
             # Confidence" was never a real producer key here, just a dead primary
             # lookup that always fell through to this same fallback anyway.
             ai_threat_conf_str = tel.get("domain_context", {}).get("AI Threat Score", "0.0%")
-            ai_threat: Optional[float] = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
-            ai_threat_class: Optional[str] = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
+            ai_threat: float | None = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
+            ai_threat_class: str | None = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
             # #3028: without a real XGBoost run (missing numpy/pandas/xgboost, no
             # model file, or a failed inference) "Safe" and 0.0 are placeholders,
             # not verdicts, so the AI threat columns are NULL. The key defaults to
@@ -2397,13 +2397,13 @@ class RecordKeeper:
                 tel.get("domain_context", {}).get("AI Threat Score", 0.0),
             )
             try:
-                ai_score: Optional[float] = float(str(raw_ai_score).replace("%", ""))
+                ai_score: float | None = float(str(raw_ai_score).replace("%", ""))
             except ValueError:
                 ai_score = 0.0
 
             # #366: security_auditor.py's real output key is "is_ml_threat", not
             # "is_malware" -- a near-miss rename that left this column always 0.
-            is_malware: Optional[int] = 1 if file_data.get("is_ml_threat", False) else 0
+            is_malware: int | None = 1 if file_data.get("is_ml_threat", False) else 0
             if not ml_scored:
                 is_malware = None  # #3028: no inference, so no verdict either way
             # #367: no producer ever set file_data["has_credentials"]. #381 then
@@ -2820,7 +2820,7 @@ class RecordKeeper:
         # counted into repo_data.network_edges_unrecorded rather than dropped
         # silently, so a reader reconciling edge_data against popularity /
         # internal_dependency_links knows how many edges the table cannot show.
-        edges_unrecorded: Optional[int] = None
+        edges_unrecorded: int | None = None
         if dependency_edges is not None:
             edge_rows = []
             for edge in dependency_edges:

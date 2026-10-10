@@ -29,7 +29,7 @@ import random
 import statistics
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
@@ -52,7 +52,7 @@ def _verb(value: str) -> str:
     return value.split(" ", 1)[1] if " " in value else value
 
 
-def file_values(doc: dict[str, Any], rel: str, channel: str, verbs: Optional[set[str]] = None) -> Optional[set[str]]:
+def file_values(doc: dict[str, Any], rel: str, channel: str, verbs: set[str] | None = None) -> set[str] | None:
     """The source's values for one file and channel; None when it did not parse the file."""
     entry = doc["files"].get(rel)
     if entry is None or entry["status"] == "fail":
@@ -67,7 +67,7 @@ def key_verbs(key: dict[str, Any]) -> set[str]:
     return {_verb(v) for e in key["files"].values() for v in e["facts"].get("cics_commands", [])}
 
 
-def score_channel(key: dict[str, Any], doc: dict[str, Any], channel: str) -> Optional[dict[str, int]]:
+def score_channel(key: dict[str, Any], doc: dict[str, Any], channel: str) -> dict[str, int] | None:
     """tp / reported / true over the channel's universe, plus the parsed-only counterparts."""
     if channel not in doc["channels"]:
         return None
@@ -87,7 +87,7 @@ def score_channel(key: dict[str, Any], doc: dict[str, Any], channel: str) -> Opt
     return out
 
 
-def agreement(key: dict[str, Any], a: dict[str, Any], b: dict[str, Any], channel: str) -> Optional[dict[str, int]]:
+def agreement(key: dict[str, Any], a: dict[str, Any], b: dict[str, Any], channel: str) -> dict[str, int] | None:
     if channel not in a["channels"] or channel not in b["channels"]:
         return None
     verbs = key_verbs(key) if channel == "cics_commands" else None
@@ -121,7 +121,7 @@ def _pct(n: int, d: int) -> str:
     return "—" if d == 0 else f"{100.0 * n / d:.1f}%"
 
 
-def _cell(s: Optional[dict[str, int]]) -> str:
+def _cell(s: dict[str, int] | None) -> str:
     if s is None:
         return "n/a"
     if s["true"] == 0 and s["reported"] == 0:
@@ -132,7 +132,7 @@ def _cell(s: Optional[dict[str, int]]) -> str:
     return cell
 
 
-def _sum(a: Optional[dict[str, int]], b: Optional[dict[str, int]]) -> Optional[dict[str, int]]:
+def _sum(a: dict[str, int] | None, b: dict[str, int] | None) -> dict[str, int] | None:
     if a is None:
         return b
     if b is None:
@@ -189,7 +189,9 @@ def scorecard(corpora: dict[str, dict[str, Any]], seed: int = 4377) -> tuple[str
     md = ["## Referee panel scorecard (#4377)", ""]
     md.append("Corpora: " + ", ".join(f"`{n}` @ `{c['key']['version']}`" for n, c in corpora.items()) + ".")
     md.append("")
-    md.append("### Parse success and speed (the key-covered members each source reads: programs and / or keyed copybooks)")
+    md.append(
+        "### Parse success and speed (the key-covered members each source reads: programs and / or keyed copybooks)"
+    )
     md.append("")
     md.append("| source | version(s) | clean | partial | failed | not attempted | median s / member |")
     md.append("|---|---|---|---|---|---|---|")
@@ -198,7 +200,9 @@ def scorecard(corpora: dict[str, dict[str, Any]], seed: int = 4377) -> tuple[str
         vers = sorted({c["sources"][s]["version"] for c in corpora.values() if s in c["sources"]})
         data["sources"][s] = {**st, "versions": vers}
         med = "—" if st["median_s"] is None else f"{st['median_s']:.3f}"
-        md.append(f"| {s} | {', '.join(vers)} | {st['ok']} | {st['partial']} | {st['fail']} | {st['missing']} | {med} |")
+        md.append(
+            f"| {s} | {', '.join(vers)} | {st['ok']} | {st['partial']} | {st['fail']} | {st['missing']} | {med} |"
+        )
     md.append("")
     md.append("Per corpus, clean / partial / failed:")
     md.append("")
@@ -219,7 +223,7 @@ def scorecard(corpora: dict[str, dict[str, Any]], seed: int = 4377) -> tuple[str
         row = []
         data["channels"][ch] = {}
         for s in sources:
-            tot: Optional[dict[str, int]] = None
+            tot: dict[str, int] | None = None
             for name, c in corpora.items():
                 if s in c["sources"]:
                     sc = score_channel(c["key"], c["sources"][s], ch)

@@ -18,7 +18,7 @@ import gc
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards.config_resolver import resolve_config
@@ -53,7 +53,7 @@ class GPURecorder:
     downstream WebGL rendering engine.
     """
 
-    def __init__(self, version: str, parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, version: str, parent_logger: logging.Logger | None = None):
         self.version = version
         self.logger = parent_logger.getChild("gpu_recorder") if parent_logger else logging.getLogger("gpu_recorder")
 
@@ -92,7 +92,7 @@ class GPURecorder:
         unparsable_files: list[dict],
         summary: dict,
         repo_name: str,
-        session_meta: Optional[dict] = None,
+        session_meta: dict | None = None,
         resolved_config=None,
     ) -> dict:
         """

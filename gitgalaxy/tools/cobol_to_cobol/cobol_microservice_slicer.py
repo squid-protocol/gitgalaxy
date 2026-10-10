@@ -19,7 +19,6 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
@@ -28,9 +27,9 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
 def slice_business_logic(
     filepath: Path,
     initial_var: str,
-    dead_paras: Optional[set] = None,
-    orphaned_vars: Optional[set] = None,
-    declared: Optional[str] = None,
+    dead_paras: set | None = None,
+    orphaned_vars: set | None = None,
+    declared: str | None = None,
 ):
     """
     Recursively tracks a variable and its aliases through the AST.

@@ -12,7 +12,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Optional, TypedDict, Union
+from typing import Any, TypedDict
 
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import open_source
@@ -36,7 +36,7 @@ DET_PORT_MARKER = "// gitgalaxy-det-port:"
 _DET_PORT_LINE = re.compile(r"// gitgalaxy-det-port: COBOL ([A-Z0-9#@$-]{1,30}) ")
 
 
-def declared_port(content: Optional[str], rel_path: str) -> Optional[str]:
+def declared_port(content: str | None, rel_path: str) -> str | None:
     """The COBOL program a .java file declares itself a deterministic port of (its first line), or None."""
     if not content or not rel_path.lower().endswith(".java"):
         return None
@@ -237,7 +237,7 @@ class FilterResult(TypedDict):
 
     is_in_scope: bool
     classification: str  # e.g., 'source_code', 'binary_payload', 'generated_noise'
-    reason: Optional[str]
+    reason: str | None
     path: str
     size_bytes: int
     total_loc: int
@@ -253,10 +253,10 @@ class ApertureFilter:
 
     def __init__(
         self,
-        root_dir: Union[str, Path],
+        root_dir: str | Path,
         language_definitions: dict[str, Any],
         aperture_config: dict[str, Any],
-        parent_logger: Optional[logging.Logger] = None,
+        parent_logger: logging.Logger | None = None,
     ):
         # --- TELEMETRY SYNC ---
         if parent_logger:
@@ -356,7 +356,7 @@ class ApertureFilter:
 
         self.logger.info(f"Aperture Filter Online | Tracking {len(self.whitelisted_extensions)} valid extensions.")
 
-    def evaluate_path_integrity(self, file_path: Union[str, Path], has_intent: bool = False) -> tuple[bool, int, str]:
+    def evaluate_path_integrity(self, file_path: str | Path, has_intent: bool = False) -> tuple[bool, int, str]:
         """
         [GATE 1: Perimeter Gating (Zero-I/O Path Evaluation)]
         Performs high-speed path analysis to build the initial File Census.
@@ -449,8 +449,8 @@ class ApertureFilter:
 
     def is_in_scope(
         self,
-        file_path: Union[str, Path],
-        content: Optional[str] = None,
+        file_path: str | Path,
+        content: str | None = None,
         has_intent: bool = False,
     ) -> FilterResult:
         """

@@ -209,7 +209,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"rosetta_audit: {len(languages)} languages, corpus {corpus}, engine {current_bin}")
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         results = list(pool.map(lambda lang: _run_verifier(corpus, lang, current_bin), languages))
-    outcomes = [Outcome(lang, status, tail) for lang, (status, tail) in zip(languages, results)]
+    outcomes = [
+        Outcome(lang, status, tail) for lang, (status, tail) in zip(languages, results, strict=False)
+    ]  # reason: length may differ
     current = {o.language: o.status for o in outcomes}
 
     failed = [o for o in outcomes if o.status == FAIL]
@@ -219,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             base_results = list(pool.map(lambda o: _run_verifier(corpus, o.language, baseline_bin), failed))
         baseline = {}
-        for o, (status, _tail) in zip(failed, base_results):
+        for o, (status, _tail) in zip(failed, base_results, strict=False):  # reason: length may differ
             o.baseline_status = status
             baseline[o.language] = status
 

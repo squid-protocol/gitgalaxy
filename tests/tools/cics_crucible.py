@@ -108,7 +108,7 @@ from collections import Counter, defaultdict
 from decimal import Decimal
 from pathlib import Path
 from collections.abc import Iterator
-from typing import Any, Optional
+from typing import Any
 
 HERE_TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = HERE_TOOLS.parents[1]
@@ -227,7 +227,7 @@ def _tail(text: str, n: int = 12) -> str:
     return "\n".join(text.strip().splitlines()[-n:])
 
 
-def crucible_path(arg: Optional[Path]) -> Path:
+def crucible_path(arg: Path | None) -> Path:
     """--crucible, else $CICS_CRUCIBLE_PATH, else ../cics-crucible beside the main checkout."""
     if arg:
         return arg
@@ -241,7 +241,7 @@ def crucible_path(arg: Optional[Path]) -> Path:
     return main.parent / "cics-crucible"
 
 
-def crucible_ref(path: Path) -> Optional[str]:
+def crucible_ref(path: Path) -> str | None:
     """The checkout's tag when HEAD is exactly one (`v0.1.0 (0c942cb8)`), else its commit."""
 
     def git(*args: str) -> str:
@@ -421,7 +421,7 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
 
 
 def forge(case: cc.Case, work: Path, offline: bool,
-          overlays: Optional[list[Path]] = None) -> tuple[cc.Verdict, Optional[Path]]:  # fmt: skip
+          overlays: list[Path] | None = None) -> tuple[cc.Verdict, Path | None]:  # fmt: skip
     """Refactor + cobol-to-java (config h2, the equivalence harness's) + `mvn compile`. `overlays` (the
     java-ported side) are port overlay trees laid over the generated sources before the compile, in order."""
     import java_target_matrix as jtm
@@ -524,7 +524,7 @@ def _spelled(data: bytes) -> dict[str, Any]:
     return {"hex": data.hex().upper()}
 
 
-def area_layout(case: cc.Case, program: Optional[str]) -> Optional[str]:
+def area_layout(case: cc.Case, program: str | None) -> str | None:
     """#4049: the layout a derived COMMAREA is spelled by: the case's layout of the program that holds the area
     (the event's issuer, the task's program), else the case's only layout, else none. A COMP / COMP-3 field's bytes
     are not text: spelled without its layout, the stub's bytes would be transcoded as if they were."""
@@ -533,7 +533,7 @@ def area_layout(case: cc.Case, program: Optional[str]) -> Optional[str]:
     return mine[0] if len(mine) == 1 else (next(iter(layouts)) if len(layouts) == 1 else None)
 
 
-def _derived_area(value: Any, layout: Optional[str], ctx: cc.Context) -> Any:
+def _derived_area(value: Any, layout: str | None, ctx: cc.Context) -> Any:
     """A COMMAREA as an expected log spells it: by `layout`'s fields where it has one (numbers as numbers, the
     binary ones decoded), else as _derived does."""
     if not isinstance(value, cc.RawArea) or layout is None:
@@ -565,7 +565,7 @@ def _derived_event(case: cc.Case, e: dict[str, Any], ctx: cc.Context) -> dict[st
 
 
 def derive_expected(case: cc.Case, actual: dict[str, Any], sid: str, fired: dict[str, list[str]],
-                    ctx: Optional[cc.Context] = None) -> dict[str, Any]:  # fmt: skip
+                    ctx: cc.Context | None = None) -> dict[str, Any]:  # fmt: skip
     """#4049: the expected log of strengthened scenario `sid`: what the COBOL did on the stub runtime."""
     if actual.get("stopped"):
         raise RuntimeError(f"{sid}: the scenario stopped early ({actual['stopped']})")
@@ -1362,7 +1362,7 @@ def mapsets_env(case: cc.Case) -> str:
     return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
 
 
-def origin_env(case: cc.Case) -> Optional[str]:
+def origin_env(case: cc.Case) -> str | None:
     """#4415 slice 2 (X29): the case's stated origin data as the stub's $GGCICS_ORIGIN (applid,userid,facilname,
     networkid,faciltype); None when the case states none (INQUIRE ASSOCIATION is then refused by both runtimes)."""
     o = case.data.get("origin")
@@ -1371,7 +1371,7 @@ def origin_env(case: cc.Case) -> Optional[str]:
     return ",".join(str(o[k]) for k in ("applid", "userid", "facilname", "networkid", "faciltype"))
 
 
-def terminal_uctranst(case: cc.Case) -> Optional[str]:
+def terminal_uctranst(case: cc.Case) -> str | None:
     """The case terminal's UCTRANST, None when the case CSD does not state its TYPETERM's UCTRAN (an INQUIRE TERMINAL
     UCTRANST is then refused by both runtimes, never answered from a guessed default)."""
     return UCTRAN_TO_UCTRANST.get((case.csd.get("uctran") or {}).get(case.data["terminal"], ""))
@@ -1383,7 +1383,7 @@ _DTO_LAYOUT = re.compile(
 )
 
 
-def dto_layout(src: Path, cls: str) -> Optional[list[dict[str, Any]]]:
+def dto_layout(src: Path, cls: str) -> list[dict[str, Any]] | None:
     """#3989: a generated DTO's record layout ([{name, pic, usage, offset, bytes}]) from its field comments, or
     None for a composite one (a part's fields are in another class) or one with no commented fields."""
     import equivalence_cics as ec
@@ -1399,7 +1399,7 @@ def dto_layout(src: Path, cls: str) -> Optional[list[dict[str, Any]]]:
     return fields or None
 
 
-def dto_bytes(values: dict[str, Any], layout: Optional[list[dict[str, Any]]]) -> tuple[Optional[bytes], int]:
+def dto_bytes(values: dict[str, Any], layout: list[dict[str, Any]] | None) -> tuple[bytes | None, int]:
     """#3989: a DTO's record as EBCDIC bytes, each field encoded by its PICTURE and USAGE (text blank-padded,
     zoned / COMP / COMP-3 numbers), and how many of its leading bytes are known: a null field's bytes are
     not, so the record is known up to the first null field -- enough for a LENGTH that stops short of it (a
@@ -1425,7 +1425,7 @@ def dto_bytes(values: dict[str, Any], layout: Optional[list[dict[str, Any]]]) ->
     return bytes(rec), known
 
 
-def _raw_area(desc: dict[str, Any], length: Any) -> Optional[cc.RawArea]:
+def _raw_area(desc: dict[str, Any], length: Any) -> cc.RawArea | None:
     """#3989: a COMMAREA no generated DTO describes (a plain PIC X(n) item), passed as a String of its characters
     or a byte[] of its EBCDIC bytes (Jackson writes those as base64): its bytes, cut to LENGTH when given."""
     value = desc.get("value")
@@ -1438,7 +1438,7 @@ def _raw_area(desc: dict[str, Any], length: Any) -> Optional[cc.RawArea]:
     return cc.RawArea(data[:length] if isinstance(length, int) else data, cc.EBCDIC)
 
 
-def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any],
+def _java_area(desc: dict[str, Any] | None, src: Path, shapes: dict[str, Any],
                length: Any = None) -> Any:  # fmt: skip
     """A DTO the Java side recorded, as field values with the length CicsTask gave it (#4009: a
     LENGTH, or its whole record when none was given), and its record's bytes (#3989); a String or byte[]
@@ -1480,7 +1480,7 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
 
 
 def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
-                screens: Optional[dict[str, Screen]] = None) -> dict[str, Any]:  # fmt: skip
+                screens: dict[str, Screen] | None = None) -> dict[str, Any]:  # fmt: skip
     """The generated test's output for one scenario -> an actual log for the comparison."""
     shapes: dict[str, Any] = {}
     tasks = []
@@ -1575,7 +1575,7 @@ class JavaRunError(RuntimeError):
 
 
 def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: bool = False,
-             entries: Optional[dict[str, list[dict[str, Any]]]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
+             entries: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Every scenario through the generated services; {scenario: actual log}. Raises RuntimeError when
     the test itself cannot run (the project does not start). #4343: `facades` enters each task through the
     program's deployed entry point; `entries` gets, per scenario, the entry point each program ran by."""
@@ -1647,10 +1647,10 @@ class Screen:
         attribute, colour and highlight bytes as they are (EBCDIC: see DFHBMSCA.cpy), data transcoded."""
         import cics_bms
 
-        def raw(f: Optional[dict[str, Any]]) -> Optional[bytes]:
+        def raw(f: dict[str, Any] | None) -> bytes | None:
             return None if f is None or f["offset"] >= len(data) else data[f["offset"] : f["offset"] + f["bytes"]]
 
-        def byte(f: Optional[dict[str, Any]]) -> Optional[int]:
+        def byte(f: dict[str, Any] | None) -> int | None:
             b = raw(f)
             return b[0] if b else None
 
@@ -1666,7 +1666,7 @@ class Screen:
                 data=cc.to_ebcdic(cc.RawArea(text, "latin-1")) if text is not None else None)  # fmt: skip
         return out
 
-    def send(self, data: Optional[bytes], options: list[str], cursor: Optional[int]) -> tuple[dict[str, Any], Any]:
+    def send(self, data: bytes | None, options: list[str], cursor: int | None) -> tuple[dict[str, Any], Any]:
         import cics_bms
 
         program = self.program_fields(data) if data else None
@@ -1723,7 +1723,7 @@ def _read_screens(case: cc.Case) -> dict[str, Screen]:
     return out
 
 
-def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] = None) -> list[dict[str, Any]]:
+def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = None) -> list[dict[str, Any]]:
     """The stub's events.txt -> events as SPEC 6.2 spells them (runtime bytes kept as RawArea). Each line
     names its issuing program (`pgm=`, #4004); `program` stands in where one does not."""
     import equivalence_cics as ec
@@ -1899,7 +1899,7 @@ class Container:
 
 
 def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: list[str], ctx: cc.Context,
-              work: Path, coverage: Optional[dict[str, dict[str, "cov.Hits"]]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
+              work: Path, coverage: dict[str, dict[str, "cov.Hits"]] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Compile the case's translated programs, its dispatcher and task driver with the stub into one
     executable, then drive each scenario's terminal steps as tasks (#4004: one process per task, in which
     a LINK runs a new level and an XCTL its target at the same level); {scenario: actual}. #4023: compiled
@@ -1957,14 +1957,14 @@ def _named(args: str, keys: tuple[str, ...]) -> dict[str, str]:
     return out
 
 
-def _record(r: dict[str, Any]) -> Optional[dict[str, Any]]:
+def _record(r: dict[str, Any]) -> dict[str, Any] | None:
     """#4270: a START request's data record -- FROM's bytes and RTRANSID / RTERMID / QUEUE -- or None when it gave
     none of them (IBM, EXEC CICS RETRIEVE: such a START stores no data, RETRIEVE gets ENDDATA)."""
     rec = {k: r.get(k) for k in ("data", "rtransid", "rtermid", "queue")}
     return rec if any(v is not None for v in rec.values()) else None
 
 
-def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], Optional[str]]:
+def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], str | None]:
     """The scheduler of SPEC section 4, for either side: (tasks in dispatch order, why it stopped early).
 
     `run_one(frame, transid, commarea, step, data, requests)` runs one task and returns it (its `events` as
@@ -1981,9 +1981,9 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
     tasks: list[dict[str, Any]] = []
     requests: list[dict[str, Any]] = []
     issued = 0
-    pending: Optional[str] = None
-    pending_ca: Optional[bytes] = None
-    immediate: Optional[dict[str, Any]] = None  # #4270 (X27): a RETURN IMMEDIATE's task, attached before anything else
+    pending: str | None = None
+    pending_ca: bytes | None = None
+    immediate: dict[str, Any] | None = None  # #4270 (X27): a RETURN IMMEDIATE's task, attached before anything else
     now = clock
     steps = list(enumerate(sc["steps"]))
 
@@ -2023,7 +2023,7 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                 }
                 pending, pending_ca = None, None
 
-    def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
+    def run(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
             data: list[Any], at: datetime.datetime) -> None:  # fmt: skip
         unexpired = [(r["reqid"], _epoch(r["expires"])) for r in requests if r["reqid"] and r["expires"] > at]
         task = run_one(frame, transid, commarea, step, data, unexpired)
@@ -2082,7 +2082,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
     count = iter(range(1000))
 
-    def run_one(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
+    def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
         return run_task(
@@ -2094,9 +2094,9 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
-             commarea: Optional[bytes], step: Optional[dict[str, Any]], data: Optional[list[Any]] = None,
-             requests: Optional[list[tuple[str, int]]] = None,
-             faults: Optional[list[str]] = None) -> dict[str, Any]:  # fmt: skip
+             commarea: bytes | None, step: dict[str, Any] | None, data: list[Any] | None = None,
+             requests: list[tuple[str, int]] | None = None,
+             faults: list[str] | None = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
@@ -2206,7 +2206,7 @@ def case_coverage(case: cc.Case, programs: dict[str, tuple[str, bool]], got: dic
     port's claim: the scenarios its java-ported cell passes on, and how much of the program those run."""
     invs = case_inventories(case)
 
-    def status(sid: str, side: str) -> Optional[str]:
+    def status(sid: str, side: str) -> str | None:
         return cells.get(cc.cell_id(case.id, sid, side), {}).get("status")
 
     out: dict[str, dict[str, Any]] = {}
@@ -2237,10 +2237,10 @@ class PortOptions:
     ones, `root`/<case>), `overlays` more trees laid last, `program` only the scenarios running it (a proof
     of one program's port), and `actual` collects each measured cell's actual log (the proof's feedback)."""
 
-    ports: Optional[Path] = None
+    ports: Path | None = None
     root: Path = PORTS_DIR  # <case>/<KEY>/overlay: where each case's committed ports are, unless `ports` is given
     overlays: list[Path] = dataclasses.field(default_factory=list)
-    program: Optional[str] = None
+    program: str | None = None
     actual: dict[str, dict[str, Any]] = dataclasses.field(default_factory=dict)
     entries: dict[str, list[dict[str, Any]]] = dataclasses.field(default_factory=dict)  # #4343: java-facade's
 
@@ -2288,8 +2288,8 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
 
 
 def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
-                 ports: Optional[PortOptions] = None,
-                 coverage: Optional[dict[str, Any]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
+                 ports: PortOptions | None = None,
+                 coverage: dict[str, Any] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Every cell of one case: {cell id: {case, trap, scenario, side, status, reason, features, kind}}. #4023:
     `coverage` gets the case's COBOL coverage (case_coverage) when the cobol-stub side runs."""
     cells: dict[str, dict[str, Any]] = {}
@@ -2370,8 +2370,8 @@ def _kind_java(v: cc.Verdict, actual: dict[str, Any]) -> cc.Verdict:
     return v
 
 
-def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Path, offline: bool,
-            ports: Optional[PortOptions] = None, strengthened: bool = False) -> dict[str, Any]:  # fmt: skip
+def measure(crucible: Path, only: set[str] | None, sides: set[str], work: Path, offline: bool,
+            ports: PortOptions | None = None, strengthened: bool = False) -> dict[str, Any]:  # fmt: skip
     cells: dict[str, dict[str, Any]] = {}
     coverage: dict[str, Any] = {}
     dirs = cc.discover(crucible, only)
@@ -2509,9 +2509,7 @@ def coverage_ratchet(results: dict[str, Any], ledger: dict[str, Any], complete: 
     return errors
 
 
-def ledger_claim(
-    case: str, program: str, scenarios: list[str], ledger: Optional[dict[str, Any]] = None
-) -> Optional[str]:
+def ledger_claim(case: str, program: str, scenarios: list[str], ledger: dict[str, Any] | None = None) -> str | None:
     """#4023: a port's claim from the committed coverage ledger -- the scenarios it proved on, and how much of the
     program those execute (None: the program is not in the ledger)."""
     rec = (ledger if ledger is not None else read_coverage()).get("programs", {}).get(f"{case}/{program}")
@@ -2813,7 +2811,7 @@ def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: 
 
 
 # ---- CLI ------------------------------------------------------------------------------------------------
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument(
         "--crucible", type=Path, help=f"the cics-crucible checkout (default: ${PATH_ENV}, else ../cics-crucible)"

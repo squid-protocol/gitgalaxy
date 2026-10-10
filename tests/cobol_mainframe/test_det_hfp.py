@@ -238,7 +238,7 @@ def test_the_runtime_is_the_model_bit_for_bit(tmp_path):
                          text=True, check=True).stdout.splitlines()  # fmt: skip
     want = _model_lines()
     assert len(got) == len(want)
-    bad = [f"java  {g}\nmodel {w}" for g, w in zip(got, want) if g != w]
+    bad = [f"java  {g}\nmodel {w}" for g, w in zip(got, want, strict=False) if g != w]  # reason: length may differ
     assert not bad, "\n".join(bad)
 
 

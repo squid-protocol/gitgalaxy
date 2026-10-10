@@ -32,7 +32,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.call_using import blank_stream, call_using_args
 from gitgalaxy.core.cics_resources import _BLOCK_LIMIT, _END_EXEC, _options
@@ -41,7 +42,7 @@ _EXEC_DLI = re.compile(r"(?<![A-Z0-9-])EXEC[ \t\n]{1,200}DLI(?![A-Z0-9-])", re.I
 _CBLTDLI = re.compile(r"(?<![A-Z0-9-])CALL[ \t\n]{1,200}(?:'(?:CBLTDLI|AIBTDLI)'|\"(?:CBLTDLI|AIBTDLI)\")", re.I)
 
 
-def _unparen(value: Optional[str]) -> Optional[str]:
+def _unparen(value: str | None) -> str | None:
     """`(PSB-NAME)` -> `PSB-NAME` (SCHD PSB((name)) names a data item)."""
     if value is None:
         return None
@@ -51,7 +52,7 @@ def _unparen(value: Optional[str]) -> Optional[str]:
     return v or None
 
 
-def extract_dli_calls(code_stream: str, shielded: Optional[Callable[[int], bool]] = None) -> list[dict[str, Any]]:
+def extract_dli_calls(code_stream: str, shielded: Callable[[int], bool] | None = None) -> list[dict[str, Any]]:
     """Every EXEC DLI command and CALL 'CBLTDLI' of one COBOL file (see the header)."""
     if not code_stream or ("DLI" not in code_stream.upper()):
         return []

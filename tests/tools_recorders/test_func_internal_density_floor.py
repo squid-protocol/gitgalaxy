@@ -62,7 +62,7 @@ def _file(func_locs, branches=ROSETTA_BRANCHES, args=ROSETTA_ARGS):
             "impact": 1.0,
             "hit_vector": {},
         }
-        for i, (loc, b, a) in enumerate(zip(func_locs, branches, args))
+        for i, (loc, b, a) in enumerate(zip(func_locs, branches, args, strict=False))  # reason: length may differ
     ]
     return {
         "path": "main.py",

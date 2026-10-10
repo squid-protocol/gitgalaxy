@@ -92,7 +92,9 @@ def test_text_fields_keep_their_byte_width(tmp_path):
         check=True,
     )
     got = run.stdout.splitlines()
-    assert [(expr, g) for (expr, _), g in zip(CASES, got)] == [(expr, want) for expr, want in CASES]
+    assert [(expr, g) for (expr, _), g in zip(CASES, got, strict=False)] == [
+        (expr, want) for expr, want in CASES
+    ]  # reason: length may differ
 
 
 def test_a_multibyte_code_page_gets_the_width_rule():

@@ -244,7 +244,11 @@ def facts(db: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     ints = [c for c, t in _columns(cur, "file_data") if t == "INTEGER" and c != "id" and c not in NAME_STYLE]
     for row in cur.execute(f"SELECT file_path, language, {', '.join(ints)} FROM file_data"):  # noqa: S608
-        out[row[0]] = {"language": row[1], "ints": dict(zip(ints, row[2:])), **{c: [] for c in CHANNELS}}
+        out[row[0]] = {
+            "language": row[1],
+            "ints": dict(zip(ints, row[2:], strict=False)),
+            **{c: [] for c in CHANNELS},
+        }  # reason: length may differ
     tables = {r[0] for r in cur.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     for table in CHANNELS:
         if table not in tables:
@@ -489,7 +493,13 @@ def run(
         cells_out.extend(cells)
     estates = sorted({c["estate"] for c in cells} | {c["reference"] for c in cells} - {"seed"})
     with ProcessPoolExecutor(max_workers=jobs) as pool:
-        scanned = dict(zip(estates, pool.map(_scan_facts, [(str(root / e), str(work / "scans" / e)) for e in estates])))
+        scanned = dict(
+            zip(
+                estates,
+                pool.map(_scan_facts, [(str(root / e), str(work / "scans" / e)) for e in estates]),
+                strict=False,
+            )
+        )  # reason: length may differ
     scanned["seed"] = seed_facts
     results = {}
     for cell in cells:

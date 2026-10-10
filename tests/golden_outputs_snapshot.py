@@ -160,7 +160,7 @@ def graph(path: str | Path) -> dict[str, Any]:
             cols = [d[0] for d in cur.description]
             rows = {}
             for row in cur:
-                rec = dict(zip(cols, row))
+                rec = dict(zip(cols, row, strict=False))  # reason: length may differ
                 rec.pop("id", None)
                 rows[rec[key]] = _digest(_round(rec))
             out[label] = rows

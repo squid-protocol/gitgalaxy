@@ -17,7 +17,7 @@ import json
 import os
 import posixpath
 from collections.abc import Iterator
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 
@@ -40,12 +40,12 @@ class Package:
         self.main = [v for v in (manifest.get("module"), manifest.get("main")) if isinstance(v, str) and v]
 
 
-def owning_package(root: str, directory: str, cache: dict[str, Optional[Package]]) -> Optional[Package]:
+def owning_package(root: str, directory: str, cache: dict[str, Package | None]) -> Package | None:
     """The package whose package.json is nearest at or above `directory` (a scan-relative,
     slash-separated path), or None. Parsed once per directory, so the walk is bounded by the
     repository's depth and each manifest is read once."""
     walked: list[str] = []
-    found: Optional[Package] = None
+    found: Package | None = None
     current = directory.strip("/")
     while True:
         if current in cache:
@@ -94,7 +94,7 @@ def export_targets(pkg: Package, subpath: str) -> list[str]:
     if isinstance(exports, dict) and any(k.startswith(".") for k in exports):
         if subpath in exports:
             return list(_leaves(exports[subpath]))[:_MAX_TARGETS]
-        best: Optional[tuple[str, str]] = None  # the longest `./prefix/*` pattern that matches
+        best: tuple[str, str] | None = None  # the longest `./prefix/*` pattern that matches
         for key in exports:
             head, star, tail = key.partition("*")
             if (

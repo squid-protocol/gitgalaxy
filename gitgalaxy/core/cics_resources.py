@@ -63,7 +63,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 # The command opener. `EXEC CICS` then the command's first word; the rest of the
 # block is read by the operand walker.
@@ -189,14 +190,14 @@ def _balanced(block: str, open_at: int) -> int:
     return len(block)
 
 
-def _options(block: str) -> list[tuple[str, Optional[str]]]:
+def _options(block: str) -> list[tuple[str, str | None]]:
     """The command's options in order: (KEYWORD, value inside its parens or None).
 
     One left-to-right pass: a keyword, optional blanks, then an optional
     parenthesised value read to its balancing `)` (`FROM (X)`, `LENGTH(LENGTH OF
     X)`, `PROGRAM(TAB(WS-I))`). Text inside a value is never re-read as options.
     """
-    out: list[tuple[str, Optional[str]]] = []
+    out: list[tuple[str, str | None]] = []
     i, n = 0, len(block)
     while i < n:
         m = _WORD.search(block, i)
@@ -215,7 +216,7 @@ def _options(block: str) -> list[tuple[str, Optional[str]]]:
     return out
 
 
-def cobol_move_literals(code_stream: str, values: Optional[dict[str, str]] = None) -> dict[str, set[str]]:
+def cobol_move_literals(code_stream: str, values: dict[str, str] | None = None) -> dict[str, set[str]]:
     """Data-name -> every distinct literal it can be MOVEd (same file): `MOVE 'LIT' TO
     name`, and (#3578, given the file's VALUE map) `MOVE other TO name` followed up to
     _CHAIN_DEPTH hops through `other`'s VALUE or its own moves. Cycles stop."""
@@ -251,10 +252,10 @@ def cobol_move_literals(code_stream: str, values: Optional[dict[str, str]] = Non
 
 def _resolver(
     values: dict[str, str], moves: dict[str, set[str]]
-) -> Callable[[Optional[str]], tuple[Optional[str], Optional[str], Optional[str]]]:
+) -> Callable[[str | None], tuple[str | None, str | None, str | None]]:
     """A (operand) -> (name, resolution, candidates) reader over one file's VALUE/MOVE maps."""
 
-    def resolve(operand: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    def resolve(operand: str | None) -> tuple[str | None, str | None, str | None]:
         if operand is None:
             return None, None, None
         text = operand.strip()
@@ -280,14 +281,14 @@ def _row(
     verb: str,
     kind: str,
     access: str,
-    opts: dict[str, Optional[str]],
-    name_key: Optional[str],
-    qualifier_key: Optional[str],
+    opts: dict[str, str | None],
+    name_key: str | None,
+    qualifier_key: str | None,
     resolve: Callable,
     consumed: set[str],
-    ordered: list[tuple[str, Optional[str]]],
+    ordered: list[tuple[str, str | None]],
     line: int,
-    qualifier_fixed: Optional[str] = None,
+    qualifier_fixed: str | None = None,
 ) -> dict[str, Any]:
     operand = opts.get(name_key) if name_key else None
     name, resolution, candidates = resolve(operand)
@@ -323,7 +324,7 @@ def _row(
 
 def _two_word_spec(
     first: str, second: str, present: set[str]
-) -> tuple[str, Optional[tuple[str, str, Optional[str], Optional[str], set[str], Optional[str]]]]:
+) -> tuple[str, tuple[str, str, str | None, str | None, set[str], str | None] | None]:
     """#3512: the (verb, spec) of a WEB / INVOKE / TRANSFORM command, spec None for any other."""
     verb = f"{first} {second}"
     if first == "WEB" and second in _WEB_VERBS:
@@ -342,10 +343,10 @@ def _two_word_spec(
 
 def extract_cics_resources(
     code_stream: str,
-    values: Optional[dict[str, str]] = None,
-    moves: Optional[dict[str, set[str]]] = None,
+    values: dict[str, str] | None = None,
+    moves: dict[str, set[str]] | None = None,
     dialect: str = "cobol",
-    shielded: Optional[Callable[[int], bool]] = None,
+    shielded: Callable[[int], bool] | None = None,
 ) -> list[dict[str, Any]]:
     """Every CICS command in one file that names a FILE, MAP, QUEUE, CONTAINER or
     passed CHANNEL, or does web / service / transform I/O (#3512), as flat
@@ -379,7 +380,7 @@ def extract_cics_resources(
         if not ordered:
             continue
         verb = ordered[0][0]
-        opts: dict[str, Optional[str]] = {}
+        opts: dict[str, str | None] = {}
         for key, value in ordered[1:]:
             opts.setdefault(key, value)
         if ordered[0][1] is not None:
@@ -387,7 +388,7 @@ def extract_cics_resources(
             continue
         present = set(opts)
         # (kind, access, name option, qualifier option, options consumed, fixed qualifier)
-        spec: Optional[tuple[str, str, Optional[str], Optional[str], set[str], Optional[str]]] = None
+        spec: tuple[str, str, str | None, str | None, set[str], str | None] | None = None
         if verb in _CONTAINER_VERBS and "CONTAINER" in present:
             spec = ("CONTAINER", _CONTAINER_VERBS[verb], "CONTAINER", "CHANNEL", set(), None)
         elif verb in _FILE_VERBS and ({"FILE", "DATASET"} & present):

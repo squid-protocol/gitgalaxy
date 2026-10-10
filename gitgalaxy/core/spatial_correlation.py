@@ -25,7 +25,6 @@ does versus security_lens.py's actual variable-identity echo check.
 
 import bisect
 from collections.abc import Mapping, Sequence
-from typing import Optional
 
 
 def correlate_signals(targets: list[int], dampeners: list[int], max_distance: int = 500) -> tuple[int, int]:
@@ -73,7 +72,7 @@ def filter_positions_in_range(positions: Sequence[int], start: int, end: int) ->
 def correlate_scoped(
     targets: list[int],
     dampeners: list[int],
-    satellite_ranges: Optional[list[tuple[int, int]]],
+    satellite_ranges: list[tuple[int, int]] | None,
     max_distance: int = 500,
 ) -> tuple[int, int]:
     """

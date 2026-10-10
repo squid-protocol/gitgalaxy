@@ -41,7 +41,7 @@
 # spans the body.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 
@@ -240,7 +240,7 @@ def _qualified_name(text: str) -> str:
     return ".".join(_sql_name(m.group(0)) for m in _NAME_AT.finditer(text))
 
 
-def _column(element: str) -> Optional[dict[str, Any]]:
+def _column(element: str) -> dict[str, Any] | None:
     """One column definition -> {name, sql_type, length, scale, nullable, attributes}, or None."""
     lead = len(element) - len(element.lstrip())
     text = element[lead:]

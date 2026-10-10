@@ -287,7 +287,6 @@ import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 # GitGalaxy has a zero-dependency stance for the SHIPPED `gitgalaxy` package (see README.md's
 # "0 dependencies" claim and pyproject.toml's `yaml` extra, the only optional Python dependency
@@ -604,7 +603,7 @@ class CtagsSymbol:
     name: str
     line: int
     kind: str
-    signature: Optional[str]  # None means "field not populated for this symbol", not "no params"
+    signature: str | None  # None means "field not populated for this symbol", not "no params"
 
 
 def ctags_available(lang: str) -> bool:

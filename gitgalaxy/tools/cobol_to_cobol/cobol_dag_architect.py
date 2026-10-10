@@ -19,7 +19,6 @@ import re
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.mainframe_boundary import cobol_select_assigns
 from gitgalaxy.core.source_text import read_source
@@ -61,7 +60,7 @@ def code_view(content: str, blank_literals: bool = True) -> str:
     return "\n".join(out)
 
 
-def extract_lineage(filepath: Path, dead_paras: Optional[set] = None, declared: Optional[str] = None) -> Optional[dict]:
+def extract_lineage(filepath: Path, dead_paras: set | None = None, declared: str | None = None) -> dict | None:
     """
     Analyzes a COBOL program to map internal variables to external physical files.
     Utilizes shared IR state to mask out unreachable logic and prevent hallucinated dependencies.

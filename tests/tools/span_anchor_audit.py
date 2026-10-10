@@ -46,7 +46,7 @@ import sqlite3
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:  # before any gitgalaxy import: this checkout's, not an installed one
@@ -82,7 +82,7 @@ def _is_filler(line: str, lang: str) -> bool:
     return bool(_ENDS_CONSTRUCT.search(_TRAILING_COMMENT.sub("", s)))
 
 
-def misanchored(lines: list[str], start_line: int, name: str, lang: str) -> Optional[bool]:
+def misanchored(lines: list[str], start_line: int, name: str, lang: str) -> bool | None:
     """True/False for a unit at 1-based `start_line`; None when it cannot be judged
     (the line is out of range or the name never appears in the window)."""
     if not (1 <= start_line <= len(lines)):
@@ -126,7 +126,7 @@ def engine_units(crucible: Path) -> list[tuple[str, str, str, int]]:
 
 def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
     per: dict[str, dict[str, Any]] = collections.defaultdict(lambda: {"units": 0, "misanchored": 0, "examples": []})
-    cache: dict[str, Optional[list[str]]] = {}
+    cache: dict[str, list[str] | None] = {}
     for lang, path, name, line in engine_units(crucible):
         if not _IDENT.fullmatch(name):
             continue  # synthetic buckets and anonymous units have no declaration to find
@@ -177,7 +177,7 @@ def regressions(results: dict[str, dict[str, Any]], baseline: dict[str, dict[str
     return out
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--samples", type=int, default=0, help="print N mis-anchored examples per language")
     ap.add_argument("--ci", action="store_true", help="fail on a rise beyond the baseline tolerance")

@@ -30,7 +30,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Callable, Optional
+from collections.abc import Callable
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TAIL_LINES = 15
@@ -44,7 +44,7 @@ class SkipGate(Exception):
 class GateContext:
     python_exe: str
     changed_py_files: list[str]
-    corpora_root: Optional[Path]
+    corpora_root: Path | None
 
 
 @dataclasses.dataclass
@@ -58,7 +58,7 @@ class Gate:
 class Result:
     name: str
     status: str  # PASS | FAIL | SKIP
-    seconds: Optional[float] = None
+    seconds: float | None = None
     reason: str = ""
     tail: list[str] = dataclasses.field(default_factory=list)
 
@@ -76,7 +76,7 @@ def changed_py_files() -> list[str]:
     return sorted(f for f in files if f.endswith(".py") and (REPO_ROOT / f).is_file())
 
 
-def corpora_root() -> Optional[Path]:
+def corpora_root() -> Path | None:
     env = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
     for candidate in ([Path(env)] if env else []) + [REPO_ROOT / ".mainframe_corpora"]:
         if candidate.is_dir():
@@ -84,7 +84,7 @@ def corpora_root() -> Optional[Path]:
     return None
 
 
-def java_env() -> tuple[Optional[dict[str, str]], str]:
+def java_env() -> tuple[dict[str, str] | None, str]:
     """The environment the Java gates need, or (None, why not)."""
     env = dict(os.environ)
     tools = REPO_ROOT / ".tools"
@@ -169,7 +169,7 @@ def run_gate(gate: Gate, ctx: GateContext, env: dict[str, str]) -> Result:
     return Result(gate.name, "FAIL", seconds, reason=f"exit {proc.returncode}", tail=tail)
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--java", action="store_true", help="also compile the generated Java (needs a JDK)")
     ap.add_argument("--only", nargs="+", metavar="NAME", help="only the gates whose names start with NAME")

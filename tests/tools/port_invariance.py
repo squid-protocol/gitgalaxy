@@ -126,7 +126,7 @@ def spearman(a: list[float], b: list[float]) -> float | None:
     ra, rb = _ranks(a), _ranks(b)
     ma, mb = statistics.mean(ra), statistics.mean(rb)
     assert len(ra) == len(rb), "spearman: the two series differ in length"  # (zip(strict=) is 3.10+)
-    num = sum((x - ma) * (y - mb) for x, y in zip(ra, rb))
+    num = sum((x - ma) * (y - mb) for x, y in zip(ra, rb, strict=False))  # reason: length may differ
     den = (sum((x - ma) ** 2 for x in ra) * sum((y - mb) ** 2 for y in rb)) ** 0.5
     return num / den if den else None
 

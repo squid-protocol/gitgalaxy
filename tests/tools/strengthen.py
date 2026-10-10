@@ -218,7 +218,7 @@ def validate(case: dict[str, Any], p: dict[str, Any], taken: set[str], ca_names:
         args = p.get("args")
         if not isinstance(args, list) or len(args) != len(using):
             return f"args must be {len(using)} strings"
-        for a, u in zip(args, using):
+        for a, u in zip(args, using, strict=False):  # reason: length may differ
             if not isinstance(a, str) or len(a) > u["size"]:
                 return f"{u['name']}: {a!r} is not a string of at most {u['size']}"
     if case["kind"] == "cics":
@@ -287,7 +287,11 @@ def cics_with_records(case: dict[str, Any], inputs: dict[str, Any], added: dict[
             continue
         spec = case["datasets"][dd]
         reclen = inputs[dd]["spec"]["reclen"]
-        had = common._fixed(common._input_path(case, Path("/"), spec["append"]), reclen, enc) if spec.get("append") else b""
+        had = (
+            common._fixed(common._input_path(case, Path("/"), spec["append"]), reclen, enc)
+            if spec.get("append")
+            else b""
+        )
         old = [had[i : i + reclen] for i in range(0, len(had), reclen)]
         lines = [r.decode(enc).rstrip(" ") for r in old + new]
         path = work / "inputs" / Path(spec["input"]).name

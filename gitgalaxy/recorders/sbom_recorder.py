@@ -14,7 +14,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 
@@ -43,9 +43,9 @@ class SbomRecorder:
     def __init__(
         self,
         version: str = "2.4.0",
-        parent_logger: Optional[logging.Logger] = None,
+        parent_logger: logging.Logger | None = None,
         dependency_cache=None,
-        fresh_scan_budget: Optional[int] = None,
+        fresh_scan_budget: int | None = None,
     ):
         self.logger = parent_logger.getChild("sbom_recorder") if parent_logger else logging.getLogger("sbom_recorder")
         self.version = version
@@ -64,7 +64,7 @@ class SbomRecorder:
         summary: dict[str, Any],  # noqa: ARG002 -- shared generate_report() call shape across recorders; SBOM derives everything from session_meta and its own fresh scan
         session_meta: dict[str, Any],
         output_path: str,
-        manifest_paths: Optional[list[str]] = None,
+        manifest_paths: list[str] | None = None,
     ) -> None:
         target_path = Path(session_meta.get("target_directory", "")).resolve()
 

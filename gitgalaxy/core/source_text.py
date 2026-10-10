@@ -40,7 +40,6 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
 
 from gitgalaxy.core.ebcdic_codecs import EBCDIC_CODE_PAGES, register
 from gitgalaxy.core.ebcdic_dbcs import DBCS_CODE_PAGES, decode_record
@@ -68,7 +67,7 @@ class SourceText:
 
 # What the estate declares: one codec for every file, or {glob: codec} matched in order against the
 # file's repo-relative POSIX path (first match wins; a glob without "/" also matches the bare name).
-DeclaredEncoding = Optional[Union[str, Mapping[str, str]]]  # typing forms: the package supports 3.9
+DeclaredEncoding = str | Mapping[str, str] | None  # typing forms: the package supports 3.9
 
 
 def validate_declared_encoding(spec: DeclaredEncoding) -> None:

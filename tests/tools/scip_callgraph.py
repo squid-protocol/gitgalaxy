@@ -47,7 +47,8 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any
+from collections.abc import Iterator
 
 from gitgalaxy.core.source_text import read_source
 
@@ -201,7 +202,7 @@ def _descriptors(symbol: str) -> list[tuple[str, str]]:
     return out
 
 
-def _name(symbol: str, display: str, lang: str) -> Optional[str]:
+def _name(symbol: str, display: str, lang: str) -> str | None:
     """The engine's name for a callable symbol, or None if it is not one we name."""
     if symbol.startswith("local "):
         return display or None
@@ -288,7 +289,7 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             kinds.setdefault(sym, kind)
 
     defs_by_symbol: dict[str, DefKey] = {}
-    ctor_arity: dict[DefKey, Optional[int]] = {}  # #4124: a class reference picks among these
+    ctor_arity: dict[DefKey, int | None] = {}  # #4124: a class reference picks among these
     scopes: dict[str, list[tuple[tuple[int, int, int, int], DefKey]]] = collections.defaultdict(list)
     for d in docs:
         lines = sources[d.path]
@@ -387,8 +388,8 @@ def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict
 
 
 def _pick_constructor(
-    ctors: list[DefKey], arity: dict[DefKey, Optional[int]], lines: list[str], span: tuple[int, int, int, int]
-) -> Optional[DefKey]:
+    ctors: list[DefKey], arity: dict[DefKey, int | None], lines: list[str], span: tuple[int, int, int, int]
+) -> DefKey | None:
     """#4124: the one constructor a class reference calls. With overloads, the one whose
     parameter count is the call's argument count; None when that does not single one out
     (varargs, two of one arity): the reference is then neither an edge nor external."""
@@ -402,7 +403,7 @@ def _pick_constructor(
 _ARG_SCAN_LINES = 30
 
 
-def _arg_count(lines: list[str], line: int, col: int, declaration: bool = False) -> Optional[int]:
+def _arg_count(lines: list[str], line: int, col: int, declaration: bool = False) -> int | None:
     """The number of entries in the `(...)` list after (line, col), past an optional
     `<...>` type-argument list: a call's arguments, or, with `declaration`, a signature's
     parameters (whose `Map<K, V>` types hold commas). None when no list follows."""
@@ -444,7 +445,7 @@ def _arg_count(lines: list[str], line: int, col: int, declaration: bool = False)
     return None
 
 
-def _external_name(symbol: str, kind: int, lang: str) -> Optional[str]:
+def _external_name(symbol: str, kind: int, lang: str) -> str | None:
     """The name an external callable is reported under, or None if it is not callable."""
     if kind and kind not in CALLABLE_KINDS | {ABSTRACT_KIND}:
         return None
@@ -515,7 +516,7 @@ def scip_java_tools() -> tuple[Path, Path]:
     return lib, plugin_dir / f"semanticdb-javac-{SCIP_JAVA_VERSION}.jar"
 
 
-def scip_java_version() -> Optional[str]:
+def scip_java_version() -> str | None:
     """The pinned version when java and Maven are on PATH (the jars are fetched on first
     build); None otherwise, so a machine without a JDK skips the java reference."""
     return SCIP_JAVA_VERSION if shutil.which("java") and shutil.which("javac") and shutil.which("mvn") else None
@@ -652,7 +653,7 @@ def compare(a: dict[str, Any], b: dict[str, Any], samples: int = 8) -> str:
     return "\n".join(out)
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("contract", help="print the contract JSON of a SCIP index")

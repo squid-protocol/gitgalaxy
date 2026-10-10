@@ -34,7 +34,6 @@ import json
 import shutil
 import sys
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import (
@@ -150,7 +149,7 @@ public class {camel_name}Service {{
 """
 
 
-def _write_skeleton_audit(f, skeletons: dict, forges: Optional[SkeletonForges] = None) -> None:
+def _write_skeleton_audit(f, skeletons: dict, forges: SkeletonForges | None = None) -> None:
     """#3614: which engine facts the generated project was built against, and how far each is proven."""
     fields: dict[str, dict] = {}
     for key, path in skeletons.items():

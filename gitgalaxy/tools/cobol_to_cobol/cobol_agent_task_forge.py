@@ -17,15 +17,14 @@
 # ==============================================================================
 import json
 from pathlib import Path
-from typing import Optional
 
 
 def generate_agent_ticket(
     file_name: str,
     source_file: Path,
     anomalies: list,
-    ir_state: Optional[dict],
-    job_key: Optional[str] = None,
+    ir_state: dict | None,
+    job_key: str | None = None,
 ) -> dict:
     """Generates a structured JSON task ticket for an autonomous agent."""
 
@@ -62,7 +61,7 @@ def forge_agent_jobs(
     staging_dir: Path,
     source_dir: Path,
     architectural_anomalies: list,
-    ir_keys: Optional[dict[str, str]] = None,
+    ir_keys: dict[str, str] | None = None,
 ):
     """
     Parses global architectural anomalies and generates individual JSON task tickets per file.

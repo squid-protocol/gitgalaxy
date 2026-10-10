@@ -30,7 +30,8 @@ import sys
 import time
 import warnings
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
@@ -65,7 +66,7 @@ class Metric:
     places: int
 
 
-def _reachable_pair_path_length(graph: Any) -> Optional[float]:
+def _reachable_pair_path_length(graph: Any) -> float | None:
     """#3037's tailored definition: mean hops over every ordered pair (A, B) where A reaches B; None if none."""
     hops = pairs = 0
     for source in graph:
@@ -98,7 +99,7 @@ def _networkx_assortativity(graph: Any) -> float:
         return _stored_assortativity(nx.degree_assortativity_coefficient(graph))
 
 
-def _networkx_modularity(graph: Any) -> Optional[float]:
+def _networkx_modularity(graph: Any) -> float | None:
     """The engine's former call: seeded Louvain on the undirected graph, then modularity; None where it divides by 0."""
     undirected = graph.to_undirected()
     community = nx.algorithms.community
@@ -111,13 +112,15 @@ def _networkx_modularity(graph: Any) -> Optional[float]:
 METRICS: dict[str, Metric] = {
     "pagerank": Metric(
         oracle_mode="strict",
-        native=lambda index: dict(zip(index.nodes, pagerank(index))),
+        native=lambda index: dict(zip(index.nodes, pagerank(index), strict=False)),  # reason: length may differ
         oracle=lambda graph: nx.pagerank(graph, weight="weight"),
         places=6,  # pagerank_score is stored at 6 dp
     ),
     "closeness": Metric(
         oracle_mode="strict",
-        native=lambda index: dict(zip(index.nodes, closeness_and_path_length(index)[0])),
+        native=lambda index: dict(
+            zip(index.nodes, closeness_and_path_length(index)[0], strict=False)
+        ),  # reason: length may differ
         oracle=_networkx_closeness,
         places=6,  # closeness_score
     ),
@@ -151,7 +154,9 @@ METRICS: dict[str, Metric] = {
     ),
     "betweenness": Metric(
         oracle_mode="tailored",  # the engine used to sample 100 weighted sources above 500 files
-        native=lambda index: dict(zip(index.nodes, betweenness_centrality(index))),
+        native=lambda index: dict(
+            zip(index.nodes, betweenness_centrality(index), strict=False)
+        ),  # reason: length may differ
         oracle=_networkx_betweenness,
         places=6,  # betweenness_score
     ),
@@ -163,13 +168,13 @@ METRICS: dict[str, Metric] = {
     ),
     "descendants": Metric(
         oracle_mode="tailored",  # the engine used to cap it at 500
-        native=lambda index: dict(zip(index.nodes, reach_counts(index)[0])),
+        native=lambda index: dict(zip(index.nodes, reach_counts(index)[0], strict=False)),  # reason: length may differ
         oracle=lambda graph: {node: len(nx.descendants(graph, node)) for node in graph},
         places=0,  # a count: exact (security_auditor's total_upstream)
     ),
     "ancestors": Metric(
         oracle_mode="tailored",  # the engine used to cap it at 500
-        native=lambda index: dict(zip(index.nodes, reach_counts(index)[1])),
+        native=lambda index: dict(zip(index.nodes, reach_counts(index)[1], strict=False)),  # reason: length may differ
         oracle=lambda graph: {node: len(nx.ancestors(graph, node)) for node in graph},
         places=0,  # a count: exact (security_auditor's total_downstream)
     ),
@@ -218,7 +223,7 @@ def to_networkx(nodes: list[str], edges: list[Edge]) -> Any:
 @dataclass(frozen=True)
 class Parity:
     equal: bool  # equal at the stored precision (and on the same keys / both None)
-    max_abs_diff: Optional[float]  # None when the values are not both numeric
+    max_abs_diff: float | None  # None when the values are not both numeric
 
 
 def compare(native: Any, oracle: Any, places: int) -> Parity:

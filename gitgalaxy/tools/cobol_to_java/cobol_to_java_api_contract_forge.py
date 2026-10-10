@@ -18,7 +18,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     _WORD_BREAKS,
@@ -35,7 +34,7 @@ from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
 def generate_rest_controller(
-    ir_state: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+    ir_state: dict, package_name: str, unit_key: str | None = None, target: JavaTarget | None = None
 ) -> str:
     """Generates the API endpoints and auto-wires the Service layer.
 

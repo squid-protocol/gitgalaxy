@@ -160,7 +160,9 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
                     actual = [(m.span(), m.groups()) for m in line_gated_finditer(pattern, line_gate, text)]
                     if actual != expected:
                         diff = next(
-                            (i for i, pair in enumerate(zip(expected, actual)) if pair[0] != pair[1]),
+                            (
+                                i for i, pair in enumerate(zip(expected, actual, strict=False)) if pair[0] != pair[1]
+                            ),  # reason: length may differ
                             min(len(expected), len(actual)),
                         )
                         violations.append(

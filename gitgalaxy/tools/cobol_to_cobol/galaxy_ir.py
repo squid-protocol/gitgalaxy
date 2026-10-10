@@ -164,7 +164,7 @@ import unicodedata
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
@@ -214,21 +214,21 @@ class EngineCall:
 
     verb: str
     form: str
-    operand: Optional[str]
-    target: Optional[str]
-    resolves_to: Optional[str]
+    operand: str | None
+    target: str | None
+    resolves_to: str | None
     line: int
     # #3355: the COMMAREA contract operands of a CICS LINK/XCTL/RETURN TRANSID
     # site, as written (upper-cased, whitespace-collapsed): the record passed and
     # the LENGTH/DATALENGTH expressions. None when the site states none, and on a
     # DB written before the columns existed.
-    commarea: Optional[str] = None
-    commarea_length: Optional[str] = None
-    commarea_datalength: Optional[str] = None
+    commarea: str | None = None
+    commarea_length: str | None = None
+    commarea_datalength: str | None = None
     # #3454: a batch CALL's USING list, comma-joined by position (call_using.py).
-    using_args: Optional[str] = None
+    using_args: str | None = None
     # #3494: a CICS LINK / START's SYSID(...) as written (the region it ships to).
-    sysid: Optional[str] = None
+    sysid: str | None = None
 
     @property
     def using(self) -> list:
@@ -242,8 +242,8 @@ class EngineEntryPoint:
     DIVISION or an `ENTRY 'X'`, with its USING `params` (comma-joined, or None)."""
 
     kind: str
-    entry_name: Optional[str]
-    params: Optional[str]
+    entry_name: str | None
+    params: str | None
     line: int
 
     @property
@@ -261,21 +261,21 @@ class EngineDataset:
     dataset lineage -- see `GalaxyIR.dataset_lineage`.
     """
 
-    step_name: Optional[str]
-    internal_name: Optional[str]
-    assign_name: Optional[str]
+    step_name: str | None
+    internal_name: str | None
+    assign_name: str | None
     dd_name: str
     modes: list
-    dsn: Optional[str]
+    dsn: str | None
     line: int
     # #3345: the JCL DSN with its symbols resolved (None unless every one did) and
     # how -- literal / resolved / proc_default / ambiguous / unresolved. Both None
     # on a COBOL row and on a DB written before the columns existed.
-    dsn_resolved: Optional[str] = None
-    dsn_resolution: Optional[str] = None
+    dsn_resolved: str | None = None
+    dsn_resolution: str | None = None
     # #3348: a COBOL row's OPEN sites, [(mode, line)] in line order; None on a JCL row
     # and on a DB written before the column existed (the refractor then keeps the forge).
-    open_sites: Optional[list] = None
+    open_sites: list | None = None
 
     @property
     def is_binding(self) -> bool:
@@ -283,7 +283,7 @@ class EngineDataset:
         return self.dsn is not None
 
     @property
-    def dataset_name(self) -> Optional[str]:
+    def dataset_name(self) -> str | None:
         """The dataset this binding names, for joining bindings ACROSS jobs (#3345).
 
         The resolved DSN when this file determined it (`literal`/`resolved`), the
@@ -321,30 +321,30 @@ class EngineDataItem:
     """
 
     ordinal: int
-    parent_ordinal: Optional[int]
+    parent_ordinal: int | None
     level: int
     name: str
-    section: Optional[str]
-    fd_name: Optional[str]
-    pic: Optional[str]
-    usage: Optional[str]
-    occurs_min: Optional[int]
-    occurs_max: Optional[int]
-    occurs_depending_on: Optional[str]
-    redefines: Optional[str]
-    value: Optional[str]
+    section: str | None
+    fd_name: str | None
+    pic: str | None
+    usage: str | None
+    occurs_min: int | None
+    occurs_max: int | None
+    occurs_depending_on: str | None
+    redefines: str | None
+    value: str | None
     line: int
     children: list = field(default_factory=list)  # EngineDataItem
-    attributes: Optional[str] = None  # #3250: PL/I attribute text; None for COBOL
+    attributes: str | None = None  # #3250: PL/I attribute text; None for COBOL
     # #3355: the COPY member(s) that expand right after this entry, comma-separated
     # (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'); None when no COPY follows.
-    copy_members: Optional[str] = None
+    copy_members: str | None = None
     # #4265: the library-name each `copy_members` COPY names (`COPY DATEWS IN SHRCPY`), comma-separated in
     # the same order, "" for an unqualified COPY; None when none names one (record_data.copy_libraries).
-    copy_libraries: Optional[str] = None
+    copy_libraries: str | None = None
     # #4265: each `copy_members` COPY's REPLACING operands (record_data.copy_replacing, JSON): None, or a
     # list parallel to the members of None / [[from, to(, LEADING|TRAILING)], ...].
-    copy_replacing: Optional[str] = None
+    copy_replacing: str | None = None
     # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own --
     # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
@@ -363,7 +363,7 @@ class EngineDataItem:
     # #4245: the PROGRAM-ID whose DATA DIVISION declares the item, in a source holding several
     # programs (nested, or batch-compiled siblings); None in a one-program source or a copybook.
     # Derived from `line` and the programs' PROCEDURE DIVISION lines (_attribute_programs).
-    program: Optional[str] = None
+    program: str | None = None
 
     @property
     def is_group(self) -> bool:
@@ -379,7 +379,7 @@ class EngineDataItem:
         return bool(self.children) or not (self.pic or self.usage)
 
     @property
-    def occurs(self) -> Optional[int]:
+    def occurs(self) -> int | None:
         """The (max) table size, or None when the item is not a table."""
         return self.occurs_max
 
@@ -398,10 +398,10 @@ class EngineTransaction:
     """
 
     transid: str
-    program: Optional[str]
-    group: Optional[str]
-    profile: Optional[str]
-    resolves_to: Optional[str]
+    program: str | None
+    group: str | None
+    profile: str | None
+    resolves_to: str | None
     line: int
 
 
@@ -419,10 +419,10 @@ class EngineSqlColumn:
     colno: int
     name: str
     sql_type: str
-    length: Optional[int]
-    scale: Optional[int]
+    length: int | None
+    scale: int | None
     nullable: bool
-    attributes: Optional[str]
+    attributes: str | None
     line: int
 
 
@@ -449,14 +449,14 @@ class EngineSqlStatement:
 
     ordinal: int
     verb: str
-    table: Optional[str]
-    access: Optional[str]
-    cursor: Optional[str]
+    table: str | None
+    access: str | None
+    cursor: str | None
     host_variables: list
     line: int
     # #3618: the statement text (comments stripped, whitespace collapsed, literals
     # kept); None on a DB written before the column existed.
-    statement: Optional[str] = None
+    statement: str | None = None
 
 
 @dataclass
@@ -475,17 +475,17 @@ class EngineScreenField:
 
     kind: str
     ordinal: int
-    parent_ordinal: Optional[int]
-    name: Optional[str]
-    pos_line: Optional[int]
-    pos_column: Optional[int]
-    length: Optional[int]
-    attrb: Optional[str]
-    picin: Optional[str]
-    picout: Optional[str]
-    initial: Optional[str]
-    occurs: Optional[int]
-    attributes: Optional[str]
+    parent_ordinal: int | None
+    name: str | None
+    pos_line: int | None
+    pos_column: int | None
+    length: int | None
+    attrb: str | None
+    picin: str | None
+    picout: str | None
+    initial: str | None
+    occurs: int | None
+    attributes: str | None
     line: int
 
     @property
@@ -510,18 +510,18 @@ class EngineCsdResource:
 
     resource_type: str
     name: str
-    group: Optional[str]
-    dsname: Optional[str]
-    ddname: Optional[str]
-    record_format: Optional[str]
-    key_length: Optional[int]
-    record_size: Optional[int]
-    queue_type: Optional[str]
-    plan: Optional[str]
-    db2_entry: Optional[str]
-    transid: Optional[str]
-    program: Optional[str]
-    attributes: Optional[str]
+    group: str | None
+    dsname: str | None
+    ddname: str | None
+    record_format: str | None
+    key_length: int | None
+    record_size: int | None
+    queue_type: str | None
+    plan: str | None
+    db2_entry: str | None
+    transid: str | None
+    program: str | None
+    attributes: str | None
     line: int
 
 
@@ -545,15 +545,15 @@ class EngineCicsResource:
     verb: str
     kind: str
     access: str
-    operand: Optional[str]
-    name: Optional[str]
-    resolution: Optional[str]
-    candidates: Optional[str]
-    qualifier_operand: Optional[str]
-    qualifier: Optional[str]
-    record_clause: Optional[str]
-    record: Optional[str]
-    attributes: Optional[str]
+    operand: str | None
+    name: str | None
+    resolution: str | None
+    candidates: str | None
+    qualifier_operand: str | None
+    qualifier: str | None
+    record_clause: str | None
+    record: str | None
+    attributes: str | None
     line: int
 
     @property
@@ -564,7 +564,7 @@ class EngineCicsResource:
         return {c.upper() for c in (self.candidates or "").split(",") if c}
 
     @property
-    def mapset(self) -> Optional[str]:
+    def mapset(self) -> str | None:
         """A MAP's mapset: MAPSET as resolved, or -- when the command writes no
         MAPSET -- the map name itself, which is the CICS default."""
         if self.kind != "MAP":
@@ -587,18 +587,18 @@ class EngineCicsTask:
     """
 
     verb: str
-    target_kind: Optional[str]
-    operand: Optional[str]
-    name: Optional[str]
-    resolution: Optional[str]
-    candidates: Optional[str]
-    channel_operand: Optional[str]
-    channel: Optional[str]
-    token: Optional[str]
-    record_clause: Optional[str]
-    record: Optional[str]
-    timing: Optional[str]
-    attributes: Optional[str]
+    target_kind: str | None
+    operand: str | None
+    name: str | None
+    resolution: str | None
+    candidates: str | None
+    channel_operand: str | None
+    channel: str | None
+    token: str | None
+    record_clause: str | None
+    record: str | None
+    timing: str | None
+    attributes: str | None
     line: int
 
     def matches(self, name: str) -> bool:
@@ -621,10 +621,10 @@ class EngineJobSubmit:
     """
 
     kind: str
-    step: Optional[str]
-    name: Optional[str]
-    target_kind: Optional[str]
-    target: Optional[str]
+    step: str | None
+    name: str | None
+    target_kind: str | None
+    target: str | None
     line: int
 
 
@@ -640,14 +640,14 @@ class EngineMqCall:
     """
 
     verb: str
-    direction: Optional[str]
-    operand: Optional[str]
-    queue: Optional[str]
-    resolution: Optional[str]
-    candidates: Optional[str]
-    handle: Optional[str]
-    open_line: Optional[int]
-    options: Optional[str]
+    direction: str | None
+    operand: str | None
+    queue: str | None
+    resolution: str | None
+    candidates: str | None
+    handle: str | None
+    open_line: int | None
+    options: str | None
     line: int
 
 
@@ -664,11 +664,11 @@ class EngineUowHandler:
     kind: str
     source: str
     verb: str
-    condition: Optional[str]
-    target: Optional[str]
-    target_kind: Optional[str]
-    resp_var: Optional[str]
-    attributes: Optional[str]
+    condition: str | None
+    target: str | None
+    target_kind: str | None
+    resp_var: str | None
+    attributes: str | None
     line: int
 
 
@@ -679,8 +679,8 @@ class EngineSpecialName:
     DECIMAL-POINT (`value` COMMA, no symbol)."""
 
     clause: str
-    value: Optional[str]
-    symbol: Optional[str]
+    value: str | None
+    symbol: str | None
     line: int
 
 
@@ -691,11 +691,11 @@ class EngineCopyStatement:
     `replacing` is [[from, to(, LEADING|TRAILING)], ...]; `after_ordinal` the entry above it, if any."""
 
     member: str
-    library: Optional[str]
+    library: str | None
     replacing: list
-    section: Optional[str]
-    fd_name: Optional[str]
-    after_ordinal: Optional[int]
+    section: str | None
+    fd_name: str | None
+    after_ordinal: int | None
     line: int
     moved: bool = False
 
@@ -706,7 +706,7 @@ class EngineCompilerOption:
     name (abbreviations spelled out), its parenthesised value as written, the option as written."""
 
     option: str
-    value: Optional[str]
+    value: str | None
     written: str
     line: int
 
@@ -718,13 +718,13 @@ class EngineFileControl:
     `alternate_keys` is a list of (data-name, with_duplicates)."""
 
     select_name: str
-    assign: Optional[str]
-    organization: Optional[str]
-    access_mode: Optional[str]
-    record_key: Optional[str]
+    assign: str | None
+    organization: str | None
+    access_mode: str | None
+    record_key: str | None
     alternate_keys: list
-    relative_key: Optional[str]
-    file_status: Optional[str]
+    relative_key: str | None
+    file_status: str | None
     fd_copies: list
     line: int
 
@@ -735,16 +735,16 @@ class EngineVsamDefine:
     `related` is an AIX's RELATE base cluster or a PATH's PATHENTRY."""
 
     kind: str
-    name: Optional[str]
-    organization: Optional[str]
-    key_length: Optional[int]
-    key_offset: Optional[int]
-    record_avg: Optional[int]
-    record_max: Optional[int]
-    related: Optional[str]
-    unique_key: Optional[str]
-    upgrade: Optional[str]
-    step: Optional[str]
+    name: str | None
+    organization: str | None
+    key_length: int | None
+    key_offset: int | None
+    record_avg: int | None
+    record_max: int | None
+    related: str | None
+    unique_key: str | None
+    upgrade: str | None
+    step: str | None
     line: int
 
 
@@ -754,26 +754,26 @@ class EngineJobFlow:
     (see core/job_flow.py). `dsn` is as written without its GDG `generation`."""
 
     kind: str
-    name: Optional[str]
-    step_ordinal: Optional[int]
-    step_name: Optional[str]
-    program: Optional[str]
-    proc: Optional[str]
-    cond: Optional[str]
-    if_cond: Optional[str]
-    in_proc: Optional[str]
-    dd_name: Optional[str]
-    dsn: Optional[str]
-    disp: Optional[str]
-    generation: Optional[str]
+    name: str | None
+    step_ordinal: int | None
+    step_name: str | None
+    program: str | None
+    proc: str | None
+    cond: str | None
+    if_cond: str | None
+    in_proc: str | None
+    dd_name: str | None
+    dsn: str | None
+    disp: str | None
+    generation: str | None
     line: int
-    disp_normal: Optional[str] = None  # #3622: DISP's normal-end disposition (KEEP / CATLG / DELETE / ...)
+    disp_normal: str | None = None  # #3622: DISP's normal-end disposition (KEEP / CATLG / DELETE / ...)
     # #3710: a runner step (IKJEFT01 / DFSRRC00): the programs it runs and how (comma-joined,
     # in order: RUN PROGRAM / TSO CALL / TSO EXEC / DFSRRC00), and a SYSTSIN read from a member.
-    runs: Optional[str] = None
-    runs_via: Optional[str] = None
-    systsin_member: Optional[str] = None
-    parm: Optional[str] = None  # #3624: the text EXEC PARM= passes the program
+    runs: str | None = None
+    runs_via: str | None = None
+    systsin_member: str | None = None
+    parm: str | None = None  # #3624: the text EXEC PARM= passes the program
 
 
 @dataclass
@@ -782,14 +782,14 @@ class EngineDliCall:
     (see core/dli_calls.py); resolution is GalaxyIR.ims_calls'."""
 
     interface: str
-    function: Optional[str]
-    function_operand: Optional[str]
-    pcb: Optional[str]
-    io_area: Optional[str]
-    segments: Optional[str]
-    ssas: Optional[str]
-    where: Optional[str]
-    psb: Optional[str]
+    function: str | None
+    function_operand: str | None
+    pcb: str | None
+    io_area: str | None
+    segments: str | None
+    ssas: str | None
+    where: str | None
+    psb: str | None
     line: int
 
 
@@ -799,8 +799,8 @@ class EngineDataMove:
     `data_move_data` (see core/data_moves.py for the verbs and operand forms)."""
 
     verb: str
-    source: Optional[str]
-    source_kind: Optional[str]
+    source: str | None
+    source_kind: str | None
     target: str
     corresponding: bool
     source_refmod: bool
@@ -808,8 +808,8 @@ class EngineDataMove:
     line: int
     # #3655: the reference modifications as written (`1:LENGTH OF X`); None without
     # one, and on a DB written before the columns existed.
-    source_refmod_text: Optional[str] = None
-    target_refmod_text: Optional[str] = None
+    source_refmod_text: str | None = None
+    target_refmod_text: str | None = None
 
 
 _WEB_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container", "binding",
@@ -822,17 +822,17 @@ class EngineWebService:
     core/web_services.py): the program a provider exposes at `uri` (or a requester
     calls out from), its request / response copybook members, and the rest."""
 
-    assistant: Optional[str]
-    direction: Optional[str]
-    program: Optional[str]
-    uri: Optional[str]
-    request: Optional[str]
-    response: Optional[str]
-    interface: Optional[str]
-    container: Optional[str]
-    binding: Optional[str]
-    document: Optional[str]
-    transaction: Optional[str]
+    assistant: str | None
+    direction: str | None
+    program: str | None
+    uri: str | None
+    request: str | None
+    response: str | None
+    interface: str | None
+    container: str | None
+    binding: str | None
+    document: str | None
+    transaction: str | None
     line: int
 
 
@@ -842,18 +842,18 @@ class EngineImsGen:
     `ims_gen_data` (see core/ims_gen.py for the kinds)."""
 
     kind: str
-    name: Optional[str]
-    parent: Optional[str]
-    owner: Optional[str]
-    dbd_name: Optional[str]
-    procopt: Optional[str]
-    pcb_type: Optional[str]
-    access: Optional[str]
-    bytes: Optional[int]
-    start: Optional[int]
-    psb_name: Optional[str]
-    program: Optional[str]
-    attributes: Optional[str]
+    name: str | None
+    parent: str | None
+    owner: str | None
+    dbd_name: str | None
+    procopt: str | None
+    pcb_type: str | None
+    access: str | None
+    bytes: int | None
+    start: int | None
+    psb_name: str | None
+    program: str | None
+    attributes: str | None
     line: int
 
 
@@ -925,14 +925,14 @@ class EngineFile:
         procedure copybook has paragraphs but is compiled into its includer."""
         return bool(self.program_ids)
 
-    def compiler_option(self, name: str, default: Optional[str] = None) -> Optional[str]:
+    def compiler_option(self, name: str, default: str | None = None) -> str | None:
         """#3828: an option's effective value on this file's CBL / PROCESS cards (the last card
         wins; `compiler_option("INTDATE", "ANSI")`), else `default`."""
         options = effective_options([{"option": o.option, "value": o.value} for o in self.compiler_options])
         return options.get(name.upper()) or default
 
 
-def _symbolic_pattern(dsn: str) -> Optional[re.Pattern]:
+def _symbolic_pattern(dsn: str) -> re.Pattern | None:
     symbol_rx = re.compile(r"(@[^@.]+@|<[^>.]+>|&[^.]+\.?)")
     if not symbol_rx.search(dsn):
         return None
@@ -967,17 +967,17 @@ class GalaxyIR:
     files: dict[str, EngineFile]
     # #3710: the scanned source tree, when the caller has it: a runner step's SYSTSIN read
     # from a dataset member (a `.ctl` file the scan does not record) is read from here.
-    source_root: Optional[Path] = None
+    source_root: Path | None = None
     # #3909: {file_path: code page} of each file the scan decoded with the estate's declared page
     # (file_data.source_decode 'declared'), so every later read of it decodes it the same way.
     source_pages: dict[str, str] = field(default_factory=dict)
     # #4421: the --copy-libraries reports persisted with the snapshot (repo_data): the members a
     # program's search order finds in several libraries (#4265) and the COPYs no declared library
     # holds (#4420). None: the scan declared no copy libraries (or the DB predates the columns).
-    copy_member_collisions: Optional[list[dict[str, Any]]] = None
-    copy_member_gaps: Optional[list[dict[str, Any]]] = None
+    copy_member_collisions: list[dict[str, Any]] | None = None
+    copy_member_gaps: list[dict[str, Any]] | None = None
 
-    def source_page(self, file_path: str) -> Optional[str]:
+    def source_page(self, file_path: str) -> str | None:
         """#3909: the declared code page the scan decoded `file_path` (repo-relative) with; None for a
         file it read as UTF-8 or by a guess -- a later read then takes the same ladder unaided."""
         return self.source_pages.get(nfc(file_path.replace("\\", "/")))
@@ -1014,7 +1014,7 @@ class GalaxyIR:
         program, so this only reports a binding a real step actually made.
         """
         # ddname -> the JCL bindings for it, per (job path, step).
-        bindings: dict[tuple[str, Optional[str], str], list] = {}
+        bindings: dict[tuple[str, str | None, str], list] = {}
         for f in self.files.values():
             for ds in f.datasets:
                 if ds.is_binding:
@@ -1203,7 +1203,7 @@ class GalaxyIR:
         out.sort(key=lambda t: (t["transid"], t["program"] or "", t["defined_in"]))
         return out
 
-    def csd_resources(self, resource_type: Optional[str] = None) -> list:
+    def csd_resources(self, resource_type: str | None = None) -> list:
         """Every CSD resource definition in the repository (#3356), optionally one type.
 
         Each entry is a dict of the EngineCsdResource fields plus `defined_in` (the
@@ -1360,7 +1360,7 @@ class GalaxyIR:
             if t["program"] and t["program"] not in routes.setdefault(t["transid"], []):
                 routes[t["transid"]].append(t["program"])
 
-        def _programs(transid: Optional[str]) -> list:
+        def _programs(transid: str | None) -> list:
             if not transid:
                 return []
             if "*" not in transid and "+" not in transid:
@@ -1396,7 +1396,7 @@ class GalaxyIR:
         return out
 
     # ---- #3355: the COMMAREA contract ----------------------------------------
-    def _copybook_file(self, member: str, *contexts: EngineFile, library: Optional[str] = None) -> Optional[EngineFile]:
+    def _copybook_file(self, member: str, *contexts: EngineFile, library: str | None = None) -> EngineFile | None:
         """The copybook file a `COPY member` in one of `contexts` resolved to.
 
         Read off each context's resolved COPY edges (copy_deps) by file stem, in
@@ -1678,7 +1678,7 @@ class GalaxyIR:
             if f.language == "cobol" and not f.is_program:
                 copybooks.setdefault(nfc(Path(path).stem.upper()), []).append(path)  # #3815: NFC keys
 
-        def book(member: Optional[str]) -> Optional[str]:
+        def book(member: str | None) -> str | None:
             hits = copybooks.get(nfc((member or "").upper()), [])
             return hits[0] if len(hits) == 1 else None
 
@@ -1781,7 +1781,7 @@ class GalaxyIR:
             }
             todo += [d for d in edges[f] if d not in edges]
 
-        def pick(rows: Optional[list[dict[str, Any]]]) -> list[list[str]]:
+        def pick(rows: list[dict[str, Any]] | None) -> list[list[str]]:
             return [list(t) for t in sorted({(r["importer"], str(r["member"]).upper()) for r in rows or []
                                              if r.get("importer") in edges})]  # fmt: skip
 
@@ -1822,7 +1822,7 @@ class GalaxyIR:
             if ef.language != "cobol":
                 continue
             for it in ef.data_items:
-                forms = [(*f, r) for f, r in zip(_copy_forms(it), _copy_replacings(it)) if f[0]]
+                forms = [(*f, r) for f, r in zip(_copy_forms(it), _copy_replacings(it), strict=True) if f[0]]
                 if not forms:
                     continue
                 keep: list = []
@@ -1887,7 +1887,7 @@ class GalaxyIR:
             program = ef.program_ids[min(bisect.bisect_left(bounds, st.line), len(bounds) - 1)] if bounds else None
             flat: list = []
 
-            def adopt(it: EngineDataItem, parent: Optional[int], st=st, program=program, flat=flat) -> None:
+            def adopt(it: EngineDataItem, parent: int | None, st=st, program=program, flat=flat) -> None:
                 nonlocal next_ordinal
                 it.ordinal, it.parent_ordinal, next_ordinal = next_ordinal, parent, next_ordinal + 1
                 it.section, it.fd_name, it.line, it.program = st.section, st.fd_name, st.line, program
@@ -1906,7 +1906,7 @@ class GalaxyIR:
         ef.replaced_members |= {m for m in done if plain.get(m, 0) <= 0}
 
     def _copy_roots(
-        self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: Optional[str] = None
+        self, member: str, ef: EngineFile, origin: EngineFile, depth: int, library: str | None = None
     ) -> tuple:
         """(copybook file, its record roots) for `COPY member [IN library]`, or (None, [])."""
         cb = self._copybook_file(member, ef, origin, library=library) if depth < _COPY_DEPTH else None
@@ -1936,7 +1936,7 @@ class GalaxyIR:
             EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
             # #4330: section-level members the extractor recorded on `owner` close `item` after the kept ones
             moved = any(o == owner.ordinal for _, o in owner_ef.section_copies)
-            for (member, library), replacing in zip(_copy_forms(owner), _copy_replacings(owner)):
+            for (member, library), replacing in zip(_copy_forms(owner), _copy_replacings(owner), strict=True):
                 if not member:
                     continue
                 cb, roots = self._copy_roots(member, owner_ef, origin, d, library)
@@ -2055,7 +2055,7 @@ class GalaxyIR:
             return []
         return []
 
-    def _pli_fragment(self, ef: Optional[EngineFile], member: str) -> Optional[EngineFile]:
+    def _pli_fragment(self, ef: EngineFile | None, member: str) -> EngineFile | None:
         """#3728: the PL/I declaration fragment `%INCLUDE member` names -- a scanned member whose
         items carry section `%INCLUDE` -- preferring the includer's resolved include edges."""
         if ef is None:
@@ -2069,7 +2069,7 @@ class GalaxyIR:
                 return f
         return None
 
-    def _pli_mapping(self, root: EngineDataItem, ef: Optional[EngineFile] = None) -> tuple[Optional[dict], dict]:
+    def _pli_mapping(self, root: EngineDataItem, ef: EngineFile | None = None) -> tuple[dict | None, dict]:
         """(pli_mapping.layout of PL/I record `root` -- id(item) -> (bit offset, bits) -- or None
         when a width inside is unknown, the children map it used). Cached per record.
 
@@ -2085,7 +2085,7 @@ class GalaxyIR:
             unexpanded: list = []
             owners: dict = {}
 
-            def flat(it: EngineDataItem, owner: Optional[EngineFile], depth: int) -> list:
+            def flat(it: EngineDataItem, owner: EngineFile | None, depth: int) -> list:
                 owners[id(it)] = owner.file_path if owner is not None else None
                 out = [it]
                 for k in it.children:
@@ -2171,7 +2171,7 @@ class GalaxyIR:
         return {"bytes": None if total is None else (total + 7) // 8, "variable": variable, "fields": fields,
                 "unexpanded": list(unexpanded), "copybooks": spliced, "dialect": "pli"}  # fmt: skip
 
-    def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: Optional[list] = None) -> dict:
+    def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: list | None = None) -> dict:
         """One record's storage layout, COPY-expanded, from the DB alone (#3355).
 
         Returns `bytes` (None when any width is unknown), `variable` (an OCCURS
@@ -2221,7 +2221,7 @@ class GalaxyIR:
                 # redefined. An overlay WIDER than its target extends it: the region is the max of
                 # the target and all its overlays (carddemo COADM02Y: 6 option rows of data, a
                 # 9-row OCCURS overlay -- 272 -> 407 bytes; CORPT00C JOB-DATA-2's 1000 x 80 lines).
-                region: Optional[list] = None
+                region: list | None = None
                 for kid_file, kid in kids:
                     if kid_file is None:
                         unexpanded.append(kid)
@@ -2278,7 +2278,7 @@ class GalaxyIR:
             "copybooks": copybooks,
         }
 
-    def _program_at(self, ef: EngineFile, line: Optional[int]) -> Optional[str]:
+    def _program_at(self, ef: EngineFile, line: int | None) -> str | None:
         """#4245: the program of a multi-program source whose PROCEDURE DIVISION holds a statement
         at `line`, or None in a one-program source (or with no line)."""
         bounds = _program_bounds(ef)
@@ -2287,7 +2287,7 @@ class GalaxyIR:
         return ef.program_ids[max(bisect.bisect_right(bounds, line) - 1, 0)]
 
     @staticmethod
-    def _program_scope(ef: EngineFile, program: Optional[str]) -> list:
+    def _program_scope(ef: EngineFile, program: str | None) -> list:
         """#4245: the programs whose storage a name written in `program` can mean, in the order
         COBOL looks: the program itself, then the programs before it in the source, nearest
         first -- the candidates for the containing programs whose GLOBAL items a nested program
@@ -2302,7 +2302,7 @@ class GalaxyIR:
         return [ef.program_ids[i] for i in range(at, -1, -1)]
 
     def _find_item(
-        self, ef: EngineFile, name: str, qualifier: Optional[str], program: Optional[str] = None, exact: bool = False
+        self, ef: EngineFile, name: str, qualifier: str | None, program: str | None = None, exact: bool = False
     ) -> list:
         """Every (file, item, extension) named `name` visible to program `ef`: its
         own DATA DIVISION first, then the copybooks it COPYs (an 01-level COPY
@@ -2350,7 +2350,7 @@ class GalaxyIR:
                 found.append((owner, it, self._copy_extension(ef, cb) if last == [it] else None))
         return found
 
-    def _dfhcommarea(self, callee: EngineFile) -> Optional[EngineDataItem]:
+    def _dfhcommarea(self, callee: EngineFile) -> EngineDataItem | None:
         """The callee's LINKAGE SECTION `01 DFHCOMMAREA`, or None.
 
         #3720: a PL/I program's is its external procedure's first parameter -- the structure
@@ -2382,7 +2382,7 @@ class GalaxyIR:
             or ef.file_path in linked
         )
 
-    def _pli_parameter_area(self, ef: EngineFile) -> Optional[EngineDataItem]:
+    def _pli_parameter_area(self, ef: EngineFile) -> EngineDataItem | None:
         entry = next((e for e in ef.entry_points if e.kind == "PROCEDURE"), None)
         if entry is None or not entry.parameters:
             return None
@@ -2414,7 +2414,7 @@ class GalaxyIR:
             f"is declared in the program or its %INCLUDE members{where}; no resolved caller passes a COMMAREA"
         )
 
-    def _transaction_program(self, transid: Optional[str]) -> Optional[str]:
+    def _transaction_program(self, transid: str | None) -> str | None:
         """The one program file a transaction id routes to, via the CSD map."""
         if not transid:
             return None
@@ -2525,7 +2525,7 @@ class GalaxyIR:
                     entry["mismatches"] += _layout_mismatches(caller_layout, callee_layout)
         return out
 
-    def _length_expr(self, ef: EngineFile, expr: str) -> Optional[int]:
+    def _length_expr(self, ef: EngineFile, expr: str) -> int | None:
         """The value of a reference-modification operand: integers, `LENGTH OF item` (its
         byte width, COPY-expanded), `+` and `-`. None for anything else -- `EIBCALEN`, a data
         name -- whose value is only known at run time."""
@@ -2556,7 +2556,7 @@ class GalaxyIR:
             expect_term = False
         return None if expect_term else total
 
-    def _commarea_unpack(self, ef: EngineFile) -> Optional[dict]:
+    def _commarea_unpack(self, ef: EngineFile) -> dict | None:
         """How program `ef` reads its own DFHCOMMAREA (#3655): every `MOVE DFHCOMMAREA
         [(start:length)] TO record`, as `segments` (`offset`, `bytes`, `record`, `file`,
         `layout`, `line`, `refmod`) in offset order. A length of `EIBCALEN` (whatever the
@@ -2612,7 +2612,7 @@ class GalaxyIR:
             pos += sg["bytes"]
         return {"segments": ordered, "tiled": tiled, "opaque": opaque, "bytes": pos if tiled else None}
 
-    def _declared_over_callers(self, ef: EngineFile, options: list) -> Optional[dict]:
+    def _declared_over_callers(self, ef: EngineFile, options: list) -> dict | None:
         """#3688: the program's own DFHCOMMAREA as its COMMAREA when it is concrete and the
         best caller record is of unknown width or disagrees with it; else None (the caller
         record stands). `options` is program_interfaces' sorted caller-record list."""
@@ -2722,7 +2722,7 @@ class GalaxyIR:
                         }
                     )
 
-        def layout_of(ef: EngineFile, operand: Optional[str]) -> Optional[tuple]:
+        def layout_of(ef: EngineFile, operand: str | None) -> tuple | None:
             name, qualifier = _operand_name(operand)
             found = self._find_item(ef, name, qualifier) if name else []
             if not found:
@@ -3142,7 +3142,7 @@ class GalaxyIR:
                     out.setdefault(pid.upper(), f.file_path)
         return out
 
-    def _nearest_program(self, name: str, from_file: str) -> Optional[str]:
+    def _nearest_program(self, name: str, from_file: str) -> str | None:
         """The file declaring PROGRAM-ID `name` as seen from `from_file`: the only
         declarer, else the one sharing the longest directory prefix with `from_file`
         (zOE's COBOL/SAM1 -> COBOL/SAM2, not multiroot/sam/SAM2); None when none
@@ -3158,7 +3158,7 @@ class GalaxyIR:
 
         def shared(path: str) -> int:
             n = 0
-            for a, b in zip(home, Path(path).parent.parts):
+            for a, b in zip(home, Path(path).parent.parts, strict=False):  # reason: path parts may differ in length
                 if a != b:
                     break
                 n += 1
@@ -3168,7 +3168,7 @@ class GalaxyIR:
         nearest = [h for h in hits if shared(h) == best]
         return nearest[0] if len(nearest) == 1 else None
 
-    def _program_file(self, name: Optional[str]) -> Optional[str]:
+    def _program_file(self, name: str | None) -> str | None:
         """The file declaring PROGRAM-ID `name`, when exactly one does."""
         if not name:
             return None
@@ -3179,7 +3179,7 @@ class GalaxyIR:
         ]
         return hits[0] if len(hits) == 1 else None
 
-    def _transaction_file(self, transid: Optional[str]) -> Optional[str]:
+    def _transaction_file(self, transid: str | None) -> str | None:
         """The program file a transaction id routes to (CSD map), when exactly one."""
         if not transid:
             return None
@@ -3209,7 +3209,7 @@ class GalaxyIR:
         resolved name or a MOVE candidate (an `ambiguous` producer that PUTs one
         of CIPA..CIPI in a loop reaches every consumer of one of them).
         """
-        handoffs: set[tuple[str, str, Optional[str]]] = set()
+        handoffs: set[tuple[str, str, str | None]] = set()
         for f in self.files.values():
             for op in f.cics_resources:
                 if op.kind != "CHANNEL":
@@ -3234,7 +3234,7 @@ class GalaxyIR:
         rank = {"channel": 0, "handoff": 1, "unverified": 2}
         best: dict[tuple[str, str, str], dict] = {}
 
-        def handed(src: str, dst: str, chan: Optional[str]) -> bool:
+        def handed(src: str, dst: str, chan: str | None) -> bool:
             return any(a == src and b == dst and (chan is None or c in (None, chan)) for a, b, c in handoffs)
 
         for p_file, p_names, p_chan, p_explicit in puts:
@@ -3345,7 +3345,7 @@ class GalaxyIR:
                 )
         return out
 
-    def _jcl_member(self, name: Optional[str], proc: bool) -> tuple[Optional[str], list]:
+    def _jcl_member(self, name: str | None, proc: bool) -> tuple[str | None, list]:
         """(the one JCL file named `name`, every candidate). A PROC prefers a
         procedure member (`.prc`/`.proc`, or a `proc` directory); a job the rest."""
         if not name:
@@ -3499,7 +3499,7 @@ class GalaxyIR:
         ]
 
     @staticmethod
-    def _owning_unit(ef: EngineFile, line: int) -> Optional[str]:
+    def _owning_unit(ef: EngineFile, line: int) -> str | None:
         """The paragraph / section a line belongs to: the last unit starting at or before it."""
         owner = None
         for u in sorted(ef.units, key=lambda x: x.start_line):
@@ -3584,7 +3584,7 @@ class GalaxyIR:
         (the WRITEQ), `queue`, `trigger_level`, `transid`, `program` (the CSD
         transaction's program) and `resolves_to` (its file, or None).
         """
-        triggered: dict[str, tuple[str, Optional[int]]] = {}
+        triggered: dict[str, tuple[str, int | None]] = {}
         for f in self.files.values():
             for r in f.csd_resources:
                 if r.resource_type != "TDQUEUE" or not r.transid:
@@ -3617,8 +3617,8 @@ class GalaxyIR:
         return out
 
     def _key_position(
-        self, ef: EngineFile, fd_name: str, key: Optional[str], copies: Optional[list] = None
-    ) -> tuple[Optional[int], Optional[int]]:
+        self, ef: EngineFile, fd_name: str, key: str | None, copies: list | None = None
+    ) -> tuple[int | None, int | None]:
         """(byte offset, length) of data-name `key` inside the FD `fd_name`'s record:
         a 01 of the FD in the program, or a record of a COPY member inside the FD
         entry (`FD X. COPY Y.`). Offsets are from the record's start."""
@@ -3794,7 +3794,7 @@ class GalaxyIR:
         def first(name: str, kind: str):
             return next(((d, w) for d, w in defines.get(name.upper(), []) if d.kind == kind), (None, None))
 
-        def base_of(dsn: str) -> tuple[str, Optional[str]]:
+        def base_of(dsn: str) -> tuple[str, str | None]:
             """(base cluster, the path it is opened through) for a dataset name."""
             dsn = dsn.upper()
             path, _ = first(dsn, "PATH")
@@ -3808,7 +3808,7 @@ class GalaxyIR:
 
         stores: dict[str, dict] = {}
 
-        def store(key: str, dataset: Optional[str], name: Optional[str] = None) -> dict:
+        def store(key: str, dataset: str | None, name: str | None = None) -> dict:
             if key not in stores:
                 cluster, where = first(dataset, "CLUSTER") if dataset else (None, None)
                 stores[key] = {
@@ -3868,7 +3868,7 @@ class GalaxyIR:
                             }
                         )
 
-        def record_of(ef: EngineFile, name: Optional[str], op: Optional[EngineCicsResource] = None) -> Optional[dict]:
+        def record_of(ef: EngineFile, name: str | None, op: EngineCicsResource | None = None) -> dict | None:
             item, _q = _operand_name(name)
             found = self._find_item(ef, item, _q) if item else []
             if not found:
@@ -3905,7 +3905,7 @@ class GalaxyIR:
                     u["ridflds"].setdefault(m.group(1).strip().upper(), rec)
             for fname, u in sorted(per.items()):
                 defs = [(r, w) for r, w in csd_files.get(fname, []) if r.dsname]
-                targets: list[tuple[Optional[str], Optional[str]]] = sorted({base_of(r.dsname) for r, _ in defs})
+                targets: list[tuple[str | None, str | None]] = sorted({base_of(r.dsname) for r, _ in defs})
                 if not targets:
                     targets = [(None, None)]
                 ridflds = []
@@ -4035,7 +4035,7 @@ class GalaxyIR:
         return [stores[k] for k in sorted(stores) if k not in to_drop]
 
     @staticmethod
-    def _length_value(ef: EngineFile, attributes: Optional[str]) -> Optional[int]:
+    def _length_value(ef: EngineFile, attributes: str | None) -> int | None:
         """The byte count of an EXEC CICS command's LENGTH(...): an integer literal, or a data-name
         whose VALUE is one (GenApp's `CUSTOMER-RECORD-SIZE PIC S9(4) BINARY VALUE 0225`) and that the
         program does not change -- no data move targets it and no INTO / SET command returns a length
@@ -4067,7 +4067,7 @@ class GalaxyIR:
         return int(value.lstrip("+"))
 
     def _record_window(self, ef: EngineFile, owner: EngineFile, item: EngineDataItem, name: str,
-                       qualifier: Optional[str], length: int) -> Optional[dict]:  # fmt: skip
+                       qualifier: str | None, length: int) -> dict | None:  # fmt: skip
         """The `length` bytes of storage that start at data item `item`, as a record layout (offsets from
         the item), or None when they cannot be laid out exactly.
 
@@ -4123,7 +4123,7 @@ class GalaxyIR:
             return out
         return None
 
-    def _overlay_at(self, ef: EngineFile, root: EngineDataItem, at: int, end: int) -> Optional[tuple]:
+    def _overlay_at(self, ef: EngineFile, root: EngineDataItem, at: int, end: int) -> tuple | None:
         """(lo, hi, redefining item's name, its fields at lo) for the innermost item of `root` that
         holds offset `at` and is REDEFINEd by an item whose own fields end exactly at `end`; None when none."""
         junctions: list = []  # (offset, bytes, [(file, redefining item)])
@@ -4165,7 +4165,7 @@ class GalaxyIR:
                     return lo, lo + size, ritem.name, shifted
         return None
 
-    def _position_in(self, ef: EngineFile, operand: str, layout: Optional[dict]) -> tuple[Optional[int], Optional[int]]:
+    def _position_in(self, ef: EngineFile, operand: str, layout: dict | None) -> tuple[int | None, int | None]:
         """(offset, length) of data item `operand` inside a record layout: an elementary
         field by name, or a group whose own elementary fields appear, in order, as one
         run of the record's (CBSA's RIDFLD CUSTOMER-KEY = SORTCODE + NUMBER). None
@@ -4193,7 +4193,7 @@ class GalaxyIR:
                 return fields[i]["offset"], sub["bytes"]
         return None, None
 
-    def _proc_steps(self, ef: EngineFile, proc: str) -> tuple[Optional[str], list]:
+    def _proc_steps(self, ef: EngineFile, proc: str) -> tuple[str | None, list]:
         """(defining file, STEP rows) of procedure `proc`: in-stream in `ef`, else the
         cataloged member of that name (a procedure member preferred)."""
         own = [r for r in ef.job_flow if r.kind == "STEP" and (r.in_proc or "").upper() == proc.upper()]
@@ -4258,7 +4258,9 @@ class GalaxyIR:
         `via` "TSO commands". [] for a step that runs no runner, or whose in-stream SYSTSIN holds
         commands only."""
         out: list = []
-        for prog, via in zip((step.runs or "").split(","), (step.runs_via or "").split(",")):
+        for prog, via in zip(
+            (step.runs or "").split(","), (step.runs_via or "").split(","), strict=False
+        ):  # reason: malformed JCL commands
             if prog:
                 out.append({"program": prog, "via": via, "source": "parm" if via == "DFSRRC00" else "systsin"})
         if not step.runs and step.runs_via == "TSO commands":
@@ -4278,7 +4280,7 @@ class GalaxyIR:
             e["resolves_to"] = self._nearest_program(e["program"], from_file) if load_module else None
         return out
 
-    def _systsin_member_text(self, member: str, from_file: str = "") -> Optional[str]:
+    def _systsin_member_text(self, member: str, from_file: str = "") -> str | None:
         """The text of the one file under `source_root` whose name is `member` (any extension),
         else None: no root, no such file, or two of them."""
         if self.source_root is None:
@@ -4307,7 +4309,7 @@ class GalaxyIR:
                 if ds.dsn_resolved:
                     resolved[(f.file_path, ds.line)] = ds.dsn_resolved.upper()
 
-        def row(f: EngineFile, job: str, step: str, proc_step: Optional[str], ordinal: int, r: EngineJobFlow) -> dict:
+        def row(f: EngineFile, job: str, step: str, proc_step: str | None, ordinal: int, r: EngineJobFlow) -> dict:
             dsn = resolved.get((f.file_path, r.line), r.dsn)
             gen = r.generation
             if dsn:
@@ -4319,7 +4321,7 @@ class GalaxyIR:
                     "line": r.line,
                     "source": f.file_path}  # fmt: skip
 
-        def by_step(rows: list, in_proc: Optional[str]) -> dict:
+        def by_step(rows: list, in_proc: str | None) -> dict:
             """A DD belongs to the STEP row it follows (DD rows carry no ordinal)."""
             out_: dict[int, list] = {}
             current = None
@@ -4406,8 +4408,8 @@ class GalaxyIR:
         return out
 
     def _item_bytes(
-        self, ef: EngineFile, operand: str, program: Optional[str] = None
-    ) -> tuple[Optional[int], bool, Optional[str]]:
+        self, ef: EngineFile, operand: str, program: str | None = None
+    ) -> tuple[int | None, bool, str | None]:
         """(bytes, variable, name) of one USING operand as seen from `ef`: a data
         item (COPY-expanded record_layout), a literal's own length, or (None, False,
         None) for ADDRESS OF / LENGTH OF / OMITTED and names not found. #4245:
@@ -4504,7 +4506,7 @@ class GalaxyIR:
                 )
         return out
 
-    def _value_text(self, ef: EngineFile, name: Optional[str], program: Optional[str] = None) -> Optional[str]:
+    def _value_text(self, ef: EngineFile, name: str | None, program: str | None = None) -> str | None:
         """The text data-name `name` holds at load: its VALUE literal, or for a group
         its elementary children's VALUEs in order, each padded / cut to its width
         (`?` for a child with no VALUE). None when the item or a width is unknown.
@@ -4516,7 +4518,7 @@ class GalaxyIR:
             return None
         _owner, item, _ext = found[0]
 
-        def lit(v: Optional[str], width: int) -> str:
+        def lit(v: str | None, width: int) -> str:
             if v is None:
                 return "?" * width
             u = v.strip()
@@ -4550,7 +4552,7 @@ class GalaxyIR:
         return "".join(parts) if walk(item) else ("".join(parts) or None)
 
     # ---- #3493: data-driven LINK / XCTL / CALL targets --------------------------
-    def _table_values(self, ef: EngineFile, name: str, program: Optional[str] = None) -> list:
+    def _table_values(self, ef: EngineFile, name: str, program: str | None = None) -> list:
         """The per-occurrence VALUEs of `name` when it is an element of an OCCURS
         table that REDEFINES a VALUE-filled group (carddemo COMEN02Y's
         CDEMO-MENU-OPT-PGMNAME over CDEMO-MENU-OPTIONS-DATA), else []. #4245:
@@ -4572,7 +4574,7 @@ class GalaxyIR:
         if not text:
             return []
 
-        def width(it: EngineDataItem) -> Optional[int]:
+        def width(it: EngineDataItem) -> int | None:
             if not it.children:
                 return _elementary_bytes(it)
             total = 0
@@ -4585,7 +4587,7 @@ class GalaxyIR:
                 total += w * (c.occurs_max or 1)
             return total
 
-        def offset_in(group: EngineDataItem, target: EngineDataItem) -> Optional[int]:
+        def offset_in(group: EngineDataItem, target: EngineDataItem) -> int | None:
             off = 0
             for c in group.children:
                 if c.level in (66, 88) or c.redefines:
@@ -4654,7 +4656,7 @@ class GalaxyIR:
         defs = self._remote_definitions()
         out = []
 
-        def add(file: str, line: int, verb: str, program: Optional[str], sysid: Optional[str], kind: str) -> None:
+        def add(file: str, line: int, verb: str, program: str | None, sysid: str | None, kind: str) -> None:
             remote = defs.get((kind, (program or "").upper()), [])
             if sysid or remote:
                 out.append(
@@ -4920,10 +4922,10 @@ class GalaxyIR:
             if ext:
                 kids = kids + list(ext)
             if kids:
-                size: Optional[int] = 0
+                size: int | None = 0
                 outer_align, align[0] = align[0], 1  # #4266: the largest boundary under `it`
                 at: dict = {}
-                region: Optional[list] = None  # #4280: [target name, shared width] -- as record_layout
+                region: list | None = None  # #4280: [target name, shared width] -- as record_layout
                 for kid_file, kid in kids:
                     if kid_file is None:
                         size = None
@@ -5055,7 +5057,7 @@ class GalaxyIR:
                     paths[id(it)] = (root.name,)
                     placed.setdefault(id(it), []).append((it, span, (root.name,)))
 
-    def _name_at(self, file_path: str, span: dict) -> Optional[str]:
+    def _name_at(self, file_path: str, span: dict) -> str | None:
         """The most specific item of program `file_path` at `span`: the deepest one
         with exactly its offset and width, else the smallest one containing it."""
         self._storage_spans(self.files[file_path])
@@ -5069,9 +5071,7 @@ class GalaxyIR:
         inside = [e for e in entries if e[1] is not None and e[0] <= span["offset"] and end <= e[0] + e[1]]
         return min(inside, key=lambda e: (e[1], -e[2]))[3] if inside else None
 
-    def _operand_span(
-        self, ef: EngineFile, operand: Optional[str], program: Optional[str] = None
-    ) -> tuple[Optional[dict], str]:
+    def _operand_span(self, ef: EngineFile, operand: str | None, program: str | None = None) -> tuple[dict | None, str]:
         """(span, status) of one data-name operand as seen from `ef`: span is
         {record, record_file, program, offset, bytes (the whole table for an OCCURS item),
         occurrence_bytes, item, item_class (_item_class, or group)}, status resolved | unresolved | ambiguous (several
@@ -5089,10 +5089,10 @@ class GalaxyIR:
         parts = operand.upper().split(" OF ")
         spans = self._storage_spans(ef)
 
-        def resolve(program: Optional[str]) -> list:
+        def resolve(program: str | None) -> list:
             """(item, span) candidates of the operand in `program`'s own storage (any, without one)."""
 
-            def visible(sp: Optional[tuple]) -> bool:
+            def visible(sp: tuple | None) -> bool:
                 return sp is None or not program or sp[0][2] in (None, program)
 
             if len(parts) > 1:
@@ -5260,7 +5260,7 @@ class GalaxyIR:
         return out
 
     def field_lineage(
-        self, file_path: str, item: str, direction: str = "forward", max_hops: int = 400, program: Optional[str] = None
+        self, file_path: str, item: str, direction: str = "forward", max_hops: int = 400, program: str | None = None
     ) -> list:
         """Where the data in `item` of program `file_path` goes (`forward`) or comes
         from (`backward`), following storage, not names (#3452).
@@ -5505,7 +5505,7 @@ class GalaxyIR:
             )
         return out
 
-    def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
+    def lookup(self, path: Path, target_root: Path) -> EngineFile | None:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
         except ValueError:
@@ -5525,7 +5525,7 @@ _CONTRACT_VERBS = ("LINK", "XCTL", "RETURN TRANSID")
 _COPY_DEPTH = 8  # nested COPY expansion bound (a copybook that COPYs itself ends here)
 
 
-def _pic_positions(pic: str) -> Optional[list]:
+def _pic_positions(pic: str) -> list | None:
     """The picture string expanded to one symbol per position (`X(3)9` -> X X X 9)."""
     out: list = []
     i, text = 0, pic.upper()
@@ -5628,7 +5628,7 @@ _SYSTEM_NAME = re.compile(
 )
 
 
-def _csd_operand(attributes: str, key: str) -> Optional[str]:
+def _csd_operand(attributes: str, key: str) -> str | None:
     """`KEY(value)` out of a CSD definition's kept attribute text (case-insensitive)."""
     m = re.search(rf"(?<![A-Z0-9]){key}\(\s*([^)\s]+)\s*\)", attributes, re.I)
     return m.group(1).upper() if m else None
@@ -5804,9 +5804,12 @@ def _layout_mismatches(caller: dict, callee: dict) -> list:
     if None not in (caller["bytes"], callee["bytes"]) and caller["bytes"] != callee["bytes"]:
         out.append({"kind": "length", "caller": caller["bytes"], "callee": callee["bytes"]})
     shape_a = [(x["offset"], x["bytes"], x["class"]) for x in caller["fields"]]
-    shape_b = [(x["offset"], x["bytes"], x["class"]) for x in callee["fields"]]
+    shape_b = [(x["offset"], x["bytes"], x["class"]) for x in callee["fields"]]  # reason: comparing struct shapes
     if shape_a and shape_b and shape_a != shape_b:
-        at = next((i for i, (a, b) in enumerate(zip(shape_a, shape_b)) if a != b), min(len(shape_a), len(shape_b)))
+        at = next(
+            (i for i, (a, b) in enumerate(zip(shape_a, shape_b, strict=False)) if a != b),
+            min(len(shape_a), len(shape_b)),
+        )  # reason: length may differ
         out.append(
             {
                 "kind": "shape",
@@ -5833,7 +5836,7 @@ def _coarser_view(coarse: dict, fine: dict) -> bool:
     return all(c in fine_shape or (c[2] == "X" and c[0] in starts and c[0] + c[1] in edges) for c in coarse_shape)
 
 
-def _operand_name(operand: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+def _operand_name(operand: str | None) -> tuple[str | None, str | None]:
     """`COMMAREA(x)`'s data-name and its qualifier: `A OF B(1)` -> ('A', 'B')."""
     if not operand:
         return None, None
@@ -5845,7 +5848,7 @@ def _operand_name(operand: Optional[str]) -> tuple[Optional[str], Optional[str]]
     return name, qual
 
 
-def _declared_length(expr: Optional[str], record: Optional[str]) -> tuple[Optional[int], Optional[str]]:
+def _declared_length(expr: str | None, record: str | None) -> tuple[int | None, str | None]:
     """The byte count a LENGTH/DATALENGTH operand states, and how it states it.
 
     `+100` / `100` -> (100, 'literal'); `LENGTH OF <the passed record>` ->
@@ -5906,7 +5909,7 @@ def write_graph_metrics(db_path: Path, commit_hash: str, out: Path) -> dict[str,
     return metrics
 
 
-def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
+def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
     """Loads the latest snapshot of one repo from a master DB, opened read-only."""
     db_path = Path(db_path)
     if not db_path.is_file():
@@ -5945,7 +5948,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 file_path=(rec[1] or "").replace("\\", "/"),
                 language=rec[2] or "",
                 total_loc=int(rec[3]),
-                signals={c: int(v) for c, v in zip(SIGNAL_COLUMNS, rec[4:])},
+                signals={c: int(v) for c, v in zip(SIGNAL_COLUMNS, rec[4:], strict=False)},  # reason: length may differ
             )
             files[ef.file_path] = ef
             by_id[rec[0]] = ef
@@ -6368,7 +6371,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 (repo_name, commit_hash),
             ):
                 if row[0] in by_id:
-                    fields = dict(zip(_WEB_FIELDS, row[1:-1]))
+                    fields = dict(zip(_WEB_FIELDS, row[1:-1], strict=False))  # reason: length may differ
                     by_id[row[0]].web_services.append(EngineWebService(**fields, line=int(row[-1] or 0)))
         # #4457: section-level COPY ... REPLACING statements. A pre-#4457 database has none.
         if _has_table(cur, "copy_statement_data"):
@@ -6672,7 +6675,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[14] or 0),
                     )
                 )
-        copy_reports: dict[str, Optional[list[dict[str, Any]]]] = {}
+        copy_reports: dict[str, list[dict[str, Any]] | None] = {}
         for key in ("copy_member_collisions", "copy_member_gaps"):  # #4421
             raw = None
             if _has_column(cur, "repo_data", key):
@@ -6708,7 +6711,7 @@ def _copy_replacings(item: EngineDataItem) -> list:
     return [found[i] if i < len(found) else None for i in range(len(members))]
 
 
-def _replace_text(text: Optional[str], pairs: list) -> Optional[str]:
+def _replace_text(text: str | None, pairs: list) -> str | None:
     """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
     tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
     other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
@@ -6751,7 +6754,7 @@ def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:
     )
 
 
-def _copy_forms(item: EngineDataItem) -> list[tuple[str, Optional[str]]]:
+def _copy_forms(item: EngineDataItem) -> list[tuple[str, str | None]]:
     """#4265: (member, library-name) per COPY recorded on `item` -- "" for an unqualified COPY. A library
     only narrows anything where the scan declared copy libraries (EngineFile.copy_dep_libraries)."""
     members = (item.copy_members or "").split(",")
@@ -6774,7 +6777,7 @@ def _program_bounds(ef: EngineFile) -> list[int]:
     return procs if len(procs) == len(ef.program_ids) else []
 
 
-def _program_named(ef: EngineFile, name: Optional[str]) -> Optional[str]:
+def _program_named(ef: EngineFile, name: str | None) -> str | None:
     """#4245: `name` as one of the programs of multi-program source `ef`, else None."""
     up = (name or "").strip("'\"").upper()
     return up if _program_bounds(ef) and up in {p.upper() for p in ef.program_ids} else None

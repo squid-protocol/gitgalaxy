@@ -17,7 +17,6 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Union
 
 import pytest
 
@@ -157,7 +156,7 @@ def AE(pic):
     return Spec("AE", pic=pic)
 
 
-Init = Union[None, str, bytes]  # str: a COBOL VALUE literal; bytes: the exact image (REDEFINES of a PIC X)
+Init = str | bytes | None  # str: a COBOL VALUE literal; bytes: the exact image (REDEFINES of a PIC X)
 
 
 def txt(s: str) -> bytes:
@@ -173,7 +172,7 @@ class Case:
     out: tuple = ("RCV",)
     res: bool = False
     disp: tuple = ()
-    xfail: Optional[str] = None
+    xfail: str | None = None
     note: str = ""
     names: list = field(default_factory=list)
 

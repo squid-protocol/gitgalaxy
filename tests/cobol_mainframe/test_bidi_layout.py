@@ -128,7 +128,9 @@ def _run(tmp_path, layout, cases):
     run = subprocess.run(["java", "-Dstdout.encoding=UTF-8", "-cp", str(out), "t.Probe"],
                          capture_output=True, encoding="utf-8", check=True)  # fmt: skip
     got = run.stdout.splitlines()
-    assert [(expr, g) for (expr, _), g in zip(cases, got)] == [(expr, want) for expr, want in cases]
+    assert [(expr, g) for (expr, _), g in zip(cases, got, strict=False)] == [
+        (expr, want) for expr, want in cases
+    ]  # reason: length may differ
 
 
 @pytest.mark.skipif(shutil.which("javac") is None or shutil.which("java") is None, reason="no JDK")

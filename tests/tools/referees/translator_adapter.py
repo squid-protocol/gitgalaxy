@@ -40,7 +40,7 @@ import sys
 import time
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
@@ -97,7 +97,7 @@ def nearest_first(prog: Path, dirs: list[Path]) -> list[Path]:
 
     def shared(d: Path) -> int:
         n = 0
-        for a, b in zip(prog.parent.parts, d.parts):
+        for a, b in zip(prog.parent.parts, d.parts, strict=False):  # reason: length may differ
             if a != b:
                 break
             n += 1
@@ -137,7 +137,7 @@ def canon_number(text: str) -> str:
     return str(int(v)) if v == v.to_integral() else str(v)
 
 
-def canon_text_operand(src: Optional[str]) -> str:
+def canon_text_operand(src: str | None) -> str:
     """A MOVE source as written (`'N'`, `ZERO`, `+1`, `WS-X(1:2)`, `LENGTH OF X`) in the canonical form."""
     s = (src or "").strip()
     u = s.upper()
@@ -201,7 +201,7 @@ def parse_layout(lines: list[Any]) -> list[Any]:
     return L.parse(lines)
 
 
-def value_text(v: Any) -> Optional[str]:
+def value_text(v: Any) -> str | None:
     """A translator VALUE (layout._value) as facts.norm_value spells the key's first literal."""
     if not isinstance(v, tuple):
         return None
@@ -244,7 +244,7 @@ def elementary(rec: Any) -> list[Any]:
     return out
 
 
-def layout_units(rec: Any, base: int = 0, root_name: Optional[str] = None) -> set[str]:
+def layout_units(rec: Any, base: int = 0, root_name: str | None = None) -> set[str]:
     """`ROOT/NAME @offset+bytes` per elementary PIC item (FILLER aside), as the key's `layouts`."""
     name = root_name or rec.name
     return {f"{name}/{it.name} @{it.offset - base}+{it.size * it.occurs}"
@@ -255,7 +255,7 @@ def record_bytes(rec: Any) -> str:
     return f"{rec.name} (record) +{rec.size * rec.occurs}"
 
 
-def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[Optional[set[str]], Optional[str]]:
+def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[set[str] | None, str | None]:
     """A keyed copybook's layout units, the member parsed on its own inside a synthetic program (wrapped in an
     01 when its first entry is not one, each top-level entry then laid out from its own offset)."""
     _, _, L, S, _ = det()
@@ -287,7 +287,7 @@ def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[
 # One program
 # ------------------------------------------------------------------------------
 def program_facts(
-    root: Path, prog: Path, dirs: list[Path], key_prog: Optional[dict[str, Any]] = None, engine: Any = None
+    root: Path, prog: Path, dirs: list[Path], key_prog: dict[str, Any] | None = None, engine: Any = None
 ) -> dict[str, Any]:
     """{status, error, seconds, facts: {channel: set}, records: [(root Item, file, line)]} for one program.
     `engine` (det.source.EngineCopies, #4468): the engine's COPY resolution, which the translator takes as it does
@@ -396,7 +396,7 @@ def program_facts(
             own = [ln for ln in lines if ln.file == progfile]
             pd_line = next((ln.line for ln in own if re.match(r"\s*PROCEDURE\s+DIVISION\b", ln.text, re.I)), None)
 
-            def header_file(p: Any) -> Optional[str]:
+            def header_file(p: Any) -> str | None:
                 # the header's period may stand on the next line (`2000-SEND-MAP` / `.`, CardDemo COTRTLIC)
                 pat = re.compile(rf"^\s*{re.escape(p.name)}(\s+SECTION)?\s*(\.|$)", re.I)
                 hit = next((ln.file for ln in lines if ln.line == p.line and pat.match(ln.text)), None)
@@ -497,7 +497,7 @@ _WEB_VERBS = frozenset({"OPEN", "CLOSE", "CONVERSE", "SEND", "RECEIVE", "READ", 
 _TASK_VERBS = frozenset({"START", "RETRIEVE", "DELAY", "ENQ", "DEQ", "CANCEL", "RUN", "FETCH"})
 
 
-def census_kind(words: list[str], opts: dict[str, Optional[str]]) -> Optional[str]:
+def census_kind(words: list[str], opts: dict[str, str | None]) -> str | None:
     """The resource kind of an EXEC CICS command when it is one the keys census and the engine records
     (file control on a FILE / DATASET, BMS SEND / RECEIVE MAP, TS / TD queues, channels' containers, LINK /
     XCTL, task control, WEB); None for the rest (ASKTIME, RETURN, SEND TEXT, RECEIVE INTO, GET COUNTER ...),
@@ -528,7 +528,7 @@ def translator_version() -> str:
 
 
 def translator_doc(root: Path, corpus: str, key: dict[str, Any], cache: Path,
-                   case_dirs: Optional[dict[str, list[Path]]] = None, ir: Any = None) -> tuple[dict[str, Any], dict[str, Any]]:  # fmt: skip
+                   case_dirs: dict[str, list[Path]] | None = None, ir: Any = None) -> tuple[dict[str, Any], dict[str, Any]]:  # fmt: skip
     """(the referee-facts/1 document over the key's programs and keyed copybooks, the per-program context
     (records) the cross-check's offsets channel needs). `case_dirs`: the copy directories a det-port case
     names for a program, used instead of the corpus-wide ones. `ir` (GalaxyIR of the scan, #4468): the translator

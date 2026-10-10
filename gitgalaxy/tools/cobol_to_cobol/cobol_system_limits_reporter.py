@@ -19,7 +19,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 
@@ -52,7 +52,7 @@ SYSTEM_LIMIT_RULES: dict[str, dict[str, Any]] = {
 }
 
 
-def scan_system_limits(filepath: Path, declared: Optional[str] = None) -> list:
+def scan_system_limits(filepath: Path, declared: str | None = None) -> list:
     """
     Scans a COBOL file for structural anomalies that break deterministic mapping.
     Returns a list of formatted warning strings to be consumed by the Agent Task Forge.

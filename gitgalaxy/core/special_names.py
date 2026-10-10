@@ -28,7 +28,7 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Optional
+from typing import Any
 
 _SPECIAL_NAMES = re.compile(r"(?<![A-Z0-9-])SPECIAL-NAMES[ \t]{0,20}\.", re.I)
 _WS = r"[ \t\n]{1,200}"
@@ -47,7 +47,7 @@ _DECIMAL_POINT = re.compile(r"(?<![A-Z0-9-])DECIMAL-POINT(?:" + _WS + r"IS)?" + 
 _PARAGRAPH_LIMIT = 20000
 
 
-def _unquote(literal: str) -> Optional[str]:
+def _unquote(literal: str) -> str | None:
     """The characters a COBOL literal stands for: `'EUR '` -> `EUR `, `X'5B'` -> `$`."""
     if literal[:1] in ("X", "x"):
         hexdigits = literal[2:-1]

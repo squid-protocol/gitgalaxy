@@ -20,7 +20,9 @@ def _ledger(tmp_path, entries):
         )
     out = {}
     for lang, groups in gl.shape_groups(results, entries[0][1]).items():
-        for g, (_l, st, cause, count, status, credit) in zip(groups, [e for e in entries if e[0] == lang]):
+        for g, (_l, st, cause, count, status, credit) in zip(
+            groups, [e for e in entries if e[0] == lang], strict=False
+        ):  # reason: length may differ
             out[g.shape_key] = {
                 "language": lang,
                 "symbol_type": st,

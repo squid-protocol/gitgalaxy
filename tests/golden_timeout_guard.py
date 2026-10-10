@@ -12,7 +12,8 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Any, Mapping
+from typing import Any
+from collections.abc import Mapping
 
 EXCLUDED_QUEUE_KEY = "5. Unparsable Artifacts (Excluded Artifacts Queue)"
 _TIMEOUT_REASON = re.compile(r"time[\s-]*out|timed[\s-]*out", re.IGNORECASE)

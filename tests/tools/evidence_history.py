@@ -23,7 +23,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence as ev  # noqa: E402
@@ -106,7 +106,7 @@ def components_from_history(
     return found
 
 
-def ledger_components(case: str, entry: dict[str, Any]) -> Optional[dict[str, dict[str, str]]]:
+def ledger_components(case: str, entry: dict[str, Any]) -> dict[str, dict[str, str]] | None:
     """A det-coverage ledger entry's component fingerprints, from the commit it was measured at: only when that commit's
     files reproduce the entry's stored harness and oracle fingerprints (else None: left for the next sweep)."""
     commit = entry.get("measured_at")
@@ -197,7 +197,7 @@ def table(rep: dict[str, Any]) -> str:
     return "\n".join(out)
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("replay")

@@ -7,7 +7,7 @@
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 
 class SarifRecorder:
@@ -16,7 +16,7 @@ class SarifRecorder:
     Interchange Format (SARIF) 2.1.0 for native enterprise CI/CD integration.
     """
 
-    def __init__(self, version: str = "2.4.0", parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, version: str = "2.4.0", parent_logger: logging.Logger | None = None):
         self.logger = parent_logger.getChild("sarif_recorder") if parent_logger else logging.getLogger("sarif_recorder")
         self.version = version
 

@@ -58,7 +58,7 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.core.special_names import special_names
@@ -163,7 +163,7 @@ class _Stream:
         t = self.peek()
         return self.i >= self.end or t == "." or t in _VERBS or t in _END_WORDS
 
-    def operand(self) -> Optional[tuple[str, str, Any]]:
+    def operand(self) -> tuple[str, str, Any] | None:
         """(text, kind, refmod) of the operand at the cursor, advancing past it, or
         None (cursor unmoved) when the cursor is not at an operand. `refmod` is the
         reference modification as written (`1:5`) -- truthy -- or False."""
@@ -277,9 +277,9 @@ class _Stream:
         return out
 
 
-def _rows_of(verb: str, s: _Stream) -> list[tuple[Optional[tuple], tuple, bool]]:
+def _rows_of(verb: str, s: _Stream) -> list[tuple[tuple | None, tuple, bool]]:
     """(source operand or None, target operand, corresponding) pairs of one statement."""
-    pairs: list[tuple[Optional[tuple], tuple, bool]] = []
+    pairs: list[tuple[tuple | None, tuple, bool]] = []
     if verb == "MOVE":
         corr = s.peek() in ("CORR", "CORRESPONDING")
         if corr:
@@ -490,7 +490,7 @@ def rounding_facts(code_stream: str) -> list[dict[str, Any]]:
             i += 1
             continue
         j, end = i + 1, min(len(toks), i + 1 + _STATEMENT_TOKENS)
-        rounded: dict[str, Optional[str]] = {}
+        rounded: dict[str, str | None] = {}
         size_error, last_name = False, None
         while j < end:
             t = toks[j][0].upper()

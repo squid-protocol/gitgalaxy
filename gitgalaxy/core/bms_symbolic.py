@@ -36,20 +36,20 @@
 #   - GRPNAME field groups are laid out as separate fields.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 _ATTR_ORDER = (("COLOR", "C"), ("PS", "P"), ("HILIGHT", "H"), ("VALIDN", "V"), ("OUTLINE", "U"), ("SOSI", "M"),
                ("TRANSP", "T"))  # fmt: skip
 _EXTATT_YES = ("COLOR", "PS", "HILIGHT", "VALIDN")
 
 
-def _operand(attributes: Optional[str], key: str) -> Optional[str]:
+def _operand(attributes: str | None, key: str) -> str | None:
     """The value of KEY= in a statement's kept operand text (parenthesised lists whole)."""
     m = re.search(rf"(?<![A-Z0-9]){key}=(\([^)]*\)|[^,]*)", attributes or "", re.I)
     return m.group(1).strip().upper() if m else None
 
 
-def _suffixes(*scopes: Optional[str]) -> list[str]:
+def _suffixes(*scopes: str | None) -> list[str]:
     """The extended-attribute suffix letters of a map, innermost scope first."""
     for attrs in scopes:
         dsatts = _operand(attrs, "DSATTS")
@@ -61,7 +61,7 @@ def _suffixes(*scopes: Optional[str]) -> list[str]:
     return []
 
 
-def _pic(pic: Optional[str], length: int) -> str:
+def _pic(pic: str | None, length: int) -> str:
     return pic if pic else f"X({length})"
 
 

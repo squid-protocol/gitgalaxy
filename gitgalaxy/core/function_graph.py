@@ -31,7 +31,7 @@
 # networkx, identical numbers in every mode. Nothing here feeds a risk score or
 # a file-level column -- #3333 decides whether it ever should.
 # ==============================================================================
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS
 from gitgalaxy.core.graph_engine import GraphIndex, pagerank
@@ -74,7 +74,7 @@ def function_metrics(
         return {}
     index = GraphIndex(nodes, ((a, b, 1.0) for a, b in edges))
     try:
-        ranks: Optional[list[float]] = pagerank(index)
+        ranks: list[float] | None = pagerank(index)
     except RuntimeError:
         ranks = None
 

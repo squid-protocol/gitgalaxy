@@ -9,7 +9,7 @@ import posixpath
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
 from gitgalaxy.core.graph_engine import (
@@ -186,7 +186,7 @@ class NetworkRiskSensor:
     Vector-Weighted Systemic Threats.
     """
 
-    def __init__(self, parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, parent_logger: logging.Logger | None = None):
         self.logger = parent_logger.getChild("network_sensor") if parent_logger else logging.getLogger("network_sensor")
         self.RISK_SCHEMA = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
         # #2992: the resolved edge list of the most recent build_dependency_graph
@@ -215,19 +215,19 @@ class NetworkRiskSensor:
         # #4128: every trailing run of directory names (`circe/pointer`, `pointer`)
         # of the scanned files, built on first use -- does a dotted name spell a
         # package directory of this repo?
-        self._dir_tails: Optional[set[str]] = None
+        self._dir_tails: set[str] | None = None
         # #4544: the Rust module resolver of the latest _build_resolution_map, or None.
         self._rust: RustModules | None = None
         # #3665: the scanned directory, when the caller has one (galaxyscope sets
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
-        self.root: Optional[str] = None
+        self.root: str | None = None
         # #3789: scan-relative directory -> the package.json that owns it (None: none does)
-        self._packages: dict[str, Optional[Package]] = {}
+        self._packages: dict[str, Package | None] = {}
         # #4265: the estate's declared COPY libraries (galaxyscope --copy-libraries), or None: the
         # default resolver. `copy_collisions` lists the members a program's search order finds in
         # more than one library (the first wins, as on z/OS) from the latest _resolve_edges pass.
-        self.copy_libraries: Optional[CopyLibraries] = None
+        self.copy_libraries: CopyLibraries | None = None
         self.copy_collisions: list[dict[str, Any]] = []
         # #4420: the COPYs a declared SYSLIB cannot satisfy (a member in none of the importer's
         # libraries, or not in the one `IN LIB` names): no edge, and a row here instead.
@@ -352,11 +352,11 @@ class NetworkRiskSensor:
         target_token: str,
         resolution_map: dict[str, list[str]],
         curr_path: str,
-        folded_maps: Optional[dict[str, dict[str, list[str]]]] = None,
-        fold_lang: Optional[str] = None,
-        src_lang: Optional[str] = None,
-        file_facts: Optional[dict[str, tuple[str, bool]]] = None,
-    ) -> Optional[str]:
+        folded_maps: dict[str, dict[str, list[str]]] | None = None,
+        fold_lang: str | None = None,
+        src_lang: str | None = None,
+        file_facts: dict[str, tuple[str, bool]] | None = None,
+    ) -> str | None:
         """
         Resolves an import token to a single file path, refusing to guess when
         genuinely ambiguous rather than silently misattributing an edge.
@@ -475,7 +475,7 @@ class NetworkRiskSensor:
         # its target, however well its path matches.
         target_langs = src_def.get("import_target_langs")
 
-        def by_name(token: str) -> Optional[str]:
+        def by_name(token: str) -> str | None:
             hit = self._resolve_by_name(token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts)
             if (
                 hit is not None
@@ -530,7 +530,7 @@ class NetworkRiskSensor:
         )
         lower_member = member and segments[-1][:1].islower()
 
-        def package_object_of(names: list[str]) -> Optional[str]:
+        def package_object_of(names: list[str]) -> str | None:
             if not package_object or wildcard or len(names) < 2:
                 return None
             return self._resolve_path_tail(f"{'/'.join(names)}/{package_object}", resolution_map, curr_path)
@@ -564,11 +564,11 @@ class NetworkRiskSensor:
         target_token: str,
         resolution_map: dict[str, list[str]],
         curr_path: str,
-        folded_maps: Optional[dict[str, dict[str, list[str]]]],
-        fold_lang: Optional[str],
-        src_lang: Optional[str],
-        file_facts: Optional[dict[str, tuple[str, bool]]],
-    ) -> Optional[str]:
+        folded_maps: dict[str, dict[str, list[str]]] | None,
+        fold_lang: str | None,
+        src_lang: str | None,
+        file_facts: dict[str, tuple[str, bool]] | None,
+    ) -> str | None:
         """The name search: a token's full path, file name or stem, disambiguated
         by the path context the token carries (Stages 1-3 below)."""
         # The historical form: every dot becomes a separator, which is what
@@ -750,9 +750,9 @@ class NetworkRiskSensor:
         target_token: str,
         curr_path: str,
         resolution_map: dict[str, list[str]],
-        src_lang: Optional[str],
-        file_facts: Optional[dict[str, tuple[str, bool]]],
-    ) -> Optional[str]:
+        src_lang: str | None,
+        file_facts: dict[str, tuple[str, bool]] | None,
+    ) -> str | None:
         """#3553/#3552: the file a token names RELATIVE TO THE IMPORTER, or None.
 
         `dirname(importer)/token` exactly. A token without an extension
@@ -791,7 +791,7 @@ class NetworkRiskSensor:
                 return same[0]
         return None
 
-    def _resolve_module_tree(self, module: str, curr_path: str) -> Optional[str]:
+    def _resolve_module_tree(self, module: str, curr_path: str) -> str | None:
         """#3554: the file a Rust `mod module;` in `curr_path` declares, or None.
 
         The owner's module directory is the file's own directory for a mod.rs or
@@ -816,7 +816,7 @@ class NetworkRiskSensor:
                 return hit
         return None
 
-    def _resolve_self_reference(self, specifier: str, curr_path: str) -> Optional[str]:
+    def _resolve_self_reference(self, specifier: str, curr_path: str) -> str | None:
         """#3789: `from "zod/v4"` inside zod -> the file zod's package.json `exports` declares.
 
         Only the nearest package.json (the importing file's own package) is consulted, and
@@ -836,7 +836,7 @@ class NetworkRiskSensor:
                 return hit
         return None
 
-    def _declared_file(self, package_dir: str, target: str) -> Optional[str]:
+    def _declared_file(self, package_dir: str, target: str) -> str | None:
         """The scanned file a package.json target (`./src/index.ts`, `./v4/index.js`) names:
         exactly that file, its emitted-spelling source (`.js` -> `.ts`), or, for an
         extensionless / directory target, the file with a source extension or an `index`."""
@@ -863,9 +863,9 @@ class NetworkRiskSensor:
         self,
         target_token: str,
         resolution_map: dict[str, list[str]],
-        src_lang: Optional[str],
-        file_facts: Optional[dict[str, tuple[str, bool]]],
-    ) -> Optional[str]:
+        src_lang: str | None,
+        file_facts: dict[str, tuple[str, bool]] | None,
+    ) -> str | None:
         """A JS/TS bare specifier's local file, or None (it names a package).
 
         Less an alias prefix (`@/`, `~/`, `#`), the specifier must be the TAIL of
@@ -903,8 +903,8 @@ class NetworkRiskSensor:
         return None
 
     def _resolve_path_tail(
-        self, tail: str, resolution_map: dict[str, list[str]], curr_path: Optional[str] = None
-    ) -> Optional[str]:
+        self, tail: str, resolution_map: dict[str, list[str]], curr_path: str | None = None
+    ) -> str | None:
         """The one file whose path ends with the whole `tail`, or None.
 
         #3665: several such files are narrowed the way Stage 2b narrows a name
@@ -923,7 +923,7 @@ class NetworkRiskSensor:
 
     def _resolve_variable_path(
         self, target_token: str, curr_path: str, resolution_map: dict[str, list[str]]
-    ) -> Optional[str]:
+    ) -> str | None:
         """#3598: a shell path behind a variable. What follows the last expansion's
         first `/` is literal: a bare name is tried beside the importing file (the
         common `$DIR` = the script's own directory), and any tail must be a whole
@@ -948,9 +948,9 @@ class NetworkRiskSensor:
         self,
         target_token: str,
         curr_path: str,
-        file_facts: Optional[dict[str, tuple[str, bool]]],
-        src_lang: Optional[str],
-    ) -> Optional[str]:
+        file_facts: dict[str, tuple[str, bool]] | None,
+        src_lang: str | None,
+    ) -> str | None:
         """#3596: `a.b.name` -> the one file of the importer's language that
         declares `name` and sits under a directory ending in a/b."""
         parts = target_token.split(".")
@@ -969,7 +969,7 @@ class NetworkRiskSensor:
             hits = [c for c in hits if not _is_test_path(c)]
         return hits[0] if len(hits) == 1 else None
 
-    def _resolve_literal_file(self, target_token: str, resolution_map: dict[str, list[str]]) -> Optional[str]:
+    def _resolve_literal_file(self, target_token: str, resolution_map: dict[str, list[str]]) -> str | None:
         """The one file whose name is exactly the token's last segment and whose
         path ends with the token (`<chrono>` -> .../chrono, `<QtCore/QString>`
         -> .../QtCore/QString), or None. A same-stem `chrono.h` never matches."""
@@ -992,7 +992,7 @@ class NetworkRiskSensor:
         curr_path: str,
         resolution_map: dict[str, list[str]],
         init_file: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """#3545/#3544: Python's own module rule, or None.
 
         `a.b` is `a/b.py` or the package `a/b/__init__.py` under a SOURCE ROOT --
@@ -1061,7 +1061,7 @@ class NetworkRiskSensor:
             return candidates
 
     @staticmethod
-    def _build_variant(candidates: list[str], curr_path: str) -> Optional[str]:
+    def _build_variant(candidates: list[str], curr_path: str) -> str | None:
         """#3665 (import contract C8): the candidate in the importer's own build variant, or None.
 
         Only for parallel source trees: every candidate has the same depth and
@@ -1083,16 +1083,16 @@ class NetworkRiskSensor:
         if not all(_BUILD_VARIANT_DIR.fullmatch(parts[at]) for parts in split):
             return None
         importer_dirs = set(curr_path.replace("\\", "/").split("/")[:-1])
-        hits = [c for c, parts in zip(candidates, split) if parts[at] in importer_dirs]
+        hits = [c for c, parts in zip(candidates, split, strict=True) if parts[at] in importer_dirs]
         return hits[0] if len(hits) == 1 else None
 
     def _narrow_ambiguous(
         self,
         candidates: list[str],
         curr_path: str,
-        src_lang: Optional[str],
+        src_lang: str | None,
         file_facts: dict[str, tuple[str, bool]],
-    ) -> Optional[str]:
+    ) -> str | None:
         """#3199: the one copied member the repository's own facts single out, or None.
 
         Called only for a `SOURCE_MEMBER_IMPORT_LANGS` importer (see the caller
@@ -1140,7 +1140,7 @@ class NetworkRiskSensor:
         return None
 
     @staticmethod
-    def _fold_lang(f: dict[str, Any]) -> Optional[str]:
+    def _fold_lang(f: dict[str, Any]) -> str | None:
         """#2540: the file's language id if it resolves import targets case-insensitively, else None."""
         lang = str(f.get("lang_id", "")).lower()
         return lang if lang in CASE_INSENSITIVE_IMPORT_LANGS else None
@@ -1262,7 +1262,7 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                targets: list[Optional[str]] = []
+                targets: list[str | None] = []
                 if members is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
                     # #4265: each COPY form of the member (`COPY X` and `COPY X IN LIB` can both occur)
                     # resolves through the declared libraries; _NO_DECLARATION falls back below.
@@ -1381,9 +1381,9 @@ class NetworkRiskSensor:
     def _network_metrics(
         self,
         f: dict[str, Any],
-        pr_score: Optional[float],
-        betweenness: Optional[float],
-        closeness: Optional[float],
+        pr_score: float | None,
+        betweenness: float | None,
+        closeness: float | None,
         in_d: int,
         out_d: int,
     ) -> dict[str, Any]:
@@ -1412,9 +1412,9 @@ class NetworkRiskSensor:
         # PageRank is usually a tiny decimal (e.g., 0.0005). We normalize it
         # by multiplying by 1000 to make the scale human/LLM readable.
         # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
-        pagerank_score: Optional[float] = None
-        blast_radius: Optional[float] = None
-        systemic_threat_vector: Optional[list[float]] = None
+        pagerank_score: float | None = None
+        blast_radius: float | None = None
+        systemic_threat_vector: list[float] | None = None
         if pr_score is not None:
             pr_normalized = pr_score * 1000
             local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
@@ -1462,12 +1462,12 @@ class NetworkRiskSensor:
         file reads None ("not computed"), never 0.0.
         """
         try:
-            return dict(zip(index.nodes, pagerank(index)))
+            return dict(zip(index.nodes, pagerank(index), strict=True))
         except Exception as e:
             self.logger.warning(f"PageRank failed to converge, leaving it unset (None): {e}")
             return {}
 
-    def _betweenness(self, index: GraphIndex) -> dict[str, Optional[float]]:
+    def _betweenness(self, index: GraphIndex) -> dict[str, float | None]:
         """
         #3038: exact hop-count betweenness, native in both modes (see
         graph_engine.betweenness_centrality), so the two modes produce the same
@@ -1479,9 +1479,9 @@ class NetworkRiskSensor:
         except WorkBudgetExceeded as e:
             self.logger.info(f"Betweenness past its work budget, leaving it unset (None): {e}")
             return dict.fromkeys(index.nodes)
-        return dict(zip(index.nodes, values))
+        return dict(zip(index.nodes, values, strict=True))
 
-    def _path_metrics(self, index: GraphIndex) -> tuple[dict[str, Optional[float]], Optional[float]]:
+    def _path_metrics(self, index: GraphIndex) -> tuple[dict[str, float | None], float | None]:
         """
         #3037: per-file closeness and the repo's average path length, from one
         native search in both modes (see graph_engine.closeness_and_path_length),
@@ -1493,9 +1493,9 @@ class NetworkRiskSensor:
         except WorkBudgetExceeded as e:
             self.logger.info(f"Closeness / avg path length past their work budget, leaving them unset (None): {e}")
             return dict.fromkeys(index.nodes), None
-        return dict(zip(index.nodes, closeness)), avg_path_length
+        return dict(zip(index.nodes, closeness, strict=True)), avg_path_length
 
-    def _topology_metrics(self, index: GraphIndex) -> dict[str, Optional[float]]:
+    def _topology_metrics(self, index: GraphIndex) -> dict[str, float | None]:
         """
         The native repo-topology metrics, in both modes. All are None for a
         graph with no files, as the networkx path left them.
@@ -1537,9 +1537,9 @@ class NetworkRiskSensor:
     def build_dependency_graph(
         self,
         parsed_files: list[dict[str, Any]],
-        call_pairs: Optional[dict[tuple[str, str], int]] = None,
-        import_edges: Optional[dict[tuple[str, str], dict[str, Any]]] = None,
-        invocation_edges: Optional[list[dict[str, Any]]] = None,
+        call_pairs: dict[tuple[str, str], int] | None = None,
+        import_edges: dict[tuple[str, str], dict[str, Any]] | None = None,
+        invocation_edges: list[dict[str, Any]] | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
@@ -1626,7 +1626,7 @@ class NetworkRiskSensor:
         # so a failed or skipped computation must not look like one, and
         # consumers (record_keeper.py, llm_recorder.py) must not paper over None
         # with their own 0.0 fallback.
-        macro_metrics: dict[str, Optional[float]] = {
+        macro_metrics: dict[str, float | None] = {
             "modularity": topology["modularity"],
             "assortativity": topology["assortativity"],
             "cyclic_density": topology["cyclic_density"],

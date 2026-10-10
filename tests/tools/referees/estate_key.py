@@ -70,7 +70,14 @@ def convert(crucible: Path) -> dict[str, Any]:
             sibling_units: dict[str, list[dict[str, Any]]] = {p["program_id"]: [] for p in progs[1:]}
             first_units = []
             for u in units:  # a second program's units go to its own block (#4206 naming)
-                owner = next((p["program_id"] for p, s, e in zip(progs[1:], starts[1:], ends[1:]) if s <= u["line"] <= e), None)
+                owner = next(
+                    (
+                        p["program_id"]
+                        for p, s, e in zip(progs[1:], starts[1:], ends[1:], strict=False)
+                        if s <= u["line"] <= e
+                    ),
+                    None,
+                )  # reason: length may differ
                 (sibling_units[owner] if owner else first_units).append(u)
             units = first_units
             records = []
@@ -81,20 +88,40 @@ def convert(crucible: Path) -> dict[str, Any]:
                                 "occurs_depending_on": dep, "redefines": d.get("redefines"), "value": d.get("value")})  # fmt: skip
             out["programs"][rel] = {
                 "program_id": progs[0]["program_id"],
-                "siblings": {p["program_id"]: {"program_id": p["program_id"], "units": sibling_units[p["program_id"]],
-                                               "line": st, "end_line": en}
-                             for p, st, en in zip(progs[1:], starts[1:], ends[1:])},  # fmt: skip
+                "siblings": {
+                    p["program_id"]: {
+                        "program_id": p["program_id"],
+                        "units": sibling_units[p["program_id"]],
+                        "line": st,
+                        "end_line": en,
+                    }
+                    for p, st, en in zip(progs[1:], starts[1:], ends[1:], strict=False)
+                },  # fmt: skip  # reason: length may differ
                 "units": units,
                 "main_line": {**main_span, "edges": main_edges} if main_edges or main_span["line"] else None,
-                "calls": [{"verb": c["verb"], "form": c.get("form", "literal"), "operand": c.get("operand"),
-                           "target": c.get("target"), "line": c.get("line")}
-                          for c in m.get("call_sites", []) if c.get("verb") in _PROGRAM_CALLS],  # fmt: skip
+                "calls": [
+                    {
+                        "verb": c["verb"],
+                        "form": c.get("form", "literal"),
+                        "operand": c.get("operand"),
+                        "target": c.get("target"),
+                        "line": c.get("line"),
+                    }
+                    for c in m.get("call_sites", [])
+                    if c.get("verb") in _PROGRAM_CALLS
+                ],  # fmt: skip
                 "copybooks": [{"name": c["member"]} for c in m.get("copies", [])],
                 "records": records,
             }
             if m.get("cics_resources"):
                 out["cics_resources"][rel] = {"operations": m["cics_resources"]}
-            acc = sorted({f"{s['access']} {s['table']}" for s in m.get("sql_statements", []) if s.get("table") and s.get("access")})
+            acc = sorted(
+                {
+                    f"{s['access']} {s['table']}"
+                    for s in m.get("sql_statements", [])
+                    if s.get("table") and s.get("access")
+                }
+            )
             if acc:
                 out["sql_access"][rel] = {"accesses": acc}
     return out

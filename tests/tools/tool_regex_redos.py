@@ -52,7 +52,7 @@ import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -140,7 +140,7 @@ def _module_name(path: Path) -> str:
     return ".".join(path.relative_to(REPO_ROOT).with_suffix("").parts)
 
 
-def _is_re_call(node: ast.AST) -> Optional[str]:
+def _is_re_call(node: ast.AST) -> str | None:
     if (
         isinstance(node, ast.Call)
         and isinstance(node.func, ast.Attribute)
@@ -152,7 +152,7 @@ def _is_re_call(node: ast.AST) -> Optional[str]:
     return None
 
 
-def _call_arg(node: ast.Call, index: int, name: str) -> Optional[ast.expr]:
+def _call_arg(node: ast.Call, index: int, name: str) -> ast.expr | None:
     for kw in node.keywords:
         if kw.arg == name:
             return kw.value
@@ -203,7 +203,7 @@ def collect() -> tuple[list[Site], list[dict[str, Any]]]:
                 if name and name != "re":
                     used_by_name.setdefault(name, set()).add(node.func.attr)
 
-    def add(module: str, pattern: str, flags: int, line: Optional[int], method: Optional[str]) -> None:
+    def add(module: str, pattern: str, flags: int, line: int | None, method: str | None) -> None:
         site = sites.setdefault((module, pattern, flags), Site(module, pattern, flags))
         if line is not None and line not in site.lines:
             site.lines.append(line)

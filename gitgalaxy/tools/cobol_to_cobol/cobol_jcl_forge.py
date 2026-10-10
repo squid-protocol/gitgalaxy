@@ -18,7 +18,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 
@@ -38,7 +38,7 @@ _FILE_ASSIGN_ANCHOR = re.compile(
 )
 
 
-def analyze_cobol_intent(filepath: Path, declared: Optional[str] = None) -> dict:
+def analyze_cobol_intent(filepath: Path, declared: str | None = None) -> dict:
     """Extracts execution intent and data boundaries from legacy source code.
     #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
     """
@@ -122,7 +122,7 @@ def generate_zero_trust_jcl(
     intent: dict,
     job_name: str,
     account_code: str,
-    lineage: Optional[dict] = None,
+    lineage: dict | None = None,
     corporate_header: str = "",
 ) -> str:
     """Generates a strict, permission-bounded JCL deployment script."""

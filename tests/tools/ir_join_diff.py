@@ -25,7 +25,7 @@ import sys
 import tempfile
 import traceback
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -49,15 +49,13 @@ def serialize_row(row: Any) -> str:
     return json.dumps(row, cls=DataclassEncoder, sort_keys=True)
 
 
-def compare_rows(
-    old: Union[List[Any], Dict[Any, Any]], new: Union[List[Any], Dict[Any, Any]]
-) -> Tuple[List[str], List[str]]:
+def compare_rows(old: list[Any] | dict[Any, Any], new: list[Any] | dict[Any, Any]) -> tuple[list[str], list[str]]:
     """Compare old and new rows, returning (removed, added).
     Supports lists (multiset semantics, duplicates count, order-insensitive)
     and dicts (compare per key).
     """
-    removed: List[str] = []
-    added: List[str] = []
+    removed: list[str] = []
+    added: list[str] = []
 
     if isinstance(old, dict) and isinstance(new, dict):
         old_keys = set(old.keys())
@@ -76,7 +74,7 @@ def compare_rows(
                 removed.append(serialize_row({k: old[k]}))
                 added.append(serialize_row({k: new[k]}))
     else:
-        old_counts: Dict[str, int] = {}
+        old_counts: dict[str, int] = {}
         if isinstance(old, dict):
             # If old is a dict but new is not, this handles gracefully or crashes depending.
             # We assume both are lists if we reach here, or both are iterables.
@@ -88,7 +86,7 @@ def compare_rows(
             s = serialize_row(item)
             old_counts[s] = old_counts.get(s, 0) + 1
 
-        new_counts: Dict[str, int] = {}
+        new_counts: dict[str, int] = {}
         if isinstance(new, dict):
             new_iter = new.values()
         else:
@@ -113,7 +111,7 @@ def compare_rows(
     return removed, added
 
 
-def joins(cls: type) -> List[str]:
+def joins(cls: type) -> list[str]:
     """Returns a list of public method names of cls that can be called with no arguments."""
     valid_methods = []
     for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
@@ -209,7 +207,7 @@ Note: this compares the READER (galaxy_ir.py) on the same DB; scanner changes ar
 
     common_joins = sorted(list(base_joins & head_joins))
 
-    full_results: Dict[str, Any] = {}
+    full_results: dict[str, Any] = {}
     any_changed = False
 
     for corpus_name in corpora_names:
@@ -231,7 +229,7 @@ Note: this compares the READER (galaxy_ir.py) on the same DB; scanner changes ar
         base_ir = base_module.load_galaxy_ir(db_path)
         head_ir = head_module.load_galaxy_ir(db_path)
 
-        corpus_results: Dict[str, Any] = {}
+        corpus_results: dict[str, Any] = {}
 
         for j in base_joins - head_joins:
             corpus_results[j] = {"status": "removed"}

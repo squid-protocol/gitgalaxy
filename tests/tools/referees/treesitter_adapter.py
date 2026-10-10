@@ -27,7 +27,7 @@ import sys
 import time
 import warnings
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Iterator
 
 HERE = Path(__file__).resolve().parent
@@ -41,7 +41,10 @@ NAME_TYPES = ("WORD", "numeric_name")
 HEADER_TYPES = ("paragraph", "section")
 _TABLE = r"[A-Z0-9_#@$]+(?:\.[A-Z0-9_#@$]+)?"
 # a FROM list may name several tables (`FROM POLICY, MOTOR`), each with an optional alias
-_SQL_TABLE = re.compile(rf"\b(FROM|JOIN|INTO|UPDATE)\s+({_TABLE}(?:\s+(?!WHERE\b|ORDER\b|GROUP\b)[A-Z][A-Z0-9_]*)?(?:\s*,\s*{_TABLE}(?:\s+(?!WHERE\b)[A-Z][A-Z0-9_]*)?)*)", re.I)
+_SQL_TABLE = re.compile(
+    rf"\b(FROM|JOIN|INTO|UPDATE)\s+({_TABLE}(?:\s+(?!WHERE\b|ORDER\b|GROUP\b)[A-Z][A-Z0-9_]*)?(?:\s*,\s*{_TABLE}(?:\s+(?!WHERE\b)[A-Z][A-Z0-9_]*)?)*)",
+    re.I,
+)
 _SQL_ACCESS = {"sql_select": "read", "sql_declare_cursor": "read", "sql_insert": "insert",
                "sql_update": "update", "sql_delete_sql": "delete"}  # fmt: skip
 
@@ -91,7 +94,7 @@ def walk(node: Any, types: tuple[str, ...], stop: tuple[str, ...] = ("program_de
             yield from walk(c, types, stop)
 
 
-def first_name(node: Any) -> Optional[str]:
+def first_name(node: Any) -> str | None:
     for c in node.children:
         if c.type in NAME_TYPES or c.type == "string_literal":
             return text(c).strip("'\"").upper()
@@ -102,7 +105,7 @@ def has_error(node: Any) -> bool:
     return bool(node.has_error)
 
 
-def _option(cmd: Any, name: str) -> Optional[Any]:
+def _option(cmd: Any, name: str) -> Any | None:
     for opt in cmd.children:
         if opt.type == "cics_option" and opt.children and text(opt.children[0]).upper() == name:
             vals = [c for c in opt.children[1:] if c.type not in ("(", ")")]
@@ -169,7 +172,7 @@ class Program:
                     self.values[name] = value.strip("'\"").strip().upper()
             F.merge_item(facts, F.item_values(line(dd), int(text(lvl)), name, pic, usage, omin, omax, dep, red, value))
 
-    def resolve(self, operand: Any) -> Optional[str]:
+    def resolve(self, operand: Any) -> str | None:
         if operand is None:
             return None
         if operand.type == "string_literal":
@@ -193,7 +196,7 @@ class Program:
         flatten(proc)
         current = F.MAIN_LINE
         start, last = line(proc), None
-        spans: list[tuple[str, int, Optional[int]]] = []
+        spans: list[tuple[str, int, int | None]] = []
         for kind, n in items:
             if kind == "header":
                 spans.append((current, start, last))
@@ -272,7 +275,7 @@ class Program:
                             facts["sql_access"].add(f"{access} {table.upper()}")
 
 
-def file_facts(parser: Any, path: Path) -> tuple[str, dict[str, set[str]], Optional[str]]:
+def file_facts(parser: Any, path: Path) -> tuple[str, dict[str, set[str]], str | None]:
     tree = parser.parse(path.read_bytes())
     root = tree.root_node
     facts: dict[str, set[str]] = {ch: set() for ch in F.CHANNELS if ch not in F.COPYBOOK_CHANNELS}

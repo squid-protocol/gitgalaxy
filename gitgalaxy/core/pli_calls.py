@@ -25,7 +25,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 _ID = r"[\w@#$]"
 _EXEC_CICS = re.compile(r"(?<![\w@#$])EXEC[ \t\r\n]+CICS(?![\w@#$])", re.I)
@@ -104,7 +105,7 @@ def internal_names(code_stream: str) -> set[str]:
     return {m.group(1).upper() for m in _LABELLED_UNIT.finditer(code_stream)}
 
 
-def pli_external_calls(code_stream: str, shielded: Optional[Callable[[int], bool]] = None) -> list[dict[str, Any]]:
+def pli_external_calls(code_stream: str, shielded: Callable[[int], bool] | None = None) -> list[dict[str, Any]]:
     """`CALL name` sites whose name is not defined in this file (see the header)."""
     if "CALL" not in code_stream.upper():
         return []

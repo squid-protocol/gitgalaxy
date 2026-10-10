@@ -40,7 +40,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -227,7 +227,7 @@ def decode(spec: Any, data: bytes) -> bytes:
 
 
 # ---- fetch, build, run ------------------------------------------------------------------------------------------
-def run(argv: list[str], cwd: Optional[Path] = None, env: Optional[dict[str, str]] = None,
+def run(argv: list[str], cwd: Path | None = None, env: dict[str, str] | None = None,
         timeout: int = 1800) -> subprocess.CompletedProcess:  # fmt: skip
     return subprocess.run(argv, cwd=cwd, env=env, capture_output=True, timeout=timeout, check=False)  # noqa: S603
 
@@ -250,17 +250,17 @@ def fetch(port: dict[str, Any], work: Path) -> Path:
     return tree
 
 
-def jdk_env(jdk: Optional[Path]) -> Optional[dict[str, str]]:
+def jdk_env(jdk: Path | None) -> dict[str, str] | None:
     if not jdk:
         return None
     return {**os.environ, "JAVA_HOME": str(jdk), "PATH": f"{jdk / 'bin'}:{os.environ.get('PATH', '')}"}
 
 
-def tool(jdk: Optional[Path], name: str) -> str:
+def tool(jdk: Path | None, name: str) -> str:
     return str(jdk / "bin" / name) if jdk else (shutil.which(name) or name)
 
 
-def build(port: dict[str, Any], tree: Path, work: Path, jdk: Optional[Path]) -> str:
+def build(port: dict[str, Any], tree: Path, work: Path, jdk: Path | None) -> str:
     """The port built as it ships; returns its classpath. Its own tests are skipped (they are not our judge)."""
     kind, where, jar = port["build"]
     mvn = ["mvn", "-q", "-B", "-DskipTests", f"-Dmaven.repo.local={work / 'm2'}"]
@@ -288,7 +288,7 @@ def build(port: dict[str, Any], tree: Path, work: Path, jdk: Optional[Path]) -> 
     return str(out)
 
 
-def adapter_classes(work: Path, jdk: Optional[Path]) -> Path:
+def adapter_classes(work: Path, jdk: Path | None) -> Path:
     out = work / "adapter"
     if not (out / "devinadapter" / "EnvLauncher.class").is_file():
         out.mkdir(parents=True, exist_ok=True)
@@ -353,7 +353,7 @@ def command(port: dict[str, Any], template: list[str], case: dict[str, Any], dds
     return argv
 
 
-def abend_code(port: dict[str, Any], proc: subprocess.CompletedProcess) -> Optional[int]:
+def abend_code(port: dict[str, Any], proc: subprocess.CompletedProcess) -> int | None:
     """The user abend code the port reports its own way: a message on stderr, or a fixed exit status."""
     how = port.get("abend")
     if not how:
@@ -387,7 +387,7 @@ def java_outputs(case: dict[str, Any], port: dict[str, Any], dds: dict[str, Path
 OVERPUNCH = {**{c: (i, 1) for i, c in enumerate("{ABCDEFGHI")}, **{c: (i, -1) for i, c in enumerate("}JKLMNOPQR")}}
 
 
-def _ibm_display(t: str) -> Optional[int]:
+def _ibm_display(t: str) -> int | None:
     """A signed zoned number as IBM's DISPLAY shows it: its digits, the last with the sign overpunched."""
     m = re.fullmatch(r"(\d*)([{}A-R])", t)
     if not m:
@@ -396,7 +396,7 @@ def _ibm_display(t: str) -> Optional[int]:
     return sign * int(m.group(1) + str(digit))
 
 
-def _gnucobol_display(t: str) -> Optional[int]:
+def _gnucobol_display(t: str) -> int | None:
     """The same as GnuCOBOL's own DISPLAY shows it: every digit, then a separate + or -."""
     m = re.fullmatch(r"(\d+)([+-])", t)
     return (1 if m.group(2) == "+" else -1) * int(m.group(1)) if m else None
@@ -437,7 +437,7 @@ def first_difference(result: dict[str, Any]) -> str:
     return result.get("summary", "")
 
 
-def judge(name: str, program: str, work: Path, envs: list[str], jdk: Optional[Path]) -> dict[str, Any]:
+def judge(name: str, program: str, work: Path, envs: list[str], jdk: Path | None) -> dict[str, Any]:
     port = PORTS[name]
     case_name, template = port["programs"][program]
     case = eq.load_case(case_name)
@@ -479,7 +479,7 @@ def judge(name: str, program: str, work: Path, envs: list[str], jdk: Optional[Pa
     return result
 
 
-def coverage_line(cov_report: Optional[dict[str, Any]]) -> str:
+def coverage_line(cov_report: dict[str, Any] | None) -> str:
     if not cov_report:
         return ""
     p, b = cov_report.get("paragraphs", {}), cov_report.get("branches", {})

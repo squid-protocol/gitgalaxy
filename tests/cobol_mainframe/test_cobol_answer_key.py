@@ -69,7 +69,7 @@ def test_key_integrity(key_path):
             # #4318: extents partition the procedure code -- ordered, each ending
             # before the next begins -- and every edge sits inside its unit.
             spans = ([scope["main_line"]] if scope["main_line"] else []) + scope["units"]
-            for u, nxt in zip(spans, spans[1:] + [None]):
+            for u, nxt in zip(spans, spans[1:] + [None], strict=False):  # reason: length may differ
                 assert u["line"] <= u["end"] and (nxt is None or u["end"] < nxt["line"]), f"{at}: extent {u}"
                 for e in u["edges"]:
                     assert e["verb"] in ("PERFORM", "PERFORM_THRU", "GO_TO"), f"{at}: edge {e}"

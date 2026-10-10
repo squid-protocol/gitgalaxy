@@ -29,7 +29,7 @@ import re
 import shutil
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
@@ -1223,7 +1223,7 @@ def task_dispatcher(programs: dict[str, bool]) -> str:
 
 
 # ---- the stub's files, from the engine's facts ----------------------------------------
-def _case_csd(file: str, datasets: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | None:
     """#4213: a CICS file the estate defines nowhere (no CSD DEFINE FILE, no IDCAMS DEFINE: IBM DBB MortgageApplication
     ships neither for EPSMORTF), stated by the case's dataset of that name as a deployment fact with its `why`:
     `"csd": {"organization": "ESDS", "reclen": N, "why": ...}`. Only an ESDS of fixed-length records is stated so."""
@@ -1240,7 +1240,7 @@ def _case_csd(file: str, datasets: Optional[dict[str, Any]]) -> Optional[dict[st
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
-def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
+def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     """Each CICS file the program uses: {file, dsname, base (the cluster whose records it
     reads), key_offset, key_length, reclen, via}, from the engine's facts -- the CSD
     DEFINE FILE's DSNAME, then the IDCAMS DEFINE that keys it: a CLUSTER's KEYS, or a
@@ -1445,12 +1445,12 @@ def _formattime(opts: dict[str, str]) -> list[str]:
              "COMPUTE GG-HH = GG-REM / 3600000", "COMPUTE GG-MI = (GG-REM - GG-HH * 3600000) / 60000",
              "COMPUTE GG-SS = (GG-REM - GG-HH * 3600000", "    - GG-MI * 60000) / 1000"]  # fmt: skip
 
-    def sep(option: str, default: str) -> Optional[str]:
+    def sep(option: str, default: str) -> str | None:
         if option not in opts:
             return None
         return opts[option] or f"'{default}'"
 
-    def build(parts: tuple[str, ...], separator: Optional[str], target: str) -> list[str]:
+    def build(parts: tuple[str, ...], separator: str | None, target: str) -> list[str]:
         pieces = []
         for i, p in enumerate(parts):
             if i and separator:
@@ -1477,7 +1477,7 @@ def _formattime(opts: dict[str, str]) -> list[str]:
 
 
 # ---- running a case -------------------------------------------------------------------
-def csd_programs(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
+def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The programs the case's CSD (its "csd": a DFHCSDUP listing in the corpus) defines, or None: every program
     is defined. With autoinstall off, an XCTL / LINK / INQUIRE of any other is PGMIDERR (CardDemo's admin menu
     lists COTRTLIC / COTRTUPC, which its base CSD does not define: 'This option is not installed ...')."""
@@ -1487,7 +1487,7 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
     return sorted(set(re.findall(r"DEFINE\s+PROGRAM\(([A-Z0-9@#$]{1,8})\)", text)))
 
 
-def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
+def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The transient-data queues the case's CSD defines (DEFINE TDQUEUE), or None: every queue is defined."""
     if not case.get("csd"):
         return None
@@ -1983,7 +1983,7 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
 # The fault each executed statement is given when the harness enumerates them: the failure the statement's own
 # kind meets in practice -- a duplicate key for an INSERT, no row for a SELECT INTO, a timeout (the statement rolled
 # back, the unit of work kept: -913, not -911's rollback) for the rest. COMMIT, CLOSE and SET :H = VALUES have none.
-def default_fault(stmt: dict[str, Any]) -> Optional[int]:
+def default_fault(stmt: dict[str, Any]) -> int | None:
     verb = (stmt["sql"].upper().split() or [""])[0]
     if stmt["kind"] == "EXEC":
         return -803 if verb == "INSERT" else -913 if verb in ("UPDATE", "DELETE", "MERGE") else None
@@ -2004,7 +2004,7 @@ def enumerated_sql_faults(case: dict[str, Any], work: Path) -> list[dict[str, An
     for sc in case["scenarios"]:
         trace = work / "scenarios" / sc["name"] / "sqltrace.txt"
         lines = trace.read_text(encoding="ascii").split() if trace.is_file() else []
-        for prog, line in zip(lines[::2], lines[1::2]):
+        for prog, line in zip(lines[::2], lines[1::2], strict=False):  # reason: length may differ
             key = (prog, int(line))
             if key in seen or key not in stmts:
                 continue
@@ -2273,7 +2273,7 @@ def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
 _DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
 
 
-def java_class_file(src: Path, name: str, context: Optional[Path] = None) -> Optional[Path]:
+def java_class_file(src: Path, name: str, context: Path | None = None) -> Path | None:
     """The source file of a generated class (#4011): by its path when `name` is qualified
     (`pkg.dto.contract.PcwizWsState`); a simple name as Java resolves it from `context` (the file
     that names it: its single-type imports, its own package, then its on-demand imports); else
@@ -2301,7 +2301,7 @@ def java_class_file(src: Path, name: str, context: Optional[Path] = None) -> Opt
     return cands[0] if cands else None
 
 
-def dto_shape(src: Path, cls: str, context: Optional[Path] = None) -> dict[str, Any]:
+def dto_shape(src: Path, cls: str, context: Path | None = None) -> dict[str, Any]:
     """A generated DTO's properties: {java name: COBOL field name} for a field, {java name:
     (DTO class, its shape)} for a part (a composite COMMAREA's segments), from the comment each
     property carries (`// CDEMO-FROM-TRANID: PIC X(04), offset 0 ...`). `cls` is a qualified name
@@ -2723,7 +2723,7 @@ def _svc_var(program: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: Optional[list[str]] = None, tdqueues: Optional[list[str]] = None) -> str:  # fmt: skip
+                          programs: list[str] | None = None, tdqueues: list[str] | None = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -3115,7 +3115,7 @@ def sql_unjudged(plan: list[str], seams: set[str]) -> str:
 
 def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
                   port: bool = True, port_dir: Path | None = None,
-                  facade: Optional[dict[str, Any]] = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+                  facade: dict[str, Any] | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
     COMMAREA mapped back to COBOL field names through the DTO's own comments.
 
@@ -3933,7 +3933,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             print(f"{name}: " + "; ".join(res["events"]))
         return 0
     try:
-        facade: Optional[dict[str, Any]] = {} if facades and port else None
+        facade: dict[str, Any] | None = {} if facades and port else None
         java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = common.java_failure_report(case, work, str(e))

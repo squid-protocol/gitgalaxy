@@ -84,7 +84,6 @@ same COBOL tasks, exactly as the runTask side is, and the case is proven only wh
 from __future__ import annotations
 
 import argparse
-import codecs
 import json
 import os
 import re
@@ -93,7 +92,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cobol_coverage as cov  # noqa: E402 -- #4023
@@ -104,7 +103,6 @@ import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
     CASES,
-    DEFAULT_DATA_ENCODING,
     IMAGE,
     _fixed,
     _input_path,
@@ -112,7 +110,6 @@ from equivalence_common import (
     comp5_layout_guard,
     compile_options,
     data_encoding,
-    decode_field,
     diff_records,
     diff_varseq,
     java_failure_report,
@@ -123,10 +120,13 @@ from equivalence_common import (
     stage_copybooks,
     require_ascii_runtime,
     reuse,
-    reused,
     run_cobol_step,
     step_reused,
 )
+import codecs  # noqa: F401 -- kept (#4496)
+from equivalence_common import DEFAULT_DATA_ENCODING  # noqa: F401 -- re-exported / kept (#4496)
+from equivalence_common import decode_field  # noqa: F401 -- re-exported / kept (#4496)
+from equivalence_common import reused  # noqa: F401 -- re-exported / kept (#4496)
 
 
 # ---- COBOL side ----------------------------------------------------------------------
@@ -190,7 +190,7 @@ def cobol_unloader(name: str, reclen: int, keys: list[dict[str, Any]]) -> str:
     ])  # fmt: skip
 
 
-def cobol_driver(program: str, parm: Optional[str]) -> str:
+def cobol_driver(program: str, parm: str | None) -> str:
     """Runs `program` as the JCL step does: the PARM in a halfword-length-prefixed LINKAGE area."""
     lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. EQDRIVER.", "DATA DIVISION.", "WORKING-STORAGE SECTION."]
     if parm is not None:
@@ -219,9 +219,7 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def run_cobol(
-    case: dict[str, Any], corpus: Path, work: Path, fault: Optional[dict[str, Any]] = None
-) -> dict[str, bytes]:
+def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
     faults that fired (#4023 follow-up; the plan is injected by faults/ggfault.c)."""
@@ -352,7 +350,7 @@ def run_cobol(
     return outs
 
 
-def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: Path) -> Optional[dict[str, Any]]:
+def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: Path) -> dict[str, Any] | None:
     """#4023: how much of the program the runs execute together (the normal run and every fault run)."""
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
@@ -433,7 +431,7 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
 COLLATION = "ASCII / ISO-8859-1 byte order on both sides (GnuCOBOL BDB, H2), not the mainframe's EBCDIC order"
 
 
-def _environments(arg: Optional[str], case: dict[str, Any]) -> list[dict[str, str]]:
+def _environments(arg: str | None, case: dict[str, Any]) -> list[dict[str, str]]:
     """#3821: `--environments a,b` / `all`, else the case's own list, else the pinned default."""
     import equivalence_java as ej
 
@@ -512,7 +510,7 @@ def enumerated_batch_sql_faults(cobol_work: Path, table: str) -> list[dict[str, 
     trace = cobol_work / "sqltrace.txt"
     words = trace.read_text(encoding="ascii").split() if trace.is_file() else []
     out, seen = [], set()
-    for prog, line in zip(words[::2], words[1::2]):
+    for prog, line in zip(words[::2], words[1::2], strict=False):  # reason: length may differ
         key = (prog, int(line))
         if key in seen or key not in stmts:
             continue
@@ -526,7 +524,7 @@ def enumerated_batch_sql_faults(cobol_work: Path, table: str) -> list[dict[str, 
     return out
 
 
-def selected_faults(case: dict[str, Any], arg: Optional[str]) -> list[dict[str, Any]]:
+def selected_faults(case: dict[str, Any], arg: str | None) -> list[dict[str, Any]]:
     """The case's `faults` to run: `all` (the default), `none`, or names separated by commas."""
     faults = case.get("faults", [])
     if arg in (None, "all"):
@@ -551,7 +549,7 @@ def accept_unsigned_positive(a: bytes, b: bytes) -> tuple[bytes, bytes, int]:
     if len(a) != len(b):
         return a, b, 0
     x, y, n = bytearray(a), bytearray(b), 0
-    for i, (p, q) in enumerate(zip(a, b)):
+    for i, (p, q) in enumerate(zip(a, b, strict=False)):  # reason: length may differ
         if p != q:
             for digit, over in ((p, q), (q, p)):
                 if 0x30 <= digit <= 0x39 and over == POSITIVE_OVERPUNCH[digit - 0x30]:
@@ -562,7 +560,7 @@ def accept_unsigned_positive(a: bytes, b: bytes) -> tuple[bytes, bytes, int]:
 
 
 def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], java: dict[str, bytes],
-                fault: Optional[dict[str, Any]] = None) -> dict[str, Any]:  # fmt: skip
+                fault: dict[str, Any] | None = None) -> dict[str, Any]:  # fmt: skip
     """One run of the step on both sides: equal when both abend with the same code, or neither does and their
     RETURN-CODE and every compared output are equal. A fault run also needs the same faults fired on both
     sides, and at least one: a planned fault the run never reaches tested nothing. After an abend the outputs
@@ -655,7 +653,7 @@ def _compare_tables(case: dict[str, Any], cobol: dict[str, bytes], java: dict[st
 
 
 # ---- CLI -----------------------------------------------------------------------------
-def load_case(name: str, case_file: Optional[Path] = None) -> dict[str, Any]:
+def load_case(name: str, case_file: Path | None = None) -> dict[str, Any]:
     """The case `name`, from its case.json -- or from `case_file` (#4049: a candidate the test-strengthening loop
     wrote), with the case's own directory still the home of its inputs and its port."""
     case = json.loads((case_file or CASES / name / "case.json").read_text(encoding="utf-8"))

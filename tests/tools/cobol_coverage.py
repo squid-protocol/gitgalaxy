@@ -61,7 +61,8 @@ import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any, Iterable, Optional
+from typing import Any
+from collections.abc import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
@@ -97,16 +98,16 @@ class Arm:
     """One outcome of a branch point: `first` the (line, verb) of its first statement, None if it has none."""
 
     outcome: str
-    first: Optional[tuple[int, str]] = None
+    first: tuple[int, str] | None = None
 
 
 @dataclasses.dataclass
 class Branch:
     kind: str  # IF | EVALUATE
     line: int
-    unit: Optional[str]
+    unit: str | None
     arms: list[Arm]
-    fallthrough: Optional[str] = None  # the outcome taken when no arm's first statement follows (false / none)
+    fallthrough: str | None = None  # the outcome taken when no arm's first statement follows (false / none)
 
     def outcomes(self) -> list[str]:
         return [a.outcome for a in self.arms] + ([self.fallthrough] if self.fallthrough else [])
@@ -127,7 +128,7 @@ class Inventory:
     def live(self) -> list[str]:
         return [u["name"] for u in self.units if u["name"] not in self.dead]
 
-    def unit_of(self, line: int) -> Optional[str]:
+    def unit_of(self, line: int) -> str | None:
         name = None
         for u in self.units:
             if u["line"] and u["line"] <= line:
@@ -184,8 +185,8 @@ def _unit_lines(text: str) -> dict[str, int]:
 class _Open:
     def __init__(self, kind: str, line: int) -> None:
         self.kind, self.line = kind, line
-        self.then_first: Optional[tuple[int, str]] = None
-        self.else_first: Optional[tuple[int, str]] = None
+        self.then_first: tuple[int, str] | None = None
+        self.else_first: tuple[int, str] | None = None
         self.has_else = False
         self.arms: list[dict[str, Any]] = []  # EVALUATE: {outcome, first, other}
 
@@ -466,7 +467,7 @@ def control_flow_unreachable(text: str, units: list[dict[str, Any]]) -> set[tupl
     return _walk(toks, heads, absorbing, goto_ends=True)[0]
 
 
-def program_id(text: str) -> Optional[str]:
+def program_id(text: str) -> str | None:
     """The PROGRAM-ID's name, read in the code area (columns 8-72): a name on the line after `PROGRAM-ID.` must not
     be the sequence number in columns 73-80 / 1-6 (COTRTUPC's `002200 PROGRAM-ID. ... 00220000`)."""
     area = "\n".join("" if len(ln) > 6 and ln[6] in "*/" else ln[7:72] for ln in text.split("\n"))
@@ -474,8 +475,8 @@ def program_id(text: str) -> Optional[str]:
     return m.group(1).upper() if m else None
 
 
-def inventory(path: Path, copybook_root: Optional[Path] = None, encoding: Optional[str] = None,
-              text: Optional[str] = None, label: Optional[str] = None) -> Inventory:  # fmt: skip
+def inventory(path: Path, copybook_root: Path | None = None, encoding: str | None = None,
+              text: str | None = None, label: str | None = None) -> Inventory:  # fmt: skip
     """What a program holds: its units (paragraphs and sections, with the dead ones -- the engine's
     reachability, copybooks resolved as x_ray_dead_code resolves them), its branch points and HANDLE labels."""
     from gitgalaxy.core.source_text import read_source
@@ -554,7 +555,7 @@ class LineMap:
 
     SIMILAR = 0.75  # difflib ratio at which a rewritten line is the same line
 
-    def __init__(self, original: str, compiled: Optional[str] = None) -> None:
+    def __init__(self, original: str, compiled: str | None = None) -> None:
         a = [x.rstrip() for x in original.split("\n")]
         b = a if compiled is None else [x.rstrip() for x in compiled.split("\n")]
         self.map: dict[int, tuple[int, bool]] = {}
@@ -607,7 +608,7 @@ class LineMap:
                 start = best + 1
         return pairs
 
-    def get(self, line: int) -> Optional[tuple[int, bool]]:
+    def get(self, line: int) -> tuple[int, bool] | None:
         return self.map.get(line)
 
 
@@ -633,7 +634,7 @@ class Hits:
         return cls(set(d.get("units", [])), outs)
 
 
-def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name: Optional[str] = None) -> Hits:
+def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name: str | None = None) -> Hits:
     """The units entered and branch outcomes taken by `inv`'s program in a trace. `compiled_name` is the file
     the program was compiled from as the trace names it (its basename); statements from other sources -- a
     COPY member's -- are not the program's own lines."""
@@ -766,8 +767,8 @@ def _outcome_words(o: str) -> str:
     return f"`{o.replace('@', ' at line ')}` never taken"
 
 
-def run_coverage(source: Path, original: str, compiled: Optional[str], traces: list[Path], compiled_name: str,
-                 copybooks: Optional[Path] = None, encoding: Optional[str] = None) -> dict[str, Any]:  # fmt: skip
+def run_coverage(source: Path, original: str, compiled: str | None, traces: list[Path], compiled_name: str,
+                 copybooks: Path | None = None, encoding: str | None = None) -> dict[str, Any]:  # fmt: skip
     """One program's coverage over a harness's traces: `source` the original (its path, for COPY members; its
     text `original`), `compiled` the text the harness compiled as `compiled_name` (None: the original)."""
     inv = inventory(source, copybooks, encoding, text=original)
@@ -778,8 +779,8 @@ def run_coverage(source: Path, original: str, compiled: Optional[str], traces: l
     return summary(inv, got, untraceable(inv, lines))
 
 
-def measure_files(source: Path, traces: list[Path], compiled: Optional[Path] = None,
-                  copybooks: Optional[Path] = None, encoding: Optional[str] = None) -> dict[str, Any]:  # fmt: skip
+def measure_files(source: Path, traces: list[Path], compiled: Path | None = None,
+                  copybooks: Path | None = None, encoding: str | None = None) -> dict[str, Any]:  # fmt: skip
     """The `measure` command: one program's coverage over the traces a harness kept."""
     from gitgalaxy.core.source_text import read_source
 
@@ -788,7 +789,7 @@ def measure_files(source: Path, traces: list[Path], compiled: Optional[Path] = N
     return run_coverage(source, orig, comp, traces, (compiled or source).name, copybooks, encoding)
 
 
-def write_run_coverage(out: Path, **kw: Any) -> Optional[dict[str, Any]]:
+def write_run_coverage(out: Path, **kw: Any) -> dict[str, Any] | None:
     """run_coverage into `out` (coverage.json) for a harness that must not fail on it: an error is written and
     printed, and the run goes on (the proof is the outputs; coverage only says how much it proves)."""
     try:
@@ -805,7 +806,7 @@ def headline(s: dict[str, Any], runs: int, proven: bool, what: str = "run") -> s
     return claim(s, runs, what) if proven else f"not proven; {covers(s, runs, what)}"
 
 
-def report_lines(s: Optional[dict[str, Any]], runs: int, proven: bool, what: str = "run") -> list[str]:
+def report_lines(s: dict[str, Any] | None, runs: int, proven: bool, what: str = "run") -> list[str]:
     """A harness report's coverage section (Markdown): the headline, then the gaps."""
     if not s:
         return []
@@ -951,7 +952,7 @@ def run_autotest_case(case: Path, work: Path, image: str = IMAGE) -> dict[str, A
             "skipped": status == "skipped", "runs": len(traces), "programs": programs if traces else {}}  # fmt: skip
 
 
-def _uid() -> Optional[str]:
+def _uid() -> str | None:
     import os
 
     return f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else None
@@ -994,7 +995,7 @@ def autotest_md(results: list[dict[str, Any]]) -> str:
 
 
 # ---- CLI -------------------------------------------------------------------------------------------------------
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("measure", help="one program's coverage over kept traces")

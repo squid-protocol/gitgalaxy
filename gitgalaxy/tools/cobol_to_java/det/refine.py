@@ -14,7 +14,8 @@ from __future__ import annotations
 import re
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 SYSTEM = """You refactor one Java method of a COBOL program's deterministic Java port, for a human reader. The port \
 is proven equivalent to the COBOL; your rewrite must keep it so -- every byte the program reads and writes, every \

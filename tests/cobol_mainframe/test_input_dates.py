@@ -55,7 +55,9 @@ def test_a_numeric_date_field_holds_the_date_as_its_number():
     spec = {"reclen": 8, "organization": "sequential",
             "generate": {"records": 10, "seed": 3, "fields": {"WS-DATUM": {"date": "YYYYMMDD"}}}}  # fmt: skip
     data, values = ei.generate_dataset("DD", spec, [f], {})
-    for raw, v in zip((data[i : i + 8] for i in range(0, len(data), 8)), values["DD.WS-DATUM"]):
+    for raw, v in zip(
+        (data[i : i + 8] for i in range(0, len(data), 8)), values["DD.WS-DATUM"], strict=False
+    ):  # reason: length may differ
         datetime.strptime(raw.decode("latin-1"), "%Y%m%d")
         assert eq.decode_field(raw, "9(08)", None) == v
 

@@ -704,7 +704,9 @@ class AuditRecorder:
                 for label in risk_labels:
                     exposures_dict[label] = "[UNSCANNED - NO DATA]"
             else:
-                for label, v in zip(risk_labels, raw_risk):
+                for label, v in zip(
+                    risk_labels, raw_risk, strict=False
+                ):  # the risk vector can carry more slots than labels (#4496)
                     exposures_dict[label] = f"{round(v, 2)}%"
 
             arch = telemetry.get("archetype", "Unknown Archetype")
@@ -790,7 +792,10 @@ class AuditRecorder:
                     formatted_mitigations if formatted_mitigations else "None Detected"
                 ),
                 "7. Structural Signatures (Net Mitigated Signals)": {
-                    label: v for label, v in zip(hit_labels, file_data.get("hit_vector") or [0] * len(hit_labels))
+                    label: v
+                    for label, v in zip(
+                        hit_labels, file_data.get("hit_vector") or [0] * len(hit_labels), strict=False
+                    )  # may be longer (#4496)
                 },
                 "8. Dependency Network": {
                     "Direct Upstream (Fragility)": file_data.get("dependency_network", {}).get(

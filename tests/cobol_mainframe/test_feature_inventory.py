@@ -15,36 +15,9 @@ from tests.tools.feature_inventory import SCHEMA_FILE, TOOLS, scan_estate  # noq
 CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
 
 
-def run_snippet(tmp_path, code):
-    d = tmp_path / "estate"
-    d.mkdir(parents=True, exist_ok=True)
-    (d / "prog.cbl").write_text(code)
-    db_dir = tmp_path / "db"
-    db_dir.mkdir(parents=True, exist_ok=True)
-    return scan_estate(d, db_dir)
-
-
-def test_determinism(tmp_path):
-    code = "       ID DIVISION.\n       PROGRAM-ID. PROG.\n       PROCEDURE DIVISION.\n           GOBACK.\n"
-    d = tmp_path / "estate"
-    d.mkdir(parents=True, exist_ok=True)
-    (d / "prog.cbl").write_text(code)
-    db_dir = tmp_path / "db"
-    db_dir.mkdir(parents=True, exist_ok=True)
-    inv1 = scan_estate(d, db_dir)
-    inv2 = scan_estate(d, db_dir)
-    assert json.dumps(inv1, sort_keys=True) == json.dumps(inv2, sort_keys=True)  # noqa: S101
-
-
-def test_statements(tmp_path):
-    code = "       ID DIVISION.\n       PROGRAM-ID. P.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC 9.\n       PROCEDURE DIVISION.\n           ADD 1 TO X.\n           GOBACK.\n"
-    inv = run_snippet(tmp_path, code)
-    assert "ARITH" in inv["statements"]  # noqa: S101
-    assert "GOBACK" in inv["statements"]  # noqa: S101
-
-
-def test_data_types(tmp_path):
-    code = """       ID DIVISION.
+SNIPPETS = {
+    "statements": "       ID DIVISION.\n       PROGRAM-ID. P.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC 9.\n       PROCEDURE DIVISION.\n           ADD 1 TO X.\n           GOBACK.\n",
+    "data_types": """       ID DIVISION.
        PROGRAM-ID. P.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -56,18 +29,8 @@ def test_data_types(tmp_path):
        01 V6 PIC N(10) USAGE NATIONAL.
        PROCEDURE DIVISION.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert "PACKED" in inv["data_types"]  # noqa: S101
-    assert "P-SCALED" in inv["data_types"]  # noqa: S101
-    assert "EDITED" in inv["data_types"]  # noqa: S101
-    assert "COMP-1" in inv["data_types"]  # noqa: S101
-    assert "COMP-2" in inv["data_types"]  # noqa: S101
-    assert "NATIONAL" in inv["data_types"]  # noqa: S101
-
-
-def test_cics_commands_and_options(tmp_path):
-    code = """       ID DIVISION.
+""",
+    "cics_commands_and_options": """       ID DIVISION.
        PROGRAM-ID. P.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -75,29 +38,16 @@ def test_cics_commands_and_options(tmp_path):
        PROCEDURE DIVISION.
            EXEC CICS SEND TEXT FROM(V1) END-EXEC.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert "SEND TEXT" in inv["cics_commands"]  # noqa: S101
-    assert "SEND TEXT: FROM" in inv["cics_options"]  # noqa: S101
-
-
-def test_sql_forms(tmp_path):
-    code = """       ID DIVISION.
+""",
+    "sql_forms": """       ID DIVISION.
        PROGRAM-ID. P.
        PROCEDURE DIVISION.
            EXEC SQL DECLARE C1 CURSOR FOR SELECT * FROM T1 END-EXEC.
            EXEC SQL WHENEVER NOT FOUND GO TO ERR END-EXEC.
            EXEC SQL PREPARE S1 FROM :SQL-STMT END-EXEC.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert "DECLARE CURSOR" in inv["sql_forms"]  # noqa: S101
-    assert "WHENEVER" in inv["sql_forms"]  # noqa: S101
-    assert "DYNAMIC" in inv["sql_forms"]  # noqa: S101
-
-
-def test_intrinsic_functions(tmp_path):
-    code = """       ID DIVISION.
+""",
+    "intrinsic_functions": """       ID DIVISION.
        PROGRAM-ID. P.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -105,35 +55,20 @@ def test_intrinsic_functions(tmp_path):
        PROCEDURE DIVISION.
            MOVE FUNCTION CURRENT-DATE TO V1.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert "CURRENT-DATE" in inv["intrinsic_functions"]  # noqa: S101
-
-
-def test_compile_options(tmp_path):
-    code = """CBL NUMPROC(PFD)
+""",
+    "compile_options": """CBL NUMPROC(PFD)
        ID DIVISION.
        PROGRAM-ID. P.
        PROCEDURE DIVISION.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert any("NUMPROC: PFD" in k for k in inv["compile_options"])  # noqa: S101
-
-
-def test_copybook_gap(tmp_path):
-    code = """       ID DIVISION.
+""",
+    "copybook_gap": """       ID DIVISION.
        PROGRAM-ID. P.
        PROCEDURE DIVISION.
            COPY MISSING.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert any("COPY MISSING" in k for k in inv["copybook_resolution_gaps"])  # noqa: S101
-
-
-def test_fallback(tmp_path):
-    code = """       ID DIVISION.
+""",
+    "fallback": """       ID DIVISION.
        PROGRAM-ID. P.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -144,13 +79,89 @@ def test_fallback(tmp_path):
            EXEC SQL EXECUTE S1 END-EXEC.
            MOVE 1 TO V1.
            GOBACK.
-"""
-    inv = run_snippet(tmp_path, code)
-    assert any(x["program"] == "prog.cbl" for x in inv["unparsed_programs"])  # noqa: S101
-    assert "READ" in inv["cics_commands"]  # noqa: S101
-    assert "DYNAMIC" in inv["sql_forms"]  # noqa: S101
-    assert "MOVE" in inv["statements"]  # noqa: S101
-    assert "GOBACK" in inv["statements"]  # noqa: S101
+""",
+}  # one program per feature category, all scanned together ONCE (a full engine scan is 18-33 s)
+
+
+@pytest.fixture(scope="module")
+def synthetic(tmp_path_factory):
+    """(estate dir, db dir, inventory) for the combined synthetic estate; tmp_path_factory keeps it xdist-safe."""
+    base = tmp_path_factory.mktemp("feature_inventory")
+    d = base / "estate"
+    d.mkdir()
+    for name, code in SNIPPETS.items():
+        (d / f"{name}.cbl").write_text(code)
+    db_dir = base / "db"
+    db_dir.mkdir()
+    return d, db_dir, scan_estate(d, db_dir)
+
+
+def has(inv, category, key, snippet):
+    """The feature `key` was reported in `category` by the program of that snippet (not by a sibling's)."""
+    return key in inv[category] and f"{snippet}.cbl" in inv[category][key]["programs"]
+
+
+def test_determinism(synthetic):
+    d, db_dir, inv1 = synthetic
+    inv2 = scan_estate(d, db_dir)
+    assert json.dumps(inv1, sort_keys=True) == json.dumps(inv2, sort_keys=True)  # noqa: S101
+
+
+def test_statements(synthetic):
+    inv = synthetic[2]
+    assert has(inv, "statements", "ARITH", "statements")  # noqa: S101
+    assert has(inv, "statements", "GOBACK", "statements")  # noqa: S101
+
+
+def test_data_types(synthetic):
+    inv = synthetic[2]
+    assert has(inv, "data_types", "PACKED", "data_types")  # noqa: S101
+    assert has(inv, "data_types", "P-SCALED", "data_types")  # noqa: S101
+    assert has(inv, "data_types", "EDITED", "data_types")  # noqa: S101
+    assert has(inv, "data_types", "COMP-1", "data_types")  # noqa: S101
+    assert has(inv, "data_types", "COMP-2", "data_types")  # noqa: S101
+    assert has(inv, "data_types", "NATIONAL", "data_types")  # noqa: S101
+
+
+def test_cics_commands_and_options(synthetic):
+    inv = synthetic[2]
+    assert has(inv, "cics_commands", "SEND TEXT", "cics_commands_and_options")  # noqa: S101
+    assert has(inv, "cics_options", "SEND TEXT: FROM", "cics_commands_and_options")  # noqa: S101
+
+
+def test_sql_forms(synthetic):
+    inv = synthetic[2]
+    assert has(inv, "sql_forms", "DECLARE CURSOR", "sql_forms")  # noqa: S101
+    assert has(inv, "sql_forms", "WHENEVER", "sql_forms")  # noqa: S101
+    assert has(inv, "sql_forms", "DYNAMIC", "sql_forms")  # noqa: S101
+
+
+def test_intrinsic_functions(synthetic):
+    inv = synthetic[2]
+    assert has(inv, "intrinsic_functions", "CURRENT-DATE", "intrinsic_functions")  # noqa: S101
+
+
+def test_compile_options(synthetic):
+    inv = synthetic[2]
+    assert any(
+        "NUMPROC: PFD" in k and "compile_options.cbl" in v["programs"] for k, v in inv["compile_options"].items()
+    )  # noqa: S101
+
+
+def test_copybook_gap(synthetic):
+    inv = synthetic[2]
+    assert any(
+        "COPY MISSING" in k and "copybook_gap.cbl" in v["programs"] for k, v in inv["copybook_resolution_gaps"].items()
+    )  # noqa: S101
+
+
+def test_fallback(synthetic):
+    inv = synthetic[2]
+    assert any(x["program"] == "fallback.cbl" for x in inv["unparsed_programs"])  # noqa: S101
+    assert has(inv, "cics_commands", "READ", "fallback")  # noqa: S101
+    assert has(inv, "sql_forms", "DYNAMIC", "fallback")  # noqa: S101
+    assert has(inv, "statements", "MOVE", "fallback")  # noqa: S101
+    assert has(inv, "statements", "GOBACK", "fallback")  # noqa: S101
 
 
 TYPES = {"object": dict, "array": list, "string": str, "integer": int, "number": (int, float), "boolean": bool}
@@ -193,6 +204,10 @@ def test_schema_over_fixtures():
         check_schema({"statements": "not an object"}, schema, schema)
 
 
+@pytest.mark.nightly
+@pytest.mark.skipif(
+    not os.environ.get("GITGALAXY_NIGHTLY"), reason="nightly (~170 s, all estates): set GITGALAXY_NIGHTLY=1"
+)
 @pytest.mark.skipif(not (CORPORA / "cics-genapp").is_dir(), reason="no mainframe corpora (mainframe_corpus.py fetch)")
 def test_feature_inventory_cli_check():
     res = subprocess.run([sys.executable, str(TOOLS / "feature_inventory.py"), "--all-burned", "--check"],  # noqa: S603

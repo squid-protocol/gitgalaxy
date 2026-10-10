@@ -39,7 +39,8 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scip_callgraph  # noqa: E402

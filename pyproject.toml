@@ -189,6 +189,7 @@ testpaths = [
 ]
 markers = [
     "smoke: quick core engine tests for CI/CD pipelines",
+    "nightly: slow all-corpora check, skipped unless GITGALAXY_NIGHTLY is set (the scheduled ground-truth run sets it)",
     "golden_crucible: opt-in end-to-end regression test against the language-crucible corpus; needs a local checkout. Run explicitly via `pytest -m golden_crucible`.",
 ]
 addopts = "-m 'not golden_crucible'"

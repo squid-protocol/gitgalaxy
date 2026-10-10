@@ -37,16 +37,11 @@ on:
   # #4518: no longer a pull_request trigger. `gh pr create --label` fired the
   # 7-leg matrix on EVERY PR (labels are always attached), which on a 2-3
   # runner pool starved the whole PR queue. PRs keep the lean smoke set and the
-  # ubuntu full-suite in smoke-test.yml; this grid runs on main, nightly,
-  # on release tags and on demand.
+  # ubuntu full-suite in smoke-test.yml; this grid runs nightly, on release
+  # tags and on demand.
+  # #4825: no main push trigger any more. Post-merge runs of this grid are dispatched by post-merge.yml
+  # when no PR job is queued. Release tags still run it here.
   push:
-    branches: [main]
-    paths:
-      - "gitgalaxy/**"
-      - "tests/**"
-      - "pyproject.toml"
-      - "requirements.txt"
-      - ".github/workflows/full-suite-gate.yml"
     tags:
       - "v*"
   schedule:

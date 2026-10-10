@@ -35,7 +35,8 @@ import os
 import re
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Callable, NamedTuple
+from typing import NamedTuple
+from collections.abc import Callable
 
 from gitgalaxy.core.source_text import read_source
 

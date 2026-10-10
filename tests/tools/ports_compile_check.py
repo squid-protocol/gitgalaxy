@@ -34,7 +34,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -59,7 +59,7 @@ def _error_lines(text: str) -> str:
 
 
 # ---- crucible ports -----------------------------------------------------------------------------
-def check_crucible(root: Path, cases: Optional[set[str]], work: Path, offline: bool) -> tuple[int, list[str]]:
+def check_crucible(root: Path, cases: set[str] | None, work: Path, offline: bool) -> tuple[int, list[str]]:
     """(ports checked, `crucible:<case>/<PROGRAM>` of each that does not compile)."""
     checked, failed = 0, []
     for d in cc.discover(root, cases):
@@ -83,7 +83,7 @@ def check_crucible(root: Path, cases: Optional[set[str]], work: Path, offline: b
 
 
 # ---- equivalence ports --------------------------------------------------------------------------
-def equivalence_ports(cases: Optional[set[str]]) -> list[dict[str, Any]]:
+def equivalence_ports(cases: set[str] | None) -> list[dict[str, Any]]:
     """Every equivalence case with a committed port directory holding Java, with its case.json."""
     out = []
     for cj in sorted(EQUIVALENCE.glob("*/case.json"), key=lambda p: p.parent.name):
@@ -104,7 +104,7 @@ def port_files(case: dict[str, Any]) -> dict[str, Path]:
     return files
 
 
-def generate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path) -> Path:
+def generate(corpus_name: str, culture: dict[str, Any] | None, work: Path) -> Path:
     """The corpus's generated Spring project, as the equivalence harness generates it (equivalence_java.prepare_project:
     refactor, config h2, the case's culture); not built. tests/tools/port_surface.py resurfaces ports against it."""
     import equivalence_cache
@@ -120,8 +120,8 @@ def generate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path) ->
         return jtm.generate(clean, "h2", config, work)
 
 
-def estate(corpus_name: str, culture: Optional[dict[str, Any]], work: Path,
-           offline: bool) -> tuple[Optional[Path], Optional[str], str]:  # fmt: skip
+def estate(corpus_name: str, culture: dict[str, Any] | None, work: Path,
+           offline: bool) -> tuple[Path | None, str | None, str]:  # fmt: skip
     """The corpus's generated project, built: (target/classes, its compile classpath, '') or (None, None, errors)."""
     project = generate(corpus_name, culture, work)
     cp_file = work / "classpath.txt"
@@ -144,7 +144,7 @@ def javac(files: list[Path], classes: Path, classpath: str, out: Path) -> tuple[
     return proc.returncode == 0, proc.stdout + proc.stderr
 
 
-def check_equivalence(cases: Optional[set[str]], work: Path, offline: bool) -> tuple[int, list[str]]:
+def check_equivalence(cases: set[str] | None, work: Path, offline: bool) -> tuple[int, list[str]]:
     """(ports checked, `equivalence:<case>` of each that does not compile)."""
     checked, failed = 0, []
     groups: dict[str, list[dict[str, Any]]] = {}
@@ -180,7 +180,7 @@ def check_equivalence(cases: Optional[set[str]], work: Path, offline: bool) -> t
     return checked, failed
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--crucible", type=Path, help="the cics-crucible checkout (default: $CICS_CRUCIBLE_PATH, else "
                     "../cics-crucible)")  # fmt: skip

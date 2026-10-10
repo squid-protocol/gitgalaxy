@@ -22,14 +22,12 @@
 # ==============================================================================
 
 
-from typing import Optional
-
 # Data-level sections left out of a ticket: the agent translates one slice, and these run
 # to thousands of rows per program. They stay in the skeleton file the ticket names.
 _BULK_SECTIONS = ("records", "data_flows", "units")
 
 
-def ticket_skeleton(skeleton: dict, skeleton_file: Optional[str] = None) -> dict:
+def ticket_skeleton(skeleton: dict, skeleton_file: str | None = None) -> dict:
     """The ticket's view of a program skeleton: its non-empty, non-bulk sections."""
     sections = {
         name: {
@@ -50,9 +48,9 @@ def ticket_skeleton(skeleton: dict, skeleton_file: Optional[str] = None) -> dict
 def generate_java_agent_ticket(
     slice_json: dict,
     prog_id: str,
-    ir_state: Optional[dict] = None,
-    skeleton: Optional[dict] = None,
-    skeleton_file: Optional[str] = None,
+    ir_state: dict | None = None,
+    skeleton: dict | None = None,
+    skeleton_file: str | None = None,
 ) -> dict:
     """Generates a structured JSON task ticket for Java service generation."""
     target_var = slice_json.get("target_var", "UNKNOWN")

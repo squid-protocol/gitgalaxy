@@ -54,7 +54,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.cics_resources import (
     _BLOCK_LIMIT,
@@ -70,7 +71,7 @@ _TIMING = frozenset({"INTERVAL", "TIME", "AFTER", "AT", "FOR", "UNTIL", "HOURS",
 # Flags worth keeping in `attributes` (a bare keyword with no operand).
 _FLAGS = frozenset({"NOSUSPEND", "NOCHECK", "PROTECT", "TASK", "UOW", "PURGEABLE", "NOTPURGEABLE"})
 # The verb word(s) -> (row verb, target option, token option).
-_TASK_VERBS: dict[str, tuple[Optional[str], Optional[str]]] = {
+_TASK_VERBS: dict[str, tuple[str | None, str | None]] = {
     "RUN": ("TRANSID", "CHILD"),
     "START": ("TRANSID", "REQID"),
     "START ATTACH": ("TRANSID", None),
@@ -106,7 +107,7 @@ _FIGURATIVE = frozenset(
 )
 
 
-def _pic_pattern(pic: Optional[str]) -> str:
+def _pic_pattern(pic: str | None) -> str:
     """The fnmatch pattern a data-name of this PIC contributes DELIMITED BY SIZE:
     `[0-9]` per digit of an all-9 PIC (a leading S occupies nothing), `?` per
     character of an X/A PIC, and `*` for anything else (edited, V, unknown)."""
@@ -197,7 +198,7 @@ def _is_pattern(text: str) -> bool:
     return bool(re.search(r"[*?\[]", re.sub(r"\[[\[\]*?]\]", "", text)))
 
 
-def _task_verb(ordered: list[tuple[str, Optional[str]]]) -> Optional[tuple[str, int]]:
+def _task_verb(ordered: list[tuple[str, str | None]]) -> tuple[str, int] | None:
     """(row verb, index of the first option after it), or None for a non-task command."""
     if not ordered or ordered[0][1] is not None:
         return None
@@ -218,11 +219,11 @@ def _task_verb(ordered: list[tuple[str, Optional[str]]]) -> Optional[tuple[str, 
 
 def extract_cics_tasks(
     code_stream: str,
-    values: Optional[dict[str, str]] = None,
-    moves: Optional[dict[str, set[str]]] = None,
-    pics: Optional[dict[str, str]] = None,
+    values: dict[str, str] | None = None,
+    moves: dict[str, set[str]] | None = None,
+    pics: dict[str, str] | None = None,
     dialect: str = "cobol",
-    shielded: Optional[Callable[[int], bool]] = None,
+    shielded: Callable[[int], bool] | None = None,
 ) -> list[dict[str, Any]]:
     """Every CICS task-control command in one file, as flat source-ordered rows
     (see the module header).
@@ -236,7 +237,7 @@ def extract_cics_tasks(
     base = _resolver(values or {}, moves or {})
     patterns = _string_patterns(code_stream, pics or {}) if dialect == "cobol" else {}
 
-    def resolve(operand: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    def resolve(operand: str | None) -> tuple[str | None, str | None, str | None]:
         name, resolution, candidates = base(operand)
         # A STRING assigns the name too, so a sole MOVEd literal is no longer the
         # only value it can hold; a VALUE clause still wins (the first reading).
@@ -272,7 +273,7 @@ def extract_cics_tasks(
         verb, first = head
         target_key, token_key = _TASK_VERBS[verb]
         rest = ordered[first:]
-        opts: dict[str, Optional[str]] = {}
+        opts: dict[str, str | None] = {}
         for key, value in rest:
             opts.setdefault(key, value)
         # `FETCH CHILD(x)` / `FETCH ANY(x)`: the verb's own second word carries the token.

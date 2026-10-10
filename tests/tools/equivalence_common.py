@@ -23,7 +23,7 @@ import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.compiler_options import (
     DEFAULTS,
@@ -65,7 +65,7 @@ def data_encoding(case: dict[str, Any]) -> str:
     return enc
 
 
-def source_encoding(case: dict[str, Any]) -> Optional[str]:
+def source_encoding(case: dict[str, Any]) -> str | None:
     """#3815: the estate's declared source code page (`source_encoding`), or None: the read_source ladder."""
     enc = case.get("source_encoding")
     return _check_codec(enc, "source_encoding") if enc else None
@@ -235,7 +235,7 @@ class UnsupportedOption(Exception):
     """A compiler option the GnuCOBOL side cannot honour (#3828)."""
 
 
-def compiler_version(case: dict[str, Any]) -> Optional[tuple[int, int]]:
+def compiler_version(case: dict[str, Any]) -> tuple[int, int] | None:
     """(version, release) of the IBM compiler a case states it was built with (`"compiler": {"product": "Enterprise
     COBOL", "version": "6.1", "evidence": ...}`, e.g. the estate's build JCL's IGY.V6R1M0.SIGYCOMP), else the estate
     options file's (#4704: gitgalaxy.core.estate_options), else None."""
@@ -275,7 +275,7 @@ def numproc(case: dict[str, Any], source: str) -> str:
 DET_PORT_HEADER = "// gitgalaxy-det-port:"
 
 
-def numproc_guard(case: dict[str, Any], source: str, port_dir: Optional[Path]) -> None:
+def numproc_guard(case: dict[str, Any], source: str, port_dir: Path | None) -> None:
     """#4271: a NUMPROC(PFD) program is proven only through a det port, whose runtime refuses a non-preferred sign
     (register C5); a model port or the generated service has no such guard, so GnuCOBOL's NOPFD reading of a
     non-preferred sign could pass for IBM's PFD. Raises UnsupportedOption for those."""
@@ -344,7 +344,7 @@ def comp5_layout_guard(src: Path) -> None:
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 
-def option_differences(case: dict[str, Any], source: str, port_dir: Optional[Path]) -> list[dict[str, Any]]:
+def option_differences(case: dict[str, Any], source: str, port_dir: Path | None) -> list[dict[str, Any]]:
     """#4706: the options the proof of `port_dir` (None: the generated service) cannot claim, as declared differences
     for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
     binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
@@ -394,7 +394,7 @@ def _overpunch(code_page: str = "cp037") -> dict[str, tuple[int, int]]:
     return {**{c: (i, 1) for i, c in enumerate(pos)}, **{c: (i, -1) for i, c in enumerate(neg)}}
 
 
-def _pic_numeric(pic: str) -> Optional[tuple[bool, int, int]]:
+def _pic_numeric(pic: str) -> tuple[bool, int, int] | None:
     """(signed, digits, scale) of a numeric PIC, or None."""
     import re
 
@@ -410,7 +410,7 @@ def _ascii_digits(text: str) -> bool:
     return bool(text) and text.isascii() and text.isdigit()
 
 
-def _decode_text(raw: bytes, enc: str) -> Optional[str]:
+def _decode_text(raw: bytes, enc: str) -> str | None:
     """#3815: strictly; None when the bytes are not text in `enc` (half a UTF-8 letter, an unmapped byte)."""
     try:
         return raw.decode(enc)
@@ -420,8 +420,8 @@ def _decode_text(raw: bytes, enc: str) -> Optional[str]:
 
 def decode_field(
     raw: bytes,
-    pic: Optional[str],
-    usage: Optional[str],
+    pic: str | None,
+    usage: str | None,
     code_page: str = "cp037",
     sign_separate: bool = False,
     data_encoding: str = DEFAULT_DATA_ENCODING,
@@ -565,8 +565,8 @@ def decode_pointer(raw: bytes) -> str:
 def layout_fields(
     corpus: Path,
     copybook: str,
-    record: Optional[str] = None,
-    copy_dirs: Optional[list[Path]] = None,
+    record: str | None = None,
+    copy_dirs: list[Path] | None = None,
     occurrences: bool = False,
 ) -> list[dict[str, Any]]:
     """The elementary fields of a copybook record: name, offset, bytes, pic, usage (the answer
@@ -592,7 +592,7 @@ def layout_fields(
     unresolved: list[tuple[int, str]] = []
     text = _expanded_lines(path, dirs, unresolved)
     items = [it for it in ak._data_items(ak.Source(path, list(enumerate(text, 1)))) if it["level"] not in (66, 88)]
-    kids: dict[Optional[int], list[dict[str, Any]]] = {}
+    kids: dict[int | None, list[dict[str, Any]]] = {}
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
 
@@ -673,9 +673,9 @@ def active_fields(
     if not any(f.get("odo") for f in fields):
         return fields
     by_name = {f["name"]: f for f in fields}
-    counts: dict[str, Optional[int]] = {}
+    counts: dict[str, int | None] = {}
 
-    def count(obj: str) -> Optional[int]:
+    def count(obj: str) -> int | None:
         if obj not in counts:
             f = by_name.get(obj)
             v = None
@@ -769,7 +769,7 @@ def diff_records(
     fields: list[dict[str, Any]],
     code_page: str = "cp037",
     data_encoding: str = DEFAULT_DATA_ENCODING,
-    right_encoding: Optional[str] = None,
+    right_encoding: str | None = None,
 ) -> dict[str, Any]:
     """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
     equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
@@ -790,7 +790,7 @@ def diff_records(
     renc = right_encoding or data_encoding
     same_page = codecs.lookup(renc).name == codecs.lookup(data_encoding).name
 
-    def same_bytes(x: bytes, y: bytes, usage: Optional[str] = None) -> bool:
+    def same_bytes(x: bytes, y: bytes, usage: str | None = None) -> bool:
         if same_page or (usage or "DISPLAY").upper() not in _TEXT_USAGES:
             return x == y
         return _as_text(x, data_encoding) == _as_text(y, renc)

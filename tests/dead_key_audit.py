@@ -55,7 +55,7 @@ import ast
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Optional, Set
+from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOTS = [REPO_ROOT / "gitgalaxy"]
@@ -324,13 +324,13 @@ class KeyUsage(NamedTuple):
     line: int
 
 
-def _string_const(node: Optional[ast.expr]) -> Optional[str]:
+def _string_const(node: ast.expr | None) -> str | None:
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     return None
 
 
-def _fstring_prefix(node: Optional[ast.expr]) -> Optional[str]:
+def _fstring_prefix(node: ast.expr | None) -> str | None:
     """
     For an f-string key like f"sec_{sec_key}", returns the leading literal
     text ("sec_") a write to that templated key would always start with.
@@ -356,9 +356,9 @@ class KeyVisitor(ast.NodeVisitor):
 
     def __init__(self, filename: str):
         self.filename = filename
-        self.reads: Dict[str, List[KeyUsage]] = {}
-        self.writes: Set[str] = set()
-        self.prefix_writes: Set[str] = set()
+        self.reads: dict[str, list[KeyUsage]] = {}
+        self.writes: set[str] = set()
+        self.prefix_writes: set[str] = set()
 
     def _record_read(self, key: str, node: ast.AST) -> None:
         self.reads.setdefault(key, []).append(KeyUsage(self.filename, node.lineno))
@@ -418,7 +418,7 @@ class KeyVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def iter_python_files(roots: List[Path]):
+def iter_python_files(roots: list[Path]):
     for root in roots:
         for path in sorted(root.rglob("*.py")):
             if "__pycache__" in path.parts:
@@ -427,9 +427,9 @@ def iter_python_files(roots: List[Path]):
 
 
 def scan() -> tuple:
-    all_reads: Dict[str, List[KeyUsage]] = {}
-    all_writes: Set[str] = set()
-    all_prefix_writes: Set[str] = set()
+    all_reads: dict[str, list[KeyUsage]] = {}
+    all_writes: set[str] = set()
+    all_prefix_writes: set[str] = set()
 
     for path in iter_python_files(SCAN_ROOTS):
         try:
@@ -455,7 +455,7 @@ def scan() -> tuple:
     return all_reads, all_writes, all_prefix_writes
 
 
-def find_dead_keys() -> Dict[str, List[KeyUsage]]:
+def find_dead_keys() -> dict[str, list[KeyUsage]]:
     reads, writes, prefix_writes = scan()
     dead = {}
     for key, usages in reads.items():
@@ -469,7 +469,7 @@ def find_dead_keys() -> Dict[str, List[KeyUsage]]:
     return dead
 
 
-def load_baseline() -> Dict[str, str]:
+def load_baseline() -> dict[str, str]:
     """Returns {key: reason} for every already-known, not-yet-fixed lead."""
     if not BASELINE_PATH.exists():
         return {}
@@ -477,7 +477,7 @@ def load_baseline() -> Dict[str, str]:
         return json.load(f)
 
 
-def _print_dead_keys(dead: Dict[str, List[KeyUsage]]) -> None:
+def _print_dead_keys(dead: dict[str, list[KeyUsage]]) -> None:
     for key in sorted(dead, key=lambda k: (-len(dead[k]), k)):
         usages = dead[key]
         print(f'  "{key}"  ({len(usages)} read site(s))')

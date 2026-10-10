@@ -91,7 +91,9 @@ def snapshot(db_path: str | Path) -> dict[str, dict[str, Any]]:
             while key in per_file["Function Archetype"]:
                 n += 1
                 key = f"{name}@{line}#{n}"
-            for (label, column), raw in zip(FUNCTION_COLUMNS.items(), values):
+            for (label, column), raw in zip(
+                FUNCTION_COLUMNS.items(), values, strict=False
+            ):  # reason: length may differ
                 per_file[label][key] = _value(column, raw)
         edges = conn.execute(
             "SELECT s.file_path, d.file_path, e.edge_kind FROM edge_data e "

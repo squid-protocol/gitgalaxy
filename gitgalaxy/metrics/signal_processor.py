@@ -16,7 +16,7 @@ import math
 import re
 import statistics
 from collections.abc import Mapping
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 from gitgalaxy.core.function_population import is_population_function
 from gitgalaxy.core.spatial_correlation import WEIGHTED_SIGNALS, weighted_view
@@ -123,8 +123,8 @@ class SignalProcessor:
 
     def __init__(
         self,
-        aperture_config: Optional[dict[str, Any]] = None,
-        parent_logger: Optional[logging.Logger] = None,
+        aperture_config: dict[str, Any] | None = None,
+        parent_logger: logging.Logger | None = None,
     ):
         """Initializes the signal processing engine with forensic constants and telemetry."""
         if parent_logger:
@@ -230,7 +230,7 @@ class SignalProcessor:
                 return "Unclassified", 0.0, {}
 
             dist_sq = 0.0
-            for live_value, centroid_value in zip(scaled_vector, centroid_vector):
+            for live_value, centroid_value in zip(scaled_vector, centroid_vector, strict=True):
                 dist_sq += (live_value - centroid_value) ** 2
 
             distance = math.sqrt(dist_sq)
@@ -659,7 +659,7 @@ class SignalProcessor:
                             if len(centroid) != len(scaled_vec):
                                 continue  # length guard (stale model) -> leaves Unclassified
                             d = 0.0
-                            for a, b in zip(scaled_vec, centroid):
+                            for a, b in zip(scaled_vec, centroid, strict=True):
                                 diff = a - b
                                 d += diff * diff
                             if best_dist is None or d < best_dist:
@@ -672,7 +672,7 @@ class SignalProcessor:
                     sorted_comps = sorted(float(c) for c in complexities)
                     n = len(sorted_comps)
                     index = range(1, n + 1)
-                    func_gini = (sum((2 * i - n - 1) * c for i, c in zip(index, sorted_comps))) / (
+                    func_gini = (sum((2 * i - n - 1) * c for i, c in zip(index, sorted_comps, strict=True))) / (
                         n * sum(sorted_comps)
                     )
             # ---> END FUNCTION-LEVEL ML CLASSIFICATION <---
@@ -1670,7 +1670,7 @@ class SignalProcessor:
 
     def _calc_documentation(
         self,
-        functions: Optional[list[dict[str, Any]]] = None,
+        functions: list[dict[str, Any]] | None = None,
         doc_umbrella: float = 0.0,
     ) -> float:
         """The #2908 score contract (docs/risk_documentation_contract.md §1): of the

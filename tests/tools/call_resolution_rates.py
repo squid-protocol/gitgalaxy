@@ -68,7 +68,9 @@ def measure(crucible: Path) -> list[dict]:
             cur = conn.execute(
                 'SELECT language, total, scoped, "unique", ambiguous, external FROM fcall_rate_data ORDER BY language'
             )
-            rows = [dict(zip(["language", "total", *CLASSES], r)) for r in cur]
+            rows = [
+                dict(zip(["language", "total", *CLASSES], r, strict=False)) for r in cur
+            ]  # reason: length may differ
         finally:
             conn.close()
     for r in rows:

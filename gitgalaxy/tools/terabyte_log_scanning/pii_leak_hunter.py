@@ -13,7 +13,7 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from gitgalaxy.core.source_text import decode_bytes
 
@@ -86,7 +86,7 @@ def _cpf_valid(raw: bytes) -> bool:
     if len(digits) != 11 or len(set(digits)) == 1:
         return False
     for n in (9, 10):
-        total = sum(d * w for d, w in zip(digits[:n], range(n + 1, 1, -1)))
+        total = sum(d * w for d, w in zip(digits[:n], range(n + 1, 1, -1), strict=True))
         if (total * 10 % 11) % 10 != digits[n]:
             return False
     return True
@@ -102,13 +102,13 @@ def _bsn_valid(raw: bytes, line: bytes) -> bool:
     digits = [int(ch) for ch in _digits(raw)]
     if len(digits) != 9 or not any(digits):
         return False
-    total = sum(d * w for d, w in zip(digits, (9, 8, 7, 6, 5, 4, 3, 2, -1)))
+    total = sum(d * w for d, w in zip(digits, (9, 8, 7, 6, 5, 4, 3, 2, -1), strict=True))
     return total % 11 == 0 and _BSN_LABEL.search(line) is not None
 
 
 # (pattern, validator). A validator takes the matched bytes and the whole line
 # and returns whether it is a real identifier; None accepts every match.
-_Validator = Optional[Callable[[bytes, bytes], bool]]
+_Validator = Callable[[bytes, bytes], bool] | None
 PII_REGION_PACKS: dict[str, dict[str, tuple["re.Pattern[bytes]", _Validator]]] = {
     "global": {
         "VISA": (re.compile(rb"\b4[0-9]{12}(?:[0-9]{3})?\b"), None),

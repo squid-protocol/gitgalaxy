@@ -99,7 +99,7 @@ import tarfile
 import tempfile
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import decode_bytes, read_source
 
@@ -246,7 +246,7 @@ def measure(verbose: bool = False) -> dict:
                     for r in conn.execute("SELECT class_name FROM class_data WHERE file_id = ?", (row["id"],))
                 }
                 gg_func_names = {r["func_name"] for r in gg_funcs}
-                gg_args_by_name: dict[str, Optional[int]] = {}
+                gg_args_by_name: dict[str, int | None] = {}
                 for r in gg_funcs:
                     gg_args_by_name.setdefault(r["func_name"], r["args"])
 

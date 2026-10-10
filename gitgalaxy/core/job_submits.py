@@ -36,7 +36,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 # A literal that holds one JCL card: the opening quote, `//`, an optional
 # name, then JOB or EXEC and the rest of the card up to the closing quote.
@@ -49,7 +50,7 @@ _EXEC_TARGET = re.compile(r"^[ \t]{0,20}(?:(PROC|PGM)=)?([A-Z@#$][A-Z0-9@#$]{0,7
 _SYSOUT_INTRDR = re.compile(r"(?<![A-Z0-9])SYSOUT=\([^,()]{0,8},[ \t]{0,4}INTRDR[ \t]{0,4}[,)]", re.I)
 
 
-def cobol_job_cards(code_stream: str, shielded: Optional[Callable[[int], bool]] = None) -> list[dict[str, Any]]:
+def cobol_job_cards(code_stream: str, shielded: Callable[[int], bool] | None = None) -> list[dict[str, Any]]:
     """The JCL JOB and EXEC cards one COBOL file holds as literals (see the header).
 
     `shielded(offset)` says the offset is inside ANOTHER literal (so the quote
@@ -93,9 +94,9 @@ def jcl_intrdr_dds(statements: list[tuple[int, str, str, str]]) -> list[dict[str
     operands). `target` is the same step's SYSUT1 DSN -- what IEBGENER copies to
     SYSUT2 -- when the step has one."""
     rows: list[dict[str, Any]] = []
-    step: Optional[str] = None
+    step: str | None = None
     step_rows: list[dict[str, Any]] = []
-    sysut1: Optional[str] = None
+    sysut1: str | None = None
 
     def close() -> None:
         for r in step_rows:

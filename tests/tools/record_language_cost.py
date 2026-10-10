@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import itertools
 import glob
 import json
 import os
@@ -141,7 +142,7 @@ def analyze(paths):
 
     times.sort()
     elapsed = (times[-1] - times[0]).total_seconds() if len(times) > 1 else 0
-    active = sum(min((b - a).total_seconds(), IDLE_GAP_CAP) for a, b in zip(times, times[1:]))
+    active = sum(min((b - a).total_seconds(), IDLE_GAP_CAP) for a, b in itertools.pairwise(times))
 
     agg = dict(input=0, output=0, cache_write=0, cache_read=0)
     cost = 0.0

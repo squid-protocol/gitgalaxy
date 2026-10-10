@@ -170,7 +170,7 @@ def test_the_ceedays_model_against_the_calendar(tmp_path):
                            "gcc -o t t.c ceedays.c && ./t"], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stderr
     epoch = datetime.date(1582, 10, 14)
-    for (date, msg), line in zip(cases.items(), proc.stdout.split("\n")):
+    for (date, msg), line in zip(cases.items(), proc.stdout.split("\n"), strict=False):  # reason: length may differ
         lilian, got = (int(x) for x in line.split())
         assert got == msg, date
         if not msg:

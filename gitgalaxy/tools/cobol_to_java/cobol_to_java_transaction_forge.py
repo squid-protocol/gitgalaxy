@@ -3131,7 +3131,7 @@ class CicsForge:
         self.names.claim(name)
         body: list[str] = []
         fields: list[str] = []
-        for sg, dto in zip(commarea["segments"], prog.segment_dtos):
+        for sg, dto in zip(commarea["segments"], prog.segment_dtos, strict=True):
             var = java_identifier(sg["record"])
             fields.append(var)
             body.append(f"    // DFHCOMMAREA({sg.get('refmod') or 'whole'}) at line {sg['line']}: offset {sg['offset']}, "

@@ -34,7 +34,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PORTS = REPO_ROOT / "tests" / "cics_crucible" / "ports"
@@ -49,12 +49,12 @@ def records(ports: Path = PORTS) -> list[Path]:
     return sorted(ports.glob("*/*/provenance.json"))
 
 
-def ref_tag(ref: Optional[str]) -> Optional[str]:
+def ref_tag(ref: str | None) -> str | None:
     """ "v0.2.0 (94f2afcb)" -> "v0.2.0"; a bare commit stays as it is."""
     return ref.split(" ", 1)[0] if ref else None
 
 
-def current_ref(prov: dict[str, Any]) -> Optional[str]:
+def current_ref(prov: dict[str, Any]) -> str | None:
     """The crucible ref of the record's latest proof: the last re-proof, else the loop's own."""
     proof = prov.get("proof") or {}
     again = proof.get("reproven") or []
@@ -96,7 +96,7 @@ def _now() -> str:
 
 
 def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] = (),
-                needs: Optional[str] = None) -> dict[str, Any]:  # fmt: skip
+                needs: str | None = None) -> dict[str, Any]:  # fmt: skip
     """Run the program's proof at the pinned crucible and write the outcome into its provenance.json."""
     case, program = path.parent.parent.name, path.parent.name
     report_dir = work / case / program
@@ -131,7 +131,7 @@ def reprove_one(path: Path, crucible: Path, work: Path, extra: tuple[str, ...] =
     return outcome
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("check", help="list the records not at PINNED_REF and not marked stale against it")

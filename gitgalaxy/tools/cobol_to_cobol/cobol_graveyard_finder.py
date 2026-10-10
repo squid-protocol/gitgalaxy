@@ -18,7 +18,6 @@ import re
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import read_source
 
@@ -170,7 +169,8 @@ def _nearest(candidates: list[Path], origin: Path) -> list[Path]:
 
     def shared(p: Path) -> int:
         n = 0
-        for a, b in zip(p.parent.parts, origin.parent.parts):
+        # reason: path parts may differ in length
+        for a, b in zip(p.parent.parts, origin.parent.parts, strict=False):
             if a != b:
                 break
             n += 1
@@ -179,7 +179,7 @@ def _nearest(candidates: list[Path], origin: Path) -> list[Path]:
     return sorted(candidates, key=lambda p: (-shared(p), p.suffix.lower() != ".cpy", str(p)))
 
 
-def find_copybook(name: str, copybook_root: Path, origin: Path, declared: Optional[str] = None) -> Optional[Path]:
+def find_copybook(name: str, copybook_root: Path, origin: Path, declared: str | None = None) -> Path | None:
     """The member `COPY name` resolves to: searched under `copybook_root` (the
     repository, not just the program's directory: real layouts keep copybooks in
     COPYBOOK/ or cobol_copy/), nearest to `origin` first, never a program (#3203)."""
@@ -207,7 +207,7 @@ def _blank_literals(text: str) -> str:
     return "".join(out)
 
 
-def _code_area(line: str) -> Optional[str]:
+def _code_area(line: str) -> str | None:
     """Area A..B (cols 8-72) of a fixed-format line with literals blanked and any
     inline `*>` comment cut, or None for a comment / debug line (column 7)."""
     if len(line) > 6 and line[6] in "*/D":
@@ -216,7 +216,7 @@ def _code_area(line: str) -> Optional[str]:
     return area.split("*>", 1)[0]
 
 
-def unit_header(line: str) -> Optional[str]:
+def unit_header(line: str) -> str | None:
     """The paragraph or section name a line declares, or None.
 
     A header is `NAME.` / `NAME SECTION.` starting in Area A (cols 8-11), alone on
@@ -288,7 +288,7 @@ def procedure_units(proc_div: str) -> list[dict]:
     return units
 
 
-def split_procedure_division(content: str) -> Optional[tuple[str, str]]:
+def split_procedure_division(content: str) -> tuple[str, str] | None:
     """(text before, text after) the PROCEDURE DIVISION header, or None. #3533: any
     run of blanks may separate the two words (navikt/DSF PLUKKFR writes
     `PROCEDURE        DIVISION.`)."""
@@ -309,7 +309,7 @@ _END_PROGRAM = re.compile(r"END[ \t]+PROGRAM\b")
 _PROGRAM_NAME = re.compile(r"PROGRAM-ID[ \t]*\.?\s+['\"]?([A-Z0-9][A-Z0-9\-]*)")
 
 
-def split_programs(content: str) -> Optional[list[dict]]:
+def split_programs(content: str) -> list[dict] | None:
     """The programs of an upper-cased fixed-format source, or None when it holds one.
 
     A program starts at an `IDENTIFICATION DIVISION.` header in Area A and ends at
@@ -321,7 +321,7 @@ def split_programs(content: str) -> Optional[list[dict]]:
     """
     lines = content.split("\n")
     rows: list[list[int]] = []  # per program, the indexes of its own lines
-    parents: list[Optional[int]] = []
+    parents: list[int | None] = []
     open_: list[int] = []
     for i, line in enumerate(lines):
         code = _code_area(line) or ""
@@ -339,7 +339,7 @@ def split_programs(content: str) -> Optional[list[dict]]:
     if len(rows) < 2:
         return None
     texts = ["\n".join(lines[i] for i in r) for r in rows]
-    ids: list[Optional[str]] = []
+    ids: list[str | None] = []
     for text in texts:
         # the raw code area: _code_area blanks literals, and the name may be one (`'EPSCSMRD'`)
         m = _PROGRAM_NAME.search("\n".join(r[7:72] for r in text.split("\n") if _code_area(r) is not None))
@@ -350,7 +350,7 @@ def split_programs(content: str) -> Optional[list[dict]]:
     ]
 
 
-def keyed_unit(program_id: Optional[str], name: str) -> str:
+def keyed_unit(program_id: str | None, name: str) -> str:
     """#4243: a unit of a source's second or later program as `PROG:NAME`, the way the
     answer key names it (#4206): siblings repeat names (each has a MAINLINE), so a
     bare name is the first program's. A colon never occurs in a COBOL name."""
@@ -360,17 +360,17 @@ def keyed_unit(program_id: Optional[str], name: str) -> str:
 def program_units(
     content: str,
     filepath: Path,
-    copybook_root: Optional[Path] = None,
-    origin: Optional[Path] = None,
-    declared: Optional[str] = None,
-) -> Optional[list[tuple[Optional[str], list[dict]]]]:
+    copybook_root: Path | None = None,
+    origin: Path | None = None,
+    declared: str | None = None,
+) -> list[tuple[str | None, list[dict]]] | None:
     """#4243: (program prefix, units) per program of a multi-program source -- the
     first program's prefix None, the others' their PROGRAM-ID -- each program's
     copybooks inlined into its own text; None for a one-program source."""
     progs = split_programs(content)
     if progs is None:
         return None
-    out: list[tuple[Optional[str], list[dict]]] = []
+    out: list[tuple[str | None, list[dict]]] = []
     for n, prog in enumerate(progs):
         split = split_procedure_division(resolve_copybooks(prog["text"], filepath, copybook_root, origin, declared))
         units = procedure_units(split[1]) if split else []
@@ -411,7 +411,7 @@ def _unconditional_sentences(text: str) -> list[str]:
     return out
 
 
-def _last_sentence(text: str) -> Optional[str]:
+def _last_sentence(text: str) -> str | None:
     """The unit's last sentence if it is unconditional, else None."""
     sentences = [x for x in _SENTENCE_END.split(text) if x.strip()]
     if not sentences:
@@ -474,7 +474,7 @@ def reachable_units(units: list[dict]) -> set[str]:
                 j += 1
             section_end[i] = j
 
-    def span(first: str, thru: Optional[str]) -> tuple[int, int]:
+    def span(first: str, thru: str | None) -> tuple[int, int]:
         a = index[first]
         last = index.get(thru, a) if thru else a
         return a, section_end.get(last, last)
@@ -482,9 +482,9 @@ def reachable_units(units: list[dict]) -> set[str]:
     terminal = [_is_terminal(u["text"]) for u in units]
     # Every unconditional sentence that is exactly a PERFORM: any one of a range
     # that never returns makes the unit terminal, wherever it sits (#3420).
-    tails: list[list[tuple[str, Optional[str]]]] = []
+    tails: list[list[tuple[str, str | None]]] = []
     for u in units:
-        found: list[tuple[str, Optional[str]]] = []
+        found: list[tuple[str, str | None]] = []
         for s in _unconditional_sentences(u["text"]):
             m = _TAIL_PERFORM.search(s)
             if m and m.group(1) in index:
@@ -500,12 +500,12 @@ def reachable_units(units: list[dict]) -> set[str]:
                     if any(terminal[a : b + 1]):
                         terminal[i] = changed = True
 
-    queue: list[tuple[int, Optional[int]]] = [(0, None)] if units else []
+    queue: list[tuple[int, int | None]] = [(0, None)] if units else []
     for u in units:
         for m in _CICS_HANDLE.finditer(u["text"]):
             queue.extend((index[t], None) for t in _CICS_LABEL.findall(m.group(1)) if t in index)
     reached: set[int] = set()
-    seen: set[tuple[int, Optional[int]]] = set()
+    seen: set[tuple[int, int | None]] = set()
     while queue:
         start, end = queue.pop()
         if (start, end) in seen:
@@ -533,9 +533,9 @@ def reachable_units(units: list[dict]) -> set[str]:
 def resolve_copybooks(
     content: str,
     source_path: Path,
-    copybook_root: Optional[Path] = None,
-    origin: Optional[Path] = None,
-    declared: Optional[str] = None,
+    copybook_root: Path | None = None,
+    origin: Path | None = None,
+    declared: str | None = None,
 ) -> str:
     """
     Recursively hunts for COBOL 'COPY' statements and injects the contents of the
@@ -594,10 +594,10 @@ def resolve_copybooks(
 
 def x_ray_dead_code(
     filepath: Path,
-    copybook_root: Optional[Path] = None,
-    origin: Optional[Path] = None,
-    declared: Optional[str] = None,
-) -> Optional[dict]:
+    copybook_root: Path | None = None,
+    origin: Path | None = None,
+    declared: str | None = None,
+) -> dict | None:
     """Parses a fully-expanded COBOL file to find mathematically unreachable logic and memory.
 
     `copybook_root` is where COPY members are searched (default: the file's own

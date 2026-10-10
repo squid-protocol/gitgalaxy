@@ -51,7 +51,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 
@@ -81,7 +82,7 @@ _HANDLE_VERBS = frozenset({"MQPUT", "MQGET", "MQCLOSE", "MQINQ", "MQSET"})
 _DEPTH = 3
 
 
-def _direction(verb: str, options: list[str]) -> Optional[str]:
+def _direction(verb: str, options: list[str]) -> str | None:
     if verb in ("MQPUT", "MQPUT1"):
         return "put"
     if verb == "MQGET":
@@ -103,8 +104,8 @@ def _direction(verb: str, options: list[str]) -> Optional[str]:
 
 def extract_mq_calls(
     code_stream: str,
-    values: Optional[dict[str, str]] = None,
-    shielded: Optional[Callable[[int], bool]] = None,
+    values: dict[str, str] | None = None,
+    shielded: Callable[[int], bool] | None = None,
 ) -> list[dict[str, Any]]:
     """Every MQI call in one COBOL file, as flat source-ordered rows (see the header).
 
@@ -169,7 +170,7 @@ def extract_mq_calls(
                 out |= resolve(s, depth + 1)
         return out
 
-    def reading(operand: Optional[str]) -> tuple[Optional[str], str, Optional[str]]:
+    def reading(operand: str | None) -> tuple[str | None, str, str | None]:
         """(queue, resolution, candidates) for the operand MOVEd to an OBJECTNAME."""
         if operand is None:
             return None, "unresolved", None
@@ -186,11 +187,11 @@ def extract_mq_calls(
         return None, "unresolved", None
 
     newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
-    objectname: dict[Optional[str], str] = {}  # descriptor qualifier (None = unqualified) -> operand
+    objectname: dict[str | None, str] = {}  # descriptor qualifier (None = unqualified) -> operand
     options: dict[str, list[str]] = {}  # options field -> option words, as last assigned
     handle_moves: dict[str, str] = {}  # handle field -> the handle MOVEd into it since the last call
     opens: list[dict[str, Any]] = []
-    last_open: Optional[dict[str, Any]] = None
+    last_open: dict[str, Any] | None = None
     rows: list[dict[str, Any]] = []
     for _pos, kind, data in events:
         if kind == "move":

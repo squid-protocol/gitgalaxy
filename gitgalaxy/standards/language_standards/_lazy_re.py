@@ -91,10 +91,10 @@ def materialize(value: Any) -> Any:
     if isinstance(value, (dict, list, tuple)):
         items = list(value.values() if isinstance(value, dict) else value)
         done = [materialize(v) for v in items]
-        if all(a is b for a, b in zip(items, done)):
+        if all(a is b for a, b in zip(items, done, strict=True)):
             return value
         if isinstance(value, dict):
-            return dict(zip(value.keys(), done))
+            return dict(zip(value.keys(), done, strict=True))
         return type(value)(done) if isinstance(value, list) else tuple(done)
     return value
 

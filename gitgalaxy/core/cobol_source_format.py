@@ -122,7 +122,7 @@ def blank_identification_area(code_stream: str, formats: list[str] | None = None
     lines = code_stream.split("\n")
     if formats is None or len(formats) != len(lines):
         formats = line_formats(code_stream)
-    for i, (line, fmt) in enumerate(zip(lines, formats)):
+    for i, (line, fmt) in enumerate(zip(lines, formats, strict=True)):
         body = line.rstrip("\r")
         if fmt == FIXED and len(body) > 72 and body[72:].strip():
             lines[i] = body[:72] + " " * (len(body) - 72) + line[len(body) :]
@@ -145,7 +145,7 @@ def blank_sequence_area(code_stream: str, formats: list[str] | None = None) -> s
     lines = code_stream.split("\n")
     if formats is None or len(formats) != len(lines):
         formats = line_formats(code_stream)
-    for i, (line, fmt) in enumerate(zip(lines, formats)):
+    for i, (line, fmt) in enumerate(zip(lines, formats, strict=True)):
         if fmt != FIXED or not _NUMBERED_SEQUENCE_AREA.match(line):
             continue
         indicator = line[6:7]

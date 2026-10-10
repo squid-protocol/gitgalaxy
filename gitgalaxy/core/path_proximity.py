@@ -15,7 +15,6 @@
 # resolution that disagrees with Linux for the same repository. #3223 went red
 # on exactly this class of thing.
 # ==============================================================================
-from typing import Optional
 
 
 def _posix(path: str) -> str:
@@ -38,14 +37,15 @@ def proximity_rank(candidate: str, src_path: str) -> tuple[int, int]:
     src_dirs = _posix(src_path).split("/")[:-1]
     dirs = _posix(candidate).split("/")[:-1]
     shared = 0
-    for a, b in zip(src_dirs, dirs):
+    # reason: path parts may differ in length
+    for a, b in zip(src_dirs, dirs, strict=False):
         if a != b:
             break
         shared += 1
     return -shared, len(dirs)
 
 
-def nearest_path(candidates: list[str], src_path: str) -> Optional[str]:
+def nearest_path(candidates: list[str], src_path: str) -> str | None:
     """The single nearest candidate, alphabetically broken so a tie still yields one.
 
     Deterministic and independent of scan order: a repository scanned on two

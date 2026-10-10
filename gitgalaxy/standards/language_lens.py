@@ -12,7 +12,7 @@ import math
 import re
 import time
 from pathlib import Path
-from typing import Any, Optional, TypedDict, Union
+from typing import Any, TypedDict
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH
@@ -33,8 +33,8 @@ class DetectorResult(TypedDict):
 
     lang_id: str
     intensity: float
-    family: Optional[str]
-    lock_tier: Union[int, float]
+    family: str | None
+    lock_tier: int | float
     source_proof: str
     candidates: list[str]
     path: str
@@ -189,8 +189,8 @@ class LanguageDetector:
         self,
         language_definitions: dict[str, Any],
         lexical_heuristics: dict[str, Any],
-        parent_logger: Optional[logging.Logger] = None,
-        exact_file_match: Optional[dict[str, str]] = None,
+        parent_logger: logging.Logger | None = None,
+        exact_file_match: dict[str, str] | None = None,
     ):
         self.languages = language_definitions
         self.lexical_heuristics = lexical_heuristics
@@ -221,7 +221,7 @@ class LanguageDetector:
         # tier 2 and never calls gravity), so the neighbourhood's verdict is
         # independent of which sibling triggered it -- one census per directory,
         # deterministic, and O(files) instead of O(files^2) over a folder.
-        self._sibling_vote_cache: dict[tuple[str, str], tuple[Optional[str], float]] = {}
+        self._sibling_vote_cache: dict[tuple[str, str], tuple[str | None, float]] = {}
         # Bytes read per sibling for that vote. Internal discriminators anchor on
         # imports/headers near the top of a file, so a bounded sniff is enough
         # and keeps the extra reads cheap on mega-repos.
@@ -305,9 +305,7 @@ class LanguageDetector:
             if anchor not in self.anchor_map:
                 self.anchor_map[anchor] = "markdown" if anchor == "README" else "plaintext"
 
-    def focus(
-        self, file_path: Union[str, Path], content_sample: str = "", **kwargs
-    ) -> tuple[str, float, Optional[str]]:
+    def focus(self, file_path: str | Path, content_sample: str = "", **kwargs) -> tuple[str, float, str | None]:
         """Legacy Support Gateway for systems expecting the older Tuple return format."""
         result = self.inspect(file_path, content_sample, **kwargs)
         if result["intensity"] < 0.25:
@@ -319,12 +317,12 @@ class LanguageDetector:
 
     def inspect(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         content_sample: str = "",
         has_intent: bool = False,
         intent_lang: str = "",
-        intent_vector: Optional[dict[str, Any]] = None,
-        ext_tally: Optional[dict[str, int]] = None,
+        intent_vector: dict[str, Any] | None = None,
+        ext_tally: dict[str, int] | None = None,
         **kwargs,  # noqa: ARG002 -- absorbs caller-side extra kwargs (e.g. galaxyscope.py's census=) so focus()'s legacy passthrough and forward-compatible callers don't hit a TypeError
     ) -> DetectorResult:
         """Primary classification orchestrator combining metadata, context, and lexical analysis."""
@@ -458,7 +456,7 @@ class LanguageDetector:
                     for anchor in self.PROSE_ANCHORS
                 )
 
-        target_id: Optional[str] = None
+        target_id: str | None = None
         anchor_proof = f"Metadata Anchor ({name})"
 
         if name in self.anchor_map:
@@ -774,8 +772,8 @@ class LanguageDetector:
         return self._forge_result(best_lang, best_conf, lock_tier, source_proof, result, content_sample)
 
     def _evaluate_ecosystem_gravity(
-        self, file_path: Union[str, Path], ext: str, global_tally: dict[str, int]
-    ) -> tuple[Optional[str], float]:
+        self, file_path: str | Path, ext: str, global_tally: dict[str, int]
+    ) -> tuple[str | None, float]:
         """
         Resolves identical extension collisions (e.g., .h) by surveying the surrounding
         directory neighborhood for dominating implementation languages (C vs C++ vs Obj-C).
@@ -946,8 +944,8 @@ class LanguageDetector:
         return True
 
     def _resolve_by_sibling_content(
-        self, file_path: Union[str, Path], ext: str, candidates: list[str]
-    ) -> tuple[Optional[str], float]:
+        self, file_path: str | Path, ext: str, candidates: list[str]
+    ) -> tuple[str | None, float]:
         """#3137: weigh a same-extension neighbourhood by what its siblings
         actually RESOLVED to via their own content (shebang / internal
         discriminator), not by their filenames.
@@ -973,7 +971,7 @@ class LanguageDetector:
         if cached is not None:
             return cached
 
-        result: tuple[Optional[str], float] = (None, 0.0)
+        result: tuple[str | None, float] = (None, 0.0)
         candidate_set = set(candidates)
         try:
             siblings = sorted(
@@ -1015,7 +1013,7 @@ class LanguageDetector:
         self._sibling_vote_cache[cache_key] = result
         return result
 
-    def _is_pli_include(self, file_path: Union[str, Path], content: str) -> bool:
+    def _is_pli_include(self, file_path: str | Path, content: str) -> bool:
         """#3867: True for a `.inc` whose folder holds a PL/I program and whose
         body is PL/I (see `_PLI_INCLUDE_BODY`). The folder check is memoised
         per directory, so a folder of includes costs one listing."""
@@ -1036,7 +1034,7 @@ class LanguageDetector:
             self._pli_sibling_cache[key] = cached
         return cached
 
-    def _tier_1_metadata_lock(self, ext: str, file_name: str) -> Optional[str]:
+    def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:
         if file_name in self.anchor_map:
             return self.anchor_map[file_name]
 
@@ -1049,7 +1047,7 @@ class LanguageDetector:
             return self.extension_map[ext]
         return None
 
-    def _tier_2_fingerprint_check(self, content: str, ext: str) -> tuple[Optional[str], str]:
+    def _tier_2_fingerprint_check(self, content: str, ext: str) -> tuple[str | None, str]:
         """Content-evidence classification: returns `(lang_id, evidence_kind)`.
 
         `evidence_kind` is `"Shebang"` or `"Internal Signature"` -- #3116
@@ -1098,7 +1096,7 @@ class LanguageDetector:
         content: str,
         ext: str,
         claimed_lang: str = "undeterminable",
-        gravity_lang: Optional[str] = None,
+        gravity_lang: str | None = None,
     ) -> tuple[str, float]:
         """
         The Strict Boundary Scanner.
@@ -1198,7 +1196,7 @@ class LanguageDetector:
         content: str,
         coding_loc: int,
         ext: str = "",
-        gravity_lang: Optional[str] = None,
+        gravity_lang: str | None = None,
     ) -> tuple[str, float]:
         """
         Heuristic Discovery for unknown or extensionless files.
@@ -1452,7 +1450,7 @@ class LanguageDetector:
         )
         return base
 
-    def _capture_raw_signal(self, file_path: Union[str, Path]) -> str:
+    def _capture_raw_signal(self, file_path: str | Path) -> str:
         """
         DEFENSIVE GUARD: Restricts I/O memory allocation to 50KB.
         Prevents Out-Of-Memory (OOM) crashes if the user accidentally points the
@@ -1466,7 +1464,7 @@ class LanguageDetector:
 
     def _find_balanced_end(self, text: str, start_pos: int, opener: str, closer: str) -> int:
         depth = 0
-        in_string: Optional[str] = None
+        in_string: str | None = None
         # int(): self.thresholds is Dict[str, float] (THRESHOLDS mixes float
         # confidence values with integer limits like this one) -- range()
         # below needs an actual int, and a character-position limit was

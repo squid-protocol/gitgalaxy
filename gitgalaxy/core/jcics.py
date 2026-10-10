@@ -32,7 +32,7 @@
 #   - Only files importing com.ibm.cics.server are read.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 _TYPES = {"Program": "PROGRAM", "KSDS": "FILE", "ESDS": "FILE", "RRDS": "FILE", "TSQ": "QUEUE", "TDQ": "QUEUE"}
 _FILE_OPS = {"read": "read", "readForUpdate": "read", "readGeneric": "read", "readGenericForUpdate": "read",
@@ -72,7 +72,7 @@ def _argument(text: str, start: int) -> str:
     return " ".join(text[start:i].split())
 
 
-def _resolve(arg: str, consts: dict[str, str]) -> tuple[Optional[str], str]:
+def _resolve(arg: str, consts: dict[str, str]) -> tuple[str | None, str]:
     """(name, resolution) of a setName / createContainer argument."""
     m = re.fullmatch(r'"([^"]*)"', arg)
     if m:
@@ -117,14 +117,14 @@ def jcics(code_stream: str) -> dict[str, list[dict[str, Any]]]:
         kinds[m.group(2)] = m.group(1)
     for m in _NEW.finditer(text):
         kinds[m.group(1)] = m.group(2)
-    names: dict[str, list[tuple[int, str, Optional[str], str]]] = {}
+    names: dict[str, list[tuple[int, str, str | None, str]]] = {}
     for m in _SET_NAME.finditer(text):
         if m.group(1) in kinds:
             arg = _argument(text, m.end())
             name, how = _resolve(arg, consts)
             names.setdefault(m.group(1), []).append((m.start(), arg, name, how))
 
-    def name_at(var: str, offset: int) -> tuple[Optional[str], Optional[str], str]:
+    def name_at(var: str, offset: int) -> tuple[str | None, str | None, str]:
         before = [n for n in names.get(var, []) if n[0] < offset]
         if not before:
             return None, None, "unresolved"

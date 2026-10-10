@@ -40,6 +40,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 DOCS = ROOT / "docs" / "language_status"
 CANDIDATES_JSON = DOCS / "estate4_candidates.json"
 CANDIDATES_MD = DOCS / "estate4_candidates.md"
@@ -79,7 +80,7 @@ def is_allowed(method: str, url: str) -> bool:
     """True only for a GET to an allow-listed GitHub API endpoint."""
     if method != "GET" or not url.startswith(API):
         return False
-    path = url[len(API):]
+    path = url[len(API) :]
     low = path.lower()
     base = low.split("?", 1)[0]
     if any(f in base for f in FORBIDDEN_FRAGMENTS):
@@ -234,7 +235,29 @@ FOREIGN_WORDS = {
     "pl": "i w z na dla do aplikacja przyklad".split(),
 }
 # words shared with English or too short to be evidence on their own
-FOREIGN_STOP = {"a", "e", "i", "w", "z", "de", "la", "le", "un", "do", "na", "es", "cobol", "en", "as", "os", "di", "il", "lo", "el", "in"}
+FOREIGN_STOP = {
+    "a",
+    "e",
+    "i",
+    "w",
+    "z",
+    "de",
+    "la",
+    "le",
+    "un",
+    "do",
+    "na",
+    "es",
+    "cobol",
+    "en",
+    "as",
+    "os",
+    "di",
+    "il",
+    "lo",
+    "el",
+    "in",
+}
 
 
 def non_english(text: str) -> bool:
@@ -262,16 +285,47 @@ ANGLO = (
     "los angeles seattle boston chicago austin dallas houston denver atlanta portland washington dc silicon valley"
 ).split(" ")
 ANGLO_PHRASES = [
-    "united states", "united kingdom", "northern ireland", "great britain", "new zealand", "new york",
-    "san francisco", "los angeles", "silicon valley", "washington dc",
+    "united states",
+    "united kingdom",
+    "northern ireland",
+    "great britain",
+    "new zealand",
+    "new york",
+    "san francisco",
+    "los angeles",
+    "silicon valley",
+    "washington dc",
 ]
 US_STATE_RE = re.compile(
     r"(?:,\s*|\s)(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)$",
     re.I,
 )
-ANGLO_WORDS = {"usa", "us", "uk", "canada", "australia", "ireland", "england", "scotland", "wales",
-               "london", "dublin", "toronto", "sydney", "melbourne", "auckland", "california", "texas",
-               "florida", "ontario", "colorado", "virginia", "massachusetts", "illinois", "oregon"}
+ANGLO_WORDS = {
+    "usa",
+    "us",
+    "uk",
+    "canada",
+    "australia",
+    "ireland",
+    "england",
+    "scotland",
+    "wales",
+    "london",
+    "dublin",
+    "toronto",
+    "sydney",
+    "melbourne",
+    "auckland",
+    "california",
+    "texas",
+    "florida",
+    "ontario",
+    "colorado",
+    "virginia",
+    "massachusetts",
+    "illinois",
+    "oregon",
+}
 FOREIGN_PLACES = (
     "india bangalore bengaluru mumbai delhi hyderabad chennai pune kolkata noida gurgaon gurugram pakistan karachi "
     "lahore bangladesh dhaka sri lanka colombo nepal china beijing shanghai shenzhen guangzhou hangzhou chengdu "
@@ -292,9 +346,24 @@ FOREIGN_PLACES = (
     "iraq lebanon beirut jordan amman kazakhstan uzbekistan georgia tbilisi armenia"
 ).split()
 FOREIGN_PHRASES = [
-    "sri lanka", "hong kong", "kuala lumpur", "sao paulo", "são paulo", "rio de janeiro", "belo horizonte",
-    "porto alegre", "buenos aires", "costa rica", "saint petersburg", "tel aviv", "south africa", "cape town",
-    "abu dhabi", "saudi arabia", "south korea", "united arab emirates",
+    "sri lanka",
+    "hong kong",
+    "kuala lumpur",
+    "sao paulo",
+    "são paulo",
+    "rio de janeiro",
+    "belo horizonte",
+    "porto alegre",
+    "buenos aires",
+    "costa rica",
+    "saint petersburg",
+    "tel aviv",
+    "south africa",
+    "cape town",
+    "abu dhabi",
+    "saudi arabia",
+    "south korea",
+    "united arab emirates",
 ]
 
 
@@ -317,10 +386,39 @@ def location_foreign(location: str | None) -> bool:
     for ph in FOREIGN_PHRASES:
         if ph in low:
             return True
-    foreign_single = set(FOREIGN_PLACES) - {"de", "rio", "porto", "south", "cape", "town", "saint", "tel", "sri",
-                                            "lanka", "hong", "kong", "kuala", "lumpur", "sao", "paulo", "belo",
-                                            "horizonte", "alegre", "buenos", "aires", "costa", "rica", "abu",
-                                            "dhabi", "saudi", "arabia", "janeiro", "africa", "aviv", "petersburg"}
+    foreign_single = set(FOREIGN_PLACES) - {
+        "de",
+        "rio",
+        "porto",
+        "south",
+        "cape",
+        "town",
+        "saint",
+        "tel",
+        "sri",
+        "lanka",
+        "hong",
+        "kong",
+        "kuala",
+        "lumpur",
+        "sao",
+        "paulo",
+        "belo",
+        "horizonte",
+        "alegre",
+        "buenos",
+        "aires",
+        "costa",
+        "rica",
+        "abu",
+        "dhabi",
+        "saudi",
+        "arabia",
+        "janeiro",
+        "africa",
+        "aviv",
+        "petersburg",
+    }
     return any(t in foreign_single for t in tokens)
 
 
@@ -343,7 +441,8 @@ def compute_hard(paths: list[str], programs: int) -> int:
     pli = any(p.endswith((".pli", ".pl1")) for p in low)
     asm_dirs = {"asm", "assembler", "assembly", "hlasm"}
     asm = any(p.endswith((".asm", ".mac")) for p in low) or any(
-        p.endswith(".s") and asm_dirs & set(c[:-1]) for p, c in zip(low, comps)  # comps is built from low: same length
+        p.endswith(".s") and asm_dirs & set(c[:-1])
+        for p, c in zip(low, comps, strict=False)  # comps is built from low: same length  # reason: length may differ
     )
     db2 = any(p.endswith((".dcl", ".sql", ".dbd", ".psb")) for p in low)
     return int(jcl) + int(pli) + int(asm) + int(db2) + int(programs >= 50)
@@ -351,11 +450,7 @@ def compute_hard(paths: list[str], programs: int) -> int:
 
 def tree_stats(paths: list[str]) -> dict[str, Any]:
     low = [p.lower() for p in paths]
-    stems = {
-        p.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-        for p in low
-        if p.endswith(BASENAME_EXT)
-    }
+    stems = {p.rsplit("/", 1)[-1].rsplit(".", 1)[0] for p in low if p.endswith(BASENAME_EXT)}
     return {
         "bms": sum(1 for p in low if p.endswith(".bms")),
         "csd": sum(1 for p in low if p.endswith(".csd")),
@@ -470,21 +565,46 @@ def cmd_inputs(args: argparse.Namespace) -> int:
             continue
         for o, r in GH_URL_RE.findall(read_source(f).text):
             r = r.removesuffix(".git").rstrip(".")
-            repos.setdefault(f"{o}/{r}".lower(), set()).add(str(f).replace(str(gg) + "/", "").replace(str(ROOT) + "/", ""))
+            repos.setdefault(f"{o}/{r}".lower(), set()).add(
+                str(f).replace(str(gg) + "/", "").replace(str(ROOT) + "/", "")
+            )
     DEVDATA_JSON.write_text(
-        json.dumps({"about": "GitHub repos cited by our own corpora (rule 7). Over-inclusive on purpose.",
-                    "repos": {k: sorted(v) for k, v in sorted(repos.items())}}, indent=1) + "\n"
+        json.dumps(
+            {
+                "about": "GitHub repos cited by our own corpora (rule 7). Over-inclusive on purpose.",
+                "repos": {k: sorted(v) for k, v in sorted(repos.items())},
+            },
+            indent=1,
+        )
+        + "\n"
     )
     burned: dict[str, list[str]] = {}
     mc = Path(args.corpora_dir)
     for d in sorted(mc.iterdir()):
-        if d.name in {"aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa",
-                      "cics-genapp", "zecs", "dbb-mortgage-application"}:
+        if d.name in {
+            "aws-mainframe-modernization-carddemo",
+            "cics-banking-sample-application-cbsa",
+            "cics-genapp",
+            "zecs",
+            "dbb-mortgage-application",
+        }:
             burned[d.name] = sorted(
-                {p.name.lower().rsplit(".", 1)[0] for p in d.rglob("*") if p.is_file() and p.suffix.lower() in BASENAME_EXT}
+                {
+                    p.name.lower().rsplit(".", 1)[0]
+                    for p in d.rglob("*")
+                    if p.is_file() and p.suffix.lower() in BASENAME_EXT
+                }
             )
-    BURNED_JSON.write_text(json.dumps({"about": "Lowercase COBOL file stems (.cbl/.cob/.cobol/.cpy) of the burned estates (rule 8).",
-                                       "estates": burned}, indent=1) + "\n")
+    BURNED_JSON.write_text(
+        json.dumps(
+            {
+                "about": "Lowercase COBOL file stems (.cbl/.cob/.cobol/.cpy) of the burned estates (rule 8).",
+                "estates": burned,
+            },
+            indent=1,
+        )
+        + "\n"
+    )
     print(f"devdata repos: {len(repos)}; burned stems: { {k: len(v) for k, v in burned.items()} }")
     return 0
 
@@ -511,7 +631,8 @@ def search_all(client: ApiClient, lo: dt.date, hi: dt.date, n: int) -> list[dict
     out: list[dict[str, Any]] = []
     for page in range(1, (n + 99) // 100 + 1):
         status, body = client.get(
-            "/search/repositories?" + urllib.parse.urlencode({"q": q, "per_page": 100, "page": page, "sort": "created", "order": "asc"})
+            "/search/repositories?"
+            + urllib.parse.urlencode({"q": q, "per_page": 100, "page": page, "sort": "created", "order": "asc"})
         )
         if status != 200:
             raise RuntimeError(f"search page failed {status}")
@@ -557,7 +678,11 @@ def cmd_build(args: argparse.Namespace) -> int:
         if spdx not in OK_LICENSES:
             continue
         st, langs = client.get(f"/repos/{o}/{r}/languages")
-        repos[k] = {"meta": meta, "license": spdx, "cobol_bytes": int((langs or {}).get("COBOL", 0)) if st == 200 else 0}
+        repos[k] = {
+            "meta": meta,
+            "license": spdx,
+            "cobol_bytes": int((langs or {}).get("COBOL", 0)) if st == 200 else 0,
+        }
         if i % 50 == 0:
             client.save()
     client.save()
@@ -585,7 +710,9 @@ def cmd_build(args: argparse.Namespace) -> int:
     counts["R4_has_bms_or_csd"] = len(s4)
     s5 = {k: v for k, v in s4.items() if MIN_PROGRAMS <= v["stats"]["programs"] <= MAX_PROGRAMS}
     counts["R5_programs_5_to_300"] = len(s5)
-    s6 = {k: v for k, v in s5.items() if k not in set(INELIGIBLE_LIST) and v["meta"]["name"].lower() not in BURNED_NAMES}
+    s6 = {
+        k: v for k, v in s5.items() if k not in set(INELIGIBLE_LIST) and v["meta"]["name"].lower() not in BURNED_NAMES
+    }
     counts["R6_not_on_ineligible_list"] = len(s6)
     s7 = {k: v for k, v in s6.items() if k not in devdata}
     counts["R7_not_development_data"] = len(s7)
@@ -619,29 +746,31 @@ def cmd_build(args: argparse.Namespace) -> int:
         topics = m.get("topics") or []
         foreign = compute_foreign(m.get("description"), topics, v["paths"], loc)
         hard = compute_hard(v["paths"], v["stats"]["programs"])
-        out.append({
-            "full_name": k,
-            "default_branch": m["default_branch"],
-            "default_branch_sha": commit_sha,
-            "root_tree_sha": root_tree,
-            "license": v["license"],
-            "cobol_bytes": v["cobol_bytes"],
-            "cobol_programs": v["stats"]["programs"],
-            "bms_files": v["stats"]["bms"],
-            "csd_files": v["stats"]["csd"],
-            "tree_truncated": v["truncated"],
-            "burned_overlap": v["burned_overlap"],
-            "foreign": foreign,
-            "hard": hard,
-            "weight": 1 + foreign + hard,
-            "size_kb": m["size"],
-            "created_at": m["created_at"],
-            "pushed_at": m["pushed_at"],
-            "archived": m["archived"],
-            "owner_location": loc,
-            "description": m.get("description"),
-            "topics": topics,
-        })
+        out.append(
+            {
+                "full_name": k,
+                "default_branch": m["default_branch"],
+                "default_branch_sha": commit_sha,
+                "root_tree_sha": root_tree,
+                "license": v["license"],
+                "cobol_bytes": v["cobol_bytes"],
+                "cobol_programs": v["stats"]["programs"],
+                "bms_files": v["stats"]["bms"],
+                "csd_files": v["stats"]["csd"],
+                "tree_truncated": v["truncated"],
+                "burned_overlap": v["burned_overlap"],
+                "foreign": foreign,
+                "hard": hard,
+                "weight": 1 + foreign + hard,
+                "size_kb": m["size"],
+                "created_at": m["created_at"],
+                "pushed_at": m["pushed_at"],
+                "archived": m["archived"],
+                "owner_location": loc,
+                "description": m.get("description"),
+                "topics": topics,
+            }
+        )
     client.save()
     counts["eligible"] = len(out)
 
@@ -680,10 +809,16 @@ RULES_MD = """\
 """
 
 STAGES = [
-    ("S0_unique_public_nonfork_cobol_repos", "Search pool: public, non-fork repos GitHub classifies as COBOL (`language:COBOL fork:false`), unique across date shards"),
+    (
+        "S0_unique_public_nonfork_cobol_repos",
+        "Search pool: public, non-fork repos GitHub classifies as COBOL (`language:COBOL fork:false`), unique across date shards",
+    ),
     ("R1_owner_not_excluded", "Rule 1: public, non-fork, owner not squid-protocol / jmesquib"),
     ("R2_license_in_set_(search metadata)", "Rule 2 (search metadata): license in the allowed SPDX set"),
-    ("R2b_license_confirmed_via_/license_and_repo_still_public_nonfork", "Rule 2 (confirmed): `/license` SPDX id in set, `/repos` still public and non-fork"),
+    (
+        "R2b_license_confirmed_via_/license_and_repo_still_public_nonfork",
+        "Rule 2 (confirmed): `/license` SPDX id in set, `/repos` still public and non-fork",
+    ),
     ("R3_cobol_bytes_ge_20000", "Rule 3: COBOL >= 20,000 bytes"),
     ("R4_has_bms_or_csd", "Rule 4: >= 1 `.bms` or `.csd` file name"),
     ("R5_programs_5_to_300", "Rule 5: 5-300 COBOL program files"),

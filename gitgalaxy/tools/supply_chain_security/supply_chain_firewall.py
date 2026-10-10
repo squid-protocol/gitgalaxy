@@ -21,7 +21,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -47,8 +47,8 @@ _FIREWALL_BLOCK_THRESHOLD = 50.0
 
 def run_firewall_audit(
     parsed_files: list,
-    alias_map: Optional[dict] = None,
-    config: Optional[Union[ResolvedConfig, dict[str, Any]]] = None,
+    alias_map: dict | None = None,
+    config: ResolvedConfig | dict[str, Any] | None = None,
 ) -> dict:
     """
     Programmatic entry point for GalaxyScope (Zero-Disk I/O).

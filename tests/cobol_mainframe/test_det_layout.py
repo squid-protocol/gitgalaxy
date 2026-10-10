@@ -81,7 +81,7 @@ def test_the_initial_image_is_gnucobols(name, tmp_path):
     got = proc.stdout.split()
     assert len(got) == len(named)
     bad = []
-    for r, hexed in zip(named, got):
+    for r, hexed in zip(named, got, strict=False):  # reason: length may differ
         mine = L.image(r).hex().upper()
         if any(i.depending for i in r.walk()):  # OCCURS DEPENDING ON: LENGTH OF is the current length
             mine = mine[: len(hexed)]

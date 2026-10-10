@@ -38,13 +38,13 @@
 #     resolved call site are recorded.
 # ==============================================================================
 import collections
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.wrapper_extractor import PREPROCESSOR_LANGS
 
 # rule -> (max LOC, require zero branches, language scope or None for all by-name
 # languages, closure allowed). See the header for the evidence behind each value.
-RULE_SCOPE: dict[str, tuple[int, bool, Optional[frozenset], bool]] = {
+RULE_SCOPE: dict[str, tuple[int, bool, frozenset | None, bool]] = {
     "debug_prints": (8, True, None, False),
     "panics_and_aborts": (8, True, None, False),
     "memory_alloc": (12, False, PREPROCESSOR_LANGS, True),
@@ -98,7 +98,7 @@ def resolve_wrappers(parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]
             callee: str,
             _aliases: dict[str, dict[str, str]] = aliases,
             _functions: dict[str, dict[str, str]] = functions,
-        ) -> Optional[str]:
+        ) -> str | None:
             """The defining path an unqualified `callee(` from `caller` reaches.
 
             The two maps are bound as defaults (not captured) so the closure is

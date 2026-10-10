@@ -58,7 +58,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mainframe_corpus as mc  # noqa: E402
@@ -105,7 +105,7 @@ def _norm_operand(op: str) -> str:
 
 
 def key_answers(
-    key: dict[str, Any], units: list[tuple[str, str]], sample: list[str], b_programs: Optional[list[str]] = None
+    key: dict[str, Any], units: list[tuple[str, str]], sample: list[str], b_programs: list[str] | None = None
 ) -> dict[str, Any]:
     """The key's answers to a fixed question set: `units` for task A (in order),
     `b_programs` (default: every program) for B, and `sample` for C/D/E."""
@@ -185,7 +185,7 @@ def render(
     repo: Path,
     units: list[tuple[str, str]],
     sample: list[str],
-    b_programs: Optional[list[str]],
+    b_programs: list[str] | None,
     meta: dict[str, Any],
 ) -> tuple[str, dict[str, Any]]:
     truth = {
@@ -342,7 +342,7 @@ def sign(
     g: dict[str, Any],
     rulings: dict[str, Any],
     by: str,
-    at: Optional[str] = None,
+    at: str | None = None,
 ) -> dict[str, Any]:
     """The key, re-tiered `cross_verified` -- or SystemExit naming what is unsettled."""
     unruled = [d["id"] for d in g["disagreements"] if d["id"] not in rulings]

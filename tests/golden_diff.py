@@ -6,7 +6,7 @@ import json
 import math
 import os
 import sys
-from typing import Any, Dict
+from typing import Any
 
 # golden_store lives beside this file; callers put tests/ on sys.path already,
 # but don't depend on it (tests/ has no __init__.py -- see CLAUDE.md).
@@ -25,7 +25,7 @@ FLOAT_REL_TOL = 1e-6
 FLOAT_ABS_TOL = 1e-6
 
 
-def load_and_sanitize(filepath: str) -> Dict[str, Any]:
+def load_and_sanitize(filepath: str) -> dict[str, Any]:
     """Loads a golden master (a split fixture directory, #3384) or a plain JSON
     audit file (a fresh scan's output) and strips volatile execution metadata.
 
@@ -41,7 +41,7 @@ def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     return data
 
 
-def sanitize(data: Dict[str, Any]) -> Dict[str, Any]:
+def sanitize(data: dict[str, Any]) -> dict[str, Any]:
     """Strips volatile execution metadata in place (and returns `data`)."""
 
     # Strip out volatile metadata that changes every run
@@ -83,7 +83,7 @@ def _normalize_floats(data: Any) -> Any:
     return data
 
 
-def generate_deterministic_hash(data: Dict[str, Any]) -> str:
+def generate_deterministic_hash(data: dict[str, Any]) -> str:
     """Creates a stable MD5 hash of a dictionary regardless of key insertion order."""
     # sort_keys=True guarantees the JSON string is always structurally identical
     normalized = _normalize_floats(data)

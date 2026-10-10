@@ -15,7 +15,6 @@
 # ==============================================================================
 import re
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import read_source
 
@@ -35,7 +34,7 @@ def detect_cobol_dialect(content: str) -> str:
     return "COBOL-74"
 
 
-def patch_lexical_content(content: str) -> Optional[str]:
+def patch_lexical_content(content: str) -> str | None:
     """
     Rewrites NEXT SENTENCE for the detected compiler dialect. Returns the patched
     text, or None when nothing changed. Touches no file: callers choose where the
@@ -67,7 +66,7 @@ def patch_lexical_content(content: str) -> Optional[str]:
     return patched_content if patched_content != content else None
 
 
-def patch_lexical_traps(filepath: Path, dest: Optional[Path] = None) -> bool:
+def patch_lexical_traps(filepath: Path, dest: Path | None = None) -> bool:
     """
     Patches `filepath` and writes the result to `dest`. Without `dest` the file is
     rewritten IN PLACE, so never call it that way on a customer's source tree.

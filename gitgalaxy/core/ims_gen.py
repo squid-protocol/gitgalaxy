@@ -31,7 +31,7 @@
 #     per statement.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 _MACROS = frozenset({"PSBGEN", "PCB", "SENSEG", "DBD", "SEGM", "FIELD", "LCHILD", "DATASET"})
 _STMT = re.compile(r"^([A-Z@#$][A-Z0-9@#$]{0,7})?[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
@@ -60,7 +60,7 @@ def _operands(text: str) -> dict[str, str]:
     return keyed
 
 
-def _first(value: Optional[str]) -> Optional[str]:
+def _first(value: str | None) -> str | None:
     """`(PAUTSUM0,)` / `((PAUTSUM0,))` / `PAUTSUM0` -> `PAUTSUM0`."""
     if not value:
         return None
@@ -99,9 +99,9 @@ def ims_gen_macros(code_stream: str) -> list[dict[str, Any]]:
     if not any(w in upper for w in ("PSBGEN", "DBDGEN", " PCB ", " SEGM ", " SENSEG ")):
         return []
     rows: list[dict[str, Any]] = []
-    owner: Optional[str] = None
-    segment: Optional[str] = None
-    dbd: Optional[str] = None
+    owner: str | None = None
+    segment: str | None = None
+    dbd: str | None = None
     for line, label, op, text in _statements(code_stream):
         if op not in _MACROS:
             continue

@@ -44,7 +44,7 @@
 # tests/tools_recorders/test_edge_data.py asserts.
 # ==============================================================================
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
 from gitgalaxy.core.path_proximity import nearest_path
@@ -149,8 +149,8 @@ def _pick_program(
     candidates: list[str],
     target: str,
     src_path: str,
-    ambiguities: Optional[list[dict[str, Any]]] = None,
-) -> Optional[str]:
+    ambiguities: list[dict[str, Any]] | None = None,
+) -> str | None:
     """The file a call to `target` runs, among the `candidates` declaring that name (#4419).
 
     Real estates keep forks of a program (`ORDV#OLD`, `ORDVAL2`) whose source still says
@@ -176,7 +176,7 @@ def _pick_program(
 
 def resolve_invocations(
     parsed_files: list[dict[str, Any]],
-    ambiguities: Optional[list[dict[str, Any]]] = None,
+    ambiguities: list[dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Resolve every extracted call site, and aggregate the resolved ones into edges.
 

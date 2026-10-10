@@ -143,7 +143,7 @@ def _nearest(vec: list, centroids: dict):
     for name, c in centroids.items():
         if len(c) != len(vec):
             continue  # length guard (stale brain) -> unclassified
-        d = sum((a - b) * (a - b) for a, b in zip(vec, c))
+        d = sum((a - b) * (a - b) for a, b in zip(vec, c, strict=True))
         if best_d is None or d < best_d:
             best_d, best = d, name
     return best, (math.sqrt(best_d) if best_d is not None else None)

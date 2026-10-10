@@ -43,7 +43,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Iterable
 
 SCHEMA = "referee-facts/1"
@@ -104,8 +104,8 @@ def add_file(
     rel: str,
     facts: dict[str, Iterable[str]],
     status: str = "ok",
-    seconds: Optional[float] = None,
-    error: Optional[str] = None,
+    seconds: float | None = None,
+    error: str | None = None,
 ) -> None:
     doc["files"][rel] = {
         "status": status,
@@ -130,14 +130,14 @@ def load(path: Path) -> dict[str, Any]:
 # ------------------------------------------------------------------------------
 # Canonical value builders, shared by every adapter so the shapes cannot drift.
 # ------------------------------------------------------------------------------
-def norm_usage(usage: Optional[str]) -> Optional[str]:
+def norm_usage(usage: str | None) -> str | None:
     if not usage:
         return None
     u = re.sub(r"\s+", " ", usage.upper().strip())
     return _USAGE_ALIASES.get(u, u)
 
 
-def norm_value(value: Optional[str]) -> Optional[str]:
+def norm_value(value: str | None) -> str | None:
     """A VALUE clause's first literal: quotes dropped, figurative-constant synonyms folded,
     `ALL` kept, numerics as written."""
     if value is None:
@@ -151,7 +151,7 @@ def norm_value(value: Optional[str]) -> Optional[str]:
     return _FIGURATIVE.get(v, v)
 
 
-def norm_pic(pic: Optional[str]) -> Optional[str]:
+def norm_pic(pic: str | None) -> str | None:
     return re.sub(r"\s+", "", pic.upper()) if pic else None
 
 
@@ -159,13 +159,13 @@ def item_values(
     line: int,
     level: int,
     name: str,
-    pic: Optional[str] = None,
-    usage: Optional[str] = None,
-    occurs_min: Optional[int] = None,
-    occurs_max: Optional[int] = None,
-    depending_on: Optional[str] = None,
-    redefines: Optional[str] = None,
-    value: Optional[str] = None,
+    pic: str | None = None,
+    usage: str | None = None,
+    occurs_min: int | None = None,
+    occurs_max: int | None = None,
+    depending_on: str | None = None,
+    redefines: str | None = None,
+    value: str | None = None,
 ) -> dict[str, str]:
     """The per-item channel values of one data description entry."""
     name = (name or "FILLER").upper()
@@ -193,7 +193,7 @@ def merge_item(facts: dict[str, set[str]], values: dict[str, str]) -> None:
         facts.setdefault(ch, set()).add(v)
 
 
-def call_value(verb: str, form: str, operand: Optional[str]) -> Optional[str]:
+def call_value(verb: str, form: str, operand: str | None) -> str | None:
     if not operand:
         return None
     op = operand.strip().strip("'\"").strip().upper()  # CICS names are blank-padded literals
@@ -213,7 +213,7 @@ def edge_value(unit: str, verb: str, target: str) -> str:
     return f"{unit} -> {'GO TO' if verb in ('GO_TO', 'GO TO') else 'PERFORM'} {target.upper()}"
 
 
-def unit_name(program_index: int, program_id: Optional[str], name: str) -> str:
+def unit_name(program_index: int, program_id: str | None, name: str) -> str:
     """#4206: a second or later program's units are `PROG:NAME`."""
     return f"{(program_id or '').upper()}:{name.upper()}" if program_index and name != MAIN_LINE else name.upper()
 
@@ -221,7 +221,7 @@ def unit_name(program_index: int, program_id: Optional[str], name: str) -> str:
 # ------------------------------------------------------------------------------
 # The answer key as a fact source (ground truth).
 # ------------------------------------------------------------------------------
-def _key_blocks(prog: dict[str, Any]) -> list[tuple[Optional[str], dict[str, Any]]]:
+def _key_blocks(prog: dict[str, Any]) -> list[tuple[str | None, dict[str, Any]]]:
     return [(None, prog), *prog.get("siblings", {}).items()]
 
 

@@ -78,7 +78,7 @@ def test_a_join_draws_from_the_other_file_and_a_miss_does_not():
 def test_every_fills_a_cartesian_product():
     fields = {"ACCT-GROUP": {"values": ["A", "B"], "every": 3}, "ACCT-BAL": {"values": [1, 2, 3]}}
     data, values = ei.generate_dataset("ACCT", {**_spec(6, fields), "organization": "sequential"}, ACCOUNT, {})
-    pairs = list(zip(values["ACCT.ACCT-GROUP"], values["ACCT.ACCT-BAL"]))
+    pairs = list(zip(values["ACCT.ACCT-GROUP"], values["ACCT.ACCT-BAL"], strict=False))  # reason: length may differ
     assert pairs == [("A", 1), ("A", 2), ("A", 3), ("B", 1), ("B", 2), ("B", 3)]
 
 

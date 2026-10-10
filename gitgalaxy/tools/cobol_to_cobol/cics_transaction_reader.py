@@ -24,7 +24,6 @@ Every regex is bounded and line/record-scoped (the #3200/#3201 forge discipline)
 
 import re
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.core.source_text import read_source
 
@@ -58,7 +57,7 @@ def _csd_records(text: str) -> list[tuple[int, str]]:
     DEFINE records they surround).
     """
     records: list[tuple[int, list[str]]] = []
-    current: Optional[tuple[int, list[str]]] = None
+    current: tuple[int, list[str]] | None = None
 
     def _flush() -> None:
         nonlocal current
@@ -96,7 +95,7 @@ def _csd_attributes(record: str) -> dict[str, str]:
         key = _CSD_ATTR_SYNONYMS.get(key, key)
         depth = 1
         i = m.end()
-        quote: Optional[str] = None
+        quote: str | None = None
         chars: list[str] = []
         while i < len(record) and depth > 0:
             ch = record[i]
@@ -121,10 +120,10 @@ def _csd_attributes(record: str) -> dict[str, str]:
     return attrs
 
 
-def _deck_transactions(text: str) -> list[tuple[str, Optional[str]]]:
+def _deck_transactions(text: str) -> list[tuple[str, str | None]]:
     """The (transid, program) pairs in one CSD deck. `program` is None when a
     DEFINE TRANSACTION names no PROGRAM operand (a program-less transaction)."""
-    out: list[tuple[str, Optional[str]]] = []
+    out: list[tuple[str, str | None]] = []
     for _line, record in _csd_records(text):
         head = _CSD_DEFINE_HEAD.match(record)
         if not head:
@@ -149,7 +148,7 @@ def extract_transactions(repo: Path) -> dict[str, set[str]]:
     """
     by_program: dict[str, set[str]] = {}
 
-    def _add(pairs: list[tuple[str, Optional[str]]]) -> None:
+    def _add(pairs: list[tuple[str, str | None]]) -> None:
         for transid, program in pairs:
             if program:
                 by_program.setdefault(program, set()).add(transid)

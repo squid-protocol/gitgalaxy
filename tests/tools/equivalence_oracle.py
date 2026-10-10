@@ -23,7 +23,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCKERFILE = REPO_ROOT / "tests" / "equivalence" / "gnucobol.Dockerfile"
@@ -79,7 +79,7 @@ def _inspect(image: str) -> dict[str, Any]:
     return {"id": data.get("Id"), "labels": dict((data.get("Config") or {}).get("Labels") or {})}
 
 
-def _probe(image: str) -> tuple[Optional[str], Optional[str]]:
+def _probe(image: str) -> tuple[str | None, str | None]:
     proc = subprocess.run(["docker", "run", "--rm", image, "sh", "-c", _PROBE],  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
     lines = proc.stdout.splitlines()
@@ -102,7 +102,7 @@ def fingerprint(image: str = IMAGE, *, refresh: bool = False) -> dict[str, Any]:
     return fp
 
 
-def adopt(fp: Optional[dict[str, Any]], image: str = IMAGE) -> None:
+def adopt(fp: dict[str, Any] | None, image: str = IMAGE) -> None:
     """`run --reuse EARLIER`: the COBOL outputs are EARLIER's, so its oracle is this run's."""
     if fp:
         _cache[image] = fp
@@ -117,7 +117,7 @@ def image_for(case: dict[str, Any]) -> str:
     return IMAGE
 
 
-def for_case(case: dict[str, Any]) -> Optional[dict[str, Any]]:
+def for_case(case: dict[str, Any]) -> dict[str, Any] | None:
     """What a proof report records under `oracle` for `case` (checked against the pin)."""
     fp = checked(image_for(case))
     if fp is not None and case.get("db2"):  # #4733: a Db2 case's oracle is also the Db2 it ran SQL on
@@ -138,7 +138,7 @@ def strict() -> bool:
     return os.environ.get(STRICT_ENV, "").strip().lower() not in ("", "0", "false", "no")
 
 
-def checked(image: str = IMAGE) -> Optional[dict[str, Any]]:
+def checked(image: str = IMAGE) -> dict[str, Any] | None:
     """fingerprint(), with a mismatch warned about on stderr -- or raised under GITGALAXY_ORACLE_STRICT."""
     fp = fingerprint(image)
     if fp["mismatches"] and not fp.get("_warned"):
@@ -153,13 +153,13 @@ def checked(image: str = IMAGE) -> Optional[dict[str, Any]]:
     return recorded(fp)
 
 
-def recorded(fp: Optional[dict[str, Any]] = None, image: str = IMAGE) -> Optional[dict[str, Any]]:
+def recorded(fp: dict[str, Any] | None = None, image: str = IMAGE) -> dict[str, Any] | None:
     """The fingerprint as a report records it (no process-local keys); None when it was never taken."""
     fp = fp if fp is not None else _cache.get(image)
     return None if fp is None else {k: v for k, v in fp.items() if not k.startswith("_")}
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--image", default=IMAGE)
     ap.add_argument("--strict", action="store_true", help=f"exit 1 on a mismatch (as {STRICT_ENV}=1)")

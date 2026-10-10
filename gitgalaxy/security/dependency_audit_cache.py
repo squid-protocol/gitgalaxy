@@ -20,7 +20,6 @@ import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 
 class DependencyAuditCache:
@@ -31,7 +30,7 @@ class DependencyAuditCache:
     is new or its content changed and it must be freshly scanned.
     """
 
-    def __init__(self, db_path: str, parent_logger: Optional[logging.Logger] = None):
+    def __init__(self, db_path: str, parent_logger: logging.Logger | None = None):
         self.logger = (
             parent_logger.getChild("dep_audit_cache") if parent_logger else logging.getLogger("dep_audit_cache")
         )
@@ -64,7 +63,7 @@ class DependencyAuditCache:
         self._conn.commit()
 
     @staticmethod
-    def hash_file(file_path: Path) -> Optional[str]:
+    def hash_file(file_path: Path) -> str | None:
         """
         sha256 of the file's FULL byte content. Hashing the whole file (not a
         truncated prefix) guarantees any modification anywhere in the file —
@@ -80,9 +79,7 @@ class DependencyAuditCache:
         except OSError:
             return None
 
-    def lookup(
-        self, ecosystem: str, package_name: str, file_relpath: str, content_hash: str
-    ) -> Optional[dict[str, str]]:
+    def lookup(self, ecosystem: str, package_name: str, file_relpath: str, content_hash: str) -> dict[str, str] | None:
         """Returns the cached verdict for these exact bytes, or None on miss."""
         row = self._conn.execute(
             """

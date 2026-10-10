@@ -25,7 +25,7 @@ import re
 import sys
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier as _java_field_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
@@ -174,7 +174,7 @@ def is_transient_record(schema_json: dict) -> bool:
     return (schema_json.get("title") or "").upper() == "DFHCOMMAREA"
 
 
-def entity_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
+def entity_class_name(schema_json: dict, unit_key: str | None = None) -> str:
     """The JPA Entity class a schema generates.
 
     #3221: a record title is not unique across a repository -- every CICS program
@@ -187,7 +187,7 @@ def entity_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
     return java_class_base(unit_key) + title if unit_key else title
 
 
-def dto_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
+def dto_class_name(schema_json: dict, unit_key: str | None = None) -> str:
     """The DTO class a transient schema generates: the entity name plus a `Dto`
     suffix (e.g. `Bnk1cacDfhcommareaDto`), so it never collides with a real entity."""
     return entity_class_name(schema_json, unit_key) + "Dto"
@@ -221,7 +221,7 @@ def _decimal_comma(schema_json: dict, target: JavaTarget) -> bool:
 
 
 def generate_java_entity(
-    schema_json: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+    schema_json: dict, package_name: str, unit_key: str | None = None, target: JavaTarget | None = None
 ) -> str:
     """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps.
 
@@ -280,7 +280,7 @@ def generate_java_entity(
 
 
 def generate_java_dto(
-    schema_json: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+    schema_json: dict, package_name: str, unit_key: str | None = None, target: JavaTarget | None = None
 ) -> str:
     """Generates a plain Lombok POJO DTO for a transient record (#3233).
 
@@ -318,8 +318,8 @@ def render_dto_class(
     body: list[str],
     requires_list: bool,
     target: JavaTarget,
-    javadoc: Optional[list[str]] = None,
-    methods: Optional[Callable[[bool], list[str]]] = None,
+    javadoc: list[str] | None = None,
+    methods: Callable[[bool], list[str]] | None = None,
 ) -> str:
     """A DTO from its field lines (`_render_field` shape: `//` comments and `    private T name;`),
     in the target's style: a Lombok class, a plain class with accessors, or a Java record.

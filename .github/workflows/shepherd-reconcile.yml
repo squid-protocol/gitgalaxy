@@ -1,0 +1,87 @@
+name: CI shepherd (reconcile)
+
+# #4847 item 3: the passes that need no label event -- CI finished on a labelled PR (rerun infra/flake failures,
+# post the one digest per head, update a behind branch, enable auto-merge once the matrix is green), a cron for
+# the reruns' 15-minute gap, and a manual run (`ensure_labels: true` creates or refreshes the label set first).
+# Logic: tests/tools/shepherd_gh.py. Like shepherd-event.yml, it checks out main only and never runs PR code.
+
+on:
+  workflow_run:
+    workflows:
+      - "Answer Key Guard"
+      - "Call Graph Accuracy Audit"
+      - "CICS Crucible"
+      - "CodeQL Security Scan"
+      - "Crucible Path Independence"
+      - "Detection Accuracy Audit"
+      - "Det Sweep"
+      - "Estate Crucible"
+      - "Fact Cross-check"
+      - "GitGalaxy Zero-Trust Pipeline"
+      - "Golden Crucible Resilience Test"
+      - "Graph Accuracy Audit"
+      - "Generated Java Compiles"
+      - "Mainframe Ground Truth"
+      - "Muninn Security Scan"
+      - "Mypy Audit"
+      - "Ports Compile"
+      - "rosetta-audit"
+      - "Ruff Audit"
+      - "Small Audits"
+      - "GitGalaxy Smoke Tests"
+      - "Full Suite Gate (All OS x Python)"
+      - "Tree-sitter Accuracy Audit"
+      - "Tri-Comparison Audit"
+      - "unicode-gauntlet"
+    types: [completed]
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+    inputs:
+      ensure_labels:
+        description: "Create or refresh the shepherd:* labels first (idempotent)"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: shepherd  # one shepherd pass at a time (shared with shepherd-event.yml)
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: shepherd (reconcile)
+    # a run of a push changes no PR's merge state; PR CI and the matrix (dispatched on a PR branch) do
+    if: >-
+      github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
+      || github.event.workflow_run.event == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the base repository's main (never a pull request's head)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Create or refresh the shepherd:* labels
+        if: github.event.inputs.ensure_labels == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: python3 tests/tools/shepherd_gh.py ensure-labels
+
+      - name: Reconcile the labelled pull request(s) of the run's head
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: python3 tests/tools/shepherd_gh.py reconcile --head-sha "$HEAD_SHA"
+
+      - name: Reconcile every labelled open pull request (schedule, dispatch)
+        if: github.event_name != 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: python3 tests/tools/shepherd_gh.py reconcile

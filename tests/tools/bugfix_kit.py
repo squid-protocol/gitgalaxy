@@ -82,7 +82,8 @@ from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 # ----------------------------------------------------------------------------- constants
 
@@ -158,7 +159,7 @@ def count_leaf_diffs(old: Any, new: Any) -> int:
     if isinstance(old, dict) and isinstance(new, dict):
         return sum(count_leaf_diffs(old.get(k), new.get(k)) for k in set(old) | set(new))
     if isinstance(old, list) and isinstance(new, list):
-        n = sum(count_leaf_diffs(a, b) for a, b in zip(old, new))
+        n = sum(count_leaf_diffs(a, b) for a, b in zip(old, new, strict=False))  # reason: length may differ
         longer = old[len(new) :] if len(old) > len(new) else new[len(old) :]
         return n + sum(_leaves(x) for x in longer)
     if old is None and new is not None:

@@ -94,4 +94,4 @@ def test_cobol_records_reads_only_ascii_digits(tmp_path):
         encoding="utf-8",
     )
     got = run.stdout.splitlines()
-    assert [(expr, out) for (expr, _), out in zip(CASES, got)] == CASES
+    assert [(expr, out) for (expr, _), out in zip(CASES, got, strict=False)] == CASES  # reason: length may differ

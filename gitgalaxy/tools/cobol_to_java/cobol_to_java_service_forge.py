@@ -21,7 +21,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     java_class_base,
@@ -34,9 +33,9 @@ from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 def generate_service_skeleton(
     ir_state: dict,
     package_name: str,
-    unit_key: Optional[str] = None,
-    target: Optional[JavaTarget] = None,
-    extras: Optional[dict] = None,
+    unit_key: str | None = None,
+    target: JavaTarget | None = None,
+    extras: dict | None = None,
 ) -> str:
     """Generates the Spring Boot @Service skeleton and stages DAG dependencies.
 
@@ -116,7 +115,7 @@ def generate_service_skeleton(
     return "\n".join(java)
 
 
-def has_generic_execute(extras: Optional[dict]) -> bool:
+def has_generic_execute(extras: dict | None) -> bool:
     """#4342: whether the service gets the generic executeX: no skeleton forge gave the program an entry."""
     return not (extras or {}).get("entry")
 

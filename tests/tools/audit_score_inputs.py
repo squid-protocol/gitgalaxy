@@ -57,7 +57,7 @@ import sys
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 
@@ -314,7 +314,9 @@ def read_db(db_path: pathlib.Path, adapter: Adapter, language_hint: str | None) 
         fhave = {r[1] for r in conn.execute("PRAGMA table_info(function_data)")}
         fneed = {"file_id", "is_public", "is_documented", "state_heat_triggers"}
         if not fneed <= fhave:
-            raise SystemExit(f"{db_path}: function_data lacks {sorted(fneed - fhave)} -- scan with a #2908-Phase-2 engine")
+            raise SystemExit(
+                f"{db_path}: function_data lacks {sorted(fneed - fhave)} -- scan with a #2908-Phase-2 engine"
+            )
         by_file: dict[int, list[dict]] = {}
         for fr in conn.execute(
             "SELECT file_id, func_name, is_public, is_documented, state_heat_triggers FROM function_data"
@@ -396,7 +398,9 @@ def run(metric: str, files: list[dict], *, epsilon: float, summary: bool) -> int
             residuals.append(f)
         tag = ("   <-- function-term" if metric == "verification" else "   <-- NOT REPRODUCED") if bad else ""
         vals = " ".join(f"{int(f.get(c) or 0):>5}" for c in a.row_cols)
-        print(f"{f['language']:16s} {f['file_name'][:20]:20s} {vals} | {recorded:>8.2f} {repro:>8.2f} {resid:>7.2f}{tag}")
+        print(
+            f"{f['language']:16s} {f['file_name'][:20]:20s} {vals} | {recorded:>8.2f} {repro:>8.2f} {resid:>7.2f}{tag}"
+        )
         by_key[a.cluster_key(f)].append(f)
 
     print(f"\n## CLUSTER: files by {a.cluster_label}")

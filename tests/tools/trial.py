@@ -43,7 +43,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
@@ -91,7 +91,7 @@ def porting_rules_hash() -> tuple[str, int]:
     return hashlib.sha256(text.encode("utf-8")).hexdigest(), TICKET_VERSION
 
 
-def frozen_system(repo: Path, model: str, backend: str, model_version: Optional[str]) -> dict[str, Any]:
+def frozen_system(repo: Path, model: str, backend: str, model_version: str | None) -> dict[str, Any]:
     """The system a trial runs under. It must be a commit: an uncommitted engine or tool is not a named version."""
     dirty = git(repo, "status", "--porcelain", "--", *[p for p in ("gitgalaxy", "tests/tools") if (repo / p).exists()])
     if dirty:
@@ -164,7 +164,7 @@ def _sections(skeleton: dict[str, Any], name: str) -> list[dict[str, Any]]:
     return (skeleton.get("sections", {}).get(name) or {}).get("facts") or []
 
 
-def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> Optional[str]:
+def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> str | None:
     """Why the equivalence harness cannot run a program (None: eligible). The batch harness runs a COBOL
     program under GnuCOBOL with a driver, loads its input files (generated from their copybook layouts,
     #3804, or shipped) and compares its output files record by record -- so the program must be batch COBOL
@@ -244,7 +244,7 @@ def save(ledger: dict[str, Any], path: Path = LEDGER) -> None:
     path.write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def _estate(ledger: dict[str, Any], estate_id: str) -> Optional[dict[str, Any]]:
+def _estate(ledger: dict[str, Any], estate_id: str) -> dict[str, Any] | None:
     return next((e for e in ledger["estates"] if e["id"] == estate_id), None)
 
 
@@ -255,7 +255,7 @@ def _trial(ledger: dict[str, Any], trial_id: str) -> dict[str, Any]:
     return t
 
 
-def final_of(attempts: list[dict[str, Any]], closed_cause: Optional[str] = None) -> str:
+def final_of(attempts: list[dict[str, Any]], closed_cause: str | None = None) -> str:
     """proven@N (with the causes of the failures before it) | not-proven(cause) | open."""
     for a in attempts:
         if a["outcome"] == "proven":
@@ -349,7 +349,7 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
 
 
 # ---- start -----------------------------------------------------------------------------
-def _parse_pairs(items: Optional[list[str]], what: str) -> dict[str, str]:
+def _parse_pairs(items: list[str] | None, what: str) -> dict[str, str]:
     out = {}
     for item in items or []:
         key, sep, value = item.partition("=")
@@ -359,7 +359,7 @@ def _parse_pairs(items: Optional[list[str]], what: str) -> dict[str, str]:
     return out
 
 
-def _estate_git(path: Path, *args: str) -> Optional[str]:
+def _estate_git(path: Path, *args: str) -> str | None:
     argv = ["git", "-C", str(path), *args]
     proc = subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603, S607
     return proc.stdout.strip() or None if proc.returncode == 0 else None
@@ -432,7 +432,7 @@ def attempts_from_log(events: list[dict[str, Any]], key: str, fixes: list[dict[s
     A failed attempt's cause: the last Trial-Cause commit for this program between its verdict and the next
     attempt's start (ours, with the commit), else `model` when another attempt followed, else still null."""
     raw: list[dict[str, Any]] = []  # {outcome, began, at, model}
-    pending: Optional[dict[str, Any]] = None
+    pending: dict[str, Any] | None = None
     for e in events:
         if e.get("ticket") != key:
             continue
@@ -479,7 +479,7 @@ def sync(trial: dict[str, Any], events: list[dict[str, Any]], fixes: list[dict[s
     changed = {}
     for key, p in trial["programs"].items():
         new = attempts_from_log(events, key, fixes)
-        for old, now in zip(p["attempts"], new):
+        for old, now in zip(p["attempts"], new, strict=False):  # reason: length may differ
             same = all(old[k] == now[k] for k in ("n", "outcome", "at"))
             if not same or (
                 old["cause"] is not None and (old["cause"], old["fix_commit"]) != (now["cause"], now["fix_commit"])
@@ -538,7 +538,7 @@ def cmd_close(opts: argparse.Namespace) -> int:
 
 
 # ---- report ----------------------------------------------------------------------------
-def _bin(final: str) -> Optional[str]:
+def _bin(final: str) -> str | None:
     """The histogram bin of a final state (None: still open)."""
     if final.startswith("proven@"):
         n = int(re.split(r"[@(]", final)[1])
@@ -775,7 +775,7 @@ def render_svg(ledger: dict[str, Any]) -> str:
 
 
 # ---- CLI -------------------------------------------------------------------------------
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ledger", type=Path, default=LEDGER, help=argparse.SUPPRESS)
     ap.add_argument("--repo", type=Path, default=REPO_ROOT, help=argparse.SUPPRESS)  # the engine's git checkout

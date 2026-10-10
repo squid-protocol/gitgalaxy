@@ -136,7 +136,8 @@ import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mainframe_corpus as mc  # noqa: E402
@@ -2350,7 +2351,7 @@ def key_facts_db2cols(key: dict[str, Any], files: list[str]) -> dict[str, dict[s
 def reviewer_facts_db2cols(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
     from cobol_answer_key import sql_column_key  # noqa: PLC0415
 
-    def num(v: Any) -> Optional[int]:
+    def num(v: Any) -> int | None:
         return int(v) if isinstance(v, int) or (isinstance(v, str) and v.strip().isdigit()) else None
 
     root = str(repo).rstrip("/") + "/"
@@ -3342,7 +3343,7 @@ def sign(
     g: dict[str, Any],
     rulings: dict[str, Any],
     by: str,
-    at: Optional[str] = None,
+    at: str | None = None,
 ) -> dict[str, Any]:
     unruled = [d["id"] for d in g["disagreements"] if d["id"] not in rulings]
     if unruled:

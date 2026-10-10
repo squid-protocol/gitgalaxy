@@ -654,7 +654,7 @@ def assert_linear_redos_scaling(pattern: re.Pattern, payload_fn, sizes=(2000, 40
             observed = timings[-1] / base
             assert observed < expected_linear * 5, (
                 f"Super-linear scaling: {sizes[j]}->{sizes[-1]} chars grew {observed:.1f}x, "
-                f"expected ~{expected_linear:.0f}x for linear. Timings: {list(zip(sizes, timings))}"
+                f"expected ~{expected_linear:.0f}x for linear. Timings: {list(zip(sizes, timings, strict=False))}"  # reason: length may differ
             )
             break
 
@@ -671,7 +671,7 @@ def assert_linear_redos_scaling(pattern: re.Pattern, payload_fn, sizes=(2000, 40
             consecutive_breaches += 1
             assert consecutive_breaches < 2, (
                 f"Sustained super-linear growth over consecutive doublings up to "
-                f"{sizes[i]} chars ({cur / prev:.2f}x this step). Timings: {list(zip(sizes, timings))}"
+                f"{sizes[i]} chars ({cur / prev:.2f}x this step). Timings: {list(zip(sizes, timings, strict=False))}"  # reason: length may differ
             )
         else:
             consecutive_breaches = 0

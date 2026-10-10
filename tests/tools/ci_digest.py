@@ -57,8 +57,8 @@ REPRO: list[tuple[str, str]] = [
         "python tests/tools/cics_crucible.py --ci --out /tmp/gitgalaxy-scratch/ci-digest/cics",
     ),
 ]
-NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|dead-key-audit|ast-accuracy-audit|rosetta-audit|"
-                      r"flag-golden-master-changes|Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
+NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|Small audits|rosetta-audit|"
+                      r"Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
 
 # Test names the shepherd reruns once instead of reporting as a real failure. Empty on purpose: the wall-clock
 # tests that used to live here (#4477) assert CPU-time ratios / best-of-3 CPU bounds now (tests/_timing.py), so
@@ -137,7 +137,7 @@ def main_failures(api: pr_check.Api) -> set[str]:
         runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     except (SystemExit, KeyError, TypeError):
         return set()
-    return {x.split(" (")[0] for x in pr_check.classify(runs, [])["failed"]}
+    return pr_check.failed_names(runs)
 
 
 def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) -> dict[str, Any]:
@@ -145,7 +145,7 @@ def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) ->
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    failed = {x.split(" (")[0] for x in pr_check.classify(runs, [])["failed"]}
+    failed = pr_check.failed_names(runs)
     newest: dict[str, dict[str, Any]] = {}
     for r in sorted(runs, key=lambda r: r.get("id", 0)):
         if r["name"] in failed and r.get("conclusion") not in pr_check.NEUTRAL | {None}:

@@ -43,7 +43,7 @@ import json
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import cobol_coverage as cov
 import equivalence_common as common
@@ -140,7 +140,7 @@ def _literal(value: str, size: int) -> str:
     return "SPACES" if not value.strip() else "'" + value.replace("'", "''") + "'"
 
 
-def cobol_driver(case: dict[str, Any], corpus: Optional[Path] = None) -> str:
+def cobol_driver(case: dict[str, Any], corpus: Path | None = None) -> str:
     """EQCALLDR: each call's items set, the CALL, the items and RETURN-CODE written as one record. An argument given
     as field values is set as its bytes, 16 hexadecimal bytes per MOVE into the item's reference modification."""
     items = [f"A{i}" for i in range(len(case["using"]))]
@@ -148,13 +148,15 @@ def cobol_driver(case: dict[str, Any], corpus: Optional[Path] = None) -> str:
              "FILE-CONTROL.", "    SELECT OUT-F ASSIGN TO OUTFILE ORGANIZATION IS SEQUENTIAL.", "DATA DIVISION.",
              "FILE SECTION.", "FD  OUT-F.", f"01  OUT-R PIC X({reclen(case)}).", "WORKING-STORAGE SECTION.",
              "01  CALL-REC."]  # fmt: skip
-    lines += [f"    05 {a} PIC X({u['size']})." for a, u in zip(items, case["using"])]
+    lines += [
+        f"    05 {a} PIC X({u['size']})." for a, u in zip(items, case["using"], strict=False)
+    ]  # reason: length may differ
     lines += ["    05 RC-OUT PIC S9(4) SIGN LEADING SEPARATE.", "PROCEDURE DIVISION.", "    OPEN OUTPUT OUT-F"]
     for call in case["calls"]:
         args = call["args"]
         if len(args) != len(items):
             raise Unsupported(f"call {call['name']}: {len(args)} arguments for {len(items)} USING items")
-        for a, u, v in zip(items, case["using"], args):
+        for a, u, v in zip(items, case["using"], args, strict=False):  # reason: length may differ
             if isinstance(v, dict):
                 if corpus is None:
                     raise Unsupported("field-value arguments need the corpus")
@@ -251,7 +253,7 @@ class EquivalenceRunTest {{
 """
 
 
-def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Optional[Path]) -> bytes:
+def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None) -> bytes:
     import equivalence_java as ej
 
     if dto_items(case):
@@ -278,7 +280,7 @@ def dto_args(case: dict[str, Any], corpus: Path, java_root: Path, types: list[st
     calls = []
     for call in case["calls"]:
         row: list[Any] = []
-        for u, arg, typ in zip(case["using"], call["args"], types):
+        for u, arg, typ in zip(case["using"], call["args"], types, strict=False):  # reason: length may differ
             if not u.get("record"):
                 row.append(arg)
                 continue
@@ -295,7 +297,7 @@ def dto_args(case: dict[str, Any], corpus: Path, java_root: Path, types: list[st
     return calls
 
 
-def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Optional[Path]) -> bytes:
+def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None) -> bytes:
     """A case with a group USING item: the Java side's CALLS.json (each call's items and RETURN-CODE)."""
     import equivalence_java as ej
 
@@ -306,7 +308,7 @@ def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, por
     types = handle_call_types(svc.read_text(encoding="utf-8")) if svc else []
     if len(types) != len(case["using"]):
         raise Unsupported(f"{case['program']}'s service has no handleCall taking its {len(case['using'])} items")
-    for u, t in zip(case["using"], types):
+    for u, t in zip(case["using"], types, strict=False):  # reason: length may differ
         if bool(u.get("record")) == (t == "CobolRef<String>"):
             raise Unsupported(f"{u['name']}: the case and handleCall's {t} disagree on a text vs a group item")
     test = next(project.rglob("EquivalenceRunTest.java"))
@@ -318,7 +320,7 @@ def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, por
         test.write_text(java_test_dto(case, types, areas=True), encoding="utf-8")
         # #4778: each call's items as the very bytes the COBOL side's CALL passed (EQCALLDR's MOVEs)
         (inputs / "areas.json").write_text(json.dumps([[arg_bytes(case, corpus, u, a).hex().upper()
-                                                         for u, a in zip(case["using"], call["args"])]
+                                                         for u, a in zip(case["using"], call["args"], strict=False)]  # reason: length may differ
                                                         for call in case["calls"]]), encoding="utf-8")  # fmt: skip
     (work / "java_root.txt").write_text(str(java_root), encoding="utf-8")
     (work / "handle_call_types.json").write_text(json.dumps(types), encoding="utf-8")
@@ -487,7 +489,7 @@ def _unnamed(fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if f["name"] == "FILLER" else f for f in fields]  # fmt: skip
 
 
-def compare_item(case: dict[str, Any], corpus: Path, u: dict[str, Any], item: bytes, dto: Any, area: Optional[bytes],
+def compare_item(case: dict[str, Any], corpus: Path, u: dict[str, Any], item: bytes, dto: Any, area: bytes | None,
                  props: dict[str, tuple[str, str]], enc: str) -> tuple[list[dict[str, Any]], list[str]]:  # fmt: skip
     """#4778: one group USING item as a call left it, whole -- (differences, the unnamed bytes not compared).
 
@@ -535,7 +537,7 @@ def feedback_md(case: dict[str, Any], diff: dict[str, Any]) -> str:
     return "\n".join(out).strip()
 
 
-def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Optional[Path] = None,
+def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
              cobol_only: bool = False) -> int:  # fmt: skip
     cobol = run_cobol(case, corpus, work / "cobol")
     n = reclen(case)

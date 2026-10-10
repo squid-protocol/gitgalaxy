@@ -148,7 +148,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional
+from typing import Any
+from collections.abc import Callable, Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CORPUS = Path(os.environ.get("IMPORT_GRAPH_CORPUS_PATH", REPO_ROOT.parent / "import-graph-corpus"))
@@ -200,7 +201,7 @@ _JS_EXTS = (".ts", ".tsx", ".d.ts", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts
 class Group:
     """The files of one scanned repo group, by path relative to the group root."""
 
-    def __init__(self, files: Iterable[str], root: Optional[Path] = None):
+    def __init__(self, files: Iterable[str], root: Path | None = None):
         self.root = root
         self.files = set(files)
         self._cache: dict[str, Any] = {}
@@ -299,7 +300,7 @@ def _text(node: Any, src: bytes) -> str:
     return src[node.start_byte : node.end_byte].decode("utf-8", "replace")
 
 
-def _string_value(node: Any, src: bytes) -> Optional[str]:
+def _string_value(node: Any, src: bytes) -> str | None:
     """The literal content of a string node (quotes stripped), or None."""
     raw = _text(node, src).strip()
     if len(raw) >= 2 and raw[0] in "\"'`" and raw[-1] == raw[0]:
@@ -433,7 +434,7 @@ def _exports_leaves(value: Any, depth: int = 0) -> list[str]:
     return [leaf for item in items for leaf in _exports_leaves(item, depth + 1)]
 
 
-def _self_reference(spec: str, rel: str, group: Group) -> Optional[set[str]]:
+def _self_reference(spec: str, rel: str, group: Group) -> set[str] | None:
     """Node's self-reference (#3789): inside a package, `name/sub` is the file the nearest
     package.json's `exports["./sub"]` declares. None when the specifier is not one."""
     if group.root is None:
@@ -465,7 +466,7 @@ def _self_reference(spec: str, rel: str, group: Group) -> Optional[set[str]]:
 
 
 def js_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
-    def resolve(spec: str, rel: str, group: Group) -> Optional[set[str]]:
+    def resolve(spec: str, rel: str, group: Group) -> set[str] | None:
         if not spec.startswith(("./", "../")):
             return _self_reference(spec, rel, group)  # else a package or alias: not scored
         base = posixpath.normpath(posixpath.join(posixpath.dirname(rel), spec))
@@ -637,13 +638,13 @@ _CARGO_DEP_WS = re.compile(r"^\s*([A-Za-z0-9_\-]+)(?:\.workspace\s*=\s*true|\s*=
 _RUST_ROOT_DIRS = ("tests", "examples", "benches")
 
 
-def _cargo(group: Group, d: str) -> Optional[dict[str, Any]]:
+def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     """The Cargo.toml in group directory `d` (from disk: a scan does not record it), or None:
     {package, edition, lib, deps: {name: dir}, ws_deps: {name: dir}, ws_inherit: {names}}."""
     cache = group._cache.setdefault("cargo", {})
     if d in cache:
         return cache[d]
-    out: Optional[dict[str, Any]] = None
+    out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
         out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
@@ -679,7 +680,7 @@ def _cargo(group: Group, d: str) -> Optional[dict[str, Any]]:
     return out
 
 
-def _rust_package(group: Group, d: str) -> Optional[str]:
+def _rust_package(group: Group, d: str) -> str | None:
     """The directory of the nearest Cargo.toml with a [package] at or above `d`."""
     while True:
         c = _cargo(group, d)
@@ -690,7 +691,7 @@ def _rust_package(group: Group, d: str) -> Optional[str]:
         d = posixpath.dirname(d)
 
 
-def _rust_crate(rel: str, group: Group) -> tuple[str, Optional[str]]:
+def _rust_crate(rel: str, group: Group) -> tuple[str, str | None]:
     """(crate directory, crate root file) of file `rel`, by Cargo's target layout."""
     d = posixpath.dirname(rel)
     pkg = _rust_package(group, d)
@@ -726,21 +727,21 @@ def _rust_crate(rel: str, group: Group) -> tuple[str, Optional[str]]:
     return (join("src") if rel.startswith(join("src") + "/") else d), None
 
 
-def _rust_module_of(rel: str, crate_dir: str, root: Optional[str]) -> list[str]:
+def _rust_module_of(rel: str, crate_dir: str, root: str | None) -> list[str]:
     if rel == root:
         return []
     mods = [p for p in posixpath.splitext(rel[len(crate_dir) + 1 :] if crate_dir else rel)[0].split("/") if p]
     return mods[:-1] if mods and mods[-1] == "mod" else mods
 
 
-def _rust_mod_file(group: Group, crate_dir: str, root: Optional[str], mods: list[str]) -> Optional[str]:
+def _rust_mod_file(group: Group, crate_dir: str, root: str | None, mods: list[str]) -> str | None:
     if not mods:
         return root
     stem = posixpath.join(crate_dir, *mods)
     return next(iter(group.exact(stem + ".rs") or group.exact(stem + "/mod.rs")), None)
 
 
-def _rust_extern(group: Group, name: str, rel: str) -> Optional[tuple[str, str]]:
+def _rust_extern(group: Group, name: str, rel: str) -> tuple[str, str] | None:
     """(crate dir, lib root) of the scanned crate `name` the file's package can use."""
     pkg = _rust_package(group, posixpath.dirname(rel))
     target = None
@@ -800,7 +801,7 @@ def _rust_use_paths(node: Any, src: bytes) -> list[list[str]]:
     return []
 
 
-def _rust_items(rel: str, group: Group, src: Optional[bytes] = None) -> dict[str, Any]:
+def _rust_items(rel: str, group: Group, src: bytes | None = None) -> dict[str, Any]:
     """Per file, parsed once: `uses` [(inline module path, path)], `mods` [(inline, name, #[path])],
     `externs` [names]. `src` is the file's text; another file (a re-export hop) is read from disk."""
     cache = group._cache.setdefault("rust_items", {})
@@ -1334,7 +1335,7 @@ def scan_group(group_dir: Path, out_dir: Path) -> tuple[dict[str, str], set[tupl
     return langs, edges, raw
 
 
-def _tokens(raw: Optional[str]) -> list[str]:
+def _tokens(raw: str | None) -> list[str]:
     """The file's pre-resolution import tokens (#3220), flattened to strings."""
     try:
         items = json.loads(raw or "[]")
@@ -1426,7 +1427,7 @@ def score_group(
     langs: dict[str, str],
     edges: set[tuple[str, str]],
     wanted: tuple[str, ...],
-    raw: Optional[dict[str, list[str]]] = None,
+    raw: dict[str, list[str]] | None = None,
 ) -> dict[str, dict[str, Any]]:
     group = Group(langs, group_dir)
     per: dict[str, dict[str, Any]] = collections.defaultdict(
@@ -1566,7 +1567,7 @@ def measure(
 
 
 def render(results: dict[str, dict[str, Any]]) -> str:
-    def pct(v: Optional[float]) -> str:
+    def pct(v: float | None) -> str:
         return "n/a" if v is None else f"{v}%"
 
     lines = [
@@ -1603,7 +1604,7 @@ def regressions(results: dict[str, dict[str, Any]], baseline: dict[str, dict[str
 COUNTS = ("correct", "fp", "found", "fn")
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("languages", nargs="*", help=f"default: {' '.join(LANGS)}")
     ap.add_argument("--samples", type=int, default=0, help="print N example FP/FN per language")

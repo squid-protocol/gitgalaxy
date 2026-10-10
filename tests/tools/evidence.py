@@ -61,7 +61,8 @@ import tempfile
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = REPO_ROOT / "tests" / "tools"
@@ -129,7 +130,7 @@ def _files_now() -> tuple[str, ...]:
 
 
 @functools.lru_cache(maxsize=8)
-def _files_at(commit: str) -> Optional[tuple[str, ...]]:
+def _files_at(commit: str) -> tuple[str, ...] | None:
     out = _git("ls-tree", "-r", "-z", "--name-only", commit)
     return None if out is None else tuple(sorted(p for p in out.split("\0") if p))
 
@@ -523,7 +524,7 @@ def spec_inputs(t: Target, files: Any, read: Any = None) -> dict[str, Any]:
     return out
 
 
-def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: Any = None,
+def compute_inputs(t: Target, differences: list[Any] | None = None, files: Any = None,
                    read: Any = None) -> dict[str, Any]:  # fmt: skip
     """The fingerprints of the target's inputs in the tree now (or, with files / read, at a commit)."""
     files = files if files is not None else _files_now()
@@ -535,7 +536,7 @@ def compute_inputs(t: Target, differences: Optional[list[Any]] = None, files: An
     return out
 
 
-def inputs_at(t: Target, commit: str) -> Optional[dict[str, Any]]:
+def inputs_at(t: Target, commit: str) -> dict[str, Any] | None:
     """compute_inputs at an earlier commit (git history), for a mutation score judged there; None without it."""
     files = _files_at(commit)
     if files is None:
@@ -559,7 +560,7 @@ def inputs_at(t: Target, commit: str) -> Optional[dict[str, Any]]:
     return compute_inputs(at, [], files, read)
 
 
-def changed(stored: Optional[dict[str, Any]], now: dict[str, Any], names: tuple[str, ...] = INPUTS) -> list[str]:
+def changed(stored: dict[str, Any] | None, now: dict[str, Any], names: tuple[str, ...] = INPUTS) -> list[str]:
     if not stored:
         return list(names)
     out = []
@@ -577,7 +578,7 @@ def changed(stored: Optional[dict[str, Any]], now: dict[str, Any], names: tuple[
     return out
 
 
-def component_changed(stored: dict[str, Any], now: dict[str, Any]) -> Optional[list[str]]:
+def component_changed(stored: dict[str, Any], now: dict[str, Any]) -> list[str] | None:
     """#4731: the components (that the tree's target uses) whose fingerprint differs from the record's; None when the
     comparison cannot be made per component (a record proven before #4731 stored none: the whole input then decides),
     [] when the whole input changed but no component this target uses did. A used component the record does not
@@ -661,7 +662,7 @@ def port_facades(t: Target) -> list[str]:
                    for m in _FACADE.findall(f.read_text(encoding="utf-8"))})  # fmt: skip
 
 
-def coverage_section(t: Target, report: dict[str, Any], digest: str) -> Optional[dict[str, Any]]:
+def coverage_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, Any] | None:
     if t.kind == "crucible":
         return crucible_coverage(t, sorted((report.get("outputs") or {}).keys()), digest)
     c = report.get("coverage")
@@ -676,7 +677,7 @@ def coverage_section(t: Target, report: dict[str, Any], digest: str) -> Optional
             "source": "the proof's own traced COBOL runs (cobol_coverage.py)", "inputs_digest": digest}  # fmt: skip
 
 
-def crucible_coverage(t: Target, scenarios: list[str], digest: str) -> Optional[dict[str, Any]]:
+def crucible_coverage(t: Target, scenarios: list[str], digest: str) -> dict[str, Any] | None:
     """From tests/cics_crucible/coverage.json (#4023): what the program's proof scenarios execute on the COBOL side."""
     ledger = json.loads(CRUCIBLE_COVERAGE.read_text(encoding="utf-8")).get("programs", {})
     rec = ledger.get(f"{t.case}/{t.program}")
@@ -695,7 +696,7 @@ def crucible_coverage(t: Target, scenarios: list[str], digest: str) -> Optional[
             "ledger_sha256": json_sha256(rec), "inputs_digest": digest}  # fmt: skip
 
 
-def _generated_originals(work: Optional[Path]) -> list[Path]:
+def _generated_originals(work: Path | None) -> list[Path]:
     """The generated services the port replaced in the proof's project (equivalence_java / cics_crucible keep them
     under generated_before_overlay/ when they lay the overlay)."""
     if work is None or not work.is_dir():
@@ -703,7 +704,7 @@ def _generated_originals(work: Optional[Path]) -> list[Path]:
     return [p for d in work.rglob("generated_before_overlay") if d.is_dir() for p in d.rglob("*.java")]
 
 
-def reach_section(t: Target, work: Optional[Path] = None, entries: Iterable[str] = ()) -> dict[str, Any]:
+def reach_section(t: Target, work: Path | None = None, entries: Iterable[str] = ()) -> dict[str, Any]:
     """#4255: which of the port's methods the proof runs (proof_reach), sorted into its three kinds. `entries`:
     the methods the proof also drove the program through (a batch case's entry runs), roots beside PROOF_ROOTS."""
     from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: PLC0415 -- the engine's, only when a record is made
@@ -725,7 +726,7 @@ def reach_section(t: Target, work: Optional[Path] = None, entries: Iterable[str]
             "port_sha256": tree_sha256(port_files(t))}  # fmt: skip
 
 
-def oracle_section(t: Target, fp: Optional[dict[str, Any]]) -> dict[str, Any]:
+def oracle_section(t: Target, fp: dict[str, Any] | None) -> dict[str, Any]:
     if t.kind == "crucible":
         return {"kind": "crucible-expected-logs",
                 "source": f"cics-crucible {t.corpus['ref']}: each scenario's hand-written expected event log, derived "
@@ -777,7 +778,7 @@ def _score(n: int, d: int) -> str:
     return f"{n}/{d}"
 
 
-def mutation_section(t: Target) -> Optional[dict[str, Any]]:
+def mutation_section(t: Target) -> dict[str, Any] | None:
     """The port's entry of docs/language_status/mutation_scores.json (#4047), with the inputs it was judged against
     (recomputed at its commit from git history; None in a shallow clone)."""
     if not MUTATION_SCORES.is_file():
@@ -809,7 +810,7 @@ def new_record(t: Target) -> dict[str, Any]:
             "mutation": None, "differences": [], "oracle": None, "provenance": None, "approvals": []}  # fmt: skip
 
 
-def load(t: Target) -> Optional[dict[str, Any]]:
+def load(t: Target) -> dict[str, Any] | None:
     return json.loads(t.record.read_text(encoding="utf-8")) if t.record.is_file() else None
 
 
@@ -820,7 +821,7 @@ def save(t: Target, rec: dict[str, Any]) -> None:
     t.record.write_text(json.dumps(rec, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def record_proof(t: Target, report: dict[str, Any], work: Optional[Path] = None) -> dict[str, Any]:
+def record_proof(t: Target, report: dict[str, Any], work: Path | None = None) -> dict[str, Any]:
     """Write the record of a proof that just ran on the committed port and case (report = its report.json)."""
     rec = load(t) or new_record(t)
     # #4706: the options the harness found this port's proof cannot claim (equivalence_common.option_differences)
@@ -854,7 +855,7 @@ def record_equivalence_run(case: str, work: Path) -> dict[str, Any]:
     return record_proof(equivalence_target(case), report, work)
 
 
-def refresh_mutation(keys: Optional[list[str]] = None) -> list[str]:
+def refresh_mutation(keys: list[str] | None = None) -> list[str]:
     """Re-read every record's `mutation` from mutation_scores.json (mutation_scores.py build calls this)."""
     done = []
     for t in targets():
@@ -870,7 +871,7 @@ def refresh_mutation(keys: Optional[list[str]] = None) -> list[str]:
 
 
 # ---- status: computed, never stored --------------------------------------------------------------------------------------
-def status(rec: Optional[dict[str, Any]], t: Target, *, live: bool = True,
+def status(rec: dict[str, Any] | None, t: Target, *, live: bool = True,
            policy: str = PORTED_UNPROVEN_POLICY) -> dict[str, Any]:  # fmt: skip
     """{"status", "reasons", "stale", "blocking", "approved"}. live=False judges the record alone (the rendered page):
     no comparison with the tree."""
@@ -1026,7 +1027,7 @@ def _append_approval(t: Target, rec: dict[str, Any], entry: dict[str, Any]) -> N
     t.record.write_text(json.dumps(rec, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def sign(t: Target, by: str, purpose: str, decision: str, note: Optional[str], *, interactive: bool,
+def sign(t: Target, by: str, purpose: str, decision: str, note: str | None, *, interactive: bool,
          confirm: Any = input) -> dict[str, Any]:  # fmt: skip
     _check_approver(by, purpose, interactive)
     rec = load(t)
@@ -1118,7 +1119,7 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render_index(recs: list[tuple[Target, Optional[dict[str, Any]]]]) -> str:
+def render_index(recs: list[tuple[Target, dict[str, Any] | None]]) -> str:
     lines = ["# Evidence records", "",
              "<!-- generated by tests/tools/evidence.py render; do not edit -->", "",
              "One record per ported program (#4048): docs/language_status/evidence_records.md explains them. The "
@@ -1213,9 +1214,7 @@ def validate(rec: dict[str, Any]) -> list[str]:
     return errs
 
 
-def migrate_components(
-    keys: Optional[list[str]] = None, write: bool = True, history: bool = True
-) -> dict[str, list[str]]:
+def migrate_components(keys: list[str] | None = None, write: bool = True, history: bool = True) -> dict[str, list[str]]:
     """#4731: add the per-component fingerprints to the records proven before them -- only where that is sound. An input
     whose stored fingerprint EQUALS the tree's was proven against exactly this tree, so the tree's component
     fingerprints are the ones it was proven against. An input stale on the whole (the tree moved on since) is migrated
@@ -1253,7 +1252,7 @@ def migrate_components(
 
 
 # ---- running proofs ----------------------------------------------------------------------------------------------------
-def prove(t: Target, work_root: Path, crucible: Optional[Path] = None, offline: bool = False) -> dict[str, Any]:
+def prove(t: Target, work_root: Path, crucible: Path | None = None, offline: bool = False) -> dict[str, Any]:
     """Run the target's proof on the committed port and case, and write its record. An infrastructure failure (no
     report at all) leaves the record as it was and is returned as {"error": ...}."""
     work = work_root / t.slug
@@ -1321,7 +1320,7 @@ def _selected(args: argparse.Namespace, say: Callable[[str], None] = print) -> l
     return out
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("status")

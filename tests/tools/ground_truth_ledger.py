@@ -62,7 +62,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mainframe_corpus as mc  # noqa: E402
@@ -208,7 +208,7 @@ ABOUT = (
 )
 
 
-def _pr(s: Optional[dict[str, int]]) -> str:
+def _pr(s: dict[str, int] | None) -> str:
     if s is None:
         return "n/a"
     text = f"P {s['tp']}/{s['got']} · R {s['tp']}/{s['truth']}"
@@ -307,9 +307,9 @@ def assign(
     ledger: dict[str, Any],
     cause: str,
     patterns: list[str],
-    issue: Optional[int] = None,
-    summary: Optional[str] = None,
-    kind: Optional[str] = None,
+    issue: int | None = None,
+    summary: str | None = None,
+    kind: str | None = None,
 ) -> int:
     causes = ledger.setdefault("causes", {})
     if issue is not None or summary is not None or kind is not None:

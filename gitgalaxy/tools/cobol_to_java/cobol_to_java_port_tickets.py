@@ -470,7 +470,10 @@ def _carrying_class(record: Any, file: Any, fields: list[Any], classes: dict[str
             and file_ == g_file
             and (pic is None or f"PIC {pic}" in g_pic or f"PIC '{pic}'" in g_pic)
             and (usage is None or pic is None or str(usage) in g_pic)
-            for (name, pic, usage, offset, width, file_), (g_name, g_pic, g_off, g_width, g_file) in zip(want, got)
+            # reason: matching expected to actual list length may differ
+            for (name, pic, usage, offset, width, file_), (g_name, g_pic, g_off, g_width, g_file) in zip(
+                want, got, strict=False
+            )
             if offset is not None and width is not None
         ) and all(w[3] is not None and w[4] is not None for w in want):
             return path

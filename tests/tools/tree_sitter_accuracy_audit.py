@@ -334,7 +334,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple
 
 import tree_sitter_language_pack
 
@@ -873,7 +873,7 @@ def _cpp_canonical_operator_name(text: str) -> str:
     return stripped
 
 
-def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
+def _unwrap_c_style_declarator(node: Any) -> str | None:
     """Walks a C/C++ declarator subtree down to its terminal identifier-like node. Unlike most
     NODE_MAPS grammars, tree-sitter-c/cpp's `function_definition` has no top-level "name" field --
     the real name sits behind a "declarator" field that can be wrapped in zero or more
@@ -918,7 +918,7 @@ def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
     return None
 
 
-def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
+def _get_zig_container_name(node: Any, max_hops: int = 6) -> str | None:
     """Zig struct/enum/union/opaque literals ("ContainerDecl") carry no name of their own -- the
     grammar treats them as anonymous type EXPRESSIONS, wrapped in a chain of intermediate nodes
     (SuffixExpr/ErrorUnionExpr/GroupedExpr/AssignExpr/...) until they land on the right-hand side
@@ -953,7 +953,7 @@ def _get_zig_container_name(node: Any, max_hops: int = 6) -> Optional[str]:
     return None
 
 
-def _find_haskell_signature_for_bind(bind_node: Any) -> Optional[Any]:
+def _find_haskell_signature_for_bind(bind_node: Any) -> Any | None:
     """#1566: a "bind" node (point-free `name = expr`) has no type info of its own -- the arrow
     that would make it a real function lives on a SIBLING "signature" node (`name :: A -> B`)
     under the same parent declarations list, matched by name. Returns None if no such sibling
@@ -973,7 +973,7 @@ def _find_haskell_signature_for_bind(bind_node: Any) -> Optional[Any]:
     return None
 
 
-def _unwrap_haskell_signature_type(type_node: Optional[Any]) -> Optional[Any]:
+def _unwrap_haskell_signature_type(type_node: Any | None) -> Any | None:
     """#1566: a signature's "type" field isn't always the arrow-chain directly -- a typeclass
     constraint (`Walkable Inline a => a -> a`) wraps it in a "context" node, and an explicit
     `forall a. ...` wraps that again in a "forall" node, both of which expose the real
@@ -986,7 +986,7 @@ def _unwrap_haskell_signature_type(type_node: Optional[Any]) -> Optional[Any]:
     return type_node
 
 
-def _count_haskell_signature_arrows(type_node: Optional[Any]) -> int:
+def _count_haskell_signature_arrows(type_node: Any | None) -> int:
     """#1566: mirrors detector.py's `_count_haskell_type_arrows` (#1209) on the ground-truth
     side -- curried arity is the top-level arrow count, right-associated (`a -> b -> c` nests as
     `function(a, ->, function(b, ->, c))`), so only the "result" field is ever recursed into.
@@ -1000,7 +1000,7 @@ def _count_haskell_signature_arrows(type_node: Optional[Any]) -> int:
     return 1 + _count_haskell_signature_arrows(type_node.child_by_field_name("result"))
 
 
-def _haskell_signature_type_is_io_action(type_node: Optional[Any]) -> bool:
+def _haskell_signature_type_is_io_action(type_node: Any | None) -> bool:
     """#2934: mirrors detector.py's `_haskell_arrowless_signature_is_action` on the ground-truth
     side. An arrowless signature whose (already-unwrapped) type is a bare `IO ...` application
     (`IO ()`, `IO a`) is a zero-arg IO action -- a real entry point that opens an executable block
@@ -1016,7 +1016,7 @@ def _haskell_signature_type_is_io_action(type_node: Optional[Any]) -> bool:
     return node is not None and node.type == "name" and node.text == b"IO"
 
 
-def _get_node_name(node: Any) -> Optional[str]:
+def _get_node_name(node: Any) -> str | None:
     if node.type == "bind":
         # #1566: only a real function -- see func_node_types' haskell entry for the full
         # rationale. Checked first, ahead of the generic "name" field fast path below, since
@@ -1381,7 +1381,7 @@ def _get_node_name(node: Any) -> Optional[str]:
     return None
 
 
-def _find_c_style_parameter_list(node: Any) -> Optional[Any]:
+def _find_c_style_parameter_list(node: Any) -> Any | None:
     """Mirrors `_unwrap_c_style_declarator`'s walk, but stops at the first `function_declarator`
     and returns its "parameters" field instead of a name. Needed for the identical reason: C/C++'s
     `function_definition` has no top-level "parameters" field either -- it sits on the
@@ -2244,7 +2244,7 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     return ranges
 
 
-def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500) -> Optional[int]:
+def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500) -> int | None:
     """#1567: some real-world files trigger a grammar parse error on ONE construct that then
     corrupts recovery for everything downstream in the same file -- not a small, cleanly-
     recovered ERROR node, but one that swallows a large trailing region all the way (or nearly)
@@ -2262,7 +2262,7 @@ def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500
     that recovers before EOF does NOT match this and is left alone, same as before).
     """
     total_lines = root_node.end_point[0] + 1
-    best_start: Optional[int] = None
+    best_start: int | None = None
 
     def walk(node: Any) -> None:
         nonlocal best_start
@@ -2279,7 +2279,7 @@ def _find_trailing_error_cascade_start(root_node: Any, min_span_lines: int = 500
     return best_start
 
 
-def measure_gg_only(lang: str) -> Optional[dict]:
+def measure_gg_only(lang: str) -> dict | None:
     """Plain GitGalaxy-only count for a language with no tree-sitter comparison at all (see
     _gg_only_langs). Runs the same corpus/engine-scan pipeline as measure() but skips the
     tree-sitter parse/diff step entirely -- there's no NODE_MAPS entry to parse against -- and
@@ -2580,7 +2580,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     # by `go LineBreak = " "`), and tree-sitter emits that comment as its
                     # own sibling node in between, which would otherwise wrongly split one
                     # real clause-group into two.
-                    last_clause_name: Optional[str] = None
+                    last_clause_name: str | None = None
                     for child in node.children:
                         if lang == "haskell" and child.type == "comment":
                             walk(child)
@@ -3013,14 +3013,14 @@ _TABLE_END = "<!-- TREE_SITTER_ACCURACY_TABLE:END -->"
 _LANGUAGE_STANDARDS_PATH = REPO_ROOT / "gitgalaxy" / "standards" / "language_standards" / "__init__.py"
 
 
-def _ratio_pct(numerator: int, denominator: int) -> Optional[float]:
+def _ratio_pct(numerator: int, denominator: int) -> float | None:
     """None (-> "N/A") when the denominator is 0, same convention the baseline JSON itself uses."""
     if denominator <= 0:
         return None
     return round(100.0 * numerator / denominator, 1)
 
 
-def _fmt_pct(value: Optional[float]) -> str:
+def _fmt_pct(value: float | None) -> str:
     return "N/A" if value is None else f"{value}%"
 
 
@@ -3499,7 +3499,7 @@ _HISTORY_RAW_FIELDS = (
 )
 
 
-def _try_load_latest_history_batch() -> Optional[tuple[str, str, dict[str, dict[str, int]]]]:
+def _try_load_latest_history_batch() -> tuple[str, str, dict[str, dict[str, int]]] | None:
     """Same as `_load_latest_history_batch` but returns None instead of exiting when the CSV
     doesn't exist yet or is empty, so `run_history` can use it to detect "first run ever" and
     skip the unchanged-batch comparison rather than treating an empty file as an error."""
@@ -3657,15 +3657,15 @@ def generate_chart_svg() -> str:
         col_x = panel_x + badge_col_w
 
         gg_fractions: dict[str, tuple[int, int]] = {}
-        gg_values: dict[str, Optional[float]] = {}
+        gg_values: dict[str, float | None] = {}
         ts_fractions: dict[str, tuple[int, int]] = {}
-        ts_values: dict[str, Optional[float]] = {}
+        ts_values: dict[str, float | None] = {}
         # GG-only languages (see _gg_only_langs): no tree-sitter side at all, so gg_values/
         # ts_values stay None for them (nothing to score as a ratio) -- gg_count instead carries
         # a raw found-count for the one or two panels where that's meaningful (Func Recall always;
         # Class Recall only if this language's own class_start rule exists at all), rendered as a
         # distinct neutral full-width bar rather than a red->blue scored one.
-        gg_count: dict[str, Optional[int]] = {}
+        gg_count: dict[str, int | None] = {}
         for lang in langs_all:
             row = data[lang]
             if row.get("gg_only"):
@@ -3805,7 +3805,7 @@ def run_chart() -> int:
 _BLURB_MIN_DELTA_PP = 1.0  # ignore sub-noise wobble; a real regex/rule change moves this by more.
 
 
-def _load_last_two_batches() -> Optional[tuple[dict[str, dict[str, int]], dict[str, dict[str, int]]]]:
+def _load_last_two_batches() -> tuple[dict[str, dict[str, int]], dict[str, dict[str, int]]] | None:
     """Returns (previous_batch_data, latest_batch_data) -- each {lang: {raw_field: int}} -- for
     the two most recent DISTINCT timestamp_utc values in the history CSV, or None if fewer than
     two batches have been recorded yet (nothing to diff a first-ever run against)."""

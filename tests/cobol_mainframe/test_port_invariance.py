@@ -59,7 +59,7 @@ def test_a_reading_that_depends_on_the_language_is_caught(measured):
     # one that reads Java branches in the reverse order of COBOL's
     broken = copy.deepcopy(measured)
     order = sorted(broken, key=lambda m: m["cobol_r"]["struct_branch"])
-    for m, rank in zip(order, range(len(order), 0, -1)):
+    for m, rank in zip(order, range(len(order), 0, -1), strict=False):  # reason: length may differ
         m["java_r"]["struct_branch"] = rank
     _, problems = pi.evaluate(broken, "fixture")
     assert any(p.startswith("struct_branch: rho -0.9") for p in problems)  # (COBOL ties keep it off -1)

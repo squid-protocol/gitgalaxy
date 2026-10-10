@@ -37,7 +37,6 @@ import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Optional
 from unittest.mock import patch
 
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
@@ -87,7 +86,7 @@ def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     return next(work.glob(f"{corpus.name}_gitgalaxy_clean_*"))
 
 
-def generate(clean: Path, name: str, config: dict, work: Path, header: Optional[Path] = None) -> Path:
+def generate(clean: Path, name: str, config: dict, work: Path, header: Path | None = None) -> Path:
     """cobol-to-java on a clean room under `config`; `header` is a text file every generated Java
     file starts with (as a block comment), none by default."""
     import json

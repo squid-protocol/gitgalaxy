@@ -336,7 +336,9 @@ def main() -> int:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]
         with ThreadPoolExecutor(max_workers=args.jobs) as ex:
-            for x, p in zip(todo, ex.map(lambda x: prove(x["case"], args.work, args.faults), todo)):
+            for x, p in zip(
+                todo, ex.map(lambda x: prove(x["case"], args.work, args.faults), todo), strict=False
+            ):  # reason: length may differ
                 x.update(p)
     (args.work / "summary.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     for x in results:

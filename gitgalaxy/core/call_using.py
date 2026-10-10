@@ -31,7 +31,7 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 
@@ -54,7 +54,7 @@ _ENTRY = re.compile(r"(?<![A-Z0-9-])ENTRY[ \t\n]{1,200}(?:'([^'\n]{1,30})'|\"([^
 _WINDOW = 6000
 
 
-def _args(text: str, start: int) -> Optional[str]:
+def _args(text: str, start: int) -> str | None:
     """The USING list starting at `start` (just past the callee / DIVISION / ENTRY
     name), or None when no USING follows."""
     toks = [m.group(0) for m in _TOKEN.finditer(text, start, min(len(text), start + _WINDOW))][:_MAX_TOKENS]
@@ -112,7 +112,7 @@ def _args(text: str, start: int) -> Optional[str]:
     return ",".join(out) if out else None
 
 
-def call_using_args(blanked_stream: str, offset: int) -> Optional[str]:
+def call_using_args(blanked_stream: str, offset: int) -> str | None:
     """The USING list of the CALL whose callee operand ends at `offset`, read from a
     stream whose sequence fields are already blanked (`blank_stream`, once per
     file: blanking a slice would measure columns from the slice, not the line)."""

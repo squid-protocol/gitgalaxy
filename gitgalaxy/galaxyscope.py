@@ -26,7 +26,7 @@ import zipfile
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
@@ -1294,13 +1294,13 @@ class Orchestrator:
 
     def __init__(
         self,
-        target_input: Union[str, Path],
+        target_input: str | Path,
         config: dict[str, Any],
         version: str = "latest",
     ):
         self.config = config
         self.version = version
-        self.temp_dir: Optional[str] = None
+        self.temp_dir: str | None = None
         self.root = self._prepare_target(target_input)
         self.single_file_target = None
         if self.root.is_file():
@@ -3371,7 +3371,7 @@ class Orchestrator:
 
                 self.parsed_files.append(synthetic_artifact)
 
-    def _prepare_target(self, target_input: Union[str, Path]) -> Path:
+    def _prepare_target(self, target_input: str | Path) -> Path:
         """
         Validates the user's target input and constructs an ephemeral extraction environment if necessary.
 
@@ -3419,7 +3419,7 @@ class Orchestrator:
             except Exception as e:
                 logger.warning(f"CLEANUP_FAILED: Could not remove {self.temp_dir} ({e})")
 
-    def _record_anomaly(self, path: Union[str, Path], message: str):
+    def _record_anomaly(self, path: str | Path, message: str):
         """Records failure telemetry."""
         name = Path(path).name
         logger.debug(f"ANOMALY: {name} | {message}")
@@ -3550,7 +3550,7 @@ class Orchestrator:
         print("=" * 75 + "\n")
 
     @staticmethod
-    def _mainframe_completeness(repository_graph, db_path: str, repo_name: Optional[str]) -> Optional[dict]:
+    def _mainframe_completeness(repository_graph, db_path: str, repo_name: str | None) -> dict | None:
         """GalaxyIR.completeness() of the scan just recorded (#3506), or None.
 
         Only a scan holding COBOL, JCL, BMS or CSD has a mainframe skeleton to

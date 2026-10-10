@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -82,11 +83,25 @@ def dependents(changed: set[str], cases: dict[str, dict]) -> set[str]:
         out |= more
 
 
-def plan(files: list[str], event: str, cases: dict[str, dict]) -> dict:
-    """The plan for `files` (repo-relative, as git prints them) on `event`."""
+FULL_LABEL = "shepherd:full"  # #4847: a maintainer's request for the full sweep on a pull request (docs/ci.md)
+
+
+def labels_from_event(path: Path) -> list[str]:
+    """The pull request's label names from the event payload (GITHUB_EVENT_PATH); [] when there is none."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
+
+
+def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str] | None = None) -> dict:
+    """The plan for `files` (repo-relative, as git prints them) on `event`, given the pull request's `labels`."""
     full = {"mode": "full", "cases": "all"}
     if event != "pull_request":
         return {**full, "reason": f"{event}: always a full sweep"}
+    if FULL_LABEL in (labels or []):
+        return {**full, "reason": f"labelled {FULL_LABEL}: a full sweep on request"}
     files = [f for f in files if f not in IGNORED and det_input(f)]
     if not files:
         return {"mode": "none", "cases": [], "reason": "no changed file is a det-sweep input (DET_INPUTS)"}
@@ -159,14 +174,22 @@ def main() -> int:
     ap.add_argument("--github-output", type=Path, help="append mode / cases / matrix / shards for later jobs")
     ap.add_argument("--ports", type=Path, help="#4814: det_port.py check's check.json -- plan from the port diff")
     ap.add_argument("--touched", default="", help="with --ports: case directories the PR changed (comma-separated)")
+    ap.add_argument(
+        "--labels-from-event",
+        type=Path,
+        nargs="?",
+        const=Path(os.environ.get("GITHUB_EVENT_PATH", "")),
+        help="read the PR's labels (shepherd:full forces a full sweep) from this event payload",
+    )
     args = ap.parse_args()
+    labels = labels_from_event(args.labels_from_event) if args.labels_from_event else []
     cases = case_dirs()
     if args.ports:
         p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)
         return emit(p, args.github_output)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
-        p = plan(files, args.event, cases) if files or args.event != "pull_request" else {
+        p = plan(files, args.event, cases, labels) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "reason": f"cannot diff ({e})"}

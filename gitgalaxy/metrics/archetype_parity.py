@@ -36,6 +36,7 @@ zero-dependency mode.
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import re
 from typing import Any
@@ -326,7 +327,7 @@ def structural_problems(brains: dict[str, dict[str, Any]]) -> dict[str, list[tup
     )
 
     # A level whose input level is INVALID cannot be better than INVALID.
-    for lower, upper in zip(LEVELS, LEVELS[1:]):
+    for lower, upper in itertools.pairwise(LEVELS):
         if any(sev == "INVALID" for sev, _ in out[lower]) and not any(sev == "INVALID" for sev, _ in out[upper]):
             out[upper].append(("INVALID", f"its input level {lower!r} is INVALID"))
     return out

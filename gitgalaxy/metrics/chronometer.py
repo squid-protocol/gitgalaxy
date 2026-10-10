@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
 from gitgalaxy.core.source_text import open_source
@@ -78,7 +78,7 @@ class Chronometer:
     def __init__(
         self,
         root_path: Path,
-        parent_logger: Optional[logging.Logger] = None,
+        parent_logger: logging.Logger | None = None,
         resolved_config=None,
     ):
         """Initializes the Time-Series Analyzer and ignites the Bulk Survey Pass."""

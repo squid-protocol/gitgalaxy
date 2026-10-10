@@ -120,7 +120,9 @@ def test_generated_inputs_use_the_page_and_the_default_is_unchanged():
     ebcdic, values = ei.generate_dataset("DD", spec, RECORD, {}, "cp277", "cp277")
     recs = [ebcdic[i : i + 14] for i in range(0, len(ebcdic), 14)]
     assert all(r[12:] == b"\x40\x40" for r in recs)  # the unused tail is EBCDIC blanks
-    for rec, name, amount in zip(recs, values["DD.NAVN"], values["DD.BELOP"]):
+    for rec, name, amount in zip(
+        recs, values["DD.NAVN"], values["DD.BELOP"], strict=False
+    ):  # reason: length may differ
         assert common.decode_field(rec[:6], "X(06)", None, data_encoding="cp277").rstrip() == name.rstrip()
         assert common.decode_field(rec[6:9], "S9(03)", None, "cp277", data_encoding="cp277") == amount
 

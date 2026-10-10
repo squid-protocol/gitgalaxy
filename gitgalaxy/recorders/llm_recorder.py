@@ -19,7 +19,7 @@ import sqlite3
 import statistics
 from collections import Counter
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS
@@ -54,8 +54,8 @@ class LLMRecorder:
 
     def __init__(
         self,
-        parent_logger: Optional[logging.Logger] = None,
-        scan_config: Optional[dict[str, Any]] = None,
+        parent_logger: logging.Logger | None = None,
+        scan_config: dict[str, Any] | None = None,
     ):
         if parent_logger:
             self.logger = parent_logger.getChild("llm_recorder")
@@ -215,9 +215,9 @@ class LLMRecorder:
         summary: dict[str, Any],
         session_meta: dict[str, Any],
         output_dir: str,
-        forensic_report: Optional[dict[str, Any]] = None,
-        call_resolution: Optional[dict[str, Any]] = None,
-        mainframe_completeness: Optional[dict[str, Any]] = None,
+        forensic_report: dict[str, Any] | None = None,
+        call_resolution: dict[str, Any] | None = None,
+        mainframe_completeness: dict[str, Any] | None = None,
     ):
         """Generates the dual-output AI artifacts: Markdown and SQLite.
 
@@ -468,7 +468,7 @@ class LLMRecorder:
         return lines
 
     @staticmethod
-    def _completeness_lines(report: Optional[dict[str, Any]]) -> list[str]:
+    def _completeness_lines(report: dict[str, Any] | None) -> list[str]:
         """#3506: the mainframe skeleton's completeness score and its top three
         missing inputs, in one line (the channel table is in the audit report)."""
         if report is None:
@@ -482,7 +482,7 @@ class LLMRecorder:
             "",
         ]
 
-    def _call_resolution_lines(self, call_resolution: Optional[dict[str, Any]]) -> list[str]:
+    def _call_resolution_lines(self, call_resolution: dict[str, Any] | None) -> list[str]:
         """#3331: how many function calls the resolver linked, and how surely.
 
         Repository shares first, then the ten languages with the most call pairs.
@@ -1038,8 +1038,8 @@ class LLMRecorder:
         summary: dict[str, Any],
         session_meta: dict[str, Any],
         forensic_report: dict[str, Any],
-        call_resolution: Optional[dict[str, Any]] = None,
-        mainframe_completeness: Optional[dict[str, Any]] = None,
+        call_resolution: dict[str, Any] | None = None,
+        mainframe_completeness: dict[str, Any] | None = None,
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")

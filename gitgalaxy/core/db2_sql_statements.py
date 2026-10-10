@@ -48,7 +48,7 @@
 # with no unbounded runs, and literals and `--` comments are blanked first.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.db2_declare_table import (
     _QNAME,
@@ -261,7 +261,7 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
         verb = w.group(1).upper()
         if verb in _NOT_STATEMENTS:
             continue
-        cursor: Optional[str] = None
+        cursor: str | None = None
         if verb == "DECLARE":
             dc = _DECLARE_CURSOR.match(body)
             if not dc:
@@ -277,7 +277,7 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
         statement = _WS.sub(" ", raw).strip()
         ordinal += 1
         line = _line_of(m.start())
-        tables: list[tuple[Optional[str], Optional[str]]] = list(_tables(body, verb.split()[0])) or [(None, None)]
+        tables: list[tuple[str | None, str | None]] = list(_tables(body, verb.split()[0])) or [(None, None)]
         for table, access in tables:
             out.append(
                 {

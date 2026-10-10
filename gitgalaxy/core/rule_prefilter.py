@@ -50,7 +50,7 @@ runs ungated, byte-identical to pre-#3069 behavior.
 """
 
 import re
-from typing import Any, Optional
+from typing import Any
 
 # On 3.11+ the sre internals live as re submodules, already loaded by re's
 # own __init__ -- reach them as attributes (getattr, because on <=3.10 the
@@ -179,7 +179,7 @@ class _Ungateable(Exception):
 _Candidate = tuple[frozenset[str], bool]
 
 
-def _pick_best(candidates: list[_Candidate]) -> Optional[_Candidate]:
+def _pick_best(candidates: list[_Candidate]) -> _Candidate | None:
     """Fewest alternatives first (fewer haystack scans), then longest minimum
     literal (rarer substring => more rejections). Every candidate is
     independently sound, so this is pure policy, not correctness."""
@@ -188,7 +188,7 @@ def _pick_best(candidates: list[_Candidate]) -> Optional[_Candidate]:
     return min(candidates, key=lambda c: (len(c[0]), -min(len(lit) for lit in c[0])))
 
 
-def _pick_most_selective(candidates: list[_Candidate]) -> Optional[_Candidate]:
+def _pick_most_selective(candidates: list[_Candidate]) -> _Candidate | None:
     """Longest minimum literal first, then fewest alternatives.
 
     The per-line gates (#3072) invert _pick_best's priorities: a line-gate
@@ -275,7 +275,7 @@ def _walk_seq(seq: Any, ci: bool, picker: Any = _pick_best) -> list[_Candidate]:
 
 def derive_literal_gate(
     pattern: Any, max_literals: int = 80, min_literal_len: int = 2, prefer_selective: bool = False
-) -> "Optional[Gate]":
+) -> "Gate | None":
     """Derive a one-of literal gate for a compiled rule regex, or None.
 
     Invariant (the only property callers may rely on): if the gate is not None
@@ -518,7 +518,7 @@ def pattern_is_line_local(pattern: Any) -> bool:
     return True
 
 
-def derive_line_literals(pattern: Any, max_literals: int = 80) -> "Optional[tuple[str, ...]]":
+def derive_line_literals(pattern: Any, max_literals: int = 80) -> "tuple[str, ...] | None":
     """The per-line analogue of derive_literal_gate: a one-of literal set such
     that a line containing none of them cannot contain a match start.
 
@@ -559,7 +559,7 @@ def derive_line_literals(pattern: Any, max_literals: int = 80) -> "Optional[tupl
     return tuple(sorted(best[0], key=lambda lit: (len(lit), lit)))
 
 
-def build_line_gate(pattern: Any) -> "Optional[re.Pattern[str]]":
+def build_line_gate(pattern: Any) -> "re.Pattern[str] | None":
     """Compile the candidate-line scanner for a rule, or None if ineligible.
 
     The scanner is `(?m)^[^\\n]*?(?:lit|...)[^\\n]*$`: one C-speed pass over

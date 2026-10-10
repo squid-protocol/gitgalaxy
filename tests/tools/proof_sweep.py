@@ -255,7 +255,7 @@ def main() -> int:
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )
     ap.add_argument("--update-durations", action="store_true",
-                    help="after the sweep, record each det case's seconds in det_sweep_durations.json (what --shard balances by)")  # fmt: skip
+                    help="after the sweep (or, with --aggregate, after the merge), record each det case's seconds in det_sweep_durations.json (what --shard balances by)")  # fmt: skip
     args = ap.parse_args()
     if args.db2_only and args.skip_db2:
         ap.error("--db2-only and --skip-db2 leave out each other's cases")
@@ -270,6 +270,8 @@ def main() -> int:
             if args.expect == "none"
             else args.expect.split(",")
         )
+        if args.update_durations:  # the nightly (#4847): the shards' seconds become the next runs' balance
+            write_durations(results.get("det", {}))
         return report(results, missing_cases(results, expect), args)
     if args.work is None:
         ap.error("--work is required")

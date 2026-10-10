@@ -96,7 +96,7 @@ import os
 import pathlib
 import sys
 from collections import Counter, defaultdict
-from typing import Any, Optional
+from typing import Any
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
@@ -125,7 +125,7 @@ _RATE_TOLERANCE = 0.005
 # A value of None means DELIBERATELY UNSCORED -- the registry has no profile
 # that is the defensible answer, so asserting one would manufacture ground
 # truth. Those files are excluded from every score and counted separately.
-_EXPLICIT_LABELS: dict[tuple[str, str], Optional[str]] = {
+_EXPLICIT_LABELS: dict[tuple[str, str], str | None] = {
     # --- .py: python unless the project is a microcontroller runtime ---
     (".py", "python/fastapi"): "python",
     (".py", "python/numpy"): "python",
@@ -253,7 +253,7 @@ _AMBIGUOUS_FILES: dict[str, str] = {
 }
 
 
-def _label_for(path: pathlib.Path, root: pathlib.Path, by_ext: dict[str, str]) -> tuple[Optional[str], str]:
+def _label_for(path: pathlib.Path, root: pathlib.Path, by_ext: dict[str, str]) -> tuple[str | None, str]:
     """(expected_language, label_source).
 
     `expected is None` => unscored. A label source of "ambiguous" means the
@@ -416,7 +416,7 @@ def measure() -> dict[str, Any]:
     }
 
 
-def _load_baseline() -> Optional[dict[str, Any]]:
+def _load_baseline() -> dict[str, Any] | None:
     if not BASELINE_PATH.exists():
         return None
     return json.loads(BASELINE_PATH.read_text())

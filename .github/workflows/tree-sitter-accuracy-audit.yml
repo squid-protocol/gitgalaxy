@@ -1,11 +1,11 @@
 name: Tree-sitter Accuracy Audit
 
 # Baseline-gated regression check (same shape as ruff/mypy/dead-key-audit.yml and
-# ast-accuracy-audit.yml) for tests/tools/tree_sitter_accuracy_audit.py -- catches a
+# small-audits.yml) for tests/tools/tree_sitter_accuracy_audit.py -- catches a
 # structural-signature regex change that quietly drops recall/precision against the
 # tree-sitter ground truth, across every language with a committed baseline.
 #
-# Scoped to paths that can actually move these numbers, unlike ast-accuracy-audit.yml's
+# Scoped to paths that can actually move these numbers, unlike small-audits.yml's ast-accuracy step
 # repo-wide trigger -- this check cost ~1 minute locally across all 23 languages (one
 # language-crucible clone + one galaxyscope scan per language), cheap enough to run on
 # every relevant PR, but there's no reason to pay even that on a PR that only touches
@@ -41,11 +41,9 @@ concurrency:
   # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
   # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
   # re-push leaves the superseded run occupying the queue. cancel-in-progress
-  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
-  # ones that commit (docs, history charts, releases), and cancelling one
-  # mid-write is how you get a half-written commit.
+  # #4825: on for every event; these runs commit nothing, so a superseded run is safe to cancel.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
   tree-sitter-accuracy-audit:

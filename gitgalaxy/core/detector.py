@@ -20,7 +20,7 @@ import logging
 import math
 import re
 import time
-from typing import Any, ClassVar, Optional, TypedDict, cast
+from typing import Any, ClassVar, TypedDict, cast
 
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
@@ -73,7 +73,7 @@ except Exception as _encoding_error:  # #3791: installed, but its encoding canno
     )
 
 
-def get_token_mass(text: str) -> Optional[int]:
+def get_token_mass(text: str) -> int | None:
     """Calculates context window footprint. Returns None if tiktoken is missing to prevent dataset poisoning."""
     if not text:
         return 0
@@ -224,7 +224,7 @@ class FunctionNode(TypedDict, total=False):
     # #3362: unconditional-transfer targets (COBOL GO TO), beside calls_out_to.
     transfers_to: list[str]
     hit_vector: dict[str, int]
-    token_mass: Optional[int]
+    token_mass: int | None
 
 
 class LogicData(TypedDict, total=False):
@@ -497,7 +497,7 @@ class ScopeParsingRegistry:
     }
 
     @classmethod
-    def get_config(cls, lang_id: str) -> Optional[dict]:
+    def get_config(cls, lang_id: str) -> dict | None:
         """Resolves aliases and returns the structural signature config for the language."""
         if not lang_id:
             return None
@@ -506,7 +506,7 @@ class ScopeParsingRegistry:
         return cls.DEFINITIONS.get(base_id)
 
     @classmethod
-    def get_mode(cls, lang_id: str) -> Optional[str]:
+    def get_mode(cls, lang_id: str) -> str | None:
         """Returns the specific integration mode required for the language."""
         config = cls.get_config(lang_id)
         return config["mode"] if config else None
@@ -742,7 +742,7 @@ def _lua_lb_opener_in_string(text: str, opener_start: int) -> bool:
     for an unclosed quote."""
     line_start = text.rfind("\n", 0, opener_start) + 1
     seg = text[line_start:opener_start]
-    in_q: Optional[str] = None
+    in_q: str | None = None
     i = 0
     while i < len(seg):
         c = seg[i]
@@ -1048,7 +1048,7 @@ _ARITY_MAX_TYPE_ARGS = 200
 _ARITY_OPEN = {"(": ")", "[": "]", "{": "}"}
 
 
-def _call_arity(text: str, pos: int) -> Optional[int]:
+def _call_arity(text: str, pos: int) -> int | None:
     """#3835: the number of arguments of the call whose callee name ends at `pos`,
     or None when no argument list follows (a method reference, a declaration).
 
@@ -1396,9 +1396,9 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     fall back to a module-level type for it either). The resolver checks that
     the answer is a class it knows; a factory function's name is ignored there.
     """
-    found: dict[str, Optional[str]] = {}
+    found: dict[str, str | None] = {}
 
-    def note(name: str, cls: Optional[str]) -> None:
+    def note(name: str, cls: str | None) -> None:
         if name not in receivers:
             return
         leaf = cls.rsplit(".", 1)[-1] if cls else None
@@ -1448,12 +1448,12 @@ _JAVA_VAR_NEW = re.compile(
 _JAVA_DECL_NAME_STOP = frozenset({"extends", "implements", "super", "instanceof", "throws", "default"})
 
 
-def _java_declared_types(text: str) -> dict[str, Optional[str]]:
+def _java_declared_types(text: str) -> dict[str, str | None]:
     """Every variable `text` declares -> its class leaf name; None when the name is
     declared with two different classes, or as an array."""
-    found: dict[str, Optional[str]] = {}
+    found: dict[str, str | None] = {}
 
-    def note(name: str, cls: Optional[str]) -> None:
+    def note(name: str, cls: str | None) -> None:
         leaf = cls.rsplit(".", 1)[-1] if cls else None
         if name in found and found[name] != leaf:
             found[name] = None
@@ -1470,7 +1470,7 @@ def _java_declared_types(text: str) -> dict[str, Optional[str]]:
 
 
 def _java_receiver_types(
-    text: str, receivers: set[str], file_types: Optional[dict[str, Optional[str]]] = None
+    text: str, receivers: set[str], file_types: dict[str, str | None] | None = None
 ) -> dict[str, str]:
     """Receiver name -> class leaf name, for the receivers in `receivers` (Java).
 
@@ -1482,7 +1482,7 @@ def _java_receiver_types(
     """
     local = _java_declared_types(text)
     out: dict[str, str] = {}
-    scopes: tuple[dict[str, Optional[str]], ...]
+    scopes: tuple[dict[str, str | None], ...]
     for r in receivers:
         if r.startswith("this."):
             name, scopes = r[5:], (file_types or {},)
@@ -1535,7 +1535,7 @@ def _skip_blanks_back(text: str, i: int) -> int:
     return i
 
 
-def _declarator_type_callee(text: str, pos: int) -> Optional[tuple[str, int]]:
+def _declarator_type_callee(text: str, pos: int) -> tuple[str, int] | None:
     """#3644 (contract C3): is the `name(` at `pos` a C++ `Type var(args)` declaration?
 
     Returns None when it is not (a call stays a call), `(type_leaf, its start)`
@@ -1612,7 +1612,7 @@ def _nested_unit_spans(sats: list[Any]) -> list[tuple[int, int]]:
 
 def _blank_nested_units(
     units: list[tuple[int, int]], unit_starts: list[int], code: str, sat: Any, block: str
-) -> Optional[str]:
+) -> str | None:
     """#3642 (C8): `block` with every unit nested strictly inside `sat` blanked out.
 
     Each nested span becomes spaces (newlines kept, so lines still count).
@@ -1715,7 +1715,7 @@ _DOCKERFILE_HEREDOC_OPENER_RE = re.compile(r"<<-?[ \t]*(?:['\"]?)([A-Za-z_][A-Za
 _COBOL_ENTRY_STATEMENT_RE = re.compile(r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*ENTRY\b", re.IGNORECASE)
 
 
-def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
+def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[int | None, str, list[str]]:
     """Given a `class_start` regex match and its pattern's total capture-group
     count, return `(name_group_idx, name, inheritance)`.
 
@@ -1736,7 +1736,7 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Opti
     algorithm the live pipeline uses, with no risk of the two drifting apart.
     """
     if groups_count >= 1 and match.group(1):
-        name_group_idx: Optional[int] = 1
+        name_group_idx: int | None = 1
     elif groups_count >= 2 and match.group(2):
         name_group_idx = 2
     else:
@@ -1766,7 +1766,7 @@ _TS_JS_RESERVED_MODIFIER_KEYWORDS = frozenset(
 _TS_JS_QUOTED_METHOD_KEY = re.compile(r"""[ \t]*(["'])([^"'\\\r\n]{1,200})\1[ \t]*(?:<[^<>\r\n]{0,200}>[ \t]*)?\(""")
 
 
-def _ts_js_quoted_method_name(code: str, match: "re.Match[str]") -> Optional[str]:
+def _ts_js_quoted_method_name(code: str, match: "re.Match[str]") -> str | None:
     """The quoted key (quotes kept, as groovy's quoted names are) when func_start
     captured a modifier keyword standing in front of one; None otherwise. A
     method genuinely named `get`/`async` (`get() {}`) has no literal there and
@@ -1909,7 +1909,7 @@ def _blank_literals_except_callee(text: str, verb: re.Pattern) -> str:
     fixed-format literal only continues through a column-7 continuation. Used
     on a code stream prism has already stripped of comments."""
     out: list[str] = []
-    quote: Optional[str] = None
+    quote: str | None = None
     keep = False
     for i, ch in enumerate(text):
         if ch == "\n":
@@ -2029,7 +2029,7 @@ EXPORT_VISIBILITY_MODELS = frozenset({EXPORT_VISIBILITY_STANDARD, EXPORT_VISIBIL
 _ALTERNATION_ONLY = re.compile(r"[\w@.\-]+(?:\|[\w@.\-]+)*")
 
 
-def _first_capture_source(pattern: str) -> Optional[str]:
+def _first_capture_source(pattern: str) -> str | None:
     """Raw source text of `pattern`'s first *capturing* group, or None."""
     i = 0
     while i < len(pattern):
@@ -2213,7 +2213,7 @@ _PREPROC_IF_OPENERS = frozenset({"if", "ifdef", "ifndef"})
 _PREPROC_ELIF_KEYWORDS = frozenset({"elif", "elseif", "elifdef", "elifndef"})
 
 
-def _preproc_condition_value(condition: str) -> Optional[bool]:
+def _preproc_condition_value(condition: str) -> bool | None:
     """Static value of a `#if` / `#elif` condition: True, False, or None (unknown).
 
     Only literal conditions are decided (`0`, `1`, `(0)`, `0x0`, `true`,
@@ -2283,7 +2283,7 @@ def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
     # One frame per open #if: [enclosing region live?, a branch of this chain was statically true?]
     stack: list[list[bool]] = []
     live = True
-    continuation_live: Optional[bool] = None  # set while inside a `\`-continued directive
+    continuation_live: bool | None = None  # set while inside a `\`-continued directive
 
     for line in lines:
         content = line.rstrip("\r\n")
@@ -2394,7 +2394,7 @@ class StructuralExtractor:
         self,
         lang_id: str,
         language_definitions: dict[str, Any],
-        parent_logger: Optional[logging.Logger] = None,
+        parent_logger: logging.Logger | None = None,
     ):
         if parent_logger:
             self.logger = parent_logger.getChild("splicer")
@@ -2405,7 +2405,7 @@ class StructuralExtractor:
 
         self.primary_lang_id = lang_id.lower() if lang_id else "unknown"
         # Java receiver typing (#3772): the current file's declared variable types
-        self._file_declared_types: Optional[dict[str, Optional[str]]] = None
+        self._file_declared_types: dict[str, str | None] | None = None
         # Pinned explicitly: LANGUAGE_DEFINITIONS (assigned to this same
         # attribute below, in the AUTO-HEAL branch) has no module-level
         # annotation, so mypy infers its instance-attribute type from that
@@ -2422,10 +2422,10 @@ class StructuralExtractor:
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
         # #3360: (unit, callees seen only on a nested header) pairs one segment's
         # slicing collects; _function_slice resolves them. None outside a slice.
-        self._nested_decl_candidates: Optional[list[tuple[FunctionNode, set[str]]]] = None
+        self._nested_decl_candidates: list[tuple[FunctionNode, set[str]]] | None = None
         # #3642 (C8): (unit, its block, its rules) for each unit one segment's
         # slicing scanned for calls; _function_slice resolves them.
-        self._call_scans: Optional[list[tuple[FunctionNode, str, dict[str, Any]]]] = None
+        self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3012,7 +3012,7 @@ class StructuralExtractor:
             class_methods_by_id: dict[int, list[FunctionNode]] = {id(cls): [] for cls in classes}
             for func in functions:
                 func_line = func.get("start_line", 0)
-                innermost_cls: Optional[_ClassInfoWithBounds] = None
+                innermost_cls: _ClassInfoWithBounds | None = None
                 for cls in classes:
                     if cls["_start_line"] <= func_line <= cls["_end_line"] and (
                         innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
@@ -3094,7 +3094,7 @@ class StructuralExtractor:
             _name_fold_case: bool = _lang_def.get("identifier_case") == IDENTIFIER_CASE_INSENSITIVE
             _declared_lexicon = bool(_name_extra_chars or _name_fold_case)
 
-            orphan_occ_index: Optional[dict[str, list[int]]] = None
+            orphan_occ_index: dict[str, list[int]] | None = None
             if names_its_callees and functions and _declared_lexicon:
                 orphan_occ_index = collections.defaultdict(list)
                 for _m in _name_token_re(_name_extra_chars).finditer(code_stream):
@@ -3410,7 +3410,7 @@ class StructuralExtractor:
             }
 
     @staticmethod
-    def _classify_identifier_casing(name: str) -> Optional[str]:
+    def _classify_identifier_casing(name: str) -> str | None:
         """Buckets a declared identifier into one mutually-exclusive casing style (#1145)."""
         if re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", name):
             return "design_upper_case"
@@ -3856,7 +3856,7 @@ class StructuralExtractor:
 
     def _active_coding_rules(
         self, seg_lang: str
-    ) -> list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]]:
+    ) -> list[tuple[str, Any, str, RulePrefilterGate | None, re.Pattern[str] | None]]:
         """#PERF: the eligible `(rule_name, pattern, mapped_key, gate, line_gate)`
         rules for a language, computed once and cached. The eligibility tests --
         skip `_`-prefixed meta keys and falsy/trivial patterns, resolve the
@@ -3886,7 +3886,7 @@ class StructuralExtractor:
         rules_dict = self._rules_of(self.languages.get(seg_lang, {}))
         line_gate_names = rules_dict.get("_line_gates") or ()
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
-        active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]] = []
+        active: list[tuple[str, Any, str, RulePrefilterGate | None, re.Pattern[str] | None]] = []
         seen_rule_names: set[str] = set()
         for rule_name, pattern in rules_dict.items():
             if rule_name.startswith("_") or rule_name == "calls_out" or not pattern:
@@ -3924,7 +3924,7 @@ class StructuralExtractor:
         return active
 
     def coding_analysis(
-        self, segments: list[tuple[str, str, int]], regex_telemetry: Optional[dict] = None
+        self, segments: list[tuple[str, str, int]], regex_telemetry: dict | None = None
     ) -> tuple[dict[str, int], dict[str, int], list[dict[str, list[int]]], list[str], dict[str, list[int]]]:
         counts: dict[str, int] = dict.fromkeys(self.UNIVERSAL_METRICS_SCHEMA, 0)
 
@@ -4004,7 +4004,7 @@ class StructuralExtractor:
             # gates. Computed lazily -- only languages with IGNORECASE rules
             # (cobol/powershell/sql-family, not the c/ts hot path) ever pay
             # the folding pass, and then only once per segment.
-            seg_fold: Optional[str] = None
+            seg_fold: str | None = None
 
             # #PERF: rule eligibility (skip `_`-meta keys, empty/trivial
             # patterns, and rules whose mapped key isn't in the counts schema)
@@ -4236,7 +4236,7 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
-    def _apply_literal_shield(self, text: str, lang_id: Optional[str] = None) -> str:
+    def _apply_literal_shield(self, text: str, lang_id: str | None = None) -> str:
         """
         The Smarter Atomic Literal Shield: Handles C++ Raw Strings, Python Triple Quotes,
         and safely isolates Heredocs to prevent Quote Desynchronization.
@@ -4611,7 +4611,7 @@ class StructuralExtractor:
         segments: list[tuple[str, str, int]],
         segment_spatial_maps: list[dict[str, list[int]]],
         mitigations: dict[str, int],
-        regex_telemetry: Optional[dict] = None,
+        regex_telemetry: dict | None = None,
     ) -> tuple[list[FunctionNode], float]:
         """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode.
 
@@ -4621,7 +4621,7 @@ class StructuralExtractor:
         all_satellites: list[FunctionNode] = []
         global_impact = 0.0
 
-        for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
+        for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps, strict=True):
             lang_config = self.languages.get(lang_id, {})
             rules = self._rules_of(lang_config)
             family = lang_config.get("lexical_family", "c_style_comment")
@@ -5067,7 +5067,7 @@ class StructuralExtractor:
         marker = self._MODE_A_ARGS_CONTINUATION_MARKER.get(self.primary_lang_id)
         is_fortran = self.primary_lang_id == "fortran"
         pos = start_idx
-        heredoc_terminator: Optional[str] = None
+        heredoc_terminator: str | None = None
         for _ in range(300):
             line_end = code.find("\n", pos)
             if line_end == -1 or line_end >= hard_limit_idx:
@@ -6105,12 +6105,12 @@ class StructuralExtractor:
             # after the signature's own terminator (`{`/`;`) -- bounds the
             # args-pattern search to the signature text, never the body. See
             # `_calculate_block_metrics`'s `args_search_text` docstring.
-            args_sig_end: Optional[int] = None
+            args_sig_end: int | None = None
             # #2309: dart's bodyless `this.`/`super.`-forwarding constructor
             # branch sets this directly via `_count_top_level_args` instead --
             # see that branch below for why the `args` regex itself can't
             # safely be taught to accept this shape.
-            args_count_override: Optional[int] = None
+            args_count_override: int | None = None
 
             # #789: csharp's func_start regex (unlike every other C-family
             # language here) doesn't consume the parameter list or require
@@ -6453,7 +6453,7 @@ class StructuralExtractor:
                     *,
                     safe_code: str = safe_code,
                     search_limit: int = dart_search_limit,
-                ) -> tuple[int, Optional[str]]:
+                ) -> tuple[int, str | None]:
                     """Paren/bracket/angle-depth-aware scan for the next top-level char
                     in `stop_chars` starting at `scan_start`. `stop_chars` differs by
                     caller: the params-end scan stops at a top-level `,` too (Bug 4:
@@ -7172,7 +7172,7 @@ class StructuralExtractor:
 
         return satellites, sum_fxn_impact
 
-    def _build_indentation_safe_stream(self, code: str, lang_id: Optional[str] = None) -> str:
+    def _build_indentation_safe_stream(self, code: str, lang_id: str | None = None) -> str:
         """
         Index-aligned shield for indentation-depth scans: blanks out
         triple/single-quoted string and `#`-comment content so a dedented
@@ -7256,7 +7256,7 @@ class StructuralExtractor:
         dedented back to <= the opener's indent. #3277."""
         lines = code.split("\n")
         out: list[str] = []
-        block_indent: Optional[int] = None
+        block_indent: int | None = None
         for line in lines:
             if block_indent is not None:
                 stripped = line.strip()
@@ -7278,7 +7278,7 @@ class StructuralExtractor:
         rules: dict[str, Any],
         offset: int,
         spatial_map: dict[str, list[int]],
-        lang_id: Optional[str] = None,
+        lang_id: str | None = None,
     ) -> tuple[list[FunctionNode], float]:
         """[INTEGRATION MODE C] - Density Stratification (Python, YAML, Haskell)."""
         satellites: list[FunctionNode] = []
@@ -7590,7 +7590,7 @@ class StructuralExtractor:
 
     def _module_level_unit(
         self, code: str, satellites: list[FunctionNode], rules: dict[str, Any], offset: int
-    ) -> Optional[FunctionNode]:
+    ) -> FunctionNode | None:
         """The code a module runs at import, as Mode D's `__global_context__` bucket.
 
         Every sliced unit's span is blanked out (newlines kept) and so is each
@@ -7860,7 +7860,7 @@ class StructuralExtractor:
         # 3. Zip them together. We scan the safe_line for triggers, but save the orig_line into the satellite.
         depth_before_line: list[int] = []
         past_safe_lines: list[str] = []
-        for orig_line, safe_line, net_change in zip(original_lines, safe_lines, net_changes):
+        for orig_line, safe_line, net_change in zip(original_lines, safe_lines, net_changes, strict=True):
             depth_before_line.append(stack_depth)
 
             if stack_depth == 0:
@@ -8188,7 +8188,7 @@ class StructuralExtractor:
 
         # 3. Zip them together. We scan the safe_line for igniters/terminators,
         # but save the orig_line into the satellite block.
-        for orig_line, safe_line in zip(original_lines, safe_lines):
+        for orig_line, safe_line in zip(original_lines, safe_lines, strict=True):
             current_line_offset += 1
 
             if not safe_line.strip() and not is_orbiting:
@@ -8572,7 +8572,7 @@ class StructuralExtractor:
     # test caught the first draft).
     _ABAP_STATEMENT_OPENER: ClassVar[re.Pattern[str]] = re.compile(r"[A-Za-z][A-Za-z-]{0,31}")
 
-    def _abap_statement_opener(self, code: str, start: int, end: int) -> Optional[str]:
+    def _abap_statement_opener(self, code: str, start: int, end: int) -> str | None:
         """
         Upper-cased first token of the statement spanning `code[start:end]`,
         or None if the span holds no token. Skips whitespace, fixed-format
@@ -8643,7 +8643,7 @@ class StructuralExtractor:
         keep: set[int] = set()
         # (indent, opens_a_parameter_block)
         stack: list[tuple[int, bool]] = []
-        scalar_indent: Optional[int] = None
+        scalar_indent: int | None = None
         offset = 0
         for line in code.splitlines(keepends=True):
             stripped = line.rstrip("\r\n")
@@ -9019,7 +9019,7 @@ class StructuralExtractor:
         """
         starts: set[int] = set()
         outside_procedure = False  # #4306: inside an IDENTIFICATION / ENVIRONMENT / DATA division
-        pending_division: Optional[str] = None  # #4306: a division name alone on the previous content line
+        pending_division: str | None = None  # #4306: a division name alone on the previous content line
         opens_sentence = True  # the first line of the stream
         pos = 0
         # #4264: only a fixed-format line ends at column 72; a free-format one runs on, and its
@@ -9741,9 +9741,9 @@ class StructuralExtractor:
         rules: dict[str, Any],
         start_idx: int = 0,
         end_idx: int = 0,
-        spatial_map: Optional[dict[str, list[int]]] = None,
-        args_search_text: Optional[str] = None,
-        args_count_override: Optional[int] = None,
+        spatial_map: dict[str, list[int]] | None = None,
+        args_search_text: str | None = None,
+        args_count_override: int | None = None,
     ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
@@ -10114,7 +10114,7 @@ class StructuralExtractor:
         # #3835: argument counts per callee, where overloads are chosen by them
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
-        receiver_text: Optional[str] = None
+        receiver_text: str | None = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
@@ -10359,7 +10359,7 @@ class StructuralExtractor:
         func: "FunctionNode",
         func_name: str,
         export_name_starts: frozenset[int] = frozenset(),
-        occ_index: "Optional[dict[str, list[int]]]" = None,
+        occ_index: "dict[str, list[int]] | None" = None,
         fold_case: bool = False,
         extra_name_chars: str = "",
     ) -> bool:

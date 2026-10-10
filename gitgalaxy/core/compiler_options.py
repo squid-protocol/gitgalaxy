@@ -28,7 +28,7 @@
 #   - Columns 73-80 (the identification area) are not part of a card.
 # ==============================================================================
 import re
-from typing import Any, Optional
+from typing import Any
 
 # IBM Enterprise COBOL option abbreviations -> the full name (Programming Guide, "Compiler options").
 _ABBREVIATIONS = {
@@ -58,7 +58,7 @@ def _is_filler(line: str) -> bool:
     return len(line) >= 7 and line[6] in ("*", "/") and not line[:6].strip(" 0123456789")
 
 
-def canonical(name: str, value: Optional[str] = None) -> tuple[str, Optional[str]]:
+def canonical(name: str, value: str | None = None) -> tuple[str, str | None]:
     """(full option name, value) of one option: `AR`, `E` -> ARITH, EXTEND; `NOCURR` -> NOCURRENCY."""
     up = name.upper()
     if up in _ABBREVIATIONS:
@@ -70,10 +70,10 @@ def canonical(name: str, value: Optional[str] = None) -> tuple[str, Optional[str
     return up, value
 
 
-def parse_options(text: str) -> list[tuple[str, Optional[str], str]]:
+def parse_options(text: str) -> list[tuple[str, str | None, str]]:
     """[(option, value, as written)] of one card's option list: comma- or space-separated,
     a parenthesised value kept whole (quotes and nested parentheses included)."""
-    out: list[tuple[str, Optional[str], str]] = []
+    out: list[tuple[str, str | None, str]] = []
     i, n = 0, len(text)
     while i < n:
         if text[i] in " \t,":
@@ -141,9 +141,9 @@ def compiler_options(code_stream: str) -> list[dict[str, Any]]:
     ]
 
 
-def effective(rows: list[dict[str, Any]]) -> dict[str, Optional[str]]:
+def effective(rows: list[dict[str, Any]]) -> dict[str, str | None]:
     """{option: value} as the compiler applies them: the last card wins, a NO- form cancels its option."""
-    out: dict[str, Optional[str]] = {}
+    out: dict[str, str | None] = {}
     for r in rows:
         opt = str(r.get("option") or "")
         out.pop(opt[2:] if opt.startswith("NO") else "NO" + opt, None)

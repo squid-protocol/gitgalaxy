@@ -26,7 +26,7 @@
 import re
 import struct
 from pathlib import Path
-from typing import Callable, Optional, Union
+from collections.abc import Callable
 
 HEADER_BYTES = 4096
 H5_SCAN_BYTES = 64 * 1024
@@ -64,7 +64,7 @@ _ONNX_BODY_FIELDS = {7, 8}  # graph, opset_import
 _TF_OP_NAME = re.compile(rb"^[A-Z][A-Za-z0-9_]*$")
 
 
-def _varint(buf: bytes, pos: int) -> Optional[tuple[int, int]]:
+def _varint(buf: bytes, pos: int) -> tuple[int, int] | None:
     """Decode a protobuf varint at `pos`; None if truncated or longer than 10 bytes."""
     value = 0
     for shift in range(0, 70, 7):
@@ -209,7 +209,7 @@ _SNIFFERS: dict[str, tuple[tuple[str, _Check], ...]] = {
 MODEL_EXTENSIONS = frozenset(_SNIFFERS)
 
 
-def sniff_model_format(file_path: Union[str, Path], size_bytes: Optional[int] = None) -> Optional[str]:
+def sniff_model_format(file_path: str | Path, size_bytes: int | None = None) -> str | None:
     """
     Return the model format a file's header proves (e.g. "onnx", "safetensors"),
     or None when its extension is not a model extension, the header does not match

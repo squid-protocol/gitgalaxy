@@ -102,6 +102,13 @@ def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict
     return out
 
 
+def failed_names(runs: list[dict[str, Any]]) -> set[str]:
+    """The check names classify() calls failed. classify's verdict reads `NAME (conclusion)`, and a name can hold
+    parentheses itself (a matrix leg: `full-suite-matrix (macos-14)`), so cut at the LAST ` (` (#4790: cutting at the
+    first one made a cancelled matrix leg vanish from the digest, so the shepherd never reran it)."""
+    return {x.rsplit(" (", 1)[0] for x in classify(runs, [])["failed"]}
+
+
 def flag(path: str) -> str | None:
     if path == PIN_FILE:
         return "crucible PIN (a pin bump is its own PR)"

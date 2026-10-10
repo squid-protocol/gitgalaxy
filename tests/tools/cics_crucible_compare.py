@@ -38,7 +38,7 @@ import re
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 CASE_FORMAT = "cics-crucible/case/1"
 EXPECTED_FORMAT = "cics-crucible/expected/1"
@@ -179,7 +179,7 @@ def load_case(case_dir: Path) -> Case:
     return Case(case_dir, data, expected, parse_csd(csd_text))
 
 
-def discover(root: Path, only: Optional[set[str]] = None) -> list[Path]:
+def discover(root: Path, only: set[str] | None = None) -> list[Path]:
     """Every case directory under a crucible checkout (cases/<trap>/<case-id>/), sorted by id."""
     dirs = sorted((p.parent for p in Path(root).glob("cases/*/*/case.json")), key=lambda p: p.name)
     return [d for d in dirs if only is None or d.name in only]
@@ -220,7 +220,7 @@ class FieldArea:
     length: Any = FULL
     # #3989: the record's EBCDIC bytes, encoded from the fields by the DTO's layout -- how a log's text / hex
     # area is compared with a DTO (a one-byte `WS-CA PIC X` COMMAREA). None when a field cannot be encoded.
-    data: Optional[bytes] = None
+    data: bytes | None = None
     known: int = 0  # how many leading bytes of `data` are known (a null field's are not)
 
 
@@ -232,7 +232,7 @@ def _is_binary(f: dict[str, Any]) -> bool:
     return (f.get("usage") or "DISPLAY").upper() in _BINARY
 
 
-def to_ebcdic(area: RawArea, layout: Optional[list[dict[str, Any]]] = None) -> bytes:
+def to_ebcdic(area: RawArea, layout: list[dict[str, Any]] | None = None) -> bytes:
     """A RawArea's bytes in CCSID 037: DISPLAY bytes through the page, COMP / COMP-3 bytes as they
     are. Without a layout every byte is taken as DISPLAY (an area the log gives as text or hex)."""
     if area.encoding.replace("-", "").lower() in ("cp037", "ibm037"):
@@ -246,7 +246,7 @@ def to_ebcdic(area: RawArea, layout: Optional[list[dict[str, Any]]] = None) -> b
     return bytes(out)
 
 
-def expected_bytes(value: Any, length: Optional[int] = None) -> bytes:
+def expected_bytes(value: Any, length: int | None = None) -> bytes:
     """A log's text or hex value as the EBCDIC bytes it means, text right-padded to `length`."""
     if isinstance(value, dict) and "hex" in value:
         return bytes.fromhex(value["hex"])
@@ -256,7 +256,7 @@ def expected_bytes(value: Any, length: Optional[int] = None) -> bytes:
     return data
 
 
-def actual_bytes(value: Any, length: Optional[int] = None) -> bytes:
+def actual_bytes(value: Any, length: int | None = None) -> bytes:
     """A side's text value as EBCDIC bytes: bytes are already EBCDIC; a string (a Java field, which
     holds text, not bytes) is encoded and padded like a log's text."""
     if isinstance(value, (bytes, bytearray)):
@@ -278,14 +278,14 @@ def _pair(want: bytes, got: bytes) -> tuple[str, str]:
     return a, b
 
 
-def _numeric_pic(pic: Optional[str]) -> bool:
+def _numeric_pic(pic: str | None) -> bool:
     if not pic:
         return False
     p = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic.upper())
     return bool(p) and not re.search(r"[^S9VP]", p)
 
 
-def _as_decimal(value: Any) -> Optional[Decimal]:
+def _as_decimal(value: Any) -> Decimal | None:
     try:
         return Decimal(str(value).strip())
     except (InvalidOperation, ValueError):
@@ -312,7 +312,7 @@ class Capabilities:
     start_tasks: bool = False
 
 
-def feature_name(layer: str, event: Optional[str], key: Optional[str] = None) -> str:
+def feature_name(layer: str, event: str | None, key: str | None = None) -> str:
     """A readable feature name for the report: `stub: SEND-MAP attribute bytes`, `CicsTask: LINK event`."""
     if event is None:
         return f"{layer}: task {key}"
@@ -328,7 +328,7 @@ def feature_name(layer: str, event: Optional[str], key: Optional[str] = None) ->
     return f"{layer}: {event} {key}"
 
 
-def blockers(expected: dict[str, Any], caps: Capabilities, scenario: Optional[dict[str, Any]] = None) -> list[str]:
+def blockers(expected: dict[str, Any], caps: Capabilities, scenario: dict[str, Any] | None = None) -> list[str]:
     """Every feature the expected log needs that the side does not model, in first-use order."""
     out: list[str] = []
 
@@ -396,8 +396,8 @@ class Context:
 class _Walk:
     def __init__(self, caps: Capabilities, ctx: Context) -> None:
         self.caps, self.ctx = caps, ctx
-        self.pending: Optional[str] = None  # an unmodelled point met inside the current event
-        self.stopped: Optional[str] = None  # why the side stopped running tasks, if it did
+        self.pending: str | None = None  # an unmodelled point met inside the current event
+        self.stopped: str | None = None  # why the side stopped running tasks, if it did
 
     def fail(self, where: str, detail: str, kind: str) -> None:
         raise _Decided(Verdict("fail", f"{where}: {detail}", kind=kind))
@@ -421,7 +421,7 @@ class _Walk:
         if exp != act:
             self.fail(where, f"{key} {exp!r} expected, got {act!r}", f"{key} differs")
 
-    def text(self, where: str, key: str, exp: Any, act: Any, length: Optional[int]) -> None:
+    def text(self, where: str, key: str, exp: Any, act: Any, length: int | None) -> None:
         if isinstance(act, Unmodelled):
             self.later(f"{self.caps.layer}: {act.feature}")
             return
@@ -475,7 +475,7 @@ class _Walk:
                 self.fail(where, f"{key}.{name} {a} expected, got {b}", f"{key} field differs")
 
     def field_area(self, where: str, key: str, exp: dict[str, Any], act: FieldArea,
-                   layout: Optional[list[dict[str, Any]]]) -> None:  # fmt: skip
+                   layout: list[dict[str, Any]] | None) -> None:  # fmt: skip
         if act.data is not None and not isinstance(act.length, Unmodelled):
             # #3989: an area is bytes. A DTO whose record bytes are known is compared as them, through the log's
             # layout or text / hex -- a callee's DTO may name the bytes of a caller's area differently
@@ -511,7 +511,7 @@ class _Walk:
         elif act.length != exp["length"]:
             self.fail(where, f"{key} length {exp['length']} expected, got {act.length}", f"{key} length differs")
 
-    def record_bytes(self, exp: Optional[dict[str, Any]]) -> Any:
+    def record_bytes(self, exp: dict[str, Any] | None) -> Any:
         """#4009: the length of a COMMAREA a side passed as its whole record (FULL): its layout's."""
         layout = self.ctx.layouts.get(exp["layout"]) if exp and "layout" in exp else None
         if layout is None:
@@ -542,7 +542,7 @@ class _Walk:
         if extra and "fields.omission" in keys:
             self.fail(where, f"fields {extra} sent, BMS sends none for them", "SEND-MAP extra fields")
 
-    def event(self, where: str, exp: dict[str, Any], act: Optional[dict[str, Any]]) -> None:
+    def event(self, where: str, exp: dict[str, Any], act: dict[str, Any] | None) -> None:
         kind = exp["event"]
         keys = self.caps.events.get(kind)
         if keys is None:
@@ -579,7 +579,7 @@ class _Walk:
         if self.pending:
             self.unsupported(self.pending)
 
-    def task(self, exp: dict[str, Any], act: Optional[dict[str, Any]]) -> None:
+    def task(self, exp: dict[str, Any], act: dict[str, Any] | None) -> None:
         where = f"task {exp['seq']} ({exp['transid']})"
         if act is None:
             why = f" ({self.stopped})" if self.stopped else ""
@@ -627,7 +627,7 @@ class _Walk:
                     self.fail(
                         f"final TS queue {q}", f"{len(items)} items expected, got {len(have)}", "final TS differs"
                     )
-                for n, (e, a) in enumerate(zip(items, have)):
+                for n, (e, a) in enumerate(zip(items, have, strict=False)):  # reason: length may differ
                     # SPEC 6.1: a TS item's length is known -- its own -- so the log's text is blank-padded to it
                     # (trailing blanks optional); #4006 met the first items written from a longer area
                     known = len(a) if isinstance(a, (bytes, bytearray)) else None
@@ -635,7 +635,7 @@ class _Walk:
 
 
 def compare(expected: dict[str, Any], actual: dict[str, Any], caps: Capabilities, ctx: Context,
-            scenario: Optional[dict[str, Any]] = None) -> Verdict:  # fmt: skip
+            scenario: dict[str, Any] | None = None) -> Verdict:  # fmt: skip
     """The verdict of one side's actual log against the expected log (see the module docstring)."""
     needs = blockers(expected, caps, scenario)
     try:
@@ -647,7 +647,7 @@ def compare(expected: dict[str, Any], actual: dict[str, Any], caps: Capabilities
     return Verdict("pass", features=needs)
 
 
-def not_run(features: list[str], needs: list[str], kind: Optional[str] = None) -> Verdict:
+def not_run(features: list[str], needs: list[str], kind: str | None = None) -> Verdict:
     """A cell the harness cannot run at all (a program it cannot translate, a seed it cannot load)."""
     feats = list(dict.fromkeys(features + needs))
     return Verdict("unsupported", "; ".join(features), feats, kind=kind or features[0])

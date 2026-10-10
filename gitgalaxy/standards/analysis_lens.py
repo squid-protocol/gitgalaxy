@@ -13,7 +13,7 @@
 import json
 import re
 from pathlib import Path
-from typing import Any, ClassVar, Optional, TypedDict
+from typing import Any, ClassVar, TypedDict
 
 # Frozen file/repo archetype brains (see gitgalaxy-population-analyses
 # freeze_archetype_brains.py). Each carries centroids + names, feature order/weights,
@@ -151,7 +151,7 @@ ENGINE_CONSTANTS = {
 
 STRICTNESS_COLUMNS = ("static_types", "enforced_errors", "memory_safe", "no_implicit_globals")
 
-LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
+LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     #                    static  enforced  memory  no-implicit
     #                    types   errors    safe    globals
     "abap": (True, False, True, True),  # class-based exceptions unenforced at call sites
@@ -1532,7 +1532,7 @@ CONTEXT_VECTORS: dict[str, str] = {
 }
 
 
-def inactive_vectors(scan_config: Optional[dict[str, Any]] = None) -> set[str]:
+def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
     """RISK_SCHEMA names NOT measured on this scan (gitgalaxy#3111).
 
     The single source of truth for "absent, not zero". Every display surface

@@ -57,7 +57,8 @@ from __future__ import annotations
 import argparse
 import inspect
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards import analysis_lens
@@ -173,7 +174,12 @@ EQUATION_CASES: list[EquationCase] = [
                 "risk",
                 lambda loc, hits, tv: dict(
                     loc=loc,
-                    raw_signals={"fragile_debt": hits, "planned_debt": 0, "unreferenced_by_name": 0, "duplicate_logic": 0},
+                    raw_signals={
+                        "fragile_debt": hits,
+                        "planned_debt": 0,
+                        "unreferenced_by_name": 0,
+                        "duplicate_logic": 0,
+                    },
                     irc=tv["irc"],
                     mp=_mp1(),
                 ),

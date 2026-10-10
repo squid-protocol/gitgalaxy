@@ -53,7 +53,7 @@ import sys
 import time
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -193,7 +193,7 @@ def engine_side(db: Path, corpus: str, key: dict[str, Any], ctx: dict[str, Any])
 _KEY_MOVE = re.compile(r"^L(\d+) MOVE (.+?)(?:\(:\))? -> (.+?)(?:\(:\))?$")
 
 
-def key_side(key: dict[str, Any], crucible_members: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def key_side(key: dict[str, Any], crucible_members: dict[str, Any] | None = None) -> dict[str, Any]:
     """facts.key_doc plus moves (the key's validated `data_moves`, MOVE only), copy_resolution (each COPY's
     `resolves_to`) and, on estate-crucible, offsets (its per-record `layouts`)."""
     doc = F.key_doc(key)
@@ -243,7 +243,7 @@ def dis_id(corpus: str, channel: str, rel: str, only: str, value: str) -> str:
     return f"{corpus} :: {channel} | {rel} | {only} | {value}"
 
 
-def _vals(entry: dict[str, Any], ch: str, verbs: Optional[set[str]]) -> set[str]:
+def _vals(entry: dict[str, Any], ch: str, verbs: set[str] | None) -> set[str]:
     v = set(entry["facts"].get(ch, []))
     if verbs is not None:
         v = {x for x in v if x.split(" ", 1)[-1] in verbs}
@@ -351,7 +351,7 @@ def _ir(db: Path) -> Any:
     return load_galaxy_ir(db)
 
 
-def run_all(crucible: Optional[Path], cache: Path, only: Optional[list[str]] = None, log=print) -> dict[str, Any]:
+def run_all(crucible: Path | None, cache: Path, only: list[str] | None = None, log=print) -> dict[str, Any]:
     TA.det()  # the translator extra must be installed: fail here, never skip
     cases = case_programs()
     corpora = [c for c in MC.load_manifest() if c.get("answer_key")]
@@ -558,7 +558,7 @@ def markdown(
 # ------------------------------------------------------------------------------
 # CLI
 # ------------------------------------------------------------------------------
-def _crucible_arg(args: argparse.Namespace) -> Optional[Path]:
+def _crucible_arg(args: argparse.Namespace) -> Path | None:
     if args.no_crucible:
         return None
     import estate_crucible as EC
@@ -569,7 +569,7 @@ def _crucible_arg(args: argparse.Namespace) -> Optional[Path]:
     return path
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("run", "check", "update"):

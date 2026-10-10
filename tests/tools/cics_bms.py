@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.core.source_text import read_source
 
@@ -53,7 +53,7 @@ HILIGHTS = {"BLINK": 0xF1, "REVERSE": 0xF2, "UNDERLINE": 0xF4}
 NO_ATTRIBUTE = frozenset({0x00, 0x80, 0x02, 0x82})
 
 
-def attr_byte(attrb: Optional[list[str]]) -> int:
+def attr_byte(attrb: list[str] | None) -> int:
     """The 3270 attribute byte a DFHMDF ATTRB produces. Omitted: (ASKIP,NORM); given without
     ASKIP / PROT / UNPROT: unprotected."""
     words = {a.upper() for a in (attrb if attrb is not None else ["ASKIP", "NORM"])}
@@ -78,12 +78,12 @@ def attr_byte(attrb: Optional[list[str]]) -> int:
 # ---- the BMS source ---------------------------------------------------------------------------
 @dataclass
 class BmsField:
-    name: Optional[str]  # None: an unnamed field (a label)
+    name: str | None  # None: an unnamed field (a label)
     length: int
-    attrb: Optional[list[str]]
-    initial: Optional[str]
-    color: Optional[str]
-    hilight: Optional[str]
+    attrb: list[str] | None
+    initial: str | None
+    color: str | None
+    hilight: str | None
     justify: list[str]
     ic: bool
 
@@ -96,10 +96,10 @@ class BmsField:
 class BmsMap:
     name: str
     mapset: str
-    color: Optional[str] = None
-    hilight: Optional[str] = None
-    mapset_color: Optional[str] = None
-    mapset_hilight: Optional[str] = None
+    color: str | None = None
+    hilight: str | None = None
+    mapset_color: str | None = None
+    mapset_hilight: str | None = None
     dsatts: frozenset[str] = frozenset()
     fields: list[BmsField] = field(default_factory=list)
 
@@ -111,7 +111,7 @@ def _statements(text: str) -> list[tuple[str, str, str]]:
     """(label, operation, operands) per assembler statement: `*` lines are comments, a non-blank
     column 72 continues the statement on the next line from column 16."""
     out: list[tuple[str, str, str]] = []
-    buf: Optional[str] = None
+    buf: str | None = None
     for raw in text.splitlines():
         if buf is None and (raw.startswith("*") or not raw.strip()):
             continue
@@ -166,17 +166,17 @@ def _operands(text: str) -> dict[str, str]:
     return out
 
 
-def _list(value: Optional[str]) -> list[str]:
+def _list(value: str | None) -> list[str]:
     if not value:
         return []
     return [v.strip().upper() for v in value.strip().strip("()").split(",") if v.strip()]
 
 
-def _first(value: Optional[str]) -> Optional[str]:
+def _first(value: str | None) -> str | None:
     return next(iter(_list(value)), None)
 
 
-def _quoted(value: Optional[str]) -> Optional[str]:
+def _quoted(value: str | None) -> str | None:
     if value is None:
         return None
     v = value.strip()
@@ -189,7 +189,7 @@ def parse_bms(text: str) -> dict[str, BmsMap]:
     """Every map of a BMS source, by map name."""
     maps: dict[str, BmsMap] = {}
     mapset, ms_ops = "", {}
-    current: Optional[BmsMap] = None
+    current: BmsMap | None = None
     for label, op, operands in _statements(text):
         ops = _operands(operands)
         if op == "DFHMSD":
@@ -225,11 +225,11 @@ def load_maps(paths: list[Path]) -> dict[str, BmsMap]:
 class ProgramField:
     """What the program left in one field of its symbolic map. Bytes are EBCDIC; None = X'00'."""
 
-    length: Optional[int] = None  # <f>L: -1 asks for the cursor (symbolic cursor positioning)
-    attr: Optional[int] = None
-    color: Optional[int] = None
-    hilight: Optional[int] = None
-    data: Optional[bytes] = None  # <f>O
+    length: int | None = None  # <f>L: -1 asks for the cursor (symbolic cursor positioning)
+    attr: int | None = None
+    color: int | None = None
+    hilight: int | None = None
+    data: bytes | None = None  # <f>O
 
 
 def ebcdic(text: str) -> bytes:
@@ -238,11 +238,11 @@ def ebcdic(text: str) -> bytes:
     return b"".join(ch.encode(EBCDIC) if ord(ch) < 256 else b"\x3f" for ch in text)
 
 
-def _hex(b: Optional[int]) -> Optional[str]:
+def _hex(b: int | None) -> str | None:
     return None if b is None else f"{b:02X}"
 
 
-def _extended(kind: str, prog: Optional[int], f: BmsField, m: BmsMap, dataonly: bool) -> tuple[Optional[str], str]:
+def _extended(kind: str, prog: int | None, f: BmsField, m: BmsMap, dataonly: bool) -> tuple[str | None, str]:
     table = COLORS if kind == "color" else HILIGHTS
     if prog not in (None, 0x00):
         return _hex(prog), "program"
@@ -254,7 +254,7 @@ def _extended(kind: str, prog: Optional[int], f: BmsField, m: BmsMap, dataonly: 
     return None, "none"
 
 
-def send_map(m: BmsMap, program: Optional[dict[str, ProgramField]], options: list[str],
+def send_map(m: BmsMap, program: dict[str, ProgramField] | None, options: list[str],
              cursor: Any = None) -> tuple[dict[str, dict[str, Any]], Any]:  # fmt: skip
     """The fields BMS sends for one SEND MAP (SPEC 6.3), and where it puts the cursor (a field
     name, {"offset": n}, or None). `program` is None under MAPONLY (no FROM area); `cursor` is

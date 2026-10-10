@@ -8,17 +8,17 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-09T11:14:39Z, harness `2b53e918c59de134e98e0ab795255afabd21437e+uncommitted` |
-| inputs digest | `c75408fc327d9722af06478d994e318dc6c87ce3749386f6d351ec37c88a9a30` |
+| proof | proven at 2026-10-10T10:30:31Z, harness `d6cbc1fc382124012f0364012d3f51ab2a2b15b3+uncommitted` |
+| inputs digest | `611d591c5ddab0eaf46d455c1bdf9bb06971aefb45ed34638cfaf1fcd772c1dc` |
 | port | 1 files `59b4111596f168c0` |
 | case | 2 files `d0e0d5193ee3b4c8` |
 | corpus | cics-banking-sample-application-cbsa @ `417334533178ab6e753cc64b0e0e5cf0b4952704` `7a4c86e6d6688f15` |
 | differences |  `4f53cda18c2baa0c` |
 | options |  `8ca112619bacfa8a` |
-| harness | 11 files `471da1a6023b0d9d` |
-| oracle | 21 files `34a717aa90b1cd8c` |
-| generator | 66 files `7128ee80b28f816e` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:4ab3cc84005c` (matches pin: True) |
+| harness | 11 files `85f9bb956f7e7ecd` |
+| oracle | 21 files `017ca3ab867f90c3` |
+| generator | 67 files `c5d9fe61cdcda76f` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:8a940e2e3902` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 
 ## Proof outputs

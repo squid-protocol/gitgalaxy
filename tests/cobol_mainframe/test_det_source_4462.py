@@ -137,6 +137,104 @@ def test_a_single_byte_national_letter_in_a_name_is_read_under_its_own_name():
     assert "'GEBÜ'" in repr(ST.parse(lines)) and "BETRÄGE" in repr(ST.parse(lines))
 
 
+@pytest.mark.parametrize(
+    "name", ["ÄND", "ÄLL", "ÖR", "ÄS", "ÄT", "ÜSING", "ÄÖ", "Ä", "NOT-Ä", "ÄGE-OF", "GEBÜHR", "BETRÄGE-Ü"]
+)
+def test_a_national_name_is_read_even_when_its_ascii_look_alike_is_a_reserved_word(name):
+    """#4664 (the whole class of single-byte national names): `ÄLL` handed to the grammar as `aLL` is the keyword ALL, and
+    `ÄND` the operator AND; the stand-in is a digit (a word starting with one is a COBOL word), so every name is read as
+    a name, in the layout, in MOVE / IF, and in the paragraph name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    lines = _lines(f"01  {name} PIC X(4).", "01  Z PIC X(4).", "PROCEDURE DIVISION.", f"    MOVE 'A' TO {name}",
+                   f"    MOVE {name} TO Z", f"    IF {name} = Z PERFORM {name}-P END-IF", "    GOBACK.", f"{name}-P.", "    EXIT.")  # fmt: skip
+    assert [i.name for r in L.parse(lines) for i in r.walk()] == [name, "Z"]
+    proc = ST.parse(lines)
+    kinds = [s.kind for pg in proc.paragraphs for s in pg.body]
+    assert kinds == ["MOVE", "MOVE", "IF", "GOBACK", "EXIT"] and "HOLE" not in kinds
+    assert [pg.name for pg in proc.paragraphs] == ["(MAIN)", f"{name}-P"]
+    assert repr(proc.paragraphs[0].body[0].data["to"][0].name) == repr(name)
+
+
+def test_ascii_for_grammar_keeps_every_column_and_every_ascii_byte():
+    src = "01  BETRÄGE PIC X(4) VALUE 'GEBÜ'. 05 ÄÖ-X. *> ÄÖ\n".encode("latin-1")
+    out = SRC.ascii_for_grammar(src)
+    assert len(out) == len(src) and out.isascii()
+    assert out.decode().startswith("01  BETR9GE PIC X(4) VALUE 'GEB9'. 05 99-X.")
+    assert (
+        SRC.ascii_for_grammar("MOVE Ä TO ÄÖ".encode("latin-1")) == b"MOVE a TO aa"
+    )  # nothing to keep a keyword out of
+
+
+@pytest.mark.parametrize(
+    ("body", "why"),
+    [
+        # national / DBCS DATA with plain ASCII text (no wide character to catch it): each was laid out as one byte a
+        # character, alphanumeric (a PIC N item is two bytes a character) -- a mistranslation, now refused by name
+        (("01  F PIC N(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"PROG\.cbl:5: the PICTURE N\(4\) \(a national / DBCS item\)"),
+        (("01  F PIC G(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"the PICTURE G\(4\)"),
+        (("01  F PIC IS NN.", "PROCEDURE DIVISION.", "    GOBACK."), r"the PICTURE NN"),
+        (("01  F PIC X(4) USAGE NATIONAL.", "PROCEDURE DIVISION.", "    GOBACK."), r"USAGE NATIONAL"),
+        (("01  F PIC X(4) USAGE IS DISPLAY-1.", "PROCEDURE DIVISION.", "    GOBACK."), r"USAGE DISPLAY-1"),
+        (("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE N'ABC' TO F", "    GOBACK."), r"PROG\.cbl:7: the N literal"),
+        (("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE NX'0041' TO F", "    GOBACK."), r"the NX literal"),
+        (("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE G\"AB\" TO F", "    GOBACK."), r"the G literal"),
+        (("01  F PIC X(4) VALUE G'AB'.", "PROCEDURE DIVISION.", "    GOBACK."), r"the G literal"),
+        (("01  F PIC N(3) VALUE N'ABC'.", "PROCEDURE DIVISION.", "    GOBACK."), r"the PICTURE N\(3\)"),
+        (("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE N'Ä' TO F", "    GOBACK."), r"the N literal"),  # national letter inside
+        # shift-out / shift-in delimited DBCS (EBCDIC source), with or without the Kanji decoded
+        (("01  A\x0eBC\x0f PIC X(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"PROG\.cbl:5: shift-out / shift-in \(U\+000E\)"),
+        (("01  F PIC X(4) VALUE 'x\x0eBC\x0f'.", "PROCEDURE DIVISION.", "    GOBACK."), r"shift-out / shift-in"),
+        (("01  \x0e顧客\x0f PIC X(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"U\+9867"),  # Kanji decoded: the wide check names it
+        # mixed: a single-byte national name, then a Kanji name -- the Kanji line is the one named
+        (("01  BETRÄGE PIC X(4).", "01  顧客 PIC X(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"PROG\.cbl:6: national / DBCS text"),
+        (("01  BETRÄGE PIC X(4).", "01  F PIC N(4).", "PROCEDURE DIVISION.", "    GOBACK."), r"PROG\.cbl:6: the PICTURE N"),
+    ],
+)  # fmt: skip
+def test_national_and_dbcs_data_is_refused_by_name_not_laid_out_as_single_byte_text(body, why):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import expr as E
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    lines = _lines(*body)
+    with pytest.raises(L.LayoutError, match=why):
+        L.parse(lines)
+    with pytest.raises(E.ExprError, match=why):
+        ST.parse(lines)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        ("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE 'Ä' TO F", "    GOBACK."),  # a single-byte letter in a literal
+        ("01  F PIC X(4).", "PROCEDURE DIVISION.", "    GOBACK. *> 顧客 N'x' PIC N(4) NATIONAL"),  # in a comment: no parser reads it
+        ("01  NATIONAL-ID PIC X(4).", "01  G-U PIC X.", "01  DISPLAY-1X PIC X.", "PROCEDURE DIVISION.", "    MOVE 'N' TO G-U",
+         "    GOBACK."),  # names that merely contain the words; a literal's content is no keyword
+    ],
+)  # fmt: skip
+def test_text_that_only_looks_like_national_data_is_still_read(body):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    assert SRC.unmodelled(_lines(*body)) is None
+    L.parse(_lines(*body))
+    ST.parse(_lines(*body))
+
+
+def test_a_kanji_alphanumeric_literal_in_the_procedure_division_is_not_refused_whole_but_a_name_or_value_is():
+    """#4272, kept (the statement hole itself: test_det_translate, gen.WIDE_WHY): a Kanji alphanumeric literal in a
+    PROCEDURE DIVISION statement leaves the program readable; the same Kanji in a name or a VALUE refuses it."""
+    ok = _lines("01  F PIC X(4).", "PROCEDURE DIVISION.", "    MOVE '漢字' TO F", "    GOBACK.")
+    assert SRC.unmodelled(ok) is None
+    for body in (("01  F PIC X(4) VALUE '漢字'.", "PROCEDURE DIVISION.", "    GOBACK."),
+                 ("01  顧客 PIC X(4).", "PROCEDURE DIVISION.", "    GOBACK.")):  # fmt: skip
+        assert "national / DBCS text" in SRC.unmodelled(_lines(*body))
+
+
 def _dpc(*body: str) -> list:
     """A program under SPECIAL-NAMES DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER's clause)."""
     head = (

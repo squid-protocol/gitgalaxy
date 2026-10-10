@@ -1,0 +1,39 @@
+name: CI shepherd (label events)
+
+# #4847 item 3: a maintainer's shepherd:* label on a pull request is the merge queue (docs/ci.md).
+# The logic is tests/tools/shepherd_gh.py (pure decide(), gh for the reads and writes); this file only runs it.
+#
+# pull_request_target runs with the base repository's secrets, so this job NEVER checks out or runs the pull
+# request's code: it checks out main, and the module reads the PR's metadata, check runs and labels through the API.
+# The event payload is read from $GITHUB_EVENT_PATH as data; no ${{ github.event.* }} text reaches a run: script.
+# A label added by someone without write access is removed by the module (the labeler check is in decide()).
+# Synchronize (new commits) drops shepherd:merge, so an unreviewed head never merges by label.
+
+on:
+  pull_request_target:
+    types: [labeled, unlabeled, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: shepherd  # one shepherd pass at a time (shared with shepherd-reconcile.yml)
+  cancel-in-progress: false
+
+jobs:
+  shepherd:
+    name: shepherd (label event)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the base repository's main (never the pull request's head)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Apply the label rules to this pull request
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH"

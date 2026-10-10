@@ -225,7 +225,9 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("run")
     r.add_argument("--once", action="store_true")
     r.add_argument("--every", type=int, default=600, help="seconds between passes")
-    r.add_argument("--hours", type=float, default=6.0, help="stop after this long, or when the queue is empty")
+    r.add_argument("--hours", type=float, default=6.0, help="stop after this long")
+    r.add_argument("--exit-when-empty", action="store_true",
+                   help="also stop when the queue is empty (default: keep watching -- a PR queued later is merged too)")  # fmt: skip
     args = ap.parse_args(argv)
     STATE.parent.mkdir(parents=True, exist_ok=True)
     if args.cmd == "run":
@@ -243,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
                     for line in step(state):
                         log(line)
                     save(state)
-                if args.once or not state["queue"] or time.time() > end:
+                if args.once or (args.exit_when_empty and not state["queue"]) or time.time() > end:
                     log(
                         "queue empty"
                         if not state["queue"]

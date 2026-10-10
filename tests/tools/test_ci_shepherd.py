@@ -165,3 +165,17 @@ def test_a_required_or_real_failure_or_unknown_rules_never_merges_past(monkeypat
             step(gh, state, failing(kind, check=check))
             clock[0] += cs.RETRY_GAP
         assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.calls), (check, kind, rules_ok)
+
+
+def test_run_keeps_watching_an_empty_queue_unless_told(tmp_path, monkeypatch):
+    """2026-10-09: the shepherd exited on an empty queue, so a PR queued minutes later sat green and unmerged."""
+    monkeypatch.setattr(cs, "STATE", tmp_path / "s.json")
+    sleeps = []
+    monkeypatch.setattr(cs.time, "sleep", lambda s: (sleeps.append(s), (_ for _ in ()).throw(KeyboardInterrupt))[1])
+    monkeypatch.setattr(cs, "step", lambda state: [])
+    assert cs.main(["run", "--exit-when-empty"]) == 0 and sleeps == []
+    try:
+        cs.main(["run", "--every", "5"])
+    except KeyboardInterrupt:
+        pass
+    assert sleeps == [5]  # an empty queue: it slept and would pass again

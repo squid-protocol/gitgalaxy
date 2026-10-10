@@ -45,7 +45,7 @@ REPRO: list[tuple[str, str]] = [
     (r"^Vault Sentinel$", GATES + " --only secrets"),
     (r"^X-Ray Inspector$", GATES + " --only xray"),
     (r"^crucible-audit", "tests/tools/box/golden-lock.sh " + GATES + " --only golden"),
-    (r"^(full-suite|smoke-test)$", "python -m pytest -q {tests}"),
+    (r"^(full-suite|smoke-test)( part \d+/\d+)?$", "python -m pytest -q {tests}"),  # #4828: the suite runs in parts
     (r"^(det|shard \d+/\d+)$", SWEEP + " --cases {cases} --work /tmp/gitgalaxy-scratch/ci-digest/sweep"),
     (r"^plan$", "python tests/tools/det_sweep_plan.py --base origin/main"),
     (r"^(compile \(.+\)|committed ports compile)$", RATCHET + " ports"),
@@ -60,7 +60,11 @@ REPRO: list[tuple[str, str]] = [
 NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|dead-key-audit|ast-accuracy-audit|rosetta-audit|"
                       r"flag-golden-master-changes|Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
 
-FLAKY = {"test_regex_redos", "test_many_move_statements_stay_linear"}  # #4477: wall-clock bound under CI load
+FLAKY = {  # #4477: wall-clock bound under CI load
+    "test_regex_redos",
+    "test_many_move_statements_stay_linear",
+    "test_prism_suppression_regex_bomb",  # 1.006 s against a 1.0 s bound (#4830, 2026-10-10)
+}
 INFRA_CONCLUSIONS = {"cancelled", "startup_failure", "timed_out"}
 INFRA_LOG = re.compile(r"runner has received a shutdown signal|lost communication with the server|No space left on "
                        r"device|API rate limit exceeded|Could not resolve host|The operation was canceled|"

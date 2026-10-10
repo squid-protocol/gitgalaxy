@@ -95,3 +95,9 @@ def test_a_real_failure_main_also_has_is_triaged_main():
     api = fake_api([run(1, "ground-truth", "failure")], main_runs=[run(2, "ground-truth", "failure")])
     (f,) = cd.digest(7, api, lambda i: "FAILED tests/x.py::test_y - AssertionError")["failed"]
     assert f["triage"] == "main" and f["repro"].startswith("fails on main too")
+
+
+def test_a_suite_part_and_the_prism_timing_test():
+    ex = {"tests": ["tests/core_engine/test_prism.py::test_prism_suppression_regex_bomb"], "cases": []}
+    assert cd.repro("full-suite part 2/3", ex) == "python -m pytest -q " + ex["tests"][0]
+    assert cd.triage("failure", "", ex["tests"]) == "flake"

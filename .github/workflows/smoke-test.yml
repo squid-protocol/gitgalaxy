@@ -36,6 +36,20 @@ jobs:
   # rules) has zero OS-dependency: running it 12x per push added CI cost
   # that scaled with every language added to the extraction-hardening epic
   # (#813) without adding real signal over running it once.
+  # The required check (#4825 ruleset): one name, whatever the number of parts.
+  full-suite:
+    needs: full-suite-part
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part of the suite passed
+        env:
+          PARTS: ${{ needs.full-suite-part.result }}
+        run: |
+          echo "full-suite parts: $PARTS"
+          test "$PARTS" = "success"
+
   smoke-test:
     # #4520: PRs get ubuntu/3.12 via the full-suite job below (which also runs
     # the --help entry-point checks); this grid runs on main, nightly and manual runs.
@@ -99,9 +113,17 @@ jobs:
   # signal on every push without the 12x cost. The full OS x Python-version
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.
-  full-suite:
+  # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in 3 parts, each on its own
+  # runner and each still -n auto (pytest-split --splits 3 --group N; balanced by test count until a durations file
+  # exists). `full-suite` below -- the required check -- passes only when every part passed.
+  full-suite-part:
+    name: full-suite part ${{ matrix.group }}/3
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [1, 2, 3]
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
@@ -125,37 +147,44 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist
+          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist "pytest-split==0.10.0"
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
           pip install "tree-sitter-language-pack==1.20.0"
           pip install --no-build-isolation -e .
 
       - name: Entry point --help - Core Engine
+        if: matrix.group == 1
         run: python -m gitgalaxy.galaxyscope --help
 
       - name: Entry point --help - Legacy Refractor Controller
+        if: matrix.group == 1
         run: python -m gitgalaxy.cobol_refractor_controller --help
 
       - name: Entry point --help - Java Spring Forge Controller
+        if: matrix.group == 1
         run: python -m gitgalaxy.cobol_to_java_controller --help
 
       - name: Entry point --help - Supply Chain Firewall
+        if: matrix.group == 1
         run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
 
       - name: Entry point --help - API Network Map
+        if: matrix.group == 1
         run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
 
-      - name: Golden Record Integration Test (Pytest)
-        run: pytest tests/ -n auto -q -ra --durations=25
+      - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
+        env:
+          GROUP: ${{ matrix.group }}
+        run: pytest tests/ -n auto -q -ra --durations=25 --splits 3 --group "$GROUP"
 
       - name: Evidence report level deltas (advisory, #4703)
-        if: always()
+        if: always() && matrix.group == 1
         continue-on-error: true
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 
       - name: CICS spec status page (advisory, #4789)
-        if: always()
+        if: always() && matrix.group == 1
         continue-on-error: true
         run: |
           {

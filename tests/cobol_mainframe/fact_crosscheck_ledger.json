@@ -40,7 +40,7 @@
   "translator-refuses-national-text": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character; #4272), and a single-byte national letter in a data name (DEUT ZINSBER's GEBÜHR / BETRÄGE in cp273: the grammar reads ASCII words only; #4664). ZINSBER's DECIMAL-POINT IS COMMA is modelled since #4462 (test_det_programs DPCOMMA)."
+   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character; #4272). ZINSBER's DECIMAL-POINT IS COMMA is modelled since #4462 (test_det_programs DPCOMMA)."
   },
   "translator-refuses-source-defect": {
    "side": "definitional",

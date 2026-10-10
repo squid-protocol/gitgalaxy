@@ -54,7 +54,7 @@ UNMASKABLE = {
     "cut-literal": "text past column 72 (cut_literal): a literal cut open is read with its text past column 72, as if fixed (other "
     "lost text -- a name cut short, a comma -- stays lost)",
     "several-programs": "several programs in one source (several_programs): read as one",
-    "unmodelled": "national / DBCS text, a national letter in a name, IDMS, a decimal-point literal under "
+    "unmodelled": "national / DBCS text, IDMS, a decimal-point literal under "
     "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
     "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
 }
@@ -422,8 +422,6 @@ def unmodelled(lines: list[Line]) -> str | None:
     - A character beyond Latin-1 (national / DBCS text: a Kanji name or literal, an ideographic space, a PIC G
       literal; estate-crucible KYUY): the translator lays records out, and hands the parser its text, in one byte a
       character. It had raised UnicodeEncodeError; a DBCS estate is refused, never laid out wrong.
-    - A national letter in a word outside a literal (`BETRÄGE`, read in cp273): the COBOL grammar reads ASCII words
-      only, and refused the line unnamed.
     - #4462: under DECIMAL-POINT IS COMMA (modelled: comma_literals, Item.decimal_comma), a numeric literal written
       with a decimal POINT (`1.5`): the clause makes `,` the decimal point, so it is no number the compiler reads.
     - #4462: IDMS (IDMS-CONTROL SECTION, SCHEMA SECTION; estate-crucible LOAN LNIDMS01): its DML (BIND RUN-UNIT,
@@ -457,10 +455,6 @@ def unmodelled(lines: list[Line]) -> str | None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
                     "translator reads a single-byte code page")  # fmt: skip
         bare = _outside_literals(ln.text[: _comment_at(ln.text)])  # (#4272: a `*>` comment is no name)
-        word = re.search(r"[^\s.,;:()'\"=<>+*/]*[^\x00-\x7f][^\s.,;:()'\"=<>+*/]*", bare)
-        if word is not None:
-            return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
-                    "ASCII words only")  # fmt: skip
         if _IDMS.search(bare):
             return f"{Path(ln.file).name}:{ln.line}: IDMS DML not supported (an IDMS-DC / DMLC program: {bare.strip()})"
         point = _POINT_POINT.search(_numeric_text(ln.text)) if comma else None

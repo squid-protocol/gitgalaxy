@@ -93,7 +93,7 @@ def jstr(s: str) -> str:
 
 
 def jname(cobol: str) -> str:
-    return re.sub(r"[^A-Za-z0-9]", "_", cobol)
+    return cobol.replace("-", "_")
 
 
 @dataclass

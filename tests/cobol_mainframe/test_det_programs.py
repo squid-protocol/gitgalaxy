@@ -192,6 +192,11 @@ def _split_program(proc: list[str]) -> str:
 
 
 PROGRAMS = {
+    "NATLET": program(
+        "NATLET",
+        ["01 BETRÄGE PIC 9(4) VALUE 1000."],
+        ["DISPLAY BETRÄGE"]
+    ),
     # #4674 / #4656: NOT split from its relational operator (or an AND / OR from the NOT) by a line break
     "SPLITNOT": _split_program(
         [

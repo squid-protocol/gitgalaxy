@@ -279,7 +279,7 @@ def parse(lines: list[Line]) -> list[Item]:
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
     head = text[: m.start()] if m else text
     src = (head + "       PROCEDURE DIVISION.\n           GOBACK.\n").encode("latin-1")
-    tree = _parser().parse(src)
+    tree = _parser().parse(re.sub(br"[^\x00-\x7f]", b"a", src))
     records: list[Item] = []
     errors = []
 

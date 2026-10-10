@@ -40,6 +40,7 @@ on:
       - "tests/tools/java_target_matrix.py"
       - "tests/cobol_mainframe/corpora.json"
       - ".github/workflows/java-compile.yml"
+      - "tests/tools/mainframe_corpus.py"  # #4825: read by this workflow (workflow_inputs.py)
   push:
     branches: [main]
     paths:

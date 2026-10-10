@@ -23,12 +23,10 @@ before and after it, and the approval carries over only through that pair and a 
 marker yet (the labelled run did not happen, or was dropped), the bot does nothing and says so in its log: re-add the
 label.
 
-A label added by someone without write access is removed by the bot, with a comment.
-
-**A label is bound to the head it was added on.** GitHub's timeline records who added `shepherd:merge` and on
-which commit. If the head has moved since (new commits, a force-push), the label is removed, whatever event noticed:
-push, then re-add the label. The one exception is the bot's own `gh pr update-branch` (behind main): the bot leaves a
-marker pair before and after it, and the label carries over only through that pair.
+**A dropped approval stays visible.** When the bot removes `shepherd:merge` because the head moved, it comments and
+sets `shepherd:reapprove`. That label stays after the request labels are gone, so a PR that lost its approval shows up
+in `is:open label:shepherd:reapprove` instead of waiting silently. Re-adding `shepherd:merge` (or `shepherd:hold`)
+clears it; so does removing it by hand.
 
 A label added by someone without write access is removed too, on any pass (the timeline names the labeler).
 
@@ -39,8 +37,9 @@ A label added by someone without write access is removed too, on any pass (the t
 | `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. | Fix it, push. |
 | `shepherd:waiting-on-main` | The failing check fails on `main` too. | Nothing on this PR; main's owner fixes it. |
 | `shepherd:retrying` | An infra or flake failure is being rerun (up to 3 times, 15 minutes apart). | Nothing; wait. |
+| `shepherd:reapprove` | New commits dropped `shepherd:merge` (an approval is bound to its head). | Review the new head, re-add `shepherd:merge`. |
 
-Status labels are cleared when no request label is left.
+Status labels are cleared when no request label is left, except `shepherd:reapprove` (it marks exactly that case).
 
 ## Other rules
 
@@ -74,3 +73,7 @@ the workflow next succeeds. Rules live in `tests/tools/main_watch.py` (`decide()
 so `post-merge.yml` dispatches the Full Suite Gate with `AUTOMATION_PAT` (needs `actions: write`), and an hourly
 `reconcile` job reads the latest completed non-cancelled run of each open issue's workflow and comments or closes, so
 a dropped event is picked up within the hour. A failure caused only by cancelled legs says so in the comment.
+
+The full-suite jobs (`full-suite-gate.yml`, `smoke-test.yml`) run pytest with `--timeout=600` (`pytest-timeout`): a
+hung test fails by name after 10 minutes instead of running the job into its time limit, where it shows as a
+"cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).

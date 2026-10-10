@@ -14,12 +14,15 @@ Requests (set by a maintainer with write access):
   shepherd:hold     never auto-merge
   shepherd:matrix   dispatch full-suite-gate.yml on the PR branch; auto-merge waits for a green run on this head
   shepherd:full     det sweep plans mode=full (tests/tools/det_sweep_plan.py reads the label)
-Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiting-on-main, shepherd:retrying.
+Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiting-on-main, shepherd:retrying,
+  shepherd:reapprove (the bot dropped shepherd:merge on a new head; stays until a maintainer re-adds it).
 
 Rules, all in decide() (pure: a snapshot in, actions out):
   * a request label added by someone without write access is removed, with a comment (their label, not ours);
   * a new head (synchronize) removes shepherd:merge with a comment, so a commit nobody approved never merges by
-    label. The one exception is this module's own `gh pr update-branch` (it leaves a marker comment first);
+    label. The one exception is this module's own `gh pr update-branch` (it leaves a marker comment first). The
+    drop sets shepherd:reapprove, which outlives the request labels, so a PR that lost its approval is findable
+    (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10);
   * "Depends on #N" in the body blocks auto-merge until #N is merged;
   * an infra/flake failure is rerun up to INFRA_RERUNS times, RETRY_GAP seconds apart (the count is run_attempt
     of the run, kept by GitHub: no local state);
@@ -50,8 +53,9 @@ import pr_check  # noqa: E402
 REPO_SLUG = pr_check.REPO_SLUG
 MERGE, HOLD, MATRIX, FULL = "shepherd:merge", "shepherd:hold", "shepherd:matrix", "shepherd:full"
 NEEDS, WAITING, RETRYING = "shepherd:needs-fix", "shepherd:waiting-on-main", "shepherd:retrying"
+REAPPROVE = "shepherd:reapprove"
 REQUESTS = (MERGE, HOLD, MATRIX, FULL)
-STATUS = (NEEDS, WAITING, RETRYING)
+STATUS = (NEEDS, WAITING, RETRYING, REAPPROVE)
 WRITE = {"admin", "maintain", "write"}  # the collaborator permissions that may set a request label
 INFRA_RERUNS = 3  # an outage (Docker Hub 429/504, 2026-10-09) outlasts one rerun
 RETRY_GAP = 15 * 60  # seconds between reruns of the same run's failed jobs
@@ -75,6 +79,7 @@ LABELS: dict[str, tuple[str, str]] = {
     NEEDS: ("d93f0b", f"Bot: a real failure on this head; see the digest comment. Guide: {DOCS}"),
     WAITING: ("fbca04", f"Bot: the failing check fails on main too (main's to fix). Guide: {DOCS}"),
     RETRYING: ("c2e0c6", f"Bot: an infra/flake rerun is pending on this head. Guide: {DOCS}"),
+    REAPPROVE: ("e99695", f"Bot: new commits dropped shepherd:merge; re-add it to merge this head. Guide: {DOCS}"),
 }
 
 Api = Callable[[str], Any]
@@ -144,7 +149,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
                 "op": "comment",
                 "body": f"CI shepherd: the head of this PR ({sha[:12]}) is not the one a "
                 f"maintainer labelled `{MERGE}` on (new commits, or never approved), so the label was removed and "
-                "nothing merges unreviewed code. Re-add the label when the new head is ready.",
+                f"nothing merges unreviewed code. Re-add the label when the new head is ready (`{REAPPROVE}` marks "
+                "this PR until then).",
             }
         )
     req = labels & set(REQUESTS)
@@ -209,6 +215,10 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
             desired.add(WAITING)
         if retrying:
             desired.add(RETRYING)
+    # outlives the request labels on purpose: the drop removed the only one, and the PR must stay findable. It goes
+    # when the label comes back, when a maintainer holds the PR, or when someone removes it by hand.
+    if dropped or (REAPPROVE in s["labels"] and MERGE not in labels and HOLD not in labels):
+        desired.add(REAPPROVE)
     present = set(s["labels"]) & set(STATUS)
     if desired != present:
         acts.append({"op": "labels", "add": sorted(desired - present), "remove": sorted(present - desired)})

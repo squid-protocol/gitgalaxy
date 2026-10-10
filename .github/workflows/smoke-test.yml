@@ -148,7 +148,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist "pytest-split==0.10.0"
+          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist "pytest-split==0.10.0" "pytest-timeout==2.4.0"
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
           pip install "tree-sitter-language-pack==1.20.0"
@@ -195,7 +195,8 @@ jobs:
           # the nightly stores this part's seconds (--clean-durations: only the tests it ran) for full-suite-durations
           store=()
           if [ "$EVENT" = "schedule" ]; then store=(--store-durations --clean-durations); fi
-          pytest tests/ -n auto -q -ra --durations=25 --splits 3 --group "$GROUP" "${store[@]}"
+          # --timeout: a hung test fails by name, not as a job timeout (see full-suite-gate.yml, #4840)
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --splits 3 --group "$GROUP" "${store[@]}"
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()

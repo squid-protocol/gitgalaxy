@@ -65,7 +65,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --upgrade pip
-          pip install -e . pytest
+          pip install -e . pytest pytest-xdist
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -91,7 +91,8 @@ jobs:
       - name: Full-corpus differential and answer-key tests
         run: |
           cd gitgalaxy
-          PYTHONPATH="$PWD" python -m pytest -q tests/cobol_mainframe/
+          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
+          PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
 
       - name: Open PR with updated history
         if: github.event_name == 'push'

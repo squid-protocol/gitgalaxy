@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -177,14 +178,16 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
         lines = S.program_lines(prog, estate_copy_dirs, engine_copies)
     except S.CopyNotFound as e:
         count_item(inv, "copybook_resolution_gaps", _copy_not_found(e), rel_prog)
-        inv["unparsed_programs"].append({"program": rel_prog, "reason": type(e).__name__ + " - " + str(e)})
+        inv["unparsed_programs"].append({"program": rel_prog, "reason": f"CopyNotFound: {_copy_not_found(e)}"})
         fallback_parse(prog, rel_prog, inv)
         return
 
     try:
         units = S.program_units(lines)
     except Exception as e:
-        inv["unparsed_programs"].append({"program": rel_prog, "reason": type(e).__name__ + " - " + str(e)})
+        inv["unparsed_programs"].append(
+            {"program": rel_prog, "reason": type(e).__name__ + " - " + _portable(str(e), estate_dir)}
+        )
         fallback_parse(prog, rel_prog, inv)
         return
 
@@ -248,6 +251,13 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
             count_unknown(inv, "cics_options", rel_prog)
             count_unknown(inv, "sql_forms", rel_prog)
             count_unknown(inv, "intrinsic_functions", rel_prog)
+
+
+def _portable(msg: str, estate_dir: Path) -> str:
+    """A reason with no machine-specific path in it (#4825): the fixtures are compared byte for byte on any checkout."""
+    for root in (str(estate_dir), str(REPO)):
+        msg = msg.replace(root + "/", "").replace(root, ".")
+    return re.sub(r"/(?:[\w.+-]+/)+([\w.+-]+)", r"\1", msg)  # any other absolute path: its last component
 
 
 def scan_estate(estate_dir: Path, db_dir: Path) -> dict:
@@ -328,8 +338,7 @@ def main():
 
     if args.all_burned:
         corpora_root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora"))
-        db_dir = Path("/tmp/gitgalaxy-scratch/agy-4723/db")  # noqa: S108
-        db_dir.mkdir(parents=True, exist_ok=True)
+        db_dir = Path(tempfile.mkdtemp(prefix="feature-inventory-"))  # fresh scans, never a shared path (#4825)
         fixtures_dir = TOOLS.parent / "fixtures" / "feature_inventory"
         if args.write:
             fixtures_dir.mkdir(parents=True, exist_ok=True)
@@ -372,8 +381,7 @@ def main():
         if args.check and has_stale:
             sys.exit(1)
     elif args.estate_dir:
-        db_dir = Path("/tmp/gitgalaxy-scratch/agy-4723/db")  # noqa: S108
-        db_dir.mkdir(parents=True, exist_ok=True)
+        db_dir = Path(tempfile.mkdtemp(prefix="feature-inventory-"))
         data = scan_estate(args.estate_dir, db_dir)
         validate(data)
         text = json.dumps(data, indent=2, sort_keys=True)

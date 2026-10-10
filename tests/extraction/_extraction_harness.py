@@ -35,13 +35,23 @@ def _plain(pattern: re.Pattern) -> re.Pattern:
     return re.compile(pattern.pattern, pattern.flags)
 
 
+def _hang_cap(timeout_sec: float) -> float:
+    """Wall-clock seconds to wait before declaring the child hung and killing it (#4477).
+
+    The property under test is the regex's CPU time (`_detonate` measures it in the child and the caller bounds
+    it by `timeout_sec`); wall time is only the kill switch for a truly non-terminating pattern, so it sits an
+    order of magnitude above the CPU bound: a loaded CI runner stretches a 0.09 s call past 1 s of wall time,
+    while a catastrophic pattern runs for minutes to years."""
+    return max(10.0, timeout_sec * 10)
+
+
 def _detonate(pattern: re.Pattern, payload: str, result_queue: "multiprocessing.Queue", started=None):
     """Executes a regex against a payload inside an isolated OS process."""
     if started is not None:
         started.set()  # the parent's clock starts here, not at spawn (slow on Windows, #4494)
-    start = time.perf_counter()
+    start = time.thread_time()  # CPU time of the child, not wall time (#4477)
     list(pattern.finditer(payload))
-    result_queue.put(time.perf_counter() - start)
+    result_queue.put(time.thread_time() - start)
 
 
 def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 1.0):
@@ -62,7 +72,7 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
     # The timeout bounds the regex, not interpreter start-up: a spawned child on a loaded Windows runner
     # can take over a second before it runs anything (#4494).
     assert started.wait(60), "the ReDoS child process never started"
-    p.join(timeout_sec)
+    p.join(_hang_cap(timeout_sec))
 
     if p.is_alive():
         p.terminate()

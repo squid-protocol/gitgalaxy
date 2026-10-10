@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -531,11 +532,8 @@ def test_abap_scope_filter_redos_immunity():
     # a statement that is all skippable content must return no opener quickly.
     ext = StructuralExtractor("abap", LANGUAGE_DEFINITIONS)
     payload = ('"' + "x" * 60 + "\n") * 800 + " " * 50000
-    import time
-
-    t0 = time.perf_counter()
     assert ext._abap_statement_opener(payload, 0, len(payload)) is None
-    assert time.perf_counter() - t0 < 1.0
+    assert_cpu_below(lambda: ext._abap_statement_opener(payload, 0, len(payload)), 1.0, what="abap opener")
 
 
 def test_abap_calls_out_strict():

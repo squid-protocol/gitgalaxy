@@ -17,6 +17,8 @@ fixed-format members -- and several of them broke a first draft:
   - MACSAMP's `%DECLARE` and preprocessor-procedure `DECLARE` are compile-time.
 """
 
+from _timing import assert_scales_linearly
+
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 
 
@@ -256,9 +258,10 @@ def test_other_channels_stay_empty_and_other_dialects_carry_no_pli():
 
 def test_an_unterminated_declare_is_linear():
     """No `;` anywhere: the statement runs to end of file and is still one pass."""
-    import time
 
-    src = " DCL 1 S,\n" + "   2 F CHAR(1),\n" * 20000
-    start = time.perf_counter()
-    assert len(records(src)) == 20001
-    assert time.perf_counter() - start < 2.0
+    def declare(n: int) -> str:
+        return " DCL 1 S,\n" + "   2 F CHAR(1),\n" * n
+
+    assert len(records(declare(20000))) == 20001
+    # a ratio of CPU time, not a wall-clock bound (#4477): 4x the fields cost ~4x, not ~16x
+    assert_scales_linearly(lambda n: records(declare(n)), 5_000, 20_000, what="unterminated DECLARE")

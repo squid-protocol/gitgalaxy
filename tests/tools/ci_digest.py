@@ -60,11 +60,10 @@ REPRO: list[tuple[str, str]] = [
 NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|dead-key-audit|ast-accuracy-audit|rosetta-audit|"
                       r"flag-golden-master-changes|Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
 
-FLAKY = {  # #4477: wall-clock bound under CI load
-    "test_regex_redos",
-    "test_many_move_statements_stay_linear",
-    "test_prism_suppression_regex_bomb",  # 1.006 s against a 1.0 s bound (#4830, 2026-10-10)
-}
+# Test names the shepherd reruns once instead of reporting as a real failure. Empty on purpose: the wall-clock
+# tests that used to live here (#4477) assert CPU-time ratios / best-of-3 CPU bounds now (tests/_timing.py), so
+# they fail loudly. Add a name only for a flake you can NOT make deterministic, with its issue number.
+FLAKY: set[str] = set()
 INFRA_CONCLUSIONS = {"cancelled", "startup_failure", "timed_out"}
 INFRA_LOG = re.compile(r"runner has received a shutdown signal|lost communication with the server|No space left on "
                        r"device|API rate limit exceeded|Could not resolve host|The operation was canceled|"

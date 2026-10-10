@@ -8,6 +8,7 @@ dart-lang/http; these pin each shape.
 import os
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.galaxyscope import extract_raw_imports
@@ -193,8 +194,5 @@ def test_dart_collection_if_is_not_an_import():
     ],
 )
 def test_dart_capture_stays_linear(payload):
-    import time
-
-    start = time.perf_counter()
-    _dart_imports(payload)
-    assert time.perf_counter() - start < 3.0
+    # CPU time, best of 3 (#4477): ms honest, backtracking is minutes
+    assert_cpu_below(lambda: _dart_imports(payload), 3.0, what="dart import capture")

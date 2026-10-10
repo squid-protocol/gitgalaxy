@@ -57,7 +57,8 @@ def test_det_shard_failure_repro_names_the_unproven_cases():
     assert "--cases carddemo-acctupdate" in d["failed"][0]["repro"]
 
 
-def test_triage_infra_flake_dirty():
+def test_triage_infra_flake_dirty(monkeypatch):
+    monkeypatch.setattr(cd, "FLAKY", {"test_regex_redos"})  # the mechanism, whatever the set holds today
     assert cd.triage("cancelled", "", []) == "infra"
     assert cd.triage("failure", "##[error]The runner has received a shutdown signal.", []) == "infra"
     # muninn on #4821: a third-party action's Docker image hit Docker Hub's rate limit
@@ -97,7 +98,9 @@ def test_a_real_failure_main_also_has_is_triaged_main():
     assert f["triage"] == "main" and f["repro"].startswith("fails on main too")
 
 
-def test_a_suite_part_and_the_prism_timing_test():
+def test_a_suite_part_and_the_prism_timing_test(monkeypatch):
     ex = {"tests": ["tests/core_engine/test_prism.py::test_prism_suppression_regex_bomb"], "cases": []}
     assert cd.repro("full-suite part 2/3", ex) == "python -m pytest -q " + ex["tests"][0]
+    assert cd.triage("failure", "", ex["tests"]) == "real"
+    monkeypatch.setattr(cd, "FLAKY", {"test_prism_suppression_regex_bomb"})
     assert cd.triage("failure", "", ex["tests"]) == "flake"

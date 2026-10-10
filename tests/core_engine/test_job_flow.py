@@ -5,7 +5,7 @@ proc-step override DD (`//PRC001.FILEIN`), concatenations, and each DSN DD's
 DISP and GDG generation (CardDemo TRANBKP / COMBTRAN shapes).
 """
 
-import time
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -77,9 +77,8 @@ def test_dd_dispositions_generations_overrides_and_concatenation():
 def test_non_jcl_and_bounded():
     assert jcl_job_flow("just text\n") == []
     src = "//S1 EXEC PGM=X,\n" + "//  A=B,\n" * 20000 + "//  C=D\n"
-    started = time.perf_counter()
-    jcl_job_flow(src)
-    assert time.perf_counter() - started < 5.0
+    # CPU time, best of 3 (#4477): ms honest, a rescan per continuation is many seconds
+    assert_cpu_below(lambda: jcl_job_flow(src), 5.0, what="jcl job flow")
 
 
 def test_a_comment_inside_a_continued_statement_does_not_end_it():

@@ -4,9 +4,8 @@ C-style invocation family. Driven end to end through `splice()` so the literal s
 and the calls_out filters apply exactly as in a scan.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor, _call_qualifier
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -73,9 +72,9 @@ def test_non_c_style_languages_capture_no_qualifier():
 def test_walk_is_bounded():
     # a pathological receiver chain costs a fixed walk, never a scan of the text
     text = "a." * 200_000 + "b"
-    t = time.perf_counter()
     q = _call_qualifier(text, len(text) - 1)
-    assert time.perf_counter() - t < 0.05
+    # CPU-time, best of 3 (#4477): the fixed walk is microseconds; a scan of the 400k-char text is not
+    assert_cpu_below(lambda: _call_qualifier(text, len(text) - 1), 0.05, what="call qualifier walk")
     assert q == "a.a.a.a"
     long_ident = "x" * 100_000 + ".f"
     assert len(_call_qualifier(long_ident, len(long_ident) - 1)) <= 64

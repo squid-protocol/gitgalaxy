@@ -21,7 +21,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _detonate, _plain, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import _detonate, _hang_cap, _plain, assert_redos_immune  # noqa: E402 # type: ignore
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -607,7 +607,7 @@ def _measure_scaling_point(pattern: re.Pattern, payload: str, timeout_sec: float
     result_queue = ctx.Queue()
     p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue))
     p.start()
-    p.join(timeout_sec)
+    p.join(_hang_cap(timeout_sec))
     if p.is_alive():
         p.terminate()
         p.join()

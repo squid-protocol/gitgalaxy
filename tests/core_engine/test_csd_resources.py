@@ -9,6 +9,8 @@ KEYLENGTH/RECORDSIZE, DB2CONN, TCPIPSERVICE, quoted DESCRIPTIONs) and the inline
 DFHCSDUP SYSIN in a JCL job (carddemo CBADMCDJ.jcl).
 """
 
+from _timing import assert_cpu_below
+
 from gitgalaxy.core.mainframe_boundary import _csd_attributes, _csd_transactions, extract_boundary
 
 # carddemo CARDDEMO.CSD (a leading blank column, no continuation character).
@@ -194,9 +196,6 @@ def test_a_pathological_record_stays_linear():
     """Bounded: a 38KB record of 6,000 unterminated values is scanned in linear
     time (~1s). Rescanning each value to the end of the record -- the unbounded
     shape -- is quadratic here (~10^8 character steps)."""
-    import time
-
     record = "DEFINE FILE(X) " + "DESCRIPTION(" * 2000 + "'" * 2000 + " PLAN(" * 2000
-    start = time.perf_counter()
-    _resources("csd", record)
-    assert time.perf_counter() - start < 6.0
+    # # CPU time, best of 3 (#4477): the bounded scan is ~0.1 s; the quadratic shape is ~10^8 steps (tens of seconds)
+    assert_cpu_below(lambda: _resources("csd", record), 6.0, what="csd pathological record")

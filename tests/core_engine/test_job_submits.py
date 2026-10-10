@@ -5,7 +5,7 @@ program holds as literals (CardDemo CORPT00C) and the JCL DDs routed to the
 internal reader (CardDemo INTRDRJ1).
 """
 
-import time
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.job_submits import cobol_job_cards
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -75,6 +75,5 @@ def test_a_cics_region_intrdr_dd_is_found_too():
 
 def test_the_card_scan_is_bounded():
     src = ("           MOVE '//" + "A" * 5000 + " JOB' TO X.\n") * 200 + "'//" * 20000
-    started = time.perf_counter()
-    cobol_job_cards(src)
-    assert time.perf_counter() - started < 5.0
+    # # CPU time, best of 3 (#4477): ms honest, a rescan from every quote is many seconds
+    assert_cpu_below(lambda: cobol_job_cards(src), 5.0, what="job card scan")

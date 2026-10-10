@@ -8,9 +8,9 @@ precedent). Measured by tests/tools/import_graph_accuracy.py on square/kotlinpoe
 """
 
 import sqlite3
-import time
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.core.state_rehydrator import StateRehydrator
@@ -75,9 +75,8 @@ def test_the_capture_is_a_helper_rule():
     ],
 )
 def test_the_capture_stays_linear(payload):
-    start = time.perf_counter()
-    _declared(payload)
-    assert time.perf_counter() - start < 3.0
+    # CPU time, best of 3 (#4477): ms honest, backtracking is minutes
+    assert_cpu_below(lambda: _declared(payload), 3.0, what="kotlin property capture")
 
 
 # ----------------------------------------------------------------------------- resolution

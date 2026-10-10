@@ -102,7 +102,7 @@ def test_only_the_listed_consumers_import_the_spec():
         if PACKAGE in py.parents:
             continue
         if _IMPORTS_SPEC.search(py.read_text(encoding="utf-8")):
-            found.add(str(py.relative_to(ROOT)))
+            found.add(py.relative_to(ROOT).as_posix())  # #4836: "/" on Windows too
     assert found == IMPORTERS
 
 

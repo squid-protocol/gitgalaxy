@@ -171,12 +171,14 @@ def oracle_pin(path: Path = DOCKERFILE) -> dict[str, str]:
 
 def crucible_pins() -> dict[str, str]:
     """The crucible pin manifest (#4597): crucible name -> pinned ref."""
-    import tomllib
-
     if not PIN_MANIFEST.is_file():
         m = re.search(r'^PINNED_REF = "(.*)"', CRUCIBLE_PIN.read_text("utf-8"), re.M)
         return {"cics": m.group(1) if m else ""}
-    return {k: v.get("ref", "") for k, v in sorted(tomllib.loads(PIN_MANIFEST.read_text("utf-8")).items())}
+    if str(REPO / "tests") not in sys.path:
+        sys.path.insert(0, str(REPO / "tests"))
+    import _crucible_manifest  # noqa: PLC0415 -- tomllib is 3.11+; the manifest reader covers 3.10 (#4836)
+
+    return {k: v.get("ref", "") for k, v in sorted(_crucible_manifest.load(PIN_MANIFEST).items())}
 
 
 def corpus_ref(estate: str) -> str:

@@ -29,6 +29,7 @@ on:
       - "Ruff Audit"
       - "Small Audits"
       - "GitGalaxy Smoke Tests"
+      - "Full Suite Gate (All OS x Python)"
       - "Tree-sitter Accuracy Audit"
       - "Tri-Comparison Audit"
       - "unicode-gauntlet"
@@ -51,8 +52,10 @@ concurrency:
 jobs:
   reconcile:
     name: shepherd (reconcile)
-    # a workflow_run of a push or a schedule of another branch changes no PR's merge state: only PR CI counts
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
+    # a run of a push changes no PR's merge state; PR CI and the matrix (dispatched on a PR branch) do
+    if: >-
+      github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
+      || github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -70,7 +73,15 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py ensure-labels
 
-      - name: Reconcile every labelled open pull request
+      - name: Reconcile the labelled pull request(s) of the run's head
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: python3 tests/tools/shepherd_gh.py reconcile --head-sha "$HEAD_SHA"
+
+      - name: Reconcile every labelled open pull request (schedule, dispatch)
+        if: github.event_name != 'workflow_run'
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py reconcile

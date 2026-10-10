@@ -16,7 +16,9 @@ on:
 permissions: {}
 
 concurrency:
-  group: shepherd  # one shepherd pass at a time (shared with shepherd-reconcile.yml)
+  # per PR: one pass at a time for a PR, and no pass is dropped by another PR's (a group of one pending run would
+  # drop events). Reconcile re-reads all state from the timeline, so a replaced event loses nothing.
+  group: shepherd-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:

@@ -1,6 +1,7 @@
 """shepherd_gh (#4847 item 3): the label rules, against decide() and a fake GitHub; plus the workflows' security lint."""
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -21,8 +22,10 @@ def snap(**kw):
     """A quiet snapshot: an open, non-draft, clean PR with the merge label, nothing failing, no matrix."""
     s = {"number": 7, "state": "open", "draft": False, "head_sha": SHA, "head_ref": "fix/x", "head_fork": False,
          "mergeable_state": "clean", "auto_merge": False, "labels": [sg.MERGE], "depends_open": [], "matrix": "none",
-         "action": None, "event_label": None, "removed": None, "sender": None, "bot_update": False, "failed": [],
-         "pending": 0, "digest_text": "", "digest_posted": False, "now": NOW}  # fmt: skip
+         "action": None, "event_label": None, "removed": None, "sender": None, "failed": [],
+         "pending": 0, "digest_text": "", "digest_posted": False, "now": NOW,
+         "label_actors": {x: {"login": "joe", "permission": "admin", "commit_id": SHA} for x in sg.REQUESTS},
+         "approved": True, "pending_update": False}  # fmt: skip
     s.update(kw)
     return s
 
@@ -104,6 +107,26 @@ def test_depends_on_an_open_pr_blocks_auto_merge():
     assert sg.decide(snap(depends_open=[])) == [{"op": "automerge", "on": True, "sha": SHA}]
 
 
+def test_a_label_by_a_non_writer_seen_only_in_the_timeline_is_removed():
+    # reconcile after a dropped event: no event facts, the timeline names the labeler
+    actors = {sg.MERGE: {"login": "rando", "permission": "read", "commit_id": SHA}}
+    acts = sg.decide(snap(label_actors=actors, auto_merge=True))
+    assert by_op(acts, "unlabel") == [{"op": "unlabel", "label": sg.MERGE}]
+    assert "automerge" not in kinds(acts) or by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
+    assert "rando" in by_op(acts, "comment")[0]["body"]
+
+
+def test_a_label_with_no_labeled_event_is_removed():
+    acts = sg.decide(snap(label_actors={sg.MERGE: None}))
+    assert by_op(acts, "unlabel") == [{"op": "unlabel", "label": sg.MERGE}]
+
+
+def test_a_bot_update_in_progress_neither_drops_nor_merges():
+    acts = sg.decide(snap(approved=False, pending_update=True, auto_merge=True))
+    assert "unlabel" not in kinds(acts)
+    assert by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
+
+
 def test_removing_the_merge_label_disables_auto_merge():
     acts = sg.decide(snap(labels=[], auto_merge=True, action="unlabeled", removed=sg.MERGE))
     assert by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
@@ -117,14 +140,14 @@ def test_a_pr_without_shepherd_labels_is_left_alone():
 
 
 def test_new_commits_drop_the_merge_label_so_an_unreviewed_head_never_merges():
-    acts = sg.decide(snap(action="synchronize", auto_merge=True))
+    acts = sg.decide(snap(action="synchronize", auto_merge=True, approved=False))
     assert by_op(acts, "unlabel") == [{"op": "unlabel", "label": sg.MERGE}]
     assert by_op(acts, "automerge") == [{"op": "automerge", "on": False}]
     assert "automerge" in kinds(acts) and "ready" not in kinds(acts)
 
 
 def test_the_bot_own_update_branch_keeps_the_label():
-    acts = sg.decide(snap(action="synchronize", bot_update=True))
+    acts = sg.decide(snap(action="synchronize", approved=True))
     assert "unlabel" not in kinds(acts)
     assert by_op(acts, "automerge") == [{"op": "automerge", "on": True, "sha": SHA}]
 
@@ -220,12 +243,24 @@ class Gh:
         self.perm = "write"
         self.matrix_runs = []
         self.dep_state = "closed"
+        # the timeline: who added each label, on which head (GitHub's commit_id at that moment)
+        self.events = [
+            {"event": "labeled", "label": {"name": x}, "actor": {"login": "joe"}, "commit_id": SHA}
+            for x in (sg.MERGE, sg.MATRIX)
+        ]
+        self.comments = []  # the bot's markers live here
+        self.parents = {}  # commit sha -> parent shas
 
     def api(self, path):
         self.calls.append(path)
-        if path.endswith("/pulls/7"):
+        bare = path.split("?")[0]
+        if re.search(r"/commits/[0-9a-f]{40}/pulls$", bare):
+            return [self.pr]
+        if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
+            return {"parents": [{"sha": x} for x in self.parents.get(bare.rsplit("/", 1)[1], [])]}
+        if bare.endswith("/pulls/7"):
             return self.pr
-        if path.endswith("/pulls/6"):
+        if bare.endswith("/pulls/6"):
             return {"state": self.dep_state}
         if "/check-runs" in path:
             return {
@@ -239,11 +274,13 @@ class Gh:
                     }
                 ]
             }
-        if path.endswith("/status"):
+        if bare.endswith("/status"):
             return {"statuses": []}
-        if "/comments" in path:
-            return []
-        if path.endswith("/permission"):
+        if bare.endswith("/events"):
+            return self.events
+        if bare.endswith("/comments"):
+            return self.comments
+        if bare.endswith("/permission"):
             return {"permission": self.perm}
         if "/workflows/" in path:
             return {"workflow_runs": self.matrix_runs}
@@ -251,7 +288,69 @@ class Gh:
 
     def run(self, argv):
         self.cmds.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "", "")
+        out = "d" * 40 if "-q" in argv else ""
+        return subprocess.CompletedProcess(argv, 0, out, "")
+
+
+def merged_by(gh):
+    return any(c[:3] == ["gh", "pr", "merge"] and "--auto" in c for c in gh.cmds)
+
+
+def test_reconcile_after_an_unapproved_push_drops_the_label_and_never_merges():
+    # no synchronize event was seen: the head moved from the labelled commit (A) to B with no bot marker
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr["head"]["sha"] = "b" * 40
+    gh.parents = {"b" * 40: ["a" * 40, "c" * 40]}
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines)
+    assert not merged_by(gh) and not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
+
+
+def test_reconcile_keeps_the_label_through_the_bot_update_branch():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr["head"]["sha"] = "b" * 40
+    gh.parents = {"b" * 40: [SHA, "c" * 40]}  # the bot's merge of main on the labelled head
+    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"}]
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not any("unlabel" in x for x in lines)
+    assert merged_by(gh)
+
+
+def test_a_push_after_the_bot_update_is_not_carried():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr["head"]["sha"] = "d" * 40  # a force-push: a merge commit on the approved head, not the bot's
+    gh.parents = {"d" * 40: [SHA, "c" * 40]}
+    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"}]
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_a_bot_update_without_its_result_marker_is_pending_not_approved():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr["head"]["sha"] = "b" * 40
+    gh.comments = [{"body": f"<!-- shepherd-update from={SHA} -->"}]
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_reconcile_drops_a_label_added_by_a_non_writer_in_the_timeline():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.events = [{"event": "labeled", "label": {"name": sg.MERGE}, "actor": {"login": "rando"}, "commit_id": SHA}]
+    gh.perm = "read"
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
+    gh = Gh()
+    assert sg.prs_for_head(gh.api, "e" * 40) == [7]
+    with pytest.raises(SystemExit):
+        sg.prs_for_head(gh.api, "not-a-sha")
 
 
 def test_gather_and_process_for_a_labelled_event_marks_ready_and_enables_auto_merge():
@@ -292,17 +391,18 @@ def test_gather_reads_the_matrix_on_the_head_and_dispatches_only_when_none_ran()
     assert any(c[:3] == ["gh", "pr", "merge"] and "--auto" in c for c in gh.cmds)
 
 
-def test_update_branch_writes_the_marker_before_the_push():
+def test_update_branch_writes_the_marker_pair_around_the_push():
     s = snap(mergeable_state="behind", head_sha="b" * 40)
     log_cmds = []
 
     def run(argv):
         log_cmds.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "", "")
+        return subprocess.CompletedProcess(argv, 0, "d" * 40 if "-q" in argv else "", "")
 
     lines = sg.apply(7, s, [{"op": "update_branch"}], run=run)
     assert "shepherd-update from=" + "b" * 40 in " ".join(log_cmds[0])
     assert log_cmds[1][:4] == ["gh", "pr", "update-branch", "7"]
+    assert "shepherd-update from=" + "b" * 40 + " to=" + "d" * 40 in " ".join(log_cmds[3])
     assert all(line.endswith("ok") for line in lines)
 
 

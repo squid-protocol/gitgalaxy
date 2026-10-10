@@ -15,8 +15,12 @@ checks on `main` are green.
 
 A label added by someone without write access is removed by the bot, with a comment.
 
-**New commits remove `shepherd:merge`.** A head nobody approved never merges by label: push, then re-add the label.
-The bot's own `gh pr update-branch` (behind main) keeps it, because the bot leaves a marker before it pushes.
+**A label is bound to the head it was added on.** GitHub's timeline records who added `shepherd:merge` and on
+which commit. If the head has moved since (new commits, a force-push), the label is removed, whatever event noticed:
+push, then re-add the label. The one exception is the bot's own `gh pr update-branch` (behind main): the bot leaves a
+marker pair before and after it, and the label carries over only through that pair.
+
+A label added by someone without write access is removed too, on any pass (the timeline names the labeler).
 
 ## Status labels (the bot sets and clears these)
 

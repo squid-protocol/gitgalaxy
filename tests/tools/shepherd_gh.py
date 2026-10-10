@@ -113,19 +113,35 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
                 f"write access to this repository, so it was removed. Maintainers set these labels ({DOCS}).",
             }
         )
+    actors = s.get("label_actors") or {}
+    for name in sorted(labels & set(REQUESTS)):  # the timeline's labeler, for labels this event did not add
+        actor = actors.get(name)
+        if actor is None or not writer(actor.get("permission")):
+            labels.discard(name)
+            who = f"@{actor['login']}" if actor and actor.get("login") else "an unknown user (no labeled event found)"
+            acts.append({"op": "unlabel", "label": name})
+            acts.append(
+                {
+                    "op": "comment",
+                    "body": f"CI shepherd: `{name}` was added by {who}, who has no write access "
+                    f"to this repository, so it was removed. Maintainers set these labels ({DOCS}).",
+                }
+            )
     if s["state"] != "open":
         return acts
     dropped = False
-    if s.get("action") == "synchronize" and MERGE in labels and not s.get("bot_update"):
+    pending = bool(s.get("pending_update"))
+    if MERGE in labels and not pending and not s.get("approved"):
+        # the head moved since a maintainer's label, or was never approved: nothing merges the unreviewed head
         labels.discard(MERGE)
         dropped = True
         acts.append({"op": "unlabel", "label": MERGE})
         acts.append(
             {
                 "op": "comment",
-                "body": f"CI shepherd: new commits on this PR (head {sha[:12]}), so "
-                f"`{MERGE}` was removed and nothing merges unreviewed code. Re-add the label when the new head "
-                "is ready.",
+                "body": f"CI shepherd: the head of this PR ({sha[:12]}) is not the one a "
+                f"maintainer labelled `{MERGE}` on (new commits, or never approved), so the label was removed and "
+                "nothing merges unreviewed code. Re-add the label when the new head is ready.",
             }
         )
     req = labels & set(REQUESTS)
@@ -137,6 +153,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         blocked.append(f"Depends on #{d}, which is still open")
     if MATRIX in labels and s["matrix"] != "green":
         blocked.append(f"full-suite matrix {MATRIX_TEXT.get(s['matrix'], s['matrix'])}")
+    if pending and MERGE in labels:
+        blocked.append("a bot update of the branch is in progress")
     want = MERGE in labels and not blocked
     if want and s["draft"]:
         acts.append({"op": "ready"})
@@ -187,6 +205,9 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
 # --- gather: the snapshot, from the API ------------------------------------------------------------------------------
 
 
+UPDATE_MARK = re.compile(r"<!-- shepherd-update from=([0-9a-f]{40})(?: to=([0-9a-f]{40}))? -->")
+
+
 def _attempts(api: Api, run_id: int) -> tuple[int, float | None]:
     r = api(f"repos/{REPO_SLUG}/actions/runs/{run_id}")
     return int(r.get("run_attempt") or 1) - 1, _to_epoch(r.get("updated_at"))
@@ -195,9 +216,26 @@ def _attempts(api: Api, run_id: int) -> tuple[int, float | None]:
 def gather(
     n: int, api: Api = pr_check.gh_api, event: dict[str, Any] | None = None, now: float | None = None
 ) -> dict[str, Any]:
-    """The snapshot decide() reads for PR n. `event`: the pull_request_target payload's facts (action, label, sender,
-    before), when the pass was caused by one."""
+    """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
+    (action, label, sender), when there was one. Reconcile passes have none: they read the timeline instead, so a
+    dropped event never changes what is merged.
+
+    Approval (#4847 review): the latest `labeled` event of shepherd:merge in the PR's timeline names its actor and the
+    head it was added on (`commit_id`, set by GitHub at that moment). The label is approved only while the head is
+    that commit, or while the head is the merge this bot made with `gh pr update-branch` (its marker pair
+    `from=<approved> to=<head>`, and the head's first parent is the approved commit). A head that moved any other way
+    is unapproved, whatever the trigger."""
     event = event or {}
+    perms: dict[str, str | None] = {}
+
+    def perm(login: str) -> str | None:
+        if login not in perms:
+            try:
+                perms[login] = api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
+            except SystemExit:
+                perms[login] = None  # unreadable: not a writer
+        return perms[login]
+
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     labels = [x["name"] for x in pr.get("labels") or []]
@@ -212,6 +250,20 @@ def gather(
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
                 f["attempts"], f["updated_at"] = _attempts(api, f["run_id"])
+    # who added each request label, and the head it was added on
+    events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
+    actors: dict[str, dict[str, Any] | None] = {}
+    for name in labels:
+        if name not in REQUESTS:
+            continue
+        last = None
+        for ev in events:
+            if ev.get("event") == "labeled" and (ev.get("label") or {}).get("name") == name:
+                last = ev
+        login = ((last or {}).get("actor") or {}).get("login")
+        actors[name] = (
+            {"login": login, "permission": perm(login), "commit_id": last.get("commit_id")} if last and login else None
+        )
     depends_open: list[int] = []
     for d in sorted({int(x) for x in DEPENDS.findall(pr.get("body") or "")}):
         try:
@@ -220,6 +272,20 @@ def gather(
             state = "open"  # unreadable: treat as open, so auto-merge waits
         if state == "open":
             depends_open.append(d)
+    # approval of shepherd:merge (see the docstring)
+    approved = pending = False
+    m = actors.get(MERGE)
+    base = (m or {}).get("commit_id")
+    if MERGE in labels and m and writer(m["permission"]) and base:
+        marks = UPDATE_MARK.findall("\n".join(c.get("body") or "" for c in comments))
+        frm, to = marks[-1] if marks else ("", "")
+        if base == sha:
+            approved = True
+        elif frm == base and to == sha:
+            parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{sha}").get("parents", [])]
+            approved = len(parents) == 2 and parents[0] == base
+        elif frm == base and not to:
+            pending = True  # the bot is between its marker and its result: no decision yet
     head_fork = head_repo != REPO_SLUG
     matrix = "none"
     matrix_url = ""
@@ -236,8 +302,7 @@ def gather(
                     matrix = "running"
                 else:
                     matrix = "green" if newest.get("conclusion") == "success" else "red"
-    before = event.get("before")
-    marks = "\n".join(c.get("body") or "" for c in comments)
+    marks_text = "\n".join(c.get("body") or "" for c in comments)
     digest_text = ci_digest.render(digest) if digest["failed"] else ""
     if matrix == "red":
         digest_text += f"\nfull-suite matrix failed on this head: {matrix_url}"
@@ -248,12 +313,7 @@ def gather(
         )
     sender = None
     if event.get("action") == "labeled" and event.get("sender"):
-        login = event["sender"]
-        try:
-            perm = api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
-        except SystemExit:
-            perm = None
-        sender = {"login": login, "permission": perm}
+        sender = {"login": event["sender"], "permission": perm(event["sender"])}
     return {
         "number": n,
         "state": "merged" if pr.get("merged") else pr["state"],
@@ -266,15 +326,17 @@ def gather(
         "labels": labels,
         "depends_open": depends_open,
         "matrix": matrix,
+        "label_actors": actors,
+        "approved": approved,
+        "pending_update": pending,
         "action": event.get("action"),
         "event_label": event.get("label") if event.get("action") == "labeled" else None,
         "removed": event.get("label") if event.get("action") == "unlabeled" else None,
         "sender": sender,
-        "bot_update": bool(before) and f"<!-- shepherd-update from={before} -->" in marks,
         "failed": digest["failed"],
         "pending": checks["pending"],
         "digest_text": digest_text,
-        "digest_posted": f"<!-- shepherd-digest {sha} -->" in marks,
+        "digest_posted": f"<!-- shepherd-digest {sha} -->" in marks_text,
         "now": now if now is not None else time.time(),
     }
 
@@ -344,6 +406,22 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
                 "update marker",
             )
             gh(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG], "update-branch")
+            # the result marker, always (a failed update records to == from): gather carries approval through this pair
+            r = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
+            new = r.stdout.strip() if r.returncode == 0 else ""
+            if re.fullmatch(r"[0-9a-f]{40}", new):
+                gh(
+                    [
+                        "gh",
+                        "api",
+                        f"repos/{REPO_SLUG}/issues/{n}/comments",
+                        "-f",
+                        f"body=<!-- shepherd-update from={s['head_sha']} to={new} -->",
+                    ],
+                    "update result marker",
+                )
+            else:
+                log.append(f"#{n} update result marker: FAILED: could not read the new head")
     return log
 
 
@@ -381,6 +459,18 @@ def event_facts(path: Path) -> tuple[int, dict[str, Any]]:
     return number, facts
 
 
+def prs_for_head(api: Api, sha: str) -> list[int]:
+    """The open labelled PRs whose head is `sha` (a workflow_run's head: only its PRs need a pass)."""
+    if not re.fullmatch(r"[0-9a-f]{40}", sha or ""):
+        raise SystemExit(f"not a commit sha: {sha!r}")
+    prs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/pulls")
+    return [
+        p["number"]
+        for p in prs
+        if p.get("state") == "open" and any(x["name"] in REQUESTS + STATUS for x in p.get("labels") or [])
+    ]
+
+
 def open_labelled(api: Api) -> list[int]:
     prs = pr_check.paged(api, f"repos/{REPO_SLUG}/pulls?state=open")
     return [p["number"] for p in prs if any(x["name"] in REQUESTS + STATUS for x in p.get("labels") or [])]
@@ -402,6 +492,7 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
     e.add_argument("--dry-run", action="store_true")
     r = sub.add_parser("reconcile")
     r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--head-sha", help="only the PRs whose head is this commit (a workflow_run's head_sha)")
     sub.add_parser("ensure-labels")
     args = ap.parse_args(argv)
     if args.cmd == "ensure-labels":
@@ -411,7 +502,7 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = process(number, api, run, facts, args.dry_run)
     else:
         lines = []
-        for n in open_labelled(api):
+        for n in prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api):
             lines += process(n, api, run, None, args.dry_run)
     for line in lines:
         print(line)

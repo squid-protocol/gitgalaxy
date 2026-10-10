@@ -929,8 +929,9 @@ def test_prism_suppression_regex_bomb(prism_engine):
     # 4x the tags must cost ~4x (linear), nowhere near 16x (quadratic / backtracking).
     assert_scales_linearly(
         lambda n: prism_engine.split_streams("// galaxyscope:ignore everything \n" * n, primary_lang="javascript"),
-        25_000,
-        100_000,
+        150_000,
+        600_000,
+        repeats=3,
         what="suppression tags",
     )
 

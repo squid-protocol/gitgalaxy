@@ -264,4 +264,4 @@ def test_an_unterminated_declare_is_linear():
 
     assert len(records(declare(20000))) == 20001
     # a ratio of CPU time, not a wall-clock bound (#4477): 4x the fields cost ~4x, not ~16x
-    assert_scales_linearly(lambda n: records(declare(n)), 5_000, 20_000, what="unterminated DECLARE")
+    assert_scales_linearly(lambda n: records(declare(n)), 10_000, 40_000, what="unterminated DECLARE")

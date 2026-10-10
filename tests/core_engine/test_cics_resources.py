@@ -331,7 +331,7 @@ def test_an_unterminated_exec_is_capped_and_linear():
         extract_boundary("cobol", "           EXEC CICS\n" * (n // 4))
 
     # CPU-time ratio, not a wall-clock bound (#4477): 4x the input must cost ~4x, not ~16x
-    assert_scales_linearly(run, 5_000, 20_000, what="unterminated EXEC")
+    assert_scales_linearly(run, 15_000, 60_000, what="unterminated EXEC")
 
 
 def _move_statements(statements: int) -> str:

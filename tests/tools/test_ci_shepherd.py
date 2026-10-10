@@ -4,6 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("fcntl")  # the shepherd locks with flock: a Linux/macOS box tool (Windows has no fcntl)
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / "box"))
 import ci_shepherd as cs  # noqa: E402
 

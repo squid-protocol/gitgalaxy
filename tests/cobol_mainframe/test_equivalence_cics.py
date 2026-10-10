@@ -1067,6 +1067,60 @@ def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
         ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) CRITICAL")
 
 
+def test_document_create_and_retrieve_become_stub_calls():
+    """#4769 (register X33): DOCUMENT CREATE -> GGCDOCC (GG-FLAGS names the source: DATA with GG-LEN, TEMPLATE with its name,
+    EMPTY), the token in the DOCTOKEN area; DOCUMENT RETRIEVE -> GGCDOCR (MAXLENGTH in GG-LEN), LENGTH moved back on NORMAL
+    and the truncating LENGERR RESP2 2 only. What IBM leaves open is refused by name, as the translator refuses it."""
+    t = ec.translate_command("DOCUMENT CREATE DOCTOKEN(DC-TOKEN) TEMPLATE(ZECS-DC) NOHANDLE")
+    assert t[:2] == ["MOVE 'TEMPLATE' TO GG-FLAGS", "CALL 'GGCDOCC' USING GG-CICS"]
+    assert t[2:6] == ["    BY REFERENCE ZECS-DC", "    BY VALUE LENGTH OF ZECS-DC", "    BY REFERENCE DC-TOKEN",
+                      "    BY VALUE LENGTH OF DC-TOKEN"]  # fmt: skip
+    lit = ec.translate_command("DOCUMENT CREATE DOCTOKEN(DC-TOKEN) TEMPLATE('ZC01DC') NOHANDLE")
+    assert "    BY VALUE 6" in lit  # a literal's own length
+    d = ec.translate_command("DOCUMENT CREATE DOCTOKEN(T) TEXT(WS-A) LENGTH(WS-N) RESP(R) RESP2(R2)")
+    assert d[:3] == ["MOVE WS-N TO GG-LEN", "MOVE 'DATA' TO GG-FLAGS", "CALL 'GGCDOCC' USING GG-CICS"]
+    assert "MOVE GG-RESP2 TO R2" in d and "    BY VALUE LENGTH OF WS-A" in d
+    assert (
+        ec.translate_command("DOCUMENT CREATE DOCTOKEN(T) BINARY(WS-A) LENGTH(5) NOHANDLE")[1]
+        == "MOVE 'DATA' TO GG-FLAGS"
+    )
+    assert ec.translate_command("DOCUMENT CREATE DOCTOKEN(T) NOHANDLE")[0] == "MOVE 'EMPTY' TO GG-FLAGS"
+    r = ec.translate_command("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(WS-A) LENGTH(WS-L) MAXLENGTH(WS-L) DATAONLY NOHANDLE")
+    assert r[:2] == ["MOVE WS-L TO GG-LEN", "CALL 'GGCDOCR' USING GG-CICS"]
+    assert "    BY REFERENCE WS-A" in r and "IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 2)" in r
+    assert "    MOVE GG-LEN TO WS-L" in r
+    assert not any(
+        "MOVE GG-LEN" in x
+        for x in ec.translate_command("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(WS-A) MAXLENGTH(9) DATAONLY NOHANDLE")
+    )  # no LENGTH asked for
+    for bad, why in (("DOCUMENT CREATE DOCTOKEN(T) FROM(A) LENGTH(5)", "FROM takes a template"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) SYMBOLLIST(A) LISTLENGTH(2)", "symbol table"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) DOCSIZE(L)", "DOCSIZE"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A)", "without LENGTH"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) LENGTH(3)", "LENGTH without TEXT or BINARY"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A) BINARY(A) LENGTH(3)", "one source"),
+                     ("DOCUMENT CREATE TEMPLATE(M)", "without DOCTOKEN"),
+                     ("DOCUMENT CREATE DOCTOKEN(T) TEXT('HI') LENGTH(2)", "as a literal"),
+                     ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9)", "without DATAONLY"),
+                     ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) DATAONLY", "without MAXLENGTH"),
+                     ("DOCUMENT RETRIEVE DOCTOKEN(T) MAXLENGTH(9) DATAONLY", "without INTO"),
+                     ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9) DATAONLY CHARACTERSET(C)", "code-page")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_a_cases_doctemplates_are_stated_to_both_runtimes_or_refused():
+    """#4769 (X33): the DOCTEMPLATE definitions are a fact the case states ("doctemplates": name -> text; a scenario's wins);
+    unstated they are None (both runtimes refuse a CREATE TEMPLATE); a malformed one is refused by name."""
+    assert ec.doctemplates({}, {"name": "s"}) is None
+    case = {"doctemplates": {"ZC01DC": "type: AS\r\nhttp://h:1\r\n"}}
+    assert ec.doctemplates(case, {"name": "s"}) == case["doctemplates"]
+    assert ec.doctemplates(case, {"name": "s", "doctemplates": {}}) == {}
+    for bad in ({"A B": "x"}, {"": "x"}, {"N" * 49: "x"}, {"N": 5}, ["N"]):
+        with pytest.raises(ec.Unsupported, match="doctemplates"):
+            ec.doctemplates({"doctemplates": bad}, {"name": "s"})
+
+
 def test_the_task_number_is_the_scenarios_else_the_cases_else_zero():
     """#4270: EIBTASKN is a stated fact of the run (oracle_assumptions.md X21): a scenario's "taskn", else the
     case's, else the spec's default 0; never a value PIC S9(7) COMP-3 cannot hold."""

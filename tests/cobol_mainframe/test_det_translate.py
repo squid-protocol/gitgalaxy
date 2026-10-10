@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -858,6 +859,9 @@ class _RespCics(_KeyCics):
         self.outcomes.append(dict(opts))
         return [f"{ind}OUTCOME({resp}, {resp2});"]
 
+    def int_(self, text):
+        return f"INT({text})"
+
 
 @pytest.mark.parametrize(
     ("text", "call"),
@@ -906,6 +910,8 @@ _RESP_SAMPLES = {
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
+    "DOCUMENT CREATE": "DOCUMENT CREATE DOCTOKEN(REC)",
+    "DOCUMENT RETRIEVE": "DOCUMENT RETRIEVE DOCTOKEN(KEY) INTO(REC) MAXLENGTH(10) DATAONLY",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -2426,3 +2432,133 @@ def test_asktime_nohandle_formattime_resp_and_readq_length_of():
     assert any("readqTsNext" in x for x in out)
     stored = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(KEY) RESP(R)", "")
     assert any("Cobol.store" in x and "length()" in x for x in stored)
+
+
+def test_document_create_each_source_and_retrieve_as_cicstask_answers():
+    """#4769 (register X33), IBM DOCUMENT CREATE / DOCUMENT RETRIEVE: CREATE builds an empty document, one of TEXT /
+    BINARY (LENGTH bytes of the area, unchanged) or a TEMPLATE (the installed DOCTEMPLATE's text, in the program's page);
+    its DOCTOKEN is written on NORMAL only, and LENGERR RESP2 1 / NOTFND RESP2 3 reach RESP / RESP2 / HANDLE CONDITION.
+    RETRIEVE copies the document INTO, at most MAXLENGTH bytes, and sets LENGTH only when CicsTask returns one (NORMAL, and
+    the truncating LENGERR RESP2 2); MAXLENGTH is read before LENGTH is written (zECS gives both the same area)."""
+    c = _ChanCics()
+    t = c.command("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) RESP(R) RESP2(R2)", "")
+    assert t == ["CicsTask.DocumentCreated doc1 = task.documentCreateTemplate(M.strip(), CS);",
+                 "if (doc1.resp() == 0) DetCics.putText(f_T, doc1.doctoken(), CS);",
+                 "OUTCOME(doc1.resp(), doc1.resp2());"]  # fmt: skip
+    assert c.command("DOCUMENT CREATE DOCTOKEN(T) NOHANDLE", "")[0].endswith("= task.documentCreateEmpty();")
+    for src in ("TEXT", "BINARY"):
+        d = c.command(f"DOCUMENT CREATE DOCTOKEN(T) {src}(A) LENGTH(L) NOHANDLE", "")
+        assert d[0].startswith("CicsTask.DocumentCreated doc") and d[0].endswith(
+            " = task.documentCreateData(DetCics.documentBytes(f_A, INT(L)), INT(L));"
+        )
+    r = c.command("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) LENGTH(L) MAXLENGTH(L) DATAONLY NOHANDLE", "")
+    n = re.search(r"doc(\d+)", r[0]).group(1)
+    assert r == [f"CicsTask.DocumentData doc{n} = task.documentRetrieve(Cobol.text(f_T, CS), INT(L));",
+                 f"if (doc{n}.data() != null) DetCics.putDocument(f_A, doc{n}.data());",
+                 f"if (doc{n}.length() >= 0) STORE(L, BigDecimal.valueOf(doc{n}.length()));",
+                 f"OUTCOME(doc{n}.resp(), doc{n}.resp2());"]  # fmt: skip
+    r = c.command("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9) DATAONLY RESP(R)", "")
+    assert not any("STORE(" in x for x in r)  # no LENGTH asked for
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert "public static byte[] documentBytes(Field f, int n)" in rt and "public static void putDocument(" in rt
+    assert 'bytes(f, within(f, n, "DOCUMENT CREATE"))' in rt  # a LENGTH past the area is refused, as a WRITEQ's is
+
+
+@pytest.mark.parametrize(
+    ("text", "why"),
+    [
+        ("DOCUMENT CREATE DOCTOKEN(T) FROM(A) LENGTH(5)", "FROM takes a template or a RETRIEVEd document"),
+        ("DOCUMENT CREATE DOCTOKEN(T) FROMDOC(A)", "copying a document"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) SYMBOLLIST(A) LISTLENGTH(9)", "symbol table is not modelled"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) DELIMITER('|')", "symbol table is not modelled"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) UNESCAPED", "symbol table is not modelled"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) DOCSIZE(L)", "DOCSIZE"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A) LENGTH(3) HOSTCODEPAGE('037')", "code-page conversion"),
+        ("DOCUMENT CREATE TEMPLATE(M)", "without DOCTOKEN"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A)", "without LENGTH"),
+        ("DOCUMENT CREATE DOCTOKEN(T) BINARY(A)", "without LENGTH"),
+        ("DOCUMENT CREATE DOCTOKEN(T) LENGTH(4)", "LENGTH without TEXT or BINARY"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEMPLATE(M) LENGTH(4)", "LENGTH without TEXT or BINARY"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A) TEMPLATE(M) LENGTH(3)", "one source of the document"),
+        ("DOCUMENT CREATE DOCTOKEN(T) TEXT(A) BINARY(A) LENGTH(3)", "one source of the document"),
+        ("DOCUMENT RETRIEVE INTO(A) MAXLENGTH(9) DATAONLY", "without DOCTOKEN"),
+        ("DOCUMENT RETRIEVE DOCTOKEN(T) MAXLENGTH(9) DATAONLY", "without INTO"),
+        ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) DATAONLY", "without MAXLENGTH"),
+        ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9)", "without DATAONLY"),
+        ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9) DATAONLY CHARACTERSET(CS)", "code-page conversion"),
+        ("DOCUMENT RETRIEVE DOCTOKEN(T) INTO(A) MAXLENGTH(9) DATAONLY CLNTCODEPAGE(CS)", "code-page conversion"),
+        ("DOCUMENT INSERT DOCTOKEN(T) TEXT(A) LENGTH(3)", "DOCUMENT INSERT / SET / DELETE"),
+        ("DOCUMENT INSERT DOCTOKEN(T) TEMPLATE(M)", "DOCUMENT INSERT / SET / DELETE"),
+        ("DOCUMENT SET DOCTOKEN(T) SYMBOLLIST(A) LENGTH(3)", "DOCUMENT INSERT / SET / DELETE"),
+        ("DOCUMENT DELETE DOCTOKEN(T)", "DOCUMENT INSERT / SET / DELETE"),
+    ],
+)
+def test_document_options_ibm_leaves_open_are_refused_by_name(text, why):
+    """#4769 (X33): FROM / FROMDOC, the symbol table, DOCSIZE, code pages, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE
+    of TEXT / BINARY without LENGTH, and INSERT / SET / DELETE are refused with their cause -- never translated as
+    something else."""
+    with pytest.raises(C.CicsError, match=re.escape(why)):
+        _ChanCics().command(text, "")
+
+
+def test_a_program_with_zecs_shaped_document_commands_translates_with_no_hole(tmp_path):
+    """#4769: zECS's shapes -- CREATE DOCTOKEN TEMPLATE(group) NOHANDLE, RETRIEVE DOCTOKEN INTO LENGTH MAXLENGTH DATAONLY
+    NOHANDLE with one length area for LENGTH and MAXLENGTH, CREATE with RESP, and a CREATE with no source -- go through the
+    whole program translator: no hole, the CicsTask calls in the Java."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    prog = tmp_path / "ZDOC.cbl"
+    prog.write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. ZDOC.\n"
+        "       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01  DC-TOKEN               PIC  X(16) VALUE SPACES.\n"
+        "       01  DC-LENGTH              PIC S9(08) COMP  VALUE ZEROES.\n"
+        "       01  SD-RESP                PIC S9(08) COMP.\n"
+        "       01  ZECS-DC.\n"
+        "           02  DC-TRANID          PIC  X(04) VALUE 'ZC01'.\n"
+        "           02  FILLER             PIC  X(02) VALUE 'DC'.\n"
+        "           02  FILLER             PIC  X(42) VALUE SPACES.\n"
+        "       01  DC-CONTROL.\n"
+        "           02  FILLER             PIC  X(06).\n"
+        "           02  DC-TYPE            PIC  X(02) VALUE SPACES.\n"
+        "           02  THE-OTHER-DC       PIC X(160) VALUE SPACES.\n"
+        "       01  WS-TEXT                PIC  X(20) VALUE 'HELLO'.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS DOCUMENT CREATE DOCTOKEN(DC-TOKEN)\n"
+        "                TEMPLATE(ZECS-DC)\n"
+        "                NOHANDLE\n"
+        "           END-EXEC.\n"
+        "           MOVE LENGTH OF DC-CONTROL TO DC-LENGTH.\n"
+        "           IF  EIBRESP EQUAL DFHRESP(NORMAL)\n"
+        "               EXEC CICS DOCUMENT RETRIEVE DOCTOKEN(DC-TOKEN)\n"
+        "                    INTO     (DC-CONTROL)\n"
+        "                    LENGTH   (DC-LENGTH)\n"
+        "                    MAXLENGTH(DC-LENGTH)\n"
+        "                    DATAONLY\n"
+        "                    NOHANDLE\n"
+        "               END-EXEC.\n"
+        "           EXEC CICS DOCUMENT CREATE DOCTOKEN(DC-TOKEN)\n"
+        "                TEMPLATE(ZECS-DC) RESP(SD-RESP)\n"
+        "                NOHANDLE\n"
+        "           END-EXEC.\n"
+        "           EXEC CICS DOCUMENT CREATE DOCTOKEN(DC-TOKEN)\n"
+        "                TEXT(WS-TEXT) LENGTH(5) NOHANDLE\n"
+        "           END-EXEC.\n"
+        "           EXEC CICS DOCUMENT CREATE DOCTOKEN(DC-TOKEN)\n"
+        "                NOHANDLE\n"
+        "           END-EXEC.\n"
+        "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = ("package com.x.service;\nimport com.x.cics.CicsTask;\npublic class ZdocService {\n"
+            "    public void runTask(CicsTask task) {}\n}\n")  # fmt: skip
+    r = P.translate(prog, [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    for call in ("task.documentCreateTemplate(", "task.documentCreateData(", "task.documentCreateEmpty(",
+                 "task.documentRetrieve(", "DetCics.putDocument("):  # fmt: skip
+        assert call in r.java, call

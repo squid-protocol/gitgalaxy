@@ -352,6 +352,23 @@ def urimaps(case: dict[str, Any], sc: dict[str, Any]) -> list[list[str]] | None:
     return defs
 
 
+def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | None:
+    """#4769 zECS (X33): the DOCTEMPLATE definitions installed in the region -- the scenario's "doctemplates", else the
+    case's: {NAME (1-48, no blanks): the text the template yields}, stated on both sides (the stub's
+    $GGCICS_DOCTEMPLATES, CicsTask.withDoctemplates). A case states each template's text as the document holds it
+    (the definition's APPENDCRLF / TYPE applied). Unstated, None: both runtimes refuse a DOCUMENT CREATE TEMPLATE."""
+    defs = sc.get("doctemplates", case.get("doctemplates"))
+    if defs is None:
+        return None
+    ok = isinstance(defs, dict) and all(
+        isinstance(n, str) and isinstance(t, str) and 0 < len(n) <= 48 and not any(c.isspace() for c in n)
+        for n, t in defs.items())  # fmt: skip
+    if not ok:
+        raise Unsupported(f'scenario {sc.get("name")}: "doctemplates" maps a template name (1-48, no blanks) to its '
+                          "text", ["DOCUMENT CREATE"])  # fmt: skip
+    return defs
+
+
 def clock_iso(case: dict[str, Any]) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
     moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock."""
@@ -742,6 +759,49 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             lines += [f"MOVE '{o}' TO GG-FLAGS"] + _call("GGCINQA", [])
             lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
         return lines + _resp(opts, False, labels)
+    if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
+        form = "CREATE" if "CREATE" in opts else "RETRIEVE"
+        key = f"DOCUMENT {form}"
+        _check_spec(key, opts, (verb, form), lambda bad: [f"{key} {o}" for o in bad])
+        tok = opts.get("DOCTOKEN")
+        if not tok:
+            raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
+        for o in ("DOCTOKEN", "TEXT", "BINARY", "INTO"):  # (IBM's COBOL form takes a data area)
+            if opts.get(o) and _literal(opts[o]):
+                raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+        tokarg = [f"BY REFERENCE {tok}", f"BY VALUE LENGTH OF {tok}"]
+        if form == "CREATE":
+            given = [o for o in ("TEXT", "BINARY", "TEMPLATE") if o in opts]
+            if len(given) > 1:
+                raise Unsupported(_rule(key, "at_most_one", "TEXT"), [key])
+            for o in ("TEXT", "BINARY"):
+                if o in opts and "LENGTH" not in opts:
+                    raise Unsupported(_rule(key, "requires", "TEXT"), [key])
+            if "LENGTH" in opts and not ({"TEXT", "BINARY"} & set(opts)):
+                raise Unsupported(_rule(key, "requires", "LENGTH"), [key])
+            if "TEXT" in opts or "BINARY" in opts:
+                area = opts["TEXT"] if "TEXT" in opts else opts["BINARY"]
+                lines = [f"MOVE {opts['LENGTH']} TO GG-LEN", "MOVE 'DATA' TO GG-FLAGS"]
+                src = [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+            elif "TEMPLATE" in opts:
+                t = opts["TEMPLATE"]
+                lit = _literal(t)
+                lines = ["MOVE 'TEMPLATE' TO GG-FLAGS"]
+                src = [f"BY REFERENCE {t}", f"BY VALUE {len(lit) if lit is not None else f'LENGTH OF {t}'}"]
+            else:
+                lines = ["MOVE 'EMPTY' TO GG-FLAGS"]
+                src = tokarg[:1] + ["BY VALUE 0"]
+            return lines + _call("GGCDOCC", src + tokarg) + _resp(opts, True, labels)
+        for o in ("INTO", "MAXLENGTH", "DATAONLY"):
+            if o not in opts:
+                raise Unsupported(_rule(key, "required", o), [key])
+        after = []
+        if opts.get("LENGTH"):  # (LENGTH is set on NORMAL and on the truncating LENGERR, RESP2 2, only)
+            after = ["IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 2)", f"    MOVE GG-LEN TO {opts['LENGTH']}",
+                     "END-IF"]  # fmt: skip
+        return ([f"MOVE {opts['MAXLENGTH']} TO GG-LEN"]
+                + _call("GGCDOCR", tokarg + [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}"])
+                + after + _resp(opts, True, labels))  # fmt: skip
     if verb == "INQUIRE" and "URIMAP" in opts:  # #4270 zECS (X32): the browse of the installed URIMAP definitions
         _check_spec("INQUIRE URIMAP", opts, (verb,), lambda bad: [f"INQUIRE URIMAP {o}" for o in bad])
         form = [f for f in ("START", "NEXT", "END") if f in opts]
@@ -1835,6 +1895,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
             (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
                                            encoding="ascii")  # fmt: skip
+        if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
+            (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
+                                                        for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -1885,6 +1948,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
+                      + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -2926,6 +2990,11 @@ class EquivalenceRunTest {{
                         u.get(2).asText()}}));
                 task.withUrimaps(defs);
             }}
+            if (sc.hasNonNull("doctemplates")) {{  // #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
+                java.util.Map<String, String> templates = new java.util.LinkedHashMap<>();
+                sc.get("doctemplates").fields().forEachRemaining(e -> templates.put(e.getKey(), e.getValue().asText()));
+                task.withDoctemplates(templates);
+            }}
             if (calen != null) {{
                 task.withExactCommarea();
             }}
@@ -3176,7 +3245,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
-                          "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc)})  # fmt: skip
+                          "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          "doctemplates": doctemplates(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2

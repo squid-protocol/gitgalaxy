@@ -62,6 +62,7 @@
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(p) _mkdir(p) /* MinGW / MSVC: no mode argument */
+#define RMDIR(p) _rmdir(p) /* #4836: the C runtime's remove() deletes files only on Windows */
 /* nor timegm / gmtime_r: the C runtime's UTC equivalents */
 #define timegm _mkgmtime
 static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
@@ -73,6 +74,7 @@ static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
 #define gmtime_r gg_gmtime_r
 #else
 #define MKDIR(p) mkdir((p), 0777)
+#define RMDIR(p) rmdir(p)
 #include <signal.h>   /* #4270 (X23): GGCAREA's guard page */
 #include <sys/mman.h>
 #include <unistd.h>
@@ -2279,7 +2281,7 @@ int GGCDELQ(gg_cics *c) {
     }
     snprintf(path, sizeof path, "%s/next", dir);
     remove(path);
-    remove(dir);
+    RMDIR(dir); /* an empty directory: remove() would leave it on Windows (#4836) */
     return 0;
 }
 
@@ -2609,7 +2611,7 @@ int GGCAOUT(const char *ca, int len) {
  * none), read whole for each counter command and rewritten by the ones that change it, so a later task of the scenario
  * sees the result. */
 #define MAXCNT 64
-typedef struct { char pool[64], name[64]; long value; } counter_row;
+typedef struct { char pool[64], name[64]; long long value; } counter_row; /* #4836: long is 32-bit on Windows */
 
 static int counters_read(counter_row *rows) {
     char path[4096], line[256];
@@ -2617,7 +2619,7 @@ static int counters_read(counter_row *rows) {
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "r");
     while (f && n < MAXCNT && fgets(line, sizeof line, f))
-        if (sscanf(line, "%63s %63s %ld", rows[n].pool, rows[n].name, &rows[n].value) == 3) n++;
+        if (sscanf(line, "%63s %63s %lld", rows[n].pool, rows[n].name, &rows[n].value) == 3) n++;
     if (f) fclose(f);
     return n;
 }
@@ -2626,7 +2628,7 @@ static void counters_write(const counter_row *rows, int n) {
     char path[4096];
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "w");
-    for (int i = 0; f && i < n; i++) fprintf(f, "%s %s %ld\n", rows[i].pool, rows[i].name, rows[i].value);
+    for (int i = 0; f && i < n; i++) fprintf(f, "%s %s %lld\n", rows[i].pool, rows[i].name, rows[i].value);
     if (f) fclose(f);
 }
 
@@ -2701,7 +2703,7 @@ int GGCQCNT(gg_cics *c) {
     } else if (at < 0) {
         c->resp = INVREQ;
         c->resp2 = 201;
-    } else if (rows[at].value < -2147483647L - 1 || rows[at].value > 2147483647L) {
+    } else if (rows[at].value < -2147483647LL - 1 || rows[at].value > 2147483647LL) {
         refuse("QUERY COUNTER of a value beyond a fullword");
     } else {
         c->num = (int)rows[at].value;

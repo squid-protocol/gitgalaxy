@@ -198,7 +198,7 @@ def cmd_new(args: argparse.Namespace) -> int:
             raise SystemExit("--gen goes in your scratch directory, not the crucible checkout")
         args.gen.parent.mkdir(parents=True, exist_ok=True)
         args.gen.write_text(GEN_TEMPLATE.format(
-            case=case_id, tools=TOOLS, case_dir=case_dir, clock=case_doc["clock"],
+            case=case_id, tools=TOOLS.as_posix(), case_dir=case_dir, clock=case_doc["clock"],  # #4836: no "C:\\U..." escape
             transid=transids[0] if transids else f"{TRAP_PREFIX[trap]}01", program=programs[0],
             case_json=pprint.pformat(case_doc, width=110, sort_dicts=False)), encoding="utf-8")  # fmt: skip
         print(f"log-writing script skeleton: {args.gen}  (run: python {args.gen} {case_dir})")

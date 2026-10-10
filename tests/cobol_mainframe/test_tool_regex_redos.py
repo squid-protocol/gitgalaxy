@@ -8,10 +8,19 @@ with a note saying why its real input is short.
 
 import re
 import sys
+
+import pytest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import tool_regex_redos as tr  # noqa: E402
+
+
+WINDOWS_TIMER = pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="growth-ratio verdicts near the threshold need a fine CPU timer; Windows' is coarse (#4836). Regex "
+    "complexity is the same CPython engine on every OS, so Linux/macOS measure it",
+)
 
 
 def test_catches_the_3205_pattern():
@@ -21,6 +30,7 @@ def test_catches_the_3205_pattern():
     assert verdict["unit"].upper().startswith("EXEC CICS")
 
 
+@WINDOWS_TIMER
 def test_catches_a_mild_quadratic_by_growth():
     """Under the slow threshold at 40k chars, but ~16x for 4x the input."""
     pattern = r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9\-]+)[^.]*\."
@@ -28,6 +38,7 @@ def test_catches_a_mild_quadratic_by_growth():
     assert verdict["offender"], verdict
 
 
+@WINDOWS_TIMER
 def test_bounded_heavy_linear_pattern_is_not_an_offender():
     """The shipped CICS HANDLE scan: `.{0,600}?` is costly per start but linear."""
     pattern = r"\bEXEC\s+CICS\s+HANDLE\s+(?:ABEND|CONDITION|AID)\b(.{0,600}?)\bEND-EXEC"
@@ -64,6 +75,7 @@ def test_collects_calls_compiled_globals_and_fstrings():
     assert all(s["why"] for s in skipped)
 
 
+@WINDOWS_TIMER
 def test_no_new_offenders():
     """Every pattern outside the baseline stays linear. Baselined offenders are not
     re-measured here (the CLI does that, and reports any that stopped reproducing)."""

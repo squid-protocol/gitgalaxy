@@ -204,7 +204,7 @@ def usage(roots: list[Path], verbs: list[str], all_options: bool = False, pli: b
             except OSError:
                 continue
             is_pli = prog.suffix.lower() in PLI_EXTS
-            use = ProgramUse(name, str(prog.relative_to(corpus)), is_burned(name, burned),
+            use = ProgramUse(name, prog.relative_to(corpus).as_posix(), is_burned(name, burned),
                              language="pli" if is_pli else "cobol")  # fmt: skip
             for cmd in commands(text, is_pli):
                 for verb, vw in vws.items():
@@ -483,7 +483,7 @@ def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
             if prog.is_file() and prog.suffix.lower() in PROGRAM_EXTS and ".git" not in prog.relative_to(corpus).parts:
                 try:
                     if commands(read_source(prog).text):
-                        out.add((name, str(prog.relative_to(corpus))))
+                        out.add((name, prog.relative_to(corpus).as_posix()))
                 except OSError:
                     continue
     return out

@@ -8,6 +8,8 @@
 # launching a fleet and never change it mid-run. Exit status is the command's.
 set -u
 [ $# -ge 1 ] || { sed -n '2,8p' "$0" >&2; exit 2; }
+# without flock(1) no slot is ever taken and the loop below would sleep forever (#4840: macOS)
+command -v flock >/dev/null || { echo "heavy-run.sh: flock(1) not found (Linux util-linux)" >&2; exit 127; }
 n=${GG_HEAVY_SLOTS:-$(( $(nproc) / 4 ))}
 [ "$n" -ge 1 ] 2>/dev/null || n=1
 dir=${GG_LOCK_DIR:-/tmp/gitgalaxy-scratch/locks}

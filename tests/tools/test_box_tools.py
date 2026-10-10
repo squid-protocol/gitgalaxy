@@ -8,8 +8,10 @@ from pathlib import Path
 
 import pytest
 
+# Linux only: the scripts need flock(1) and /proc. On macOS heavy-run.sh never got a slot and the suite hung to the
+# job timeout (#4840: every macOS shard-3 leg cancelled at 45 min).
 pytestmark = pytest.mark.skipif(
-    sys.platform == "win32", reason="the box tools are bash scripts (flock, kill, ps) for the Linux box"
+    sys.platform != "linux", reason="the box tools are bash scripts (flock, /proc, kill) for the Linux box"
 )
 
 BOX = Path(__file__).resolve().parent / "box"
@@ -37,8 +39,20 @@ def test_heavy_run_respects_slot_limit(tmp_path):
 
 
 def test_heavy_run_propagates_exit_status(tmp_path):
-    rc = subprocess.run([str(BOX / "heavy-run.sh"), "bash", "-c", "exit 7"], env=_env(tmp_path), check=False).returncode  # noqa: S603
+    rc = subprocess.run(  # noqa: S603
+        [str(BOX / "heavy-run.sh"), "bash", "-c", "exit 7"], env=_env(tmp_path), timeout=30, check=False
+    ).returncode
     assert rc == 7
+
+
+def test_heavy_run_fails_fast_without_flock(tmp_path):
+    env = _env(tmp_path)
+    env["PATH"] = str(tmp_path / "empty-bin")  # no flock (nor anything else) on PATH; bash itself is found by path
+    res = subprocess.run(  # noqa: S603
+        ["/bin/bash", str(BOX / "heavy-run.sh"), "true"], env=env, capture_output=True, text=True, timeout=30, check=False
+    )
+    assert res.returncode == 127
+    assert "flock" in res.stderr
 
 
 def test_golden_lock_is_exclusive(tmp_path):

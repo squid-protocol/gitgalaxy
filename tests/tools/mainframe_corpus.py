@@ -157,12 +157,24 @@ def db_path(corpus: dict[str, Any], engine: Optional[str] = None) -> Path:
 
 def scan(corpus: dict[str, Any], force: bool = False) -> Path:
     """The corpus's master DB for the current engine state, scanning only on a cache miss."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+    import fcntl  # noqa: PLC0415
 
     repo = require_clone(corpus)
     db = db_path(corpus)
     if db.is_file() and not force:
         return db
+    db.parent.mkdir(parents=True, exist_ok=True)
+    # #4825: parallel test workers (pytest -n) may miss the cache together; one scans, the others wait and reuse it
+    with open(db.parent / ".scan.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        if db.is_file() and not force:
+            return db
+        return _scan_locked(repo, db)
+
+
+def _scan_locked(repo: Path, db: Path) -> Path:
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+
     if db.exists():
         db.unlink()
     saved = os.environ.get("PYTHONPATH")

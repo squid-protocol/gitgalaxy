@@ -43,10 +43,10 @@
     "tests/tools/java_target_matrix.py"
    ],
    "files": 11,
-   "sha256": "471da1a6023b0d9d8fa4455d1c515ea30a922cf5d57a8094b29d6a7dcb43c5c2",
+   "sha256": "85f9bb956f7e7ecd0e4a4df9c3f6b70305863b24053ad9351b8d2b3316c73777",
    "components": {
-    "harness:cics": "d9343f022b54fb2d747835e7f0a6b729ab6459021e0e7cebbd23e7b08ad35633",
-    "harness:core": "29dd5f0e0497bb1174101523cd762381b159a9fd2788daa33ecacea870873222",
+    "harness:cics": "8b37fb4e899405cb116d23fbaa5bd7bbc9e69a458bee3ffa3e3978f82e72b822",
+    "harness:core": "af315f3088e082a3e3b4aab8d88c95d825a05c8cb934a0e0c77f6a3500303b39",
     "harness:db2": "24242ee159a28947ccf92c123d2f90a9c25c106b0589875fd6dc9a3332a801fe"
    }
   },
@@ -61,11 +61,11 @@
     "tests/tools/equivalence_sql.py"
    ],
    "files": 21,
-   "sha256": "34a717aa90b1cd8c166787b6d0fb4b64b1022f6ea52b7e73ecd1ef0d4a0c8a47",
+   "sha256": "017ca3ab867f90c323aecd5bdb30ee1d4f27688f7de2473970bd950461c8a734",
    "components": {
-    "oracle:cics-stub": "734ce68def43267c4c47d9f52010c3fa50d89546d46471ad0fb8ded17fe6d93d",
+    "oracle:cics-stub": "bc775559c67aa6be495b36ee8f8c33ebb0e4f69b34aa17b27403482634712a14",
     "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
-    "oracle:db2": "abbe60be09a4a5b584cb16d8dad42785bea77477d14c0fea172a672783141a95",
+    "oracle:db2": "7c1f6122a8a6152da8487f8e1eccaab1dc94d8adce4e2dca181dcd0aa0b55aae",
     "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
     "oracle:le": "f0edcba040c849b46a2420112690eb6aaeb522a50ef9efe874594fed5d13f591"
    }
@@ -74,17 +74,18 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 66,
-   "sha256": "7128ee80b28f816e285cb358d6c72a5e953dd9e0483f03becceff7d668d87e52",
+   "files": 67,
+   "sha256": "c5d9fe61cdcda76f3fb18d9c73d7101c68858369404ca86c8d9a383d83175882",
    "components": {
-    "generator:cobolrt/Cobol.java": "96b2a0472a6ddde32dbda40fb3241bd1caeb2d67848a48b1c5d8d7d3a8ad425b",
+    "generator:cobolrt/Cobol.java": "f44d59efd09c70486a2b25eb015cbcdccf4e5d7204910eede1c17b61aec36f97",
     "generator:cobolrt/Codec.java": "0ad2ec6498b3e9969ac9834169f7daebebb4ee219238a38463ae314a213045cf",
     "generator:cobolrt/Editing.java": "d509f18b7698d1b4c8390a9c0b9db106f69749d2e4f3258fc9a482fbd8ae5038",
     "generator:cobolrt/Field.java": "4e509ad37fb783dd6c4f2fbbe6e93b10fbaf5dc332ba9955f0cae3f7178732c0",
     "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
     "generator:cobolrt/Funcs.java": "48b7776252cc93254377294d1add8a850d8980315885ce9821664432005c2ce0",
-    "generator:cobolrt/Hfp.java": "091cc29ea443a4d441d63dd60f8629fa5658eb8375a42dcca472259fbe4b1bbd",
+    "generator:cobolrt/Hfp.java": "269002453c18bad6b8f7db97518732610ebf60c92d4a7a79b1e56123405a98e8",
     "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
+    "generator:cobolrt/Lossless.java": "5360ac01925ca83215c15dad30e37bb6ed7e9b4e2ae873350681f3cb89d0d491",
     "generator:cobolrt/Sort.java": "6edc1333563834af5976a6682d22b2332678c8f09cf89cfdfb47be5cf56da6f9",
     "generator:cobolrt/Storage.java": "28338ff6c17d773d0ceed66255f4085c1a0ffd08bde07dae4ba94f4a8ae8b653",
     "generator:cobolrt/Zoned.java": "26d267a5a582f0e8cb769b3b6f2aab5c171db2c74e086be510060502a50ce71c",
@@ -94,19 +95,19 @@
     "generator:cobolrt/le/Cobdatft.java": "1eb9edc24c8fd4914e72204465f60257a56dd44c51a1ca0a82040dceec43550c",
     "generator:cobolrt/sql/DetSql.java": "95725d0ad31cef578bc7bb3e9a2f5697105a7f498c56138625c6b39a50e99c33",
     "generator:cobolrt/standalone/CobolAbend.java": "81e7a898b77981baff8a9427ec3e464f080e659c9d9b8d1ceb8915e0c3c69302",
-    "generator:cobolrt/standalone/Sysout.java": "398ea058d95425209b5e81a272262719542e0cde2b5241a7291407e1717d7eb2",
-    "generator:core": "c8842395391d5f9b24e3191f58709cfacc6e01955765f040203e505d6b60fd38",
+    "generator:cobolrt/standalone/Sysout.java": "43e1b84823d738d62e4b752137d4e45d9fc5df01fe1f842528c2bdc6fd22d9c2",
+    "generator:core": "30c9d5bac3ac7f70afd2dfefe7608ab8cbc07d42bbd969de48093267b2701f94",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "52aa26c06951b4b126c56db5e6580ec47c6ad57e9d5129af42b725e426b3a16a",
+    "generator:det/cics": "186ababbb7942f17e1889ed0cdf5b61b702f3eae2af0a98728f08f8670735543",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
-    "generator:det/gen": "28f0eebdddd86c372b6414c26b13b6abee69e84e7d119ccf361728f7aab3f112",
+    "generator:det/gen": "0c8257b455aada54e53ff32f70ccb23e5fb336804b24d38fb6f60d9a0f49e965",
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "61484fb57bb9934dbce27bb44637dad425d8bccdc6f1b0fd97c838a6e3934755",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/program": "6e4543d108af93ad50b1390c44ab515acc1df5e7729da4eed111163b19c55282",
+    "generator:det/program": "a3c4036fe21b8dce1a4d9d0192a262d9fec6e7c064b5b6938a0137728f92e454",
     "generator:det/refine": "542ea38e67d5ffdfecdd0d9319c208a2aebc3538205b4d52e0fc2134cc7a758d",
     "generator:det/source": "a9cc253aff9f19807fb16f10975d052798fdc6cf39249a4b42f4360c925a68c2",
     "generator:det/sql": "7e45e405297510ec80e92b82c55d58e861bcfb37af4bc6a26a475798795ffd45",
@@ -208,10 +209,10 @@
     }
    }
   },
-  "digest": "779ae3f20cc702cd21d91b448a5f897bdd180e349c0df414becdf039315d9649"
+  "digest": "d8491c73dcb804da9bde7ce0413514fc650c5adce3d41c1a25cccb1b09613034"
  },
  "proof": {
-  "at": "2026-10-09T11:13:51Z",
+  "at": "2026-10-10T10:29:43Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 0,
@@ -288,8 +289,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "2b53e918c59de134e98e0ab795255afabd21437e",
-  "inputs_digest": "779ae3f20cc702cd21d91b448a5f897bdd180e349c0df414becdf039315d9649"
+  "harness_commit": "d6cbc1fc382124012f0364012d3f51ab2a2b15b3",
+  "inputs_digest": "d8491c73dcb804da9bde7ce0413514fc650c5adce3d41c1a25cccb1b09613034"
  },
  "coverage": {
   "paragraphs": {
@@ -379,7 +380,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "779ae3f20cc702cd21d91b448a5f897bdd180e349c0df414becdf039315d9649"
+  "inputs_digest": "d8491c73dcb804da9bde7ce0413514fc650c5adce3d41c1a25cccb1b09613034"
  },
  "reach": {
   "entry_points": [
@@ -462,7 +463,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol-db2:3",
-   "id": "sha256:4ab3cc84005c29129930ac68889977ee6843599e795545e0e05a847d3e304d85",
+   "id": "sha256:8a940e2e3902fe060dcd35731854e5885d13a7a7191fe1c8b2b3fe065f29966c",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -482,7 +483,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "015a3536bdb24d59061562d3d883b076ea65b0b6e6c8b019100d78350b22fbf3"
+    "sha256": "24de9dea8f26297955df28f960d9b5d8548d58630ede71eae018e908d140fa6b"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
@@ -498,7 +499,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "42dac4f30a953b633e2c1b3bf5fb64ae57e8da9bb9d2474311d9b6a5c8ab49d9"
+    "sha256": "b7d6932d123d35ca30e0907693a15f430c9dc51f99620d9050d2dadcfeadfc9b"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",
@@ -550,7 +551,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "ab94a145393162be61aa38bc1085b4d738b41682f8000eff2fc07c39e4641499"
+    "sha256": "e4a297e6018d5d123e7970073d72212f0052a80a0c1026a42893503cf8beccb6"
    }
   ],
   "assumptions": null

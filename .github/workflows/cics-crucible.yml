@@ -40,6 +40,7 @@ on:
       - "tests/_cics_crucible_pin.py"
       - "tests/crucible_pins.toml"
       - ".github/workflows/cics-crucible.yml"
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
   push:
     branches: [main]
     paths:

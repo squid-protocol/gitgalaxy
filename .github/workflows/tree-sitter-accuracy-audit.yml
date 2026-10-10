@@ -29,6 +29,8 @@ on:
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
       - ".github/workflows/tree-sitter-accuracy-audit.yml"
+      - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
 
 permissions:
   contents: read

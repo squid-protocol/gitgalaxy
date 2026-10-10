@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     _outside_literals,
     alphabet_keywords,
     as_fixed_rows,
+    ascii_for_grammar,
     cobol_parser,
     comma_literals,
     decimal_comma,
@@ -279,7 +280,7 @@ def parse(lines: list[Line]) -> list[Item]:
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
     head = text[: m.start()] if m else text
     src = (head + "       PROCEDURE DIVISION.\n           GOBACK.\n").encode("latin-1")
-    tree = _parser().parse(src)
+    tree = _parser().parse(ascii_for_grammar(src))
     records: list[Item] = []
     errors = []
 

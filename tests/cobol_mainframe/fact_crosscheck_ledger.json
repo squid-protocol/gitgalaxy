@@ -17,6 +17,11 @@
    "issue": 4302,
    "summary": "The main line (statements before the first paragraph) has no extent in the engine (a synthetic calls-only unit, ground-truth ledger engine_main_line_in_no_unit); the translator's (MAIN) and the key have it."
   },
+  "notation-decimal-comma": {
+   "side": "definitional",
+   "issue": 4664,
+   "summary": "The same value in two notations, neither side wrong: under DECIMAL-POINT IS COMMA (estate-crucible DEUT ZINSBER) the engine reports a numeric literal as written (`0,5`, `1000,00`) and the translator as the number it models (`0.5`, `1000.00`; Item.decimal_comma, #4462). Seen since #4664 let ZINSBER translate (GEBÜHR / BETRÄGE)."
+  },
   "numeric-value-spelling": {
    "side": "definitional",
    "issue": 4273,
@@ -40,7 +45,7 @@
   "translator-refuses-national-text": {
    "side": "translator",
    "issue": 4462,
-   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character; #4272), and a single-byte national letter in a data name (DEUT ZINSBER's GEBÜHR / BETRÄGE in cp273: the grammar reads ASCII words only; #4664). ZINSBER's DECIMAL-POINT IS COMMA is modelled since #4462 (test_det_programs DPCOMMA)."
+   "summary": "Refused by name since #4462 (source.unmodelled), never laid out wrong: national / DBCS text (Kanji names and literals, PIC G, ideographic spaces: estate-crucible KYUY, decoded in its declared cp930 / shift_jis or UTF-8; the translator lays records out one byte a character; #4272). ZINSBER's DECIMAL-POINT IS COMMA is modelled since #4462 (test_det_programs DPCOMMA)."
   },
   "translator-refuses-source-defect": {
    "side": "definitional",
@@ -331,7 +336,8 @@
   "dsf :: unit_extents | src/GML/PLUKKFRN.cobol | translator | (procedure division) L73-75": "engine-main-line-no-extent",
   "dsf :: value | src/GML/FO04D1X1.cobol | engine | L106 I2 = 001": "numeric-value-spelling",
   "dsf :: value | src/GML/FO04D1X1.cobol | translator | L106 I2 = 1": "numeric-value-spelling",
-  "estate-crucible :: status | apps/DEUT/cobol/ZINSBER.cbl | engine | translator refused: layout: LayoutError: ZINSSATZ.cpy:3: the name GEBÜHR holds a national letter: the COBOL grammar reads ASCII words only; procedure: ExprError: ZINSSATZ.cpy:3: the name GEBÜHR holds a national letter: the COBOL grammar reads ASCII words only": "translator-refuses-national-text",
+  "estate-crucible :: moves | apps/DEUT/cobol/ZINSBER.cbl | engine | L26 MOVE 0,5 -> T-WERT": "notation-decimal-comma",
+  "estate-crucible :: moves | apps/DEUT/cobol/ZINSBER.cbl | translator | L26 MOVE 0.5 -> T-WERT": "notation-decimal-comma",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYJP.cbl | engine | translator refused: layout: LayoutError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYJP.cbl:2: national / DBCS text ('給', U+7D66) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO01.cbl | engine | translator refused: layout: LayoutError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO01.cbl:10: national / DBCS text ('処', U+51E6) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
   "estate-crucible :: status | apps/KYUY/cobol/KYUYO02.cbl | engine | translator refused: layout: LayoutError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page; procedure: ExprError: KYUYO02.cbl:8: national / DBCS text ('賞', U+8CDE) is not modelled: the translator reads a single-byte code page": "translator-refuses-national-text",
@@ -340,6 +346,8 @@
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQ.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQO.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
   "estate-crucible :: unit_extents | apps/ACCT/cobol/ACCTPOST.cbl | translator | (procedure division) L49-55": "engine-main-line-no-extent",
+  "estate-crucible :: value | apps/DEUT/cobol/ZINSBER.cbl | engine | L18 BETRAG = 1000,00": "notation-decimal-comma",
+  "estate-crucible :: value | apps/DEUT/cobol/ZINSBER.cbl | translator | L18 BETRAG = 1000.00": "notation-decimal-comma",
   "zecs :: moves | Source/ECS001.cbl | engine | L144 MOVE DFHVALUE -> METHOD-CDVA": "cvda-dfhvalue",
   "zecs :: moves | Source/ECS001.cbl | engine | L146 MOVE DFHVALUE -> METHOD-CDVA": "cvda-dfhvalue",
   "zecs :: moves | Source/ECS001.cbl | engine | L148 MOVE DFHVALUE -> METHOD-CDVA": "cvda-dfhvalue",

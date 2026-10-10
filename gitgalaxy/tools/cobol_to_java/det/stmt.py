@@ -19,6 +19,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     Line,
     _outside_literals,
     as_fixed_rows,
+    ascii_for_grammar,
     cobol_parser,
     comma_literals,
     narrowed,
@@ -128,7 +129,7 @@ def parse(lines: list[Line]) -> Procedure:
     # (src row 3 is the text line after the header's last; it had been two lines early)
     base_line = text[: m.end()].count("\n") + 1
     # #4462: the grammar is handed FUNCTION f (1:4) as f (1,4) (the same length: every node's text is still `src`'s)
-    root = parser.parse(_function_refmods(src.decode("latin-1")).encode("latin-1")).root_node
+    root = parser.parse(ascii_for_grammar(_function_refmods(src.decode("latin-1")).encode("latin-1"))).root_node
     prog = next((c for c in root.children if c.type == "program_definition"), root)
     pd = next((c for c in prog.children if c.type == "procedure_division"), None)
     if pd is None:

@@ -98,9 +98,15 @@ jobs:
               {"os":"windows-latest","python-version":"3.10"},
               {"os":"windows-latest","python-version":"3.11"},
               {"os":"windows-latest","python-version":"3.12"},
-              {"os":"macos-latest","python-version":"3.10"},
-              {"os":"macos-latest","python-version":"3.11"},
-              {"os":"macos-latest","python-version":"3.12"}
+              {"os":"macos-latest","python-version":"3.10","part":1},
+              {"os":"macos-latest","python-version":"3.10","part":2},
+              {"os":"macos-latest","python-version":"3.10","part":3},
+              {"os":"macos-latest","python-version":"3.11","part":1},
+              {"os":"macos-latest","python-version":"3.11","part":2},
+              {"os":"macos-latest","python-version":"3.11","part":3},
+              {"os":"macos-latest","python-version":"3.12","part":1},
+              {"os":"macos-latest","python-version":"3.12","part":2},
+              {"os":"macos-latest","python-version":"3.12","part":3}
             ]'
           else
             # plain manual re-run: full Python coverage on
@@ -111,8 +117,12 @@ jobs:
               {"os":"ubuntu-latest","python-version":"3.12"},
               {"os":"windows-latest","python-version":"3.10"},
               {"os":"windows-latest","python-version":"3.12"},
-              {"os":"macos-latest","python-version":"3.10"},
-              {"os":"macos-latest","python-version":"3.12"}
+              {"os":"macos-latest","python-version":"3.10","part":1},
+              {"os":"macos-latest","python-version":"3.10","part":2},
+              {"os":"macos-latest","python-version":"3.10","part":3},
+              {"os":"macos-latest","python-version":"3.12","part":1},
+              {"os":"macos-latest","python-version":"3.12","part":2},
+              {"os":"macos-latest","python-version":"3.12","part":3}
             ]'
           fi
           echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
@@ -155,11 +165,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist
+          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist pytest-split
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
           pip install "tree-sitter-language-pack==1.20.0"
           pip install --no-build-isolation -e .
 
+      # macOS runners are slower than the 45-minute limit for the whole suite (every macOS leg timed out on
+      # 2026-10-10 while Ubuntu took ~19 min), so each macOS Python runs as 3 duration-balanced parts
+      # (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836).
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
-        run: pytest tests/ -n auto -q -ra --durations=25
+        shell: bash
+        env:
+          PART: ${{ matrix.part }}
+        run: |
+          split=()
+          if [ -n "$PART" ]; then split=(--splits 3 --group "$PART"); fi
+          pytest tests/ -n auto -q -ra --durations=25 "${split[@]}"

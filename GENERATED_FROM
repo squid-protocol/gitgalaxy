@@ -1,0 +1,3 @@
+Generated output only -- never edit by hand. Source: main @ 07bc17d14dfc219dedf88b4a8272a828abb23e11
+docs/language_status/evidence/: evidence pages rendered from main's records by
+.github/workflows/evidence-pages.yml (#4825).

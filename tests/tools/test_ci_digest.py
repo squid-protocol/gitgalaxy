@@ -9,8 +9,12 @@ import ci_digest as cd  # noqa: E402
 SHA = "a" * 40
 
 
-def fake_api(runs, mergeable_state="clean"):
+def fake_api(runs, mergeable_state="clean", main_runs=()):
     def api(path):
+        if path.endswith("/commits/main"):
+            return {"sha": "m" * 40}
+        if "/commits/" + "m" * 40 in path:
+            return {"check_runs": list(main_runs)}
         if path.endswith("/pulls/7"):
             return {"head": {"sha": SHA}, "mergeable_state": mergeable_state}
         if "/check-runs" in path:
@@ -85,3 +89,15 @@ def test_render_and_a_green_pr():
     assert "no failed checks" in cd.render(cd.digest(7, fake_api([run(5, "ruff-audit", "success")]), lambda i: ""))
     text = cd.render(cd.digest(7, fake_api([run(6, "ruff-audit", "failure")]), lambda i: "##[error]E501 x.py:3"))
     assert "== ruff-audit (failure) -- real" in text and "repro: python tests/tools/pr_gates.py --only lint" in text
+
+
+def test_a_real_failure_main_also_has_is_triaged_main():
+    api = fake_api([run(1, "ground-truth", "failure")], main_runs=[run(2, "ground-truth", "failure")])
+    (f,) = cd.digest(7, api, lambda i: "FAILED tests/x.py::test_y - AssertionError")["failed"]
+    assert f["triage"] == "main" and f["repro"].startswith("fails on main too")
+
+
+def test_a_suite_part_and_the_prism_timing_test():
+    ex = {"tests": ["tests/core_engine/test_prism.py::test_prism_suppression_regex_bomb"], "cases": []}
+    assert cd.repro("full-suite part 2/3", ex) == "python -m pytest -q " + ex["tests"][0]
+    assert cd.triage("failure", "", ex["tests"]) == "flake"

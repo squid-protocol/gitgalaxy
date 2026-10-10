@@ -180,12 +180,12 @@ jobs:
         run: pytest tests/ -n auto -q -ra --durations=25 --splits 3 --group "$GROUP"
 
       - name: Evidence report level deltas (advisory, #4703)
-        if: always() && matrix.group == 1
+        if: always() && matrix.group == 3  # part 1 runs the entry-point checks (#4829 balance)
         continue-on-error: true
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 
       - name: CICS spec status page (advisory, #4789)
-        if: always() && matrix.group == 1
+        if: always() && matrix.group == 3  # part 1 runs the entry-point checks (#4829 balance)
         continue-on-error: true
         run: |
           {

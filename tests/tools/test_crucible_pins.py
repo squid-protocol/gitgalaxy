@@ -47,8 +47,9 @@ def world(tmp_path, monkeypatch):
         subprocess.run(["git", "clone", "-q", str(upstream), str(clone)], check=True, capture_output=True)
         git(clone, "checkout", "-q", "--detach", "v1.0.0")
         monkeypatch.setenv(env, str(clone))
+        # #4836: as_posix -- a Windows path's backslashes are TOML escapes (and the 3.10 reader refuses them)
         lines += [
-            f"[{name}]", f'repo = "{upstream}"', 'ref = "v2.0.0"', f'path_env = "{env}"',
+            f"[{name}]", f'repo = "{upstream.as_posix()}"', 'ref = "v2.0.0"', f'path_env = "{env}"',
             f'allow_unpinned_env = "{name.upper()}_ALLOW"', f'default_dir = "{name}-crucible"', "",
         ]  # fmt: skip
     path = tmp_path / "crucible_pins.toml"

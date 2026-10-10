@@ -62,6 +62,7 @@
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(p) _mkdir(p) /* MinGW / MSVC: no mode argument */
+#define RMDIR(p) _rmdir(p) /* #4836: the C runtime's remove() deletes files only on Windows */
 /* nor timegm / gmtime_r: the C runtime's UTC equivalents */
 #define timegm _mkgmtime
 static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
@@ -73,6 +74,7 @@ static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
 #define gmtime_r gg_gmtime_r
 #else
 #define MKDIR(p) mkdir((p), 0777)
+#define RMDIR(p) rmdir(p)
 #include <signal.h>   /* #4270 (X23): GGCAREA's guard page */
 #include <sys/mman.h>
 #include <unistd.h>
@@ -2279,7 +2281,7 @@ int GGCDELQ(gg_cics *c) {
     }
     snprintf(path, sizeof path, "%s/next", dir);
     remove(path);
-    remove(dir);
+    RMDIR(dir); /* an empty directory: remove() would leave it on Windows (#4836) */
     return 0;
 }
 

@@ -88,6 +88,11 @@ def test_a_lower_case_copybook_is_staged_under_its_member_name(tmp_path):
     assert sorted(p.name for p in src.iterdir()) == ["EPSNBRPM.cpy", "epsnbrpm.cpy"]
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="stages `lgcmarea.cpy` and `LGCMAREA.cpy` side by side for GnuCOBOL on Linux; a case-insensitive Windows "
+    "file system holds one of them (#4836)",
+)
 def test_a_bms_map_source_does_not_shadow_its_generated_symbolic_map(tmp_path):
     # #4270: GenApp's base/src holds ssmap.bms beside the programs; COPY SSMAP means the symbolic map generated from
     # it (@bms/SSMAP.cpy), not the assembler macros staged under the member's name

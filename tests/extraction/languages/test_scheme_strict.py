@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -525,7 +526,6 @@ def test_scheme_scope_walk_is_linear_on_pathological_input():
     harness's regex timer doesn't apply; time it directly on the shapes
     that would hurt a backtracking tokenizer.
     """
-    import time
 
     from gitgalaxy.core.detector import StructuralExtractor
 
@@ -540,18 +540,24 @@ def test_scheme_scope_walk_is_linear_on_pathological_input():
         '"' + "\\" * 200000,
     ]
     for payload in payloads:
-        t0 = time.perf_counter()
-        d._lisp_module_level_define_offsets(payload)
-        assert time.perf_counter() - t0 < 3.0, f"scope walk too slow on {payload[:12]!r}..."
+        # # CPU time, best of 3 (#4477): ~0.05 s honest, minutes if the walk backtracks
+        assert_cpu_below(
+            lambda payload=payload: d._lisp_module_level_define_offsets(payload),
+            3.0,
+            what=f"scope walk on {payload[:12]!r}...",
+        )
     # unterminated string only blinds its own line
     assert len(d._lisp_module_level_define_offsets(payloads[0])) == 19999
 
+
 def test_scheme_calls_out():
-    from gitgalaxy.standards.language_standards.languages.scheme import DEFINITION
     from _strict_harness import assert_redos_immune
+
+    from gitgalaxy.standards.language_standards.languages.scheme import DEFINITION
+
     pattern = DEFINITION["rules"]["calls_out"]
     ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
-    
+
     assert pattern.groups == 1
     # Scheme calls_out is CALLS_OUT_LISP_FAMILY which is r"\(\s*([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)"
     assert pattern.findall("(probe-branch flag)") == ["probe-branch"]
@@ -566,6 +572,6 @@ def test_scheme_calls_out():
     assert "lambda" in ignore_set
     assert "export" in ignore_set
     assert "set!" in ignore_set
-    
+
     # ReDoS check
     assert_redos_immune(pattern, "(" + " " * 50000 + "x", timeout_sec=2.0)

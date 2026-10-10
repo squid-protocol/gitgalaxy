@@ -1,6 +1,7 @@
 import sys
-import time
 from unittest.mock import patch
+
+from _timing import assert_cpu_below
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge as forge_module
@@ -178,13 +179,14 @@ def test_select_assign_is_linear_on_unterminated_input(tmp_path):
         encoding="utf-8",
     )
 
-    start = time.perf_counter()
     intent = forge_module.analyze_cobol_intent(pgm)
-    elapsed = time.perf_counter() - start
 
     # The terminator is still required, so none of these is a statement.
     assert intent["files_requested"] == []
-    assert elapsed < 5.0, f"SELECT scan took {elapsed:.2f}s on 20k unterminated SELECTs"
+    # # CPU time, best of 3 (#4477): bounded ~ms; the unanchored shape is many seconds
+    assert_cpu_below(
+        lambda: forge_module.analyze_cobol_intent(pgm), 5.0, what="SELECT scan on 20k unterminated SELECTs"
+    )
 
 
 def test_select_assign_still_reads_every_statement_after_anchoring(tmp_path):

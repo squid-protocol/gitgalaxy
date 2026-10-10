@@ -24,7 +24,7 @@ is an offender when
 
   - one call over PROBE_CHARS or SMALL_CHARS characters takes over SLOW_S, or
   - it costs at least BUDGET_S at LARGE_CHARS (4x SMALL_CHARS) AND that 4x
-    input took at least QUADRATIC (8x) the time, confirmed on best-of-3 timings.
+    input took at least QUADRATIC (8x) the time, confirmed on best-of-5 timings.
     Linear grows ~4x, quadratic ~16x.
 
 An absolute budget alone cannot separate a mild quadratic from a bounded but
@@ -284,18 +284,25 @@ def _fill(unit: str, n: int) -> str:
     return (unit * (n // len(unit) + 1))[:n]
 
 
+# Windows' thread clock ticks at ~15 ms, which quantizes the 2-100 ms samples this sweep compares into
+# fake 10x ratios (#4836); there the precise wall clock is used and the repeats (min of 5) filter the noise.
+_CLOCK = time.thread_time if time.get_clock_info("thread_time").resolution <= 1e-4 else time.perf_counter
+
+
 def _time_once(compiled: re.Pattern, method: str, text: str) -> float:
     call = {
         "sub": lambda: compiled.sub("", text),
         "subn": lambda: compiled.subn("", text),
         "finditer": lambda: list(compiled.finditer(text)),
     }.get(method) or (lambda: getattr(compiled, method)(text))
-    start = time.perf_counter()
+    # CPU time of this thread, not wall time (#4477): time spent descheduled on a loaded runner is not the
+    # pattern's cost, and counting it made linear patterns look quadratic in CI.
+    start = _CLOCK()
     call()
-    return time.perf_counter() - start
+    return _CLOCK() - start
 
 
-def _best_of(compiled: re.Pattern, method: str, text: str, first: float, runs: int = 2) -> float:
+def _best_of(compiled: re.Pattern, method: str, text: str, first: float, runs: int = 4) -> float:
     return min([first] + [_time_once(compiled, method, text) for _ in range(runs)])
 
 
@@ -308,6 +315,9 @@ def measure(pattern: str, flags: int, method: str) -> dict[str, Any]:
         small = _fill(unit, SMALL_CHARS)
         for chars, text in ((PROBE_CHARS, _fill(unit, PROBE_CHARS)), (SMALL_CHARS, small)):
             seconds = _time_once(compiled, method, text)
+            if seconds > SLOW_S:
+                # one slow sample is not a verdict: noise only adds time, so confirm on the best of three (#4477)
+                seconds = _best_of(compiled, method, text, seconds)
             if seconds > SLOW_S:
                 return {"offender": True, "reason": "slow", "seconds": round(seconds, 4), "unit": unit, "chars": chars}
         if seconds < FLOOR_S:

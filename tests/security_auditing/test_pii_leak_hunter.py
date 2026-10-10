@@ -2,6 +2,7 @@ import sys
 from unittest.mock import patch
 
 import pytest
+from _timing import assert_cpu_below
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.terabyte_log_scanning.pii_leak_hunter as pii_module
@@ -249,10 +250,6 @@ def test_unknown_region_pack_is_rejected(tmp_path, capsys):
 
 
 def test_region_pack_patterns_are_linear_on_pathological_input():
-    import time
-
     lines = [b"1" * 50_000, b"AB 12 " * 10_000, b"DE89 " + b"ABCD " * 10_000, b"2341 " * 10_000]
-    start = time.perf_counter()
-    for line in lines:
-        pii_module.find_pii(line)
-    assert time.perf_counter() - start < 2.0
+    # CPU time, best of 3 (#4477): ms honest, backtracking is many seconds
+    assert_cpu_below(lambda: [pii_module.find_pii(line) for line in lines], 2.0, what="region pack patterns")

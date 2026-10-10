@@ -13,9 +13,9 @@ how the real `standard_block` family pattern treats C++ source.
 """
 
 import re
-import time
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.prism import CPP_LITERAL_MASK_PATTERN, Prism
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
@@ -205,7 +205,7 @@ def test_cpp_shield_is_bounded_on_adversarial_input(real_prism):
     """Long runs of separator-like and quote-like text must be handled in
     linear-ish time (every C++-specific repetition is bounded)."""
     payload = ("1'" * 5000) + "\n" + ("'\\" * 5000) + "\n" + ("9e+" * 5000) + "\n// tail\n"
-    start = time.perf_counter()
     result = real_prism.split_streams(payload, "cpp")
-    assert time.perf_counter() - start < 2.0  # noqa: S101
+    # CPU time, best of 3 (#4477): honest cost is milliseconds, an unbounded repetition is many seconds
+    assert_cpu_below(lambda: real_prism.split_streams(payload, "cpp"), 2.0, what="cpp shield")
     assert "// tail" in result["comment_stream"]  # noqa: S101

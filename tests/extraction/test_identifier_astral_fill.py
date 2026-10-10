@@ -15,8 +15,9 @@ from gitgalaxy.standards.language_standards import identifiers
 
 _EXACT = {
     "ID_START": lambda cat, cp: cat in {"Lu", "Ll", "Lt", "Lm", "Lo", "Nl"} or cp == 0x5F,
-    "ID_CONTINUE": lambda cat, cp: cat in {"Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Mn", "Mc", "Nd", "Pc"}
-    or cp in (0x200C, 0x200D),
+    "ID_CONTINUE": lambda cat, cp: (
+        cat in {"Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Mn", "Mc", "Nd", "Pc"} or cp in (0x200C, 0x200D)
+    ),
     "CAPITAL": lambda cat, cp: cat in {"Lu", "Lt", "Lo"},
     "SMALL": lambda cat, cp: cat in {"Ll", "Lm", "Lo"} or cp == 0x5F,
 }
@@ -52,9 +53,9 @@ def test_a_class_miss_is_several_times_cheaper_than_unfilled(name):
     def best(contents):
         rx, runs = re.compile(f"[{contents}]"), []
         for _ in range(5):
-            t = time.perf_counter()
+            t = time.thread_time()  # CPU time, not wall (#4477)
             rx.search(blanks)
-            runs.append(time.perf_counter() - t)
+            runs.append(time.thread_time() - t)
         return min(runs)
 
     assert best(getattr(identifiers, name)) * 3 < best(unfilled)

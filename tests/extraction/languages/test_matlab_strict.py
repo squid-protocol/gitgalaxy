@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -659,7 +660,6 @@ def test_matlab_unknown_scope_filter_name_is_ignored_not_zeroed():
 
 def test_matlab_return_channel_scan_is_linear_on_pathological_input():
     """The scan is a bounded declaration regex plus per-name passes, not backtracking."""
-    import time
 
     from gitgalaxy.core.detector import StructuralExtractor
 
@@ -671,9 +671,10 @@ def test_matlab_return_channel_scan_is_linear_on_pathological_input():
         "function [" + ",".join(f"o{i}" for i in range(40)) + "] = f(a)\n" + "o1 = a;\n" * 5000 + "end\n",
     ]
     for payload in payloads:
-        start = time.perf_counter()
-        d.coding_analysis([("matlab", payload, 0)])
-        assert time.perf_counter() - start < 10.0, "return-channel scan went superlinear"
+        # # CPU time, best of 3 (#4477): ~0.05 s honest, a superlinear scan costs minutes
+        assert_cpu_below(
+            lambda payload=payload: d.coding_analysis([("matlab", payload, 0)]), 10.0, what="return-channel scan"
+        )
 
 
 def test_matlab_api_contract_2730():
@@ -699,17 +700,19 @@ def test_matlab_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search("        function y = helper(x)"), "indented classdef method"
 
+
 def test_matlab_calls_out_strict():
     """Epic #3264 Phase 3: Matlab calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
+
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
+
     matlab = LANGUAGE_DEFINITIONS["matlab"]
     calls_out = matlab["rules"]["calls_out"]
-    
+
     assert calls_out.groups == 1
-    
+
     code = """
 function test_matlab()
     zeros(10)
@@ -730,7 +733,7 @@ end
     extractor = StructuralExtractor("matlab", {"matlab": matlab})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-    
+
     assert "probe_branch" in calls
     assert "probe_io" in calls
     assert "load" in calls
@@ -738,7 +741,7 @@ end
     assert "fopen" in calls
     assert "system" in calls
     assert "dos" in calls
-    
+
     # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
     assert "zeros" in calls
     assert "ones" in calls
@@ -746,6 +749,6 @@ end
     assert "disp" in calls
     # `error` raises: a transfer like `throw`, still filtered.
     assert "error" not in calls
-    
+
     payload = "zeros" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

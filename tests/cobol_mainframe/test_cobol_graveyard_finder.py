@@ -1,8 +1,8 @@
 import sys
-import time
 from unittest.mock import patch
 
 import pytest
+from _timing import assert_cpu_below
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder as graveyard_module
@@ -374,12 +374,13 @@ def test_replacing_pairs_are_linear_in_the_clause_length():
     """Without the boundary lookbehind, every position inside a long name is a
     candidate start that consumes the rest of the name before failing on the
     required `BY`. 20k name characters cost 10s before, ~1ms after."""
-    start = time.perf_counter()
     pairs = graveyard_module._REPLACING_PAIR.findall("A" * 20000)
-    elapsed = time.perf_counter() - start
 
     assert pairs == []
-    assert elapsed < 5.0, f"REPLACING pair scan took {elapsed:.2f}s on a 20k-character name"
+    # # CPU time, best of 3 (#4477): the old pattern cost 10s, the fix ~1ms; 5s CPU separates them on any machine
+    assert_cpu_below(
+        lambda: graveyard_module._REPLACING_PAIR.findall("A" * 20000), 5.0, what="REPLACING pair scan on a 20k name"
+    )
 
 
 def test_replacing_pairs_are_unchanged_by_the_boundary_anchor():

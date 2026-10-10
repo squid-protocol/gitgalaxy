@@ -6,7 +6,7 @@ and COPAUA0C (qualified descriptors, a trigger-named input queue, MQPUT1 to the
 requester's reply-to queue), reduced to the lines that matter.
 """
 
-import time
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.mq_calls import extract_mq_calls
@@ -122,6 +122,5 @@ def test_literal_value_and_ambiguous_queue_names():
 def test_no_mq_calls_draw_nothing_and_the_scan_is_bounded():
     assert _calls("           CALL 'CBLTDLI' USING GU PCB.\n") == []
     src = "           CALL 'MQPUT' USING " + "A " * 20000 + "\n" + "MOVE X TO Y " * 20000
-    started = time.perf_counter()
-    extract_mq_calls(src)
-    assert time.perf_counter() - started < 5.0
+    # CPU time, best of 3 (#4477): ms honest, a rescan per call is many seconds
+    assert_cpu_below(lambda: extract_mq_calls(src), 5.0, what="mq calls scan")

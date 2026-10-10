@@ -2,9 +2,9 @@
 `;`-terminated C-family languages, not only keyword-led comment lines -- see docs/dead_code_rule_contract.md."""
 
 import re
-import time
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 from gitgalaxy.standards.language_standards._shared_patterns import COMMENTED_STATEMENT_C_FAMILY
@@ -67,9 +67,9 @@ def test_the_wca4z_shape_counts_once_per_commented_line():
 @pytest.mark.parametrize("payload", ["// " + "a." * 20000 + "b(" + "x" * 20000,
                                      "// A " + "b" * 20000 + " =" + "=" * 20000, "// " + "a" * 20000 + "[" * 20000])  # fmt: skip
 def test_the_statement_shape_is_linear(payload):
-    t = time.monotonic()
-    LANGUAGE_DEFINITIONS["java"]["rules"]["dead_code"].search(payload)
-    assert time.monotonic() - t < 1.0
+    # CPU-time bound (#4477): ~ms honest, a backtracking statement shape costs minutes on 40k chars
+    rule = LANGUAGE_DEFINITIONS["java"]["rules"]["dead_code"]
+    assert_cpu_below(lambda: rule.search(payload), 1.0, what="dead_code statement shape")
 
 
 def test_the_statement_fragment_skips_doc_lines():

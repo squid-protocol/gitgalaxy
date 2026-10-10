@@ -1,0 +1,81 @@
+name: Main Watch
+
+# #4825: a check that fails on main -- the nightly full det sweep, the push-time suites, the security scans -- used
+# to fail silently: the CI shepherd only watches pull requests. This makes it visible. When a watched workflow's run on
+# main (push or schedule) FAILS, open one issue per workflow labelled `ci-red-main` (or comment on the open one);
+# when the same workflow next SUCCEEDS on main, comment and close it.
+#
+# The nightly det sweep is the honesty check for the PR shortcuts (#4814: a translator PR proves only the ports it
+# changes): a case a PR carried forward but actually broke fails here the same night.
+#
+# `workflow_run` runs this file as it is on main, never a PR's copy. It reads no artifacts and runs no checked-out code.
+
+on:
+  workflow_run:
+    workflows:
+      - "CICS Crucible"
+      - "CodeQL Security Scan"
+      - "Det Sweep"
+      - "Estate Crucible"
+      - "Evidence Pages"
+      - "Evidence Refresh"
+      - "Fact Cross-check"
+      - "Full Suite Gate (All OS x Python)"
+      - "Generated Java Compiles"
+      - "GitGalaxy Smoke Tests"
+      - "Mainframe Ground Truth"
+      - "Muninn Security Scan"
+      - "Ports Compile"
+      - "Tree-sitter Accuracy Audit"
+      - "unicode-gauntlet"
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-watch-${{ github.event.workflow_run.name }}  # one writer per watched workflow
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    # only runs on main itself (not a PR's merge ref), and only a real verdict (not cancelled / skipped)
+    if: >-
+      github.event.workflow_run.head_branch == 'main' &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'schedule') &&
+      (github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      WF: ${{ github.event.workflow_run.name }}
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      EVENT: ${{ github.event.workflow_run.event }}
+    steps:
+      - name: Open, update or close the main-is-red issue
+        run: |
+          title="main is red: $WF"
+          gh label create ci-red-main --repo "$REPO" --color B60205 \
+            --description "A check failing on main (opened/closed by main-watch.yml, #4825)" 2>/dev/null || true
+          open=$(gh issue list --repo "$REPO" --label ci-red-main --state open --limit 50 \
+            --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ "$CONCLUSION" = "failure" ]; then
+            body="**$WF** failed on main ($EVENT) at \`${SHA:0:12}\`: $RUN_URL
+
+          Diagnose with the CI digest's local repro (\`python tests/tools/ci_digest.py\` works on a PR; for main, open the run).
+          This issue closes itself when $WF next succeeds on main (main-watch.yml, #4825)."
+            if [ -n "$open" ]; then
+              gh issue comment "$open" --repo "$REPO" --body "Failed again ($EVENT) at \`${SHA:0:12}\`: $RUN_URL"
+            else
+              gh issue create --repo "$REPO" --title "$title" --label ci-red-main --body "$body"
+            fi
+          elif [ -n "$open" ]; then
+            gh issue comment "$open" --repo "$REPO" --body "Green again ($EVENT) at \`${SHA:0:12}\`: $RUN_URL"
+            gh issue close "$open" --repo "$REPO" --reason completed
+          fi

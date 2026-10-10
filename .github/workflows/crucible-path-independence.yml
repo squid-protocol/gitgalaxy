@@ -17,6 +17,7 @@ on:
       - "tests/_crucible_pin.py"
       - "tests/crucible_pins.toml"
       - ".github/workflows/crucible-path-independence.yml"
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       # never read by a scan: the COBOL-to-Java translator and its entry point, and prose
       - "!gitgalaxy/tools/cobol_to_java/**"
       - "!gitgalaxy/cobol_to_java_controller.py"

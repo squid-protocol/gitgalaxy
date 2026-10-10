@@ -16,6 +16,8 @@ on:
       - "tests/tools/call_graph_accuracy.py"
       - "tests/call_graph_accuracy_baseline.json"
       - ".github/workflows/call-graph-accuracy-audit.yml"
+      - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
 
 permissions:
   contents: read

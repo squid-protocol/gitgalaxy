@@ -54,7 +54,7 @@ UNMASKABLE = {
     "cut-literal": "text past column 72 (cut_literal): a literal cut open is read with its text past column 72, as if fixed (other "
     "lost text -- a name cut short, a comma -- stays lost)",
     "several-programs": "several programs in one source (several_programs): read as one",
-    "unmodelled": "national / DBCS text, a national letter in a name, IDMS, a decimal-point literal under "
+    "unmodelled": "national / DBCS text, IDMS, a decimal-point literal under "
     "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
     "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
 }
@@ -398,6 +398,14 @@ _COMMA_POINT = re.compile(r"(?<![\w.,-])[+-]?\d+(,)\d+(?![\w-]|[.,]\d)")
 _POINT_POINT = re.compile(r"(?<![\w.,-])[+-]?\d+\.\d+(?![\w-]|[.,]\d)")
 # #4462: an IDMS program (CA IDMS / IDMS-DC, the DMLC precompiler's input): its ENVIRONMENT DIVISION's IDMS-CONTROL
 # SECTION (PROTOCOL. MODE IS IDMS-...) or its DATA DIVISION's SCHEMA SECTION (DB subschema WITHIN schema)
+# #4664: national / DBCS data and literals, which the translator lays out and reads as one byte a character (a PIC N / G
+# item is two bytes a character, a N'..' / G'..' / NX'..' literal national data): refused by name, never read as text.
+_NATIONAL_USAGE = re.compile(r"(?<![\w-])(?:NATIONAL|DISPLAY-1)(?![\w-])", re.I)
+_NATIONAL_LITERAL = re.compile(r"(?<![\w-])(?:NX|GX|UX|N|G|U)(?=['\"])", re.I)
+_SO_SI = re.compile(
+    "[\x0e\x0f]"
+)  # shift-out / shift-in: the bytes that delimit a DBCS name or literal in EBCDIC source
+
 _IDMS = re.compile(r"^\s*(?:IDMS-CONTROL\s+SECTION|SCHEMA\s+SECTION)\s*\.|\bMODE\s+IS\s+IDMS(?:-DC|-CICS)?\b", re.I)
 
 
@@ -416,14 +424,50 @@ def _outside_literals(text: str) -> str:
     return "".join(out)
 
 
+_NATIONAL_WORD = re.compile(rb"[0-9A-Za-z\x80-\xff-]*[\x80-\xff][0-9A-Za-z\x80-\xff-]*")
+
+
+def ascii_for_grammar(src: bytes) -> bytes:
+    """#4664: `src` (one byte a character, Latin-1) handed to the tree-sitter COBOL grammar, which reads ASCII words only:
+    each single-byte national letter (a byte beyond ASCII: `BETRÄGE`, cp273 / cp277 / cp278) becomes `9` in a word
+    that holds an ASCII letter, and `a` in a word of national letters alone -- a column for a column, so every node's
+    text is still cut from the real source. A digit, never a letter: `ÄLL` read as `aLL` would be the keyword ALL, and
+    `ÄND` the operator AND (a word starting with a digit is a COBOL word: `0000-MAIN`)."""
+
+    def word(m: re.Match) -> bytes:
+        w = m.group(0)
+        return re.sub(rb"[\x80-\xff]", b"9" if re.search(rb"[A-Za-z]", w) else b"a", w)
+
+    return _NATIONAL_WORD.sub(word, src)
+
+
+def _national_data(bare: str) -> str | None:
+    """#4664: what national / DBCS data `bare` (a line without its literals' content or its comment) declares, or None:
+    a PICTURE with an N or G symbol, USAGE NATIONAL / DISPLAY-1, a N / NX / G / GX / U / UX literal."""
+    for m in _PICTURE.finditer(bare):
+        pic = m.group(0).split()[-1].rstrip(".")
+        if set(re.sub(r"\(\d+\)", "", pic).upper()) & set("NG"):
+            return f"the PICTURE {pic} (a national / DBCS item)"
+    bare = _PICTURE.sub(lambda m: " " * len(m.group(0)), bare)
+    use = _NATIONAL_USAGE.search(bare)
+    if use is not None:
+        return f"USAGE {use.group(0).upper()}"
+    lit = _NATIONAL_LITERAL.search(bare)
+    if lit is not None:
+        return f"the {lit.group(0).upper()} literal (national data)"
+    return None
+
+
 def unmodelled(lines: list[Line]) -> str | None:
     """#4462: why the translator cannot read `lines` (a refusal by name, before the parser), or None.
 
     - A character beyond Latin-1 (national / DBCS text: a Kanji name or literal, an ideographic space, a PIC G
       literal; estate-crucible KYUY): the translator lays records out, and hands the parser its text, in one byte a
       character. It had raised UnicodeEncodeError; a DBCS estate is refused, never laid out wrong.
-    - A national letter in a word outside a literal (`BETRÄGE`, read in cp273): the COBOL grammar reads ASCII words
-      only, and refused the line unnamed.
+    - #4664: national / DBCS DATA that needs no wide character to be seen: a PICTURE with N or G, USAGE NATIONAL /
+      DISPLAY-1, a N / NX / G / GX / U / UX literal, and the shift-out / shift-in bytes (X'0E' / X'0F') that delimit a
+      DBCS name or literal in EBCDIC source. Each was read as one byte a character (a PIC N item is two); refused by name.
+      A single-byte national letter in a name (`BETRÄGE`) is modelled instead (ascii_for_grammar).
     - #4462: under DECIMAL-POINT IS COMMA (modelled: comma_literals, Item.decimal_comma), a numeric literal written
       with a decimal POINT (`1.5`): the clause makes `,` the decimal point, so it is no number the compiler reads.
     - #4462: IDMS (IDMS-CONTROL SECTION, SCHEMA SECTION; estate-crucible LOAN LNIDMS01): its DML (BIND RUN-UNIT,
@@ -457,10 +501,13 @@ def unmodelled(lines: list[Line]) -> str | None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
                     "translator reads a single-byte code page")  # fmt: skip
         bare = _outside_literals(ln.text[: _comment_at(ln.text)])  # (#4272: a `*>` comment is no name)
-        word = re.search(r"[^\s.,;:()'\"=<>+*/]*[^\x00-\x7f][^\s.,;:()'\"=<>+*/]*", bare)
-        if word is not None:
-            return (f"{Path(ln.file).name}:{ln.line}: the name {word.group(0)} holds a national letter: the COBOL grammar reads "
-                    "ASCII words only")  # fmt: skip
+        shift = _SO_SI.search(ln.text[: _comment_at(ln.text)])
+        if shift is not None:
+            return (f"{Path(ln.file).name}:{ln.line}: shift-out / shift-in (U+{ord(shift.group(0)):04X}) delimits DBCS text in "
+                    "a name or literal: not modelled (national / DBCS text, #4664)")  # fmt: skip
+        why = _national_data(bare)
+        if why is not None:
+            return f"{Path(ln.file).name}:{ln.line}: {why} is not modelled (national / DBCS data, #4664): the translator reads one byte a character"  # fmt: skip
         if _IDMS.search(bare):
             return f"{Path(ln.file).name}:{ln.line}: IDMS DML not supported (an IDMS-DC / DMLC program: {bare.strip()})"
         point = _POINT_POINT.search(_numeric_text(ln.text)) if comma else None

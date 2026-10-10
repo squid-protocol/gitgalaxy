@@ -1679,8 +1679,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   format has no way to state the installed template text (a SPEC change, a separate PR in that repository).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py: both answer alike); the translators' refusals are tested in
-  tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. zECS's ZECS000 / ZECS001 / ZECS003 DOCUMENT
-  statements translate (ZECS001's five and ZECS000 / ZECS003's remaining statements still need WEB).
+  tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. All ten DOCUMENT statements of zECS's
+  ZECS000 / ZECS001 / ZECS003 translate (no DOCUMENT hole is left in the det survey); those programs stay held by WEB.
 
 ## Language Environment
 

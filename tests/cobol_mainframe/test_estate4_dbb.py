@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -73,9 +74,19 @@ def test_a_program_id_without_its_period_gets_the_one_ibm_assumes():
     assert out[1] == "       PROGRAM-ID. EPSNBRVL." and out[3] == "       PROGRAM-ID. OK."
 
 
+def _case_insensitive_fs() -> bool:
+    """True where `a.cpy` and `A.cpy` are one file: Windows and default (APFS) macOS (#4836)."""
+    with tempfile.TemporaryDirectory() as d:
+        Path(d, "probe.cpy").write_text("", encoding="utf-8")
+        return Path(d, "PROBE.cpy").exists()
+
+
+CASE_INSENSITIVE_FS = _case_insensitive_fs()
+
+
 @pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="stages `epsnbrpm.cpy` and `EPSNBRPM.cpy` side by side for GnuCOBOL on Linux; a case-insensitive Windows "
+    CASE_INSENSITIVE_FS,
+    reason="stages `epsnbrpm.cpy` and `EPSNBRPM.cpy` side by side for GnuCOBOL on Linux; a case-insensitive (Windows, default macOS) "
     "file system holds one of them",
 )
 def test_a_lower_case_copybook_is_staged_under_its_member_name(tmp_path):
@@ -89,8 +100,8 @@ def test_a_lower_case_copybook_is_staged_under_its_member_name(tmp_path):
 
 
 @pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="stages `lgcmarea.cpy` and `LGCMAREA.cpy` side by side for GnuCOBOL on Linux; a case-insensitive Windows "
+    CASE_INSENSITIVE_FS,
+    reason="stages `lgcmarea.cpy` and `LGCMAREA.cpy` side by side for GnuCOBOL on Linux; a case-insensitive (Windows, default macOS) "
     "file system holds one of them (#4836)",
 )
 def test_a_bms_map_source_does_not_shadow_its_generated_symbolic_map(tmp_path):

@@ -305,6 +305,7 @@ public class CicsTask {
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private byte[] returnedBytes;                                            // #4817: its raw bytes
     private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
@@ -2602,6 +2603,14 @@ public class CicsTask {
      *  a program below the highest logical level, LENGERR RESP2 11 for a COMMAREA length below 0 or past 32763 -- the
      *  command then returns to the program. IBM does not say which of the two INVREQs a non-terminal task below level 1
      *  gets: refused. */
+    /** #4817: same, taking the raw bytes of the COMMAREA to preserve non-decodable bytes. */
+    public void returnTransid(String transid, Object commarea, Integer length, byte[] area) {
+        returnTransid(transid, commarea, length);
+        if (level == 1) {
+            root().returnedBytes = area;
+        }
+    }
+
     public int[] returnImmediate(String transid, Object commarea, Integer length) {
         boolean lower = level > 1;
         boolean noTerminal = termid() == null;
@@ -2640,6 +2649,20 @@ public class CicsTask {
      *  between): the bytes passed -- the record's, or its first LENGTH -- read through `type`, as the program reading
      *  them through its own record sees them. Anything else is refused, never guessed: a class with no layout, or
      *  fewer bytes than `type`'s record (never passed). */
+    /** #4817: same, taking the raw bytes of the COMMAREA to preserve non-decodable bytes. */
+    public int[] returnImmediate(String transid, Object commarea, Integer length, byte[] area) {
+        int[] resps = returnImmediate(transid, commarea, length);
+        if (resps[0] == 0 && level == 1) {
+            root().returnedBytes = area;
+        }
+        return resps;
+    }
+
+    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
+    public byte[] returnedBytes() {
+        return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
         if (area == null || type.isInstance(area)) {
@@ -2683,6 +2706,8 @@ public class CicsTask {
          *  whole record: EIBCALEN is the record's length) it goes on with the conversation: ENTER on the screen the
          *  last task sent, nothing typed. */
         CicsTask transaction(String transid, Object commarea);
+        /** #4817: same, with the raw bytes of the COMMAREA from the previous task. */
+        CicsTask transaction(String transid, Object commarea, byte[] bytes);
 
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
          *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
@@ -2755,9 +2780,15 @@ public class CicsTask {
             return t;
         }
 
+        @Override
+        public CicsTask transaction(String transid, Object commarea, byte[] bytes) {
+            byte[] copy = bytes == null ? null : java.util.Arrays.copyOf(bytes, bytes.length);
+            return transaction(transid, commarea).withLinkArea(copy);
+        }
         /** A LINK from outside the region (a distributed program link): the program runs at level 1 of a task of
          *  its own, the mirror transaction CSMI's, with no terminal. */
         @Override
+
         public CicsTask linked(String program, Object commarea) {
             return new CicsTask("CSMI", null, commarea, null, Map.of()).withTempStorage(storage)
                     .withClock(clock.get()).withProgram(program).asDplServer();
@@ -3843,6 +3874,21 @@ class CicsForge:
                 f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'});",
                 f"        region.run(task, {name}, this::runTask);",
                 *([f"        return task.returned({tresp}.class);"] if tresp else []),
+                "    }\n",
+                "    /** #4817: same, taking the raw bytes of the previous task's COMMAREA to preserve non-decodable bytes. */",
+                f"    public {tresp or 'void'} handleTransaction({params}, byte[] area) {{",
+                f'        log.info("{prog.cls}: handleTransaction byte[] overload");',
+                "        CicsTask.Region region = CicsTask.region();",
+                f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'}, area);",
+                f"        region.run(task, {name}, this::runTask);",
+                "        this.lastAnswerBytes = task.returnedBytes();",
+                *([f"        return task.returned({tresp}.class);"] if tresp else []),
+                "    }\n",
+                "    private byte[] lastAnswerBytes;",
+                "",
+                "    /** #4817: the raw bytes of the last returned COMMAREA, a copy. */",
+                "    public byte[] lastAnswerBytes() {",
+                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
                 "    }\n",
             ]  # fmt: skip
         elif prog.transactions:

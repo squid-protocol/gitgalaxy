@@ -893,16 +893,44 @@ class Cics:
                         "RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)"
                     )
                 tid = self.name(_arg(opts["TRANSID"]))
-                dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
+                pre: list[str] = []
+                if "COMMAREA" in opts:
+                    dto, length = self.commarea_out(opts)
+                    if not dto.startswith("DetCics.commareaOut("):
+                        xarea = self.commarea_bytes(opts)
+                        call = f"task.returnImmediate({tid}, {dto}, {length if length != 'null' else '(Integer) null'}, {xarea})"
+                    elif length != "null" and self.constant_int(str(opts["LENGTH"])) is None:
+                        xc = g.tmpname("xc")
+                        pre.append(f"{ind}Object {xc} = {dto};")
+                        xarea = f"({xc} instanceof byte[] ? null : {self.commarea_bytes(opts)})"
+                        call = f"task.returnImmediate({tid}, {xc}, {length}, {xarea})"
+                    else:
+                        call = f"task.returnImmediate({tid}, {dto}, {length})" if length != "null" else f"task.returnImmediate({tid}, {dto}, null)"
+                else:
+                    call = f"task.returnImmediate({tid}, null, null)"
                 rr = g.tmpname("rr")
                 # failing (INVREQ / LENGERR) it returns to the program, which tests RESP; else the task ends
-                return [f"{ind}int[] {rr} = task.returnImmediate({tid}, {dto}, {length});",
+                return [*pre, f"{ind}int[] {rr} = {call};",
                         f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
                         *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
-                dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
-                return [f"{ind}caBack.run();", f"{ind}task.returnTransid({tid}, {dto}, {length});",
+                pre: list[str] = []
+                if "COMMAREA" in opts:
+                    dto, length = self.commarea_out(opts)
+                    if not dto.startswith("DetCics.commareaOut("):
+                        xarea = self.commarea_bytes(opts)
+                        call = f"task.returnTransid({tid}, {dto}, {length if length != 'null' else '(Integer) null'}, {xarea})"
+                    elif length != "null" and self.constant_int(str(opts["LENGTH"])) is None:
+                        xc = g.tmpname("xc")
+                        pre.append(f"{ind}Object {xc} = {dto};")
+                        xarea = f"({xc} instanceof byte[] ? null : {self.commarea_bytes(opts)})"
+                        call = f"task.returnTransid({tid}, {xc}, {length}, {xarea})"
+                    else:
+                        call = f"task.returnTransid({tid}, {dto}, {length})" if length != "null" else f"task.returnTransid({tid}, {dto}, null)"
+                else:
+                    call = f"task.returnTransid({tid}, null, null)"
+                return [*pre, f"{ind}caBack.run();", f"{ind}{call};",
                         f"{ind}if (true) throw new Goback();"]  # fmt: skip
             # (a LINKed program's COMMAREA goes back to its caller before the RETURN is recorded)
             return [

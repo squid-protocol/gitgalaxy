@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -266,3 +267,71 @@ def test_the_cli_writes_the_db2_outputs(tmp_path):
     subprocess.run([*run, "--files", "README.md"], capture_output=True, text=True, check=True)  # noqa: S603
     text = out.read_text(encoding="utf-8")
     assert "db2_shards=0" in text and "db2_cases=\n" in text and "db2_matrix=[]" in text
+
+
+# ---- #4847: a generator (forge) change is judged by the port diff, like a translator change -------------------
+
+FORGE = "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py"
+
+
+def _check(tmp_path, moved, all_cases=("alpha", "beta", "gamma", "delta", "dbcase")):
+    rows = [{"case": c, "status": "changed" if c in moved else "unchanged", "files": []} for c in all_cases]
+    (tmp_path / "check.json").write_text(json.dumps(rows), encoding="utf-8")
+    return tmp_path / "check.json"
+
+
+def test_a_generator_only_change_with_a_port_diff_narrows_to_the_moved_cases(tmp_path):
+    p = plan.plan([FORGE], "pull_request", CASES)
+    assert p["mode"] == "ports" and p["cases"] == [] and plan.shards_for(p) == [] and plan.db2_shards_for(p) == []
+    n = plan.narrow_by_ports(_check(tmp_path, {"delta", "dbcase"}), [], CASES)
+    assert n["mode"] == "narrow" and n["cases"] == ["delta"] and n["db2_cases"] == ["dbcase"]  # K moved cases
+    assert n["carried"] == 3 and plan.db2_shards_for(n) == ["1/1"]
+
+
+def test_a_generator_change_whose_port_diff_fails_is_a_full_sweep(tmp_path):
+    n = plan.narrow_by_ports(tmp_path / "no-check.json", [], CASES)  # det_port.py check crashed: no check.json
+    assert n["mode"] == "full" and n["cases"] == "all" and n["db2_cases"] == "all"
+
+
+def test_a_runtime_change_that_moves_every_port_proves_all_of_them(tmp_path):
+    n = plan.narrow_by_ports(_check(tmp_path, set(CASES)), [], CASES)
+    assert n["mode"] == "narrow" and n["cases"] == ["alpha", "beta", "delta", "gamma"] and n["db2_cases"] == ["dbcase"]
+    assert n["carried"] == 0
+
+
+def test_only_the_project_writing_forges_are_generator_inputs():
+    """The build / test / compare forges, the agent and the harness can move a verdict without moving a generated
+    byte: they stay a full sweep."""
+    for f in ("cobol_to_java_build_forge", "cobol_to_java_test_forge", "cobol_to_java_compare_forge",
+              "cobol_to_java_agent_forge", "proof_reach", "port_runner"):  # fmt: skip
+        p = plan.plan([f"gitgalaxy/tools/cobol_to_java/{f}.py"], "pull_request", CASES)
+        assert p["mode"] == "full", f
+    for f in plan.GENERATOR:
+        assert (ROOT / f).is_file(), f"{f} is not a file: the generator list is stale"
+    p = plan.plan([FORGE, "tests/equivalence/delta/case.json"], "pull_request", CASES)
+    assert p["mode"] == "ports" and p["cases"] == ["delta"]
+
+
+def test_a_generator_class_a_port_names_moves_that_port(tmp_path):
+    """det_port.compare sees the generated classes a port is proven against (generated/): a forge change to a DTO the
+    port names moves the port; one to a class it never names moves nothing."""
+    sys.path.insert(0, str(ROOT / "tests" / "tools"))
+    import det_port
+
+    def tree(root, dto):
+        for name, text in {"port/service/AService.java": "class AService { CustDto d; }",
+                           "generated/dto/CustDto.java": dto,
+                           "generated/service/AService.java": "stub"}.items():  # fmt: skip
+            f = root / "a" / name
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(text, encoding="utf-8")
+
+    tree(tmp_path / "base", "class CustDto {}")
+    tree(tmp_path / "same", "class CustDto {}")
+    tree(tmp_path / "new", "class CustDto { int x; }")
+    assert det_port.compare(tmp_path / "base", tmp_path / "same")[0]["status"] == "unchanged"
+    (row,) = det_port.compare(tmp_path / "base", tmp_path / "new")
+    assert row["status"] == "changed" and row["files"][0]["file"] == "generated/dto/CustDto.java"
+    # a base translated before the snapshot existed has no generated/: only the port itself is compared
+    shutil.rmtree(tmp_path / "base" / "a" / "generated")
+    assert det_port.compare(tmp_path / "base", tmp_path / "new")[0]["status"] == "unchanged"

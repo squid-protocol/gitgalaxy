@@ -163,6 +163,25 @@ def _extensions_can_name_the_same_file(token_ext: str, candidate_ext: str) -> bo
     return any(token_langs & pair and candidate_langs & pair for pair in _INTERCHANGEABLE_LANGUAGES)
 
 
+def resolve_max_workers(environ: "os._Environ[str] | dict[str, str] | None" = None) -> int:
+    """Extraction pool size: GALAXYSCOPE_MAX_WORKERS, else GG_JOB_CORES, else cpu_count - 1 (min 1).
+
+    #2988: GALAXYSCOPE_MAX_WORKERS=1 forces a single-worker, fully serial extraction (reproduces the
+    whole-repo symbol-resolution non-determinism; deterministic when sharing the box). #4902: when it
+    is unset, size from GG_JOB_CORES (exported by tests/tools/box/heavy-run.sh: this job's share of the
+    box), so a scan inside a heavy slot does not take every core. An explicit value always wins.
+    """
+    env = os.environ if environ is None else environ
+    for key in ("GALAXYSCOPE_MAX_WORKERS", "GG_JOB_CORES"):
+        val = env.get(key)
+        if val and val.isdigit() and int(val) > 0:
+            return int(val)
+    cpu_count = os.cpu_count()
+    if cpu_count is None:
+        cpu_count = 4
+    return max(1, cpu_count - 1)
+
+
 class RegexFuseTimeout(BaseException):
     """Raised by the ReDoS fuse's SIGALRM handler (#4555).
 
@@ -2360,17 +2379,7 @@ class Orchestrator:
         if total_files == 0:
             return
 
-        cpu_count = os.cpu_count()
-        if cpu_count is None:
-            cpu_count = 4
-        max_workers = max(1, cpu_count - 1)
-        # #2988: allow pinning the worker count (GALAXYSCOPE_MAX_WORKERS=1 forces a
-        # single-worker, fully serial extraction). Used to reproduce/confirm the
-        # whole-repo symbol-resolution non-determinism, and to run deterministically
-        # when a scan shares the box with other heavy processes.
-        _wenv = os.environ.get("GALAXYSCOPE_MAX_WORKERS")
-        if _wenv and _wenv.isdigit() and int(_wenv) > 0:
-            max_workers = int(_wenv)
+        max_workers = resolve_max_workers()
 
         current_log_level = logging.getLogger().getEffectiveLevel()
         # DEFENSIVE UI: Mute the initialization spam from the 16-32 worker cores unless in debug mode

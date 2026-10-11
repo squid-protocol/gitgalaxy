@@ -82,6 +82,7 @@ def _run_verifier(corpus: Path, language: str, galaxyscope_bin: str) -> tuple[st
     that as "FAIL" would report an infrastructure problem as corpus drift.
     """
     env = {**os.environ, "GALAXYSCOPE_BIN": galaxyscope_bin, "GITGALAXY_PATH": str(REPO_ROOT)}
+    env.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")  # --jobs verifiers at once: no pool inside each scan (#4902)
     try:
         result = subprocess.run(
             [sys.executable, str(corpus / "tools" / "verify_language.py"), language],

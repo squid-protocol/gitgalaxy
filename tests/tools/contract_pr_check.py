@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -120,6 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     langs = touched_languages()
+    os.environ.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")  # four legs at once: no pool inside each scan (#4902)
     with cf.ThreadPoolExecutor(max_workers=4) as ex:
         futs = {
             "extraction": ex.submit(leg_extraction, langs),

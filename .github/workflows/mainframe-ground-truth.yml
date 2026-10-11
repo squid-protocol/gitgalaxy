@@ -97,6 +97,7 @@ jobs:
         env:
           # #4834: the all-estates feature-inventory --check is nightly / manual only, not per PR
           GITGALAXY_NIGHTLY: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
+          OMP_NUM_THREADS: 1  # #4902: -n auto already uses every core; no BLAS threads on top
         run: |
           cd gitgalaxy
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks

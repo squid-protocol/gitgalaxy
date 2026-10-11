@@ -1191,6 +1191,11 @@ public class CicsTask {
     public record WebParsed(int resp, int resp2, String scheme, String host, int port, String path, String query) {
     }
 
+    /** An ASCII hex digit of either case (never another script's digits). */
+    private static boolean webHexAny(char c) {
+        return webHex(c) || (c >= 'a' && c <= 'f');
+    }
+
     private static boolean webHex(char c) {
         return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
     }
@@ -1217,8 +1222,7 @@ public class CicsTask {
         for (int i = 0; i < u.length(); i++) {
             if (u.charAt(i) == '%') {
                 boolean ok = i + 2 < u.length() && webHex(u.charAt(i + 1)) && webHex(u.charAt(i + 2));
-                boolean lower = i + 2 < u.length() && Character.digit(u.charAt(i + 1), 16) >= 0
-                        && Character.digit(u.charAt(i + 2), 16) >= 0;
+                boolean lower = i + 2 < u.length() && webHexAny(u.charAt(i + 1)) && webHexAny(u.charAt(i + 2));
                 if (!ok && lower) {
                     throw refused("WEB PARSE URL lowercase hex digit in an escape");
                 }

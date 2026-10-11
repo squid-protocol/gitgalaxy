@@ -919,16 +919,16 @@ class Cics:
                         "RETURN IMMEDIATE without TRANSID: IBM does not say what it attaches (not modelled)"
                     )
                 tid = self.name(_arg(opts["TRANSID"]))
-                pre, call = self._return_call("returnImmediate", tid, opts, ind, g)
+                ret_pre, call = self._return_call("returnImmediate", tid, opts, ind, g)
                 rr = g.tmpname("rr")
                 # failing (INVREQ / LENGERR) it returns to the program, which tests RESP; else the task ends
-                return [*pre, f"{ind}int[] {rr} = {call};",
+                return [*ret_pre, f"{ind}int[] {rr} = {call};",
                         f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
                         *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
-                pre, call = self._return_call("returnTransid", tid, opts, ind, g)
-                return [*pre, f"{ind}caBack.run();", f"{ind}{call};",
+                ret_pre, call = self._return_call("returnTransid", tid, opts, ind, g)
+                return [*ret_pre, f"{ind}caBack.run();", f"{ind}{call};",
                         f"{ind}if (true) throw new Goback();"]  # fmt: skip
             # (a LINKed program's COMMAREA goes back to its caller before the RETURN is recorded)
             return [

@@ -1571,9 +1571,9 @@ def facades(stub: str) -> list[str]:
             "    }",
             "",
         ]
-    m = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
-    if m:
-        out += [f"    public {m.group(1)} handleChannel({m.group(2)}) {{",
+    mc = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
+    if mc:
+        out += [f"    public {mc.group(1)} handleChannel({mc.group(2)}) {{",
                 ('        throw new UnsupportedOperationException("handleChannel: a channel entry has no task facade; '
                  'the program runs as runTask or handleTransaction / handleLink");'),
                 "    }", ""]  # fmt: skip

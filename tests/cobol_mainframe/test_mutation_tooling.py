@@ -166,6 +166,16 @@ def test_the_test_runs_without_maven_only_on_a_build_of_this_very_source(tmp_pat
     assert ej._launcher(["/x/classes", engine]) == jar
 
 
+def test_the_launcher_is_found_from_a_windows_backslash_classpath(tmp_path):
+    """#4934: surefire's classpath on Windows has backslash entries; the direct path must still find the launcher
+    (it fell back to Maven on every run there)."""
+    jar = tmp_path / "m2/junit-platform-launcher/1.10.2/junit-platform-launcher-1.10.2.jar"
+    jar.parent.mkdir(parents=True)
+    jar.write_bytes(b"")
+    engine = f"{tmp_path}/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar".replace("/", "\\")
+    assert ej._launcher([engine]) == jar
+
+
 def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpath_and_flags(tmp_path, monkeypatch):
     """#4910: the first run of a project builds it through Maven; every later run (a fault, an environment, an entry,
     the facade side) is a fresh plain JVM on the classpath surefire ran the first on, with the same flags and cwd."""

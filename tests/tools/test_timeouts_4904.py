@@ -43,7 +43,7 @@ def test_db2_pool_deadline_raises_by_name(monkeypatch):
         def close(self):
             pass
 
-    import fcntl
+    fcntl = pytest.importorskip("fcntl")  # the Db2 pool's slot locks are flock: Linux-only (no Db2 on Windows)
 
     def fake_flock(fh, flags):
         raise BlockingIOError("Resource temporarily unavailable")

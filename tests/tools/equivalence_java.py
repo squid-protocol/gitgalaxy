@@ -479,6 +479,7 @@ def _launcher(classpath: list[str]) -> Path | None:
     import re
 
     for e in classpath:
+        e = e.replace("\\", "/")  # Windows entries are backslash paths
         m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
         if m:
             jar = (

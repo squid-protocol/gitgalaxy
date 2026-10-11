@@ -48,6 +48,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    import fcntl
+except ImportError:  # Windows: no flock; parallel workers may then scan one corpus twice (the same bytes)
+    fcntl = None  # type: ignore[assignment]
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "tests" / "cobol_mainframe" / "corpora.json"
 EXCERPTS = REPO_ROOT / "tests" / "cobol_mainframe" / "refraction_excerpts"
@@ -157,8 +162,6 @@ def db_path(corpus: dict[str, Any], engine: str | None = None) -> Path:
 
 def scan(corpus: dict[str, Any], force: bool = False) -> Path:
     """The corpus's master DB for the current engine state, scanning only on a cache miss."""
-    import fcntl  # noqa: PLC0415
-
     repo = require_clone(corpus)
     db = db_path(corpus)
     if db.is_file() and not force:
@@ -166,7 +169,8 @@ def scan(corpus: dict[str, Any], force: bool = False) -> Path:
     db.parent.mkdir(parents=True, exist_ok=True)
     # #4825: parallel test workers (pytest -n) may miss the cache together; one scans, the others wait and reuse it
     with open(db.parent / ".scan.lock", "w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(lock, fcntl.LOCK_EX)
         if db.is_file() and not force:
             return db
         return _scan_locked(repo, db)

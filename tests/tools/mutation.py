@@ -341,7 +341,10 @@ def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple
         try:
             proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGKILL)
+            if hasattr(os, "killpg"):
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:  # Windows: no process groups
+                proc.kill()
             with contextlib.suppress(subprocess.TimeoutExpired):
                 proc.wait(timeout=KILL_WAIT_TIMEOUT)
             return {"verdict": "timeout", "seconds": round(time.time() - start)}

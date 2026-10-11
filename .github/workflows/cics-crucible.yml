@@ -122,13 +122,25 @@ jobs:
             cics-crucible-m2-
             java-compile-m2-
 
-      - name: Build the GnuCOBOL image
-        run: docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+      # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
+      # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
-      # #4309: the image is the pinned oracle (base digest, gnucobol3 package, cobc --version), or the run stops here;
-      # GITGALAXY_ORACLE_STRICT below makes every later proof refuse a mismatched image too
-      - name: Check the oracle against its pin
-        run: python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
 
       - name: The runner's own tests (the fixture end to end)
         env:

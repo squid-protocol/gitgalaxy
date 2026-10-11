@@ -715,7 +715,7 @@ jobs:
     # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
     if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 60
     permissions:
       contents: write
       pull-requests: write

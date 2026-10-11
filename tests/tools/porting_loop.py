@@ -64,12 +64,29 @@ PORT_LICENCE = {
 }
 
 
+# #4904: timeouts for porting loop subprocess calls
+PORTING_RUN_TIMEOUT = 900  # seconds (15 min): ~3-5x normal port_runner run/prove command execution (~2-4 min)
+BASELINE_WAIT_TIMEOUT = 600  # seconds (10 min): ~3-5x normal baseline proof execution (~30-90s)
+RUN_MANY_CASE_TIMEOUT = 3600  # seconds (60 min): ~3-5x normal multi-attempt porting loop run per case
+
+
 def _python() -> str:
     return sys.executable
 
 
-def _run(argv: list[str], log: Path) -> subprocess.CompletedProcess[str]:
-    proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=REPO_ROOT)  # noqa: S603
+def _run(argv: list[str], log: Path, timeout: float = PORTING_RUN_TIMEOUT) -> subprocess.CompletedProcess[str]:
+    try:
+        proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=REPO_ROOT, timeout=timeout)  # noqa: S603
+    except subprocess.TimeoutExpired as exc:
+        msg = f"command timed out after {timeout}s: {shlex.join(argv)}"
+        with log.open("a", encoding="utf-8") as f:
+            f.write(f"$ {shlex.join(argv)}\n{msg}\n")
+        return subprocess.CompletedProcess(
+            args=argv,
+            returncode=124,
+            stdout=exc.stdout or "",
+            stderr=((exc.stderr or "") + f"\n{msg}").lstrip(),
+        )
     with log.open("a", encoding="utf-8") as f:
         f.write(f"$ {shlex.join(argv)}\n{proc.stdout}{proc.stderr}\n")
     return proc
@@ -173,7 +190,11 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: str 
             record["attempts"].append(att)
             continue
         started = time.time()
-        baseline.wait()
+        try:
+            baseline.wait(timeout=BASELINE_WAIT_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            baseline.kill()
+            baseline.wait()
         reuse = _baseline_built(work / "baseline") and _overlay_files(overlay) == baseline_files
         att["reused"] = reuse
         command_ = prove + (f" --reuse {work / 'baseline'}" if reuse else "")
@@ -357,8 +378,20 @@ def run_many(cases: list[str], root: Path, jobs: int, attempts: int, model: str)
         argv = [_python(), str(Path(__file__).resolve()), "run", name, "--work", str(work), "--attempts",
                 str(attempts), "--model", model]  # fmt: skip
         with (root / f"{name}.out").open("w", encoding="utf-8") as out:
-            proc = subprocess.run(argv, stdout=out, stderr=subprocess.STDOUT, check=False, cwd=REPO_ROOT)  # noqa: S603
-        return name, proc.returncode == 0
+            try:
+                proc = subprocess.run(  # noqa: S603
+                    argv,
+                    stdout=out,
+                    stderr=subprocess.STDOUT,
+                    check=False,
+                    cwd=REPO_ROOT,
+                    timeout=RUN_MANY_CASE_TIMEOUT,
+                )
+                ok = proc.returncode == 0
+            except subprocess.TimeoutExpired:
+                out.write(f"\n[ERROR] run_many timed out after {RUN_MANY_CASE_TIMEOUT}s for case {name}\n")
+                ok = False
+        return name, ok
 
     root.mkdir(parents=True, exist_ok=True)
     with ThreadPoolExecutor(max_workers=jobs) as pool:

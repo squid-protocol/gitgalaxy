@@ -435,6 +435,19 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
 # javac exactly as the generated pom's maven-compiler-plugin runs it (Spring Boot's parent: -parameters, release 17;
 # Lombok found on the classpath)
 JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
+# #4904: timeouts for javac/java execution in equivalence tests
+JAVAC_RUNNER_TIMEOUT = (
+    300  # seconds: hang guard, well above the slowest honest run (normal single-file javac compile (~1-2s))
+)
+JAVA_DIRECT_TIMEOUT = (
+    1200  # seconds: hang guard, well above the slowest honest run (normal Java equivalence test execution (~10-30s))
+)
+JAVAC_OVERLAY_TIMEOUT = (
+    600  # seconds: hang guard, well above the slowest honest run (normal overlay javac compile (~3-10s))
+)
+MAVEN_TEST_TIMEOUT = (
+    1200  # seconds: hang guard, well above the slowest honest run (normal mvn test execution (~20-60s))
+)
 PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
 TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath the tests run on, this project's
 TEST_SOURCE = "target/equivalence-test-source"  # the EquivalenceRunTest source target/test-classes was built from
@@ -486,8 +499,13 @@ def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str
         return runner
     build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
     (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
-    subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
-                    str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True)  # fmt: skip
+    try:
+        subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+                        str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True,
+                       timeout=JAVAC_RUNNER_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        shutil.rmtree(build, ignore_errors=True)
+        raise RuntimeError(f"javac timed out after {JAVAC_RUNNER_TIMEOUT}s compiling EquivalenceMain") from exc
     try:
         build.rename(runner)  # atomic: a proof running beside this one may have made it first
     except OSError:
@@ -511,8 +529,17 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
     java_bin = Path(shell["JAVA_HOME"]) / "bin"
     runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
     full = os.pathsep.join([*classpath, str(launcher), str(runner)])
-    return subprocess.run([str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
-                          cwd=project, env=shell, capture_output=True, text=True, check=False)  # fmt: skip
+    try:
+        return subprocess.run([str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+                              cwd=project, env=shell, capture_output=True, text=True, check=False,
+                              timeout=JAVA_DIRECT_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        return subprocess.CompletedProcess(
+            args=[str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],
+            returncode=124,
+            stdout=exc.stdout or "",
+            stderr=((exc.stderr or "") + f"\njava EquivalenceMain timed out after {JAVA_DIRECT_TIMEOUT}s").lstrip(),
+        )
 
 
 def _surefire_classpath(report: Path, project: Path) -> list[str]:
@@ -558,8 +585,14 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     sources = [str(project / "src/main/java" / PKG_DIR / rel) for rel in overlay]
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
-    proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
-                          env=env, capture_output=True, text=True, check=False)  # fmt: skip
+    try:
+        proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+                              env=env, capture_output=True, text=True, check=False,
+                              timeout=JAVAC_OVERLAY_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        errors = [f"[ERROR] javac timed out after {JAVAC_OVERLAY_TIMEOUT}s compiling overlay"]
+        (work / "maven.log").write_text("\n".join(errors) + "\n", encoding="utf-8")
+        raise RuntimeError(f"Java side failed (see {work / 'maven.log'}):\n" + "\n".join(errors)) from exc
     if proc.returncode != 0:
         errors = [f"[ERROR] {x}" for x in proc.stderr.splitlines() if ": error: " in x]
         (work / "maven.log").write_text("\n".join(errors) + "\n" + proc.stderr, encoding="utf-8")
@@ -582,7 +615,17 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                f"-DargLine={argline}"]  # fmt: skip
-        proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
+        try:
+            proc = subprocess.run(  # noqa: S603
+                cmd, cwd=project, env=shell, capture_output=True, text=True, check=False, timeout=MAVEN_TEST_TIMEOUT
+            )
+        except subprocess.TimeoutExpired as exc:
+            proc = subprocess.CompletedProcess(
+                args=cmd,
+                returncode=124,
+                stdout=exc.stdout or "",
+                stderr=((exc.stderr or "") + f"\nmvn test timed out after {MAVEN_TEST_TIMEOUT}s").lstrip(),
+            )
         if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
             (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())
             _record_direct(project)  # #4910: the later runs of this project skip Maven

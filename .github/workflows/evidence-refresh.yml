@@ -1065,7 +1065,7 @@ jobs:
 
       # A dispatch from any other ref NEVER writes `generated`: it lays the same output into a scratch dir and uploads it, so
       # a branch run still proves what would be published (blockers.json, meta.json, the new history line).
-      - name: Preview the publish (not main: nothing is pushed)
+      - name: Preview the publish (not main, nothing is pushed)
         if: github.ref != 'refs/heads/main'
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER

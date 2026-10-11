@@ -2596,13 +2596,6 @@ public class CicsTask {
         ended = true;
     }
 
-    /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
-     *  RETURN): the next task, `transid`, is attached at once -- ahead of any terminal input and any transaction ATI
-     *  enqueued for the terminal -- with the COMMAREA, and "appears to the operator as having been started by terminal
-     *  data". As {RESP, RESP2}: {0, 0} and the task ends; INVREQ RESP2 1 for a task with no terminal, INVREQ RESP2 2 for
-     *  a program below the highest logical level, LENGERR RESP2 11 for a COMMAREA length below 0 or past 32763 -- the
-     *  command then returns to the program. IBM does not say which of the two INVREQs a non-terminal task below level 1
-     *  gets: refused. */
     /** #4817: same, taking the raw bytes of the COMMAREA to preserve non-decodable bytes. */
     public void returnTransid(String transid, Object commarea, Integer length, byte[] area) {
         returnTransid(transid, commarea, length);
@@ -2611,6 +2604,13 @@ public class CicsTask {
         }
     }
 
+    /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
+     *  RETURN): the next task, `transid`, is attached at once -- ahead of any terminal input and any transaction ATI
+     *  enqueued for the terminal -- with the COMMAREA, and "appears to the operator as having been started by terminal
+     *  data". As {RESP, RESP2}: {0, 0} and the task ends; INVREQ RESP2 1 for a task with no terminal, INVREQ RESP2 2 for
+     *  a program below the highest logical level, LENGERR RESP2 11 for a COMMAREA length below 0 or past 32763 -- the
+     *  command then returns to the program. IBM does not say which of the two INVREQs a non-terminal task below level 1
+     *  gets: refused. */
     public int[] returnImmediate(String transid, Object commarea, Integer length) {
         boolean lower = level > 1;
         boolean noTerminal = termid() == null;
@@ -2643,12 +2643,6 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
-    /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
-     *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is converted by layout (#4449) when
-     *  both are laid out as bytes (the generator writes toCommarea / fromCommarea into the DTOs a facade converts
-     *  between): the bytes passed -- the record's, or its first LENGTH -- read through `type`, as the program reading
-     *  them through its own record sees them. Anything else is refused, never guessed: a class with no layout, or
-     *  fewer bytes than `type`'s record (never passed). */
     /** #4817: same, taking the raw bytes of the COMMAREA to preserve non-decodable bytes. */
     public int[] returnImmediate(String transid, Object commarea, Integer length, byte[] area) {
         int[] resps = returnImmediate(transid, commarea, length);
@@ -2658,6 +2652,12 @@ public class CicsTask {
         return resps;
     }
 
+    /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
+     *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is converted by layout (#4449) when
+     *  both are laid out as bytes (the generator writes toCommarea / fromCommarea into the DTOs a facade converts
+     *  between): the bytes passed -- the record's, or its first LENGTH -- read through `type`, as the program reading
+     *  them through its own record sees them. Anything else is refused, never guessed: a class with no layout, or
+     *  fewer bytes than `type`'s record (never passed). */
     /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
     public byte[] returnedBytes() {
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
@@ -2707,7 +2707,9 @@ public class CicsTask {
          *  last task sent, nothing typed. */
         CicsTask transaction(String transid, Object commarea);
         /** #4817: same, with the raw bytes of the COMMAREA from the previous task. */
-        CicsTask transaction(String transid, Object commarea, byte[] bytes);
+        default CicsTask transaction(String transid, Object commarea, byte[] bytes) {
+            return transaction(transid, commarea).withLinkArea(bytes == null ? null : java.util.Arrays.copyOf(bytes, bytes.length));
+        }
 
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
          *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
@@ -2780,15 +2782,9 @@ public class CicsTask {
             return t;
         }
 
-        @Override
-        public CicsTask transaction(String transid, Object commarea, byte[] bytes) {
-            byte[] copy = bytes == null ? null : java.util.Arrays.copyOf(bytes, bytes.length);
-            return transaction(transid, commarea).withLinkArea(copy);
-        }
         /** A LINK from outside the region (a distributed program link): the program runs at level 1 of a task of
          *  its own, the mirror transaction CSMI's, with no terminal. */
         @Override
-
         public CicsTask linked(String program, Object commarea) {
             return new CicsTask("CSMI", null, commarea, null, Map.of()).withTempStorage(storage)
                     .withClock(clock.get()).withProgram(program).asDplServer();

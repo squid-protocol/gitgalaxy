@@ -2274,7 +2274,9 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
     assert any("commareaOut" in x for x in ret)  # #4679: a RETURN's too (below)
     # #4817: RETURN passes the bytes beside the DTO
     ret_within = c.command("RETURN TRANSID('T1') COMMAREA(WS-V1) LENGTH(80)", "")
-    assert "commareaOut" not in ret_within[0] and ret_within[1].endswith(", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);")
+    assert "commareaOut" not in ret_within[0] and ret_within[1].endswith(
+        ", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);"
+    )
     ret_unknown = c.command("RETURN TRANSID('T1') COMMAREA(WS-V1) LENGTH(WS-N)", "")
     assert "commareaOut" in ret_unknown[0]
     assert ret_unknown[2] == (
@@ -2283,7 +2285,6 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
     )
     imm = c.command("RETURN TRANSID('T1') IMMEDIATE COMMAREA(WS-V1) LENGTH(80)", "")
     assert "commareaOut" not in imm[0] and imm[0].endswith(", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);")
-
 
 
 # ---- #4679: LINK RESP2; RETURN / LINK COMMAREA LENGTH past the DTO; opaque bytes passed on ------------------------

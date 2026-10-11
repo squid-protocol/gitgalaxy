@@ -1569,7 +1569,7 @@ def facades(stub: str) -> list[str]:
             "    public byte[] lastAnswerBytes() {",
             "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
             "    }",
-            ""
+            "",
         ]
     m = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
     if m:

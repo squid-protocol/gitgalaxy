@@ -912,6 +912,8 @@ _RESP_SAMPLES = {
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
     "DOCUMENT CREATE": "DOCUMENT CREATE DOCTOKEN(REC)",
     "DOCUMENT RETRIEVE": "DOCUMENT RETRIEVE DOCTOKEN(KEY) INTO(REC) MAXLENGTH(10) DATAONLY",
+    "WEB OPEN": "WEB OPEN SESSTOKEN(KEY) URIMAP(REC)", "WEB CLOSE": "WEB CLOSE SESSTOKEN(KEY)",
+    "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1264,6 +1266,61 @@ def test_inquire_urimap_browse_and_write_operator():
                      ("WRITE OPERATOR", "without TEXT"),
                      ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_open_converse_close_are_the_tasks_http_client():
+    """#4767 zECS (register X35), IBM WEB OPEN / WEB CONVERSE / WEB CLOSE: OPEN by URIMAP or HOST / HOSTLENGTH /
+    PORTNUMBER / SCHEME (CicsTask.webOpenUrimap / webOpenHost), the SESSTOKEN written on NORMAL only; CONVERSE hands
+    each area's text and length to CicsTask.webConverse (MAXLENGTH defaulting to INTO's length) and writes INTO,
+    TOLENGTH, STATUSCODE, STATUSTEXT and MEDIATYPE only when a response came back; CLOSE: CicsTask.webClose. Every
+    condition through RESP / HANDLE CONDITION. What IBM leaves open, or zECS does not use, is refused by name."""
+    c = _ChanCics()
+    u = c.command("WEB OPEN SESSTOKEN(KEY) URIMAP(REC) NOHANDLE", "")
+    assert u[0].startswith("CicsTask.WebOpened web") and ".webOpenUrimap(" in u[0]
+    assert ".resp() == 0) DetCics.putText(" in u[1] and any("OUTCOME(web" in x for x in u)
+    h = c.command("WEB OPEN HOST(REC) HOSTLENGTH(R) PORTNUMBER(R2) SCHEME(R) SESSTOKEN(KEY) NOHANDLE", "")
+    assert ".webOpenHost(Cobol.text(" in h[0] and ", true, " in h[0]
+    h2 = c.command("WEB OPEN HOST(REC) HOSTLENGTH(R) SCHEME(R) SESSTOKEN(KEY) NOHANDLE", "")
+    assert ", 0, false, " in h2[0]
+    v = c.command(
+        "WEB CONVERSE SESSTOKEN(KEY) METHOD(R) PATH(REC) PATHLENGTH(R) FROM(AREA) FROMLENGTH(R) "
+        "MEDIATYPE(REC) INTO(AREA) TOLENGTH(R2) STATUSCODE(R) STATUSLEN(R2) STATUSTEXT(REC) NOHANDLE",
+        "",
+    )
+    assert v[0].startswith("CicsTask.WebResponse web") and ".webConverse(Cobol.text(" in v[0]
+    assert ", 20, " in v[0] and v[0].endswith(", CS);")  # (no MAXLENGTH: INTO's 20 bytes)
+    assert v[1].endswith(".body() != null) {") and "DetCics.putReceived(" in v[2] and "WEB CONVERSE INTO" in v[2]
+    body = " ".join(v)
+    assert ".toLength()" in body and ".status()" in body and ".statusText().getBytes(CS)" in body
+    assert ".mediaType(), CS)" in body and any("OUTCOME(web" in x for x in v)
+    q = c.command(
+        "WEB CONVERSE SESSTOKEN(KEY) METHOD(R) PATH(REC) PATHLENGTH(R) QUERYSTRING(REC) QUERYSTRLEN(R) "
+        "INTO(AREA) MAXLENGTH(R2) TOLENGTH(R2) NOOUTCONVERT NOHANDLE",
+        "",
+    )
+    assert "null, 0, null, " in q[0]  # (no FROM, no MEDIATYPE)
+    k = c.command("WEB CLOSE SESSTOKEN(KEY) NOHANDLE", "")
+    assert k[0].startswith("int[] web") and ".webClose(Cobol.text(" in k[0]
+    for bad, why in (("WEB OPEN URIMAP(REC)", "without SESSTOKEN"),
+                     ("WEB OPEN SESSTOKEN(KEY)", "one of URIMAP and HOST"),
+                     ("WEB OPEN SESSTOKEN(KEY) URIMAP(REC) HOST(REC) HOSTLENGTH(R) SCHEME(R)", "one of URIMAP and HOST"),
+                     ("WEB OPEN SESSTOKEN(KEY) HOST(REC) SCHEME(R)", "HOST without HOSTLENGTH"),
+                     ("WEB OPEN SESSTOKEN(KEY) HOST(REC) HOSTLENGTH(R)", "IBM states no default scheme"),
+                     ("WEB OPEN SESSTOKEN(KEY) URIMAP(REC) PORTNUMBER(R)", "PORTNUMBER without HOST"),
+                     ("WEB OPEN SESSTOKEN(KEY) URIMAP(REC) CERTIFICATE(REC)", "TLS client certificates"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) INTO(AREA)", "without METHOD"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R)", "without INTO"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) PATH(REC)", "PATH without PATHLENGTH"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) FROMLENGTH(R)", "FROM without FROMLENGTH"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) NOOUTCONVERT NOCLICONVERT",
+                      "more than one conversion option"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) NOTRUNCATE", "kept for later RECEIVEs"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) SET(PTR)", "held in CICS storage"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) POST INTO(AREA)", "request URIMAP"),
+                     ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

@@ -880,6 +880,214 @@ public class CicsTask {
         return new DocumentData(0, 0, doc.length, doc.clone());
     }
 
+    // #4767 zECS (register X35): CICS web support as an HTTP client -- WEB OPEN, WEB CONVERSE, WEB CLOSE (IBM CICS TS,
+    // EXEC CICS WEB OPEN, WEB CONVERSE, WEB CLOSE). The server is not part of the region: the peers (scheme, host, port,
+    // the CLIENT URIMAP naming one, and the response each gives, request by request) are a fact whoever runs the task
+    // states, never guessed. The exchange is in the program's characters (`cs`): conversion changes nothing here.
+    /** One stated response: the request it answers (method, path, query string without its '?', "" for none) and what
+     *  the server sends back (status code, reason phrase, media type, body text). Each answers one request, in order. */
+    public record HttpExchange(String method, String path, String query, int status, String statusText,
+                               String mediaType, String body) {
+    }
+
+    /** One stated server: scheme (HTTP / HTTPS), host, port, the CLIENT URIMAP that names it and that URIMAP's path
+     *  (null: none), and its responses. */
+    public record HttpPeer(String scheme, String host, int port, String urimap, String path,
+                           java.util.List<HttpExchange> exchanges) {
+    }
+
+    /** WEB OPEN's outcome: RESP, RESP2 and the SESSTOKEN (null unless NORMAL). */
+    public record WebOpened(int resp, int resp2, String sesstoken) {
+    }
+
+    /** WEB CONVERSE's outcome: RESP, RESP2 and, when a response came back (NORMAL, LENGERR 57), the bytes for INTO,
+     *  TOLENGTH, STATUSCODE, the reason phrase and the media type (blank-padded to 56); else body null. */
+    public record WebResponse(int resp, int resp2, byte[] body, int toLength, int status, String statusText,
+                              String mediaType) {
+    }
+
+    private record WebSession(HttpPeer peer, boolean byUrimap) {
+    }
+
+    private java.util.List<HttpPeer> httpPeers;
+    private final java.util.Map<String, WebSession> webSessions = new LinkedHashMap<>();
+    private final java.util.Set<HttpExchange> webAnswered =
+            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+    private int webSeq;
+    private static final java.util.Map<Integer, String> WEB_METHODS = java.util.Map.of(
+            748, "GET", 750, "HEAD", 292, "DELETE", 636, "POST", 749, "PUT", 1220, "PATCH");
+    private static final java.util.Set<String> WEB_BODY = java.util.Set.of("POST", "PUT", "PATCH");
+
+    /** The HTTP servers the task can reach. Not stated (never called), every WEB command is refused. */
+    public CicsTask withHttpPeers(java.util.List<HttpPeer> peers) {
+        this.httpPeers = peers;
+        return this;
+    }
+
+    private java.util.List<HttpPeer> statedPeers() {
+        java.util.List<HttpPeer> p = root().httpPeers;
+        if (p == null) {
+            throw refused("the HTTP peers are not stated (withHttpPeers)");
+        }
+        return p;
+    }
+
+    private WebOpened webSession(HttpPeer peer, boolean byUrimap) {
+        CicsTask r = root();
+        String token = String.format(java.util.Locale.ROOT, "GGWS%04d", ++r.webSeq);
+        r.webSessions.put(token, new WebSession(peer, byUrimap));
+        return new WebOpened(0, 0, token);
+    }
+
+    /** WEB OPEN HOST(host) HOSTLENGTH(n) [PORTNUMBER(port)] SCHEME(cvda): `host` is the HOST area's text; PORTNUMBER
+     *  omitted (portGiven false) is 80 for HTTP, 443 for HTTPS. LENGERR 21 (HOSTLENGTH not above zero), INVREQ 40 (a
+     *  scheme other than HTTP / HTTPS), INVREQ 138 (a port above 65535). Refused: two conditions at once, a port below 1,
+     *  a HOSTLENGTH past HOST, a server the run does not state. */
+    public WebOpened webOpenHost(String host, int hostLength, int port, boolean portGiven, int scheme) {
+        java.util.List<HttpPeer> peers = statedPeers();
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (hostLength <= 0) {
+            c.add(new int[] {22, 21});
+        } else if (hostLength > host.length()) {
+            throw refused("WEB OPEN HOSTLENGTH beyond HOST");
+        }
+        String sch = scheme == 1096 ? "HTTP" : scheme == 1029 ? "HTTPS" : null;
+        if (sch == null) {
+            c.add(new int[] {16, 40});
+        }
+        if (portGiven && port > 65535) {
+            c.add(new int[] {16, 138});
+        } else if (portGiven && port < 1) {
+            throw refused("WEB OPEN PORTNUMBER below 1");
+        }
+        if (c.size() > 1) {
+            throw refused("WEB OPEN with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return new WebOpened(c.get(0)[0], c.get(0)[1], null);
+        }
+        String h = host.substring(0, hostLength);
+        int p = portGiven ? port : "HTTPS".equals(sch) ? 443 : 80;
+        for (HttpPeer peer : peers) {
+            if (peer.scheme().equals(sch) && peer.host().equalsIgnoreCase(h) && peer.port() == p) {
+                return webSession(peer, false);
+            }
+        }
+        throw refused("WEB OPEN of a peer the run does not state");
+    }
+
+    /** WEB OPEN URIMAP(name): the stated server whose CLIENT URIMAP that is; another is refused. */
+    public WebOpened webOpenUrimap(String name) {
+        String n = name == null ? "" : name.strip();
+        for (HttpPeer peer : statedPeers()) {
+            if (n.equals(peer.urimap())) {
+                return webSession(peer, true);
+            }
+        }
+        throw refused("WEB OPEN of a peer the run does not state");
+    }
+
+    /** WEB CONVERSE on SESSTOKEN `token`: one request and its stated response. Each text argument is its area's text
+     *  (null: the option is not given) and each length its value; mediaType is MEDIATYPE's area (null: not given),
+     *  maxLength MAXLENGTH (INTO's length when omitted), statusLength STATUSLEN (-1: no STATUSTEXT). The conditions IBM
+     *  lists for what the program gives (NOTOPEN 27; INVREQ 33 / 34 / 54 / 76; LENGERR 5 / 8 / 16 / 50 / 59) come back
+     *  with nothing sent; a response longer than MAXLENGTH is truncated (LENGERR 57). The request sent is recorded
+     *  (WEB-CONVERSE). Refused: two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a session opened by
+     *  HOST, a body with a blank MEDIATYPE, a length past its area, a request the peer states no response to, a reason
+     *  phrase longer than STATUSLEN. */
+    public WebResponse webConverse(String token, int method, String path, int pathLength, String query, int queryLength,
+                                   String from, int fromLength, String mediaType, int maxLength, int statusLength,
+                                   java.nio.charset.Charset cs) {
+        CicsTask r = root();
+        r.statedPeers();
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        WebSession s = r.webSessions.get(token);
+        if (s == null) {
+            c.add(new int[] {19, 27});
+        }
+        if (method == 760 || method == 759) {
+            throw refused("WEB CONVERSE METHOD TRACE / OPTIONS");
+        }
+        String m = WEB_METHODS.get(method);
+        if (m == null) {
+            c.add(new int[] {16, 54});
+        } else if (from != null && !WEB_BODY.contains(m)) {
+            c.add(new int[] {16, 33});
+        } else if (from == null && WEB_BODY.contains(m)) {
+            c.add(new int[] {16, 34});
+        }
+        if (from != null && mediaType == null) {
+            c.add(new int[] {16, 76});
+        } else if (from != null && mediaType.isBlank()) {
+            throw refused("WEB CONVERSE body with a blank MEDIATYPE");
+        }
+        if (path != null && pathLength <= 0) {
+            c.add(new int[] {22, 5});
+        }
+        if (query != null && queryLength <= 0) {
+            c.add(new int[] {22, 8});
+        }
+        if (maxLength < 0) {
+            c.add(new int[] {22, 16});
+        } else if (maxLength == 0) {
+            throw refused("WEB CONVERSE MAXLENGTH 0");
+        }
+        if (from != null && fromLength <= 0) {
+            c.add(new int[] {22, 50});
+        }
+        if (statusLength == 0 || statusLength < -1) {
+            c.add(new int[] {22, 59});
+        }
+        if ((path != null && pathLength > path.length()) || (query != null && queryLength > query.length())
+                || (from != null && fromLength > from.length())) {
+            throw refused("WEB CONVERSE length beyond its area");
+        }
+        if (c.size() > 1) {
+            throw refused("WEB CONVERSE with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return new WebResponse(c.get(0)[0], c.get(0)[1], null, -1, -1, null, null);
+        }
+        if (path == null && !s.byUrimap()) {
+            throw refused("WEB CONVERSE with no PATH on a session opened by HOST");
+        }
+        String p = path != null ? path.substring(0, pathLength) : s.peer().path();
+        String q = query == null ? "" : query.substring(0, queryLength);
+        q = q.startsWith("?") ? q.substring(1) : q;
+        String body = from == null ? null : from.substring(0, fromLength);
+        String mt = from == null ? null : mediaType.length() > 56 ? mediaType.substring(0, 56).stripTrailing()
+                : mediaType.stripTrailing();
+        HttpExchange x = null;
+        for (HttpExchange e : s.peer().exchanges()) {
+            if (!r.webAnswered.contains(e) && e.method().equals(m) && e.path().equals(p) && e.query().equals(q)) {
+                x = e;
+                break;
+            }
+        }
+        if (x == null) {
+            throw refused("WEB CONVERSE request the peer states no response to");
+        }
+        if (statusLength > 0 && x.statusText().length() > statusLength) {
+            throw refused("WEB CONVERSE status text longer than STATUSLEN");
+        }
+        r.webAnswered.add(x);
+        byte[] data = x.body().getBytes(cs);
+        int resp = data.length > maxLength ? 22 : 0;
+        int resp2 = resp == 0 ? 0 : 57;
+        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
+                "body", body, "resp", resp, "resp2", resp2);
+        byte[] into = resp == 0 ? data : java.util.Arrays.copyOf(data, maxLength);
+        return new WebResponse(resp, resp2, into, into.length, x.status(), x.statusText(),
+                String.format(java.util.Locale.ROOT, "%-56.56s", x.mediaType()));
+    }
+
+    /** WEB CLOSE SESSTOKEN(token): {RESP, RESP2} -- NOTOPEN 27 for a token that is not an open session's. */
+    public int[] webClose(String token) {
+        CicsTask r = root();
+        r.statedPeers();
+        return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;

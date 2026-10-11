@@ -1067,6 +1067,85 @@ def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
         ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) CRITICAL")
 
 
+def test_web_open_converse_close_become_stub_calls():
+    """#4767 zECS (register X35): WEB OPEN -> GGCWOPN (URIMAP: the name in GG-NAME1; HOST: HOSTLENGTH, SCHEME, PORTNUMBER in
+    GG-LEN / GG-ITEM / GG-NUM), WEB CONVERSE -> GGCWCNV (METHOD, MAXLENGTH -- INTO's length when omitted -- and the lengths
+    in GG fields, every area by reference with its length), TOLENGTH / STATUSCODE moved back when a response came back,
+    WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
+    u = ec.translate_command("WEB OPEN SESSTOKEN(WS-TOK) URIMAP(WS-URI) NOHANDLE")
+    assert u[:3] == ["MOVE WS-URI TO GG-NAME1", "MOVE 'URIMAP' TO GG-FLAGS", "CALL 'GGCWOPN' USING GG-CICS"]
+    h = ec.translate_command(
+        "WEB OPEN HOST(WS-H) HOSTLENGTH(WS-HL) PORTNUMBER(WS-P) SCHEME(WS-S) SESSTOKEN(WS-TOK) NOHANDLE"
+    )
+    assert h[:5] == ["MOVE WS-HL TO GG-LEN", "MOVE WS-S TO GG-ITEM", "MOVE WS-P TO GG-NUM", "MOVE 'HOST PORT' TO GG-FLAGS",
+                     "CALL 'GGCWOPN' USING GG-CICS"]  # fmt: skip
+    assert "    BY REFERENCE WS-H" in h and "    BY VALUE LENGTH OF WS-H" in h
+    v = ec.translate_command(
+        "WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) "
+        "MEDIATYPE(WS-MT) INTO(WS-IN) TOLENGTH(WS-LEN) MAXLENGTH(WS-LEN) STATUSCODE(WS-SC) "
+        "STATUSLEN(WS-SL) STATUSTEXT(WS-ST) NOOUTCONVERT NOHANDLE"
+    )
+    assert v[:7] == ["MOVE WS-M TO GG-NUM", "MOVE WS-LEN TO GG-LEN", "MOVE WS-SL TO GG-ITEM", "MOVE WS-PL TO GG-HOURS",
+                     "MOVE 0 TO GG-MINS", "MOVE 0 TO GG-SECS", "MOVE 'PATH MEDIA' TO GG-FLAGS"]  # fmt: skip
+    assert v[7] == "CALL 'GGCWCNV' USING GG-CICS" and v[8] == "    BY REFERENCE WS-TOK"
+    assert v[9:11] == ["    BY REFERENCE WS-PATH", "    BY VALUE LENGTH OF WS-PATH"]
+    assert v[11:13] == ["    BY REFERENCE GG-QNAME", "    BY VALUE LENGTH OF GG-QNAME"]  # (no QUERYSTRING)
+    i = v.index("IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 57)")
+    assert v[i + 1 : i + 4] == ["    MOVE GG-LEN TO WS-LEN", "    MOVE GG-NUM TO WS-SC", "END-IF"]
+    d = ec.translate_command(
+        "WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) INTO(WS-IN) NOHANDLE"
+    )
+    assert d[1] == "MOVE LENGTH OF WS-IN TO GG-LEN" and d[2] == "MOVE -1 TO GG-ITEM"
+    assert ec.translate_command("WEB CLOSE SESSTOKEN(WS-TOK) NOHANDLE")[:2] == ["CALL 'GGCWCLS' USING GG-CICS",
+                                                                                 "    BY REFERENCE WS-TOK"]  # fmt: skip
+    for bad, why in (("WEB OPEN SESSTOKEN(WS-TOK)", "one of URIMAP and HOST"),
+                     ("WEB OPEN SESSTOKEN(WS-TOK) HOST(WS-H) HOSTLENGTH(WS-HL)", "no default scheme"),
+                     ("WEB OPEN SESSTOKEN(WS-TOK) URIMAP(WS-URI) SCHEME(WS-S)", "SCHEME without HOST"),
+                     ("WEB CONVERSE SESSTOKEN(WS-TOK) METHOD(WS-M)", "without INTO"),
+                     ("WEB CONVERSE SESSTOKEN(WS-TOK) METHOD(WS-M) INTO(WS-IN) FROM(WS-F)", "FROM without FROMLENGTH"),
+                     ("WEB CONVERSE SESSTOKEN(WS-TOK) METHOD(WS-M) INTO(WS-IN) NOTRUNCATE", "later RECEIVEs"),
+                     ("WEB CONVERSE SESSTOKEN(WS-TOK) METHOD(WS-M) INTO(WS-IN) CLIENTCONV(WS-C) NOOUTCONVERT",
+                      "more than one conversion option"),
+                     ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_http_peers_are_stated_alike_on_both_sides_and_requests_compared():
+    """#4767 zECS (X35): a case's "http_peers" (the scenario's first) is checked, written for the stub as hex in the data's
+    page, and a WEB-CONVERSE event line reads back as CicsTask records it; the requests are compared exactly."""
+    peer = {"scheme": "HTTP", "host": "zecs.example", "port": 80, "urimap": "ZCCLIENT", "path": "/resources/zc01",
+            "exchanges": [{"method": "GET", "path": "/resources/zc01/k1", "query": "", "status": 200, "statustext": "OK",
+                           "mediatype": "text/plain", "body": "value"}]}  # fmt: skip
+    assert ec.http_peers({"http_peers": [peer]}, {"name": "s"}) == [peer]
+    assert ec.http_peers({}, {"name": "s"}) is None
+    assert ec.http_peers({"http_peers": [peer]}, {"name": "s", "http_peers": []}) == []
+    for broken in ({**peer, "port": 0}, {**peer, "scheme": "FTP"}, {**peer, "urimap": "TOOLONGNAME"},
+                   {**peer, "exchanges": [{**peer["exchanges"][0], "method": "TRACE"}]}, {**peer, "extra": 1}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="http_peers"):
+            ec.http_peers({"http_peers": [broken]}, {"name": "s"})
+    cfg = ec.http_peers_cfg([peer], "latin-1").splitlines()
+    assert cfg[0] == "P HTTP " + b"zecs.example".hex().upper() + " 80 ZCCLIENT " + b"/resources/zc01".hex().upper()
+    assert cfg[1].startswith("X GET " + b"/resources/zc01/k1".hex().upper() + " - 200 4F4B ")
+    line = (
+        "WEB-CONVERSE host="
+        + b"zecs.example".hex().upper()
+        + " method=PUT path="
+        + b"/k".hex().upper()
+        + " query=- media="
+        + b"text/plain".hex().upper()
+        + " body=1 resp=0 resp2=0"
+    )
+    kv = dict(a.split("=", 1) for a in line.split()[1:])
+    got = ec._cobol_web(kv, b"data ", "latin-1")
+    assert got == {"host": "zecs.example", "method": "PUT", "path": "/k", "query": "", "mediatype": "text/plain",
+                   "body": "data ", "resp": 0, "resp2": 0}  # fmt: skip
+    java = {"event": "WEB-CONVERSE", **got}
+    assert ec.compare_events([java], [dict(java)])["equal"] == 1
+    differs = ec.compare_events([java], [{**java, "body": "data"}])  # (a trailing blank is sent: compared exactly)
+    assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "body"
+
+
 def test_document_create_and_retrieve_become_stub_calls():
     """#4769 (register X33): DOCUMENT CREATE -> GGCDOCC (GG-FLAGS names the source: DATA with GG-LEN, TEMPLATE with its name,
     EMPTY), the token in the DOCTOKEN area; DOCUMENT RETRIEVE -> GGCDOCR (MAXLENGTH in GG-LEN), LENGTH moved back on NORMAL

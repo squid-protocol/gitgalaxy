@@ -2987,3 +2987,247 @@ int GGCEND(gg_cics *c) {
     containers_out();
     return 0;
 }
+
+/* ---- #4767 zECS: CICS web support as an HTTP client -- WEB OPEN, WEB CONVERSE, WEB CLOSE (IBM CICS TS, EXEC CICS WEB OPEN,
+ * WEB CONVERSE, WEB CLOSE; register X35) ----
+ * The server is not part of the region: the peers are a fact the runner states, the file $GGCICS_HTTP names (unstated, every
+ * WEB command is refused). Per peer a line `P SCHEME HOSTHEX PORT URIMAP|- PATHHEX|-`, then its responses, one per request,
+ * `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` (hex: the bytes in the program's page; '-':
+ * none). The exchange is in the program's characters: conversion changes nothing within the model. As CicsTask (the Java
+ * side) answers. */
+#define WEB_MAXX 256
+#define WEB_MAXP 32
+#define WEB_TXT 4096
+typedef struct { char scheme[8], host[WEB_TXT], urimap[9], path[WEB_TXT]; int port, haspath; } web_peer;
+typedef struct { int peer, status; char method[8], path[WEB_TXT], query[WEB_TXT], stext[WEB_TXT], media[WEB_TXT];
+                 char *body; int bodylen; } web_x;
+static web_peer web_peers[WEB_MAXP];
+static web_x web_xs[WEB_MAXX];
+static int web_npeers = -1, web_nxs = 0, web_answered[WEB_MAXX], web_seq = 0;
+static struct { char token[9]; int peer, byurimap, open; } web_sess[64];
+static int web_nsess = 0;
+
+static int web_hexval(int ch) {
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    refuse("WEB: $GGCICS_HTTP holds a value that is not hex");
+    return 0;
+}
+
+/* hex (or '-') -> bytes in dst (NUL-terminated as well), its length */
+static int web_unhex(const char *hex, char *dst, int cap) {
+    int n = strcmp(hex, "-") == 0 ? 0 : (int)strlen(hex) / 2;
+    if (n >= cap) refuse("WEB: a stated value too long");
+    for (int i = 0; i < n; i++) dst[i] = (char)(web_hexval(hex[2 * i]) * 16 + web_hexval(hex[2 * i + 1]));
+    dst[n] = '\0';
+    return n;
+}
+
+static void web_load(void) {
+    const char *env = getenv("GGCICS_HTTP");
+    static char line[70000];
+    if (web_npeers >= 0) return;
+    if (!env) refuse("WEB: the HTTP peers are not stated for this task");
+    FILE *f = fopen(env, "r");
+    if (!f) refuse("WEB: the HTTP peers are not stated for this task");
+    web_npeers = 0;
+    while (fgets(line, sizeof line, f)) {
+        static char a[8][33000];
+        if (strlen(line) > 32000) refuse("WEB: a stated response longer than 16000 bytes");
+        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s %32999s",
+                       a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+        if (k == 6 && strcmp(a[0], "P") == 0 && web_npeers < WEB_MAXP) {
+            web_peer *p = &web_peers[web_npeers++];
+            snprintf(p->scheme, sizeof p->scheme, "%s", a[1]);
+            web_unhex(a[2], p->host, WEB_TXT);
+            p->port = atoi(a[3]);
+            snprintf(p->urimap, sizeof p->urimap, "%s", strcmp(a[4], "-") == 0 ? "" : a[4]);
+            p->haspath = strcmp(a[5], "-") != 0;
+            web_unhex(a[5], p->path, WEB_TXT);
+        } else if (k == 8 && strcmp(a[0], "X") == 0 && web_npeers > 0 && web_nxs < WEB_MAXX) {
+            web_x *x = &web_xs[web_nxs++];
+            x->peer = web_npeers - 1;
+            snprintf(x->method, sizeof x->method, "%s", a[1]);
+            web_unhex(a[2], x->path, WEB_TXT);
+            web_unhex(a[3], x->query, WEB_TXT);
+            x->status = atoi(a[4]);
+            web_unhex(a[5], x->stext, WEB_TXT);
+            web_unhex(a[6], x->media, WEB_TXT);
+            x->body = malloc(strlen(a[7]) / 2 + 2);
+            if (!x->body) refuse("out of memory");
+            x->bodylen = web_unhex(a[7], x->body, (int)strlen(a[7]) / 2 + 2);
+        }
+    }
+    fclose(f);
+}
+
+static void web_hex(const char *src, int n, char *dst) {
+    if (n == 0) { strcpy(dst, "-"); return; }
+    for (int i = 0; i < n; i++) sprintf(dst + 2 * i, "%02X", (unsigned char)src[i]);
+}
+
+static int web_same_host(const char *a, const char *b) { /* host names compare without case (ASSUMED, X35) */
+    while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) { a++; b++; }
+    return *a == '\0' && *b == '\0';
+}
+
+static int web_session(const char *token) {
+    for (int i = 0; i < web_nsess; i++)
+        if (web_sess[i].open && memcmp(web_sess[i].token, token, 8) == 0) return i;
+    return -1;
+}
+
+static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
+    if (web_nsess >= 64) refuse("WEB OPEN: more than 64 sessions in one task");
+    snprintf(web_sess[web_nsess].token, 9, "GGWS%04d", ++web_seq);
+    web_sess[web_nsess].peer = peer;
+    web_sess[web_nsess].byurimap = byurimap;
+    web_sess[web_nsess].open = 1;
+    memcpy(token, web_sess[web_nsess].token, 8);
+    web_nsess++;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+}
+
+/* WEB OPEN: GG-FLAGS URIMAP (the name in GG-NAME1) or HOST (GG-LEN HOSTLENGTH, GG-ITEM the SCHEME CVDA, GG-NUM the
+ * PORTNUMBER when GG-FLAGS also names PORT). LENGERR 21, INVREQ 40 / 138; the SESSTOKEN written on NORMAL only. */
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
+    char flags[41], name[9], h[WEB_TXT];
+    int conds = 0, port, n = c->len;
+    const char *sch;
+    web_load();
+    trim(c->flags, 40, flags);
+    if (strncmp(flags, "URIMAP", 6) == 0) {
+        trim(c->name1, 8, name);
+        for (int i = 0; i < web_npeers; i++)
+            if (strcmp(web_peers[i].urimap, name) == 0) { web_opened(c, token, i, 1); return 0; }
+        refuse("WEB OPEN of a peer the run does not state");
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (n <= 0) { c->resp = LENGERR; c->resp2 = 21; conds++; }
+    else if (n > hostcap) refuse("WEB OPEN HOSTLENGTH beyond HOST");
+    sch = c->item == 1096 ? "HTTP" : c->item == 1029 ? "HTTPS" : NULL;
+    if (!sch) { c->resp = INVREQ; c->resp2 = 40; conds++; }
+    port = strstr(flags, "PORT") ? c->num : (sch && strcmp(sch, "HTTPS") == 0 ? 443 : 80);
+    if (strstr(flags, "PORT") && port > 65535) { c->resp = INVREQ; c->resp2 = 138; conds++; }
+    else if (strstr(flags, "PORT") && port < 1) refuse("WEB OPEN PORTNUMBER below 1");
+    if (conds > 1) refuse("WEB OPEN with more than one condition at once");
+    if (conds == 1) return 0;
+    if (n >= WEB_TXT) refuse("WEB OPEN HOSTLENGTH beyond HOST");
+    memcpy(h, host, (size_t)n);
+    h[n] = '\0';
+    for (int i = 0; i < web_npeers; i++) {
+        if (strcmp(web_peers[i].scheme, sch) == 0 && web_same_host(web_peers[i].host, h) && web_peers[i].port == port) {
+            web_opened(c, token, i, 0);
+            return 0;
+        }
+    }
+    refuse("WEB OPEN of a peer the run does not state");
+    return 0;
+}
+
+/* WEB CONVERSE: GG-NUM the METHOD CVDA (out: STATUSCODE), GG-HOURS PATHLENGTH, GG-MINS QUERYSTRLEN, GG-SECS FROMLENGTH,
+ * GG-LEN MAXLENGTH (out: TOLENGTH), GG-ITEM STATUSLEN (-1: no STATUSTEXT); GG-FLAGS names PATH QUERY FROM MEDIA given.
+ * The conditions IBM lists for what the program gives come back with nothing sent; a response longer than MAXLENGTH is
+ * truncated (LENGERR 57). INTO, STATUSTEXT and MEDIATYPE are written here, when a response came back. */
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap) {
+    char flags[41], ev[WEB_TXT * 9 + 400], p[WEB_TXT], q[WEB_TXT], mt[57], hx[4][WEB_TXT * 2 + 2];
+    int conds = 0, s, hasp, hasq, hasf, hasm, pl = c->hours, ql = c->mins, fl = c->secs, max = c->len, sl = c->item;
+    int method = c->num, body = 0, x = -1, n, mtl = 0;
+    const char *m = method == 748 ? "GET" : method == 750 ? "HEAD" : method == 292 ? "DELETE" : method == 636 ? "POST"
+                  : method == 749 ? "PUT" : method == 1220 ? "PATCH" : NULL;
+    web_load();
+    trim(c->flags, 40, flags);
+    hasp = strstr(flags, "PATH") != NULL;
+    hasq = strstr(flags, "QUERY") != NULL;
+    hasf = strstr(flags, "FROM") != NULL;
+    hasm = strstr(flags, "MEDIA") != NULL;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+#define WEB_COND(r, r2) do { c->resp = (r); c->resp2 = (r2); conds++; } while (0)
+    s = web_session(token);
+    if (s < 0) WEB_COND(DFHRESP_NOTOPEN, 27);
+    if (method == 760 || method == 759) refuse("WEB CONVERSE METHOD TRACE / OPTIONS");
+    if (m) body = strcmp(m, "POST") == 0 || strcmp(m, "PUT") == 0 || strcmp(m, "PATCH") == 0;
+    if (!m) WEB_COND(INVREQ, 54);
+    else if (hasf && !body) WEB_COND(INVREQ, 33);
+    else if (!hasf && body) WEB_COND(INVREQ, 34);
+    if (hasm) {
+        mtl = mediacap < 56 ? mediacap : 56;
+        memcpy(mt, media, (size_t)mtl);
+        while (mtl > 0 && mt[mtl - 1] == ' ') mtl--;
+        mt[mtl] = '\0';
+    }
+    if (hasf && !hasm) WEB_COND(INVREQ, 76);
+    else if (hasf && mtl == 0) refuse("WEB CONVERSE body with a blank MEDIATYPE");
+    if (hasp && pl <= 0) WEB_COND(LENGERR, 5);
+    if (hasq && ql <= 0) WEB_COND(LENGERR, 8);
+    if (max < 0) WEB_COND(LENGERR, 16);
+    else if (max == 0) refuse("WEB CONVERSE MAXLENGTH 0");
+    if (hasf && fl <= 0) WEB_COND(LENGERR, 50);
+    if (sl == 0 || sl < -1) WEB_COND(LENGERR, 59);
+    if ((hasp && pl > pathcap) || (hasq && ql > querycap) || (hasf && fl > fromcap))
+        refuse("WEB CONVERSE length beyond its area");
+#undef WEB_COND
+    if (conds > 1) refuse("WEB CONVERSE with more than one condition at once");
+    if (conds == 1) return 0;
+    if (!hasp && !web_sess[s].byurimap) refuse("WEB CONVERSE with no PATH on a session opened by HOST");
+    if (hasp) {
+        if (pl >= WEB_TXT) refuse("WEB CONVERSE length beyond its area");
+        memcpy(p, path, (size_t)pl);
+        p[pl] = '\0';
+    } else {
+        snprintf(p, sizeof p, "%s", web_peers[web_sess[s].peer].path);
+    }
+    q[0] = '\0';
+    if (hasq) {
+        int skip = query[0] == '?';
+        if (ql >= WEB_TXT) refuse("WEB CONVERSE length beyond its area");
+        memcpy(q, query + skip, (size_t)(ql - skip));
+        q[ql - skip] = '\0';
+    }
+    for (int i = 0; i < web_nxs && x < 0; i++) {
+        if (!web_answered[i] && web_xs[i].peer == web_sess[s].peer && strcmp(web_xs[i].method, m) == 0
+            && strcmp(web_xs[i].path, p) == 0 && strcmp(web_xs[i].query, q) == 0) x = i;
+    }
+    if (x < 0) refuse("WEB CONVERSE request the peer states no response to");
+    if (sl > 0 && (int)strlen(web_xs[x].stext) > sl) refuse("WEB CONVERSE status text longer than STATUSLEN");
+    web_answered[x] = 1;
+    n = web_xs[x].bodylen;
+    if (n > max) { n = max; c->resp = LENGERR; c->resp2 = 57; }
+    web_hex(web_peers[web_sess[s].peer].host, (int)strlen(web_peers[web_sess[s].peer].host), hx[0]);
+    web_hex(p, (int)strlen(p), hx[1]);
+    web_hex(q, (int)strlen(q), hx[2]);
+    web_hex(mt, hasf ? mtl : 0, hx[3]);
+    snprintf(ev, sizeof ev, "WEB-CONVERSE host=%s method=%s path=%s query=%s media=%s body=%d resp=%d resp2=%d",
+             hx[0], m, hx[1], hx[2], hx[3], hasf, c->resp, c->resp2);
+    event(ev, hasf ? from : NULL, hasf ? fl : 0);
+    if (n > intocap) refuse("WEB CONVERSE INTO beyond its area");
+    memcpy(into, web_xs[x].body, (size_t)n);
+    c->len = n;
+    c->num = web_xs[x].status;
+    if (sl > 0) {
+        int tl = (int)strlen(web_xs[x].stext);
+        if (tl > stextcap) refuse("WEB CONVERSE STATUSTEXT beyond its area");
+        memcpy(stext, web_xs[x].stext, (size_t)tl);
+    }
+    if (hasm) {
+        int ml = (int)strlen(web_xs[x].media), w = mediacap < 56 ? mediacap : 56;
+        for (int i = 0; i < w; i++) media[i] = i < ml ? web_xs[x].media[i] : ' ';
+    }
+    return 0;
+}
+
+/* WEB CLOSE: NOTOPEN 27 for a token that is not an open session's. */
+int GGCWCLS(gg_cics *c, char *token) {
+    int s;
+    web_load();
+    s = web_session(token);
+    c->resp = s < 0 ? DFHRESP_NOTOPEN : NORMAL;
+    c->resp2 = s < 0 ? 27 : 0;
+    if (s >= 0) web_sess[s].open = 0;
+    return 0;
+}

@@ -2454,3 +2454,293 @@ def test_cics_task_return_immediate_as_the_stub_does(tmp_path):
     assert lines[2:5] == ["[22, 11]false", "[16, 1]false", "[16, 2]false"]
     assert "level=2" in lines[5] and "resp=INVREQ" in lines[5] and "resp2=2" in lines[5]
     assert lines[6] == "refused"
+
+
+# ---- #4767 zECS (register X35): WEB OPEN / CONVERSE / CLOSE, the HTTP client ----------------------------------------
+_X35_PEERS = [
+    (
+        "HTTP",
+        "zecs.example",
+        80,
+        "ZCCLIENT",
+        "/resources/zc01",
+        [
+            ("GET", "/resources/zc01/k1", "", 200, "OK", "text/plain", "value-one"),
+            ("PUT", "/resources/zc01/k1", "", 201, "Created", "text/plain", "stored"),
+            ("GET", "/resources/zc01/k1", "", 404, "Not Found", "text/plain", ""),
+            ("DELETE", "/deplicate/k2", "clear=*", 200, "OK", "application/json", "0123456789ABCDEF"),
+            ("GET", "/long/status", "", 200, "A reason phrase longer than fifteen", "text/plain", "x"),
+        ],
+    ),
+]
+# one step a line: open-u NAME | open-h HOST HOSTLENGTH PORT|- SCHEME | conv SESSION METHOD PATH|- QUERY|- FROM|- MEDIA|-
+# MAXLENGTH STATUSLEN | close SESSION ("-": the option not given; SESSION: the n-th open's token, 9: a token never given)
+_X35_STEPS = [
+    "open-u ZCCLIENT",
+    "open-h ZECS.EXAMPLE 12 - 1096",
+    "open-h zecs.example 0 80 1096",
+    "open-h zecs.example 12 70000 1096",
+    "open-h zecs.example 12 80 7",
+    "conv 0 748 /resources/zc01/k1 - - _ 40 15",
+    "conv 1 749 /resources/zc01/k1 - stored-data text/plain 40 15",
+    "conv 0 748 /resources/zc01/k1 - - text/plain 40 15",
+    "conv 1 292 /deplicate/k2 ?clear=* - text/plain 10 15",
+    "conv 0 749 /x - - text/plain 40 15",
+    "conv 0 748 /x - body text/plain 40 15",
+    "conv 0 748 /x - - - -4 15",
+    "conv 0 748 /x - - - 40 0",
+    "conv 0 999 /x - - - 40 15",
+    "conv 9 748 /x - - - 40 15",
+    "close 0",
+    "close 0",
+    "conv 0 748 /x - - - 40 15",
+]
+_X35_EXPECTED = [
+    "open 0/0 GGWS0001",
+    "open 0/0 GGWS0002",
+    "open 22/21",
+    "open 16/138",
+    "open 16/40",
+    "conv 0/0 len=9 [value-one] status=200 [OK] [text/plain]",
+    "conv 0/0 len=6 [stored] status=201 [Created] [text/plain]",
+    "conv 0/0 len=0 [] status=404 [Not Found] [text/plain]",
+    "conv 22/57 len=10 [0123456789] status=200 [OK] [application/json]",
+    "conv 16/34",
+    "conv 16/33",
+    "conv 22/16",
+    "conv 22/59",
+    "conv 16/54",
+    "conv 19/27",
+    "close 0/0",
+    "close 19/27",
+    "conv 19/27",
+]
+_X35_REFUSED = [  # (steps, what both runtimes stop with)
+    (["open-h other.examp 11 - 1096"], "WEB OPEN of a peer the run does not state"),
+    (["open-u NOPE"], "WEB OPEN of a peer the run does not state"),
+    (["open-h zecs.example 0 - 7"], "more than one condition at once"),
+    (["open-h zecs.example 12 0 1096"], "PORTNUMBER below 1"),
+    (["open-h zecs.example 40 - 1096"], "WEB OPEN HOSTLENGTH"),
+    (["open-u ZCCLIENT", "conv 0 748 /nothing - - - 40 15"], "request the peer states no response to"),
+    (["open-h zecs.example 12 - 1096", "conv 0 748 - - - - 40 15"], "no PATH on a session opened by HOST"),
+    (["open-u ZCCLIENT", "conv 0 749 /x - - - 40 0"], "more than one condition at once"),
+    (["open-u ZCCLIENT", "conv 0 760 /x - - - 40 15"], "TRACE / OPTIONS"),
+    (["open-u ZCCLIENT", "conv 0 748 /x - - - 0 15"], "MAXLENGTH 0"),
+    (["open-u ZCCLIENT", "conv 0 748 /x - body - 40 15"], "more than one condition at once"),  # (INVREQ 33 and 76)
+    (["open-u ZCCLIENT", "conv 0 749 /resources/zc01/k1 - body _ 40 15"], "blank MEDIATYPE"),
+    (["open-u ZCCLIENT", "conv 0 748 /long/status - - - 40 15"], "status text longer than STATUSLEN"),
+]
+
+_X35_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+int GGCWCLS(gg_cics *c, char *token);
+static gg_cics c;
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+static int given(const char *a) { return strcmp(a, "-") != 0; }
+int main(int argc, char **argv) {
+    char tokens[10][8], flags[40];
+    int nt = 0;
+    memset(tokens, 'Z', sizeof tokens);
+    for (int i = 1; i < argc; i++) {
+        char *w[10];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 10; t = strtok(NULL, " ")) w[k++] = t;
+        if (strcmp(w[0], "open-u") == 0 || strcmp(w[0], "open-h") == 0) {
+            char host[12] = {0}, tok[8];
+            memset(tok, 'Z', 8);
+            if (w[0][5] == 'u') { put(c.name1, 8, w[1]); put(c.flags, 40, "URIMAP"); GGCWOPN(&c, tok, host, 0); }
+            else {
+                memcpy(host, w[1], strlen(w[1]) < 12 ? strlen(w[1]) : 12);
+                c.len = atoi(w[2]); c.item = atoi(w[4]);
+                if (given(w[3])) { c.num = atoi(w[3]); put(c.flags, 40, "HOST PORT"); } else put(c.flags, 40, "HOST");
+                GGCWOPN(&c, tok, host, 12);
+            }
+            printf("open %d/%d", c.resp, c.resp2);
+            if (c.resp == 0) { memcpy(tokens[nt++], tok, 8); printf(" %.8s", tok); }
+            printf("\n");
+        } else if (strcmp(w[0], "conv") == 0) {
+            char path[64], query[64], from[64], media[56], into[40], stext[15];
+            int s = atoi(w[1]);
+            memset(into, '#', sizeof into); memset(stext, ' ', sizeof stext); memset(media, ' ', sizeof media);
+            flags[0] = 0;
+            c.num = atoi(w[2]); c.len = atoi(w[7]); c.item = atoi(w[8]);
+            c.hours = given(w[3]) ? (int)strlen(w[3]) : 0; if (given(w[3])) { strcat(flags, "PATH "); memcpy(path, w[3], strlen(w[3])); }
+            c.mins = given(w[4]) ? (int)strlen(w[4]) : 0; if (given(w[4])) { strcat(flags, "QUERY "); memcpy(query, w[4], strlen(w[4])); }
+            c.secs = given(w[5]) ? (int)strlen(w[5]) : 0; if (given(w[5])) { strcat(flags, "FROM "); memcpy(from, w[5], strlen(w[5])); }
+            if (given(w[6])) { strcat(flags, "MEDIA"); if (strcmp(w[6], "_") != 0) memcpy(media, w[6], strlen(w[6])); }
+            put(c.flags, 40, flags);
+            GGCWCNV(&c, tokens[s], path, 64, query, 64, from, 64, media, 56, into, 40, stext, 15);
+            printf("conv %d/%d", c.resp, c.resp2);
+            if (c.resp == 0 || c.resp2 == 57) {
+                int ml = 56, tl = 15;
+                while (ml > 0 && media[ml - 1] == ' ') ml--;
+                while (tl > 0 && stext[tl - 1] == ' ') tl--;
+                printf(" len=%d [%.*s] status=%d [%.*s] [%.*s]", c.len, c.len, into, c.num, tl, stext, ml, media);
+            }
+            printf("\n");
+        } else {
+            GGCWCLS(&c, tokens[atoi(w[1])]);
+            printf("close %d/%d\n", c.resp, c.resp2);
+        }
+    }
+    return 0;
+}
+"""
+
+
+def _x35_cfg(path: Path) -> None:
+    def hx(v: str | None) -> str:
+        return v.encode("latin-1").hex().upper() if v else "-"
+
+    lines = []
+    for scheme, host, port, uri, upath, xs in _X35_PEERS:
+        lines.append(f"P {scheme} {hx(host)} {port} {uri or '-'} {hx(upath)}")
+        lines += [f"X {m} {hx(p)} {hx(q)} {st} {hx(t)} {hx(mt)} {hx(b)}" for m, p, q, st, t, mt, b in xs]
+    path.write_text("".join(f"{ln}\n" for ln in lines), encoding="ascii")
+
+
+@needs_cc
+def test_the_stub_web_open_converse_close(tmp_path):
+    """#4767 zECS (register X35), IBM WEB OPEN / WEB CONVERSE / WEB CLOSE: a session to a stated peer by CLIENT URIMAP or by
+    HOST / HOSTLENGTH / PORTNUMBER (80 for HTTP when omitted) / SCHEME; each request answered by the next stated response it
+    matches (method, path, query without its '?'); INTO at most MAXLENGTH (LENGERR 57 when longer), STATUSCODE, the reason
+    phrase, MEDIATYPE blank-padded; the conditions IBM lists for what the program gives (LENGERR 21 / 5 / 8 / 16 / 50 / 59,
+    INVREQ 40 / 138 / 33 / 34 / 54 / 76, NOTOPEN 27); WEB CLOSE ends the session. What IBM leaves open is refused."""
+    exe = _stub(tmp_path, _X35_MAIN)
+    cfg = tmp_path / "http.cfg"
+    _x35_cfg(cfg)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+           "GGCICS_HTTP": str(cfg)}  # fmt: skip
+    (tmp_path / "out").mkdir()
+    out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+    assert out.stdout.splitlines() == _X35_EXPECTED
+    events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
+    assert [e.split()[1] for e in events] == ["WEB-CONVERSE"] * 4
+    assert "method=PUT" in events[1] and "body=1" in events[1] and "media=746578742F706C61696E" in events[1]
+    assert "query=636C6561723D2A" in events[3] and "resp=22 resp2=57" in events[3]
+    for steps, why in _X35_REFUSED:
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+    unstated = subprocess.run([str(exe), "open-u ZCCLIENT"], env={k: v for k, v in env.items() if k != "GGCICS_HTTP"},
+                              capture_output=True, text=True, check=False)  # noqa: S603  # fmt: skip
+    assert unstated.returncode == 98 and "HTTP peers are not stated" in unstated.stdout
+
+
+def _x35_java_steps(steps: list[str]) -> str:
+    """The Java statements for the steps above, printing as the stub's main does."""
+    lines = ["java.util.List<String> tokens = new java.util.ArrayList<>();"]
+    for st in steps:
+        w = st.split(" ")
+        if w[0] == "open-u":
+            lines.append(f'show(t.webOpenUrimap("{w[1]}"), tokens);')
+        elif w[0] == "open-h":
+            host = (w[1] + " " * 12)[:12]
+            port = "0, false" if w[3] == "-" else f"{w[3]}, true"
+            lines.append(f'show(t.webOpenHost("{host}", {w[2]}, {port}, {w[4]}), tokens);')
+        elif w[0] == "conv":
+
+            def area(v: str, width: int) -> str:
+                return "null" if v == "-" else '"' + (v + " " * width)[:width] + '"'
+
+            def length(v: str) -> str:
+                return "0" if v == "-" else str(len(v))
+
+            media = "null" if w[6] == "-" else '"' + ("" if w[6] == "_" else w[6]).ljust(56) + '"'
+            tok = f'tokens.size() > {w[1]} ? tokens.get({w[1]}) : "ZZZZZZZZ"'
+            lines.append(
+                f"conv(t.webConverse({tok}, {w[2]}, {area(w[3], 64)}, {length(w[3])}, {area(w[4], 64)}, "
+                f"{length(w[4])}, {area(w[5], 64)}, {length(w[5])}, {media}, {w[7]}, {w[8]}, CS));"
+            )
+        else:
+            lines.append(
+                f'int[] k = t.webClose(tokens.size() > {w[1]} ? tokens.get({w[1]}) : "ZZZZZZZZ"); '
+                'System.out.println("close " + k[0] + "/" + k[1]);'
+            )
+    return "\n".join("{ " + ln + " }" if ln.startswith("int[] k") else ln for ln in lines)
+
+
+@needs_javac
+def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
+    """#4767 zECS (X35): CicsTask answers the same steps as the stub (above), line for line, records each request sent as a
+    WEB-CONVERSE event, and refuses what the stub refuses."""
+    peers = ", ".join(
+        f'new CicsTask.HttpPeer("{s}", "{h}", {p}, "{u}", "{up}", java.util.List.of('
+        + ", ".join(f'new CicsTask.HttpExchange("{m}", "{pa}", "{q}", {st}, "{tx}", "{mt}", "{b}")'
+                    for m, pa, q, st, tx, mt, b in xs) + "))"
+        for s, h, p, u, up, xs in _X35_PEERS)  # fmt: skip
+    helpers = """
+    static final java.nio.charset.Charset CS = java.nio.charset.StandardCharsets.ISO_8859_1;
+    static void show(CicsTask.WebOpened o, java.util.List<String> tokens) {
+        if (o.resp() == 0) tokens.add(o.sesstoken());
+        System.out.println("open " + o.resp() + "/" + o.resp2() + (o.resp() == 0 ? " " + o.sesstoken() : ""));
+    }
+    static void conv(CicsTask.WebResponse r) {
+        System.out.println("conv " + r.resp() + "/" + r.resp2() + (r.body() == null ? "" : " len=" + r.toLength() + " ["
+                + new String(r.body(), CS) + "] status=" + r.status() + " [" + r.statusText() + "] ["
+                + r.mediaType().stripTrailing() + "]"));
+    }
+"""
+    body = f"""
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(java.util.List.of({peers}));
+        {_x35_java_steps(_X35_STEPS)}
+        for (java.util.Map<String, Object> e : t.events()) {{
+            System.out.println(e.get("event") + " " + e.get("host") + " " + e.get("method") + " " + e.get("path") + " ["
+                    + e.get("query") + "] " + e.get("mediatype") + " " + e.get("body") + " " + e.get("resp") + "/"
+                    + e.get("resp2"));
+        }}
+        String[][] refused = {{{", ".join("{" + ", ".join('"' + x + '"' for x in steps) + "}" for steps, _ in _X35_REFUSED)}}};
+        for (String[] steps : refused) {{
+            CicsTask u = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(java.util.List.of({peers}));
+            try {{
+                Main.run(u, steps);
+                System.out.println("not refused");
+            }} catch (UnsupportedOperationException e) {{
+                System.out.println(e.getMessage());
+            }}
+        }}
+        try {{
+            new CicsTask("ZC01", "ENTER", null, null).webOpenUrimap("ZCCLIENT");
+        }} catch (UnsupportedOperationException e) {{
+            System.out.println(e.getMessage());
+        }}
+    }}
+    static void run(CicsTask t, String[] steps) {{
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        for (String st : steps) {{
+            String[] w = st.split(" ");
+            if (w[0].equals("open-u")) {{
+                show(t.webOpenUrimap(w[1]), tokens);
+            }} else if (w[0].equals("open-h")) {{
+                show(t.webOpenHost(String.format("%-12.12s", w[1]), Integer.parseInt(w[2]),
+                        w[3].equals("-") ? 0 : Integer.parseInt(w[3]), !w[3].equals("-"), Integer.parseInt(w[4])), tokens);
+            }} else {{
+                java.util.function.Function<String, String> area = v -> v.equals("-") ? null : String.format("%-64.64s", v);
+                java.util.function.Function<String, Integer> len = v -> v.equals("-") ? 0 : v.length();
+                String media = w[6].equals("-") ? null : String.format("%-56s", w[6].equals("_") ? "" : w[6]);
+                conv(t.webConverse(tokens.get(Integer.parseInt(w[1])), Integer.parseInt(w[2]), area.apply(w[3]),
+                        len.apply(w[3]), area.apply(w[4]), len.apply(w[4]), area.apply(w[5]), len.apply(w[5]), media,
+                        Integer.parseInt(w[7]), Integer.parseInt(w[8]), CS));
+            }}
+        }}
+    """
+    out = _cics_task(tmp_path, body + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    n = len(_X35_EXPECTED)
+    assert lines[:n] == _X35_EXPECTED
+    assert lines[n:n + 4] == [
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
+        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
+        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57"]  # fmt: skip
+    refusals = [ln for ln in lines[n + 4 :] if not ln.startswith(("open ", "conv "))]
+    assert len(refusals) == len(_X35_REFUSED) + 1
+    for got, (_steps, why) in zip(refusals, _X35_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)
+    assert refusals[-1] == "the HTTP peers are not stated (withHttpPeers): not modelled"

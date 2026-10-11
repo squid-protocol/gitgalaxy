@@ -136,6 +136,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X31 | CICS | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | yes (cics-crucible hc-map-not-in-mapset, unreleased) |
 | X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
 | X33 | CICS | DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
+| X35 | CICS | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1681,6 +1682,51 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (tests/cics_crucible/test_cics_runtimes.py: both answer alike); the translators' refusals are tested in
   tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. All ten DOCUMENT statements of zECS's
   ZECS000 / ZECS001 / ZECS003 translate (no DOCUMENT hole is left in the det survey); those programs stay held by WEB.
+
+### X35. WEB OPEN, WEB CONVERSE, WEB CLOSE (CICS web support, HTTP client) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
+- **WEB OPEN** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-open). SESSTOKEN "an 8-byte binary value that uniquely
+  identifies this application's use of the connection"; HOST "the hostname of the server", HOSTLENGTH its length; PORTNUMBER "For
+  HTTP, the default port number is 80, and for HTTPS, the default port number is 443"; SCHEME HTTP or HTTPS; URIMAP "a URIMAP
+  definition that provides" scheme, host, port and path (USAGE(CLIENT)), "do not also specify CERTIFICATE, HOST, HOSTLENGTH,
+  PORTNUMBER ... or SCHEME". Conditions modelled: LENGERR RESP2 21 "Incorrect host length" (HOSTLENGTH not above zero), INVREQ
+  RESP2 40 "Scheme incorrect" (a CVDA other than HTTP / HTTPS), INVREQ RESP2 138 "The port number is greater than 65535".
+  Modelled (`CicsTask.webOpenHost` / `webOpenUrimap`, the stub's `GGCWOPN`): a session to the stated peer of that scheme, host
+  (compared without case, ASSUMED) and port, or whose CLIENT URIMAP that is; the token goes to the area on NORMAL only.
+- **WEB CONVERSE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-converse). METHOD's CVDAs; "CICS blocks a body for
+  methods that disallow it and requires one for methods that need it" (INVREQ 33 / 34); PATH "If WEB OPEN specified a URIMAP, that
+  URIMAP's path is the default"; QUERYSTRING's leading "?" "is optional"; MEDIATYPE "For requests that require a body, you must
+  specify" it (INVREQ 76); MAXLENGTH "the maximum amount ... of data that CICS is to pass to the application", without NOTRUNCATE
+  "excess data is discarded and LENGERR RESP2 57"; TOLENGTH "set to the amount of data that CICS has returned"; STATUSCODE "a
+  binary halfword"; STATUSTEXT the reason phrase, STATUSLEN its area's length (LENGERR 58 when longer; 59 when not above zero).
+  Conditions modelled: NOTOPEN 27 (a token that is no open session's), INVREQ 33, 34, 54 (a METHOD value that is no method), 76,
+  LENGERR 5, 8, 16 (MAXLENGTH below zero), 50, 57, 59. Modelled (`CicsTask.webConverse`, the stub's `GGCWCNV`): the request sent
+  is recorded (event WEB-CONVERSE: host, method, path, query without its "?", and the media type and body when there is a body,
+  RESP / RESP2) and answered by the first stated response not yet given that matches its method, path and query.
+- **WEB CLOSE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-close). NOTOPEN RESP2 27 "Invalid session token"; after
+  it "the session token is no longer valid". Modelled (`CicsTask.webClose`, the stub's `GGCWCLS`).
+- **What IBM leaves open, and what we do.** (1) The server: STATED, never guessed (the case's or scenario's `http_peers`,
+  `CicsTask.withHttpPeers` / `$GGCICS_HTTP`); a connection to a server, or a request, the run does not state is refused. (2) The
+  token's value: ours, `GGWS` and a 4-digit sequence per task (ASSUMED: IBM only says 8 bytes). (3) Code-page conversion: the
+  exchange is stated and recorded in the program's own characters, so CLIENTCONV and its CVDAs (CLICONVERT, NOINCONVERT,
+  NOOUTCONVERT, NOCLICONVERT) change nothing within the model (ASSUMED: the stated response is what reaches the program's area);
+  CHARACTERSET, BODYCHARSET and CODEPAGE are refused. (4) MAXLENGTH omitted: INTO's length (ASSUMED, as the COBOL translator
+  supplies a data area's length for its length options). (5) TOLENGTH on LENGERR 57: the bytes returned, MAXLENGTH (ASSUMED);
+  INTO, TOLENGTH, STATUSCODE, STATUSTEXT and MEDIATYPE are written on NORMAL and LENGERR 57 only, left alone otherwise
+  (ASSUMED). (6) STATUSTEXT: the phrase's bytes only, the rest of the area left alone (ASSUMED); a phrase longer than STATUSLEN
+  is REFUSED (LENGERR 58 is listed but not what the area then holds). (7) MEDIATYPE received: blank-padded to 56 (ASSUMED); sent
+  only with a body (ASSUMED: a GET has no Content-Type). (8) The order of conditions: IBM does not order them, so two at once are
+  REFUSED. (9) MAXLENGTH 0, a PORTNUMBER below 1, TRACE / OPTIONS (OPTIONS' body rules are open), a session opened by HOST with
+  no PATH (IBM gives no RESP2), a body with a blank MEDIATYPE: REFUSED. (10) A length past its area (HOSTLENGTH, PATHLENGTH,
+  QUERYSTRLEN, FROMLENGTH) or a response longer than INTO / a phrase longer than STATUSTEXT's area: REFUSED, as X6 (GnuCOBOL lays
+  out the storage that follows unlike IBM's compiler).
+- **Refused by name** (the translators): CERTIFICATE, CODEPAGE, HTTPVNUM / HTTPRNUM, CIPHERS on OPEN; URIMAP, DOCTOKEN,
+  CONTAINER, SET, NOTRUNCATE, TOCONTAINER, ACTION, CLOSESTATUS, AUTHENTICATE / USERNAME / PASSWORD, CHARACTERSET, BODYCHARSET on
+  CONVERSE, and a CONVERSE without INTO; WEB SEND / RECEIVE / PARSE URL / EXTRACT / READ / WRITE HTTPHEADER stay refused whole.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
+  line for line and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators
+  (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py); the equivalence harness states the peers on both sides
+  and compares the requests (test_equivalence_cics.py). No cics-crucible case yet (its SPEC has no WEB-CONVERSE event: a crucible
+  SPEC change). zECS: with #4768's INQUIRE URIMAP direct form, ECS001 translates whole.
 
 ## Language Environment
 

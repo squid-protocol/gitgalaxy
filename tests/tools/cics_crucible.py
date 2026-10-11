@@ -2312,6 +2312,15 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
                                                       "side": side, **v.as_dict()}  # fmt: skip
 
     work.mkdir(parents=True, exist_ok=True)
+    disabled = sorted(case.csd.get("disabled") or ())
+    if (
+        disabled
+    ):  # #4768 (X34): every program the region defines is ENABLED (INQUIRE PROGRAM STATUS); DISABLED not modelled
+        why = [f"csd: program {p} defined STATUS(DISABLED) (not modelled, X34)" for p in disabled]
+        for side in sorted(sides - {"engine-facts", "forge-compile"}):
+            for sc in case.scenarios:
+                put(sc["id"], side, cc.not_run(why, []))
+        return cells
     ctx = case_context(case)
     if "engine-facts" in sides:
         put("*", "engine-facts", engine_facts(case, work / "facts"))

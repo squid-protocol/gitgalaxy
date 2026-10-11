@@ -369,7 +369,7 @@ class _KeyCics(_RbaCics):
         "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
-        "INQUIRE PROGRAM('P') STATUS(REC)",
+        "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
     ],
 )
 def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
@@ -1259,8 +1259,7 @@ def test_inquire_urimap_browse_and_write_operator():
     assert e[0].endswith("= task.inquireUrimapEnd();")
     w = c.command("WRITE OPERATOR TEXT(REC) NOHANDLE", "")
     assert w[0].startswith("int wto") and ".writeOperator(Cobol.text(" in w[0]
-    for bad, why in (("INQUIRE URIMAP(REC) PATH(REC)", "only the browse is modelled"),
-                     ("INQUIRE URIMAP(REC) NEXT START", "only the browse is modelled"),
+    for bad, why in (("INQUIRE URIMAP(REC) NEXT START", "more than one of START, NEXT and END"),
                      ("INQUIRE URIMAP START PATH(REC)", "returns no definition"),
                      ("INQUIRE URIMAP(REC) HOST(REC) NEXT", "only the URIMAP's name, PATH and TRANSACTION"),
                      ("WRITE OPERATOR", "without TEXT"),
@@ -1322,6 +1321,28 @@ def test_web_open_converse_close_are_the_tasks_http_client():
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) SET(PTR)", "held in CICS storage"),
                      ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) POST INTO(AREA)", "request URIMAP"),
                      ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_inquire_urimap_direct_form_and_inquire_program_status():
+    """#4768 zECS (register X34). IBM INQUIRE URIMAP, the direct form: URIMAP(name) with no browse option reads that
+    definition among the stated installed ones (CicsTask.inquireUrimap), PATH / TRANSACTION written only on NORMAL,
+    NOTFND RESP2 3 through RESP / HANDLE CONDITION. IBM INQUIRE PROGRAM STATUS: the definition's CVDA (CicsTask.programStatus),
+    written only on NORMAL."""
+    c = _ChanCics()
+    d = c.command("INQUIRE URIMAP(REC) PATH(REC) TRANSACTION(KEY) NOHANDLE", "")
+    assert d[0].startswith("int[] urimap") and ".inquireUrimap(" in d[0] and d[1].endswith("[0] == 0) {")
+    assert sum("DetCics.putText(" in x for x in d) == 2 and "task.urimapPath()" in " ".join(d)
+    assert "task.urimapName()" not in " ".join(d)  # (the direct form's URIMAP is the name it reads)
+    assert any("OUTCOME(urimap" in x for x in d)
+    p = c.command("INQUIRE PROGRAM('P') STATUS(REC) RESP(R) NOHANDLE", "")
+    assert p[0].startswith("int resp") and ".inquireProgram(" in p[0]
+    assert any(".programStatus(" in x and "if (resp" in x for x in p)
+    assert any("OUTCOME(resp" in x for x in p)
+    for bad, why in (("INQUIRE URIMAP PATH(REC)", "without URIMAP, START, NEXT or END"),
+                     ("INQUIRE URIMAP NOHANDLE", "without URIMAP, START, NEXT or END"),
+                     ("INQUIRE URIMAP(REC) HOST(REC)", "only the URIMAP's name, PATH and TRANSACTION")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

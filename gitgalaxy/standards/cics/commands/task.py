@@ -22,7 +22,7 @@ from gitgalaxy.standards.cics.model import (
     Outcome,
     Refusal,
     RuntimeRefusal,
-    one_of,
+    at_most_one,
     required,
 )
 
@@ -239,12 +239,20 @@ FORMATTIME = Command(
     ),
 )
 
+# #4768 zECS, register X34: STATUS (ZECS001's extended-TTL switch). IBM (CICS SPI command INQUIRE PROGRAM): STATUS "Returns
+# a CVDA value indicating whether the program is available for use": ENABLED or DISABLED; the definition's STATUS attribute
+# (DEFINE PROGRAM) defaults to ENABLED. No harness states a DISABLED definition (the cics-crucible runner refuses a case CSD
+# that defines one), so every program the region defines is ENABLED; the area is written on NORMAL only
 INQUIRE_PROGRAM = Command(
     key="INQUIRE PROGRAM",
     ibm=ibm("CICS SPI command INQUIRE PROGRAM", "commands-inquire-program"),
     status="modelled",
-    options={"PROGRAM": Arg("name", width=8), **RESP_OPTIONS},
-    outcomes=(_NORMAL, Outcome("PGMIDERR", None, "the program is not defined")),
+    register="X34",
+    options={"PROGRAM": Arg("name", width=8), "STATUS": Arg("cvda"), **RESP_OPTIONS},
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("STATUS",)),
+        Outcome("PGMIDERR", None, "the program is not defined"),
+    ),
     state=("handle_table",),
 )
 
@@ -420,15 +428,16 @@ INQUIRE_ASSOCIATION = Command(
 # as ILLOGIC too, with no RESP2 of its own: refused at run time). URIMAP returns the 8-character name, PATH 255 characters,
 # TRANSACTION 4. IBM states neither the browse order nor the padding of a short value nor what a data area holds after END:
 # the order is a fact whoever runs the task states (the installed definitions, in the region's order), a value is padded
-# with blanks, and the areas are left alone on any condition. The direct form (URIMAP(name) without a browse option, NOTFND
-# RESP2 3) and every other attribute (HOST, SCHEME, USAGE ...) are refused: no corpus program asks for them
+# with blanks, and the areas are left alone on any condition. #4768 (register X34): the direct form, URIMAP(name) with no
+# browse option, reads the named definition among the same stated ones (NOTFND RESP2 3 "The URIMAP cannot be found"; ECS001,
+# ZECS000, ZECS003). Every other attribute (HOST, SCHEME, USAGE ...) is refused: no corpus program asks for it
 INQUIRE_URIMAP = Command(
     key="INQUIRE URIMAP",
     ibm=ibm("CICS SPI command INQUIRE URIMAP", "commands-inquire-urimap"),
     status="modelled",
     register="X32",
     options={
-        "URIMAP": Arg("area_out", width=8),
+        "URIMAP": Arg("area_inout", width=8),  # the name the direct form reads; the name a browse NEXT returns
         "PATH": Arg("area_out", width=255),
         "TRANSACTION": Arg("area_out", width=4),
         "START": Arg("flag"),
@@ -440,10 +449,12 @@ INQUIRE_URIMAP = Command(
         "only the URIMAP's name, PATH and TRANSACTION are modelled (no corpus program asks for more)", "X32"
     ),
     groups=(
-        one_of("START", "NEXT", "END", msg="INQUIRE URIMAP without START, NEXT or END: only the browse is modelled"),
+        at_most_one("START", "NEXT", "END", msg="INQUIRE URIMAP with more than one of START, NEXT and END"),
+        required("URIMAP", msg="INQUIRE URIMAP without URIMAP, START, NEXT or END"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("URIMAP", "PATH", "TRANSACTION")),
+        Outcome("NOTFND", 3, "The URIMAP cannot be found (the direct form)", raised_by=("URIMAP",)),
         Outcome(
             "ILLOGIC", 1, "a START when a browse of this resource type is already in progress", raised_by=("START",)
         ),

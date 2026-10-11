@@ -366,7 +366,25 @@ def parse(lines: list[Line]) -> Procedure:
 _FRAMED = {"if_header", "else_if_header", "evaluate_header", "when", "when_other", "perform_statement_loop"}
 
 
-_REL_WORD = r"(?:[<>=]+|EQUAL|GREATER|LESS)(?![\w-])"
+_REL_WORD = r"(?:[<>=]+|EQUAL(?:[ \t]+TO(?![\w-]))?|(?:GREATER|LESS)(?:[ \t]+THAN(?![\w-]))?)(?![\w-])"  # #4682: the whole phrase
+
+
+# #4682: NOT [IS] and its relational operator -- `<`, `>`, `=`, `<=`, `>=`, `[NOT] LESS [THAN] [OR EQUAL [TO]]`, GREATER
+# likewise, `EQUAL [TO]` -- with any whitespace (line breaks) between the words; string literals match first and are kept
+_NOT_PHRASE = re.compile(
+    r"(?P<lit>'[^'\n]*'|\"[^\"\n]*\")|(?<![\w-])NOT(?![\w-])\s+(?:IS(?![\w-])\s+)?(?P<op>"
+    r"(?:<=|=<|>=|=>|<|>|=)(?![<>=])|"
+    r"(?:LESS|GREATER)(?![\w-])(?:\s+THAN(?![\w-]))?(?:\s+OR(?![\w-])\s+EQUAL(?![\w-])(?:\s+TO(?![\w-]))?)?|"
+    r"EQUAL(?![\w-])(?:\s+TO(?![\w-]))?)",
+    re.I,
+)
+
+
+# the relational operator after an AND / OR, its words on any lines
+_CONNECTIVE_OP = (
+    r"(?:[<>=]+|EQUAL(?:\s+TO(?![\w-]))?|(?:GREATER|LESS)(?:\s+THAN(?![\w-]))?"
+    r"(?:\s+OR(?![\w-])\s+EQUAL(?![\w-])(?:\s+TO(?![\w-]))?)?)(?![\w-])"
+)
 
 
 def _join_not_breaks(text: str) -> str:
@@ -382,16 +400,61 @@ def _join_not_breaks(text: str) -> str:
     def rejoin(prev: str, ws: str, tail: str) -> str:
         return f"{prev}{tail}" + "\n" * ws.count("\n") + (ws[ws.rfind("\n") + 1 :] if "\n" in ws else "")
 
+    def not_phrase(mm: re.Match) -> str:
+        """#4682: a NOT and its whole relational operator, however the line breaks fall inside it (`NOT` / `<`,
+        `NOT LESS` / `THAN`, `AND NOT` / `EQUAL TO`), as one phrase the grammar takes, its line breaks after it. The
+        forms the grammar refuses are spelled as the relation they are: NOT <= is >, NOT >= is <, NOT LESS [THAN] OR
+        EQUAL [TO] is GREATER THAN, NOT GREATER [THAN] OR EQUAL [TO] is LESS THAN, NOT IS LESS is NOT LESS."""
+        if mm.group("lit") is not None or in_literal(mm.start()):
+            return mm.group(0)
+        words = mm.group("op").upper().split()
+        if words[0] in ("<=", "=<"):
+            canon = ">"
+        elif words[0] in (">=", "=>"):
+            canon = "<"
+        elif words[0] in ("LESS", "GREATER") and "EQUAL" in words:
+            canon = ("GREATER" if words[0] == "LESS" else "LESS") + " THAN"
+        else:
+            if words[0] in ("LESS", "GREATER") and "THAN" not in words:
+                words.insert(1, "THAN")  # THAN is optional (the grammar wants it)
+            canon = "NOT " + " ".join(words)
+        if canon == " ".join(mm.group(0).upper().split()) and "\n" not in mm.group(0):
+            return mm.group(0)
+        span = mm.group(0)
+        tail = span[span.rfind("\n") + 1 :] if "\n" in span else ""
+        tail = tail[: len(tail) - len(tail.lstrip())]  # the indent the last line had before its first word
+        return canon + "\n" * span.count("\n") + tail
+
     def before_not(mm: re.Match) -> str:
         if in_literal(mm.end(2)):
             return mm.group(0)
         return rejoin(mm.group(1) + " ", mm.group(2) + mm.group(3), f"NOT {mm.group(4)}")
+
+    def after_connective(mm: re.Match) -> str:
+        if in_literal(mm.start()):
+            return mm.group(0)
+        op = mm.group(3)
+        if "\n" not in mm.group(0) and " OR EQUAL" not in " ".join(op.upper().split()):
+            return mm.group(0)  # on one line already, and a form the grammar takes
+        tail = op[op.rfind("\n") + 1 :] if "\n" in op else ""
+        tail = tail[: len(tail) - len(tail.lstrip())]
+        # the operator's own words on one line, their breaks after it (as the NOT phrase does)
+        words = " ".join(op.upper().split())
+        # the grammar takes GREATER OR EQUAL after a subject only: spelled as the symbol
+        orequal = ">=" if words.startswith("GREATER") else "<="
+        words = orequal if " OR EQUAL" in words else " ".join(op.split())
+        return rejoin(mm.group(1) + " ", mm.group(2), words) + "\n" * op.count("\n") + tail
 
     def after_not(mm: re.Match) -> str:
         if in_literal(mm.start()):
             return mm.group(0)
         return rejoin("", mm.group(2), f"{mm.group(1)} {mm.group(3)}")
 
+    text = _NOT_PHRASE.sub(not_phrase, text)
+    # an AND / OR at a line end, the omitted-subject relation after it on the next (`AND` / `> 5`; also what a NOT <=
+    # leaves of `AND` / `NOT <=`): the break moves after the operator, as for a NOT; `AND GREATER OR EQUAL` (the
+    # grammar takes it after a subject only) is spelled `AND >=`
+    text = re.sub(rf"((?<![\w-])(?:AND|OR))(\s+)({_CONNECTIVE_OP})", after_connective, text, flags=re.I)
     text = re.sub(rf"(\S)(\s*\n\s*)(?<![\w-])NOT(\s+)({_REL_WORD})", before_not, text, flags=re.I)
     return re.sub(r"(?<![\w-])(NOT)([ \t]*\n\s*)([^\s.]+)", after_not, text, flags=re.I)
 

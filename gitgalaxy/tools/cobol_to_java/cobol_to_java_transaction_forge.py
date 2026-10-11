@@ -939,6 +939,24 @@ public class CicsTask {
         return this;
     }
 
+    // #4767 zECS (register X37): the server side. The task is the response to one inbound HTTP request that whoever runs it
+    // STATES (never guessed); WEB SEND's response is recorded as an event and compared.
+    /** The inbound request the task serves: scheme, host, port, method, HTTP version, path, query string (without its
+     *  '?', "" for none), headers (name, value), the body's media type and body (null: none). WEB SEND needs it stated;
+     *  the commands that read it (WEB RECEIVE, EXTRACT, READ HTTPHEADER) are not modelled yet. */
+    public record HttpRequest(String scheme, String host, int port, String method, String version, String path,
+                              String query, java.util.List<String[]> headers, String mediaType, String body) {
+    }
+
+    private HttpRequest httpRequest;
+    private boolean webSent;
+
+    /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
+    public CicsTask withHttpRequest(HttpRequest request) {
+        this.httpRequest = request;
+        return this;
+    }
+
     private java.util.List<HttpPeer> statedPeers() {
         java.util.List<HttpPeer> p = root().httpPeers;
         if (p == null) {
@@ -1101,6 +1119,69 @@ public class CicsTask {
         CicsTask r = root();
         r.statedPeers();
         return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+    }
+
+    /** WEB SEND FROM(area) FROMLENGTH(n) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]]
+     *  [SRVCONVERT | NOSRVCONVERT] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response to the stated
+     *  request, recorded as WEB-SEND (status -- 200 when STATUSCODE is not given --, reason phrase (null: not given),
+     *  media type (null: not given), body, action). `from` is FROM's area text, mediaType MEDIATYPE's area text (null: not
+     *  given), action ACTION's value (0: not given), status STATUSCODE (-1: not given), statusText STATUSTEXT's area text
+     *  (null: not given), statusLength STATUSLEN (-1: not given: the whole area, ASSUMED), conv 0 / 1 / 2 for neither /
+     *  SRVCONVERT / NOSRVCONVERT. INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (status 204 /
+     *  205 / 304 with a body). Refused: no request stated, ACTION not IMMEDIATE (an EVENTUAL or omitted action sends at
+     *  the end of the task and a second send replaces it), a second send after IMMEDIATE, FROMLENGTH or STATUSLEN not
+     *  above zero, a length past its area, a blank or malformed MEDIATYPE, a status
+     *  code outside 100-599, SRVCONVERT on a media type that is not text/*, two conditions at once. */
+    public int[] webSend(String from, int fromLength, String mediaType, int action, int status, String statusText,
+                         int statusLength, int conv) {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        if (r.webSent) {
+            throw refused("WEB SEND after a response was sent");
+        }
+        if (fromLength <= 0 || (statusText != null && statusLength == 0) || statusLength < -1) {
+            throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+        }
+        if (fromLength > from.length() || (statusText != null && statusLength > statusText.length())) {
+            throw refused("WEB SEND length beyond its area");
+        }
+        if (status != -1 && (status < 100 || status > 599)) {
+            throw refused("WEB SEND STATUSCODE outside 100-599");
+        }
+        String mt = null;
+        if (mediaType != null) {
+            mt = (mediaType.length() > 56 ? mediaType.substring(0, 56) : mediaType).stripTrailing();
+            int slash = mt.indexOf('/');
+            if (slash < 1 || slash == mt.length() - 1 || mt.chars().anyMatch(c -> c <= ' ' || c > '~')) {
+                throw refused("WEB SEND MEDIATYPE blank or not type/subtype");
+            }
+        }
+        if (conv == 1 && (mt == null || !mt.toLowerCase(java.util.Locale.ROOT).startsWith("text/"))) {
+            throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
+        }
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (action != 0 && action != 2 && action != 3) {
+            c.add(new int[] {16, 11});
+        }
+        if (status == 204 || status == 205 || status == 304) {
+            c.add(new int[] {16, 72});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB SEND with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return c.get(0);
+        }
+        if (action != 2) {
+            throw refused("WEB SEND ACTION not IMMEDIATE");
+        }
+        String st = statusText == null ? null : statusText.substring(0, statusLength < 0 ? statusText.length() : statusLength);
+        r.webSent = true;
+        event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
+                "body", from.substring(0, fromLength), "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+        return new int[] {0, 0};
     }
 
     // #4767 zECS (register X36): WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL) -- pure: no peer is involved.

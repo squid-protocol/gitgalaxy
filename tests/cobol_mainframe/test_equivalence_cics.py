@@ -1143,6 +1143,62 @@ def test_web_parse_url_becomes_a_stub_call():
             ec.translate_command(bad)
 
 
+def test_web_send_becomes_a_stub_call():
+    """#4767 zECS (register X37): WEB SEND -> GGCWSND (FROMLENGTH, ACTION, STATUSCODE -1 when absent, STATUSLEN -1 when absent,
+    the conversion in GG fields, GG-FLAGS the optional areas given, every area by reference with its length). The option
+    rules as the det translator's."""
+    t = ec.translate_command(
+        "WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) MEDIATYPE(WS-M) ACTION(WS-A) STATUSCODE(WS-S) STATUSTEXT(WS-T) SRVCONVERT "
+        "NOHANDLE"
+    )
+    assert t[:7] == ["MOVE WS-FL TO GG-LEN", "MOVE WS-A TO GG-ITEM", "MOVE WS-S TO GG-NUM", "MOVE -1 TO GG-HOURS",
+                     "MOVE 1 TO GG-MINS", "MOVE 'MEDIA STEXT' TO GG-FLAGS", "CALL 'GGCWSND' USING GG-CICS"]  # fmt: skip
+    assert t[7:9] == ["    BY REFERENCE WS-F", "    BY VALUE LENGTH OF WS-F"]
+    d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
+    assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
+                     "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "without FROM"),
+                     ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
+                     ("WEB SEND DOCTOKEN(WS-D)", "document as the response body"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_the_http_request_is_stated_alike_on_both_sides_and_the_response_compared():
+    """#4767 zECS (X37): a case's "http_request" (the scenario's first) is checked and written for the stub as hex in the data's
+    page; a WEB-SEND event line reads back as CicsTask records it; the responses are compared exactly."""
+    req = {"scheme": "HTTP", "host": "zecs.example", "port": 80, "method": "PUT", "version": "HTTP/1.1", "path": "/k",
+           "query": "", "headers": [["Content-Type", "text/plain"]], "mediatype": "text/plain", "body": "v"}  # fmt: skip
+    assert ec.http_request({"http_request": req}, {"name": "s"}) == req
+    assert ec.http_request({}, {"name": "s"}) is None
+    assert (
+        ec.http_request(
+            {"http_request": req},
+            {"name": "s", "http_request": {**req, "method": "GET", "mediatype": None, "body": None}},
+        )["method"]
+        == "GET"
+    )
+    for broken in ({**req, "port": 0}, {**req, "scheme": "FTP"}, {**req, "method": "TRACE"}, {**req, "body": None},
+                   {**req, "headers": [["a"]]}, {**req, "extra": 1}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="http_request"):
+            ec.http_request({"http_request": broken}, {"name": "s"})
+    cfg = ec.http_request_cfg(req, "latin-1").splitlines()
+    assert cfg[0] == "R HTTP " + b"zecs.example".hex().upper() + " 80 PUT " + b"/k".hex().upper() + " -"
+    assert cfg[1] == "H " + b"Content-Type".hex().upper() + " " + b"text/plain".hex().upper()
+    kv = dict(a.split("=", 1) for a in ("WEB-SEND status=404 stext=" + b"NF".hex().upper() + " media=- action=IMMEDIATE "
+                                       "resp=0 resp2=0").split()[1:])  # fmt: skip
+    got = ec._cobol_web_send(kv, b"gone ", "latin-1")
+    assert got == {"status": 404, "statustext": "NF", "mediatype": None, "body": "gone ", "action": "IMMEDIATE",
+                   "resp": 0, "resp2": 0}  # fmt: skip
+    java = {"event": "WEB-SEND", **got}
+    assert ec.compare_events([java], [dict(java)])["equal"] == 1
+    differs = ec.compare_events([java], [{**java, "body": "gone"}])  # (a trailing blank is sent: compared exactly)
+    assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "body"
+
+
 def test_http_peers_are_stated_alike_on_both_sides_and_requests_compared():
     """#4767 zECS (X35): a case's "http_peers" (the scenario's first) is checked, written for the stub as hex in the data's
     page, and a WEB-CONVERSE event line reads back as CicsTask records it; the requests are compared exactly."""

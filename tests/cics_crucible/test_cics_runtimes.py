@@ -3071,3 +3071,183 @@ def test_cics_task_web_parse_url_as_the_stub_does(tmp_path):
     assert len(lines[n:]) == len(_X36_REFUSED)
     for got, (_steps, why) in zip(lines[n:], _X36_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+# ---- #4767 zECS (register X37): WEB SEND, the server side ------------------------------------------------------------
+# one step a line: FROM FROMLENGTH|= MEDIATYPE|-|_ ACTION STATUSCODE|- STATUSTEXT|- STATUSLEN|- CONV (0 neither, 1 SRVCONVERT,
+# 2 NOSRVCONVERT); "-": the option not given, "_": a blank MEDIATYPE. Areas: FROM 64, MEDIATYPE 56, STATUSTEXT 20 bytes.
+_X37_CASES = [  # (steps, what both runtimes answer, the events they record: status, statustext, mediatype, body)
+    (["OK-body = text/plain 2 200 OK 2 1"], ["send 0/0"], [(200, "OK", "text/plain", "OK-body")]),
+    (["x 1 - 2 - - - 0"], ["send 0/0"], [(200, None, None, "x")]),
+    (["abc 3 application/json 2 404 Not_Found 9 2"], ["send 0/0"], [(404, "Not_Found", "application/json", "abc")]),
+    (["abc 3 text/xml 2 201 Created 3 0"], ["send 0/0"], [(201, "Cre", "text/xml", "abc")]),
+    (["abc 3 TEXT/Plain 2 200 OK - 1"], ["send 0/0"], [(200, "OK" + " " * 18, "TEXT/Plain", "abc")]),
+    (["x 1 - 7 - - - 0"], ["send 16/11"], []),
+    (["x 1 - 2 204 - - 0"], ["send 16/72"], []),
+    (["x 1 - 0 304 - - 0"], ["send 16/72"], []),
+]
+_X37_REFUSED = [  # (steps, what both runtimes stop with)
+    (["x 1 - 3 - - - 0"], "ACTION not IMMEDIATE"),
+    (["x 1 - 0 - - - 0"], "ACTION not IMMEDIATE"),
+    (["x 1 - 9 204 - - 0"], "more than one condition at once"),
+    (["x 0 - 2 - - - 0"], "FROMLENGTH or STATUSLEN not above zero"),
+    (["x 1 - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
+    (["x 1 - 2 99 - - 0"], "STATUSCODE outside 100-599"),
+    (["x 1 - 2 600 - - 0"], "STATUSCODE outside 100-599"),
+    (["x 1 _ 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 plain 2 - - - 0"], "MEDIATYPE blank or not type/subtype"),
+    (["x 1 application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["x 1 - 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["x 99 - 2 - - - 0"], "length beyond its area"),
+    (["x 1 - 2 - OK 21 0"], "length beyond its area"),
+    (["x 1 - 2 - - - 0", "y 1 - 2 - - - 0"], "WEB SEND after a response was sent"),
+]
+
+_X37_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+static gg_cics c;
+static int given(const char *a) { return strcmp(a, "-") != 0; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[9], from[64], media[56], stext[20], flags[40] = "";
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 9; t = strtok(NULL, " ")) w[k++] = t;
+        memset(from, ' ', sizeof from); memcpy(from, w[0], strlen(w[0]));
+        memset(media, ' ', sizeof media); memset(stext, ' ', sizeof stext);
+        c.len = w[1][0] == '=' ? (int)strlen(w[0]) : atoi(w[1]);
+        if (given(w[2])) { strcat(flags, "MEDIA "); if (strcmp(w[2], "_") != 0) memcpy(media, w[2], strlen(w[2])); }
+        c.item = atoi(w[3]);
+        c.num = given(w[4]) ? atoi(w[4]) : -1;
+        if (given(w[5])) { strcat(flags, "STEXT"); memcpy(stext, w[5], strlen(w[5])); }
+        c.hours = given(w[6]) ? atoi(w[6]) : -1;
+        c.mins = atoi(w[7]);
+        memset(c.flags, ' ', 40); memcpy(c.flags, flags, strlen(flags));
+        GGCWSND(&c, from, 64, media, 56, stext, 20);
+        printf("send %d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+def _x37_stub_events(out: Path) -> list[tuple]:
+    got = []
+    for line in (
+        (out / "events.txt").read_text(encoding="latin-1").splitlines() if (out / "events.txt").exists() else []
+    ):
+        seq, verb, *rest = line.split()
+        assert verb == "WEB-SEND"
+        kv = dict(a.split("=", 1) for a in rest[1:])
+
+        def text(h: str) -> str | None:
+            return None if h == "-" else bytes.fromhex(h).decode("latin-1")
+
+        got.append(
+            (
+                int(kv["status"]),
+                text(kv["stext"]),
+                text(kv["media"]),
+                (out / f"{seq}.bin").read_bytes().decode("latin-1"),
+            )
+        )
+    return got
+
+
+@needs_cc
+def test_the_stub_web_send(tmp_path):
+    """#4767 zECS (register X37), IBM WEB SEND (server): the response to the stated request, recorded as WEB-SEND (status 200
+    when not given, the reason phrase and media type when given, the body); INVREQ 11 for an invalid action, INVREQ 72 for
+    204 / 205 / 304 with a body; what IBM leaves open (a send not IMMEDIATE, a second send, a malformed MEDIATYPE ...) is
+    refused; without a stated request every send is refused."""
+    exe = _stub(tmp_path, _X37_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    for n, (steps, answers, events) in enumerate(_X37_CASES):
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == answers, steps
+        assert _x37_stub_events(out) == events, steps
+    for n, (steps, why) in enumerate(_X37_REFUSED):
+        out = tmp_path / f"refused{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    unstated = subprocess.run([str(exe), "x 1 - 2 - - - 0"], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout
+
+
+def _x37_java(steps: list[str]) -> str:
+    lines = []
+    for st in steps:
+        w = st.split(" ")
+
+        def area(v: str, width: int) -> str:
+            return "null" if v == "-" else '"' + ("" if v == "_" else v).ljust(width) + '"'
+
+        n = str(len(w[0])) if w[1] == "=" else w[1]
+        lines.append(
+            f'send(t, "{w[0].ljust(64)}", {n}, {area(w[2], 56)}, {w[3]}, {-1 if w[4] == "-" else w[4]}, '
+            f"{area(w[5], 20)}, {-1 if w[6] == '-' else w[6]}, {w[7]});"
+        )
+    return "\n".join(lines)
+
+
+@needs_javac
+def test_cics_task_web_send_as_the_stub_does(tmp_path):
+    """#4767 zECS (X37): CicsTask.webSend answers the steps above as the stub does, records the same WEB-SEND events, and
+    refuses what the stub refuses."""
+    helpers = """
+    static void send(CicsTask t, String from, int n, String media, int action, int status, String stext, int sl, int conv) {
+        int[] r = t.webSend(from, n, media, action, status, stext, sl, conv);
+        System.out.println("send " + r[0] + "/" + r[1]);
+    }
+    static CicsTask task() {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTP", "zecs", 80,
+                "PUT", "HTTP/1.1", "/k", "", java.util.List.of(), null, null));
+    }
+    static void events(CicsTask t) {
+        for (java.util.Map<String, Object> e : t.events()) {
+            System.out.println("ev " + e.get("status") + "|" + e.get("statustext") + "|" + e.get("mediatype") + "|"
+                    + e.get("body") + "|" + e.get("action") + "|" + e.get("resp") + "/" + e.get("resp2"));
+        }
+    }
+"""
+    parts = []
+    for steps, _answers, _events in _X37_CASES:
+        parts.append("{ CicsTask t = task();\n" + _x37_java(steps) + '\nevents(t); System.out.println("--"); }')
+    for steps, _why in _X37_REFUSED:
+        parts.append(
+            "{ CicsTask t = task(); try {\n" + _x37_java(steps) + '\nSystem.out.println("not refused"); }'
+            " catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    parts.append(
+        'try { send(new CicsTask("ZC01", "ENTER", null, null), "x".repeat(64), 1, null, 2, -1, null, -1, 0); }'
+        " catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }"
+    )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, answers, events in _X37_CASES:
+        end = lines.index("--", pos)
+        got = lines[pos:end]
+        want = list(answers)
+        for status, stext, media, body in events:
+            want.append(
+                f"ev {status}|{'null' if stext is None else stext}|{'null' if media is None else media}|{body}|IMMEDIATE|0/0"
+            )
+        assert got == want, (steps, got, want)
+        pos = end + 1
+    refusals = [ln for ln in lines[pos:] if not ln.startswith("send ")]
+    assert len(refusals) == len(_X37_REFUSED) + 1
+    for got, (_steps, why) in zip(refusals, _X37_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)
+    assert refusals[-1] == "the HTTP request is not stated (withHttpRequest): not modelled"

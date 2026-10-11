@@ -964,6 +964,7 @@ _RESP_SAMPLES = {
     "WEB OPEN": "WEB OPEN SESSTOKEN(KEY) URIMAP(REC)", "WEB CLOSE": "WEB CLOSE SESSTOKEN(KEY)",
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
     "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
+    "WEB SEND": "WEB SEND FROM(REC) FROMLENGTH(R) ACTION(R2)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1315,6 +1316,32 @@ def test_inquire_urimap_browse_and_write_operator():
                      ("WRITE OPERATOR", "without TEXT"),
                      ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_send_is_the_response_to_the_stated_request():
+    """#4767 zECS (register X37), IBM WEB SEND (server): CicsTask.webSend takes FROM's text and FROMLENGTH, MEDIATYPE's text
+    (null when absent), ACTION's value (0 absent), STATUSCODE (-1), STATUSTEXT's text and STATUSLEN (-1: the whole area) and
+    the conversion flag (0 / 1 SRVCONVERT / 2 NOSRVCONVERT); every condition through RESP / HANDLE CONDITION. What IBM leaves
+    open, or zECS does not use, is refused by name."""
+    c = _ChanCics()
+    w = c.command(
+        "WEB SEND FROM(REC) FROMLENGTH(R) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) STATUSTEXT(REC) SRVCONVERT NOHANDLE",
+        "",
+    )
+    assert w[0].startswith("int[] web") and ".webSend(Cobol.text(" in w[0] and w[0].endswith(", -1, 1);")
+    assert any("OUTCOME(web" in x for x in w)
+    n = c.command("WEB SEND FROM(REC) FROMLENGTH(R) NOSRVCONVERT STATUSTEXT(REC) STATUSLEN(R2) NOHANDLE", "")
+    assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "without FROM"),
+                     ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
+                     ("WEB SEND DOCTOKEN(REC)", "document as the response body"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

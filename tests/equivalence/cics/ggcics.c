@@ -3355,3 +3355,54 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
     c->num = port;
     return 0;
 }
+
+/* ---- #4767 zECS: WEB SEND, the server side (IBM CICS TS, EXEC CICS WEB SEND; register X37) ----
+ * The task serves one inbound request the runner states: the file $GGCICS_WEBREQ names (unstated, WEB SEND is refused; only that
+ * a request is stated is read here: WEB RECEIVE / EXTRACT / READ HTTPHEADER are not modelled yet). GG-LEN FROMLENGTH, GG-ITEM
+ * ACTION (0: not given), GG-NUM STATUSCODE (-1: not given), GG-HOURS STATUSLEN (-1: not given), GG-MINS the conversion (0, 1
+ * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
+static int web_sent = 0;
+
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
+    int fl = c->len, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hasm = strstr(flags, "MEDIA") != NULL;
+    hast = strstr(flags, "STEXT") != NULL;
+    if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
+    if (status != -1 && (status < 100 || status > 599)) refuse("WEB SEND STATUSCODE outside 100-599");
+    if (hasm) {
+        mtl = mediacap < 56 ? mediacap : 56;
+        memcpy(mt, media, (size_t)mtl);
+        while (mtl > 0 && mt[mtl - 1] == ' ') mtl--;
+        mt[mtl] = '\0';
+        for (i = 0; i < mtl; i++) if ((unsigned char)mt[i] <= ' ' || (unsigned char)mt[i] > '~') mtl = -1;
+        if (mtl < 0 || strchr(mt, '/') == NULL || mt[0] == '/' || mt[strlen(mt) - 1] == '/')
+            refuse("WEB SEND MEDIATYPE blank or not type/subtype");
+    }
+    if (conv == 1) {
+        int text = hasm && mtl >= 5 && tolower((unsigned char)mt[0]) == 't' && tolower((unsigned char)mt[1]) == 'e'
+                   && tolower((unsigned char)mt[2]) == 'x' && tolower((unsigned char)mt[3]) == 't' && mt[4] == '/';
+        if (!text) refuse("WEB SEND SRVCONVERT on a media type that is not text/*");
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
+    if (status == 204 || status == 205 || status == 304) { c->resp = INVREQ; c->resp2 = 72; conds++; }
+    if (conds > 1) refuse("WEB SEND with more than one condition at once");
+    if (conds == 1) return 0;
+    if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
+    web_sent = 1;
+    web_hex(mt, hasm ? mtl : 0, hx[0]);
+    if (hast) { int n = sl < 0 ? stextcap : sl; web_hex(stext, n, hx[1]); } else strcpy(hx[1], "-");
+    snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=IMMEDIATE resp=0 resp2=0",
+             status == -1 ? 200 : status, hx[1], hx[0]);
+    event(ev, from, fl);
+    return 0;
+}

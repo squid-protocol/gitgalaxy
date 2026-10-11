@@ -621,6 +621,48 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
     return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
 
 
+_HTTP_REQ_KEYS = {"scheme", "host", "port", "method", "version", "path", "query", "headers", "mediatype", "body"}
+
+
+def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
+    """#4767 zECS (X37): the inbound HTTP request the task serves -- the scenario's "http_request", else the case's: {"scheme":
+    "HTTP" | "HTTPS", "host", "port", "method", "version" ("HTTP/1.1"), "path", "query" ("" for none), "headers": [[name,
+    value], ...], "mediatype" and "body" (both null: no body)}. Stated on both sides (the stub's $GGCICS_WEBREQ,
+    CicsTask.withHttpRequest); WEB SEND needs it, and the commands that read it (WEB RECEIVE, EXTRACT, READ HTTPHEADER) are
+    not modelled yet. Unstated, None: both runtimes refuse WEB SEND by name."""
+    req = sc.get("http_request", case.get("http_request"))
+    if req is None:
+        return None
+
+    def text(v: Any) -> bool:
+        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
+
+    ok = (isinstance(req, dict) and set(req) == _HTTP_REQ_KEYS and req["scheme"] in ("HTTP", "HTTPS")
+          and text(req["host"]) and isinstance(req["port"], int) and 0 < req["port"] <= 65535
+          and req["method"] in ("GET", "HEAD", "DELETE", "POST", "PUT", "PATCH") and text(req["version"])
+          and text(req["path"]) and isinstance(req["query"], str) and not any(c.isspace() for c in req["query"])
+          and isinstance(req["headers"], list)
+          and all(isinstance(h, list) and len(h) == 2 and text(h[0]) and isinstance(h[1], str) for h in req["headers"])
+          and (req["mediatype"] is None) == (req["body"] is None)
+          and (req["mediatype"] is None or (text(req["mediatype"]) and isinstance(req["body"], str))))  # fmt: skip
+    if not ok:
+        raise Unsupported(f'scenario {sc.get("name")}: "http_request" is {{scheme, host, port, method, version, path, query, '
+                          "headers: [[name, value]], mediatype, body}", ["WEB SEND"])  # fmt: skip
+    return req
+
+
+def http_request_cfg(req: dict[str, Any], enc: str) -> str:
+    """#4767 (X37): the stub's $GGCICS_WEBREQ file (ggcics.c GGCWSND reads only that it is stated): `R SCHEME HOSTHEX PORT METHOD
+    PATHHEX QUERYHEX|-` and a `H NAMEHEX VALUEHEX|-` line per header, hex in the data's page."""
+
+    def hx(v: str | None) -> str:
+        return v.encode(enc).hex().upper() if v else "-"
+
+    lines = [f"R {req['scheme']} {hx(req['host'])} {req['port']} {req['method']} {hx(req['path'])} {hx(req['query'])}"]
+    lines += [f"H {hx(n)} {hx(v)}" for n, v in req["headers"]]
+    return "".join(f"{ln}\n" for ln in lines)
+
+
 def _web_requires(key: str, option: str, needed: str) -> str:
     """#4767: the message of the command's `requires` rule from `option` to `needed`, as the translator words it."""
     return next(
@@ -665,6 +707,38 @@ def _web_parse(opts: dict[str, str | None], labels: list[str] | None) -> list[st
         back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
     after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
     return lines + _call("GGCWPRS", args) + after + _resp(opts, True, labels)
+
+
+def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4767 zECS (register X37): WEB SEND -> GGCWSND (FROMLENGTH in GG-LEN, ACTION's CVDA in GG-ITEM (0: none), STATUSCODE in
+    GG-NUM (-1: none), STATUSLEN in GG-HOURS (-1: the whole STATUSTEXT area, ASSUMED), the conversion in GG-MINS (0 / 1
+    SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
+    key = "WEB SEND"
+    _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("FROM"):
+        raise Unsupported(_rule(key, "required", "FROM"), [key])
+    if "FROMLENGTH" not in opts:
+        raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
+    if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
+    if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
+        raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
+    for o in ("FROMLENGTH", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+        if o in opts and not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+        if opts.get(o) and _literal(opts[o]):
+            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+    conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
+    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
+    lines = [f"MOVE {opts['FROMLENGTH']} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
+             f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
+             f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    args = []
+    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+        area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
+        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    return lines + _call("GGCWSND", args) + _resp(opts, True, labels)
 
 
 def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -948,6 +1022,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return lines + _resp(opts, False, labels)
     if (verb == "WEB PARSE" or (verb == "WEB" and "PARSE" in opts)) and "URL" in opts:  # #4767 (X36): WEB PARSE URL
         return _web_parse(opts, labels)
+    if verb == "WEB SEND" or (verb == "WEB" and "SEND" in opts):  # #4767 (X37): the server's response
+        return _web_send(opts, labels)
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
         return _web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
@@ -2094,6 +2170,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                            encoding="ascii")  # fmt: skip
         if http_peers(case, sc) is not None:  # #4767 zECS (X35): the HTTP servers the task can reach
             (d / "http.cfg").write_text(http_peers_cfg(http_peers(case, sc), enc), encoding="ascii")
+        if http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
+            (d / "webreq.cfg").write_text(http_request_cfg(http_request(case, sc), enc), encoding="ascii")
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
@@ -2149,6 +2227,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
+                      + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -2474,6 +2553,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WEB-CONVERSE":  # #4767 (X35): the request the program sent, as CicsTask records it
             res.setdefault("web", []).append(_cobol_web(kv, data, enc))
+        elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
+            res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -3197,6 +3278,18 @@ class EquivalenceRunTest {{
                 sc.get("doctemplates").fields().forEachRemaining(e -> templates.put(e.getKey(), e.getValue().asText()));
                 task.withDoctemplates(templates);
             }}
+            if (sc.hasNonNull("http_request")) {{  // #4767 zECS (X37): the request the task serves
+                JsonNode q = sc.get("http_request");
+                java.util.List<String[]> headers = new java.util.ArrayList<>();
+                for (JsonNode h : q.get("headers")) {{
+                    headers.add(new String[] {{h.get(0).asText(), h.get(1).asText()}});
+                }}
+                task.withHttpRequest(new CicsTask.HttpRequest(q.get("scheme").asText(), q.get("host").asText(),
+                        q.get("port").asInt(), q.get("method").asText(), q.get("version").asText(),
+                        q.get("path").asText(), q.get("query").asText(), headers,
+                        q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
+                        q.hasNonNull("body") ? q.get("body").asText() : null));
+            }}
             if (sc.hasNonNull("http_peers")) {{  // #4767 zECS (X35): the HTTP servers the task can reach
                 java.util.List<CicsTask.HttpPeer> peers = new java.util.ArrayList<>();
                 for (JsonNode p : sc.get("http_peers")) {{
@@ -3463,7 +3556,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
-                          "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc)})  # fmt: skip
+                          "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
+                          "http_request": http_request(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -3732,6 +3826,16 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_send(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4767 (X37): a WEB-SEND line of the stub's events (hex fields in the data's page) as CicsTask records it."""
+
+    def text(h: str) -> str | None:
+        return None if h == "-" else bytes.fromhex(h).decode(enc)
+
+    return {"status": int(kv["status"]), "statustext": text(kv["stext"]), "mediatype": text(kv["media"]),
+            "body": data.decode(enc), "action": kv["action"], "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -3741,6 +3845,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     starts = iter(res.get("starts", []))  # #4270: START
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
+    websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -3763,6 +3868,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent
             out.append({"event": "WEB-CONVERSE", **next(webs)})
+        elif verb == "WEB-SEND":  # #4767 (X37): CicsTask.webSend records the response sent
+            out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
@@ -3877,6 +3984,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
             for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways
+            for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways

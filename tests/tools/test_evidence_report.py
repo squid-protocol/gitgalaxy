@@ -14,6 +14,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
 REPORTS = sorted(er.OUT.glob("*/report.json"))
+TREE = {"sha256": "tree-fp", "files": 3}  # the translator fingerprint of the tree, as these tests pin it (#4863)
+
+
+@pytest.fixture(autouse=True)
+def translator_in_the_tree_matches_the_surveys(monkeypatch):
+    """#4863: a live build compares the survey's translator fingerprint with the tree's. Pin both so no test here
+    depends on which translator commit the committed reports were surveyed at (#4912); the tests of the comparison
+    itself set their own."""
+    monkeypatch.setattr(er, "translator_now", lambda: TREE)
+    monkeypatch.setattr(er, "translator_at", lambda sha: TREE)
+
+
 # A number as the Markdown prints it: not part of a name (CBACT01C, L5) or a hex digest (8dff2ec2e).
 _NUMBER = re.compile(r"(?<![A-Za-z0-9.])\d+(?:\.\d+)*(?![A-Za-z0-9])")
 
@@ -535,3 +547,187 @@ def test_options_are_deterministic(tmp_path, monkeypatch):
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
     assert er.estate_options("demo", [{"options": a}]) == er.estate_options("demo", [{"options": b}])
     assert "\n".join(er.options_lines(a)) == "\n".join(er.options_lines(b))
+
+
+# ---- #4863 step 2: a survey can be stale -------------------------------------------------------------------------------
+def test_the_fingerprint_covers_the_translator_and_nothing_else():
+    files = {
+        "gitgalaxy/tools/cobol_to_java/det/stmt.py": b"a",
+        "gitgalaxy/tools/cobol_to_java/det/cobolrt/Cobol.java": b"b",
+        "gitgalaxy/standards/cics/commands/api.py": b"c",
+        "gitgalaxy/core/compiler_options.py": b"d",
+        "docs/readme.md": b"e",
+        "gitgalaxy/tools/cobol_to_java/det/__pycache__/stmt.cpython-312.pyc": b"f",
+    }
+
+    def fp(**changed):
+        data = {**files, **changed}
+        return er.translator_fingerprint(tuple(sorted(data)), data.__getitem__)
+
+    base = fp()
+    assert base["files"] == 4  # the four translator inputs, not the doc or the bytecode
+    assert (
+        fp(**{"docs/readme.md": b"x", "gitgalaxy/tools/cobol_to_java/det/__pycache__/stmt.cpython-312.pyc": b"x"})
+        == base
+    )
+    for path in ("gitgalaxy/tools/cobol_to_java/det/stmt.py", "gitgalaxy/tools/cobol_to_java/det/cobolrt/Cobol.java",
+                 "gitgalaxy/standards/cics/commands/api.py", "gitgalaxy/core/compiler_options.py"):  # fmt: skip
+        assert fp(**{path: b"changed"})["sha256"] != base["sha256"], path
+
+
+def test_the_inputs_cover_what_the_translator_imports():
+    """Every gitgalaxy module the det translator (or the CICS spec) imports is a fingerprint input: a new import cannot
+    leave the survey's fingerprint blind to it."""
+    import ast
+
+    repo = er.REPO
+    roots = [
+        *(repo / "gitgalaxy/tools/cobol_to_java/det").rglob("*.py"),
+        *(repo / "gitgalaxy/standards/cics").rglob("*.py"),
+    ]
+    files = tuple(er.ev._files_now())
+    mods = set()
+    for path in roots:
+        for n in ast.walk(ast.parse(path.read_text("utf-8"))):
+            if isinstance(n, ast.ImportFrom) and n.module and n.module.startswith("gitgalaxy.") and not n.level:
+                mods.add(n.module)
+                mods |= {f"{n.module}.{a.name}" for a in n.names}
+    covered = set(er.ev._match(files, list(er.TRANSLATOR_INPUTS), list(er.TRANSLATOR_EXCLUDE)))
+    for m in sorted(mods):
+        rel = m.replace(".", "/")
+        if f"{rel}.py" in files or f"{rel}/__init__.py" in files:
+            assert f"{rel}.py" in covered or f"{rel}/__init__.py" in covered, (
+                f"{m} is read by the translator but not fingerprinted"
+            )
+    assert {Path(p).name for p in covered} >= {"stmt.py", "det_survey.py", "Cobol.java"}
+
+
+def test_survey_check_compares_the_stored_fingerprint_with_the_tree():
+    ok = er.survey_check({"sha": "s", "translator": {"sha256": "A"}}, {"sha256": "A"})
+    assert ok == {"fingerprint": "A", "current": True}
+    bad = er.survey_check({"sha": "s", "translator": {"sha256": "A"}}, {"sha256": "B"})
+    assert bad["current"] is False and bad["now"] == "B" and "translator changed" in bad["why"]
+
+
+def test_a_survey_without_a_fingerprint_is_checked_through_its_commit():
+    old = {"sha": "abc"}  # made before the fingerprint was stored
+    assert er.survey_check(old, {"sha256": "A"}, at=lambda sha: {"sha256": "A"})["current"] is True
+    assert er.survey_check(old, {"sha256": "A"}, at=lambda sha: {"sha256": "Z"})["current"] is False
+    unknown = er.survey_check(old, {"sha256": "A"}, at=lambda sha: None)  # a shallow clone does not have the commit
+    assert unknown["current"] is False and "not here" in unknown["why"]
+
+
+def survey_estate(tmp_path, monkeypatch, stored, now):
+    """A tmp OUT with one estate surveyed with translator fingerprint `stored` (None: the older format), the tree's
+    translator being `now`: a whole program (L1) and one with a hole (L0). Records and coverage are pinned empty."""
+    pytest.importorskip("tree_sitter_language_pack")  # measure() parses the EXEC commands
+    src = tmp_path / "src" / "zecs" / "Source"
+    src.mkdir(parents=True)
+    for name in ("P1", "P2"):
+        (src / f"{name}.cbl").write_text("000100 PROCEDURE DIVISION.\n000200     EXEC CICS RETURN END-EXEC.\n")
+    rows = {
+        ("zecs", "Source/P1.cbl"): {"program": "Source/P1.cbl", "statements": 2, "translated": 2, "holes": []},
+        ("zecs", "Source/P2.cbl"): {"program": "Source/P2.cbl", "statements": 2, "translated": 1, "holes": ["x"]},
+    }
+    survey = {"sha": "abc1234def5678", "scope": "test", "label": "before"}
+    if stored is not None:
+        survey["translator"] = {"sha256": stored, "files": 3}
+    monkeypatch.setattr(er, "OUT", tmp_path / "out")
+    monkeypatch.setattr(er, "record_status", dict)
+    monkeypatch.setattr(er, "det_coverage", dict)
+    monkeypatch.setattr(er, "translator_now", lambda: {"sha256": now, "files": 3})
+    monkeypatch.setattr(er, "translator_at", lambda sha: {"sha256": "OLD", "files": 3})
+    measured = er.measure("zecs", rows, [tmp_path / "src"], survey, {})
+    (er.OUT / "zecs").mkdir(parents=True)
+    (er.OUT / "zecs" / "report.json").write_text(er.dumps(er.build(measured, "zecs", BARS)), "utf-8")
+    return measured, rows, survey
+
+
+def levels(estate_dir):
+    rep = json.loads((estate_dir / "report.json").read_text("utf-8"))
+    return rep, {p["program"]: p for p in rep["programs"]}
+
+
+def test_a_translator_merge_without_a_refresh_fails_the_release_gate_and_a_refresh_passes(
+    tmp_path, monkeypatch, capsys
+):
+    measured, rows, survey = survey_estate(tmp_path, monkeypatch, "A", "A")
+    er.write(er.expected(True))
+    assert er.main(["--check", "--live"]) == 0  # the survey ran the translator in the tree
+
+    monkeypatch.setattr(er, "translator_now", lambda: {"sha256": "B", "files": 3})  # a translator merge, no refresh
+    assert er.main(["--check", "--live"]) == 1
+    err = capsys.readouterr().err
+    assert "stale survey: zecs surveyed at abc1234def56" in err and "stale level: zecs/Source/P1.cbl L1*" in err
+    assert "Source/P2.cbl" not in err  # L0 is the inventory: it does not read the translator
+
+    # the report says so: stale on `translator`, counted apart, rendered
+    er.write(er.expected(True))
+    rep, progs = levels(er.OUT / "zecs")
+    p1, p2 = progs["Source/P1.cbl"], progs["Source/P2.cbl"]
+    assert (p1["level"], p1["level_current"], p1["stale_inputs"], p1["survey_stale"]) == (
+        "L1",
+        False,
+        ["translator"],
+        True,
+    )
+    assert p1["stale_since"] == "abc1234def5678"
+    assert (p2["level"], p2["level_current"], p2["survey_stale"]) == ("L0", True, False)
+    s = rep["summary"]
+    assert (s["levels_stale"], s["levels_stale_survey"], s["histogram_stale_survey"]["L1"]) == (1, 1, 1)
+    assert rep["survey_translator"]["current"] is False and rep["survey_translator"]["now"] == "B"
+    assert er.validate(rep, strict=True) == []
+    md = (er.OUT / "zecs" / "report.md").read_text("utf-8")
+    assert "Stale survey" in md and "| Source/P1.cbl | L1* |" in md and "stale because the translation survey" in md
+    assert "stale on `translator`" in md and not er._FORBIDDEN.search(md)
+    assert "stale (translator" not in er.deltas_markdown(True) and "translation survey is stale" in er.deltas_markdown(
+        True
+    )
+
+    # a refresh = the translation surveyed again with the translator now in the tree
+    survey["translator"] = {"sha256": "B", "files": 3}
+    (er.OUT / "zecs" / "report.json").write_text(
+        er.dumps(er.build(er.measure("zecs", rows, [tmp_path / "src"], survey, {}), "zecs", BARS)), "utf-8"
+    )
+    er.write(er.expected(True))
+    assert er.main(["--check", "--live"]) == 0
+    assert levels(er.OUT / "zecs")[0]["survey_translator"]["current"] is True
+
+
+def test_a_committed_report_is_not_failed_by_a_translator_merge_unless_live(tmp_path, monkeypatch):
+    """The non-live check compares the report with the frozen measurement: only the live gate looks at the tree."""
+    survey_estate(tmp_path, monkeypatch, "A", "A")
+    er.write(er.expected())
+    monkeypatch.setattr(er, "translator_now", lambda: {"sha256": "B", "files": 3})
+    assert er.main(["--check"]) == 0
+
+
+def test_a_report_surveyed_before_the_fingerprint_stays_as_committed_while_its_commit_is_current(tmp_path, monkeypatch):
+    survey_estate(tmp_path, monkeypatch, None, "OLD")  # no stored fingerprint; the commit it ran at has the tree's
+    er.write(er.expected(True))
+    rep, progs = levels(er.OUT / "zecs")
+    assert (
+        "survey_translator" not in rep and "survey_stale" not in progs["Source/P1.cbl"]
+    )  # the older format, unchanged
+    assert er.validate(rep, strict=True) == [] and er.main(["--check", "--live"]) == 0
+    monkeypatch.setattr(er, "translator_now", lambda: {"sha256": "NEW", "files": 3})  # the translator moved
+    assert er.main(["--check", "--live"]) == 1
+
+
+def test_a_survey_run_stores_the_translator_fingerprint(tmp_path, monkeypatch):
+    pytest.importorskip("tree_sitter_language_pack")
+    monkeypatch.setattr(er, "translator_now", lambda: {"sha256": "STORED", "files": 3})
+    src = tmp_path / "src" / "zecs" / "Source"
+    src.mkdir(parents=True)
+    (src / "P1.cbl").write_text("000100 PROCEDURE DIVISION.\n")
+    run = tmp_path / "svy" / "before-main"
+    run.mkdir(parents=True)
+    (run / "survey.json").write_text(json.dumps({"zecs": [{"program": "Source/P1.cbl", "statements": 1,
+                                                             "translated": 1, "holes": []}]}))  # fmt: skip
+    out = tmp_path / "out"
+    assert (
+        er.main(["zecs", "--survey", str(tmp_path / "svy"), "--corpora", str(tmp_path / "src"), "--out", str(out)]) == 0
+    )
+    rep = json.loads((out / "zecs" / "report.json").read_text("utf-8"))
+    assert rep["measured"]["survey"]["translator"] == {"sha256": "STORED", "files": 3}
+    assert rep["survey_translator"] == {"fingerprint": "STORED", "current": True}

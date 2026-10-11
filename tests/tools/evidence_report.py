@@ -187,6 +187,63 @@ def corpus_ref(estate: str) -> str:
     return next((c["ref"] for c in json.loads(CORPORA.read_text("utf-8"))["corpora"] if c["name"] == estate), "")
 
 
+# ---- #4863 step 2: the translator the survey ran, fingerprinted ----------------------------------------------------
+# What `cics_census.py survey` (tests/tools/det_survey.py) reads to translate a program: the cobol_to_java package (the
+# det translator with its runtime sources and copy members, and the forge modules it imports), the CICS command spec it is generated from (standards/cics), and the core modules the
+# translator imports (source format, compiler options, BMS maps, EBCDIC, the class-name rule). test_evidence_report pins
+# this list against the translator's own imports, so a new import cannot silently leave the fingerprint.
+TRANSLATOR_INPUTS = (
+    "gitgalaxy/tools/cobol_to_java/*",  # det/ (with cobolrt, copy) and the forge modules det imports (sql: db2 forge)
+    "gitgalaxy/standards/cics/*",
+    "gitgalaxy/core/aperture.py",
+    "gitgalaxy/core/bms_screen_fields.py",
+    "gitgalaxy/core/bms_symbolic.py",
+    "gitgalaxy/core/cobol_source_format.py",
+    "gitgalaxy/core/compiler_options.py",
+    "gitgalaxy/core/ebcdic_codecs.py",
+    "gitgalaxy/core/source_text.py",
+    "tests/tools/det_survey.py",
+)  # fmt: skip
+TRANSLATOR_EXCLUDE = ("*/__pycache__/*", "*.pyc")
+
+
+def translator_fingerprint(files: tuple[str, ...], read: Any = None) -> dict[str, Any]:
+    """{"sha256", "files"} over the translator inputs among `files` (repo-relative; `read(path)` -> bytes, default the
+    working tree). The digest is ev.tree_sha256's, the scheme the evidence records' harness / oracle inputs use."""
+    paths = ev._match(files, list(TRANSLATOR_INPUTS), list(TRANSLATOR_EXCLUDE))
+    return {"sha256": ev.tree_sha256(paths, read), "files": len(paths)}
+
+
+def translator_now() -> dict[str, Any]:
+    """The translator fingerprint of the working tree."""
+    return translator_fingerprint(ev._files_now())
+
+
+def translator_at(sha: str | None) -> dict[str, Any] | None:
+    """The translator fingerprint of commit `sha`, for a survey that predates the stored fingerprint; None when the
+    commit is not in this clone (a shallow checkout), so the survey cannot be checked."""
+    files = ev._files_at(sha) if sha else None
+    if files is None:
+        return None
+    return translator_fingerprint(files, lambda p: ev._git("show", f"{sha}:{p}", binary=True))
+
+
+def survey_check(survey: dict[str, Any], now: dict[str, Any] | None = None, at: Any = None) -> dict[str, Any]:
+    """Whether the translation survey describes the translator in the tree (#4863): {"fingerprint": the survey's stored
+    sha256 or None, "current": bool, "now": the tree's, only when stale, "why": text, only when stale}. A survey that
+    stored no fingerprint (made before this field) is compared through the fingerprint of the commit it ran at; one whose
+    commit is not in this clone cannot be checked and is stale."""
+    stored = (survey.get("translator") or {}).get("sha256")
+    cur = (now or translator_now())["sha256"]
+    out: dict[str, Any] = {"fingerprint": stored, "current": True}
+    ran = stored or ((at or translator_at)(survey.get("sha")) or {}).get("sha256")
+    if ran is None:
+        out.update(current=False, now=cur, why="the survey stored no translator fingerprint and its commit is not here")
+    elif ran != cur:
+        out.update(current=False, now=cur, why="the translator changed since the survey ran")
+    return out
+
+
 # ---- measuring: what needs corpora or a sweep (frozen into report.json) ------------------------------------------
 def measure(
     estate: str,
@@ -656,6 +713,14 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
             stale_in, stale_at = list(cov["stale_inputs"]), cov["stale_since"]
         elif chosen and chosen["det"].get("source") == LEDGER_VERDICT and isinstance(led, dict):
             stale_in, stale_at = list(led["stale_inputs"]), led.get("stale_since")
+    # #4863: L1 and above rest on the translation survey, so when the translator moved since it ran they are stale too
+    # (L0, the inventory, does not read the translator). Counted apart from the coverage staleness: `survey_stale`.
+    survey_stale = lvl != "L0" and not ctx["survey"]["current"]
+    if ctx["survey_show"]:
+        p["survey_stale"] = survey_stale
+    if survey_stale:
+        stale_in = ["translator", *(i for i in stale_in if i != "translator")]
+        stale_at = stale_at or ctx["survey_sha"]
     p["level_current"] = not stale_in
     p["stale_inputs"] = stale_in
     p["stale_since"] = stale_at
@@ -704,8 +769,15 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
           now: tuple[Any, Any] | None = None) -> dict[str, Any]:  # fmt: skip
     """The report of one estate from its measured block and the repo (live: the records' status recomputed now)."""
     swept = measured.get("sweeps", {})
-    status, ledger = (now or (record_status(), det_coverage())) if live else (
+    status, ledger = (now or (record_status(), det_coverage()))[:2] if live else (
         measured.get("record_status", {}), measured.get("det_coverage", {}))  # fmt: skip
+    # #4863: the survey is compared with the tree only on a live build (the measured block is frozen otherwise, and the
+    # check of a committed report must not change with an unrelated translator merge); a non-live build says "current".
+    survey = (
+        survey_check(measured["survey"], now[2] if now and len(now) > 2 else None)
+        if live
+        else {"fingerprint": (measured["survey"].get("translator") or {}).get("sha256"), "current": True}
+    )
     eq = pb.equivalence_runs()
     sweeps = {c: {**s, "report": None} for c, s in swept.items()}
     det_base = pb.load_det_baseline()
@@ -724,11 +796,17 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "crucible": data.get("crucible", {}),
         "disagree": crucible_disagreements(),
         "register": register(),
+        "survey": survey,
+        "survey_sha": measured["survey"].get("sha"),
+        # a survey measured before it stored its translator fingerprint (the older report format) shows nothing new
+        # while it is current, so a committed report of that format stays "current" until the bot regenerates it
+        "survey_show": "translator" in measured["survey"] or not survey["current"],
     }
     progs = [build_program(m, estate, ctx) for m in measured["programs"]]
     progs.sort(key=lambda p: (-LEVELS.index(p["level"]), p["program"]))
     hist = Counter(p["level"] for p in progs)
     hist_stale = Counter(p["level"] for p in progs if not p["level_current"])
+    hist_survey = Counter(p["level"] for p in progs if p.get("survey_stale"))
     named = sorted(
         {a["id"] for p in progs for a in p["assumptions"]["named_by_commands"]}, key=lambda x: (x[0], int(x[1:]))
     )
@@ -756,11 +834,21 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "not_measured": NOT_MEASURED,
         "mutation": MUTATION,
         "measured": measured,
+        **({"survey_translator": survey} if ctx["survey_show"] else {}),
         "summary": {
             "programs": len(progs),
             "histogram": {lv: hist.get(lv, 0) for lv in LEVELS},  # last measured, stale ones included (#4730)
             "histogram_stale": {lv: hist_stale.get(lv, 0) for lv in LEVELS},  # of which awaiting a re-check
             "levels_stale": sum(hist_stale.values()),
+            # #4863: of those, the levels stale because the translator moved since the survey (counted apart)
+            **(
+                {
+                    "histogram_stale_survey": {lv: hist_survey.get(lv, 0) for lv in LEVELS},
+                    "levels_stale_survey": sum(hist_survey.values()),
+                }
+                if ctx["survey_show"]
+                else {}
+            ),
             "translated_whole": sum(p["translation"]["whole"] for p in progs),
             "refused_whole": sum(bool(p["translation"]["refused"]) for p in progs),
             "holes": sum(p["translation"]["hole_count"] for p in progs),
@@ -799,6 +887,15 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
             "oracle_base_image": pin["base_image"],
             "oracle_images_of_records": images,
             "record_status_from": "evidence.py status, recomputed now" if live else "evidence.py status at build time",
+            **(
+                {
+                    "translator_from": "translator fingerprint compared with the tree now"
+                    if live
+                    else "translator fingerprint as stored with the survey"
+                }
+                if ctx["survey_show"]
+                else {}
+            ),
             "coverage_from": "det-sweep coverage ledger freshness recomputed now"
             if live
             else "det-sweep coverage ledger, freshness at build time",
@@ -934,6 +1031,27 @@ def validate(rep: dict[str, Any], strict: bool = False) -> list[str]:
     for k in ("survey", "programs", "sweeps", "record_status", "det_coverage"):
         if k not in rep.get("measured", {}):
             errs.append(f"measured.{k} missing")
+    # #4863: a report committed before the survey carried a translator fingerprint has none of these until the bot
+    # regenerates it; strict requires them
+    st = rep.get("survey_translator")
+    if st is None:
+        if strict and "translator" in rep.get("measured", {}).get("survey", {}):
+            errs.append("survey_translator missing")
+    else:
+        if not isinstance(st.get("current"), bool):
+            errs.append(f"survey_translator.current {st.get('current')!r}")
+        elif not st["current"] and not (st.get("now") and st.get("why")):
+            errs.append("a stale survey names no current fingerprint / reason")
+        elif st["current"] and (st.get("now") or st.get("why")):
+            errs.append("a current survey names a stale reason")
+        for i, p in enumerate(rep.get("programs", [])):
+            if "survey_stale" in p and p["survey_stale"] != ((not st.get("current", True)) and p["level"] != "L0"):
+                errs.append(f"programs[{i}].survey_stale disagrees with survey_translator")
+            if p.get("survey_stale") and "translator" not in p.get("stale_inputs", []):
+                errs.append(f"programs[{i}]: survey_stale without the translator as a stale input")
+        sss = rep.get("summary", {}).get("histogram_stale_survey")
+        if sss is not None and sum(sss.values()) != sum(bool(p.get("survey_stale")) for p in rep.get("programs", [])):
+            errs.append("summary.histogram_stale_survey disagrees with the programs")
     hs = rep.get("summary", {}).get("histogram_stale")
     if hs is None:
         if strict:
@@ -1081,7 +1199,10 @@ def preface(rep: dict[str, Any]) -> list[str]:
             "re-sweep makes it current again. A change to the program itself (its port, case, corpus pin, declared "
             "differences or options) is not shown as stale: the level drops, as the old measurement no longer describes "
             "it. A stale level is never a current one: the summary counts them apart, and the release gate "
-            "(`evidence_report.py --check --live`) fails while any program's level is stale."
+            "(`evidence_report.py --check --live`) fails while any program's level is stale. The translation survey is "
+            "fingerprinted too (the det translator, the CICS spec and the core modules it reads): when the translator "
+            "in the tree differs from the one the survey ran, every level above L0 is stale on `translator` until the "
+            "translation is surveyed again, and the summary counts those apart."
         ),
         "",
         (
@@ -1113,6 +1234,26 @@ def preface(rep: dict[str, Any]) -> list[str]:
     return out
 
 
+def survey_lines(rep: dict[str, Any]) -> list[str]:
+    """#4863: the translation survey's state against the translator in the tree (a report committed before the survey
+    stored its translator fingerprint has no `survey_translator`: nothing is said)."""
+    st = rep.get("survey_translator")
+    if st is None:
+        return []
+    sv = rep["measured"]["survey"]
+    if st["current"]:
+        fp = f" (translator fingerprint `{st['fingerprint'][:12]}`)" if st.get("fingerprint") else ""
+        return [f"The translation survey matches the translator in the tree{fp}.", ""]
+    n = rep["summary"].get("levels_stale_survey", 0)
+    return [
+        f"> **Stale survey.** The translation survey ran at commit `{_n(sv.get('sha'))}` and {st['why']}: the "
+        f"translator in the tree has fingerprint `{st['now'][:12]}`. The {n} programs at L1 and above are shown as their "
+        "last measured level (`*`, stale on `translator`) until the translation is surveyed again (the nightly "
+        "evidence refresh does it); the release gate (`evidence_report.py --check --live`) fails meanwhile.",
+        "",
+    ]
+
+
 def render(rep: dict[str, Any]) -> str:
     s = rep["summary"]
     sv = rep["measured"]["survey"]
@@ -1140,6 +1281,7 @@ def render(rep: dict[str, Any]) -> str:
         ),
         "",
     ]
+    out += survey_lines(rep)
     out += preface(rep)
     out += ["", "## Summary", "", "| level | programs | of which stale (awaiting re-check) |", "|---|---|---|"]
     out += [f"| {lv} | {n} | {stale_counts(s)[lv]} |" for lv, n in s["histogram"].items()]
@@ -1148,6 +1290,11 @@ def render(rep: dict[str, Any]) -> str:
         # No derived "current = programs - stale" count: every number in the Markdown must be one the JSON holds
         # (test_every_number_in_the_markdown_comes_from_the_json), and the difference is not.
         f"- stale (`*`, last measured): {sum(stale_counts(s).values())} of {s['programs']} programs; the rest are current",
+        *(
+            [f"- of which stale because the translation survey predates the translator: {s['levels_stale_survey']}"]
+            if s.get("levels_stale_survey")
+            else []
+        ),
         "- "
         + "; ".join(
             f"{lv}+: {plus(s, lv)} ({plus({**s, 'histogram_stale': stale_counts(s)}, lv, 'histogram_stale')} awaiting re-check)"
@@ -1435,7 +1582,7 @@ def expected(live: bool = False, built: Any = None) -> dict[Path, str]:
 
 def rebuilt(live: bool = False) -> list[tuple[str, dict[str, Any], dict[str, Any]]]:
     """(estate, committed report, report as the repo makes it now) -- built once, a live build is slow."""
-    now = (record_status(), det_coverage()) if live else None  # once for every estate
+    now = (record_status(), det_coverage(), translator_now()) if live else None  # once for every estate
     return [(e, old, build(old["measured"], e, old["bars"], live=live, now=now)) for e, old in committed().items()]
 
 
@@ -1466,6 +1613,16 @@ def stale_levels(live: bool = False, built: Any = None) -> list[tuple[str, str, 
     return out
 
 
+def stale_surveys(built: Any = None) -> list[tuple[str, str, str]]:
+    """(estate, survey commit, why) of every report whose translation survey no longer matches the translator (#4863)."""
+    out = []
+    for estate, _old, new in built if built is not None else rebuilt(True):
+        st = new.get("survey_translator") or {"current": True}
+        if not st["current"]:
+            out.append((estate, str(new["measured"]["survey"].get("sha")), st["why"]))
+    return out
+
+
 def deltas_markdown(live: bool = False) -> str:
     """The advisory view of a PR (#4703): committed reports are refreshed by the bot on main, so a PR is never failed
     for them; this says what the refresh after its merge will change."""
@@ -1486,6 +1643,13 @@ def deltas_markdown(live: bool = False) -> str:
         ),
         "",
     ]
+    ss = stale_surveys(built) if live else []
+    if ss:
+        lines += [
+            "The translation survey is stale (the release gate fails): "
+            + "; ".join(f"{e} (surveyed at {sha[:12]}: {why})" for e, sha, why in ss),
+            "",
+        ]
     if sl:
         lines += ["| estate | program | stale level | stale since | stale inputs |", "|---|---|---|---|---|"]
         lines += [f"| {e} | {p} | {lv}* | {sha[:12]} | {ins} |" for e, p, lv, sha, ins in sl] + [""]
@@ -1567,6 +1731,13 @@ def main(argv: list[str] | None = None) -> int:
                     file=sys.stderr,
                 )
                 stale_failed = True
+            for e, sha, why in stale_surveys(built):  # #4863
+                print(
+                    f"stale survey: {e} surveyed at {sha[:12]}: {why} -- survey the translation again "
+                    "(cics_census.py survey --baseline, then evidence_report.py --all --baseline), not --refresh",
+                    file=sys.stderr,
+                )
+                stale_failed = True
         for p in bad + extra:
             print(
                 f"not current: {_rel(p)} -- run python tests/tools/evidence_report.py --refresh"
@@ -1582,12 +1753,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.survey:
         rows = cc.load_surveys(args.survey, args.label)
-        survey = {"sha": None, "scope": f"survey {args.label}-*", "label": args.label}
+        survey = {"sha": None, "scope": f"survey {args.label}-*", "label": args.label, "translator": translator_now()}
     else:
         d = cc.baseline_dir(args)
         rows = cc.load_surveys(d, "before")
         meta = json.loads((d / "meta.json").read_text("utf-8"))
-        survey = {"sha": meta["sha"], "scope": meta.get("scope"), "label": "before"}
+        # the translator the survey ran: the surveyed commit's (the cache snapshots it), else the tree's
+        survey = {"sha": meta["sha"], "scope": meta.get("scope"), "label": "before",
+                  "translator": translator_at(meta["sha"]) or translator_now()}  # fmt: skip
     if not rows:
         raise SystemExit("no survey rows: run `cics_census.py survey --baseline` (or pass --survey DIR)")
     in_survey = sorted({c for c, _ in rows})

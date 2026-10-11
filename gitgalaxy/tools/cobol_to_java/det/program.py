@@ -1537,43 +1537,31 @@ def facades(stub: str) -> list[str]:
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
     for meth in ("handleTransaction", "handleLink"):
-        for m in re.finditer(rf"public (\S+) {meth}\(([^)]*)\)", stub):
-            ret, params = m.group(1), m.group(2)
-            req = re.search(r"(\w+) request\b", params)
-            arg = "request" if req else "null"
-            area = re.search(r"byte\[\] (\w+)", params)
-            area_arg = f", {area.group(1)}" if area else ""
-            if name is None:
-                body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
-                         'program); it runs as runTask");')]  # fmt: skip
-            else:
-                task = (f"region.transaction(transid, {arg}{area_arg})" if meth == "handleTransaction"
-                        else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
-                body = ["        CicsTask.Region region = CicsTask.region();",
-                        f"        CicsTask task = {task};",
-                        f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
-                if meth == "handleTransaction" and area:
-                    body.append("        this.lastAnswerBytes = task.returnedBytes();")
-                if ret != "void":
-                    body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
-                                else f"        return task.returned({ret}.class);")  # fmt: skip
-            out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+        m = re.search(rf"public (\S+) {meth}\(([^)]*)\)", stub)
+        if not m:
+            continue
+        ret, params = m.group(1), m.group(2)
+        req = re.search(r"(\w+) request\b", params)
+        arg = "request" if req else "null"
+        if name is None:
+            body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
+                     'program); it runs as runTask");')]  # fmt: skip
+        else:
+            task = (f"region.transaction(transid, {arg})" if meth == "handleTransaction"
+                    else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
+            body = ["        CicsTask.Region region = CicsTask.region();",
+                    f"        CicsTask task = {task};",
+                    f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
+            if ret != "void":
+                body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
+                            else f"        return task.returned({ret}.class);")  # fmt: skip
+        out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
     # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its
     # controller calls: kept so the project compiles, it stops by name -- no task runtime carries a channel's DTO in
     # (#4342: no generated entry that does nothing).
-
-    if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
-        out += [
-            "    private byte[] lastAnswerBytes;",
-            "",
-            "    public byte[] lastAnswerBytes() {",
-            "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
-            "    }",
-            "",
-        ]
-    mc = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
-    if mc:
-        out += [f"    public {mc.group(1)} handleChannel({mc.group(2)}) {{",
+    m = re.search(r"public (\S+) handleChannel\(([^)]*)\)", stub)
+    if m:
+        out += [f"    public {m.group(1)} handleChannel({m.group(2)}) {{",
                 ('        throw new UnsupportedOperationException("handleChannel: a channel entry has no task facade; '
                  'the program runs as runTask or handleTransaction / handleLink");'),
                 "    }", ""]  # fmt: skip

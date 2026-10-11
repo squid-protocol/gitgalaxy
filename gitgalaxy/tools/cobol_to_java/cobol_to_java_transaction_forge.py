@@ -3872,21 +3872,6 @@ class CicsForge:
                 f"        region.run(task, {name}, this::runTask);",
                 *([f"        return task.returned({tresp}.class);"] if tresp else []),
                 "    }\n",
-                "    /** #4817: same, taking the raw bytes of the previous task's COMMAREA to preserve non-decodable bytes. */",
-                f"    public {tresp or 'void'} handleTransaction({params}, byte[] area) {{",
-                f'        log.info("{prog.cls}: handleTransaction byte[] overload");',
-                "        CicsTask.Region region = CicsTask.region();",
-                f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'}, area);",
-                f"        region.run(task, {name}, this::runTask);",
-                "        this.lastAnswerBytes = task.returnedBytes();",
-                *([f"        return task.returned({tresp}.class);"] if tresp else []),
-                "    }\n",
-                "    private byte[] lastAnswerBytes;",
-                "",
-                "    /** #4817: the raw bytes of the last returned COMMAREA, a copy. */",
-                "    public byte[] lastAnswerBytes() {",
-                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
-                "    }\n",
             ]  # fmt: skip
         elif prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")

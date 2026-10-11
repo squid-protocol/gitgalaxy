@@ -109,24 +109,13 @@ def test_records_cut_the_same_way_convert_and_the_facade_answers_its_own_dto():
         assert f"public static {name} fromCommarea(byte[] rec) {{" in dtos[name]
 
 
-def test_the_facade_can_carry_the_commarea_bytes_across_the_conversation_4817():
-    """#4817: beside handleTransaction(transid, request) -- unchanged, the harness reads its signature -- the facade
-    has an overload taking the previous answer's bytes, and lastAnswerBytes() gives this answer's: a caller that keeps
-    them gets IBM's RETURN TRANSID COMMAREA (every byte, spaces in a numeric DISPLAY field too); the det program's
-    facade, rebuilt from that stub, keeps both."""
-    from gitgalaxy.tools.cobol_to_java.det.program import facades
-
+def test_the_facade_signature_is_unchanged_by_4817():
+    """#4817 carries the RETURN TRANSID COMMAREA bytes in the runtime (CicsTask.returnedBytes, Region.transaction with
+    bytes); the generated facade is unchanged for now (exposing the bytes there needs every committed port resurfaced,
+    a follow-up): one handleTransaction, the signature the harness reads."""
     _, svc = _wizard()
-    stub = svc["PCWIZ"]
-    assert "public PcwizWsState handleTransaction(String transid, PcwizWsState request) {" in stub
-    assert "public PcwizWsState handleTransaction(String transid, PcwizWsState request, byte[] area) {" in stub
-    assert "CicsTask task = region.transaction(transid, request, area);" in stub
-    assert "this.lastAnswerBytes = task.returnedBytes();" in stub
-    assert "public byte[] lastAnswerBytes() {" in stub
-    det = "\n".join(facades('region.run(task, "PCWIZ", this::runTask);\n' + stub))
-    assert "public PcwizWsState handleTransaction(String transid, PcwizWsState request) {" in det
-    assert "CicsTask task = region.transaction(transid, request, area);" in det
-    assert "this.lastAnswerBytes = task.returnedBytes();" in det and "public byte[] lastAnswerBytes() {" in det
+    assert svc["PCWIZ"].count("public PcwizWsState handleTransaction(") == 1
+    assert "lastAnswerBytes" not in svc["PCWIZ"]
 
 
 @pytest.mark.parametrize(

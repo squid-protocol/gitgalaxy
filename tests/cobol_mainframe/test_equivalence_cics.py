@@ -1157,11 +1157,19 @@ def test_web_send_becomes_a_stub_call():
     d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
     assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "without FROM"),
+    dd = ec.translate_command("WEB SEND DOCTOKEN(WS-D) MEDIATYPE(WS-M) ACTION(WS-A) STATUSCODE(WS-S) NOHANDLE")
+    at = dd.index("CALL 'GGCWSDC' USING GG-CICS")  # (#4767: the response is the document the token names)
+    assert dd[0] == "MOVE 0 TO GG-LEN" and dd[at + 1 : at + 3] == [
+        "    BY REFERENCE WS-D",
+        "    BY VALUE LENGTH OF WS-D",
+    ]
+    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
+                     ("WEB SEND DOCTOKEN(WS-D) DOCSTATUS(WS-X)", "after it is sent"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND DOCTOKEN(WS-D)", "document as the response body"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
@@ -1267,6 +1275,28 @@ def test_a_web_header_event_reads_back_and_is_compared():
     assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "value"
     res = {"screens": [], "text": [], "events": ["WEB-HEADER name=.. value=.. resp=0 resp2=0"], "webheader": [got]}
     assert ec.cobol_events(res) == [java]
+
+
+def test_get_dcounter_becomes_a_doubleword_stub_call():
+    """#4767 zECS (register X30): GET DCOUNTER -> GGCGDCN (the name in GG-QNAME, the pool in GG-NAME1, VALUE and INCREMENT by
+    reference with their lengths; INCREMENT omitted: GG-NAME2 holding 1). The fullword COUNTER form keeps GGCGCNT, and its
+    INCREMENT / WRAP are refused."""
+    t = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I) WRAP NOHANDLE")
+    assert "CALL 'GGCGDCN' USING GG-CICS" in t and "GGCGCNT" not in "".join(t)
+    at = t.index("CALL 'GGCGDCN' USING GG-CICS")
+    assert t[at + 1 : at + 5] == ["    BY REFERENCE WS-V", "    BY VALUE LENGTH OF WS-V", "    BY REFERENCE WS-I",
+                                  "    BY VALUE LENGTH OF WS-I"]  # fmt: skip
+    d = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) NOHANDLE")
+    assert "MOVE X'0000000000000001' TO GG-NAME2" in d and "    BY REFERENCE GG-NAME2" in d
+    assert "CALL 'GGCGCNT' USING GG-CICS" in ec.translate_command("GET COUNTER(WS-N) VALUE(WS-V) NOHANDLE")
+    for bad, why in (("GET COUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I)", "INCREMENT without DCOUNTER"),
+                     ("GET COUNTER(WS-N) VALUE(WS-V) WRAP", "WRAP without DCOUNTER"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) REDUCE", "maximum is not stated"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) COMPAREMIN(WS-I)", "range check"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "rebuild"),
+                     ("GET DCOUNTER(WS-N) VALUE('5')", "literal")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
 
 
 def test_the_http_request_is_stated_alike_on_both_sides_and_the_response_compared():

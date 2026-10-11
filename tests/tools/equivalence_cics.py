@@ -719,30 +719,33 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
     key = "WEB SEND"
     _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("FROM"):
-        raise Unsupported(_rule(key, "required", "FROM"), [key])
-    if "FROMLENGTH" not in opts:
+    if ("FROM" in opts) == ("DOCTOKEN" in opts):
+        raise Unsupported(_rule(key, "one_of", "FROM"), [key])
+    if "FROM" in opts and "FROMLENGTH" not in opts:
         raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
+    if "FROMLENGTH" in opts and "FROM" not in opts:
+        raise Unsupported(_web_requires(key, "FROMLENGTH", "FROM"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    for o in ("FROMLENGTH", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
-    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+    for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
         if opts.get(o) and _literal(opts[o]):
             raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
     given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
-    lines = [f"MOVE {opts['FROMLENGTH']} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
+    lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
     args = []
-    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+    for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
         args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    return lines + _call("GGCWSND", args) + _resp(opts, True, labels)
+    # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
+    return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 
 
 def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -1043,12 +1046,29 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
-    if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
+    if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
         if not opts.get("VALUE"):
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
-        return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
+        if "COUNTER" in opts:  # the fullword form: its value, then +1
+            for o in ("INCREMENT", "WRAP"):
+                if o in opts:
+                    raise Unsupported(_rule("GET COUNTER", "requires", o), ["GET COUNTER"])
+            return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                    + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                    + _resp(opts, True, labels))  # fmt: skip
+        # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
+        # not given, through GG-NAME2's 8 bytes)
+        for o in ("VALUE", "INCREMENT"):
+            if opts.get(o) and _literal(opts[o]):
+                raise Unsupported(f"GET DCOUNTER {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
+        inc = opts.get("INCREMENT") or "GG-NAME2"
+        return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
+                + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
         _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])

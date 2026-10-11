@@ -3152,7 +3152,7 @@ def _x37_stub_events(out: Path) -> list[tuple]:
                 int(kv["status"]),
                 text(kv["stext"]),
                 text(kv["media"]),
-                (out / f"{seq}.bin").read_bytes().decode("latin-1"),
+                (out / f"{seq}.bin").read_bytes().decode("latin-1") if (out / f"{seq}.bin").exists() else "",
             )
         )
     return got
@@ -3558,3 +3558,238 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
         pos = end + 1
     unstated = lines[pos:]
     assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 4
+
+
+# ---- #4767 zECS (register X30): GET DCOUNTER INCREMENT [WRAP] ---------------------------------------------------------------
+# a step a line: NAME POOL INCREMENT -- "-" for the blank pool; what both runtimes answer: "resp/resp2 value|the counter after",
+# or the refusal. Counters: ZC01_ZECS 41, BIGCNT 4294967294, TOP 4294967295.
+_X30_CASES = [
+    (["ZC01_ZECS - 1"], ["0/0 41|42"]),
+    (["ZC01_ZECS - 5"], ["0/0 41|46"]),
+    (["ZC01_ZECS - 5", "ZC01_ZECS - 1"], ["0/0 41|46", "0/0 46|47"]),
+    (["BIGCNT - 1"], ["0/0 4294967294|4294967295"]),
+    (["NOPE - 1"], ["16/201"]),
+    (["lower - 1"], ["16/404"]),
+    (["1ST - 1"], ["16/404"]),
+    (["ZC01_ZECS lowerpl 1"], ["16/403"]),
+]
+_X30_REFUSED = [
+    (["ZC01_ZECS - 0"], "GET COUNTER with an INCREMENT not above zero"),
+    (["BIGCNT - 2"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+    (["TOP - 1"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+    (["ZC01_ZECS - 4294967296"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+]
+
+_X30_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen);
+static gg_cics c;
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[3];
+        unsigned char value[8], inc[8];
+        unsigned long long n = strtoull(argv[i] + strlen(argv[i]) - 1, NULL, 10), v = 0;
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 3; t = strtok(NULL, " ")) w[k++] = t;
+        n = strtoull(w[2], NULL, 10);
+        for (int j = 7; j >= 0; j--) { inc[j] = (unsigned char)(n & 255); n >>= 8; }
+        memset(c.qname, ' ', 16); memcpy(c.qname, w[0], strlen(w[0]));
+        memset(c.name1, ' ', 8); if (strcmp(w[1], "-") != 0) memcpy(c.name1, w[1], strlen(w[1]) > 8 ? 8 : strlen(w[1]));
+        GGCGDCN(&c, value, 8, inc, 8);
+        for (int j = 0; j < 8; j++) v = v * 256 + value[j];
+        if (c.resp == 0) printf("0/0 %llu\n", v); else printf("%d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_gets_a_doubleword_counter_with_an_increment(tmp_path):
+    """#4767 zECS (register X30), IBM EXEC CICS GET DCOUNTER: the value before the increment (an unsigned doubleword, big-endian),
+    then the counter is INCREMENT more; INVREQ RESP2 201 for a counter that is not there, 403 / 404 for a name outside IBM's
+    characters; an INCREMENT not above zero and a counter that would pass 4294967295 (the maximum the run does not state) are
+    refused."""
+    exe = _stub(tmp_path, _X30_MAIN)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    cfg = tmp_path / "counters.cfg"
+    for steps, answers in _X30_CASES:
+        cfg.write_text("- ZC01_ZECS 41\n- BIGCNT 4294967294\n- TOP 4294967295\n", encoding="ascii")
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == [a.split("|")[0] for a in answers], steps
+        if "|" in answers[-1]:
+            name = steps[-1].split()[0]
+            assert f"- {name} {answers[-1].split('|')[1]}" in cfg.read_text(encoding="ascii"), steps
+    for steps, why in _X30_REFUSED:
+        cfg.write_text("- ZC01_ZECS 41\n- BIGCNT 4294967294\n- TOP 4294967295\n", encoding="ascii")
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_gets_a_doubleword_counter_as_the_stub_does(tmp_path):
+    """#4767 zECS (X30): CicsTask.getCounter(pool, name, increment) answers the steps above as the stub does and refuses what the
+    stub refuses."""
+    parts = []
+    for steps, _answers in _X30_CASES:
+        body = "".join(
+            f'{{ long[] r = t.getCounter("{"" if st.split()[1] == "-" else st.split()[1]}", "{st.split()[0]}", {st.split()[2]}L); '
+            f'System.out.println(r[0] == 0 ? "0/0 " + r[2] : r[0] + "/" + r[1]); }}\n'
+            for st in steps
+        )
+        parts.append(
+            '{ CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withCounters(new java.util.HashMap<>('
+            'java.util.Map.of("/ZC01_ZECS", 41L, "/BIGCNT", 4294967294L, "/TOP", 4294967295L)));\n' + body + "}"
+        )
+    for steps, _why in _X30_REFUSED:
+        st = steps[0].split()
+        parts.append(
+            '{ CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withCounters(new java.util.HashMap<>('
+            'java.util.Map.of("/ZC01_ZECS", 41L, "/BIGCNT", 4294967294L, "/TOP", 4294967295L)));\n'
+            f'try {{ t.getCounter("", "{st[0]}", {st[2]}L); System.out.println("not refused"); }} '
+            "catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    out = _cics_task(tmp_path, "\n".join(parts)).splitlines()
+    want = [a.split("|")[0] for _s, answers in _X30_CASES for a in answers]
+    assert out[: len(want)] == want
+    for got, (_steps, why) in zip(out[len(want) :], _X30_REFUSED):
+        assert got == why + ": not modelled", (got, why)
+
+
+# ---- #4767 zECS (register X37): WEB SEND DOCTOKEN ------------------------------------------------------------------------------
+# a step a line: DOC MEDIATYPE|- ACTION STATUSCODE|- STATUSTEXT|- STATUSLEN|- CONV; DOC "empty" (DOCUMENT CREATE), "text" (a
+# document of "ab"), "none" (a token that names no document). What both runtimes answer and the WEB-SEND body they record.
+_X37_DOC_CASES = [  # (steps, answers, bodies of the events)
+    (["empty text/plain 2 204 No_Content 10 1"], ["send 0/0"], [""]),
+    (["empty - 2 - - - 0"], ["send 0/0"], [""]),
+    (["text text/plain 2 200 OK 2 1"], ["send 0/0"], ["ab"]),
+    (["text - 2 204 - - 0"], ["send 16/72"], []),
+    (["text - 7 - - - 0"], ["send 16/11"], []),
+]
+_X37_DOC_REFUSED = [
+    (["none - 2 - - - 0"], "WEB SEND DOCTOKEN of a document the task did not create"),
+    (["empty - 3 - - - 0"], "WEB SEND ACTION not IMMEDIATE"),
+    (["empty - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
+    (["empty - 2 99 - - 0"], "STATUSCODE outside 100-599"),
+    (["empty application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["empty - 2 - OK 21 0"], "length beyond its area"),
+    (["empty - 2 - - - 0", "empty - 2 - - - 0"], "WEB SEND after a response was sent"),
+]
+
+_X37_DOC_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen);
+int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap);
+static gg_cics c;
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[7], tok[16], media[56], stext[20], flags[40] = "";
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 7; t = strtok(NULL, " ")) w[k++] = t;
+        memset(tok, ' ', 16); memset(media, ' ', 56); memset(stext, ' ', 20);
+        if (strcmp(w[0], "none") != 0) {
+            memset(c.flags, ' ', 40); memcpy(c.flags, strcmp(w[0], "empty") == 0 ? "EMPTY" : "DATA", strcmp(w[0], "empty") == 0 ? 5 : 4);
+            c.len = 2;
+            GGCDOCC(&c, "ab", 2, tok, 16);
+        } else memcpy(tok, "GGDOC99999999999", 16);
+        if (strcmp(w[1], "-") != 0) { strcat(flags, "MEDIA "); memcpy(media, w[1], strlen(w[1])); }
+        c.item = atoi(w[2]);
+        c.num = strcmp(w[3], "-") == 0 ? -1 : atoi(w[3]);
+        if (strcmp(w[4], "-") != 0) { strcat(flags, "STEXT"); memcpy(stext, w[4], strlen(w[4])); }
+        c.hours = strcmp(w[5], "-") == 0 ? -1 : atoi(w[5]);
+        c.mins = atoi(w[6]);
+        memset(c.flags, ' ', 40); memcpy(c.flags, flags, strlen(flags));
+        GGCWSDC(&c, tok, 16, media, 56, stext, 20);
+        printf("send %d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_sends_a_document(tmp_path):
+    """#4767 zECS (register X37), IBM WEB SEND DOCTOKEN (server): the document the task created is the response body, recorded as
+    WEB-SEND; an empty document is no body (a 204 may send it: ASSUMED); the rest as FROM; a token naming no document is refused."""
+    exe = _stub(tmp_path, _X37_DOC_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    for n, (steps, answers, bodies) in enumerate(_X37_DOC_CASES):
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == answers, steps
+        got = _x37_stub_events(out)
+        assert [g[3] for g in got if g[0] in (200, 204)] == bodies, steps
+    for n, (steps, why) in enumerate(_X37_DOC_REFUSED):
+        out = tmp_path / f"refused{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_sends_a_document_as_the_stub_does(tmp_path):
+    """#4767 zECS (X37): CicsTask.webSendDocument answers the steps above as the stub does and refuses what it refuses."""
+
+    def java(steps: list[str]) -> str:
+        lines = []
+        for st in steps:
+            w = st.split(" ")
+
+            def area(v: str, width: int) -> str:
+                return "null" if v == "-" else '"' + v.ljust(width) + '"'
+
+            doc = {"empty": "t.documentCreateEmpty().doctoken()", "text": 't.documentCreateData("ab".getBytes(), 2).doctoken()',
+                   "none": '"GGDOC99999999999"'}[w[0]]  # fmt: skip
+            lines.append(
+                f"send(t, {doc}, {area(w[1], 56)}, {w[2]}, {-1 if w[3] == '-' else w[3]}, {area(w[4], 20)}, "
+                f"{-1 if w[5] == '-' else w[5]}, {w[6]});"
+            )
+        return "\n".join(lines)
+
+    helpers = """
+    static void send(CicsTask t, String tok, String media, int action, int status, String stext, int sl, int conv) {
+        int[] r = t.webSendDocument(tok, media, action, status, stext, sl, conv, java.nio.charset.StandardCharsets.ISO_8859_1);
+        System.out.println("send " + r[0] + "/" + r[1]);
+    }
+    static CicsTask task() {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTP", "zecs", 80,
+                "PUT", "HTTP/1.1", "/k", "", java.util.List.of(), null, null));
+    }
+    static void events(CicsTask t) {
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-SEND")) System.out.println("ev " + e.get("body"));
+        }
+    }
+"""
+    parts = [
+        "{ CicsTask t = task();\n" + java(steps) + '\nevents(t); System.out.println("--"); }'
+        for steps, _a, _b in _X37_DOC_CASES
+    ]
+    for steps, _why in _X37_DOC_REFUSED:
+        parts.append(
+            "{ CicsTask t = task(); try {\n" + java(steps) + '\nSystem.out.println("not refused"); }'
+            " catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, answers, bodies in _X37_DOC_CASES:
+        end = lines.index("--", pos)
+        assert lines[pos:end] == answers + [f"ev {b}" for b in bodies], (steps, lines[pos:end])
+        pos = end + 1
+    refusals = [ln for ln in lines[pos:] if not ln.startswith("send ")]
+    assert len(refusals) == len(_X37_DOC_REFUSED)
+    for got, (_steps, why) in zip(refusals, _X37_DOC_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)

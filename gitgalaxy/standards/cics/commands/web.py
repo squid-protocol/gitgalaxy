@@ -337,7 +337,7 @@ _REQUEST = Fact(
     java="withHttpRequest",
     env="GGCICS_WEBREQ",
     region_default=None,
-    options=("FROM",),
+    options=("FROM", "DOCTOKEN"),
 )
 _NO_REQUEST = RuntimeRefusal(
     "the inbound HTTP request the task serves is not stated for the task",
@@ -354,6 +354,7 @@ WEB_SEND = Command(
     options={
         "FROM": Arg("area_in"),
         "FROMLENGTH": Arg("value"),
+        "DOCTOKEN": Arg("area_in", width=16),
         "MEDIATYPE": Arg("area_in", width=56),
         "ACTION": Arg("cvda"),
         "STATUSCODE": Arg("value"),
@@ -364,7 +365,6 @@ WEB_SEND = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "DOCTOKEN": Refusal("a document as the response body is not modelled", "X37"),
         "CONTAINER": Refusal("a container as the response body is not modelled", "X37"),
         "CHANNEL": Refusal("a container as the response body is not modelled", "X37"),
         "CHUNKING": Refusal("a chunked response is not modelled", "X37"),
@@ -378,17 +378,24 @@ WEB_SEND = Command(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
         "CLOSESTATUS": Refusal("closing the connection after the response is not modelled", "X37"),
-        "DOCSTATUS": Refusal("a document as the response body is not modelled", "X37"),
+        "DOCSTATUS": Refusal(
+            "what becomes of the document after it is sent (DOCDELETE / DOCRETAIN) is not modelled", "X37"
+        ),
         "LENGTH": Refusal("LENGTH is kept for upgrade only (STATUSLEN replaces it): not modelled", "X37"),
     },
     default_refusal=Refusal(
-        "only FROM / FROMLENGTH, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / NOSRVCONVERT are "
-        "modelled",
+        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / "
+        "NOSRVCONVERT are modelled",
         "X37",
     ),
     groups=(
-        required("FROM", msg="WEB SEND without FROM: only a response body from the program's area is modelled"),
-        requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH", both_ways=True),
+        one_of(
+            "FROM",
+            "DOCTOKEN",
+            msg="WEB SEND needs one of FROM and DOCTOKEN: only a response body from the program's area or a document is modelled",
+        ),
+        requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH"),
+        requires(("FROMLENGTH",), ("FROM",), msg="WEB SEND FROMLENGTH without FROM"),
         requires(("STATUSLEN",), ("STATUSTEXT",), msg="WEB SEND STATUSLEN without STATUSTEXT"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB SEND with both SRVCONVERT and NOSRVCONVERT"),
     ),
@@ -414,6 +421,12 @@ WEB_SEND = Command(
             "X37",
             java="WEB SEND",
             c="WEB SEND",
+        ),
+        RuntimeRefusal(
+            "a DOCTOKEN that names no document the task created",
+            "X37",
+            java="WEB SEND DOCTOKEN of a document the task did not create",
+            c="WEB SEND DOCTOKEN of a document the task did not create",
         ),
         RuntimeRefusal(
             "a length past its area (FROMLENGTH, STATUSLEN): CICS reads the storage that follows it, which GnuCOBOL lays out "

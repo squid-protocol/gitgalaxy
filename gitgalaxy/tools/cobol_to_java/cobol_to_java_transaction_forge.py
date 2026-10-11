@@ -1148,6 +1148,40 @@ public class CicsTask {
         if (fromLength > from.length() || (statusText != null && statusLength > statusText.length())) {
             throw refused("WEB SEND length beyond its area");
         }
+        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv);
+    }
+
+    /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
+     *  NOSRVCONVERT] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document `token` names -- one
+     *  the task created (DOCUMENT CREATE) -- as it is now, recorded as WEB-SEND with the document's text as the body. An empty
+     *  document is no message body (ASSUMED: IBM does not say, and lists INVREQ RESP2 72 for 204 / 205 / 304 "with a body"), so
+     *  a 204 may send one; `cs` is the program's character set. Refused as webSend does, and a token that names no document of the task. */
+    public int[] webSendDocument(String doctoken, String mediaType, int action, int status, String statusText,
+                                 int statusLength, int conv, java.nio.charset.Charset cs) {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        if (r.webSent) {
+            throw refused("WEB SEND after a response was sent");
+        }
+        byte[] doc = r.documents.get(doctoken.stripTrailing());
+        if (doc == null) {
+            throw refused("WEB SEND DOCTOKEN of a document the task did not create");
+        }
+        if ((statusText != null && statusLength == 0) || statusLength < -1) {
+            throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+        }
+        if (statusText != null && statusLength > statusText.length()) {
+            throw refused("WEB SEND length beyond its area");
+        }
+        return webSendBody(new String(doc, cs), mediaType, action, status,
+                statusText, statusLength, conv);
+    }
+
+    private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
+                              int statusLength, int conv) {
+        CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
         }
@@ -1166,7 +1200,7 @@ public class CicsTask {
         if (action != 0 && action != 2 && action != 3) {
             c.add(new int[] {16, 11});
         }
-        if (status == 204 || status == 205 || status == 304) {
+        if ((status == 204 || status == 205 || status == 304) && !body.isEmpty()) {
             c.add(new int[] {16, 72});
         }
         if (c.size() > 1) {
@@ -1181,7 +1215,7 @@ public class CicsTask {
         String st = statusText == null ? null : statusText.substring(0, statusLength < 0 ? statusText.length() : statusLength);
         r.webSent = true;
         event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
-                "body", from.substring(0, fromLength), "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+                "body", body, "action", "IMMEDIATE", "resp", 0, "resp2", 0);
         return new int[] {0, 0};
     }
 
@@ -2259,9 +2293,21 @@ public class CicsTask {
      *  INVREQ (16) RESP2 201 "Named counter not found" (the page lists no NOTFND; X30), 403 / 404 for a name outside
      *  IBM's rules. */
     public long[] getCounter(String pool, String name) {
+        return getCounter(pool, name, 1);
+    }
+
+    /** GET DCOUNTER COUNTER VALUE INCREMENT(n) [WRAP] (IBM CICS TS, GET COUNTER and GET DCOUNTER; X30): the value
+     *  before the increment, after which the counter is `increment` more (IBM: "incremented after the current number has been
+     *  assigned"). WRAP changes nothing here: it acts only at the counter's maximum, which the run does not state, so a
+     *  counter that would pass 4294967295 -- the smallest maximum IBM's page leaves open -- is refused, as is an INCREMENT
+     *  not above zero (IBM gives it no meaning). */
+    public long[] getCounter(String pool, String name, long increment) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new long[] {16, bad, 0};
+        }
+        if (increment <= 0) {
+            throw refused("GET COUNTER with an INCREMENT not above zero");
         }
         java.util.Map<String, Long> all = root().counters;
         String key = counterKey(pool, name);
@@ -2269,7 +2315,10 @@ public class CicsTask {
         if (v == null) {
             return new long[] {16, 201, 0};
         }
-        all.put(key, v + 1);
+        if (v + increment > 4294967295L) {
+            throw refused("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        }
+        all.put(key, v + increment);
         return new long[] {0, 0, v};
     }
 

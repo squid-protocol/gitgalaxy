@@ -87,6 +87,8 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if verb == "GET" and "DCOUNTER" in opts:  # #4767 (X30): GET DCOUNTER is the doubleword form of GET COUNTER's entry
+        return "GET COUNTER"
     if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
         return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
     if first == "SEND":
@@ -800,14 +802,22 @@ class Cics:
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
-        if (
-            verb == "GET" and "COUNTER" in opts
-        ):  # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30)
+        if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30). #4767 (X30) GET DCOUNTER
+            # INCREMENT(n) [WRAP]: the value, then +n (the doubleword form; WRAP acts at a maximum the run does not state)
             if not opts.get("VALUE"):
                 raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg("GET COUNTER", "one_of", "COUNTER"))
+            if "COUNTER" in opts:
+                for o in ("INCREMENT", "WRAP"):
+                    if o in opts:
+                        raise CicsError(_msg("GET COUNTER", "requires", o))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            return [f"{ind}long[] {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
+            inc = f", {self.int_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
                     f"{ind}if ({v}[0] == 0) {{",
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
                     f"{ind}}}",
@@ -1265,10 +1275,12 @@ class Cics:
         FROMLENGTH, MEDIATYPE's text, ACTION's value (0 when absent), STATUSCODE (-1), STATUSTEXT's text with STATUSLEN
         (-1: the whole area, ASSUMED) and the conversion flag; the response is recorded as WEB-SEND. Every option the
         spec entry does not model is refused by name (check_options)."""
-        if not opts.get("FROM"):
-            raise CicsError(_msg(key, "required", "FROM"))
-        if "FROMLENGTH" not in opts:
+        if ("FROM" in opts) == ("DOCTOKEN" in opts):
+            raise CicsError(_msg(key, "one_of", "FROM"))
+        if "FROM" in opts and "FROMLENGTH" not in opts:
             raise CicsError(_requires(key, "FROM", "FROMLENGTH"))
+        if "FROMLENGTH" in opts and "FROM" not in opts:
+            raise CicsError(_requires(key, "FROMLENGTH", "FROM"))
         if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
             raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
         if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
@@ -1282,6 +1294,10 @@ class Cics:
 
         conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
         r = self.g.tmpname("web")
+        if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
+            call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
+                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, CS)")  # fmt: skip
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]

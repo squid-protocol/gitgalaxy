@@ -2707,6 +2707,40 @@ int GGCGCNT(gg_cics *c) {
     return 0;
 }
 
+/* GET DCOUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER and GET DCOUNTER; X30): the
+ * value before the increment is written big-endian (unsigned doubleword) into `value`, after which the counter is the
+ * increment more. WRAP changes nothing here (it acts at the counter's maximum, which the run does not state): a counter that
+ * would pass 4294967295 is refused, as an increment not above zero. As CicsTask.getCounter(pool, name, increment). */
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    unsigned long long incr = 0;
+    int i;
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    if (inclen > 8 || valuelen != 8) refuse("GET DCOUNTER with a VALUE or INCREMENT that is not a doubleword");
+    for (i = 0; i < inclen; i++) incr = incr * 256 + inc[i];
+    if (incr == 0 || incr > 4294967295ULL) refuse(incr == 0 ? "GET COUNTER with an INCREMENT not above zero"
+                                                  : "GET COUNTER past 4294967295: the counter's maximum is not stated");
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        unsigned long long v = (unsigned long long)rows[at].value;
+        if (v + incr > 4294967295ULL) refuse("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        for (i = 7; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
+        rows[at].value += (long long)incr;
+        counters_write(rows, n);
+    }
+    return 0;
+}
+
 /* QUERY COUNTER(qname) POOL(name1) VALUE (#4415 slice 2, register X29; IBM, EXEC CICS QUERY COUNTER): the named counter's
  * current value in GG-NUM, unchanged; a counter not there is INVREQ RESP2 201 "Named counter not found". A value beyond
  * a fullword (IBM's LENGERR) is refused. */
@@ -3363,19 +3397,12 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
  * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
 static int web_sent = 0;
 
-int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap) {
+static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
-    int fl = c->len, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
-    const char *env = getenv("GGCICS_WEBREQ");
-    FILE *f;
-    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
-    fclose(f);
-    if (web_sent) refuse("WEB SEND after a response was sent");
+    int action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
     hasm = strstr(flags, "MEDIA") != NULL;
     hast = strstr(flags, "STEXT") != NULL;
-    if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
-    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
     if (status != -1 && (status < 100 || status > 599)) refuse("WEB SEND STATUSCODE outside 100-599");
     if (hasm) {
         mtl = mediacap < 56 ? mediacap : 56;
@@ -3394,7 +3421,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     c->resp = NORMAL;
     c->resp2 = 0;
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
-    if (status == 204 || status == 205 || status == 304) { c->resp = INVREQ; c->resp2 = 72; conds++; }
+    if ((status == 204 || status == 205 || status == 304) && fl > 0) { c->resp = INVREQ; c->resp2 = 72; conds++; }
     if (conds > 1) refuse("WEB SEND with more than one condition at once");
     if (conds == 1) return 0;
     if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
@@ -3405,6 +3432,46 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
              status == -1 ? 200 : status, hx[1], hx[0]);
     event(ev, from, fl);
     return 0;
+}
+
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41];
+    int fl = c->len, sl = c->hours, hast;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap);
+}
+
+/* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
+ * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. As
+ * CicsTask.webSendDocument. */
+int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], want[100];
+    int sl = c->hours, hast, i;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    trim(tok, toklen < 99 ? toklen : 99, want);
+    for (i = 0; i < ndocs; i++) {
+        char t[17];
+        snprintf(t, sizeof t, "GGDOC%011d", i + 1);
+        if (strcmp(t, want) == 0) break;
+    }
+    if (i == ndocs) refuse("WEB SEND DOCTOKEN of a document the task did not create");
+    if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
+    return web_send_body(c, (const char *)docs[i], doc_len[i], media, mediacap, stext, stextcap);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ

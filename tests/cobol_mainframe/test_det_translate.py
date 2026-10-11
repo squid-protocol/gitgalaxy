@@ -1337,11 +1337,18 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert any("OUTCOME(web" in x for x in w)
     n = c.command("WEB SEND FROM(REC) FROMLENGTH(R) NOSRVCONVERT STATUSTEXT(REC) STATUSLEN(R2) NOHANDLE", "")
     assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
-    for bad, why in (("WEB SEND FROMLENGTH(R)", "without FROM"),
+    d = c.command("WEB SEND DOCTOKEN(KEY) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) SRVCONVERT NOHANDLE", "")
+    assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
+        ", 1, CS);"
+    )  # (#4767: the document the token names)
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
+                     ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB SEND DOCTOKEN(KEY) DOCSTATUS(R)", "after it is sent"),
                      ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND DOCTOKEN(REC)", "document as the response body"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
@@ -1435,6 +1442,31 @@ def test_web_read_and_write_httpheader_are_the_servers_headers():
             c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
     with pytest.raises(C.CicsError):  # (FORMFIELD / QUERYPARM stay refused whole)
         c.command("WEB READ FORMFIELD(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)", "")
+
+
+def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
+    """#4767 zECS (register X30), IBM GET DCOUNTER: CicsTask.getCounter(pool, name[, increment]) -- VALUE written on NORMAL
+    only, the increment read from its data area (omitted: the one-argument form, IBM's default 1); WRAP is accepted (it acts at a
+    maximum the run does not state). INCREMENT / WRAP on the fullword COUNTER form, REDUCE, COMPAREMIN / COMPAREMAX and NOSUSPEND are
+    refused by name."""
+    c = _ChanCics()
+    w = c.command("GET DCOUNTER(KEY) VALUE(REC) INCREMENT(R) WRAP NOHANDLE", "")
+    assert (
+        w[0].startswith("long[] counter") and '.getCounter("", ' in w[0] and w[0].count(",") == 2
+    )  # (pool, name, increment)
+    plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
+    assert plain[0].count(",") == 1  # (pool, name: the default increment)
+    assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)
+    for bad, why in (("GET COUNTER(KEY) VALUE(REC) INCREMENT(R)", "INCREMENT without DCOUNTER"),
+                     ("GET COUNTER(KEY) VALUE(REC) WRAP", "WRAP without DCOUNTER"),
+                     ("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
+                     ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) REDUCE", "maximum is not stated"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMIN(R)", "range check"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMAX(R)", "range check"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "rebuild")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
 
 
 def test_web_parse_url_is_a_pure_task_call():

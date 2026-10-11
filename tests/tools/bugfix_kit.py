@@ -1027,6 +1027,9 @@ def _crucible_env(kit: Kit, leg: str, wt: Path) -> dict[str, str]:
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "PYTHONHOME")}
     env["LANGUAGE_CRUCIBLE_PATH"] = str(kit.corpus_path(leg))
     env.setdefault("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "1200")
+    # the legs bless in parallel: no extraction pool inside each (#4902). crucible_check passes against the
+    # default-pool golden with 1 worker (byte-identical; 2m33 default vs 6m09 pinned, alone on the box)
+    env.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")
     env["PYTEST_ADDOPTS"] = f"-p no:cacheprovider --basetemp={kit.run_dir / f'pytest-{leg}-{wt.name}'}"
     return env
 

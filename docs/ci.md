@@ -77,3 +77,6 @@ a dropped event is picked up within the hour. A failure caused only by cancelled
 The full-suite jobs (`full-suite-gate.yml`, `smoke-test.yml`) run pytest with `--timeout=600` (`pytest-timeout`): a
 hung test fails by name after 10 minutes instead of running the job into its time limit, where it shows as a
 "cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).
+
+## Evidence pages publish (#4925)
+`evidence-pages.yml` writes the `generated` branch only when the run's ref is `refs/heads/main`. A `workflow_dispatch` from any other ref renders the pages into a scratch dir and uploads them as the `evidence-pages-preview` artifact; it never writes `generated` (same rule as the `publish-blockers` job in Evidence Refresh, #4924).

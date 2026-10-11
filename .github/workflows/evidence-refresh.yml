@@ -1063,14 +1063,43 @@ jobs:
           name: blockers-survey
           path: ${{ runner.temp }}/blockers-survey
 
+      # A dispatch from any other ref NEVER writes `generated`: it lays the same output into a scratch dir and uploads it, so
+      # a branch run still proves what would be published (blockers.json, meta.json, the new history line).
+      - name: Preview the publish (not main: nothing is pushed)
+        if: github.ref != 'refs/heads/main'
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/generated-preview"
+          (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
+            --root "$RUNNER_TEMP/blockers-survey" --into "$RUNNER_TEMP/generated-preview")
+          {
+            echo "## Blockers publish PREVIEW (${SHA::12}, ref ${GITHUB_REF_NAME}; generated NOT written)"
+            echo '```'
+            head -6 "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/blockers.txt"
+            echo '```'
+            tail -1 "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/blockers_history.jsonl" | cut -c1-300
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the preview
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blockers-generated-preview
+          path: ${{ runner.temp }}/generated-preview/
+          retention-days: 7
+
       - name: Checkout the generated branch
+        if: github.ref == 'refs/heads/main'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: generated
           fetch-depth: 1
-          persist-credentials: true  # this job pushes; it runs no PR code (nightly / dispatch only)
+          persist-credentials: true  # this job pushes; it runs no PR code (nightly / dispatch on main only)
 
       - name: Publish blockers and the history line to the generated branch
+        if: github.ref == 'refs/heads/main'
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
           SHA: ${{ needs.refresh.outputs.sha }}

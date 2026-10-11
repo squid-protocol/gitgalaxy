@@ -18,8 +18,6 @@ from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import open_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 
-logger = logging.getLogger("filter")
-
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
 # Strategy: (Monolith Ceilings, Array Shields & Intent Overrides)
@@ -507,7 +505,7 @@ class ApertureFilter:
 
             if not is_valid:
                 result.update({"classification": "generated_noise", "reason": reason})
-                self.logger.warning(f"Aperture excluded {relative_path}: {result['reason']}")
+                self._log_exclusion(relative_path, result["reason"])
                 return result
 
             # --- THE SHUNT: SECRETS BYPASS ---
@@ -535,7 +533,7 @@ class ApertureFilter:
 
             if not integrity["valid"]:
                 result.update({"classification": integrity["classification"], "reason": integrity["reason"]})
-                self.logger.warning(f"Aperture excluded {relative_path}: {result['reason']}")
+                self._log_exclusion(relative_path, result["reason"])
                 return result
 
             # --- MISSION SUCCESS ---
@@ -807,6 +805,14 @@ class ApertureFilter:
             hit = self._virtualenv_cache[rel_dir] = looks_like_virtualenv(self.root.joinpath(*rel_dir.split("/")))
         return hit
 
+    def _log_exclusion(self, relative_path: str, reason: str) -> None:
+        """#4917: a heuristic exclusion that can hide real code (a "Static Asset Blob") is a WARNING, so it is never
+        silent; the bulk exclusions (binaries, minified / generated noise) stay at DEBUG, or a large repo floods the console."""
+        if "Static Asset Blob" in reason:
+            self.logger.warning(f"Aperture excluded {relative_path}: {reason}")
+        else:
+            self.logger.debug(f"Aperture excluded {relative_path}: {reason}")
+
     # #4917: CI workflows and pipeline definitions are executable code, not static blobs.
     _PIPELINE_FILENAMES = frozenset(
         {
@@ -839,7 +845,7 @@ class ApertureFilter:
         if parts & {".gitlab", ".circleci", ".buildkite"}:
             return True
         # Content check: YAML with many run:/steps:/jobs: keys is workflow code
-        return any(matches >= 3 for matches, _ in enumerate(cls._PIPELINE_KEY_PATTERN.finditer(content), 1))
+        return len(cls._PIPELINE_KEY_PATTERN.findall(content, 0, 200_000)) >= 3
 
     # Characters that open a comment in some language (`//`, `///`, `/*`, ` *`, `#`, `--`, `;`, `%`,
     # `'`, `<!--`, `"""`) plus whitespace; stripped from the front of a line to reach its text.

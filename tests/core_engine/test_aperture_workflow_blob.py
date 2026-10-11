@@ -107,6 +107,20 @@ def test_synthetic_data_yaml_is_excluded_and_warns(filter_engine, tmp_path, capl
     assert "Static Asset Blob without Intent" in warnings[0].getMessage()
 
 
+def test_bulk_exclusion_is_debug_not_warning(filter_engine, tmp_path, caplog):
+    """Minified / saturated files are bulk noise: excluded and named at DEBUG, never a WARNING (no console flood)."""
+    js_file = tmp_path / "bundle.js"
+    js_content = "var a=1;" * 200
+    js_file.write_text(js_content, encoding="utf-8")
+
+    with caplog.at_level(logging.DEBUG, logger="filter"):
+        result = filter_engine.is_in_scope(js_file, content=js_content)
+
+    assert result["is_in_scope"] is False
+    assert not [r for r in caplog.records if r.levelname == "WARNING"]
+    assert any("bundle.js" in r.getMessage() and r.levelname == "DEBUG" for r in caplog.records)
+
+
 @pytest.mark.parametrize(
     "rel_path",
     [

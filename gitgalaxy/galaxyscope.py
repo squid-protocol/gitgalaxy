@@ -2550,6 +2550,12 @@ class Orchestrator:
         # machine happened to interleave identically and masked it, but a
         # genuinely different machine (e.g. a CI runner) did not.
         self.unparsable_files.sort(key=lambda entry: entry["path"])
+        # #4917: exclusions are never silent; the aperture names static-asset blobs as WARNINGs, the rest at DEBUG.
+        if self.unparsable_files:
+            logger.info(
+                f"Excluded Artifacts: {len(self.unparsable_files)} files left out of the scan "
+                "(listed with reasons in the audit report's 'Unparsable Artifacts'; --debug names each one)."
+            )
 
         # Same nondeterminism, same fix: _record_anomaly() is called both from
         # the sequential Phase 0 walk and from this parallel loop, and

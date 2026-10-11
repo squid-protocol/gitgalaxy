@@ -55,7 +55,12 @@
   "translator-refuses-vendor-copybook": {
    "side": "definitional",
    "issue": 4462,
-   "summary": "Refused: an IBM MQ (CMQ*) or LE (CEEIGZCT) copybook the estate does not ship; the engine records the COPY unresolved. Nothing is wrong on either side."
+   "summary": "Refused: an IBM MQ (CMQ*) copybook the estate does not ship (an LE CEEIGZCT has a stand-in since #4884); the engine records the COPY unresolved. Nothing is wrong on either side."
+  },
+  "translator-uses-stand-in-copybook": {
+   "side": "definitional",
+   "issue": 4884,
+   "summary": "The translator expands its shipped CEEIGZCT stand-in (register L4, #4884) where the estate holds no member; the engine's scan has no CEEIGZCT, so it cannot size the group that copies it (FC). The stand-in declares only an 88-level, so FC's offsets are the program's own. Nothing wrong on either side."
   },
   "value-all-literal": {
    "side": "definitional",
@@ -180,6 +185,8 @@
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/CREACC.cbl | translator | INQACCCU-COMMAREA/COMM-OVERDRAFT @75+8": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/CREACC.cbl | translator | INQACCCU-COMMAREA/COMM-SCODE @39+6": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/CREACC.cbl | translator | INQCUST-COMMAREA (record) +269": "pointer-width",
+  "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/CRECUST.cbl | engine | FC (record) +?": "translator-uses-stand-in-copybook",
+  "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/CRECUST.cbl | translator | FC (record) +12": "translator-uses-stand-in-copybook",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/DELACC.cbl | engine | DFHCOMMAREA (record) +122": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/DELACC.cbl | translator | DFHCOMMAREA (record) +134": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/DELCUS.cbl | engine | DELACC-COMMAREA (record) +118": "pointer-width",
@@ -248,7 +255,6 @@
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/INQCUST.cbl | engine | WS-POINTER (record) +4": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/INQCUST.cbl | translator | DFHCOMMAREA (record) +269": "pointer-width",
   "cics-banking-sample-application-cbsa :: offsets | src/base/cobol_src/INQCUST.cbl | translator | WS-POINTER (record) +8": "pointer-width",
-  "cics-banking-sample-application-cbsa :: status | src/base/cobol_src/CRECUST.cbl | engine | translator refused: CopyNotFound: COPY CEEIGZCT": "translator-refuses-vendor-copybook",
   "cics-banking-sample-application-cbsa :: value | src/base/cobol_src/CREACC.cbl | engine | L171 WS-ERROR = ALL": "value-all-literal",
   "cics-banking-sample-application-cbsa :: value | src/base/cobol_src/CREACC.cbl | translator | L171 WS-ERROR = ALL '#'": "value-all-literal",
   "cics-genapp :: offsets | base/src/lgacdb01.cbl | engine | WS-HEADER (record) +38": "pointer-width",

@@ -91,6 +91,18 @@ class Db2PoolTimeoutError(TimeoutError):
     """Raised when waiting for a free Db2 database pool slot exceeds the deadline."""
 
 
+class Db2ConnectError(RuntimeError):
+    """#4921: `db2 connect` to the case database failed (not ready, credentials, container restart)."""
+
+    def __init__(self, database: str, output: str) -> None:
+        super().__init__(f"Db2: could not connect to {database}: {output.strip()}")
+        self.database = database
+        self.output = output
+
+
+_CONNECT_FAILED_RC = 97  # the CLP wrapper's own exit status when the connect failed (Db2's own are 0-4)
+
+
 def hold_lock(timeout: float = DB2_POOL_DEADLINE) -> None:
     """A database of the pool to this process until it ends (an exclusive lock on it; with every database taken,
     the next one free)."""
@@ -234,9 +246,12 @@ def _check_container_image() -> None:
 def _clp(script: str, check: bool = True) -> tuple[int, str]:
     """Run SQL (`;`-terminated statements) with Db2's command line processor, connected to the case database."""
     proc = subprocess.run(["docker", "exec", "-i", CONTAINER, "su", "-", USER, "-c",  # noqa: S603, S607
-                           f"db2 connect to {DATABASE} >/dev/null && db2 -x -t -v +p"],
+                           f'db2 connect to {DATABASE} >/tmp/.clp_connect_$$ 2>&1; rc=$?; '  # (no $(...): the CLP session is the shell's)
+                           f'if [ "$rc" -ge 4 ]; then cat /tmp/.clp_connect_$$; rm -f /tmp/.clp_connect_$$; exit {_CONNECT_FAILED_RC}; fi; rm -f /tmp/.clp_connect_$$; db2 -x -t -v +p'],
                           input=script if script.rstrip().endswith(";") else script + ";",
                           capture_output=True, text=True, check=False, timeout=600)  # fmt: skip
+    if proc.returncode == _CONNECT_FAILED_RC:
+        raise Db2ConnectError(DATABASE, proc.stdout)
     failed = [ln for ln in proc.stdout.splitlines() if ln.startswith("SQL") and "N " in ln[:12]]
     if check and failed:
         raise RuntimeError(f"Db2: {failed[0]}")

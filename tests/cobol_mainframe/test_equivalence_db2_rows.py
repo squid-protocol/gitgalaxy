@@ -230,3 +230,32 @@ def test_the_updacc_port_holds_on_generated_db2_rows(tmp_path):
     sql = [o["sql"] for o in report["outputs"].values()]
     assert len(sql) == 40 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+
+
+def _fake_run(returncode: int, stdout: str):
+    def run(cmd, **kw):  # noqa: ANN001, ANN202
+        run.cmd = cmd
+        return type("P", (), {"returncode": returncode, "stdout": stdout, "stderr": ""})()
+
+    return run
+
+
+def test_clp_connect_failure_is_a_named_error(monkeypatch):
+    """#4921: a failed `db2 connect` names the database and carries the CLP output, not a downstream SQL error."""
+    out = 'SQL1013N  The database alias name or database name "X" could not be found.  SQLSTATE=42705\n'
+    monkeypatch.setattr(db2.subprocess, "run", _fake_run(db2._CONNECT_FAILED_RC, out))
+    with pytest.raises(db2.Db2ConnectError) as exc:
+        db2._clp("SELECT 1;")
+    assert db2.DATABASE in str(exc.value) and "SQL1013N" in exc.value.output
+    with pytest.raises(db2.Db2ConnectError):  # also when the caller asked for check=False
+        db2._clp("SELECT 1;", check=False)
+
+
+def test_clp_connect_ok_is_unchanged(monkeypatch):
+    run = _fake_run(0, "1\n")
+    monkeypatch.setattr(db2.subprocess, "run", run)
+    assert db2._clp("SELECT 1") == (0, "1\n")
+    assert "db2 connect to" in run.cmd[-1] and "db2 -x -t -v +p" in run.cmd[-1]
+    monkeypatch.setattr(db2.subprocess, "run", _fake_run(0, 'SQL0204N  "T" is an undefined name.  SQLSTATE=42704\n'))
+    with pytest.raises(RuntimeError, match="SQL0204N"):
+        db2._clp("SELECT * FROM T;")

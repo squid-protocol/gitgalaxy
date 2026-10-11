@@ -942,14 +942,15 @@ public class CicsTask {
     // #4767 zECS (register X37): the server side. The task is the response to one inbound HTTP request that whoever runs it
     // STATES (never guessed); WEB SEND's response is recorded as an event and compared.
     /** The inbound request the task serves: scheme, host, port, method, HTTP version, path, query string (without its
-     *  '?', "" for none), headers (name, value), the body's media type and body (null: none). WEB SEND needs it stated;
-     *  the commands that read it (WEB RECEIVE, EXTRACT, READ HTTPHEADER) are not modelled yet. */
+     *  '?', "" for none), headers (name, value), the body's media type and body (null: none). WEB SEND, WEB RECEIVE,
+     *  WEB EXTRACT and WEB READ / WRITE HTTPHEADER need it stated (X37, X38). */
     public record HttpRequest(String scheme, String host, int port, String method, String version, String path,
                               String query, java.util.List<String[]> headers, String mediaType, String body) {
     }
 
     private HttpRequest httpRequest;
     private boolean webSent;
+    private boolean webReceived;
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
     public CicsTask withHttpRequest(HttpRequest request) {
@@ -1181,6 +1182,178 @@ public class CicsTask {
         r.webSent = true;
         event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
                 "body", from.substring(0, fromLength), "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+        return new int[] {0, 0};
+    }
+
+    // #4767 zECS (register X38): the server reading the request it serves, which whoever runs the task STATES.
+    private CicsTask statedRequest() {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        return r;
+    }
+
+    /** WEB EXTRACT's outcome: RESP, RESP2 and, on NORMAL, the request's pieces as stated (the HTTP version as the run
+     *  states it, ASSUMED: IBM does not say whether it is "HTTP/1.1" or "1.1"), the scheme's CVDA (1096 HTTP, 1029
+     *  HTTPS) and the port; else the strings are null. */
+    public record WebExtracted(int resp, int resp2, int scheme, String host, int port, String method, String version,
+                               String path, String query) {
+    }
+
+    /** WEB EXTRACT (server form; IBM CICS TS, EXEC CICS WEB EXTRACT; register X38). Each *Length is the option's value
+     *  (null: the piece is not asked for) and each cap its area's size. LENGERR 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH /
+     *  VERSIONLEN not above zero. A query string the request does not have: length 0, the area left alone (ASSUMED: IBM
+     *  does not say). Refused: no request stated, a piece longer than its length (LENGERR 4 / 6 / 8 / 29 / 30: what the
+     *  length then holds is not stated), a METHODLENGTH or QUERYSTRLEN not above zero (no condition is listed), a length
+     *  past its area, two conditions at once. */
+    public WebExtracted webExtract(Integer hostLength, int hostCap, Integer methodLength, int methodCap,
+                                   Integer versionLength, int versionCap, Integer pathLength, int pathCap,
+                                   Integer queryLength, int queryCap) {
+        HttpRequest q = statedRequest().httpRequest;
+        if ((hostLength != null && hostLength > hostCap) || (methodLength != null && methodLength > methodCap)
+                || (versionLength != null && versionLength > versionCap) || (pathLength != null && pathLength > pathCap)
+                || (queryLength != null && queryLength > queryCap)) {
+            throw refused("WEB EXTRACT length beyond its area");
+        }
+        if ((methodLength != null && methodLength <= 0) || (queryLength != null && queryLength <= 0)) {
+            throw refused("WEB EXTRACT METHODLENGTH or QUERYSTRLEN not above zero");
+        }
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (hostLength != null && hostLength <= 0) {
+            c.add(new int[] {22, 21});
+        }
+        if (pathLength != null && pathLength <= 0) {
+            c.add(new int[] {22, 5});
+        }
+        if (versionLength != null && versionLength <= 0) {
+            c.add(new int[] {22, 7});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB EXTRACT with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return new WebExtracted(c.get(0)[0], c.get(0)[1], 0, null, -1, null, null, null, null);
+        }
+        if ((hostLength != null && q.host().length() > hostLength) || (methodLength != null && q.method().length() > methodLength)
+                || (versionLength != null && q.version().length() > versionLength)
+                || (pathLength != null && q.path().length() > pathLength)
+                || (queryLength != null && q.query().length() > queryLength)) {
+            throw refused("WEB EXTRACT piece longer than its length");
+        }
+        return new WebExtracted(0, 0, "HTTPS".equals(q.scheme()) ? 1029 : 1096, q.host(), q.port(), q.method(),
+                q.version(), q.path(), q.query());
+    }
+
+    /** WEB RECEIVE's outcome: RESP, RESP2 and, on NORMAL / LENGERR 57, the body returned (at most MAXLENGTH) and its media
+     *  type, else null. */
+    public record WebReceived(int resp, int resp2, String body, String mediaType) {
+    }
+
+    /** WEB RECEIVE INTO(area) LENGTH(area) MAXLENGTH(n) [MEDIATYPE(area)] [SRVCONVERT | NOSRVCONVERT] (server form; IBM
+     *  CICS TS, EXEC CICS WEB RECEIVE; register X38). LENGERR 16 for a MAXLENGTH not above zero; a body longer than
+     *  MAXLENGTH is cut there with LENGERR 57 (without NOTRUNCATE "the remainder was discarded"; LENGTH then holds the
+     *  bytes returned). The body is in the program's characters whatever the conversion option (ASSUMED, as X37).
+     *  Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
+    public WebReceived webReceive(int maxLength, int intoCap) {
+        CicsTask r = statedRequest();
+        HttpRequest q = r.httpRequest;
+        if (q.body() == null) {
+            throw refused("WEB RECEIVE of a request with no body");
+        }
+        if (r.webReceived) {
+            throw refused("a second WEB RECEIVE");
+        }
+        if (maxLength > intoCap) {
+            throw refused("WEB RECEIVE length beyond its area");
+        }
+        if (maxLength <= 0) {
+            return new WebReceived(22, 16, null, null);
+        }
+        r.webReceived = true;
+        boolean cut = q.body().length() > maxLength;
+        return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+    }
+
+    /** WEB READ HTTPHEADER's outcome: RESP, RESP2 and, on NORMAL, the header's value, else null. */
+    public record WebHeader(int resp, int resp2, String value) {
+    }
+
+    /** WEB READ HTTPHEADER HTTPHEADER(name) NAMELENGTH(n) VALUE(area) VALUELENGTH(area) (server form; IBM CICS TS, EXEC
+     *  CICS WEB READ HTTPHEADER; register X38): `name` is the name area's text. INVREQ 43 when the request has no
+     *  headers, NOTFND 1 when none has that name, LENGERR 1 for a VALUELENGTH not above zero. Refused: no request stated,
+     *  a header found only when the names are compared without case (IBM does not say), two headers of the name, a
+     *  NAMELENGTH not above zero or past its area, a value longer than VALUELENGTH (LENGERR 2: what VALUELENGTH then holds
+     *  is not stated), a VALUELENGTH past VALUE's area, two conditions at once. */
+    public WebHeader webReadHeader(String name, int nameLength, int valueLength, int valueCap) {
+        HttpRequest q = statedRequest().httpRequest;
+        if (nameLength <= 0 || nameLength > name.length()) {
+            throw refused("WEB READ HTTPHEADER NAMELENGTH not above zero or past its area");
+        }
+        if (valueLength > valueCap) {
+            throw refused("WEB READ HTTPHEADER length beyond its area");
+        }
+        String n = name.substring(0, nameLength);
+        java.util.List<String[]> exact = q.headers().stream().filter(h -> h[0].equals(n)).toList();
+        if (exact.isEmpty() && q.headers().stream().anyMatch(h -> h[0].equalsIgnoreCase(n))) {
+            throw refused("WEB READ HTTPHEADER header name found only without case");
+        }
+        if (exact.size() > 1) {
+            throw refused("WEB READ HTTPHEADER two headers of the name");
+        }
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (q.headers().isEmpty()) {
+            c.add(new int[] {16, 43});
+        } else if (exact.isEmpty()) {
+            c.add(new int[] {13, 1});
+        }
+        if (valueLength <= 0) {
+            c.add(new int[] {22, 1});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB READ HTTPHEADER with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return new WebHeader(c.get(0)[0], c.get(0)[1], null);
+        }
+        if (exact.get(0)[1].length() > valueLength) {
+            throw refused("WEB READ HTTPHEADER value longer than VALUELENGTH");
+        }
+        return new WebHeader(0, 0, exact.get(0)[1]);
+    }
+
+    /** WEB WRITE HTTPHEADER HTTPHEADER(name) NAMELENGTH(n) VALUE(area) VALUELENGTH(n) (server form; IBM CICS TS, EXEC CICS
+     *  WEB WRITE HTTPHEADER; register X38): one header added to the response, recorded as WEB-HEADER (name, value) and
+     *  compared; a header written twice is two headers (IBM: "in addition to the existing header"). LENGERR 35 for a
+     *  NAMELENGTH not above zero, 55 for a VALUELENGTH not above zero or above 32000. Refused: no request stated, a header
+     *  after the response was sent, a name that is blank or holds a blank or a colon, a length past its area, two
+     *  conditions at once. */
+    public int[] webWriteHeader(String name, int nameLength, String value, int valueLength) {
+        CicsTask r = statedRequest();
+        if (r.webSent) {
+            throw refused("WEB WRITE HTTPHEADER after the response was sent");
+        }
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (nameLength <= 0) {
+            c.add(new int[] {22, 35});
+        }
+        if (valueLength <= 0 || valueLength > 32000) {
+            c.add(new int[] {22, 55});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB WRITE HTTPHEADER with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return c.get(0);
+        }
+        if (nameLength > name.length() || valueLength > value.length()) {
+            throw refused("WEB WRITE HTTPHEADER length beyond its area");
+        }
+        String n = name.substring(0, nameLength);
+        if (n.isBlank() || n.chars().anyMatch(ch -> ch == ' ' || ch == ':')) {
+            throw refused("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
+        }
+        event("WEB-HEADER", "name", n, "value", value.substring(0, valueLength), "resp", 0, "resp2", 0);
         return new int[] {0, 0};
     }
 

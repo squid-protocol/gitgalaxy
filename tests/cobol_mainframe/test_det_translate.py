@@ -965,6 +965,9 @@ _RESP_SAMPLES = {
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
     "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
     "WEB SEND": "WEB SEND FROM(REC) FROMLENGTH(R) ACTION(R2)",
+    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
+    "WEB READ HTTPHEADER": "WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    "WEB WRITE HTTPHEADER": "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1344,6 +1347,94 @@ def test_web_send_is_the_response_to_the_stated_request():
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
+
+
+def test_web_extract_reads_the_stated_request():
+    """#4767 zECS (register X38), IBM WEB EXTRACT (server): CicsTask.webExtract takes each piece's length option (null when the
+    piece is not asked for) and its area's size; on NORMAL only the pieces' bytes, their lengths, PORTNUMBER, SCHEME's CVDA and
+    REQUESTTYPE's HTTPYES (1033) are written. The client form and what the request does not state are refused by name."""
+    c = _ChanCics()
+    w = c.command(
+        "WEB EXTRACT SCHEME(R) HOST(REC) HOSTLENGTH(R2) PATH(REC) PATHLENGTH(R) PORTNUMBER(R) REQUESTTYPE(R2) NOHANDLE",
+        "",
+    )
+    assert w[0].startswith("CicsTask.WebExtracted web") and ".webExtract(Integer.valueOf(" in w[0]
+    assert ", null, 0, null, 0, Integer.valueOf(" in w[0] and w[0].endswith(
+        ", null, 0);"
+    )  # (no METHOD / VERSION / QUERY)
+    body = " ".join(w)
+    assert ".resp() == 0) {" in body and ".host().getBytes(CS)" in body and ".path().length()" in body
+    assert ".port()" in body and ".scheme()" in body and "valueOf(1033)" in body
+    for ok in ("WEB EXTRACT HTTPMETHOD(REC) METHODLENGTH(R)", "WEB EXTRACT HTTPVERSION(REC) VERSIONLEN(R)",
+               "WEB EXTRACT QUERYSTRING(REC) QUERYSTRLEN(R) NOHANDLE"):  # fmt: skip
+        assert c.command(ok, "")[0].startswith("CicsTask.WebExtracted web")
+    for bad, why in (("WEB EXTRACT HOST(REC)", "HOST without HOSTLENGTH"),
+                     ("WEB EXTRACT HOSTLENGTH(R)", "HOST without HOSTLENGTH"),
+                     ("WEB EXTRACT HTTPMETHOD(REC)", "HTTPMETHOD without METHODLENGTH"),
+                     ("WEB EXTRACT HTTPVERSION(REC)", "HTTPVERSION without VERSIONLEN"),
+                     ("WEB EXTRACT PATH(REC)", "PATH without PATHLENGTH"),
+                     ("WEB EXTRACT QUERYSTRING(REC)", "QUERYSTRING without QUERYSTRLEN"),
+                     ("WEB EXTRACT SESSTOKEN(KEY) HOST(REC) HOSTLENGTH(R)", "client form"),
+                     ("WEB EXTRACT HOSTTYPE(R)", "address format of the host"),
+                     ("WEB EXTRACT URIMAP(REC)", "URIMAP the request matched"),
+                     ("WEB EXTRACT REALM(REC)", "client form"),
+                     ("WEB EXTRACT REALMLEN(R)", "client form")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_receive_reads_the_body_of_the_stated_request():
+    """#4767 zECS (register X38), IBM WEB RECEIVE (server): CicsTask.webReceive takes MAXLENGTH and INTO's size; the body goes
+    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane), NOTRUNCATE,
+    the containers and every code-page option are refused by name, as is INTO without MAXLENGTH (IBM: INVREQ RESP2 16)."""
+    c = _ChanCics()
+    w = c.command("WEB RECEIVE INTO(REC) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
+    assert w[0].startswith("CicsTask.WebReceived web") and ".webReceive(" in w[0]
+    body = " ".join(w)
+    assert ".body() != null) {" in body and ".body().getBytes(CS)" in body and ".body().length()" in body
+    assert '"%-56s"' in body and ".mediaType()" in body
+    assert c.command("WEB RECEIVE INTO(REC) MAXLENGTH(R2) SRVCONVERT", "")[0].startswith("CicsTask.WebReceived web")
+    for bad, why in (("WEB RECEIVE", "without INTO"),
+                     ("WEB RECEIVE INTO(REC)", "INTO without MAXLENGTH"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "pointer lane"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) NOTRUNCATE", "NOTRUNCATE"),
+                     ("WEB RECEIVE TOCONTAINER('C')", "container"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TOCHANNEL('C')", "container"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) HOSTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CLNTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SERVERCONV(R)", "SERVERCONV"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) BODYCHARSET(REC)", "character set"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TYPE(R)", "TYPE")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_read_and_write_httpheader_are_the_servers_headers():
+    """#4767 zECS (register X38), IBM WEB READ HTTPHEADER / WEB WRITE HTTPHEADER (server): READ takes the name area's text, its
+    NAMELENGTH, VALUELENGTH and VALUE's size, writes VALUE and VALUELENGTH on NORMAL only; WRITE takes the name and value texts
+    with both lengths and records the header (WEB-HEADER). The client form (SESSTOKEN) and a missing option are refused."""
+    c = _ChanCics()
+    r = c.command("WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+    assert r[0].startswith("CicsTask.WebHeader web") and ".webReadHeader(Cobol.text(" in r[0]
+    assert (
+        ".resp() == 0) {" in " ".join(r)
+        and ".value().getBytes(CS)" in " ".join(r)
+        and ".value().length()" in " ".join(r)
+    )
+    w = c.command("WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+    assert w[0].startswith("int[] web") and ".webWriteHeader(Cobol.text(" in w[0]
+    for form in ("READ", "WRITE"):
+        full = ["HTTPHEADER(REC)", "NAMELENGTH(R)", "VALUE(REC)", "VALUELENGTH(R2)"]
+        for i, missing in enumerate(("header name", "NAMELENGTH", "VALUE", "VALUELENGTH")):
+            # (no HTTPHEADER: the command is no longer this form, a WEB READ of no modelled kind)
+            with pytest.raises(C.CicsError, match=f"WEB {form} not modelled" if i == 0 else f"without {missing}"):
+                c.command(f"WEB {form} " + " ".join(full[:i] + full[i + 1 :]), "")
+        with pytest.raises(C.CicsError, match="client form"):
+            c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
+    with pytest.raises(C.CicsError):  # (FORMFIELD / QUERYPARM stay refused whole)
+        c.command("WEB READ FORMFIELD(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)", "")
 
 
 def test_web_parse_url_is_a_pure_task_call():

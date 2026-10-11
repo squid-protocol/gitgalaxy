@@ -148,7 +148,7 @@ jobs:
     needs: plan
     if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # TUNE after the first measured run
+    timeout-minutes: 15  # measured: a 9-10 case shard took 5.5-9.5 min from job start (full run, #4901)
     strategy:
       fail-fast: false
       matrix:
@@ -220,18 +220,23 @@ jobs:
           echo "DB2_JOBS=$n" >> "$GITHUB_ENV"
           echo "GITGALAXY_DB2_POOL=$n" >> "$GITHUB_ENV"
           export GITGALAXY_DB2_POOL=$n
-          setsid nohup python -c "
-          import sys, time
+          cat > "$RUNNER_TEMP/db2_prewarm.py" <<'PY'
+          import sys
+          import time
+
           t = time.time()
-          sys.path.insert(0, 'gitgalaxy/tests/tools')
+          sys.path.insert(0, "gitgalaxy/tests/tools")
           import equivalence_db2 as d
+
           d._ensure_container()
-          print(f'db2 container ready after {time.time() - t:.0f}s', flush=True)
+          print(f"db2 container ready after {time.time() - t:.0f}s", flush=True)
           for db in d.pool():
               d._ensure_database(db)
               d.activate(db)
-              print(f'db2 {db} ready after {time.time() - t:.0f}s', flush=True)
-          " > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
+              print(f"db2 {db} ready after {time.time() - t:.0f}s", flush=True)
+          PY
+          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
+            > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
           echo "started the background Db2 start"
 
       - name: Setup JDK 17
@@ -274,6 +279,19 @@ jobs:
       - name: Balance by the restored durations (else the committed file)
         if: steps.durations.outputs.cache-matched-key != ''
         run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+
+      # The databases are only used once the start is done: a case that picked a database the background start was still
+      # creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated). Lazy creation
+      # in the harness paid the same serial CREATE DATABASE time, so this wait costs nothing.
+      - name: Wait for the background Db2 start
+        shell: bash
+        run: |
+          for _ in $(seq 1 120); do
+            if [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
+            sleep 5
+          done
+          cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
+          [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" = "0" ] || { echo "::error title=Db2::the background Db2 start did not finish"; exit 1; }
 
       - name: Re-prove this shard's Db2 det ports
         id: sweep

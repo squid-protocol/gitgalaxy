@@ -568,7 +568,7 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   |---|---|---|
   | The sign byte of a signed sender, on every numeric read | `cob_get_sign` / `cob_put_sign` (the EBCDIC overpunch) | `{` `A`-`I` are +0..+9, `}` `J`-`R` -0..-9, a digit itself, a space stays a space, any other byte is the digit in its low nibble if that is 1-9 else 0 (`!` +1, X'FF' +0). The read then rewrites a positive sign byte as an overpunch (`0123` becomes `012C`, a space or any non-digit `{`) -- on a MOVE from the item whatever the receiver, and on an arithmetic operand; not on a comparison of an unsigned or trailing-sign item. A separate sign is rewritten to `+` / `-` on every read, comparisons too. Digit-only data included: this changes the sender's bytes in a digit-only program too, as the oracle does. |
   | MOVE zoned to zoned (`MOVE 1A3 TO D7`: `00001A3`) | `cob_move_display_to_display`, `store_common_region` | the digit bytes copied aligned on the decimal point, a space or X'00' becoming '0', any other byte kept; the receiver's sign written over its last / first byte (a digit overpunched, any other byte `{` / `}`) |
-  | MOVE zoned to zoned of ONE shape (digits, scale, sign, sign position, size equal: COCRDUPC's `MOVE CARD-CVV-CD-N TO CARD-UPDATE-CVV-CD`, both PIC 9(3)) | none: cobc compiles it as a memcpy (`cb_build_move_copy`), libcob never runs | the bytes copied as they are, a space, letter or sign byte too, no sign rewrite; measured per sender shape (the `OWN` receiver of `test_det_nondigit_zoned.py`) |
+  | MOVE zoned to zoned of ONE shape (digits, scale, sign, sign position, size equal: COCRDUPC's `MOVE CARD-CVV-CD-N TO CARD-UPDATE-CVV-CD`, both PIC 9(3)) | none: cobc compiles it as a memcpy (`cb_build_move_copy`), libcob never runs. IBM agrees (below): the bytes are copied as they are | the bytes copied as they are, a space, letter or sign byte too, no sign rewrite; measured per sender shape (the `OWN` receiver of `test_det_nondigit_zoned.py`) |
   | MOVE to numeric-edited (`MOVE A6 TO E7`: 7 spaces) | `cob_move_display_to_edited` | the digit bytes fed to the picture as they are; only a '0' is suppressed, so a space stays a space and `Z(6)9` of spaces is 7 spaces; X'00' stays X'00' |
   | MOVE to packed (COMP-3) | `cob_move_display_to_packed` | a nibble pair is `(hi * 16 + lo) mod 256` of the digits' values (byte - '0'; a space 0), so `12A4` is `01 31 4C`; reading such a packed item back as a number is still the runtime's (nibble above 9 reads as 9; the oracle prints garbage) -- the tests compare it as the COMP-5 number its bytes are |
   | COMPUTE / ADD / SUBTRACT operand (`COMPUTE B9 = A6` 709551600) | `cob_decimal_set_display` | a first byte X'FF' is +10^size and X'00' -10^size; else leading bytes whose low nibble is 0 (zeros, spaces, low-values) are skipped and the rest accumulate as `value * 10 + (byte - '0')` in an unsigned 64-bit integer that wraps (a space -16, `A` 17), the sign applied after. 19 or more digits left after the skipping: refused by name |
@@ -583,6 +583,15 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   the MOVE paths), ADD / SUBTRACT / MOVE where the *receiver* holds the non-digit (`ADD 1 TO counter` with spaces:
   `cob_display_add_int` works on the bytes), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
   byte), a hex literal naming a line-end character in a MOVE (`X'0A'`, `X'0D'`: the generated Java string breaks).
+- **Same-shape zoned MOVE: what IBM does (#4875).** IBM documents no result for non-digit data in a numeric item, but its
+  APAR PH21007 ("COBOL V6.2 was inadvertently generating code to fix up bad signnibbles in zoned to zoned moves",
+  <https://www.ibm.com/support/pages/apar/PH21007>, against Enterprise COBOL 6.3) says that under `ZONEDATA(NOPFD|MIG)` --
+  the options that replace the pre-V5 `NUMPROC(NOPFD|MIG)`, and CardDemo's default, its programs carry no option -- the
+  compiler set the receiver's sign nibble after a zoned-to-zoned MOVE whose receiver's sign or length differs from the
+  sender's, and was changed "to match the pre-V5 behavior": the invalid sign nibble is kept. A MOVE between items of one
+  shape is not one of those, so IBM copies the bytes as they are, as cobc does: a trailing space (X'40' on z/OS) stays,
+  and the CVV is `   `. MATCHED for the same-shape case; the differing-shape moves stay the oracle's rules above. Read
+  from the APAR text, not run on z/OS (#4050).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,

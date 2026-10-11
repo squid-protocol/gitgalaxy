@@ -73,8 +73,11 @@ def test_facades_come_from_the_generator_and_the_ported_logic_stays(tmp_path):
         f.parent.mkdir()
         f.write_text(text, encoding="utf-8")
     text, ch = ps.resurface(port, gen)
-    assert ch.replaced == ["handleTransaction"]
-    assert ch.removed == ["executeX", "submitXm"]  # not written by the generator, and runTask does not call them
+    assert ch.replaced == ["handleTransaction(String,XWsCa)"]
+    assert ch.removed == [
+        "executeX()",
+        "submitXm(XmScreen,String)",
+    ]  # not written by the generator, and runTask does not call them
     assert ch.helpers_removed == ["returnedOf"]  # only the old facade used it
     assert ch.imports_added == ["p.dto.XWsCa"]
     assert "region.transaction(transid, request)" in text and "new CicsTask(transid" not in text
@@ -99,7 +102,9 @@ def test_only_the_imports_the_written_facades_use_are_added(tmp_path):
         f.parent.mkdir()
         f.write_text(text, encoding="utf-8")
     text, ch = ps.resurface(port, gen)
-    assert ch.replaced == ["handleTransaction"] and ch.imports_added == ["p.dto.XWsCa"]  # the request still names it
+    assert ch.replaced == ["handleTransaction(String,XWsCa)"] and ch.imports_added == [
+        "p.dto.XWsCa"
+    ]  # the request still names it
     assert "import java.util.List;" not in text and "public Object handleTransaction" in text
     port.write_text(GENERATED.replace("import p.dto.XWsCa;\n", "").replace("XWsCa", "Object"), encoding="utf-8")
     gen.write_text(CROSSING.replace("XWsCa", "Object"), encoding="utf-8")
@@ -133,5 +138,116 @@ def test_equivalence_resurfaces_each_case_port_and_records_it(tmp_path, monkeypa
     assert ps.equivalence(tmp_path / "work", None, check=False) == 0
     assert "public Object handleTransaction" in port.read_text(encoding="utf-8")
     prov = json.loads((cases / "c1" / "port" / "provenance.json").read_text(encoding="utf-8"))
-    assert prov["history"][-1]["event"] == "resurfaced" and prov["history"][-1]["replaced"] == ["handleTransaction"]
+    assert prov["history"][-1]["event"] == "resurfaced" and prov["history"][-1]["replaced"] == [
+        "handleTransaction(String,XWsCa)"
+    ]
     assert ps.equivalence(tmp_path / "work", None, check=True) == 0
+
+
+OVERLOADED = GENERATED.replace(
+    "    /** TODO: port it. */",
+    """    /** Same transaction, with the COMMAREA's bytes (#4870). */
+    public XWsCa handleTransaction(String transid, XWsCa request, byte[] area) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request, area);
+        region.run(task, "X", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+        return task.returned(XWsCa.class);
+    }
+
+    // @facade-helper: the bytes the last overload call answered
+    private byte[] lastAnswerBytes;
+
+    /**
+     * The last answer's bytes.
+     * @facade-helper
+     */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes;
+    }
+
+    /** TODO: port it. */""",
+)
+
+LOGIC = """    /** The PROCEDURE DIVISION. */
+    public void runTask(CicsTask task) {
+        int ported = 1;
+    }
+"""
+
+
+def _pair(tmp_path, port_text, gen_text):
+    port, gen = tmp_path / "port" / "XService.java", tmp_path / "gen" / "XService.java"
+    for f, text in ((port, port_text), (gen, gen_text)):
+        f.parent.mkdir(exist_ok=True)
+        f.write_text(text, encoding="utf-8")
+    return port, gen
+
+
+def _ported(text):
+    """GENERATED / OVERLOADED with runTask replaced by ported logic."""
+    return text[: text.index("    /** TODO: port it. */")] + LOGIC + "}\n"
+
+
+def test_overloads_are_matched_by_signature(tmp_path):
+    """#4870: the port has the one-argument-pair handleTransaction only; the generator writes both overloads."""
+    port, gen = _pair(tmp_path, _ported(GENERATED), OVERLOADED)
+    text, ch = ps.resurface(port, gen)
+    assert ch.replaced == [] and ch.removed == []  # the existing overload is equal: untouched
+    assert ch.added == ["lastAnswerBytes (field)", "handleTransaction(String,XWsCa,byte[])", "lastAnswerBytes()"]
+    assert text.count("handleTransaction(String transid, XWsCa request)") == 1
+    assert "region.transaction(transid, request, area)" in text
+    assert text.index("private byte[] lastAnswerBytes;") < text.index(
+        "public XWsCa handleTransaction(String transid, XWsCa request, byte[]"
+    )
+    assert "int ported = 1;" in text  # the logic is the port's
+    port.write_text(text, encoding="utf-8")
+    again, ch2 = ps.resurface(port, gen)
+    assert ch2.empty() and again == text
+
+
+def test_each_overload_is_replaced_or_removed_on_its_own(tmp_path):
+    old_port = _ported(OVERLOADED).replace("task.returnedBytes()", "null")
+    port, gen = _pair(tmp_path, old_port, OVERLOADED)
+    text, ch = ps.resurface(port, gen)
+    assert ch.replaced == ["handleTransaction(String,XWsCa,byte[])"] and ch.added == [] and ch.removed == []
+    assert "lastAnswerBytes = task.returnedBytes();" in text
+    # the generator drops the overload and its helpers: the port loses exactly those, the other overload stays
+    port, gen = _pair(tmp_path, _ported(OVERLOADED), _ported(GENERATED))
+    text, ch = ps.resurface(port, gen)
+    assert sorted(ch.removed) == [
+        "handleTransaction(String,XWsCa,byte[])",
+        "lastAnswerBytes (field)",
+        "lastAnswerBytes()",
+    ]
+    assert ch.replaced == [] and "public XWsCa handleTransaction(String transid, XWsCa request) {" in text
+    assert "lastAnswerBytes" not in text and "byte[]" not in text
+
+
+def test_an_untagged_member_is_never_surface(tmp_path):
+    """#4870: no @facade-helper, no surface: the model's own field / method is neither copied nor removed."""
+    plain = OVERLOADED.replace("@facade-helper", "helper")
+    port, gen = _pair(
+        tmp_path,
+        _ported(GENERATED).replace("    /** The PROCEDURE", "    private int mine;\n\n    /** The PROCEDURE"),
+        plain,
+    )
+    text, ch = ps.resurface(port, gen)
+    assert ch.added == ["handleTransaction(String,XWsCa,byte[])"]  # the FACADE-named method only
+    assert "lastAnswerBytes" not in text.replace("lastAnswerBytes = task.returnedBytes();", "")
+    assert "private int mine;" in text
+
+
+def test_check_reports_a_helper_only_difference(tmp_path):
+    """--check: a port equal in every facade but missing the tagged field + accessor differs and is not written."""
+    body = OVERLOADED.replace("        lastAnswerBytes = task.returnedBytes();\n", "")
+    gen_text = OVERLOADED
+    start = body.index("    // @facade-helper")
+    port_text = _ported(body[:start] + body[body.index("    /** TODO: port it. */") :])
+    port, gen = _pair(tmp_path, port_text, gen_text)
+    before = port.read_text(encoding="utf-8")
+    assert ps.main(["apply", "--port", str(port), "--generated", str(gen), "--check"]) == 1
+    assert port.read_text(encoding="utf-8") == before
+    assert ps.main(["apply", "--port", str(port), "--generated", str(gen)]) == 0
+    assert ps.main(["apply", "--port", str(port), "--generated", str(gen), "--check"]) == 0
+    assert "private byte[] lastAnswerBytes;" in port.read_text(encoding="utf-8")

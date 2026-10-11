@@ -12,10 +12,19 @@ never ran the program; render / submit rebuilt screens outside runTask).
 This rewrites ONLY that surface, from a fresh generation of the same program, and leaves the ported logic alone:
 
   * each facade the generator writes (handleTransaction, handleLink, executeX, renderX, submitX) replaces the port's
-    method of that name, Javadoc and all -- the generated text, verbatim;
+    method with the same SIGNATURE (name and parameter types, #4870: `handleTransaction(String,T)` and
+    `handleTransaction(String,T,byte[])` are two facades, each replaced, added or removed on its own), Javadoc and
+    all -- the generated text, verbatim;
   * a facade the port has and the generator no longer writes is removed, unless the ported logic itself calls it
     (runTask may build its screen through renderX: that is ported behaviour the proof runs, and stays);
   * a facade the generator writes and the port lacks is added before runTask;
+  * a facade HELPER MEMBER is carried the same way (#4870): a field or method that is no FACADE-named method but
+    belongs to the facade surface (the `byte[] lastAnswerBytes` field and its `lastAnswerBytes()` accessor behind
+    the byte-carrying handleTransaction overload). The generator marks each such member by writing the tag
+    `@facade-helper` in the comment / Javadoc block directly above it (`// @facade-helper` or a line of its Javadoc);
+    a field is matched by name, a method by signature. No tag, no surface: an untagged member of the port is the
+    model's, and an untagged generated member is never copied. A tagged port member the generator no longer writes
+    is removed unless the ported logic still names it. Fields are added before the added methods, before runTask;
   * a private helper only the removed or replaced code called is removed with it (seed / bridgeHcsub of HCMAIN's
     old executeHcmain);
   * the generated file's imports the port lacks and the written facades use are added.
@@ -56,6 +65,9 @@ from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: E402
 
 # The entry points the generator writes around runTask / handleCall / runBatch (cobol_to_java_*_forge.py).
 FACADE = re.compile(r"handleTransaction|handleLink|execute[A-Z]\w*|render[A-Z]\w*|submit[A-Z]\w*")
+HELPER_TAG = (
+    "@facade-helper"  # in the comment block above a generated field / method that belongs to the facade surface
+)
 _LEAD_MARKS = ("/**", "*", "*/", "//", "@")  # a Javadoc / comment / annotation line starts so
 _IMPORT = re.compile(r"^import\s+[\w.*]+\s*;[ \t]*$", re.M)  # (#4441: [ \t], never the newline: lines compare as equal)
 
@@ -66,6 +78,13 @@ class Span:
     start: int  # first line (0-based) of its Javadoc / annotations
     end: int  # one past its closing brace's line
     visibility: str
+    sig: str = ""  # name(ParamTypes): what a facade is matched by (#4870); a field's is `name` alone
+    is_field: bool = False
+    tagged: bool = False  # carries HELPER_TAG above it
+
+    @property
+    def surface(self) -> bool:
+        return self.tagged or (not self.is_field and FACADE.fullmatch(self.name) is not None)
 
 
 @dataclass
@@ -83,19 +102,81 @@ class Change:
         return {k: v for k, v in self.__dict__.items() if v}
 
 
+def _param_types(params: str) -> str:
+    """`final Map<String, Integer> m, byte[] a` -> `Map<String,Integer>,byte[]`: the types alone, no spaces."""
+    parts, depth, cur = [], 0, ""
+    for c in params:
+        if c in "<(":
+            depth += 1
+        elif c in ">)":
+            depth -= 1
+        if c == "," and depth == 0:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += c
+    parts.append(cur)
+    out = []
+    for part in parts:
+        part = re.sub(r"@[\w.$]+(?:\([^()]*\))?\s*", "", part).strip()
+        part = re.sub(r"^final\s+", "", part)
+        part = re.sub(r"\s+[\w$]+$", "", part)  # the parameter's name
+        if part:
+            out.append(re.sub(r"\s+", "", part))
+    return ",".join(out)
+
+
+def _signature(lines: list[str], line: int, name: str) -> str:
+    """name(ParamTypes) of the method whose name is on `line` (1-based): its header may span lines."""
+    head = proof_reach.strip_java("\n".join(lines[line - 1 :]))
+    m = re.search(rf"\b{re.escape(name)}\s*\(", head)
+    if not m:
+        return name
+    depth, i = 1, m.end()
+    while i < len(head) and depth:
+        depth += (head[i] == "(") - (head[i] == ")")
+        i += 1
+    return f"{name}({_param_types(head[m.end() : i - 1])})"
+
+
+def _lead(lines: list[str], start: int) -> int:
+    while start > 0 and lines[start - 1].strip().startswith(_LEAD_MARKS):
+        start -= 1
+    return start
+
+
+_FIELD_DECL = re.compile(r"\s*(?P<mods>(?:\w+\s+)*?)[\w.$<>,\[\]?]+\s+(?P<name>[A-Za-z_$][\w$]*)\s*(?:=|;)")
+
+
 def spans(path: Path, text: str) -> list[Span]:
-    """The top-level class's methods, each with the comment / annotation lines right above it."""
+    """The top-level class's methods, each with the comment / annotation lines right above it, and its tagged
+    helper fields (HELPER_TAG above a one-statement declaration)."""
     unit = proof_reach.parse_java(path, text)
     lines = text.split("\n")
     out = []
     for m in unit.methods:
         if m.constructor:
             continue
-        start = m.line - 1
-        while start > 0 and lines[start - 1].strip().startswith(_LEAD_MARKS):
-            start -= 1
-        out.append(Span(m.name, start, m.end, m.visibility))
-    return out
+        start = _lead(lines, m.line - 1)
+        tagged = any(HELPER_TAG in ln for ln in lines[start : m.line - 1])
+        out.append(Span(m.name, start, m.end, m.visibility, _signature(lines, m.line, m.name), False, tagged))
+    inside = [(s.start, s.end) for s in out]
+    for i, ln in enumerate(lines):
+        if HELPER_TAG not in ln or any(a <= i < b for a, b in inside):
+            continue
+        j = i
+        while j < len(lines) and (not lines[j].strip() or lines[j].strip().startswith(_LEAD_MARKS)):
+            j += 1
+        k = j
+        while k < len(lines) and ";" not in lines[k] and "{" not in lines[k]:
+            k += 1
+        if k >= len(lines) or ";" not in lines[k]:
+            continue  # not a field declaration
+        m = _FIELD_DECL.match(" ".join(lines[j : k + 1]))
+        if m:
+            vis = "private" if "private" in m.group("mods").split() else "package"
+            out.append(Span(m.group("name"), _lead(lines, i), k + 1, vis, m.group("name"), True, True))
+    return sorted(out, key=lambda s: s.start)
 
 
 def _reached(path: Path, text: str, roots: set[str]) -> set[str]:
@@ -129,37 +210,42 @@ def resurface(port: Path, generated: Path, text: str | None = None) -> tuple[str
     gen = generated.read_text(encoding="utf-8")
     ch = Change()
     gen_lines = gen.split("\n")
-    gen_facades = {
-        s.name: "\n".join(gen_lines[s.start : s.end]) for s in spans(generated, gen) if FACADE.fullmatch(s.name)
-    }
+    gen_spans = [s for s in spans(generated, gen) if s.surface]
+    gen_facades = {s.sig: "\n".join(gen_lines[s.start : s.end]) for s in gen_spans}
     before_reach = _reached(port, src, set())
     # what the ported logic (everything but the facades) calls: a facade it calls is ported behaviour, kept
     lines = src.split("\n")
     port_spans = spans(port, src)
-    facade_names = {s.name for s in port_spans if FACADE.fullmatch(s.name)}
+    facade_sigs = {s.sig for s in port_spans if s.surface}
     logic = "\n".join(ln for i, ln in enumerate(lines)
-                      if not any(s.start <= i < s.end for s in port_spans if s.name in facade_names))  # fmt: skip
-    called = {c.group("name") for c in proof_reach._CALL.finditer(proof_reach.strip_java(logic)) if c.group("name")}
+                      if not any(s.start <= i < s.end for s in port_spans if s.surface))  # fmt: skip
+    code = proof_reach.strip_java(logic)
+    called = {c.group("name") for c in proof_reach._CALL.finditer(code) if c.group("name")}
+    words = set(re.findall(r"[A-Za-z_$][\w$]*", code))
+
+    def label(s: Span) -> str:
+        return f"{s.sig} (field)" if s.is_field else s.sig
+
     for s in sorted(port_spans, key=lambda s: s.start, reverse=True):
-        if not FACADE.fullmatch(s.name):
+        if not s.surface:
             continue
-        new = gen_facades.get(s.name)
+        new = gen_facades.get(s.sig)
         if new is not None:
             if "\n".join(lines[s.start : s.end]).strip() != new.strip():
                 lines[s.start : s.end] = new.split("\n")
-                ch.replaced.append(s.name)
-        elif s.name not in called:
+                ch.replaced.append(label(s))
+        elif s.name not in (words if s.is_field else called):
             _cut(lines, s)
-            ch.removed.append(s.name)
-    missing = [n for n in gen_facades if n not in facade_names]
+            ch.removed.append(label(s))
+    missing = sorted((s for s in gen_spans if s.sig not in facade_sigs), key=lambda s: not s.is_field)
     if missing:
         text_now = "\n".join(lines)
         at = next((s.start for s in spans(port, text_now) if s.name == "runTask"), None)
         if at is not None:
             block: list[str] = []
-            for n in missing:
-                block += [*gen_facades[n].split("\n"), ""]
-                ch.added.append(n)
+            for s in missing:
+                block += [*gen_facades[s.sig].split("\n"), ""]
+                ch.added.append(label(s))
             lines[at:at] = block
     # helpers only the old facades reached
     while True:
@@ -176,7 +262,7 @@ def resurface(port: Path, generated: Path, text: str | None = None) -> tuple[str
     have = set(_IMPORT.findall(text_now))
     # #4441: only the imports the facades it wrote use -- never the generated file's others, which the model's
     # logic chose not to (a batch port's unused List / Optional is no part of its surface)
-    written = "\n".join(gen_facades[n] for n in (*ch.replaced, *ch.added))
+    written = "\n".join(gen_facades[s.sig] for s in gen_spans if label(s) in (*ch.replaced, *ch.added))
     need = [i for i in _IMPORT.findall(gen) if i not in have and _uses(written, i)]
     if need:
         last = list(_IMPORT.finditer(text_now))[-1]

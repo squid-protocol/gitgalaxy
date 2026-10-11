@@ -515,6 +515,31 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
                           cwd=project, env=shell, capture_output=True, text=True, check=False)  # fmt: skip
 
 
+def _surefire_classpath(report: Path, project: Path) -> list[str]:
+    """The classpath surefire ran the tests on, from its report (the very `surefire.test.class.path` property)."""
+    import xml.etree.ElementTree as ET
+
+    props = {p.get("name"): p.get("value") for p in ET.parse(report).iter("property")}  # noqa: S314
+    old = str(report.parents[2])  # the project the report was written in (a --reuse copy moves it)
+    return [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
+
+
+def _record_direct(project: Path) -> None:
+    """#4910: after the first Maven run of a project built here (main classes compiled, tests passed on surefire's
+    classpath), keep that classpath so every later run of it takes `_run_direct` -- a fresh JVM, no Maven/Spring
+    start-up. A project without a surefire report just keeps running through Maven."""
+    reports = sorted(project.glob("target/surefire-reports/TEST-*.xml"))
+    classes = project / "target" / "classes"
+    if not reports or not classes.is_dir() or (project / TEST_CLASSPATH).is_file():
+        return
+    try:
+        entries = _surefire_classpath(reports[0], project)
+    except (OSError, KeyError, ValueError, SyntaxError):
+        return
+    (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
+    (project / PRECOMPILED).write_text("", encoding="utf-8")
+
+
 def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
     """--reuse: compile only the port's files into the copied build (the rest of it is the earlier run's, from the
     same sources), against the classpath the earlier run's tests ran on. A compile error is the Java side failing,
@@ -560,6 +585,7 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
         proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
         if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
             (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())
+            _record_direct(project)  # #4910: the later runs of this project skip Maven
     (work / "maven.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])

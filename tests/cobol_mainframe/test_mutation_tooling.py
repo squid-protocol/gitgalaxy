@@ -2,6 +2,7 @@
 mutated (never a comment, a log call, an import or an annotation), what each operator writes, the sample, which of
 a proof's runs killed a mutant, and the score."""
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -163,3 +164,48 @@ def test_the_test_runs_without_maven_only_on_a_build_of_this_very_source(tmp_pat
     jar.write_bytes(b"")
     engine = f"{tmp_path}/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar"
     assert ej._launcher(["/x/classes", engine]) == jar
+
+
+def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpath_and_flags(tmp_path, monkeypatch):
+    """#4910: the first run of a project builds it through Maven; every later run (a fault, an environment, an entry,
+    the facade side) is a fresh plain JVM on the classpath surefire ran the first on, with the same flags and cwd."""
+    import shlex
+
+    project = tmp_path / "java_h2"
+    (project / ej.TEST_FILE).parent.mkdir(parents=True)
+    (project / ej.TEST_FILE).write_text("class EquivalenceRunTest {}", encoding="utf-8")
+    (project / "target" / "classes").mkdir(parents=True)
+    (project / "target" / "surefire-reports").mkdir()
+    m2 = tmp_path / "m2"
+    engine = m2 / "junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar"
+    launcher = m2 / "junit-platform-launcher/1.10.2/junit-platform-launcher-1.10.2.jar"
+    for jar in (engine, launcher):
+        jar.parent.mkdir(parents=True)
+        jar.write_bytes(b"")
+    surefire_cp = os.pathsep.join([str(project / "target/test-classes"), str(project / "target/classes"), str(engine)])
+    (project / "target/surefire-reports/TEST-x.xml").write_text(
+        f'<testsuite><properties><property name="surefire.test.class.path" value="{surefire_cp}"/>'
+        "</properties></testsuite>", encoding="utf-8")  # fmt: skip
+    java_home = tmp_path / "jdk"
+    runner = tmp_path / "runner"
+    monkeypatch.setattr(ej.jtm, "_jdk", lambda _v: str(java_home))
+    monkeypatch.setattr(ej, "_runner", lambda *_a: runner)
+    calls = []
+
+    def fake_run(cmd, **kw):
+        calls.append((cmd, kw))
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(ej.subprocess, "run", fake_run)
+    inputs = tmp_path / "in"
+    work1 = work2 = tmp_path / "w"  # (the run areas differ only in the paths the harness gives them)
+    ej.run_maven(project, work1, inputs, props="-Dgitgalaxy.faults.plan=a")
+    ej.run_maven(project, work2, inputs, props="-Dgitgalaxy.faults.plan=b")
+    (mvn, mvn_kw), (java, java_kw) = calls
+    assert mvn[0] == "mvn" and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
+    maven_flags = shlex.split(next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine="):])
+    assert maven_flags[-1] == "-Dgitgalaxy.faults.plan=a"
+    assert java[1 : 1 + len(maven_flags) - 1] == maven_flags[:-1]  # the same JVM flags and properties, but the run's
+    assert java[len(maven_flags)] == "-Dgitgalaxy.faults.plan=b"
+    assert java[-3:] == ["-cp", os.pathsep.join([surefire_cp, str(launcher), str(runner)]), "EquivalenceMain"]
+    assert java_kw["cwd"] == mvn_kw["cwd"] == project  # the same working directory

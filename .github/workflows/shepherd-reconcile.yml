@@ -1,38 +1,23 @@
 name: CI shepherd (reconcile)
 
-# #4847 item 3: the passes that need no label event -- CI finished on a labelled PR (rerun infra/flake failures,
+# #4847 item 3: the passes that need no label event -- a required check finished on a labelled PR (rerun infra/flake failures,
 # post the one digest per head, update a behind branch, enable auto-merge once the matrix is green), a cron for
 # the reruns' 15-minute gap, and a manual run (`ensure_labels: true` creates or refreshes the label set first).
 # Logic: tests/tools/shepherd_gh.py. Like shepherd-event.yml, it checks out main only and never runs PR code.
 
 on:
+  # #4935: only the workflows behind main's required checks (shepherd_gh.REQUIRED_CHECKS, ruleset "main: required
+  # checks") plus the matrix that shepherd:matrix waits on. Every other check is picked up by the next of these runs
+  # on the same head, or by the cron: 25 triggers made 204 runs a day, 63% cancelled or skipped.
   workflow_run:
     workflows:
-      - "Answer Key Guard"
-      - "Call Graph Accuracy Audit"
-      - "CICS Crucible"
-      - "CodeQL Security Scan"
-      - "Crucible Path Independence"
-      - "Detection Accuracy Audit"
       - "Det Sweep"
-      - "Estate Crucible"
-      - "Fact Cross-check"
-      - "GitGalaxy Zero-Trust Pipeline"
-      - "Golden Crucible Resilience Test"
-      - "Graph Accuracy Audit"
-      - "Generated Java Compiles"
-      - "Mainframe Ground Truth"
-      - "Muninn Security Scan"
-      - "Mypy Audit"
-      - "Ports Compile"
-      - "rosetta-audit"
-      - "Ruff Audit"
-      - "Small Audits"
       - "GitGalaxy Smoke Tests"
+      - "Mainframe Ground Truth"
+      - "Mypy Audit"
+      - "Ruff Audit"
       - "Full Suite Gate (All OS x Python)"
-      - "Tree-sitter Accuracy Audit"
-      - "Tri-Comparison Audit"
-      - "unicode-gauntlet"
+    branches-ignore: [main]  # a run on main changes no PR's merge state: no run at all, not a skipped one
     types: [completed]
   schedule:
     - cron: "*/20 * * * *"
@@ -46,7 +31,10 @@ on:
 permissions: {}
 
 concurrency:
-  group: shepherd  # one shepherd pass at a time (shared with shepherd-event.yml)
+  # One reconcile pass at a time. GitHub keeps one PENDING run per group and cancels older pending ones; that is
+  # harmless here because every pass reconciles ALL labelled PRs (#4935), so a burst of completions coalesces into
+  # one pass instead of dropping the PRs whose run was cancelled. shepherd-event.yml has no group (#4854).
+  group: shepherd
   cancel-in-progress: false
 
 jobs:
@@ -73,15 +61,8 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py ensure-labels
 
-      - name: Reconcile the labelled pull request(s) of the run's head
-        if: github.event_name == 'workflow_run'
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: python3 tests/tools/shepherd_gh.py reconcile --head-sha "$HEAD_SHA"
-
-      - name: Reconcile every labelled open pull request (schedule, dispatch)
-        if: github.event_name != 'workflow_run'
+      - name: Reconcile every labelled open pull request
+        # #4935: every pass covers all of them (not only the run's head), so a cancelled pending pass loses nothing
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py reconcile

@@ -60,6 +60,9 @@ WRITE = {"admin", "maintain", "write"}  # the collaborator permissions that may 
 INFRA_RERUNS = 3  # an outage (Docker Hub 429/504, 2026-10-09) outlasts one rerun
 RETRY_GAP = 15 * 60  # seconds between reruns of the same run's failed jobs
 MATRIX_WORKFLOW = "full-suite-gate.yml"
+# main's ruleset "main: required checks" (#4825). shepherd-reconcile.yml triggers on exactly the workflows behind these
+# plus the matrix (#4935; tests/tools/test_shepherd_gh.py keeps the two in step). Change both together.
+REQUIRED_CHECKS = ("det", "full-suite", "ground-truth", "mypy-audit", "ruff-audit")
 DET_WORKFLOW = "det-sweep.yml"  # shepherd:full reruns its latest pull_request run (it no longer runs on label events)
 DEPENDS = re.compile(r"Depends on #(\d+)", re.I)
 DOCS = "docs/ci.md"

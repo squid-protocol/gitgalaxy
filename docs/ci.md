@@ -51,7 +51,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Where the logic runs
 
 - `.github/workflows/shepherd-event.yml`: a label added or removed, or new commits (`pull_request_target`).
-- `.github/workflows/shepherd-reconcile.yml`: after PR CI finishes, every 20 minutes, or by hand.
+- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every labelled PR, so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935).
 - `tests/tools/shepherd_gh.py`: the rules (`decide()` is pure and tested in `tests/tools/test_shepherd_gh.py`).
 - Triage and the digest: `tests/tools/ci_digest.py`. Readiness: `tests/tools/pr_check.py`.
 

@@ -657,3 +657,30 @@ def test_a_non_writers_label_after_the_push_approves_nothing():
 def test_the_event_workflow_has_no_concurrency_group():
     wf = (Path(__file__).resolve().parents[2] / ".github/workflows/shepherd-event.yml").read_text(encoding="utf-8")
     assert not re.search(r"^concurrency:", wf, re.M)  # a group keeps one pending run and cancels the rest
+
+
+def test_reconcile_triggers_on_the_required_checks_workflows_and_the_matrix_only():
+    # #4935: 25 workflow_run triggers made 204 runs a day (63% cancelled or skipped); a pass on any other workflow
+    # changes nothing the next required check's pass (or the cron) would not do
+    yaml = pytest.importorskip("yaml")
+    wf_dir = REPO / ".github" / "workflows"
+    names = {}
+    for f in wf_dir.glob("*.yml"):
+        doc = yaml.safe_load(f.read_text(encoding="utf-8"))
+        for job_id, job in (doc.get("jobs") or {}).items():
+            for ctx in (job_id, job.get("name")):
+                if ctx in sg.REQUIRED_CHECKS:
+                    names.setdefault(ctx, set()).add(doc["name"])
+    assert set(names) == set(sg.REQUIRED_CHECKS), f"no workflow defines {set(sg.REQUIRED_CHECKS) - set(names)}"
+    matrix = yaml.safe_load((wf_dir / sg.MATRIX_WORKFLOW).read_text(encoding="utf-8"))["name"]
+    rec = yaml.safe_load((wf_dir / "shepherd-reconcile.yml").read_text(encoding="utf-8"))
+    on = rec.get("on", rec.get(True))
+    assert set(on["workflow_run"]["workflows"]) == set().union(*names.values()) | {matrix}
+    assert on["workflow_run"]["branches-ignore"] == ["main"]
+    assert "schedule" in on  # the cron still covers every other check and the rerun gap
+
+
+def test_every_reconcile_pass_covers_all_labelled_prs():
+    # a cancelled pending pass (one pending run per concurrency group) must not drop a PR until the cron
+    rec = (REPO / ".github" / "workflows" / "shepherd-reconcile.yml").read_text(encoding="utf-8")
+    assert "--head-sha" not in rec

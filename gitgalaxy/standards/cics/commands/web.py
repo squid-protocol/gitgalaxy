@@ -152,7 +152,9 @@ WEB_CONVERSE = Command(
     },
     refused={
         "URIMAP": Refusal("a request URIMAP on WEB CONVERSE is not modelled (no zECS program uses one)", "X35"),
-        "CHARACTERSET": Refusal("code-page conversion is not modelled: the exchange is in the program's characters", "X35"),
+        "CHARACTERSET": Refusal(
+            "code-page conversion is not modelled: the exchange is in the program's characters", "X35"
+        ),
         "BODYCHARSET": Refusal("the response's character set is not stated", "X35"),
         "DOCTOKEN": Refusal("a document as the request body is not modelled", "X35"),
         "CONTAINER": Refusal("a container as the request body is not modelled", "X35"),
@@ -170,7 +172,9 @@ WEB_CONVERSE = Command(
         required("METHOD", msg="WEB CONVERSE without METHOD"),
         required("INTO", msg="WEB CONVERSE without INTO: only a response into the program's area is modelled"),
         requires(("PATH",), ("PATHLENGTH",), msg="WEB CONVERSE PATH without PATHLENGTH", both_ways=True),
-        requires(("QUERYSTRING",), ("QUERYSTRLEN",), msg="WEB CONVERSE QUERYSTRING without QUERYSTRLEN", both_ways=True),
+        requires(
+            ("QUERYSTRING",), ("QUERYSTRLEN",), msg="WEB CONVERSE QUERYSTRING without QUERYSTRLEN", both_ways=True
+        ),
         requires(("FROM",), ("FROMLENGTH",), msg="WEB CONVERSE FROM without FROMLENGTH", both_ways=True),
         requires(("STATUSTEXT",), ("STATUSLEN",), msg="WEB CONVERSE STATUSTEXT without STATUSLEN", both_ways=True),
         at_most_one("CLIENTCONV", *_CONVERT_FLAGS, msg="WEB CONVERSE with more than one conversion option"),

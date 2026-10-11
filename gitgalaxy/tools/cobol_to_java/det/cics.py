@@ -1216,8 +1216,16 @@ class Cics:
         call = (f"task.webConverse({text('SESSTOKEN')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
                 f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
                 f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
+
+        def received(area: str, data: str, what: str) -> str:
+            """What a WEB CONVERSE received, at the area's start (the rest left alone); more bytes than the area holds
+            refused (PastFrom): CICS writes the storage that follows it, which GnuCOBOL lays out unlike IBM's (X6)."""
+            f = self.field(area)
+            return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
+                    f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
+
         out = [f"{ind}CicsTask.WebResponse {r} = {call};", f"{ind}if ({r}.body() != null) {{",
-               f'{ind}    DetCics.putReceived({self.field(into)}, {r}.body(), "WEB CONVERSE INTO");']  # fmt: skip
+               received(into, f"{r}.body()", "WEB CONVERSE INTO")]  # fmt: skip
         if "TOLENGTH" in opts:
             out.append(
                 f"{ind}    "
@@ -1229,8 +1237,7 @@ class Cics:
                 + g.store_into(self.ref(_arg(opts["STATUSCODE"])), f"BigDecimal.valueOf({r}.status())", False)
             )
         if "STATUSTEXT" in opts:
-            out.append(f"{ind}    DetCics.putReceived({self.field(_arg(opts['STATUSTEXT']))}, "
-                       f'{r}.statusText().getBytes(CS), "WEB CONVERSE STATUSTEXT");')  # fmt: skip
+            out.append(received(_arg(opts["STATUSTEXT"]), f"{r}.statusText().getBytes(CS)", "WEB CONVERSE STATUSTEXT"))
         if opts.get("MEDIATYPE"):
             out.append(f"{ind}    DetCics.putText({self.field(_arg(opts['MEDIATYPE']))}, {r}.mediaType(), CS);")
         out.append(f"{ind}}}")

@@ -1291,7 +1291,8 @@ def test_web_open_converse_close_are_the_tasks_http_client():
     )
     assert v[0].startswith("CicsTask.WebResponse web") and ".webConverse(Cobol.text(" in v[0]
     assert ", 20, " in v[0] and v[0].endswith(", CS);")  # (no MAXLENGTH: INTO's 20 bytes)
-    assert v[1].endswith(".body() != null) {") and "DetCics.putReceived(" in v[2] and "WEB CONVERSE INTO" in v[2]
+    assert v[1].endswith(".body() != null) {") and "throw new DetCics.PastFrom(" in v[2] and "WEB CONVERSE INTO" in v[2]
+    assert "DetCics.put(f_AREA, web" in v[2]
     body = " ".join(v)
     assert ".toLength()" in body and ".status()" in body and ".statusText().getBytes(CS)" in body
     assert ".mediaType(), CS)" in body and any("OUTCOME(web" in x for x in v)

@@ -229,16 +229,6 @@ public final class DetCics {
         put(into, data);
     }
 
-    /** #4767 (X35): what a WEB CONVERSE received (the response body INTO, the reason phrase STATUSTEXT): its bytes at the
-     *  area's start, the rest of the area as it was. More bytes than the area holds are refused (PastFrom): CICS writes
-     *  the storage that follows it, which GnuCOBOL lays out unlike IBM's compiler (oracle_assumptions.md X6). */
-    public static void putReceived(Field into, byte[] data, String what) {
-        if (data.length > into.length()) {
-            throw new PastFrom(what + " beyond its area: " + data.length + " > " + into.length() + " bytes: not modelled");
-        }
-        put(into, data);
-    }
-
     /** #4270: `n` bytes from a field's first byte within its record -- a SEND TEXT FROM(f) LENGTH(n) past FROM sends
      *  the items that follow it in its record (GenApp LGICVS01). Past the record's end the bytes are those of the
      *  compiler's WORKING-STORAGE layout, unlike IBM's under GnuCOBOL: refused as X6 is (PastFrom). */

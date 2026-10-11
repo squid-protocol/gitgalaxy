@@ -913,10 +913,10 @@ def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subproc
         "docker",
         "run",
         "--rm",
-        f"--name={cid}",
         *docker_args,
         "-v",
         f"{work}:/work",
+        f"--name={cid}",  # after the volume: callers and tests read the volume at a fixed position
         image,
         "bash",
         "-c",  # noqa: S603, S607

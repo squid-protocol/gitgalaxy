@@ -3262,3 +3262,96 @@ int GGCWCLS(gg_cics *c, char *token) {
     if (s >= 0) web_sess[s].open = 0;
     return 0;
 }
+
+/* ---- #4767 zECS: WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL; register X36) -- pure, no peer ----
+ * GG-LEN URLLENGTH, GG-HOURS HOSTLENGTH, GG-MINS PATHLENGTH, GG-SECS QUERYSTRLEN (each in; out: the piece's length),
+ * GG-NUM PORTNUMBER (out); GG-FLAGS names SCHEME HOST PATH QUERY given. INVREQ 28 (no "scheme://", an empty scheme or
+ * host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of 0-9 A-F). Refused as
+ * CicsTask.webParse refuses. The areas are written on NORMAL only. */
+static int web_hexd(int ch) { return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F'); }
+
+int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char *host, int hostcap, char *path,
+            int pathcap, char *query, int querycap) {
+    char flags[41], u[WEB_TXT], sch[17], h[WEB_TXT], pa[WEB_TXT], q[WEB_TXT];
+    int n = c->len, hl = c->hours, pl = c->mins, ql = c->secs, bad28 = 0, bad65 = 0, port = -1;
+    int hs, hp, hq, hc;
+    char *sep, *rest, *auth_end, *tail, *qm, *colon;
+    int i, auth_len, sl;
+    trim(c->flags, 40, flags);
+    hc = strstr(flags, "SCHEME") != NULL;
+    hs = strstr(flags, "HOST") != NULL;
+    hp = strstr(flags, "PATH") != NULL;
+    hq = strstr(flags, "QUERY") != NULL;
+    if (n <= 0) refuse("WEB PARSE URL URLLENGTH not above zero");
+    if (n > urlcap || n >= WEB_TXT) refuse("WEB PARSE URL length beyond its area");
+    if ((hs && hl > hostcap) || (hp && pl > pathcap) || (hq && ql > querycap)) refuse("WEB PARSE URL length beyond its area");
+    memcpy(u, url, (size_t)n);
+    u[n] = '\0';
+    for (i = 0; i < n; i++) {
+        if (u[i] == '%') {
+            int ok = i + 2 < n && web_hexd(u[i + 1]) && web_hexd(u[i + 2]);
+            int lower = i + 2 < n && isxdigit((unsigned char)u[i + 1]) && isxdigit((unsigned char)u[i + 2]);
+            if (!ok && lower) refuse("WEB PARSE URL lowercase hex digit in an escape");
+            if (!ok) bad65 = 1;
+        }
+    }
+    if (strchr(u, '#')) refuse("WEB PARSE URL fragment");
+    sep = strstr(u, "://");
+    sch[0] = '\0';
+    if (!sep || sep == u) bad28 = 1;
+    else {
+        sl = (int)(sep - u);
+        if (sl > 16) refuse("WEB PARSE URL scheme other than HTTP / HTTPS");
+        for (i = 0; i < sl; i++) sch[i] = (char)toupper((unsigned char)u[i]);
+        sch[sl] = '\0';
+        if (strcmp(sch, "HTTP") != 0 && strcmp(sch, "HTTPS") != 0) refuse("WEB PARSE URL scheme other than HTTP / HTTPS");
+    }
+    h[0] = pa[0] = q[0] = '\0';
+    if (!bad28) {
+        rest = sep + 3;
+        auth_end = rest + strcspn(rest, "/?");
+        auth_len = (int)(auth_end - rest);
+        for (i = 0; i < auth_len; i++)
+            if (rest[i] == '@' || rest[i] == '[' || rest[i] == ']') refuse("WEB PARSE URL user-info or IPv6 host");
+        colon = NULL;
+        for (i = 0; i < auth_len; i++) if (rest[i] == ':') colon = rest + i;
+        if (colon) {
+            int plen = (int)(auth_end - colon) - 1, digits = 1;
+            memcpy(h, rest, (size_t)(colon - rest));
+            h[colon - rest] = '\0';
+            if (plen == 0) refuse("WEB PARSE URL empty port");
+            for (i = 0; i < plen; i++) if (colon[1 + i] < '0' || colon[1 + i] > '9') digits = 0;
+            if (!digits || plen > 5) bad28 = 1;
+            else {
+                port = atoi(colon + 1);
+                if (port > 65535) bad28 = 1;
+                else if (port == 0) refuse("WEB PARSE URL port 0");
+            }
+        } else {
+            memcpy(h, rest, (size_t)auth_len);
+            h[auth_len] = '\0';
+            port = strcmp(sch, "HTTPS") == 0 ? 443 : 80;
+        }
+        if (h[0] == '\0') bad28 = 1;
+        tail = auth_end;
+        qm = strchr(tail, '?');
+        memcpy(pa, tail, qm ? (size_t)(qm - tail) : strlen(tail));
+        pa[qm ? (size_t)(qm - tail) : strlen(tail)] = '\0';
+        snprintf(q, sizeof q, "%s", qm ? qm + 1 : "");
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad28 && bad65) refuse("WEB PARSE URL with more than one condition at once");
+    if (bad28) { c->resp = INVREQ; c->resp2 = 28; return 0; }
+    if (bad65) { c->resp = INVREQ; c->resp2 = 65; return 0; }
+    if ((hs && (int)strlen(h) > hl) || (hp && (int)strlen(pa) > pl) || (hq && (int)strlen(q) > ql))
+        refuse("WEB PARSE URL piece longer than its length");
+    if (hc && (int)strlen(sch) > schemecap) refuse("WEB PARSE URL length beyond its area");
+    if ((hp && pa[0] == '\0') || (hq && q[0] == '\0')) refuse("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+    if (hc) { memset(scheme, ' ', (size_t)schemecap); memcpy(scheme, sch, strlen(sch)); }
+    if (hs) { memcpy(host, h, strlen(h)); c->hours = (int)strlen(h); }
+    if (hp) { memcpy(path, pa, strlen(pa)); c->mins = (int)strlen(pa); }
+    if (hq) { memcpy(query, q, strlen(q)); c->secs = (int)strlen(q); }
+    c->num = port;
+    return 0;
+}

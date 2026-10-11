@@ -2898,3 +2898,176 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
     assert refusals[-1] == "the HTTP peers are not stated (withHttpPeers): not modelled"
+
+
+# ---- #4767 zECS (register X36): WEB PARSE URL ------------------------------------------------------------------------
+# one step a line: parse URL URLLENGTH|= HOSTLENGTH|- PATHLENGTH|- QUERYSTRLEN|- ("=": the URL's own length; "-": the option
+# not given). Areas: URL 64, SCHEMENAME 16, HOST / PATH / QUERYSTRING 40 bytes.
+_X36_STEPS = [
+    "parse http://zecs.example:8080/resources/a?k=v = 40 40 40",
+    "parse HTTPS://Host.Example/p = 40 40 -",
+    "parse http://hostname:8080 = 40 - -",
+    "parse https://h = 9 - -",
+    "parse http://h/%41%2F = 40 40 -",
+    "parse http://h/%4 = 40 40 -",
+    "parse http://h/p?a=%4G = 40 40 40",
+    "parse no-scheme = 40 - -",
+    "parse http://:80 = 40 - -",
+    "parse http://h:99999 = 40 - -",
+    "parse http://h:80x = 40 - -",
+    "parse ://h = 40 - -",
+    "parse http://h:65535/x = 40 40 -",
+]
+_X36_EXPECTED = [
+    "parse 0/0 [HTTP] [zecs.example] 8080 [/resources/a] [k=v] 12 12 3",
+    "parse 0/0 [HTTPS] [Host.Example] 443 [/p] [] 12 2 -",
+    "parse 0/0 [HTTP] [hostname] 8080 [] [] 8 - -",
+    "parse 0/0 [HTTPS] [h] 443 [] [] 1 - -",
+    "parse 0/0 [HTTP] [h] 80 [/%41%2F] [] 1 7 -",
+    "parse 16/65",
+    "parse 16/65",
+    "parse 16/28",
+    "parse 16/28",
+    "parse 16/28",
+    "parse 16/28",
+    "parse 16/28",
+    "parse 0/0 [HTTP] [h] 65535 [/x] [] 1 2 -",
+]
+_X36_REFUSED = [  # (steps, what both runtimes stop with)
+    (["parse ftp://h/p = 40 40 -"], "scheme other than HTTP / HTTPS"),
+    (["parse http://u@h/p = 40 40 -"], "user-info or IPv6 host"),
+    (["parse http://[::1]/p = 40 40 -"], "user-info or IPv6 host"),
+    (["parse http://h/p#f = 40 40 -"], "fragment"),
+    (["parse http://h:/p = 40 40 -"], "empty port"),
+    (["parse http://h:0/p = 40 40 -"], "port 0"),
+    (["parse http://h/%4a = 40 40 -"], "lowercase hex digit"),
+    (["parse http://h/p 0 40 - -"], "URLLENGTH not above zero"),
+    (["parse http://h/p 70 40 - -"], "length beyond its area"),
+    (["parse http://h/p = 50 40 -"], "length beyond its area"),
+    (["parse http://zecs.example/p = 5 40 -"], "piece longer than its length"),
+    (["parse http://zecs.example/long/path = 40 5 -"], "piece longer than its length"),
+    (["parse http://h = 40 40 -"], "PATH or QUERYSTRING the URL has none of"),
+    (["parse http://h/p = 40 40 40"], "PATH or QUERYSTRING the URL has none of"),
+    (["parse x%4 = 40 - -"], "more than one condition at once"),
+]
+
+_X36_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char *host, int hostcap, char *path,
+            int pathcap, char *query, int querycap);
+static gg_cics c;
+static int given(const char *a) { return strcmp(a, "-") != 0; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[6], url[64], scheme[16], host[40], path[40], query[40], flags[40] = "SCHEME";
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 6; t = strtok(NULL, " ")) w[k++] = t;
+        memset(url, ' ', sizeof url); memcpy(url, w[1], strlen(w[1]));
+        memset(scheme, '#', sizeof scheme); memset(host, '#', sizeof host);
+        memset(path, '#', sizeof path); memset(query, '#', sizeof query);
+        c.len = w[2][0] == '=' ? (int)strlen(w[1]) : atoi(w[2]);
+        c.hours = given(w[3]) ? atoi(w[3]) : 0; if (given(w[3])) strcat(flags, " HOST");
+        c.mins = given(w[4]) ? atoi(w[4]) : 0; if (given(w[4])) strcat(flags, " PATH");
+        c.secs = given(w[5]) ? atoi(w[5]) : 0; if (given(w[5])) strcat(flags, " QUERY");
+        memset(c.flags, ' ', 40); memcpy(c.flags, flags, strlen(flags));
+        GGCWPRS(&c, url, 64, scheme, 16, host, 40, path, 40, query, 40);
+        printf("parse %d/%d", c.resp, c.resp2);
+        if (c.resp == 0) {
+            int sl = 16;
+            while (sl > 0 && scheme[sl - 1] == ' ') sl--;
+            printf(" [%.*s] [%.*s] %d [%.*s] [%.*s] ", sl, scheme, given(w[3]) ? c.hours : 0, host, c.num,
+                   given(w[4]) ? c.mins : 0, path, given(w[5]) ? c.secs : 0, query);
+            if (given(w[3])) printf("%d ", c.hours); else printf("- ");
+            if (given(w[4])) printf("%d ", c.mins); else printf("- ");
+            if (given(w[5])) printf("%d", c.secs); else printf("-");
+        }
+        printf("\n");
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_web_parse_url(tmp_path):
+    """#4767 zECS (register X36), IBM WEB PARSE URL: scheme (upper case, blank-padded), host, port (explicit, else 80 / 443),
+    path and query string (still escaped) with their lengths; INVREQ 28 for a URL that is none, INVREQ 65 for a bad escape;
+    what IBM leaves open is refused."""
+    exe = _stub(tmp_path, _X36_MAIN)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    (tmp_path / "out").mkdir()
+    out = subprocess.run([str(exe), *_X36_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+    assert out.stdout.splitlines() == _X36_EXPECTED
+    for steps, why in _X36_REFUSED:
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+def _x36_java(steps: list[str]) -> str:
+    lines = []
+    for st in steps:
+        w = st.split(" ")
+        n = str(len(w[1])) if w[2] == "=" else w[2]
+
+        def opt(v: str) -> str:
+            return "null" if v == "-" else f"Integer.valueOf({v})"
+
+        lines.append(f'parse(t, "{w[1]}", {n}, {opt(w[3])}, {opt(w[4])}, {opt(w[5])});')
+    return "\n".join(lines)
+
+
+@needs_javac
+def test_cics_task_web_parse_url_as_the_stub_does(tmp_path):
+    """#4767 zECS (X36): CicsTask.webParse answers the steps above as the stub does, line for line, and refuses what the stub
+    refuses."""
+    helpers = """
+    static void parse(CicsTask t, String url, int n, Integer hl, Integer pl, Integer ql) {
+        String area = String.format("%-64s", url);
+        CicsTask.WebParsed r = t.webParse(area, n, 16, hl, hl == null ? 0 : 40, pl, pl == null ? 0 : 40, ql,
+                ql == null ? 0 : 40);
+        String s = "parse " + r.resp() + "/" + r.resp2();
+        if (r.resp() == 0) {
+            s += " [" + r.scheme().stripTrailing() + "] [" + (hl == null ? "" : r.host()) + "] " + r.port() + " ["
+                    + (pl == null ? "" : r.path()) + "] [" + (ql == null ? "" : r.query()) + "] "
+                    + (hl == null ? "-" : r.host().length()) + " " + (pl == null ? "-" : r.path().length()) + " "
+                    + (ql == null ? "-" : r.query().length());
+        }
+        System.out.println(s);
+    }
+"""
+    refused = ", ".join("{" + ", ".join('"' + x + '"' for x in steps) + "}" for steps, _ in _X36_REFUSED)
+    body = (
+        f"""
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null);
+        {_x36_java(_X36_STEPS)}
+        String[][] refused = {{{refused}}};
+        for (String[] steps : refused) {{
+            try {{
+                for (String st : steps) {{
+                    String[] w = st.split(" ");
+                    Integer hl = w[3].equals("-") ? null : Integer.valueOf(w[3]);
+                    Integer pl = w[4].equals("-") ? null : Integer.valueOf(w[4]);
+                    Integer ql = w[5].equals("-") ? null : Integer.valueOf(w[5]);
+                    parse(new CicsTask("ZC01", "ENTER", null, null), w[1], w[2].equals("=") ? w[1].length() : Integer.parseInt(w[2]), hl, pl, ql);
+                }}
+                System.out.println("not refused");
+            }} catch (UnsupportedOperationException e) {{
+                System.out.println(e.getMessage());
+            }}
+        }}
+    }}
+"""
+        + helpers
+        + "    static void unused() {"
+    )
+    out = _cics_task(tmp_path, body)
+    lines = out.splitlines()
+    n = len(_X36_EXPECTED)
+    assert lines[:n] == _X36_EXPECTED
+    assert len(lines[n:]) == len(_X36_REFUSED)
+    for got, (_steps, why) in zip(lines[n:], _X36_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)

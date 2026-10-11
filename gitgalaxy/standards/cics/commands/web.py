@@ -245,4 +245,88 @@ WEB_CLOSE = Command(
     state=("handle_table",),
 )
 
-COMMANDS = (WEB_OPEN, WEB_CONVERSE, WEB_CLOSE)
+_PARSE_OPEN = (
+    "a scheme other than HTTP / HTTPS, a URL with a user-info part, a fragment, an IPv6 host, an empty or non-numeric "
+    "port, a port of 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, a PATH or "
+    "QUERYSTRING asked for when the URL has none, two conditions at once"
+)
+
+WEB_PARSE_URL = Command(
+    key="WEB PARSE URL",
+    ibm=ibm("EXEC CICS WEB PARSE URL", "summary-web-parse-url"),
+    status="modelled",
+    register="X36",
+    options={
+        "URL": Arg("area_in"),
+        "URLLENGTH": Arg("value"),
+        "SCHEMENAME": Arg("area_out", width=16),
+        "HOST": Arg("area_out"),
+        "HOSTLENGTH": Arg("area_inout", binary=True),
+        "PORTNUMBER": Arg("area_out", width=4, binary=True),
+        "PATH": Arg("area_out"),
+        "PATHLENGTH": Arg("area_inout", binary=True),
+        "QUERYSTRING": Arg("area_out"),
+        "QUERYSTRLEN": Arg("area_inout", binary=True),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "HOSTTYPE": Refusal(
+            "an IPv6 host is refused, so the host type is always HOSTNAME or IPV4: not modelled", "X36"
+        ),
+    },
+    default_refusal=Refusal(
+        "only URL / URLLENGTH, SCHEMENAME, HOST / HOSTLENGTH, PORTNUMBER, PATH / PATHLENGTH and QUERYSTRING / "
+        "QUERYSTRLEN are modelled",
+        "X36",
+    ),
+    groups=(
+        required("URL", msg="WEB PARSE URL without URL"),
+        required("URLLENGTH", msg="WEB PARSE URL without URLLENGTH"),
+        requires(("HOST",), ("HOSTLENGTH",), msg="WEB PARSE URL HOST without HOSTLENGTH", both_ways=True),
+        requires(("PATH",), ("PATHLENGTH",), msg="WEB PARSE URL PATH without PATHLENGTH", both_ways=True),
+        requires(
+            ("QUERYSTRING",), ("QUERYSTRLEN",), msg="WEB PARSE URL QUERYSTRING without QUERYSTRLEN", both_ways=True
+        ),
+    ),
+    outcomes=(
+        Outcome(
+            "NORMAL",
+            0,
+            "",
+            writes=(
+                "SCHEMENAME",
+                "HOST",
+                "HOSTLENGTH",
+                "PORTNUMBER",
+                "PATH",
+                "PATHLENGTH",
+                "QUERYSTRING",
+                "QUERYSTRLEN",
+            ),
+        ),
+        Outcome("INVREQ", 28, "Incorrect URL"),
+        Outcome("INVREQ", 65, "Bad escape sequence in the URL"),
+        Outcome("LENGERR", 8, "The query string is longer than QUERYSTRLEN", raised_by=("QUERYSTRLEN",)),
+        Outcome("LENGERR", 29, "The host name is longer than HOSTLENGTH", raised_by=("HOSTLENGTH",)),
+        Outcome("LENGERR", 30, "The path is longer than PATHLENGTH", raised_by=("PATHLENGTH",)),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a LENGERR (a piece longer than its length option): IBM truncates but does not say what the length option "
+            "then holds",
+            "X36",
+            java="WEB PARSE URL piece longer than its length",
+            c="WEB PARSE URL piece longer than its length",
+        ),
+        RuntimeRefusal(_PARSE_OPEN, "X36", java="WEB PARSE URL", c="WEB PARSE URL"),
+        RuntimeRefusal(
+            "a length past its area (URLLENGTH, HOSTLENGTH, PATHLENGTH, QUERYSTRLEN, SCHEMENAME shorter than the scheme): "
+            "CICS reads or writes the storage that follows it, which GnuCOBOL lays out unlike IBM's compiler",
+            "X36",
+            java="WEB PARSE URL length beyond its area",
+            c="WEB PARSE URL length beyond its area",
+        ),
+    ),
+)
+
+COMMANDS = (WEB_OPEN, WEB_CONVERSE, WEB_CLOSE, WEB_PARSE_URL)

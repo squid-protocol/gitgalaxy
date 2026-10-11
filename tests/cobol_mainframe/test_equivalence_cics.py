@@ -1123,6 +1123,26 @@ def test_web_open_converse_close_become_stub_calls():
             ec.translate_command(bad)
 
 
+def test_web_parse_url_becomes_a_stub_call():
+    """#4767 zECS (register X36): WEB PARSE URL -> GGCWPRS (URLLENGTH, HOSTLENGTH / PATHLENGTH / QUERYSTRLEN in GG-LEN /
+    GG-HOURS / GG-MINS / GG-SECS, GG-FLAGS the pieces asked for, every area by reference with its length); on NORMAL only the
+    pieces' lengths and PORTNUMBER move back. The option rules as the det translator's."""
+    t = ec.translate_command(
+        "WEB PARSE URL(WS-U) URLLENGTH(WS-UL) SCHEMENAME(WS-S) HOST(WS-H) HOSTLENGTH(WS-HL) PORTNUMBER(WS-P) NOHANDLE"
+    )
+    assert t[:5] == ["MOVE WS-UL TO GG-LEN", "MOVE WS-HL TO GG-HOURS", "MOVE 0 TO GG-MINS", "MOVE 0 TO GG-SECS",
+                     "MOVE 'SCHEME HOST' TO GG-FLAGS"]  # fmt: skip
+    assert t[5] == "CALL 'GGCWPRS' USING GG-CICS" and t[6:10] == ["    BY REFERENCE WS-U", "    BY VALUE LENGTH OF WS-U",
+                                                                 "    BY REFERENCE WS-S", "    BY VALUE LENGTH OF WS-S"]  # fmt: skip
+    i = t.index("IF GG-RESP = 0")
+    assert t[i + 1 : i + 4] == ["    MOVE GG-HOURS TO WS-HL", "    MOVE GG-NUM TO WS-P", "END-IF"]
+    for bad, why in (("WEB PARSE URL(WS-U)", "without URLLENGTH"),
+                     ("WEB PARSE URL(WS-U) URLLENGTH(WS-UL) HOST(WS-H)", "HOST without HOSTLENGTH"),
+                     ("WEB PARSE URL(WS-U) URLLENGTH(WS-UL) HOSTTYPE(WS-T)", "IPv6 host is refused")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
 def test_http_peers_are_stated_alike_on_both_sides_and_requests_compared():
     """#4767 zECS (X35): a case's "http_peers" (the scenario's first) is checked, written for the stub as hex in the data's
     page, and a WEB-CONVERSE event line reads back as CicsTask records it; the requests are compared exactly."""

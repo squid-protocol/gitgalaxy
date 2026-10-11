@@ -1103,6 +1103,117 @@ public class CicsTask {
         return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
     }
 
+    // #4767 zECS (register X36): WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL) -- pure: no peer is involved.
+    /** WEB PARSE URL's outcome: RESP, RESP2 and, on NORMAL, the scheme (upper case, blank-padded to SCHEMENAME's area),
+     *  host, port (explicit, else 80 for HTTP / 443 for HTTPS), path (with its leading '/') and query string (without
+     *  its '?', still escaped); else the strings are null and the port -1. */
+    public record WebParsed(int resp, int resp2, String scheme, String host, int port, String path, String query) {
+    }
+
+    private static boolean webHex(char c) {
+        return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
+    }
+
+    /** WEB PARSE URL: `url` is the URL area's text and urlLength URLLENGTH; hostLength / pathLength / queryLength are the
+     *  HOSTLENGTH / PATHLENGTH / QUERYSTRLEN values (null: the option is not given) and the caps the areas' sizes (the
+     *  length options are read here, written by the caller to the piece's length). INVREQ 28 (no "scheme://", an empty
+     *  scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of
+     *  0-9 A-F). Refused: a scheme other than HTTP / HTTPS, a user-info part, a fragment, an IPv6 host, an empty port or
+     *  port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero, a LENGERR (host / path / query longer than
+     *  its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions. */
+    public WebParsed webParse(String url, int urlLength, int schemeCap, Integer hostLength, int hostCap,
+                              Integer pathLength, int pathCap, Integer queryLength, int queryCap) {
+        if (urlLength <= 0 || urlLength > url.length()) {
+            throw refused(urlLength <= 0 ? "WEB PARSE URL URLLENGTH not above zero" : "WEB PARSE URL length beyond its area");
+        }
+        if ((hostLength != null && hostLength > hostCap) || (pathLength != null && pathLength > pathCap)
+                || (queryLength != null && queryLength > queryCap)) {
+            throw refused("WEB PARSE URL length beyond its area");
+        }
+        String u = url.substring(0, urlLength);
+        boolean bad28 = false;
+        boolean bad65 = false;
+        for (int i = 0; i < u.length(); i++) {
+            if (u.charAt(i) == '%') {
+                boolean ok = i + 2 < u.length() && webHex(u.charAt(i + 1)) && webHex(u.charAt(i + 2));
+                boolean lower = i + 2 < u.length() && Character.digit(u.charAt(i + 1), 16) >= 0
+                        && Character.digit(u.charAt(i + 2), 16) >= 0;
+                if (!ok && lower) {
+                    throw refused("WEB PARSE URL lowercase hex digit in an escape");
+                }
+                bad65 |= !ok;
+            }
+        }
+        if (u.indexOf('#') >= 0) {
+            throw refused("WEB PARSE URL fragment");
+        }
+        int sep = u.indexOf("://");
+        String scheme = sep < 0 ? "" : u.substring(0, sep).toUpperCase(java.util.Locale.ROOT);
+        if (sep <= 0) {
+            bad28 = true;
+        } else if (!scheme.equals("HTTP") && !scheme.equals("HTTPS")) {
+            throw refused("WEB PARSE URL scheme other than HTTP / HTTPS");
+        }
+        String host = "";
+        String path = "";
+        String query = "";
+        int port = -1;
+        if (!bad28) {
+            String rest = u.substring(sep + 3);
+            int e = rest.length();
+            for (int i = 0; i < rest.length(); i++) {
+                if (rest.charAt(i) == '/' || rest.charAt(i) == '?') {
+                    e = i;
+                    break;
+                }
+            }
+            String auth = rest.substring(0, e);
+            if (auth.indexOf('@') >= 0 || auth.indexOf('[') >= 0 || auth.indexOf(']') >= 0) {
+                throw refused("WEB PARSE URL user-info or IPv6 host");
+            }
+            int colon = auth.lastIndexOf(':');
+            host = colon < 0 ? auth : auth.substring(0, colon);
+            if (colon >= 0) {
+                String ps = auth.substring(colon + 1);
+                if (ps.isEmpty()) {
+                    throw refused("WEB PARSE URL empty port");
+                }
+                if (!ps.chars().allMatch(c -> c >= '0' && c <= '9') || ps.length() > 5 || Integer.parseInt(ps) > 65535) {
+                    bad28 = true;
+                } else if (Integer.parseInt(ps) == 0) {
+                    throw refused("WEB PARSE URL port 0");
+                } else {
+                    port = Integer.parseInt(ps);
+                }
+            } else {
+                port = scheme.equals("HTTPS") ? 443 : 80;
+            }
+            bad28 |= host.isEmpty();
+            String tail = rest.substring(e);
+            int q = tail.indexOf('?');
+            path = q < 0 ? tail : tail.substring(0, q);
+            query = q < 0 ? "" : tail.substring(q + 1);
+        }
+        if (bad28 && bad65) {
+            throw refused("WEB PARSE URL with more than one condition at once");
+        }
+        if (bad28 || bad65) {
+            return new WebParsed(16, bad28 ? 28 : 65, null, null, -1, null, null);
+        }
+        if ((hostLength != null && host.length() > hostLength) || (pathLength != null && path.length() > pathLength)
+                || (queryLength != null && query.length() > queryLength)) {
+            throw refused("WEB PARSE URL piece longer than its length");
+        }
+        if (schemeCap > 0 && scheme.length() > schemeCap) {
+            throw refused("WEB PARSE URL length beyond its area");
+        }
+        if ((pathLength != null && path.isEmpty()) || (queryLength != null && query.isEmpty())) {
+            throw refused("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+        }
+        String padded = schemeCap > 0 ? String.format(java.util.Locale.ROOT, "%-" + schemeCap + "s", scheme) : scheme;
+        return new WebParsed(0, 0, padded, host, port, path, query);
+    }
+
     /** The transient-data queues the CSD defines; null, every queue is defined. */
     public CicsTask withTdQueues(java.util.Set<String> queues) {
         this.tdQueues = queues;

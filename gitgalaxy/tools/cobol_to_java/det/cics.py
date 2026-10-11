@@ -104,6 +104,7 @@ _FORM_OPTION = {
     "GET": ("COUNTER",),
     "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
+    "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
 
 
@@ -1114,6 +1115,8 @@ class Cics:
             return self.document(key, opts, ind)
         if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
             return self.web(key, opts, ind)
+        if key == "WEB PARSE URL":  # #4767 (X36): a URL taken apart, pure
+            return self.web_parse(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
@@ -1248,6 +1251,48 @@ class Cics:
             out.append(received(_arg(opts["STATUSTEXT"]), f"{r}.statusText().getBytes(CS)", "WEB CONVERSE STATUSTEXT"))
         if opts.get("MEDIATYPE"):
             out.append(f"{ind}    DetCics.putText({self.field(_arg(opts['MEDIATYPE']))}, {r}.mediaType(), CS);")
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def web_parse(self, key: str, opts: dict, ind: str) -> list[str]:
+        """WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL; register X36): CicsTask.webParse takes the URL area's text
+        and URLLENGTH apart; HOSTLENGTH / PATHLENGTH / QUERYSTRLEN are read before the pieces are written and set to
+        each piece's length, SCHEMENAME is blank-padded to its area, PORTNUMBER is explicit or 80 / 443. On NORMAL only
+        (an error leaves every area alone: ASSUMED). The pieces' areas are checked against the lengths by the task."""
+        g = self.g
+        for o in ("URL", "URLLENGTH"):
+            if not opts.get(o):
+                raise CicsError(_msg(key, "required", o))
+        for a, n in (("HOST", "HOSTLENGTH"), ("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN")):
+            if (a in opts) != (n in opts):
+                raise CicsError(_requires(key, a, n))
+        r = g.tmpname("web")
+
+        def length(n: str) -> str:
+            return f"Integer.valueOf({self.int_(_arg(opts[n]))})" if n in opts else "null"
+
+        def cap(a: str) -> str:
+            return str(self.size(_arg(opts[a]))) if a in opts else "0"
+
+        call = (f"task.webParse(Cobol.text({self.read_field(_arg(opts['URL']))}, CS), {self.int_(_arg(opts['URLLENGTH']))}, "
+                f"{cap('SCHEMENAME')}, {length('HOSTLENGTH')}, {cap('HOST')}, {length('PATHLENGTH')}, {cap('PATH')}, "
+                f"{length('QUERYSTRLEN')}, {cap('QUERYSTRING')})")  # fmt: skip
+        out = [f"{ind}CicsTask.WebParsed {r} = {call};", f"{ind}if ({r}.resp() == 0) {{"]
+        if "SCHEMENAME" in opts:
+            out.append(f"{ind}    DetCics.putText({self.field(_arg(opts['SCHEMENAME']))}, {r}.scheme(), CS);")
+        for area, ln, piece in (("HOST", "HOSTLENGTH", "host"), ("PATH", "PATHLENGTH", "path"),
+                                ("QUERYSTRING", "QUERYSTRLEN", "query")):  # fmt: skip
+            if area in opts:
+                out.append(f"{ind}    DetCics.putText({self.field(_arg(opts[area]))}, {r}.{piece}(), CS);")
+                out.append(
+                    f"{ind}    "
+                    + g.store_into(self.ref(_arg(opts[ln])), f"BigDecimal.valueOf({r}.{piece}().length())", False)
+                )
+        if "PORTNUMBER" in opts:
+            out.append(
+                f"{ind}    "
+                + g.store_into(self.ref(_arg(opts["PORTNUMBER"])), f"BigDecimal.valueOf({r}.port())", False)
+            )
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 

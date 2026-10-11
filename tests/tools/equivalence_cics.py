@@ -628,6 +628,45 @@ def _web_requires(key: str, option: str, needed: str) -> str:
     )
 
 
+def _web_parse(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4767 zECS (register X36): WEB PARSE URL -> GGCWPRS (URLLENGTH in GG-LEN, HOSTLENGTH / PATHLENGTH / QUERYSTRLEN in
+    GG-HOURS / GG-MINS / GG-SECS, GG-FLAGS names SCHEME HOST PATH QUERY given; the stub writes the pieces), then on NORMAL
+    the pieces' lengths and PORTNUMBER (GG-NUM) moved back to the program's fields. The option rules as the det
+    translator's."""
+    key = "WEB PARSE URL"
+    _check_spec(key, opts, ("WEB", "PARSE"), lambda bad: [f"{key} {o}" for o in bad])
+    for o in ("URL", "URLLENGTH"):
+        if not opts.get(o):
+            raise Unsupported(_rule(key, "required", o), [key])
+    for a, n in (("HOST", "HOSTLENGTH"), ("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN")):
+        if (a in opts) != (n in opts):
+            raise Unsupported(_web_requires(key, a, n), [key])
+        if a in opts and not (opts[a] and opts[n]):
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    for o in ("SCHEMENAME", "PORTNUMBER"):
+        if o in opts and not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    for o in ("URL", "SCHEMENAME", "HOST", "PATH", "QUERYSTRING"):
+        if opts.get(o) and _literal(opts[o]):
+            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+    given = [w for o, w in (("SCHEMENAME", "SCHEME"), ("HOST", "HOST"), ("PATH", "PATH"), ("QUERYSTRING", "QUERY"))
+             if o in opts]  # fmt: skip
+    lines = [f"MOVE {opts['URLLENGTH']} TO GG-LEN"]
+    for n, gg in (("HOSTLENGTH", "GG-HOURS"), ("PATHLENGTH", "GG-MINS"), ("QUERYSTRLEN", "GG-SECS")):
+        lines.append(f"MOVE {opts.get(n) or '0'} TO {gg}")
+    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
+    args = []
+    for o in ("URL", "SCHEMENAME", "HOST", "PATH", "QUERYSTRING"):
+        area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
+        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    back = [f"    MOVE {gg} TO {opts[n]}" for n, gg in (("HOSTLENGTH", "GG-HOURS"), ("PATHLENGTH", "GG-MINS"),
+                                                      ("QUERYSTRLEN", "GG-SECS")) if opts.get(n)]  # fmt: skip
+    if opts.get("PORTNUMBER"):
+        back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
+    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
+    return lines + _call("GGCWPRS", args) + after + _resp(opts, True, labels)
+
+
 def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X35): WEB OPEN -> GGCWOPN (GG-FLAGS URIMAP, the name in GG-NAME1; or HOST [PORT], HOSTLENGTH in
     GG-LEN, the SCHEME CVDA in GG-ITEM, PORTNUMBER in GG-NUM), the SESSTOKEN area written by the stub on NORMAL; WEB
@@ -907,6 +946,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             lines += [f"MOVE '{o}' TO GG-FLAGS"] + _call("GGCINQA", [])
             lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
         return lines + _resp(opts, False, labels)
+    if (verb == "WEB PARSE" or (verb == "WEB" and "PARSE" in opts)) and "URL" in opts:  # #4767 (X36): WEB PARSE URL
+        return _web_parse(opts, labels)
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
         return _web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler

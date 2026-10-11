@@ -963,6 +963,7 @@ _RESP_SAMPLES = {
     "DOCUMENT RETRIEVE": "DOCUMENT RETRIEVE DOCTOKEN(KEY) INTO(REC) MAXLENGTH(10) DATAONLY",
     "WEB OPEN": "WEB OPEN SESSTOKEN(KEY) URIMAP(REC)", "WEB CLOSE": "WEB CLOSE SESSTOKEN(KEY)",
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
+    "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1314,6 +1315,32 @@ def test_inquire_urimap_browse_and_write_operator():
                      ("WRITE OPERATOR", "without TEXT"),
                      ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_parse_url_is_a_pure_task_call():
+    """#4767 zECS (register X36), IBM WEB PARSE URL: CicsTask.webParse takes the URL area's text and URLLENGTH apart, with
+    HOSTLENGTH / PATHLENGTH / QUERYSTRLEN read first (null when not given) and the areas' sizes; on NORMAL only the scheme
+    (SCHEMENAME), the pieces, their lengths and PORTNUMBER are written; every condition through RESP / HANDLE CONDITION."""
+    c = _ChanCics()
+    p = c.command(
+        "WEB PARSE URL(REC) URLLENGTH(R) SCHEMENAME(AREA) HOST(REC) HOSTLENGTH(R2) PORTNUMBER(R) NOHANDLE", ""
+    )
+    assert p[0].startswith("CicsTask.WebParsed web") and ".webParse(Cobol.text(" in p[0]
+    assert ", null, 0, null, 0);" in p[0] and "Integer.valueOf(" in p[0]  # (no PATH, no QUERYSTRING)
+    body = " ".join(p)
+    assert ".resp() == 0) {" in body and ".scheme(), CS)" in body and ".host(), CS)" in body
+    assert ".host().length()" in body and ".port()" in body and any("OUTCOME(web" in x for x in p)
+    q = c.command(
+        "WEB PARSE URL(REC) URLLENGTH(R) PATH(REC) PATHLENGTH(R) QUERYSTRING(REC) QUERYSTRLEN(R) NOHANDLE", ""
+    )
+    assert ".path(), CS)" in " ".join(q) and ".query(), CS)" in " ".join(q)
+    for bad, why in (("WEB PARSE URL(REC)", "without URLLENGTH"),
+                     ("WEB PARSE URL(REC) URLLENGTH(R) HOST(REC)", "HOST without HOSTLENGTH"),
+                     ("WEB PARSE URL(REC) URLLENGTH(R) PATHLENGTH(R)", "PATH without PATHLENGTH"),
+                     ("WEB PARSE URL(REC) URLLENGTH(R) QUERYSTRING(REC)", "QUERYSTRING without QUERYSTRLEN"),
+                     ("WEB PARSE URL(REC) URLLENGTH(R) HOSTTYPE(R)", "IPv6 host is refused")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

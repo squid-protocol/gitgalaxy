@@ -138,6 +138,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X33 | CICS | DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
 | X34 | CICS | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
 | X35 | CICS | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
+| X36 | CICS | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: the command writes no event) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1791,6 +1792,33 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py); the equivalence harness states the peers on both sides
   and compares the requests (test_equivalence_cics.py). No cics-crucible case yet (its SPEC has no WEB-CONVERSE event: a crucible
   SPEC change). zECS: with #4768's INQUIRE URIMAP direct form, ECS001 translates whole.
+
+### X36. WEB PARSE URL (CICS web support, a URL taken apart) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
+- **WEB PARSE URL** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-parse-url). URL "the complete URL string",
+  URLLENGTH its length; SCHEMENAME "always returned in uppercase" (a 16-character area); HOST "host name or IP address",
+  HOSTLENGTH the buffer size on input and "set to the returned length"; PORTNUMBER "the explicit port, otherwise the default for
+  the scheme" (80 HTTP, 443 HTTPS); PATH, PATHLENGTH; QUERYSTRING "returned in escaped form", QUERYSTRLEN; escape sequences are
+  checked ("%" followed by two hexadecimal characters 0-9, A-F); "not checked: that the host exists or that characters are
+  permitted in a URL". Conditions modelled: INVREQ RESP2 28 "Incorrect URL", INVREQ RESP2 65 "Bad escape sequence". Listed and
+  REFUSED when they occur: LENGERR RESP2 8 / 29 / 30 (query / host / path longer than its length): IBM says the data is
+  truncated but not what the length option then holds. Modelled (`CicsTask.webParse`, the stub's `GGCWPRS`; the det and
+  stub translators read the option rules from the spec): the URL's first URLLENGTH bytes are parsed.
+- **What IBM leaves open, and what we do.** (1) What makes a URL "incorrect": ASSUMED INVREQ 28 for no "scheme://" or an empty
+  scheme, an empty host, and a port that is not 1 to 5 digits or above 65535 (IBM lists no condition for a bad port). (2) The
+  pieces: the path keeps its leading "/", the query loses its "?" (ASSUMED: IBM's WEB CONVERSE takes PATH and QUERYSTRING the
+  same way); the host is returned as written, without case folding (ASSUMED). (3) Areas are written on NORMAL only and only the
+  piece's bytes (the rest of the area is left alone), SCHEMENAME blank-padded to its area (ASSUMED). (4) A PATH or QUERYSTRING
+  asked for when the URL has none (zECS gives "http://host:port"): REFUSED, IBM does not say what the area and its length hold.
+  (5) REFUSED: a scheme other than HTTP / HTTPS (IBM says only those two are "supported for use with WEB OPEN" but not whether
+  the parse rejects the rest), a user-info part ("@"), a fragment ("#"), an IPv6 host (brackets and HOSTTYPE), an empty port
+  ("host:"), port 0, a lowercase hex digit in an escape (IBM lists 0-9, A-F), a URLLENGTH not above zero (no condition is
+  listed), a URLLENGTH or HOSTLENGTH / PATHLENGTH / QUERYSTRLEN past its area (as X6: GnuCOBOL lays out the storage that follows
+  unlike IBM's compiler), two conditions at once (IBM does not order them, as X35). (6) The URL is parsed in the program's
+  characters: no code-page conversion is modelled.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
+  line for line and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators
+  (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). The command writes no event, so no harness change
+  and no crucible SPEC change. zECS: ZECS000, ZECS001 and ZECS003 each parse the partner data center's "http://host:port" with it.
 
 ## Language Environment
 

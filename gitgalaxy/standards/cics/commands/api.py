@@ -14,8 +14,8 @@ IBM's "CICS command summary" (CICS TS 6.x) lists 336 API command topics: 259 com
 variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... -- are one name. 50 of them have full
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
-NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 195 are here (#4767: WEB OPEN / CONVERSE / CLOSE
-moved to web.py).
+NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 194 are here (#4767: WEB OPEN / CONVERSE / CLOSE
+and WEB PARSE URL moved to web.py).
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
 The reasons the translator gave before PR 2 are kept word for word (container MOVE / browse, a parent waiting for its
@@ -216,7 +216,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("WEB ENDBROWSE HTTPHEADER", None, _WEB),
     ("WEB ENDBROWSE QUERYPARM", None, _WEB),
     ("WEB EXTRACT", None, _WEB),
-    ("WEB PARSE URL", None, _WEB),
     ("WEB READ FORMFIELD", None, _WEB),
     ("WEB READ HTTPHEADER", None, _WEB),
     ("WEB READ QUERYPARM", None, _WEB),

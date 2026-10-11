@@ -201,3 +201,65 @@ def test_not_split_by_a_line_break_agrees_with_the_oracle(mode, tmp_path):
     # D0 is 7: measured on the oracle, the branch cobc takes
     assert shown["B1"] == "T" and shown["B2"] == "T" and shown["B3"] == "F" and shown["B4"] == "F"
     assert shown["B5"] == "T" and shown["B6"] == "F" and shown["B7"] == "T" and shown["B8"] == "T"
+
+
+# #4874: a floating `*>` comment inside conditions (fixed format), and `*>` inside a literal (data, not a comment)
+COMMENTS = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CMTS.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 D0 PIC 9(3) VALUE 7.
+       01 A  PIC X(5) VALUE '*>'.
+       PROCEDURE DIVISION.
+           IF D0 < 3 *> hi
+               DISPLAY 'C1 T'
+           ELSE
+               DISPLAY 'C1 F'
+           END-IF
+           IF D0 NOT *> c
+               < 3
+               DISPLAY 'C2 T'
+           ELSE
+               DISPLAY 'C2 F'
+           END-IF
+           IF D0 > 1 AND *> c
+               < 9
+               DISPLAY 'C3 T'
+           ELSE
+               DISPLAY 'C3 F'
+           END-IF
+           EVALUATE TRUE
+               WHEN D0 NOT *> c
+                   > 7 *> d
+                   DISPLAY 'C4 T'
+               WHEN OTHER
+                   DISPLAY 'C4 F'
+           END-EVALUATE
+           PERFORM UNTIL D0 NOT *> c
+               < 9 *> d
+               ADD 1 TO D0
+           END-PERFORM
+           DISPLAY 'C5 ' D0
+           IF A(1:2) = '*>' *> a literal, then a comment
+               DISPLAY 'C6 *> T'
+           END-IF
+           STOP RUN.
+"""
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
+                    reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
+@pytest.mark.parametrize("mode", ["bytes", "typed"])
+def test_a_floating_comment_in_a_condition_agrees_with_the_oracle(mode, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import test_det_programs as T
+
+    if T._java() is None:
+        pytest.skip("needs a JDK 17 (JAVA_HOME / JDK_17)")
+    cob = tmp_path / "cobol"
+    cob.mkdir()
+    want = T._cobol(COMMENTS, cob)
+    got = T._java_run("cmts", COMMENTS, tmp_path, mode != "bytes")
+    assert got == want, f"java {got!r} != cobol {want!r}"
+    assert "C6 *> T" in want  # the literal kept its `*>`

@@ -66,68 +66,553 @@
  ],
  "measured": {
   "det_coverage": {
-   "carddemo-acctupdate": null,
-   "carddemo-acctview": null,
-   "carddemo-acctview-generated": null,
-   "carddemo-adminmenu": null,
-   "carddemo-billpay": null,
-   "carddemo-cardlist": null,
+   "asynccc-crdtchk": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstats2": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstatus": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getaddr": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getname": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getpol": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-getspnd": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-seqpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "asynccc-updcsdb": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "carddemo-acctupdate": [
+    89,
+    95,
+    310,
+    397
+   ],
+   "carddemo-acctview": [
+    31,
+    32,
+    58,
+    69
+   ],
+   "carddemo-acctview-generated": [
+    30,
+    32,
+    42,
+    69
+   ],
+   "carddemo-adminmenu": [
+    8,
+    8,
+    20,
+    26
+   ],
+   "carddemo-billpay": [
+    16,
+    16,
+    46,
+    48
+   ],
+   "carddemo-cardlist": [
+    36,
+    36,
+    146,
+    149
+   ],
    "carddemo-cardupdate": null,
-   "carddemo-cardview": null,
+   "carddemo-cardview": [
+    30,
+    30,
+    69,
+    75
+   ],
    "carddemo-cobtupdt": null,
-   "carddemo-cotrtlic": null,
-   "carddemo-cotrtupc": null,
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
    "carddemo-dailyval": null,
    "carddemo-dateutil": null,
    "carddemo-intcalc": null,
    "carddemo-intcalc-generated": null,
-   "carddemo-menu": null,
+   "carddemo-menu": [
+    7,
+    7,
+    29,
+    33
+   ],
    "carddemo-posttran": null,
    "carddemo-posttran-generated": null,
    "carddemo-readacct": null,
    "carddemo-readcard": null,
    "carddemo-readcust": null,
    "carddemo-readxref": null,
-   "carddemo-report": null,
-   "carddemo-signon": null,
-   "carddemo-tranadd": null,
-   "carddemo-tranlist": null,
-   "carddemo-tranview": null,
+   "carddemo-report": [
+    10,
+    10,
+    51,
+    59
+   ],
+   "carddemo-signon": [
+    6,
+    6,
+    17,
+    17
+   ],
+   "carddemo-tranadd": [
+    18,
+    18,
+    72,
+    75
+   ],
+   "carddemo-tranlist": [
+    16,
+    16,
+    96,
+    101
+   ],
+   "carddemo-tranview": [
+    9,
+    9,
+    23,
+    24
+   ],
    "carddemo-trnrpt": null,
-   "carddemo-useradd": null,
-   "carddemo-userdel": null,
-   "carddemo-userlist": null,
-   "carddemo-userupd": null,
-   "cbsa-abndproc": null,
-   "cbsa-custctrl": null,
-   "cbsa-dbcrfun": null,
-   "cbsa-delacc": null,
-   "cbsa-inqacc": null,
-   "cbsa-updacc": null,
-   "cbsa-updacc-generated": null,
-   "cbsa-updcust": null,
-   "cbsa-xfrfun": null,
-   "genapp-lgacdb01": null,
-   "genapp-lgacdb02": null,
-   "genapp-lgacvs01": null,
-   "genapp-lgapdb01": null,
-   "genapp-lgapvs01": null,
-   "genapp-lgdpdb01": null,
-   "genapp-lgdpvs01": null,
-   "genapp-lgicdb01": null,
-   "genapp-lgipdb01": null,
-   "genapp-lgucdb01": null,
-   "genapp-lgucvs01": null,
-   "genapp-lgupdb01": null,
-   "genapp-lgupvs01": null,
-   "mortgage-cmort": null,
-   "mortgage-mlist": null,
-   "mortgage-mlist-generated": null,
+   "carddemo-useradd": [
+    9,
+    9,
+    20,
+    21
+   ],
+   "carddemo-userdel": [
+    11,
+    11,
+    30,
+    32
+   ],
+   "carddemo-userlist": [
+    16,
+    16,
+    95,
+    100
+   ],
+   "carddemo-userupd": [
+    11,
+    11,
+    44,
+    46
+   ],
+   "cbsa-abndproc": [
+    4,
+    4,
+    2,
+    2
+   ],
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    46,
+    51,
+    62,
+    102
+   ],
+   "cbsa-bnkmenu": [
+    19,
+    25,
+    35,
+    62
+   ],
+   "cbsa-crdtagy1": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy2": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy3": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy4": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy5": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-getcompy": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-getscode": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
+   "cbsa-inqcust": [
+    22,
+    25,
+    39,
+    46
+   ],
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updcust": [
+    7,
+    7,
+    28,
+    28
+   ],
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgastat1": [
+    1,
+    1,
+    10,
+    10
+   ],
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
+   "genapp-lgdpvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicvs01": [
+    1,
+    1,
+    7,
+    12
+   ],
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgwebst5": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
+   "mortgage-mlist": [
+    5,
+    6,
+    14,
+    15
+   ],
+   "mortgage-mlist-generated": [
+    5,
+    6,
+    7,
+    15
+   ],
    "mortgage-mpmt": null,
-   "mortgage-nbrvl": null
+   "mortgage-nbrvl": null,
+   "zecs-zecsplt": [
+    11,
+    11,
+    6,
+    6
+   ]
   },
   "programs": [
    {
+    "cards": [],
     "commands": [
      "LINK",
      "RECEIVE MAP",
@@ -150,6 +635,158 @@
     "source_read": true
    },
    {
+    "cards": [
+     {
+      "line": 1,
+      "option": "NODYNAM",
+      "value": null,
+      "written": "NODYNAM"
+     },
+     {
+      "line": 1,
+      "option": "CODEPAGE",
+      "value": "1140",
+      "written": "CODEPAGE(1140)"
+     },
+     {
+      "line": 1,
+      "option": "NSYMBOL",
+      "value": "NATIONAL",
+      "written": "NSYMBOL(NATIONAL)"
+     },
+     {
+      "line": 2,
+      "option": "ARITH",
+      "value": "EXTEND",
+      "written": "ARITH(EXTEND)"
+     },
+     {
+      "line": 2,
+      "option": "OPTIMIZE",
+      "value": null,
+      "written": "OPT"
+     },
+     {
+      "line": 2,
+      "option": "CICS",
+      "value": null,
+      "written": "CICS"
+     },
+     {
+      "line": 331,
+      "option": "NODYNAM",
+      "value": null,
+      "written": "NODYNAM"
+     },
+     {
+      "line": 331,
+      "option": "CODEPAGE",
+      "value": "1140",
+      "written": "CODEPAGE(1140)"
+     },
+     {
+      "line": 331,
+      "option": "NSYMBOL",
+      "value": "NATIONAL",
+      "written": "NSYMBOL(NATIONAL)"
+     },
+     {
+      "line": 332,
+      "option": "ARITH",
+      "value": "EXTEND",
+      "written": "ARITH(EXTEND)"
+     },
+     {
+      "line": 332,
+      "option": "OPTIMIZE",
+      "value": null,
+      "written": "OPT"
+     },
+     {
+      "line": 332,
+      "option": "NOCICS",
+      "value": null,
+      "written": "NOCICS"
+     },
+     {
+      "line": 532,
+      "option": "NODYNAM",
+      "value": null,
+      "written": "NODYNAM"
+     },
+     {
+      "line": 532,
+      "option": "CODEPAGE",
+      "value": "1140",
+      "written": "CODEPAGE(1140)"
+     },
+     {
+      "line": 532,
+      "option": "NSYMBOL",
+      "value": "NATIONAL",
+      "written": "NSYMBOL(NATIONAL)"
+     },
+     {
+      "line": 533,
+      "option": "ARITH",
+      "value": "EXTEND",
+      "written": "ARITH(EXTEND)"
+     },
+     {
+      "line": 533,
+      "option": "OPTIMIZE",
+      "value": null,
+      "written": "OPT"
+     },
+     {
+      "line": 533,
+      "option": "NOCICS",
+      "value": null,
+      "written": "NOCICS"
+     },
+     {
+      "line": 533,
+      "option": "XMLPARSE",
+      "value": "COMPAT",
+      "written": "XMLPARSE(COMPAT)"
+     },
+     {
+      "line": 3130,
+      "option": "NODYNAM",
+      "value": null,
+      "written": "NODYNAM"
+     },
+     {
+      "line": 3130,
+      "option": "CODEPAGE",
+      "value": "1140",
+      "written": "CODEPAGE(1140)"
+     },
+     {
+      "line": 3130,
+      "option": "NSYMBOL",
+      "value": "NATIONAL",
+      "written": "NSYMBOL(NATIONAL)"
+     },
+     {
+      "line": 3131,
+      "option": "ARITH",
+      "value": "EXTEND",
+      "written": "ARITH(EXTEND)"
+     },
+     {
+      "line": 3131,
+      "option": "OPTIMIZE",
+      "value": null,
+      "written": "OPT"
+     },
+     {
+      "line": 3131,
+      "option": "NOCICS",
+      "value": null,
+      "written": "NOCICS"
+     }
+    ],
     "commands": [
      "ABEND",
      "FREEMAIN",
@@ -197,6 +834,26 @@
     "source_read": true
    },
    {
+    "cards": [
+     {
+      "line": 1,
+      "option": "NUMPROC",
+      "value": "MIG",
+      "written": "NUMPROC(MIG)"
+     },
+     {
+      "line": 1,
+      "option": "FLAG",
+      "value": "I,W",
+      "written": "FLAG(I,W)"
+     },
+     {
+      "line": 1,
+      "option": "RENT",
+      "value": null,
+      "written": "RENT"
+     }
+    ],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -205,16 +862,15 @@
     },
     "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
     "row": {
-     "holes": [
-      "line 48: HOLE dynamic CALL"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 13,
-     "translated": 12
+     "translated": 13
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ENDBR",
      "LINK",
@@ -238,6 +894,26 @@
     "source_read": true
    },
    {
+    "cards": [
+     {
+      "line": 1,
+      "option": "NUMPROC",
+      "value": "MIG",
+      "written": "NUMPROC(MIG)"
+     },
+     {
+      "line": 1,
+      "option": "FLAG",
+      "value": "I,W",
+      "written": "FLAG(I,W)"
+     },
+     {
+      "line": 1,
+      "option": "RENT",
+      "value": null,
+      "written": "RENT"
+     }
+    ],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -250,13 +926,14 @@
       "line 125: COMPUTE exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for bit; oracle_assumptions.md C6)",
       "line 144: COMPUTE FUNCTION ANNUITY"
      ],
-     "kind": "other",
+     "kind": "call",
      "statements": 27,
      "translated": 25
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -275,234 +952,122 @@
   ],
   "record_status": {
    "carddemo-acctview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-billpay": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-cardlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-cardview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-dailyval": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-dateutil": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-intcalc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-menu": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-posttran": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readcard": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readcust": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readxref": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-report": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-signon": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranadd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-trnrpt": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-useradd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userdel": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userupd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "cbsa-inqacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapvs01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgicdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgupdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    }
   },
   "survey": {
    "label": "before",
-   "scope": "burned + local + census corpora",
-   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+   "scope": "burned + local corpora (no census)",
+   "sha": "b383911ef7b42205839fa96684b6f960d901133a"
   },
   "sweeps": {}
  },
@@ -642,8 +1207,8 @@
    "EPSMPMT",
    "EPSNBRVL"
   ],
-  "programs_assumed": 36,
-  "programs_found": 0,
+  "programs_assumed": 31,
+  "programs_found": 5,
   "programs_with_deviation": 0,
   "sections": {
    "cics": {
@@ -1632,6 +2197,124 @@
    "assumptions": {
     "facts_stated": [],
     "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl:1",
+      "value": "MIG"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 13,
+    "translated": 13,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -1679,22 +2362,22 @@
     "translated whole (20 holes left)"
    ],
    "options": {
-    "assumed": 6,
+    "assumed": 3,
     "compiler": {
      "product": "Enterprise COBOL",
      "version": "6.1"
     },
     "deviations": [],
     "estate_file": true,
-    "found": 0,
+    "found": 3,
     "record_differences": [],
     "values": [
      {
       "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3131",
+      "value": "EXTEND"
      },
      {
       "option": "INTDATE",
@@ -1719,16 +2402,16 @@
      },
      {
       "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130",
       "value": "1140"
      },
      {
       "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130",
       "value": "NATIONAL"
      }
     ]
@@ -2023,128 +2706,6 @@
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [
-     "dynamic CALL"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "HOLE dynamic CALL"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 13,
-    "translated": 12,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
     "cases": [
      {
       "case": "mortgage-mpmt",
@@ -2183,14 +2744,14 @@
     "translated whole (2 holes left)"
    ],
    "options": {
-    "assumed": 6,
+    "assumed": 5,
     "compiler": {
      "product": "Enterprise COBOL",
      "version": "6.1"
     },
     "deviations": [],
     "estate_file": true,
-    "found": 0,
+    "found": 1,
     "record_differences": [],
     "values": [
      {
@@ -2209,10 +2770,10 @@
      },
      {
       "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
+      "origin": "program card",
+      "provenance": "found",
+      "source": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl:1",
+      "value": "MIG"
      },
      {
       "option": "TRUNC",
@@ -2272,14 +2833,14 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/cics_census.py survey --baseline --sha b383911ef7b42205839fa96684b6f960d901133a",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha b383911ef7b42205839fa96684b6f960d901133a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
-  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
   "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -2290,20 +2851,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status, recomputed now",
+  "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
-   "scope": "burned + local + census corpora",
-   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+   "scope": "burned + local corpora (no census)",
+   "sha": "b383911ef7b42205839fa96684b6f960d901133a"
   },
-  "translator_commit": "3bcbb8c62397b338307563c40618297d54c38100"
+  "translator_commit": "b383911ef7b42205839fa96684b6f960d901133a"
  },
  "summary": {
   "cics_programs": 3,
   "det_equal": 3,
   "histogram": {
-   "L0": 3,
-   "L1": 0,
+   "L0": 2,
+   "L1": 1,
    "L2": 3,
    "L3": 0,
    "L4": 0,
@@ -2317,13 +2878,13 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 23,
+  "holes": 22,
   "levels_stale": 0,
   "programs": 6,
   "records_current": 0,
   "refused_whole": 0,
   "source_unread": 0,
-  "translated_whole": 3,
+  "translated_whole": 4,
   "with_case": 4,
   "with_record": 0
  }

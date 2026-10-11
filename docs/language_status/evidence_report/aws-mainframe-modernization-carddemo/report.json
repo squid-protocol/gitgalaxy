@@ -96,68 +96,553 @@
  ],
  "measured": {
   "det_coverage": {
-   "carddemo-acctupdate": null,
-   "carddemo-acctview": null,
-   "carddemo-acctview-generated": null,
-   "carddemo-adminmenu": null,
-   "carddemo-billpay": null,
-   "carddemo-cardlist": null,
+   "asynccc-crdtchk": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstats2": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstatus": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getaddr": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getname": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getpol": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-getspnd": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-seqpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "asynccc-updcsdb": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "carddemo-acctupdate": [
+    89,
+    95,
+    310,
+    397
+   ],
+   "carddemo-acctview": [
+    31,
+    32,
+    58,
+    69
+   ],
+   "carddemo-acctview-generated": [
+    30,
+    32,
+    42,
+    69
+   ],
+   "carddemo-adminmenu": [
+    8,
+    8,
+    20,
+    26
+   ],
+   "carddemo-billpay": [
+    16,
+    16,
+    46,
+    48
+   ],
+   "carddemo-cardlist": [
+    36,
+    36,
+    146,
+    149
+   ],
    "carddemo-cardupdate": null,
-   "carddemo-cardview": null,
+   "carddemo-cardview": [
+    30,
+    30,
+    69,
+    75
+   ],
    "carddemo-cobtupdt": null,
-   "carddemo-cotrtlic": null,
-   "carddemo-cotrtupc": null,
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
    "carddemo-dailyval": null,
    "carddemo-dateutil": null,
    "carddemo-intcalc": null,
    "carddemo-intcalc-generated": null,
-   "carddemo-menu": null,
+   "carddemo-menu": [
+    7,
+    7,
+    29,
+    33
+   ],
    "carddemo-posttran": null,
    "carddemo-posttran-generated": null,
    "carddemo-readacct": null,
    "carddemo-readcard": null,
    "carddemo-readcust": null,
    "carddemo-readxref": null,
-   "carddemo-report": null,
-   "carddemo-signon": null,
-   "carddemo-tranadd": null,
-   "carddemo-tranlist": null,
-   "carddemo-tranview": null,
+   "carddemo-report": [
+    10,
+    10,
+    51,
+    59
+   ],
+   "carddemo-signon": [
+    6,
+    6,
+    17,
+    17
+   ],
+   "carddemo-tranadd": [
+    18,
+    18,
+    72,
+    75
+   ],
+   "carddemo-tranlist": [
+    16,
+    16,
+    96,
+    101
+   ],
+   "carddemo-tranview": [
+    9,
+    9,
+    23,
+    24
+   ],
    "carddemo-trnrpt": null,
-   "carddemo-useradd": null,
-   "carddemo-userdel": null,
-   "carddemo-userlist": null,
-   "carddemo-userupd": null,
-   "cbsa-abndproc": null,
-   "cbsa-custctrl": null,
-   "cbsa-dbcrfun": null,
-   "cbsa-delacc": null,
-   "cbsa-inqacc": null,
-   "cbsa-updacc": null,
-   "cbsa-updacc-generated": null,
-   "cbsa-updcust": null,
-   "cbsa-xfrfun": null,
-   "genapp-lgacdb01": null,
-   "genapp-lgacdb02": null,
-   "genapp-lgacvs01": null,
-   "genapp-lgapdb01": null,
-   "genapp-lgapvs01": null,
-   "genapp-lgdpdb01": null,
-   "genapp-lgdpvs01": null,
-   "genapp-lgicdb01": null,
-   "genapp-lgipdb01": null,
-   "genapp-lgucdb01": null,
-   "genapp-lgucvs01": null,
-   "genapp-lgupdb01": null,
-   "genapp-lgupvs01": null,
-   "mortgage-cmort": null,
-   "mortgage-mlist": null,
-   "mortgage-mlist-generated": null,
+   "carddemo-useradd": [
+    9,
+    9,
+    20,
+    21
+   ],
+   "carddemo-userdel": [
+    11,
+    11,
+    30,
+    32
+   ],
+   "carddemo-userlist": [
+    16,
+    16,
+    95,
+    100
+   ],
+   "carddemo-userupd": [
+    11,
+    11,
+    44,
+    46
+   ],
+   "cbsa-abndproc": [
+    4,
+    4,
+    2,
+    2
+   ],
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    46,
+    51,
+    62,
+    102
+   ],
+   "cbsa-bnkmenu": [
+    19,
+    25,
+    35,
+    62
+   ],
+   "cbsa-crdtagy1": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy2": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy3": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy4": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy5": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-getcompy": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-getscode": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
+   "cbsa-inqcust": [
+    22,
+    25,
+    39,
+    46
+   ],
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updcust": [
+    7,
+    7,
+    28,
+    28
+   ],
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgastat1": [
+    1,
+    1,
+    10,
+    10
+   ],
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
+   "genapp-lgdpvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicvs01": [
+    1,
+    1,
+    7,
+    12
+   ],
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgwebst5": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
+   "mortgage-mlist": [
+    5,
+    6,
+    14,
+    15
+   ],
+   "mortgage-mlist-generated": [
+    5,
+    6,
+    7,
+    15
+   ],
    "mortgage-mpmt": null,
-   "mortgage-nbrvl": null
+   "mortgage-nbrvl": null,
+   "zecs-zecsplt": [
+    11,
+    11,
+    6,
+    6
+   ]
   },
   "programs": [
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -186,8 +671,9 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
-     "(unlisted) ASKTIME NOHANDLE",
+     "ASKTIME",
      "FORMATTIME",
      "READ",
      "RETRIEVE",
@@ -202,11 +688,12 @@
     },
     "program": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
     "row": {
-     "error": "CopyNotFound: /srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:149: COPY CMQODV found in none of ['/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-authorization-"
+     "error": "CopyNotFound: /home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:149: COPY CMQODV found in none of ['/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-authorization-ims-"
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "READ",
      "RECEIVE MAP",
@@ -245,6 +732,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "LINK",
      "RECEIVE MAP",
@@ -285,8 +773,9 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
-     "(unlisted) ASKTIME NOHANDLE",
+     "ASKTIME",
      "FORMATTIME",
      "RETURN"
     ],
@@ -297,16 +786,15 @@
     },
     "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
     "row": {
-     "holes": [
-      "line 91: EXEC EXEC CICS: EXEC CICS ASKTIME NOHANDLE not modelled"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 56,
-     "translated": 55
+     "translated": 56
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -329,6 +817,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -350,6 +839,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -370,6 +860,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -386,6 +877,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "RECEIVE MAP",
      "RETURN",
@@ -402,7 +894,7 @@
     "program": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
     "row": {
      "holes": [
-      "line 57: HOLE dynamic CALL"
+      "line 57: CALL DSNTIAC: Db2's message text is not modelled (oracle_assumptions.md Q5)"
      ],
      "kind": "cics",
      "statements": 632,
@@ -411,6 +903,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ABEND",
      "HANDLE ABEND",
@@ -436,6 +929,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "READ",
      "RETRIEVE",
@@ -449,11 +943,12 @@
     },
     "program": "app/app-vsam-mq/cbl/COACCT01.cbl",
     "row": {
-     "error": "CopyNotFound: /srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/COACCT01.cbl:71: COPY CMQGMOV found in none of ['/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl', '/srv/storage_16t"
+     "error": "CopyNotFound: /home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/COACCT01.cbl:71: COPY CMQGMOV found in none of ['/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl', '/home/runner/work/gi"
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ASKTIME",
      "FORMATTIME",
@@ -468,11 +963,12 @@
     },
     "program": "app/app-vsam-mq/cbl/CODATE01.cbl",
     "row": {
-     "error": "CopyNotFound: /srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/CODATE01.cbl:71: COPY CMQGMOV found in none of ['/srv/storage_16tb/projects/gitgalaxy/v6/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl', '/srv/storage_16t"
+     "error": "CopyNotFound: /home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/CODATE01.cbl:71: COPY CMQGMOV found in none of ['/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl', '/home/runner/work/gi"
     },
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -489,6 +985,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -505,6 +1002,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -521,6 +1019,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -537,6 +1036,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -553,6 +1053,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -569,6 +1070,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -585,6 +1087,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -611,6 +1114,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -631,6 +1135,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -647,6 +1152,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -663,6 +1169,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -679,6 +1186,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ABEND",
      "HANDLE ABEND",
@@ -707,6 +1215,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ABEND",
      "HANDLE ABEND",
@@ -732,6 +1241,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "HANDLE CONDITION",
      "RECEIVE MAP",
@@ -754,6 +1264,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ASKTIME",
      "ENDBR",
@@ -783,6 +1294,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -802,6 +1314,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ENDBR",
      "READNEXT",
@@ -828,6 +1341,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ABEND",
      "HANDLE ABEND",
@@ -853,6 +1367,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ABEND",
      "HANDLE ABEND",
@@ -880,6 +1395,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "INQUIRE PROGRAM",
      "RECEIVE MAP",
@@ -902,6 +1418,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "RECEIVE MAP",
      "RETURN",
@@ -924,6 +1441,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ASSIGN",
      "READ",
@@ -951,6 +1469,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ENDBR",
      "READNEXT",
@@ -976,6 +1495,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "READ",
      "RECEIVE MAP",
@@ -998,6 +1518,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ENDBR",
      "READ",
@@ -1024,6 +1545,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "ENDBR",
      "READNEXT",
@@ -1049,6 +1571,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "RECEIVE MAP",
      "RETURN",
@@ -1071,6 +1594,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "READ",
      "RECEIVE MAP",
@@ -1094,6 +1618,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [
      "DELETE",
      "READ",
@@ -1117,6 +1642,7 @@
     "source_read": true
    },
    {
+    "cards": [],
     "commands": [],
     "facts": {
      "assign_region": [],
@@ -1135,234 +1661,122 @@
   ],
   "record_status": {
    "carddemo-acctview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-billpay": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-cardlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-cardview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-dailyval": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-dateutil": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-intcalc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-menu": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-posttran": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readcard": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readcust": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-readxref": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-report": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-signon": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranadd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-tranview": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-trnrpt": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-useradd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userdel": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userlist": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-userupd": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "cbsa-inqacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapvs01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgicdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgupdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    }
   },
   "survey": {
    "label": "before",
-   "scope": "burned + local + census corpora",
-   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+   "scope": "burned + local corpora (no census)",
+   "sha": "b383911ef7b42205839fa96684b6f960d901133a"
   },
   "sweeps": {}
  },
@@ -1561,6 +1975,285 @@
   "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
  },
  "programs": [
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 6,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 6,
+     "total": 6
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 2,
+     "live": 2
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-copaus2c",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-copaus2c",
+     "case_scenarios": 5,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 3,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 56,
+    "translated": 56,
+    "whole": true
+   }
+  },
   {
    "assumptions": {
     "facts_stated": [],
@@ -13437,11 +14130,11 @@
    "oracle_backing": [
     {
      "backed": false,
-     "command": "(unlisted) ASKTIME NOHANDLE",
+     "command": "ASKTIME",
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [],
-     "spec_entry": "no spec entry"
+     "spec_entry": "full"
     },
     {
      "backed": false,
@@ -13620,7 +14313,7 @@
     "commands": 7,
     "commands_backed": 2,
     "commands_not_backed": [
-     "(unlisted) ASKTIME NOHANDLE",
+     "ASKTIME",
      "FORMATTIME",
      "READ",
      "SYNCPOINT",
@@ -14412,289 +15105,6 @@
     "source_defects": [],
     "statements": 193,
     "translated": 178,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 6,
-     "total": 6
-    },
-    "branches_net": {
-     "covered": 6,
-     "total": 6
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 2,
-     "live": 2
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-copaus2c",
-      "case_scenarios": 5,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-copaus2c",
-     "case_scenarios": 5,
-     "db2": true,
-     "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "translated whole (1 holes left)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "(unlisted) ASKTIME NOHANDLE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "no spec entry"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27"
-    ],
-    "branch_outcomes_unrun": 0,
-    "commands": 3,
-    "commands_backed": 1,
-    "commands_not_backed": [
-     "(unlisted) ASKTIME NOHANDLE",
-     "FORMATTIME"
-    ],
-    "facts_unstated": 0,
-    "holes": 1,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS ASKTIME NOHANDLE"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "EXEC EXEC CICS: EXEC CICS ASKTIME NOHANDLE not modelled"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 56,
-    "translated": 55,
     "whole": false
    }
   },
@@ -15529,11 +15939,11 @@
    "stale_since": null,
    "translation": {
     "gap_classes": [
-     "dynamic CALL"
+     "DSNTIAC: Db2's message text is not modelled"
     ],
     "hole_count": 1,
     "holes": [
-     "HOLE dynamic CALL"
+     "CALL DSNTIAC: Db2's message text is not modelled (oracle_assumptions.md Q5)"
     ],
     "refused": null,
     "source_defects": [],
@@ -16525,15 +16935,15 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100",
+   "python tests/tools/cics_census.py survey --baseline --sha b383911ef7b42205839fa96684b6f960d901133a",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha b383911ef7b42205839fa96684b6f960d901133a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
-  "coverage_from": "det-sweep coverage ledger freshness recomputed now",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
   "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
@@ -16546,23 +16956,23 @@
    "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
-  "record_status_from": "evidence.py status, recomputed now",
+  "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
-   "scope": "burned + local + census corpora",
-   "sha": "3bcbb8c62397b338307563c40618297d54c38100"
+   "scope": "burned + local corpora (no census)",
+   "sha": "b383911ef7b42205839fa96684b6f960d901133a"
   },
-  "translator_commit": "3bcbb8c62397b338307563c40618297d54c38100"
+  "translator_commit": "b383911ef7b42205839fa96684b6f960d901133a"
  },
  "summary": {
   "cics_programs": 25,
   "det_equal": 28,
   "histogram": {
-   "L0": 14,
+   "L0": 13,
    "L1": 4,
    "L2": 12,
    "L3": 3,
-   "L4": 11,
+   "L4": 12,
    "L5": 0
   },
   "histogram_stale": {
@@ -16573,13 +16983,13 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 68,
+  "holes": 67,
   "levels_stale": 0,
   "programs": 44,
   "records_current": 23,
   "refused_whole": 3,
   "source_unread": 0,
-  "translated_whole": 30,
+  "translated_whole": 31,
   "with_case": 30,
   "with_record": 23
  }

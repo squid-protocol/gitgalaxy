@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `3bcbb8c62397b338307563c40618297d54c38100` (burned + local + census corpora); evidence record status: evidence.py status, recomputed now; coverage: det-sweep coverage ledger freshness recomputed now.
+Translation measured by `cics_census.py survey` at translator commit `b383911ef7b42205839fa96684b6f960d901133a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 ## How to read this report
 
@@ -38,18 +38,18 @@ Translation measured by `cics_census.py survey` at translator commit `3bcbb8c623
 
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
-| L0 | 5 | 0 |
+| L0 | 4 | 0 |
 | L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 0 | 0 |
+| L4 | 1 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 5 programs; the rest are current
-- L2+: 0 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
+- L2+: 1 (0 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 5 (with an EXEC CICS command: 5; source not read: 0)
-- translated whole: 0; refused whole: 0; holes left: 71
+- translated whole: 1; refused whole: 0; holes left: 53
 - with an equivalence case: 1; det port equal on its case: 1; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
@@ -81,22 +81,46 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 2/5 |
 | Source/ECS001.cbl | L0 | 100/105 | 5 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
-| Source/ZECS000.cbl | L0 | 160/173 | 13 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/22 |
-| Source/ZECS001.cbl | L0 | 522/561 | 39 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
-| Source/ZECS003.cbl | L0 | 63/73 | 10 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
-| Source/ZECSPLT.cbl | L0 | 23/27 | 4 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 2/6 |
+| Source/ZECS000.cbl | L0 | 166/173 | 7 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/22 |
+| Source/ZECS001.cbl | L0 | 528/561 | 33 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
+| Source/ZECS003.cbl | L0 | 65/73 | 8 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
 
 ## Per program
+
+### Source/ZECSPLT.cbl -- L4
+
+- **Executed equivalent** on the 4 scenarios of zecs-zecsplt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
+- **Translation:** 27/27 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+- **Executed equivalence** (zecs-zecsplt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | INQUIRE URIMAP | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | START | full | gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
+  | WRITE OPERATOR | full | none | no |
+  | WRITEQ TD | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: urimaps
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ECS001.cbl -- L0
 
 - **Next level needs:** translated whole (5 holes left)
 - **Translation:** 100/105 statements, 5 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
+  - hole: EXEC EXEC CICS: INQUIRE URIMAP without START, NEXT or END: only the browse is modelled
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -104,7 +128,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
-  | (unlisted) INQUIRE | no spec entry | none | no |
+  | INQUIRE URIMAP | full | none | no |
   | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
@@ -112,23 +136,21 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WEB CONVERSE | name-only | none | no |
   | WEB OPEN | name-only | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: urimaps
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 5 holes; ASSUMED / DIFFERS entries named: X15, X27; commands without oracle backing: (unlisted) INQUIRE, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 5 holes; ASSUMED / DIFFERS entries named: X15, X27, X32; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS000.cbl -- L0
 
-- **Next level needs:** translated whole (13 holes left)
-- **Translation:** 160/173 statements, 13 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
-  - hole: EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled
+- **Next level needs:** translated whole (7 holes left)
+- **Translation:** 166/173 statements, 7 holes; whole: no
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
-  - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+  - hole: EXEC EXEC CICS: INQUIRE URIMAP without START, NEXT or END: only the browse is modelled
+  - hole: EXEC EXEC CICS: READ GTEQ: not a known file, so not a known key length
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -136,22 +158,22 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
-  | (unlisted) INQUIRE | no spec entry | none | no |
-  | (unlisted) SYNCPOINT NOHANDLE | no spec entry | none | no |
   | ASKTIME | full | none | no |
   | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
   | DELAY | full | none | no |
   | DELETE | full | none | no |
-  | DOCUMENT CREATE | name-only | none | no |
-  | DOCUMENT RETRIEVE | name-only | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
   | ENQ | full | none | no |
   | FORMATTIME | full | none | no |
   | HANDLE ABEND | full | hc-abend-link (yes / yes) | yes |
+  | INQUIRE URIMAP | full | none | no |
   | READ | full | none | no |
   | RETRIEVE | full | gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | REWRITE | full | none | no |
   | START | full | gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
+  | SYNCPOINT | full | none | no |
   | WEB CLOSE | name-only | none | no |
   | WEB CONVERSE | name-only | none | no |
   | WEB OPEN | name-only | none | no |
@@ -159,23 +181,21 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITE | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: doctemplates, facility, screen, startcode, urimaps, userid
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 13 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27; commands without oracle backing: (unlisted) INQUIRE, (unlisted) SYNCPOINT NOHANDLE, ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, READ, REWRITE, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 7 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS001.cbl -- L0
 
-- **Next level needs:** translated whole (39 holes left)
-- **Translation:** 522/561 statements, 39 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)
+- **Next level needs:** translated whole (33 holes left)
+- **Translation:** 528/561 statements, 33 holes; whole: no
+  - hole: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate
   - hole: EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS SYNCPOINT NOHANDLE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB EXTRACT not modelled (CICS web support (HTTP server / client) is not modelled)
@@ -188,7 +208,6 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - hole: EXEC EXEC CICS: GET COUNTER: named counters are not modelled
   - hole: EXEC EXEC CICS: INQUIRE PROGRAM STATUS: option not modelled
   - hole: HOLE SET ADDRESS OF (pointers)
-  - hole: HOLE dynamic CALL
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -197,11 +216,10 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
   | (unlisted) GET | no spec entry | none | no |
-  | (unlisted) SYNCPOINT NOHANDLE | no spec entry | none | no |
   | ASKTIME | full | none | no |
   | DELETE | full | none | no |
-  | DOCUMENT CREATE | name-only | none | no |
-  | DOCUMENT RETRIEVE | name-only | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
   | FORMATTIME | full | none | no |
   | FREEMAIN | name-only | none | no |
   | GETMAIN | name-only | none | no |
@@ -210,6 +228,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | READ | full | none | no |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | REWRITE | full | none | no |
+  | SYNCPOINT | full | none | no |
   | SYNCPOINT ROLLBACK | full | none | no |
   | WEB CLOSE | name-only | none | no |
   | WEB CONVERSE | name-only | none | no |
@@ -224,27 +243,26 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITEQ TD | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: doctemplates
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 39 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27; commands without oracle backing: (unlisted) GET, (unlisted) SYNCPOINT NOHANDLE, ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 33 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X33; commands without oracle backing: (unlisted) GET, ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS003.cbl -- L0
 
-- **Next level needs:** translated whole (10 holes left)
-- **Translation:** 63/73 statements, 10 holes; whole: no
+- **Next level needs:** translated whole (8 holes left)
+- **Translation:** 65/73 statements, 8 holes; whole: no
   - hole: EXEC EXEC CICS: DELETE GENERIC: option not modelled
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT CREATE not modelled (CICS documents (the document handler) are not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS DOCUMENT RETRIEVE not modelled (CICS documents (the document handler) are not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
   - hole: EXEC EXEC CICS: EXEC CICS WEB CLOSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB CONVERSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB OPEN not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB PARSE not modelled (CICS web support (HTTP server / client) is not modelled)
   - hole: EXEC EXEC CICS: EXEC CICS WEB SEND not modelled (CICS web support (HTTP server / client) is not modelled)
-  - hole: EXEC EXEC CICS: READ GTEQ: option not modelled
+  - hole: EXEC EXEC CICS: INQUIRE URIMAP without START, NEXT or END: only the browse is modelled
+  - hole: EXEC EXEC CICS: READ GTEQ: not a known file, so not a known key length
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -252,11 +270,11 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
   |---|---|---|---|
-  | (unlisted) INQUIRE | no spec entry | none | no |
   | ASKTIME | full | none | no |
   | DELETE | full | none | no |
-  | DOCUMENT CREATE | name-only | none | no |
-  | DOCUMENT RETRIEVE | name-only | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
+  | INQUIRE URIMAP | full | none | no |
   | READ | full | none | no |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WEB CLOSE | name-only | none | no |
@@ -265,36 +283,11 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WEB PARSE URL | name-only | none | no |
   | WEB SEND | name-only | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: doctemplates, urimaps
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 10 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27; commands without oracle backing: (unlisted) INQUIRE, ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECSPLT.cbl -- L0
-
-- **Next level needs:** translated whole (4 holes left)
-- **Translation:** 23/27 statements, 4 holes; whole: no
-  - hole: EXEC EXEC CICS: EXEC CICS INQUIRE URIMAP not modelled
-  - hole: EXEC EXEC CICS: EXEC CICS INQUIRE not modelled
-  - hole: EXEC EXEC CICS: EXEC CICS WRITE OPERATOR not modelled (a message to the system console (WRITE OPERATOR) is not modelled)
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence** (zecs-zecsplt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (4 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | (unlisted) INQUIRE | no spec entry | none | no |
-  | (unlisted) INQUIRE URIMAP | no spec entry | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | START | full | gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
-  | WRITE OPERATOR | full | none | no |
-  | WRITEQ TD | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 4 holes; ASSUMED / DIFFERS entries named: X18, X27, X32; commands without oracle backing: (unlisted) INQUIRE, (unlisted) INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 8 holes; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -311,10 +304,11 @@ From the spec entries of the commands the programs use, with the register's stat
 | X22 | CICS | ASSUMED (REFUSED where IBM is silent or the layout decides) | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X32 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused |
+| X33 | CICS | ASSUMED (REFUSED where IBM is silent) | DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused |
 
 ## Reproducibility
 
-- translator commit (the survey's): `3bcbb8c62397b338307563c40618297d54c38100`
+- translator commit (the survey's): `b383911ef7b42205839fa96684b6f960d901133a`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -324,8 +318,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
-python tests/tools/evidence_report.py zecs --baseline --sha 3bcbb8c62397b338307563c40618297d54c38100
+python tests/tools/cics_census.py survey --baseline --sha b383911ef7b42205839fa96684b6f960d901133a
+python tests/tools/evidence_report.py zecs --baseline --sha b383911ef7b42205839fa96684b6f960d901133a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

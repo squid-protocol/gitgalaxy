@@ -2652,17 +2652,17 @@ public class CicsTask {
         return resps;
     }
 
+    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
+    public byte[] returnedBytes() {
+        return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
      *  the task RETURNed none, or has not RETURNed. A COMMAREA of another class is converted by layout (#4449) when
      *  both are laid out as bytes (the generator writes toCommarea / fromCommarea into the DTOs a facade converts
      *  between): the bytes passed -- the record's, or its first LENGTH -- read through `type`, as the program reading
      *  them through its own record sees them. Anything else is refused, never guessed: a class with no layout, or
      *  fewer bytes than `type`'s record (never passed). */
-    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
-    public byte[] returnedBytes() {
-        return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
-    }
-
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
         if (area == null || type.isInstance(area)) {
@@ -2708,7 +2708,8 @@ public class CicsTask {
         CicsTask transaction(String transid, Object commarea);
         /** #4817: same, with the raw bytes of the COMMAREA from the previous task. */
         default CicsTask transaction(String transid, Object commarea, byte[] bytes) {
-            return transaction(transid, commarea).withLinkArea(bytes == null ? null : java.util.Arrays.copyOf(bytes, bytes.length));
+            byte[] copy = bytes == null ? null : java.util.Arrays.copyOf(bytes, bytes.length);
+            return transaction(transid, commarea).withLinkArea(copy);
         }
 
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:

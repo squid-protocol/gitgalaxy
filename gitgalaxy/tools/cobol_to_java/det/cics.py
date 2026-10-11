@@ -444,8 +444,9 @@ class Cics:
         it = self.g.resolve(r)
         return it.size * (1 if r.subscripts else it.occurs)
 
-    # -- RESP
     def _return_call(self, method: str, tid: str, opts: dict, ind: str, g) -> tuple[list[str], str]:
+        """RETURN [IMMEDIATE] TRANSID COMMAREA: (statements first, the runtime call). #4817: the COMMAREA's bytes go
+        beside its DTO, so the next task gets every byte (spaces in a numeric DISPLAY field too), as IBM passes them."""
         pre: list[str] = []
         if "COMMAREA" in opts:
             dto, length = self.commarea_out(opts)
@@ -469,6 +470,7 @@ class Cics:
             call = f"task.{method}({tid}, null, null)"
         return pre, call
 
+    # -- RESP
     def outcome(self, opts: dict, resp: str, resp2: str, ind: str) -> list[str]:
         """After a command: EIBRESP, then RESP / RESP2 when given; else a condition other than NORMAL goes to its
         HANDLE CONDITION label, or (NOHANDLE aside) takes CICS's default action, an abend."""

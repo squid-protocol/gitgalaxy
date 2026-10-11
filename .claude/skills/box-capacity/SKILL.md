@@ -51,6 +51,11 @@ Heavy: `pr_gates.py --fast` / `--ratchets`, the full or a large pytest run (hund
 Light: `pytest file -k name` on a few tests, `ruff`, `git`, `gh api`, reading files, `register.py render`.
 Put the wrapping in every worker brief (the `gitgalaxy-pr-worker` agent already says so) and do it yourself.
 
+**Parallel tools size themselves from the slot.** `heavy-run.sh` exports `GG_JOB_CORES` = nproc / the heavy slots held
+when the job starts (alone: every core; two jobs: half each). `pr_gates`' unicode gauntlet uses it for `--jobs`; before
+#4882 it took every core in every slot, so two gates at once ran load 52-86 on 12 cores. A new parallel step (an `-n`
+pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count()` alone.
+
 ## 4. Overload response
 
 - RED once: launch nothing new; finish or queue your own heavy runs.

@@ -381,7 +381,14 @@ def _tool(module: str) -> list[str]:
 
 def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[str]]]:
     corpus = env.get("KEYWORD_ROSETTA_PATH")
-    gauntlet = [PY, "tests/tools/unicode_gauntlet.py", "--ci", "--jobs", str(os.cpu_count() or 4)]
+    # heavy-run.sh's fair share of the cores (#4882), else every core
+    gauntlet = [
+        PY,
+        "tests/tools/unicode_gauntlet.py",
+        "--ci",
+        "--jobs",
+        os.environ.get("GG_JOB_CORES") or str(os.cpu_count() or 4),
+    ]
     gauntlet += ["--corpus", corpus] if corpus else []
     suite = [PY, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests"]
     return {

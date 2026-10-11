@@ -107,8 +107,22 @@ def _lock_holders() -> dict[str, list[int]]:
     except OSError:
         return {}
     out = {}
-    for p in sorted(LOCK_DIR.glob("*")) if LOCK_DIR.is_dir() else []:
-        out[p.name] = by_inode.get(p.stat().st_ino, [])
+    files = sorted(LOCK_DIR.glob("*")) if LOCK_DIR.is_dir() else []
+    for p in files:
+        out[p.name] = [pid for pid in by_inode.get(p.stat().st_ino, []) if Path(f"/proc/{pid}").exists()]
+    # the PID that took a flock can exit while its children hold the descriptor: find the holders by open file
+    if any(by_inode.get(p.stat().st_ino) and not out[p.name] for p in files):
+        targets = {str(p): p.name for p in files if by_inode.get(p.stat().st_ino) and not out[p.name]}
+        for d in Path("/proc").iterdir():
+            if not d.name.isdigit():
+                continue
+            try:
+                links = {os.readlink(fd) for fd in (d / "fd").iterdir()}
+            except OSError:
+                continue  # another user's process, or gone: best effort
+            for t, name in targets.items():
+                if t in links and len(out[name]) < 3:
+                    out[name].append(int(d.name))
     return out
 
 
@@ -166,7 +180,7 @@ def snapshot(sample: float = 1.0) -> dict[str, Any]:
     hz = os.sysconf("SC_CLK_TCK")
     groups: dict[str, float] = {}
     for pid, ticks in t1.items():
-        d = ticks - t0.get(pid, ticks)
+        d = ticks - t0.get(pid, 0)  # a process born during the sample counts all its ticks (a gauntlet scan lives ~1 s)
         if d > 0:
             g = _group(pid)
             groups[g] = groups.get(g, 0.0) + d / hz / sample  # cores busy

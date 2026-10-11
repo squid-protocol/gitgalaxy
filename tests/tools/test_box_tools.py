@@ -49,10 +49,32 @@ def test_heavy_run_fails_fast_without_flock(tmp_path):
     env = _env(tmp_path)
     env["PATH"] = str(tmp_path / "empty-bin")  # no flock (nor anything else) on PATH; bash itself is found by path
     res = subprocess.run(  # noqa: S603
-        ["/bin/bash", str(BOX / "heavy-run.sh"), "true"], env=env, capture_output=True, text=True, timeout=30, check=False
+        ["/bin/bash", str(BOX / "heavy-run.sh"), "true"],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
     )
     assert res.returncode == 127
     assert "flock" in res.stderr
+
+
+def test_heavy_run_gives_the_job_a_fair_share_of_the_cores(tmp_path):
+    """#4882: alone, a heavy job gets every core (GG_JOB_CORES = nproc); beside k-1 other held slots, nproc / k."""
+    env = _env(tmp_path, slots=3)
+    show = [str(BOX / "heavy-run.sh"), "bash", "-c", "echo $GG_JOB_CORES"]
+    cores = os.cpu_count() or 4
+    alone = subprocess.run(show, env=env, capture_output=True, text=True, timeout=30, check=True).stdout.strip()  # noqa: S603
+    assert int(alone) == max(cores, 1)
+    holder = subprocess.Popen([str(BOX / "heavy-run.sh"), "sleep", "5"], env=env)  # noqa: S603
+    try:
+        time.sleep(0.5)
+        shared = subprocess.run(show, env=env, capture_output=True, text=True, timeout=30, check=True).stdout.strip()  # noqa: S603
+        assert int(shared) == max(cores // 2, 1)
+    finally:
+        holder.kill()
+        holder.wait(timeout=10)
 
 
 def test_golden_lock_is_exclusive(tmp_path):

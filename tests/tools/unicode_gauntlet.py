@@ -580,7 +580,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--full", action="store_true", help="every encoding for every script (default: two each)")
     ap.add_argument("--out", type=Path, help="write report.md, chart.svg and results.json here")
     ap.add_argument("--work", type=Path, help="keep the estates and scans here")
-    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="cells scanned in parallel")
+    ap.add_argument(
+        "--jobs",
+        type=int,
+        default=int(os.environ.get("GG_JOB_CORES") or os.cpu_count() or 4),
+        help="cells scanned in parallel (default: heavy-run.sh's GG_JOB_CORES share, else every core)",
+    )
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--ci", action="store_true", help="fail when a cell fails that the baseline does not list")
     ap.add_argument("--update-baseline", action="store_true")

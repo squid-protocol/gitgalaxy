@@ -120,7 +120,8 @@ def _cpu_ticks() -> dict[int, int]:
                 f = (d / "stat").read_text().rsplit(")", 1)[1].split()
                 out[int(d.name)] = int(f[11]) + int(f[12])  # utime + stime
             except (OSError, IndexError, ValueError):
-                pass
+                # best effort: a /proc entry can vanish or be unreadable while we iterate (the process exited)
+                continue
     return out
 
 
@@ -140,7 +141,9 @@ def _group(pid: int) -> str:
 
 def _cmd(pid: int) -> str:
     try:
-        return Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace").strip()[:100]
+        return (
+            Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode(errors="backslashreplace")
+        )  # lossless (#3813): an odd byte shows as \xNN.strip()[:100]
     except OSError:
         return "?"
 

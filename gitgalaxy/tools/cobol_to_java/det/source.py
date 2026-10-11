@@ -344,7 +344,9 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
                 prev.text = prev.text.ljust(65) + cont[1:]
             else:
                 prev.text = prev.text.rstrip() + " " + cont
+            prev.text = _drop_comment(prev.text)
             continue
+        body = _drop_comment(body)
         if not body.strip() or _LISTING.fullmatch(body):
             continue
         body = _headers(body)
@@ -550,6 +552,13 @@ def comma_literals(lines: list[Line]) -> list[Line]:
             text[m.start(1)] = "."
         out.append(Line("".join(text), ln.file, ln.line, ln.cut))
     return out
+
+
+def _drop_comment(text: str) -> str:
+    """#4874: `text` without a floating `*>` comment (one outside a literal; IBM Enterprise COBOL 6 and GnuCOBOL accept
+    it in fixed form too), as free format does; a literal that holds `*>` is kept whole."""
+    at = _comment_at(text)
+    return text[:at].rstrip() if at < len(text) else text
 
 
 def _comment_at(text: str) -> int:

@@ -216,9 +216,12 @@ def scan(estate: Path, out: Path) -> Path:
 
     # set for the scan only: a process-wide GITGALAXY_DISABLE_GIT_HISTORY outlives it and silently
     # turns git off for every later test in a pytest session (it once broke test_chronometer)
-    keys = ("GITGALAXY_LICENSE_KEY", "GITGALAXY_DISABLE_GIT_HISTORY")
+    keys = ("GITGALAXY_LICENSE_KEY", "GITGALAXY_DISABLE_GIT_HISTORY", "GALAXYSCOPE_MAX_WORKERS")
     saved = {k: os.environ.get(k) for k in keys}
     os.environ.setdefault("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")
+    # --jobs scans already fill the box: a worker pool inside each one is N x N processes (#4896,
+    # #3913). An explicit value from the caller wins.
+    os.environ.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")
     os.environ["GITGALAXY_DISABLE_GIT_HISTORY"] = "1"
     codec = estate.name.rpartition("__")[2]
     try:

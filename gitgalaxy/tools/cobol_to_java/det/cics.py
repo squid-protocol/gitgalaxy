@@ -1076,8 +1076,16 @@ class Cics:
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
-            return [f"{ind}int {r} = task.inquireProgram({self.name(_arg(opts['PROGRAM']))});",
-                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+            prog = self.name(_arg(opts["PROGRAM"]))
+            out = [f"{ind}int {r} = task.inquireProgram({prog});"]
+            if "STATUS" in opts:  # #4768 (X34): the definition's CVDA, written on NORMAL only
+                out.append(
+                    f"{ind}if ({r} == 0) "
+                    + g.store_into(
+                        self.ref(_arg(opts["STATUS"])), f"BigDecimal.valueOf(task.programStatus({prog}))", False
+                    )
+                )
+            return out + self.outcome(opts, r, "0", ind)
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
             f = self.read_field(_arg(opts["FROM"]))
@@ -1393,21 +1401,29 @@ class Cics:
         """INQUIRE URIMAP START / NEXT / END (IBM CICS TS, INQUIRE URIMAP, "Browsing resource definitions"): the browse of
         the URIMAP definitions the run states are installed (CicsTask.withUrimaps; unstated, refused). NEXT hands back the
         definition's name (8), PATH (255) and TRANSACTION (4), blank-padded, only on NORMAL; END (RESP2 2) and ILLOGIC
-        (RESP2 1) leave the areas alone. START / END name no output area."""
+        (RESP2 1) leave the areas alone. START / END name no output area. #4768 (X34): with no browse option, the direct
+        form reads the definition URIMAP names (NOTFND RESP2 3 when it is not installed), PATH / TRANSACTION as NEXT's."""
         g = self.g
         form = [f for f in ("START", "NEXT", "END") if f in opts]
-        if len(form) != 1:
-            raise CicsError(_msg("INQUIRE URIMAP", "one_of", "START"))
+        if len(form) > 1:
+            raise CicsError(_msg("INQUIRE URIMAP", "at_most_one", "START"))
         r = g.tmpname("urimap")
-        call = {"START": "inquireUrimapStart", "NEXT": "inquireUrimapNext", "END": "inquireUrimapEnd"}[form[0]]
-        outs = [k for k in ("URIMAP", "PATH", "TRANSACTION") if k in opts]
-        if form[0] != "NEXT" and outs:
-            raise CicsError(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition")
-        out = [f"{ind}int[] {r} = task.{call}();"]
+        if not form:  # #4768 (X34): the direct form, URIMAP(name): that definition, NOTFND RESP2 3 when not installed
+            if "URIMAP" not in opts:
+                raise CicsError(_msg("INQUIRE URIMAP", "required", "URIMAP"))
+            name = self.name(_arg(opts["URIMAP"]))
+            outs = [k for k in ("PATH", "TRANSACTION") if k in opts]
+            out = [f"{ind}int[] {r} = task.inquireUrimap({name});"]
+        else:
+            call = {"START": "inquireUrimapStart", "NEXT": "inquireUrimapNext", "END": "inquireUrimapEnd"}[form[0]]
+            outs = [k for k in ("URIMAP", "PATH", "TRANSACTION") if k in opts]
+            if form[0] != "NEXT" and outs:
+                raise CicsError(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition")
+            out = [f"{ind}int[] {r} = task.{call}();"]
         if outs:
             out.append(f"{ind}if ({r}[0] == 0) {{")
             for k, acc in (("URIMAP", "urimapName"), ("PATH", "urimapPath"), ("TRANSACTION", "urimapTransaction")):
-                if k in opts:
+                if k in outs:
                     out.append(f"{ind}    DetCics.putText({self.field(_arg(opts[k]))}, task.{acc}(), CS);")
             out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)

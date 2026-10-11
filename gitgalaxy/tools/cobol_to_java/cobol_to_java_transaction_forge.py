@@ -761,6 +761,21 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
+    /** INQUIRE URIMAP(name), the direct form (#4768, X34): {RESP, RESP2} -- NOTFND (13) RESP2 3 "The URIMAP cannot be
+     *  found" when the run states no installed definition of that name; the one found is read by urimapPath /
+     *  urimapTransaction, as a browse NEXT's. */
+    public int[] inquireUrimap(String name) {
+        CicsTask r = root();
+        String n = name == null ? "" : name.strip();
+        for (String[] d : r.installedUrimaps()) {
+            if (d[0].equals(n)) {
+                r.urimapNow = d;
+                return new int[] {0, 0};
+            }
+        }
+        return new int[] {13, 3};
+    }
+
     /** INQUIRE URIMAP END: {RESP, RESP2}; the browse is over. */
     public int[] inquireUrimapEnd() {
         CicsTask r = root();
@@ -2348,6 +2363,12 @@ public class CicsTask {
         }
         Programs known = programs != null ? programs : root().programs;
         return known == null || known.defined(name) ? 0 : 27;
+    }
+
+    /** INQUIRE PROGRAM STATUS (#4768, X34): the CVDA of a program the region defines -- ENABLED (23), the DEFINE PROGRAM
+     *  default; no run states a DISABLED definition. Read only after inquireProgram answered NORMAL. */
+    public int programStatus(String program) {
+        return 23;
     }
 
     /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */

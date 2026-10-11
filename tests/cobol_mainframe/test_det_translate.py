@@ -369,7 +369,7 @@ class _KeyCics(_RbaCics):
         "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
-        "INQUIRE PROGRAM('P') STATUS(REC)",
+        "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
     ],
 )
 def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
@@ -1306,13 +1306,34 @@ def test_inquire_urimap_browse_and_write_operator():
     assert e[0].endswith("= task.inquireUrimapEnd();")
     w = c.command("WRITE OPERATOR TEXT(REC) NOHANDLE", "")
     assert w[0].startswith("int wto") and ".writeOperator(Cobol.text(" in w[0]
-    for bad, why in (("INQUIRE URIMAP(REC) PATH(REC)", "only the browse is modelled"),
-                     ("INQUIRE URIMAP(REC) NEXT START", "only the browse is modelled"),
+    for bad, why in (("INQUIRE URIMAP(REC) NEXT START", "more than one of START, NEXT and END"),
                      ("INQUIRE URIMAP START PATH(REC)", "returns no definition"),
                      ("INQUIRE URIMAP(REC) HOST(REC) NEXT", "only the URIMAP's name, PATH and TRANSACTION"),
                      ("WRITE OPERATOR", "without TEXT"),
                      ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_inquire_urimap_direct_form_and_inquire_program_status():
+    """#4768 zECS (register X34). IBM INQUIRE URIMAP, the direct form: URIMAP(name) with no browse option reads that
+    definition among the stated installed ones (CicsTask.inquireUrimap), PATH / TRANSACTION written only on NORMAL,
+    NOTFND RESP2 3 through RESP / HANDLE CONDITION. IBM INQUIRE PROGRAM STATUS: the definition's CVDA (CicsTask.programStatus),
+    written only on NORMAL."""
+    c = _ChanCics()
+    d = c.command("INQUIRE URIMAP(REC) PATH(REC) TRANSACTION(KEY) NOHANDLE", "")
+    assert d[0].startswith("int[] urimap") and ".inquireUrimap(" in d[0] and d[1].endswith("[0] == 0) {")
+    assert sum("DetCics.putText(" in x for x in d) == 2 and "task.urimapPath()" in " ".join(d)
+    assert "task.urimapName()" not in " ".join(d)  # (the direct form's URIMAP is the name it reads)
+    assert any("OUTCOME(urimap" in x for x in d)
+    p = c.command("INQUIRE PROGRAM('P') STATUS(REC) RESP(R) NOHANDLE", "")
+    assert p[0].startswith("int resp") and ".inquireProgram(" in p[0]
+    assert any(".programStatus(" in x and "if (resp" in x for x in p)
+    assert any("OUTCOME(resp" in x for x in p)
+    for bad, why in (("INQUIRE URIMAP PATH(REC)", "without URIMAP, START, NEXT or END"),
+                     ("INQUIRE URIMAP NOHANDLE", "without URIMAP, START, NEXT or END"),
+                     ("INQUIRE URIMAP(REC) HOST(REC)", "only the URIMAP's name, PATH and TRANSACTION")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 
@@ -1653,6 +1674,154 @@ def test_a_relation_split_across_lines_or_with_zero_in_arithmetic_parses(cond):
     assert [s.kind for s in stmts if s.kind != "IF"] == ["DISPLAY", "DISPLAY", "GOBACK"]
     # the break moved with the NOT, not the statements: AFTER keeps its own line (head is 7 lines, then cond)
     assert stmts[-2].line == 7 + len(cond) + 3
+
+
+# #4682: NOT and its relational operator split by line breaks anywhere, before every operator form: the program
+# translates (the break is whitespace) and the relation is the right one, however many lines the operator takes
+_NOT_OPS = [
+    (["<"], "<"), ([">"], ">"), (["="], "="), (["<="], "<="), ([">="], ">="),
+    (["LESS", "THAN"], "<"), (["GREATER", "THAN"], ">"), (["EQUAL", "TO"], "="), (["EQUAL"], "="),
+    (["LESS", "THAN", "OR", "EQUAL", "TO"], "<="), (["LESS", "OR", "EQUAL"], "<="),
+    (["GREATER", "THAN", "OR", "EQUAL", "TO"], ">="), (["GREATER", "OR", "EQUAL"], ">="),
+    (["IS", "LESS", "THAN"], "<"), (["IS", "EQUAL", "TO"], "="), (["IS", "GREATER", "THAN", "OR", "EQUAL"], ">="),
+]  # fmt: skip
+
+
+def _breaks(words: list[str], head: str) -> list[list[str]]:
+    """The condition `head NOT <words> 3` with a line break after every word boundary at once, and at each one alone
+    (no break at all is the control)."""
+    full = [head, "NOT", *words, "3"]
+    shapes = [[" ".join(full)], [*full[:-1], full[-1]]]
+    shapes += [[" ".join(full[:k]), " ".join(full[k:])] for k in range(1, len(full))]
+    return shapes
+
+
+def _expect_negated(cond, op: str) -> bool:
+    """`A NOT op B` is the relation's opposite (or its Not): evaluate the AST's shape, not Java."""
+    inverse = {"<": ">=", ">": "<=", "=": "<>", "<=": ">", ">=": "<"}
+    rel = cond.cond if type(cond).__name__ == "Not" else cond
+    return type(rel).__name__ == "Rel" and (
+        (type(cond).__name__ == "Not" and rel.op == op) or (type(cond).__name__ == "Rel" and rel.op == inverse[op])
+    )
+
+
+@pytest.mark.parametrize(("words", "op"), _NOT_OPS, ids=[" ".join(w) for w, _ in _NOT_OPS])
+def test_not_and_its_operator_split_at_any_word_boundary_translate(words, op):
+    pytest.importorskip("tree_sitter_language_pack")
+    for shape in _breaks(words, "D0"):
+        proc = _proc([f"    IF {shape[0]}", *[f"        {x}" for x in shape[1:]], "        DISPLAY 'Y'", "    END-IF.",
+                      "    GOBACK."])  # fmt: skip
+        stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+        cond = stmts[0].data["cond"]
+        assert stmts[0].kind == "IF" and not (isinstance(cond, tuple) and cond[0] == "UNPARSED"), (shape, cond)
+        assert [s.kind for s in stmts] == ["IF", "DISPLAY", "GOBACK"], shape
+        assert _expect_negated(cond, op), (shape, cond)
+        assert stmts[-1].line == 7 + len(shape) + 3, shape  # the break moved, the statements kept their lines
+
+
+@pytest.mark.parametrize(
+    "pred", ["NUMERIC", "ALPHABETIC", "ALPHABETIC-LOWER", "ALPHABETIC-UPPER", "POSITIVE", "NEGATIVE", "ZERO"]
+)
+def test_not_at_a_line_end_before_a_class_or_sign_condition_translates(pred):
+    pytest.importorskip("tree_sitter_language_pack")
+    for cond in (["D0 NOT", pred], ["D0 IS NOT", pred], ["D0 IS", f"NOT {pred}"], ["D0", "NOT", pred]):
+        proc = _proc(
+            [
+                f"    IF {cond[0]}",
+                *[f"        {x}" for x in cond[1:]],
+                "        DISPLAY 'Y'",
+                "    END-IF.",
+                "    GOBACK.",
+            ]
+        )
+        stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+        c = stmts[0].data["cond"]
+        assert not (isinstance(c, tuple) and c[0] == "UNPARSED"), (cond, c)
+        assert [s.kind for s in stmts] == ["IF", "DISPLAY", "GOBACK"], cond
+
+
+@pytest.mark.parametrize(
+    "lead",
+    [["D0 > 1 AND NOT"], ["D0 > 1 OR NOT"], ["D0 > 1 AND", "NOT"], ["D0 NOT = 1 AND NOT"]],
+)
+@pytest.mark.parametrize(
+    "rest", [["< 5"], ["EQUAL TO 5"], ["GREATER", "THAN 5"], ["<=", "5"], ["LESS THAN OR", "EQUAL 5"], ["5"]]
+)
+def test_an_abbreviated_combined_condition_with_not_before_a_line_break_translates(lead, rest):
+    pytest.importorskip("tree_sitter_language_pack")
+    cond = [*lead, *rest]
+    if cond[-1].endswith("5") and rest == ["5"] and not lead[0].endswith("= 1 AND NOT"):
+        return  # `AND NOT 5` has no relation to abbreviate
+    proc = _proc(
+        [f"    IF {cond[0]}", *[f"        {x}" for x in cond[1:]], "        DISPLAY 'Y'", "    END-IF.", "    GOBACK."]
+    )
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    c = stmts[0].data["cond"]
+    assert not (isinstance(c, tuple) and c[0] == "UNPARSED"), (cond, c)
+    assert [s.kind for s in stmts] == ["IF", "DISPLAY", "GOBACK"], cond
+
+
+@pytest.mark.parametrize(
+    "head",
+    [
+        ["    EVALUATE TRUE", "        WHEN D0 NOT", "            < 3", "            DISPLAY 'Y'", "    END-EVALUATE."],
+        [
+            "    EVALUATE TRUE",
+            "        WHEN D0 NOT",
+            "            GREATER",
+            "            THAN 3",
+            "            DISPLAY 'Y'",
+            "    END-EVALUATE.",
+        ],
+        [
+            "    EVALUATE TRUE",
+            "        WHEN D0 NOT",
+            "            <= 3",
+            "            DISPLAY 'Y'",
+            "    END-EVALUATE.",
+        ],
+        [
+            "    EVALUATE TRUE",
+            "        WHEN D0 > 1 AND NOT",
+            "            EQUAL TO 3",
+            "            DISPLAY 'Y'",
+            "    END-EVALUATE.",
+        ],
+        ["    PERFORM UNTIL D0 NOT", "        < 3", "        ADD 1 TO D0", "    END-PERFORM."],
+        ["    PERFORM UNTIL D0 NOT", "        LESS THAN OR EQUAL TO 3", "        ADD 1 TO D0", "    END-PERFORM."],
+        ["    PERFORM UNTIL D0 > 1 OR NOT", "        EQUAL TO 3", "        ADD 1 TO D0", "    END-PERFORM."],
+    ],
+)
+def test_not_before_a_line_break_in_an_evaluate_when_or_perform_until_translates(head):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc([*head, "    GOBACK."])
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    assert not any(s.kind == "HOLE" for s in stmts), [(s.kind, s.data) for s in stmts]
+    assert stmts[-1].kind == "GOBACK" and stmts[-1].line == 7 + len(head) + 1
+
+
+@pytest.mark.parametrize(
+    "cond",
+    [["D0 > 1 AND", "> 5"], ["D0 > 1 OR", "EQUAL TO 5"], ["D0 > 1 AND", "GREATER", "THAN 5"],
+     ["D0 > 1 AND GREATER THAN OR EQUAL TO 5"], ["D0 > 1 AND", "LESS OR", "EQUAL 5"]],
+)  # fmt: skip
+def test_an_omitted_subject_relation_after_an_and_or_or_translates_across_lines(cond):
+    pytest.importorskip("tree_sitter_language_pack")
+    proc = _proc(
+        [f"    IF {cond[0]}", *[f"        {x}" for x in cond[1:]], "        DISPLAY 'Y'", "    END-IF.", "    GOBACK."]
+    )
+    stmts = [s for p in proc.paragraphs for s in S.walk(p.body)]
+    c = stmts[0].data["cond"]
+    assert not (isinstance(c, tuple) and c[0] == "UNPARSED"), (cond, c)
+    assert [s.kind for s in stmts] == ["IF", "DISPLAY", "GOBACK"], cond
+
+
+def test_a_not_inside_a_literal_is_not_rewritten():
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    text = "           IF A = 'X NOT <= Y' AND D0 NOT\n               <= 3\n"
+    out = ST._join_not_breaks(text)
+    assert "'X NOT <= Y'" in out and out.count("\n") == text.count("\n") and "D0 >" in out
 
 
 def test_a_when_with_zero_in_arithmetic_is_a_condition():

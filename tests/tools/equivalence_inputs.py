@@ -154,6 +154,20 @@ def field_value(rng: random.Random, f: dict[str, Any], row: int, alphabet: str =
     return _numeric_value(rng, signed, digits, scale, row)
 
 
+def _cp037(ch: str) -> bytes:
+    try:
+        return ch.encode("cp037")
+    except UnicodeEncodeError:
+        return b"\x6f"  # '?'
+
+
+def ibm_key_order(key: bytes, data_encoding: str) -> tuple[bytes, bytes]:
+    """#4876: the sort key of a record key held in `data_encoding`: its characters in code page 037 (z/OS's order, the
+    letters before the digits); a character cp037 lacks is its '?', the bytes themselves break such a tie."""
+    text = key.decode(data_encoding, errors="surrogateescape")  # lossless: a byte the page lacks stays a surrogate
+    return b"".join(_cp037(ch) for ch in text), key
+
+
 def generate_dataset(
     name: str,
     spec: dict[str, Any],
@@ -222,7 +236,10 @@ def generate_dataset(
         for fname, v in chosen.items():
             values[f"{name}.{fname}"].append(v)
     if key is not None and spec.get("organization") == "indexed":
-        rows.sort(key=lambda r: r[key["offset"] : key["offset"] + key["length"]])
+        # #4876: loaded in IBM's key order (cp037 of the key's characters), not the data page's byte order: GnuCOBOL's BDB
+        # keeps a non-unique alternate key's duplicates in the order they are loaded (and orders its primary key by
+        # bytes whatever the collating sequence), VSAM returns them in prime-key order, EBCDIC's. D1.
+        rows.sort(key=lambda r: ibm_key_order(r[key["offset"] : key["offset"] + key["length"]], data_encoding))
     return b"".join(rows), values
 
 

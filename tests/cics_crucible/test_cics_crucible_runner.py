@@ -85,6 +85,7 @@ def test_the_csd_names_programs_transactions_and_mapsets():
         "terminals": {},
         "uctran": {},
         "urimaps": [],
+        "disabled": set(),
     }
 
 
@@ -121,6 +122,17 @@ def test_the_csd_states_the_installed_urimaps_in_its_order():
     )
     assert csd["urimaps"] == [("ZCONE", "ZC01", "/zone/*"), ("ZCTWO", "", "/ztwo")]
     assert cc.parse_csd("DEFINE PROGRAM(P) GROUP(G)\n")["urimaps"] == []
+
+
+def test_a_disabled_program_definition_refuses_the_case_by_name(tmp_path):
+    """#4768 zECS (register X34): INQUIRE PROGRAM STATUS answers ENABLED, the DEFINE PROGRAM default, for every program the
+    region defines; a case CSD that defines one STATUS(DISABLED) is not modelled, so every cell is refused by name."""
+    csd = cc.parse_csd("DEFINE PROGRAM(P) GROUP(G) STATUS(DISABLED)\nDEFINE PROGRAM(Q) GROUP(G) STATUS(ENABLED)\n")
+    assert csd["disabled"] == {"P"} and csd["programs"] == {"P", "Q"}
+    case = cc.Case(dir=tmp_path, data={"id": "c1", "trap": "t", "scenarios": [{"id": "s1"}]}, expected={}, csd=csd)
+    cells = runner.measure_case(case, {"cobol-stub", "java"}, tmp_path / "w", offline=True)
+    assert sorted(c["side"] for c in cells.values()) == ["cobol-stub", "java"]
+    assert all(c["status"] == "unsupported" and "STATUS(DISABLED)" in c["reason"] for c in cells.values())
 
 
 def test_a_cases_stated_origin_is_the_stubs_origin_env():

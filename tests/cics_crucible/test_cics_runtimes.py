@@ -2162,6 +2162,95 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
         "0 0", "[DFHx plain, zECS start ZXAA]"]  # fmt: skip
 
 
+_X34_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCURIB(gg_cics *c);
+int GGCURIP(gg_cics *c, char *area, int len);
+int GGCINQP(gg_cics *c);
+static gg_cics c;
+static void put(char *dst, int n, const char *what) {
+    memset(dst, ' ', n);
+    memcpy(dst, what, strlen(what));
+}
+int main(int argc, char **argv) {
+    char path[255], tran[4];
+    for (int i = 1; i + 1 < argc; i += 2) {
+        put(c.name1, 8, argv[i + 1]);
+        c.num = -1;
+        if (strcmp(argv[i], "prog") == 0) {
+            GGCINQP(&c);
+            printf("prog %s %d/%d num=%d\n", argv[i + 1], c.resp, c.resp2, c.num);
+            continue;
+        }
+        put(c.flags, 40, "DIRECT");
+        GGCURIB(&c);
+        printf("uri %s %d/%d", argv[i + 1], c.resp, c.resp2);
+        if (c.resp == 0) {
+            put(c.flags, 40, "PATH"); GGCURIP(&c, path, 255);
+            put(c.flags, 40, "TRANSACTION"); GGCURIP(&c, tran, 4);
+            printf(" [%.10s] [%.4s]", path, tran);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_inquire_urimap_direct_and_program_status(tmp_path):
+    """#4768 zECS (register X34), IBM INQUIRE URIMAP (the direct form): URIMAP(name) reads that stated definition (PATH,
+    TRANSACTION as a browse NEXT's), NOTFND RESP2 3 "The URIMAP cannot be found" otherwise, and it does not disturb an
+    open browse; INQUIRE PROGRAM STATUS: ENABLED (CVDA 23) for a defined program, nothing for PGMIDERR."""
+    exe = _stub(tmp_path, _X34_MAIN)
+    (tmp_path / "urimaps.cfg").write_text("ZCEXAMPL ZC01 /zecs/*\nZCPLAIN - /plain\n", encoding="ascii")
+    (tmp_path / "programs.cfg").write_text("ZECS001\n", encoding="ascii")
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+           "GGCICS_URIMAPS": str(tmp_path / "urimaps.cfg")}  # fmt: skip
+    (tmp_path / "out").mkdir()
+    out = subprocess.run([str(exe), "uri", "ZCPLAIN", "uri", "ZCEXAMPL", "uri", "ZCNONE", "uri", "zcplain",
+                          "prog", "ZECS001", "prog", "ZCETTL"], env=env, capture_output=True, text=True,
+                         check=True).stdout.splitlines()  # noqa: S603  # fmt: skip
+    assert out == ["uri ZCPLAIN 0/0 [/plain    ] [    ]", "uri ZCEXAMPL 0/0 [/zecs/*   ] [ZC01]", "uri ZCNONE 13/3",
+                   "uri zcplain 13/3", "prog ZECS001 0/0 num=23", "prog ZCETTL 27/0 num=-1"]  # fmt: skip
+    unstated = subprocess.run([str(exe), "uri", "ZCPLAIN"], env={k: v for k, v in env.items() if k != "GGCICS_URIMAPS"},
+                              capture_output=True, text=True, check=False)  # noqa: S603  # fmt: skip
+    assert unstated.returncode == 98 and "URIMAP definitions are not stated" in unstated.stdout
+
+
+@needs_javac
+def test_cics_task_inquire_urimap_direct_and_program_status_as_the_stub_does(tmp_path):
+    """#4768 zECS (X34): CicsTask answers as the stub does (above): the named definition or NOTFND RESP2 3 (names compared
+    as given, blank-trimmed), a browse left where it was; STATUS ENABLED (23); unstated definitions refused."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC41", "ENTER", null, null).withUrimaps(java.util.List.of(
+                new String[] {"ZCEXAMPL", "ZC01", "/zecs/*"}, new String[] {"ZCPLAIN", "", "/plain"}));
+        for (String n : new String[] {"ZCPLAIN ", "ZCEXAMPL", "ZCNONE", "zcplain"}) {
+            int[] r = t.inquireUrimap(n);
+            System.out.println(java.util.Arrays.toString(r) + (r[0] == 0 ? "[" + t.urimapPath().strip() + "|"
+                    + t.urimapPath().length() + "][" + t.urimapTransaction() + "]" : ""));
+        }
+        t.inquireUrimapStart();
+        t.inquireUrimap("ZCPLAIN");
+        t.inquireUrimapNext();
+        System.out.println(t.urimapName() + " " + t.programStatus("ZECS001"));
+        try {
+            new CicsTask("HC41", "ENTER", null, null).inquireUrimap("ZCPLAIN");
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }""",
+    )
+    assert out.splitlines() == [
+        "[0, 0][/plain|255][    ]", "[0, 0][/zecs/*|255][ZC01]", "[13, 3]", "[13, 3]", "ZCEXAMPL 23",
+        "the installed URIMAP definitions are not stated (withUrimaps): not modelled"]  # fmt: skip
+
+
 _X33_MAIN = r"""
 #include <stdio.h>
 #include <string.h>

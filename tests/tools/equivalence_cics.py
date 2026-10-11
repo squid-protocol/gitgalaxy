@@ -737,7 +737,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         _check_spec("INQUIRE PROGRAM", opts, (verb,), lambda bad: ["INQUIRE PROGRAM"])
         if not opts["PROGRAM"]:
             raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
-        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + _resp(opts, True, labels)
+        if "STATUS" in opts and not opts["STATUS"]:
+            raise Unsupported(NEEDS_ARGUMENT, ["INQUIRE PROGRAM"])
+        status = (["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['STATUS']}", "END-IF"]
+                  if opts.get("STATUS") else [])  # #4768 (X34): the definition's CVDA, on NORMAL only  # fmt: skip
+        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + status + _resp(opts, True, labels)
     if verb == "BIF" and "DEEDIT" in opts:  # #4415 slice 1 (X26): FIELD edited in place, in the region's EBCDIC page
         _check_spec("BIF DEEDIT", opts, ("BIF", "DEEDIT"), lambda bad: ["BIF DEEDIT"])
         if not opts.get("FIELD"):
@@ -812,13 +816,19 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb == "INQUIRE" and "URIMAP" in opts:  # #4270 zECS (X32): the browse of the installed URIMAP definitions
         _check_spec("INQUIRE URIMAP", opts, (verb,), lambda bad: [f"INQUIRE URIMAP {o}" for o in bad])
         form = [f for f in ("START", "NEXT", "END") if f in opts]
-        if len(form) != 1:
-            raise Unsupported(_rule("INQUIRE URIMAP", "one_of", "START"), ["INQUIRE URIMAP"])
-        outs = [o for o in ("URIMAP", "PATH", "TRANSACTION") if opts.get(o)]
-        if form[0] != "NEXT" and outs:
-            raise Unsupported(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition",
-                              ["INQUIRE URIMAP"])  # fmt: skip
-        lines = [f"MOVE '{form[0]}' TO GG-FLAGS"] + _call("GGCURIB", [])
+        if len(form) > 1:
+            raise Unsupported(_rule("INQUIRE URIMAP", "at_most_one", "START"), ["INQUIRE URIMAP"])
+        if not form:  # #4768 (X34): the direct form, URIMAP(name) -- NOTFND RESP2 3 when it is not installed
+            if not opts.get("URIMAP"):
+                raise Unsupported(_rule("INQUIRE URIMAP", "required", "URIMAP"), ["INQUIRE URIMAP"])
+            outs = [o for o in ("PATH", "TRANSACTION") if opts.get(o)]
+            lines = [name(opts["URIMAP"], "GG-NAME1"), "MOVE 'DIRECT' TO GG-FLAGS"] + _call("GGCURIB", [])
+        else:
+            outs = [o for o in ("URIMAP", "PATH", "TRANSACTION") if opts.get(o)]
+            if form[0] != "NEXT" and outs:
+                raise Unsupported(f"INQUIRE URIMAP {form[0]} {outs[0]}: a browse {form[0]} returns no definition",
+                                  ["INQUIRE URIMAP"])  # fmt: skip
+            lines = [f"MOVE '{form[0]}' TO GG-FLAGS"] + _call("GGCURIB", [])
         if outs:
             lines.append("IF GG-RESP = 0")
             for o in outs:

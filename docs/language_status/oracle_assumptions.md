@@ -134,8 +134,9 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X29 | CICS | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION, DELETEQ TS, RECEIVE MAP TERMINAL: yes (cics-crucible hc-inquire-deleteq, unreleased; INQUIRE ASSOCIATION and RECEIVE MAP TERMINAL also CBSA BNK1CRA / BNK1DCS: cbsa-bnk1cra, cbsa-bnk1dcs, a case's `"origin"`); QUERY COUNTER: no (the reference region has no named counters; unit tests on both runtimes) |
 | X30 | CICS | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-named-counters, unreleased) |
 | X31 | CICS | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | yes (cics-crucible hc-map-not-in-mapset, unreleased) |
-| X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
+| X32 | CICS | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-urimap-browse, unreleased) |
 | X33 | CICS | DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
+| X34 | CICS | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -772,6 +773,16 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   - space sorts before both.
 - **Keys.** Indexed files are browsed in ASCII order on both sides (`equivalence.COLLATION`). CardDemo's keys sort the
   same either way. Keys mixing letters and digits would not.
+- **Duplicates of an alternate key (#4876) -- the first duplicate is IBM's.** GnuCOBOL's BDB returns a non-unique
+  alternate key's duplicates in the order they were written, and orders its primary key by bytes whatever the PROGRAM
+  COLLATING SEQUENCE (measured on cobc 3.1.2: no flag or clause changes it; there is no `-fdefault-colseq`). VSAM returns
+  the pointers of a non-unique alternate key in prime-key order, EBCDIC's, and the det runtime (`DetFiles.Indexed`,
+  `DetCics.Store`) does the same. So the harness writes a generated indexed input in cp037 order of its primary key
+  (`equivalence_inputs.ibm_key_order`): the oracle loads it in that order and its first duplicate is IBM's too. Found by
+  carddemo-intcalc-generated (CBACT04C reads XREFFILE by account; the generated card numbers mix letters and digits), now
+  proven. Not settled on z/OS (#4050): that IBM's pointer order for a base cluster loaded by the program is prime-key
+  order. Still different: a browse (READ NEXT / START) of a primary key mixing letters and digits, which the oracle
+  answers in ASCII; no case browses such a key.
 - **SORT / MERGE under an alphabet (#4268).** `ALPHABET ... IS EBCDIC` orders by code page 037 on z/OS (the default
   CODEPAGE(1140)'s order); GnuCOBOL uses its own ASCII-to-EBCDIC table, which agrees for every 7-bit character but
   `[ ] ^ |` and for no byte above X'7F'. A literal alphabet's THRU ranges and its unnamed characters follow the
@@ -1645,7 +1656,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   crucible runner states the CSD's order; an equivalence case its "urimaps", #4270; a case must not depend on it). (2) The padding of a value shorter than its length:
   blanks (ASSUMED, as every character value CICS returns), at most the program's area (an area longer than IBM's length keeps
   its tail, which is how a PIC X(256) takes the 255-character PATH). (3) The data areas on END, ILLOGIC or any other condition:
-  left alone (ASSUMED; they are written on NORMAL only). **Refused by name**: the direct form INQUIRE URIMAP(name) (the translator),
+  left alone (ASSUMED; they are written on NORMAL only). **Refused by name**: (the direct form INQUIRE URIMAP(name) was, until #4768: now X34),
   every attribute but URIMAP / PATH / TRANSACTION (HOST, SCHEME, USAGE ...), an output area with START or END, a NEXT or END with
   no browse started (the ILLOGIC RESP2 is not stated: both runtimes stop the run), and definitions the run does not state.
 - **WRITE OPERATOR** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-write-operator). TEXT "a data value containing the text
@@ -1698,6 +1709,31 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (tests/cics_crucible/test_cics_runtimes.py: both answer alike); the translators' refusals are tested in
   tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. All ten DOCUMENT statements of zECS's
   ZECS000 / ZECS001 / ZECS003 translate (no DOCUMENT hole is left in the det survey); those programs stay held by WEB.
+
+### X34. INQUIRE URIMAP(name), the direct form, and INQUIRE PROGRAM STATUS — ASSUMED, REFUSED where IBM is silent (#4768, zECS)
+- **INQUIRE URIMAP, the direct form** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-urimap). The command
+  names a definition, "URIMAP(data-value) specifies the name (1 - 8 characters) of the URIMAP definition about which you are
+  inquiring", unless a browse option is given. Conditions: NOTFND RESP2 3 "The URIMAP cannot be found"; NOTAUTH RESP2 100 (no
+  security in the region). PATH and TRANSACTION as for the browse (X32). Modelled (`CicsTask.inquireUrimap`, the stub's
+  `GGCURIB` with GG-FLAGS `DIRECT`): the definition among the installed URIMAPs the run states (the case's "urimaps" / the case
+  CSD's DEFINE URIMAPs, `CicsTask.withUrimaps` / `$GGCICS_URIMAPS`), the name compared as written, blanks trimmed; PATH and
+  TRANSACTION padded and left alone on any condition as X32 states.
+- **What IBM leaves open, and what we do.** (1) Whether a direct INQUIRE moves an open browse: IBM's browse pages describe the
+  browse cursor only; we leave it where it was (ASSUMED: the direct form is not a browse step). (2) TRANSACTION for a definition
+  with none (a CLIENT URIMAP): blanks, as X32's browse (ASSUMED). (3) The definitions themselves: stated, never guessed; unstated,
+  both runtimes stop the run (REFUSED, as X32).
+- **INQUIRE PROGRAM STATUS** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-program). STATUS "Returns a CVDA
+  value indicating whether the program is available for use": ENABLED or DISABLED. The definition's STATUS attribute (DEFINE
+  PROGRAM, https://www.ibm.com/docs/en/cics-ts/6.x?topic=resources-program-attributes) is ENABLED by default. Modelled
+  (`CicsTask.programStatus`, the stub's `GGCINQP` leaving the CVDA in GG-NUM): ENABLED (23) for every program the region
+  defines, written on NORMAL only (PGMIDERR, and a condition a fault plan injects, leave the area alone). No harness states a
+  DISABLED definition: the cics-crucible runner refuses a case whose CSD defines a program STATUS(DISABLED) (every cell
+  unsupported, by name), since a disabled program would also change LINK / XCTL, which nothing models. Every other INQUIRE
+  PROGRAM attribute (CEDFSTATUS, LANGUAGE, ...) stays refused by name.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on `CicsTask` and the stub C
+  (tests/cics_crucible/test_cics_runtimes.py); both translators (tests/cobol_mainframe/test_det_translate.py,
+  test_equivalence_cics.py). zECS: the INQUIRE URIMAP holes of ECS001, ZECS000 and ZECS003 and ZECS001's INQUIRE PROGRAM STATUS
+  translate; no program is whole from this alone (WEB, #4767).
 
 ## Language Environment
 

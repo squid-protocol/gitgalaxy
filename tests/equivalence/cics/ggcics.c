@@ -1293,6 +1293,8 @@ int GGCINQP(gg_cics *c) {
         c->resp = fresp;
         c->resp2 = fresp2;
     }
+    /* #4768 (X34): STATUS, the definition's CVDA -- ENABLED (23), the DEFINE PROGRAM default; no run states a DISABLED one */
+    if (c->resp == NORMAL) c->num = 23;
     return 0;
 }
 
@@ -2790,7 +2792,8 @@ int GGCXCNT(gg_cics *c) {
  * $GGCICS_URIMAPS names, one `NAME TRANSACTION PATH` per line ('-' for no transaction); unstated, refused. GG-FLAGS names
  * the browse step: START (ILLOGIC RESP2 1 when one is already in progress), NEXT (END RESP2 2 past the last; the
  * definition it returns is read by GGCURIP) or END. NEXT / END with no browse started are refused: IBM gives that ILLOGIC
- * no RESP2 of its own. */
+ * no RESP2 of its own. #4768 (X34): DIRECT, the direct form INQUIRE URIMAP(name): the definition GG-NAME1 names, read by
+ * GGCURIP as NEXT's; NOTFND RESP2 3 when it is not installed. */
 static int urimap_at = -1; /* -1: no browse; else the next definition's index */
 static char urimap_now[3][300];
 
@@ -2822,6 +2825,16 @@ int GGCURIB(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     urimap_get(-1, NULL); /* (refuses when the definitions are not stated) */
+    if (strcmp(want, "DIRECT") == 0) { /* #4768 (X34): URIMAP(name1), NOTFND RESP2 3 when it is not installed */
+        char name[9], fields[3][300];
+        trim(c->name1, 8, name);
+        for (int i = 0; urimap_get(i, fields); i++) {
+            if (strcmp(fields[0], name) == 0) { memcpy(urimap_now, fields, sizeof urimap_now); return 0; }
+        }
+        c->resp = NOTFND;
+        c->resp2 = 3;
+        return 0;
+    }
     if (strcmp(want, "START") == 0) {
         if (urimap_at >= 0) { c->resp = DFHRESP_ILLOGIC; c->resp2 = 1; return 0; }
         urimap_at = 0;

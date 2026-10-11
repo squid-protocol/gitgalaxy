@@ -1063,8 +1063,8 @@ def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
         and "        BY VALUE LENGTH OF WS-P" in n
         and "        BY REFERENCE WS-M" in n
     )
-    with pytest.raises(ec.Unsupported, match="only the browse is modelled"):
-        ec.translate_command("INQUIRE URIMAP(WS-M) PATH(WS-P)")
+    with pytest.raises(ec.Unsupported, match="more than one of START, NEXT and END"):
+        ec.translate_command("INQUIRE URIMAP(WS-M) PATH(WS-P) NEXT END")
     with pytest.raises(ec.Unsupported, match="returns no definition"):
         ec.translate_command("INQUIRE URIMAP END PATH(WS-P)")
     with pytest.raises(ec.Unsupported, match="only the URIMAP's name"):
@@ -1077,6 +1077,24 @@ def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
         ec.translate_command("WRITE OPERATOR TEXT('HELLO')")
     with pytest.raises(ec.Unsupported, match="only the plain message"):
         ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) CRITICAL")
+
+
+def test_inquire_urimap_direct_and_program_status_become_stub_calls():
+    """#4768 zECS (register X34): INQUIRE URIMAP(name) with no browse option -> the name in GG-NAME1, GGCURIB with GG-FLAGS
+    'DIRECT' (NOTFND RESP2 3), then one GGCURIP per output option on NORMAL; INQUIRE PROGRAM STATUS -> GGCINQP, the CVDA
+    it leaves in GG-NUM moved to the area on NORMAL."""
+    d = ec.translate_command("INQUIRE URIMAP(WS-M) PATH(WS-P) NOHANDLE")
+    assert d[:3] == ["MOVE WS-M TO GG-NAME1", "MOVE 'DIRECT' TO GG-FLAGS", "CALL 'GGCURIB' USING GG-CICS"]
+    assert d[3] == "IF GG-RESP = 0" and "    MOVE 'PATH' TO GG-FLAGS" in d and "        BY REFERENCE WS-P" in d
+    assert "        BY REFERENCE WS-M" not in d  # (the direct form's URIMAP is the name it reads)
+    with pytest.raises(ec.Unsupported, match="without URIMAP, START, NEXT or END"):
+        ec.translate_command("INQUIRE URIMAP PATH(WS-P)")
+    p = ec.translate_command("INQUIRE PROGRAM(WS-PG) STATUS(WS-ST) RESP(WS-R) NOHANDLE")
+    assert p[:2] == ["MOVE WS-PG TO GG-NAME1", "CALL 'GGCINQP' USING GG-CICS"]
+    assert p[2:5] == ["IF GG-RESP = 0", "    MOVE GG-NUM TO WS-ST", "END-IF"]
+    assert "MOVE GG-RESP TO WS-R" in p
+    plain = ec.translate_command("INQUIRE PROGRAM(WS-PG) NOHANDLE")
+    assert plain[:3] == ["MOVE WS-PG TO GG-NAME1", "CALL 'GGCINQP' USING GG-CICS", "MOVE GG-RESP TO EIBRESP"]
 
 
 def test_document_create_and_retrieve_become_stub_calls():

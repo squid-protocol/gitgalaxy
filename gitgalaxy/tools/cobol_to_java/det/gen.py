@@ -2257,7 +2257,7 @@ class Gen:
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
-            cur = f"Cobol.num({f}, CS)"
+            cur = f"Cobol.receiverNum({f}, CS)"  # #4692: a receiver holding a non-digit is refused (register C11)
             val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
                    "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
             if checked:

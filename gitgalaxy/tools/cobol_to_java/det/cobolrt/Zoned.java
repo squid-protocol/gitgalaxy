@@ -127,6 +127,11 @@ final class Zoned {
                 + "(IBM documents no result, register C11)");
     }
 
+    /** The refusal of a non-digit in the receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE (#4692). */
+    static UnsupportedOperationException refuseReceiver() {
+        return refuse("arithmetic whose receiver is");
+    }
+
     private static BigDecimal scaled(BigInteger v, boolean neg, int scale) {
         return new BigDecimal(neg ? v.negate() : v, scale);
     }

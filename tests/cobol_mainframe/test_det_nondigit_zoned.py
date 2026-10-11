@@ -102,7 +102,7 @@ def _program(kind: str) -> str:
     lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
              "       WORKING-STORAGE SECTION."]  # fmt: skip
     lines += [f"       {x}" for x in data] + ["       PROCEDURE DIVISION."] + [f"           {x}" for x in proc]
-    return "\n".join(lines + ["           GOBACK.", ""])
+    return "\n".join([*lines, "           GOBACK.", ""])
 
 
 def _esc(text: str) -> list[str]:
@@ -167,7 +167,127 @@ def test_what_is_not_measured_is_refused_by_name(tmp_path):
     assert run.returncode != 0 and "register C11" in run.stderr and "is not modelled" in run.stderr, run.stderr
 
 
-if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt from cobc
+# ---------------------------------------------------------------------------------------------------------------
+# #4692: the RECEIVER holds the non-digit. ADD / SUBTRACT / MULTIPLY / DIVIDE read their receiver before they store.
+# Measured: cobc 3.1.2 (`cob_add_int`, `cob_add`) reads such a receiver through cob_decimal_set_display, as an operand
+# (not in place, as the issue assumed), so the det runtime's old read agreed with it. IBM documents no result for it
+# (ZONEDATA(PFD), the default, assumes valid zone bits; PI57769 says only that under NOPFD|MIG an ADD corrects invalid
+# zone bits), so the port REFUSES by name (Cobol.receiverNum, register C11); a receiver that is only overwritten
+# (MOVE, GIVING) or that reads as an operand (COMPUTE y = y + 1, C11's operand rule) is unchanged.
+# ---------------------------------------------------------------------------------------------------------------
+RECEIVER_EXPECTED = Path(__file__).with_name("nondigit_zoned_receiver_expected.txt")
+RCASES = {
+    "U": [b"    ", b"12A4", b"1 34", b"\0\0\0\0", b"12\xff4", b"1234", b"0099"],
+    "T": [b"    ", b"12A4", b"123 ", b"123}", b"1234", b"\0\0\0\0", b"123!", b"123J"],
+    "L": [b"    ", b" 123", b"{123", b"1234", b"}123", b"!123"],
+    "TS": [b"12A4+", b"12 4-", b"1234 ", b"1234+", b"1234-", b"    +"],
+    "LS": [b"+12A4", b"-12 4", b" 1234", b"+1234", b"-1234", b"+    "],
+}  # fmt: skip
+# operations that read the receiver (refused when it holds a non-digit) and ones that do not (measured, proven)
+READS = ["ADD 1 TO V", "SUBTRACT 1 FROM V", "ADD 1 TO V ROUNDED", "ADD W TO V", "MULTIPLY 2 BY V", "DIVIDE 2 INTO V"]
+KEEPS = ["MOVE 7 TO V", "ADD 1 TO V GIVING OT", "COMPUTE V = V + 1", "COMPUTE V = W + 1"]
+
+
+def _dirty(kind: str, b: bytes) -> bool:
+    """Whether the bytes hold a non-digit in a digit position or a sign byte that is no sign (`{` `A`-`I` `}` `J`-`R`
+    or a digit; a separate sign is + or -)."""
+    t = b.decode("latin-1")
+    if kind in ("TS", "LS"):
+        sign, t = (t[-1], t[:-1]) if kind == "TS" else (t[0], t[1:])
+        return sign not in "+-" or not t.isdigit()
+    if kind == "T":
+        sign, t = t[-1], t[:-1]
+    elif kind == "L":
+        sign, t = t[0], t[1:]
+    else:
+        sign = "0"
+    return not (t.isdigit() and (sign.isdigit() or sign in "{}ABCDEFGHIJKLMNOPQR"))
+
+
+def _rprogram(kind: str, ops: list[str], cases: list[bytes]) -> str:
+    pic, ln = KINDS[kind]
+    lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+             "       WORKING-STORAGE SECTION.", f"       01 R PIC X({ln}).", f"       01 V REDEFINES R {pic}.",
+             "       01 OT PIC 9(5).", "       01 W PIC 9(9) VALUE 3.", "       PROCEDURE DIVISION."]  # fmt: skip
+    for n, b in enumerate(cases, 1):
+        for i, op in enumerate(ops):
+            lines += [f"           MOVE X'{b.hex().upper()}' TO R", "           MOVE 0 TO OT", f"           {op}",
+                      "           INSPECT R CONVERTING X'FF' TO '#'", f"           DISPLAY '{kind}{n}.{i} ' R ' ' OT"]  # fmt: skip
+    return "\n".join([*lines, "           GOBACK.", ""])
+
+
+def _rcases(kind: str, dirty: bool) -> list[bytes]:
+    return [b for b in RCASES[kind] if _dirty(kind, b) == dirty]
+
+
+def _rexpected() -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    key = ""
+    for line in RECEIVER_EXPECTED.read_text().split("\n"):
+        if line.startswith("== "):
+            key = line[3:]
+            out[key] = []
+        elif key and line != "== end":
+            out[key].append(line)
+    return out
+
+
+def _rcobc(kind: str, trunc: str, work: Path) -> str:
+    # digit-only receivers run every operation, a non-digit one only those that do not read it
+    src = _rprogram(kind, READS, _rcases(kind, False)).replace("           GOBACK.\n", "")
+    keep = _rprogram(kind, KEEPS, _rcases(kind, True) + _rcases(kind, False))
+    keep = keep.split("PROCEDURE DIVISION.\n", 1)[1]
+    (work / "ndb.cbl").write_text(src + keep)
+    run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c",  # noqa: S607
+                          f"cobc -x -std=ibm -fsign=EBCDIC {FLAGS[trunc]} ndb.cbl -o ndb 2>&1 && ./ndb"],
+                         capture_output=True, check=False)  # fmt: skip
+    text = run.stdout.decode("latin-1")
+    assert run.returncode == 0, text
+    return text
+
+
+def _rsource(kind: str) -> str:
+    src = _rprogram(kind, READS, _rcases(kind, False)).replace("           GOBACK.\n", "")
+    keep = _rprogram(kind, KEEPS, _rcases(kind, True) + _rcases(kind, False))
+    return src + keep.split("PROCEDURE DIVISION.\n", 1)[1]
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("trunc", ["STD", "BIN"])
+@pytest.mark.parametrize("kind", list(KINDS))
+def test_receiver_digit_only_and_overwritten_is_the_oracles(kind, trunc, tmp_path):
+    """Digit-only receivers of every reading operation, and non-digit receivers of the operations that only overwrite
+    them (MOVE, GIVING) or read them as an operand (COMPUTE), print what cobc printed."""
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_rsource(kind), tmp_path, trunc)
+    assert run.returncode == 0, run.stderr
+    assert _esc(run.stdout) == _rexpected()[f"{kind} {trunc}"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
+                    reason="needs Docker (EQUIVALENCE_E2E=1)")  # fmt: skip
+@pytest.mark.parametrize("trunc", ["STD", "BIN"])
+@pytest.mark.parametrize("kind", list(KINDS))
+def test_the_receiver_expected_lines_are_cobcs(kind, trunc, tmp_path):
+    (tmp_path / "ndb.cbl").write_text(_rsource(kind))
+    assert _esc(_rcobc(kind, trunc, tmp_path)) == _rexpected()[f"{kind} {trunc}"]
+
+
+# a first byte of each shape's dirty receiver that is cheap to run: every reading operation on the unsigned shape,
+# the add on the others
+REFUSED = [("U", op, b"    ") for op in READS] + [(k, "ADD 1 TO V", RCASES[k][1]) for k in KINDS if k != "U"]
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize(("kind", "op", "data"), REFUSED)
+def test_a_non_digit_receiver_is_refused_by_name(kind, op, data, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_rprogram(kind, [op], [data]), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "arithmetic whose receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the receiver file) from cobc
     import tempfile
 
     parts = []
@@ -176,3 +296,9 @@ if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt from cobc
             with tempfile.TemporaryDirectory() as d:
                 parts += [f"== {k} {t}", *_esc(_cobc(k, t, Path(d))), "== end"]
     EXPECTED.write_text("\n".join(parts) + "\n")
+    parts = []
+    for k in KINDS:
+        for t in ("STD", "BIN"):
+            with tempfile.TemporaryDirectory() as d:
+                parts += [f"== {k} {t}", *_esc(_rcobc(k, t, Path(d))), "== end"]
+    RECEIVER_EXPECTED.write_text("\n".join(parts) + "\n")

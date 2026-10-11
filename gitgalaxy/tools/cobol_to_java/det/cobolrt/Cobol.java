@@ -761,6 +761,20 @@ public final class Cobol {
         return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.intOperand(f, cs) : num(f, cs);
     }
 
+    /** The current value of the receiver of `ADD x TO y` / `SUBTRACT x FROM y` / `MULTIPLY x BY y` / `DIVIDE x INTO y`
+     *  (#4692, register C11): the statement reads y before it stores. A zoned y holding a non-digit -- spaces,
+     *  letters, low-values, a sign byte that is no sign -- is refused by name: IBM documents no result (ZONEDATA(PFD),
+     *  the default, assumes valid zone bits; ZONEDATA(NOPFD|MIG) makes an addition correct invalid zone bits, APAR
+     *  PI57769, but no source states what a non-digit digit position adds up to), and GnuCOBOL 3.1.2's answer
+     *  (cob_add_int reads y through cob_decimal_set_display, a space -16, `A` 17) is a guess about z/OS. A digit-only
+     *  y is read as ever. */
+    public static BigDecimal receiverNum(Field f, Charset cs) {
+        if (f.kind == Field.Kind.NUMERIC_DISPLAY && Zoned.get(f, cs).dirty) {
+            throw Zoned.refuseReceiver();
+        }
+        return num(f, cs);
+    }
+
     /** A numeric item's value in a comparison (#4662): a zoned item holding a non-digit as the oracle compares it. */
     public static BigDecimal cmpNum(Field f, Charset cs) {
         return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.compareValue(f, cs) : num(f, cs);

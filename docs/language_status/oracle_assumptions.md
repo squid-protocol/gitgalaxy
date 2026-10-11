@@ -140,6 +140,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
+| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: it still holds CEELOCT, FETCH and RUN CHANNEL holes) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
@@ -1741,6 +1742,29 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   numeric DISPLAY items (date of birth, review date), the same bytes on the Java side.
 - **Assumed** to be spaces (zeros for a numeric DISPLAY item, as GnuCOBOL initialises it). A z/OS run with
   STORAGE(00) would give X'0000' there.
+
+### L4. CEEIGZCT — a GitGalaxy-written stand-in, only where the estate has none
+- **What.** IBM's Language Environment copybook CEEIGZCT is not in any estate and is never shipped. The translator
+  ships `det/copy/CEEIGZCT.cpy`, written from IBM's public documentation, as a system member (like DFHAID): it is
+  used only where the estate holds no CEEIGZCT of its own, and it refuses nothing else.
+- **What it declares.** One condition name, `88 CEE000 VALUE X'0000000000000000'`: the symbolic feedback code for
+  "the service completed successfully", the first 8 bytes of a condition token (severity 0, message 0). CBSA CRECUST
+  copies it under `02 CONDITION-TOKEN-VALUE` of its 8-byte `FC` group and tests `IF NOT CEE000 OF FC` after its
+  CEEDAYS and CEELOCT calls. Every other CEE symbolic code stays undeclared: a program using one is refused by the
+  engine as before (a stand-in is written only where the runtime behind a name is modelled).
+- **Assumed.** That CEE000 is the all-zero token. IBM documents the symbolic codes as the first 8 bytes of the
+  token and CEE000 as severity 0 / message 0; the all-zero value is our reading, and it agrees with the 12 zero bytes
+  our CEEDAYS model writes on success (L1). A COBOL group compared with a longer or shorter token would pad with
+  spaces; CRECUST's `FC` is exactly 8 bytes before its facility ID.
+- **Not modelled.** CEELOCT (CRECUST's second LE call) has no runtime model; a program is not proven while a service
+  it calls is not covered. CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
+  possible overrun in the program itself, not examined here (no case).
+- **IBM references.**
+  - Using symbolic feedback codes: https://www.ibm.com/docs/SSLTBW_2.4.0/com.ibm.zos.v2r4.ceeam00/symfd.htm
+  - Feedback code (the last parameter of every LE callable service):
+    https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea200/clcdt5.htm
+  - Language Environment runtime messages (CEE0000I, symbolic feedback code CEE000):
+    https://www.ibm.com/docs/SSLTBW_3.2.0/com.ibm.zos.v3r2.ceea900/lemes.htm
 
 ## Assembler routines
 

@@ -93,12 +93,21 @@ def parse(lines: list[Line]) -> Procedure:
     execs: dict[int, str] = {}
 
     def ph(mm):
+        if mm.group(
+            "lit"
+        ):  # a literal that merely contains the words EXEC CICS (CBSA CRECUST's DISPLAY): text, not a block
+            return mm.group(0)
         execs[len(execs) + 1] = unwrap(mm.group(0))
         # as many lines as the block: every later statement keeps its own line (a multi-line EXEC SQL / CICS block
         # had shifted them -- the Db2 repositories' methods are found by the statement's line)
         return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
 
-    proc_text = re.sub(r"\bEXEC(?:UTE)?\s+(CICS|SQL|DLI)\b.*?\bEND-EXEC\b", ph, text[m.start() :], flags=re.S | re.I)
+    proc_text = re.sub(
+        r"""(?P<lit>'[^'\n]*'|"[^"\n]*")|\bEXEC(?:UTE)?\s+(?:CICS|SQL|DLI)\b.*?\bEND-EXEC\b""",
+        ph,
+        text[m.start() :],
+        flags=re.S | re.I,
+    )
     # #4462: JSON PARSE / JSON GENERATE / XML PARSE / XML GENERATE and SET pointer TO ENTRY: no statements of the
     # grammar's; a placeholder CALL, translated as a hole by name (_markup; before ENTRY's, which would take SET's
     # `ENTRY 'x'`)

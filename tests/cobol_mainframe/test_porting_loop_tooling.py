@@ -125,8 +125,8 @@ def test_a_call_case_drives_every_using_item_and_records_them_with_the_return_co
 def test_inquire_program_translates_and_can_be_injected():
     assert ec.translate_command("INQUIRE PROGRAM(WS-PGM) NOHANDLE")[:2] == ["MOVE WS-PGM TO GG-NAME1",
                                                                              "CALL 'GGCINQP' USING GG-CICS"]  # fmt: skip
-    with pytest.raises(ec.Unsupported):
-        ec.translate_command("INQUIRE PROGRAM(X) STATUS(WS-S)")
+    with pytest.raises(ec.Unsupported):  # #4768: STATUS is modelled (X34); another attribute is not
+        ec.translate_command("INQUIRE PROGRAM(X) CEDFSTATUS(WS-S)")
     sc = {"name": "s", "faults": [{"cmd": "INQUIRE", "program": "COPAUS0C", "resp": "PGMIDERR"}]}
     assert ec.fault_lines(sc) == ["INQUIRE COPAUS0C 1 27 0"]
 

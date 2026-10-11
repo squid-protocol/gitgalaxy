@@ -74,7 +74,7 @@ def _corpus_languages(corpus: Path) -> list[str]:
     return sorted(p.parent.name for p in data.glob("*/expected_signals.json"))
 
 
-def _run_verifier(corpus: Path, language: str, galaxyscope_bin: str) -> tuple[str, str]:
+def _run_verifier(corpus: Path, language: str, galaxyscope_bin: str, jobs: int = 1) -> tuple[str, str]:
     """Runs keyword-rosetta's verify_language.py once. Returns (status, output tail).
 
     PASS/FAIL come from the verifier's own final line, not from its exit code alone: a crash
@@ -82,7 +82,8 @@ def _run_verifier(corpus: Path, language: str, galaxyscope_bin: str) -> tuple[st
     that as "FAIL" would report an infrastructure problem as corpus drift.
     """
     env = {**os.environ, "GALAXYSCOPE_BIN": galaxyscope_bin, "GITGALAXY_PATH": str(REPO_ROOT)}
-    env.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")  # --jobs verifiers at once: no pool inside each scan (#4902)
+    # `jobs` verifiers at once: each gets an equal share of the cores for its scan pool (#4902)
+    env["GG_JOB_CORES"] = str(max(1, int(os.environ.get("GG_JOB_CORES") or os.cpu_count() or 1) // jobs))
     try:
         result = subprocess.run(
             [sys.executable, str(corpus / "tools" / "verify_language.py"), language],
@@ -209,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"rosetta_audit: {len(languages)} languages, corpus {corpus}, engine {current_bin}")
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        results = list(pool.map(lambda lang: _run_verifier(corpus, lang, current_bin), languages))
+        results = list(pool.map(lambda lang: _run_verifier(corpus, lang, current_bin, args.jobs), languages))
     outcomes = [
         Outcome(lang, status, tail) for lang, (status, tail) in zip(languages, results, strict=False)
     ]  # reason: length may differ
@@ -220,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     if baseline_bin and failed:
         print(f"rosetta_audit: {len(failed)} failed here; re-running those against the baseline build {baseline_bin}")
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            base_results = list(pool.map(lambda o: _run_verifier(corpus, o.language, baseline_bin), failed))
+            base_results = list(pool.map(lambda o: _run_verifier(corpus, o.language, baseline_bin, args.jobs), failed))
         baseline = {}
         for o, (status, _tail) in zip(failed, base_results, strict=False):  # reason: length may differ
             o.baseline_status = status

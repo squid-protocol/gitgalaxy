@@ -80,6 +80,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
                        and ".git" not in p.parts], bms)  # fmt: skip
     dirs.append(bms)
     out: dict[str, Any] = {"case": name, "program": case["program"]}
+    translated: list[Any] = []  # every program translated into this port (the main one first)
     called_holes: list[str] = []  # #4803 (owner): the holes of the programs this one LINKs / CALLs count for it
     port = work / name / "port"
     try:
@@ -89,6 +90,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
+    translated.append(r)
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
     for extra in _extra_programs(case):  # the programs the task LINKs to, and those it CALLs: translated the same way
@@ -106,12 +108,14 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         r.stats["translated"] += x.stats["translated"]
         r.stats["holes"] += x.stats["holes"]
         called_holes += [f"{extra['program']}: {h}" for h in x.stats["holes"]]
+        translated.append(x)
         r.stats["warnings"] = [*r.stats.get("warnings", []), *x.stats.get("warnings", [])]
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
                 "holes": r.stats["holes"]})  # fmt: skip
+    called_holes += unlisted_callees(case, [t.stats for t in translated])
     if called_holes:
         out["called_holes"] = called_holes
     if r.stats.get("warnings"):  # #4486: the SYSLIB collisions taken through the first library's member
@@ -119,6 +123,19 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
                        + [(x["program"], x["program_source"]) for x in _extra_programs(case)]))  # fmt: skip
     return out
+
+
+def unlisted_callees(case: dict[str, Any], stats: list[dict[str, Any]]) -> list[str]:
+    """#4803: the programs the port's programs CALL (the translator's own list, `stats["callees"]`) that the case does
+    not translate into the port and the runtime does not model (det.gen.LIBRARY): the Java side would run the
+    generator's empty `<Name>Service` stub there, so they count as called holes."""
+    from gitgalaxy.tools.cobol_to_java.det.gen import LIBRARY
+
+    have = {case["program"].upper()} | {x["program"].upper() for x in _extra_programs(case)}
+    have |= {str(s.get("program", "")).upper() for s in stats}
+    called = {c.upper() for s in stats for c in s.get("callees", [])}
+    return [f"{n}: not in the case (the Java side would run the generator's empty stub)"
+            for n in sorted(called - have - set(LIBRARY))]  # fmt: skip
 
 
 def _extra_programs(case: dict[str, Any]) -> list[dict[str, str]]:

@@ -1187,6 +1187,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
+    stats["callees"] = sorted(gen.callees)  # #4803: the estate programs this one CALLs through a service's handleCall
     stats["warnings"] = list(engine.warnings) if engine is not None else []  # #4486: SYSLIB collisions taken
     java = "\n".join(out)
     if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)

@@ -75,3 +75,17 @@ def test_extra_programs_are_links_then_calls_without_duplicates_4803():
     case = {"program": "A", "programs": [{"program": "B", "program_source": "b.cbl"}],
             "subprograms": ["x/c.cbl", "x/B.cbl", "x/a.cbl"]}  # fmt: skip
     assert [x["program"] for x in det_port._extra_programs(case)] == ["B", "C"]
+
+
+def test_an_unlisted_callee_is_a_called_hole_4803():
+    """A program the port CALLs that the case neither translates nor the runtime models runs as the generator's empty
+    stub: it is named in called_holes, so the caller is not proven."""
+    import proof_sweep
+
+    case = {"program": "CALLER", "programs": [], "subprograms": ["x/listed.cbl"]}
+    stats = [{"program": "CALLER", "callees": ["LISTED", "MISSING", "COBDATFT", "CEEDAYS"]},
+             {"program": "LISTED", "callees": ["CALLER"]}]  # fmt: skip
+    holes = det_port.unlisted_callees(case, stats)
+    assert len(holes) == 1 and holes[0].startswith("MISSING: not in the case")
+    assert not proof_sweep.port_proved({"proved": True, "called_holes": holes})
+    assert det_port.unlisted_callees(case, stats[:1] + [{"program": "LISTED", "callees": []}]) == holes

@@ -67,7 +67,9 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --upgrade pip
-          pip install -e . pytest pytest-xdist
+          # #4911: the full extra too -- test_feature_inventory_cli_check (feature_inventory.py --all-burned --check) exits 1 in
+          # Zero-Dependency Mode and tells the user to install gitgalaxy[full]
+          pip install -e ".[full]" pytest pytest-xdist
           # #4834: the det translator's parser, so the det tests that need the corpora run here (they are skipped
           # in full-suite, which has no corpora); same pin as smoke-test.yml
           pip install "tree-sitter-language-pack==1.20.0"

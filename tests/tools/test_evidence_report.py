@@ -267,7 +267,10 @@ def stale_fixture(tmp_path, monkeypatch, cov):
     dict: stale on a scheduled input; None: unknown). Live status is the same measurement (no tree needed)."""
     estate = "aws-mainframe-modernization-carddemo"
     old = json.loads((er.OUT / estate / "report.json").read_text("utf-8"))
-    old["measured"]["det_coverage"] = {**old["measured"]["det_coverage"], CASE: cov}
+    # hermetic: the committed report's other cases may themselves be stale (a refresh after a harness change marks
+    # them so); only CASE's staleness is this fixture's to set, so every other measurement is pinned current
+    others = {k: (v["coverage"] if isinstance(v, dict) else v) for k, v in old["measured"]["det_coverage"].items()}
+    old["measured"]["det_coverage"] = {**others, CASE: cov}
     (tmp_path / estate).mkdir(exist_ok=True)
     monkeypatch.setattr(er, "OUT", tmp_path)
     (tmp_path / estate / "report.json").write_text(er.dumps(old), "utf-8")

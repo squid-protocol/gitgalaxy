@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+"""What the box can take right now (box-capacity skill): cores, load, CPU / memory pressure, swap, who holds the heavy and
+golden locks, which worktree burns the CPU, and the containers up -- with one verdict an orchestrator acts on before it
+launches an agent or a heavy run.
+
+    python tests/tools/box/box_status.py            # the table
+    python tests/tools/box/box_status.py --json     # the same, for a script or a night-shift tick
+    python tests/tools/box/box_status.py --sample 3 # seconds of CPU sampling per process (default 1)
+
+Verdict (decide(), pure):
+  RED     launch nothing; ask the newest worker to pause at its next checkpoint if it stays RED
+  YELLOW  light work only: a read-only scout, a narrow test; no proof, sweep, gate or Docker run
+  GREEN   may launch; heavy work only into a FREE heavy-run.sh slot (`free_slots`)
+Thresholds: load1 and CPU pressure (PSI "some" avg60) against the cores; memory available; memory pressure (paging
+now -- swap merely in use is not judged alone, it can be old pages from a spike long gone); free heavy slots.
+Linux only (/proc); elsewhere it says so and exits 0 with verdict UNKNOWN.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+LOCK_DIR = Path(os.environ.get("GG_LOCK_DIR", "/tmp/gitgalaxy-scratch/locks"))  # noqa: S108 (heavy-run.sh's lock dir)
+WORKTREE_MARK = "gitgalaxy-worktrees"  # $PRIMARY/../gitgalaxy-worktrees/<slug> (parallel-pr-agents)
+
+
+def decide(s: dict[str, Any]) -> dict[str, Any]:
+    """snapshot -> {verdict, reasons, free_slots}. s: cores, load1, cpu_psi / mem_psi (PSI "some" avg60, %; None when the
+    kernel has no PSI), mem_avail_gb, mem_total_gb, swap_used_gb (shown, not judged alone), slots, slots_held."""
+    cores = max(int(s["cores"]), 1)
+    reasons: list[str] = []
+    red = yellow = False
+    load_ratio = s["load1"] / cores
+    if load_ratio >= 1.0:
+        red = True
+        reasons.append(f"load1 {s['load1']:.1f} >= {cores} cores")
+    elif load_ratio >= 0.7:
+        yellow = True
+        reasons.append(f"load1 {s['load1']:.1f} >= 70% of {cores} cores")
+    psi = s.get("cpu_psi")
+    if psi is not None:
+        if psi >= 40:
+            red = True
+            reasons.append(f"CPU pressure {psi:.0f}% (tasks waiting for a core)")
+        elif psi >= 15:
+            yellow = True
+            reasons.append(f"CPU pressure {psi:.0f}%")
+    avail, total = s["mem_avail_gb"], max(s["mem_total_gb"], 1e-9)
+    if avail / total < 0.10:
+        red = True
+        reasons.append(f"memory available {avail:.1f} GB < 10%")
+    elif avail / total < 0.20:
+        yellow = True
+        reasons.append(f"memory available {avail:.1f} GB < 20%")
+    # paging NOW is memory pressure (PSI); swap merely in use can be old pages pushed out by a spike long gone
+    mpsi = s.get("mem_psi")
+    if mpsi is not None and mpsi >= 20:
+        red = True
+        reasons.append(f"memory pressure {mpsi:.0f}% (the box is paging; swap {s.get('swap_used_gb', 0):.1f} GB)")
+    elif mpsi is not None and mpsi >= 5:
+        yellow = True
+        reasons.append(f"memory pressure {mpsi:.0f}% (swap {s.get('swap_used_gb', 0):.1f} GB)")
+    free_slots = max(s["slots"] - s["slots_held"], 0)
+    if free_slots == 0:
+        yellow = True
+        reasons.append(f"all {s['slots']} heavy slots held")
+    verdict = "RED" if red else "YELLOW" if yellow else "GREEN"
+    return {"verdict": verdict, "reasons": reasons or ["headroom"], "free_slots": 0 if red else free_slots}
+
+
+# --- reading the box ------------------------------------------------------------------------------------------------
+
+
+def _meminfo() -> dict[str, float]:
+    out = {}
+    for line in Path("/proc/meminfo").read_text().splitlines():
+        k, v = line.split(":", 1)
+        out[k] = int(v.split()[0]) / 1024 / 1024  # kB -> GB
+    return out
+
+
+def _psi(kind: str) -> float | None:
+    try:
+        m = re.search(r"some avg10=[\d.]+ avg60=([\d.]+)", Path(f"/proc/pressure/{kind}").read_text())
+    except OSError:
+        return None
+    return float(m.group(1)) if m else None
+
+
+def _lock_holders() -> dict[str, list[int]]:
+    """lock file name -> PIDs holding a flock on it (/proc/locks maps inode -> pid)."""
+    by_inode: dict[int, list[int]] = {}
+    try:
+        for line in Path("/proc/locks").read_text().splitlines():
+            f = line.split()
+            if len(f) >= 6 and f[1] in ("FLOCK", "POSIX") and f[2] != "->":
+                ino = int(f[5].split(":")[2])
+                by_inode.setdefault(ino, []).append(int(f[4]))
+    except OSError:
+        return {}
+    out = {}
+    for p in sorted(LOCK_DIR.glob("*")) if LOCK_DIR.is_dir() else []:
+        out[p.name] = by_inode.get(p.stat().st_ino, [])
+    return out
+
+
+def _cpu_ticks() -> dict[int, int]:
+    out = {}
+    for d in Path("/proc").iterdir():
+        if d.name.isdigit():
+            try:
+                f = (d / "stat").read_text().rsplit(")", 1)[1].split()
+                out[int(d.name)] = int(f[11]) + int(f[12])  # utime + stime
+            except (OSError, IndexError, ValueError):
+                pass
+    return out
+
+
+def _group(pid: int) -> str:
+    """The worktree slug a process works in, else its command name."""
+    try:
+        cwd = os.readlink(f"/proc/{pid}/cwd")
+    except OSError:
+        cwd = ""
+    if WORKTREE_MARK in cwd:
+        return "wt:" + cwd.split(WORKTREE_MARK + "/", 1)[1].split("/", 1)[0]
+    try:
+        return Path(f"/proc/{pid}/comm").read_text().strip()
+    except OSError:
+        return "?"
+
+
+def _cmd(pid: int) -> str:
+    try:
+        return Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace").strip()[:100]
+    except OSError:
+        return "?"
+
+
+def _containers() -> list[str]:
+    try:
+        r = subprocess.run(["docker", "ps", "--format", "{{.Names}} {{.Image}} {{.Status}}"],  # noqa: S607
+                           capture_output=True, text=True, timeout=10, check=False)  # fmt: skip
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    return [x for x in r.stdout.splitlines() if x.strip()]
+
+
+def snapshot(sample: float = 1.0) -> dict[str, Any]:
+    cores = os.cpu_count() or 1
+    mem = _meminfo()
+    t0 = _cpu_ticks()
+    time.sleep(sample)
+    t1 = _cpu_ticks()
+    hz = os.sysconf("SC_CLK_TCK")
+    groups: dict[str, float] = {}
+    for pid, ticks in t1.items():
+        d = ticks - t0.get(pid, ticks)
+        if d > 0:
+            g = _group(pid)
+            groups[g] = groups.get(g, 0.0) + d / hz / sample  # cores busy
+    locks = _lock_holders()
+    heavy = {k: v for k, v in locks.items() if k.startswith("heavy.slot")}
+    slots = int(os.environ.get("GG_HEAVY_SLOTS", max(cores // 4, 1)))
+    s = {
+        "cores": cores,
+        "load1": os.getloadavg()[0],
+        "load5": os.getloadavg()[1],
+        "load15": os.getloadavg()[2],
+        "cpu_psi": _psi("cpu"),
+        "mem_psi": _psi("memory"),
+        "mem_total_gb": mem["MemTotal"],
+        "mem_avail_gb": mem["MemAvailable"],
+        "swap_used_gb": mem["SwapTotal"] - mem["SwapFree"],
+        "slots": slots,
+        "slots_held": sum(1 for v in heavy.values() if v),
+        "locks": {k: [{"pid": p, "where": _group(p), "cmd": _cmd(p)} for p in v] for k, v in locks.items()},
+        "top": sorted(
+            ({"who": k, "cores": round(v, 2)} for k, v in groups.items() if v >= 0.05), key=lambda x: -x["cores"]
+        )[:12],
+        "containers": _containers(),
+    }
+    s.update(decide(s))
+    return s
+
+
+def render(s: dict[str, Any]) -> str:
+    cpu = s["cpu_psi"] if s["cpu_psi"] is not None else "-"
+    memp = s["mem_psi"] if s["mem_psi"] is not None else "-"
+    out = [f"{s['verdict']}: " + "; ".join(s["reasons"]),
+           f"cores {s['cores']}  load {s['load1']:.1f} / {s['load5']:.1f} / {s['load15']:.1f}  "
+           + f"cpu-pressure {cpu}%  mem-pressure {memp}%",
+           f"memory available {s['mem_avail_gb']:.1f} / {s['mem_total_gb']:.1f} GB  swap used {s['swap_used_gb']:.1f} GB",
+           f"heavy slots {s['slots_held']}/{s['slots']} held  free for new heavy work: {s['free_slots']}"]  # fmt: skip
+    out += [f"  {name}: pid {h['pid']} {h['where']}  {h['cmd']}" for name, hs in s["locks"].items() for h in hs]
+    out.append("busiest (cores in use, by worktree or command):")
+    out += [f"  {t['cores']:5.2f}  {t['who']}" for t in s["top"]] or ["  (idle)"]
+    if s["containers"]:
+        out.append("containers: " + " | ".join(s["containers"]))
+    return "\n".join(out)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--sample", type=float, default=1.0)
+    a = ap.parse_args()
+    if not Path("/proc/meminfo").exists():
+        print(json.dumps({"verdict": "UNKNOWN", "reasons": ["not Linux"]}) if a.json else "UNKNOWN: not Linux (/proc)")
+        return 0
+    s = snapshot(a.sample)
+    print(json.dumps(s, indent=1) if a.json else render(s))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

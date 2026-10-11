@@ -95,8 +95,9 @@ jobs:
               {"os":"ubuntu-latest","python-version":"3.10"},
               {"os":"ubuntu-latest","python-version":"3.11"},
               {"os":"ubuntu-latest","python-version":"3.12"},
-              {"os":"windows-latest","python-version":"3.10","part":1,"splits":2,"timeout":30},
-              {"os":"windows-latest","python-version":"3.10","part":2,"splits":2,"timeout":30},
+              {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.11","timeout":35},
               {"os":"windows-latest","python-version":"3.12","timeout":35},
               {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
@@ -111,8 +112,9 @@ jobs:
               {"os":"ubuntu-latest","python-version":"3.10"},
               {"os":"ubuntu-latest","python-version":"3.11"},
               {"os":"ubuntu-latest","python-version":"3.12"},
-              {"os":"windows-latest","python-version":"3.10","part":1,"splits":2,"timeout":30},
-              {"os":"windows-latest","python-version":"3.10","part":2,"splits":2,"timeout":30},
+              {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.12","timeout":35},
               {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.10","part":2,"splits":2,"timeout":22},
@@ -168,7 +170,7 @@ jobs:
           pip install --no-build-isolation -e .
 
       # Sharding (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836): a leg
-      # with "part"/"splits" runs one duration-balanced group. Windows 3.10 is 2 parts (#4903: 29-41 min as one leg vs 13-25
+      # with "part"/"splits" runs one duration-balanced group. Windows 3.10 is 3 even parts (#4903: 29-41 min as one leg vs 13-25
       # for the other Pythons, the critical path of the gate), macOS 3.10 is 2 parts (~25 min as one leg). macOS 3.11/3.12
       # are one leg again: the 3-way split (2026-10-10) was for the #4862 hang, since fixed.
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
@@ -176,9 +178,14 @@ jobs:
         env:
           PART: ${{ matrix.part }}
           SPLITS: ${{ matrix.splits }}
+          EVEN: ${{ matrix.even }}
         run: |
           split=()
           if [ -n "$PART" ]; then split=(--splits "$SPLITS" --group "$PART"); fi
+          # "even": ignore the committed .test_durations (measured on Linux; on windows 3.10 they put the slow tests in one
+          # part: 9 min vs a 30-min timeout, #4906). With no durations every test weighs the same and least_duration
+          # deals them out round-robin, so the slow ones spread evenly across the parts.
+          if [ -n "$EVEN" ]; then split+=(--splitting-algorithm least_duration --durations-path /nonexistent-durations.json); fi
           # --timeout: a hung test fails by name after 10 min (the slowest real test is ~60 s) instead of eating the
           # job's time limit as a "cancelled" leg (#4840: the macOS box-tools hang, #4862)
           pytest tests/ -n auto -q -ra --durations=25 --timeout=600 "${split[@]}"

@@ -805,10 +805,10 @@ class ApertureFilter:
             hit = self._virtualenv_cache[rel_dir] = looks_like_virtualenv(self.root.joinpath(*rel_dir.split("/")))
         return hit
 
-    def _log_exclusion(self, relative_path: str, reason: str) -> None:
+    def _log_exclusion(self, relative_path: str, reason: str | None) -> None:
         """#4917: a heuristic exclusion that can hide real code (a "Static Asset Blob") is a WARNING, so it is never
         silent; the bulk exclusions (binaries, minified / generated noise) stay at DEBUG, or a large repo floods the console."""
-        if "Static Asset Blob" in reason:
+        if reason and "Static Asset Blob" in reason:
             self.logger.warning(f"Aperture excluded {relative_path}: {reason}")
         else:
             self.logger.debug(f"Aperture excluded {relative_path}: {reason}")

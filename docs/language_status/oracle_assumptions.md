@@ -773,6 +773,16 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   - space sorts before both.
 - **Keys.** Indexed files are browsed in ASCII order on both sides (`equivalence.COLLATION`). CardDemo's keys sort the
   same either way. Keys mixing letters and digits would not.
+- **Duplicates of an alternate key (#4876) -- the first duplicate is IBM's.** GnuCOBOL's BDB returns a non-unique
+  alternate key's duplicates in the order they were written, and orders its primary key by bytes whatever the PROGRAM
+  COLLATING SEQUENCE (measured on cobc 3.1.2: no flag or clause changes it; there is no `-fdefault-colseq`). VSAM returns
+  the pointers of a non-unique alternate key in prime-key order, EBCDIC's, and the det runtime (`DetFiles.Indexed`,
+  `DetCics.Store`) does the same. So the harness writes a generated indexed input in cp037 order of its primary key
+  (`equivalence_inputs.ibm_key_order`): the oracle loads it in that order and its first duplicate is IBM's too. Found by
+  carddemo-intcalc-generated (CBACT04C reads XREFFILE by account; the generated card numbers mix letters and digits), now
+  proven. Not settled on z/OS (#4050): that IBM's pointer order for a base cluster loaded by the program is prime-key
+  order. Still different: a browse (READ NEXT / START) of a primary key mixing letters and digits, which the oracle
+  answers in ASCII; no case browses such a key.
 - **SORT / MERGE under an alphabet (#4268).** `ALPHABET ... IS EBCDIC` orders by code page 037 on z/OS (the default
   CODEPAGE(1140)'s order); GnuCOBOL uses its own ASCII-to-EBCDIC table, which agrees for every 7-bit character but
   `[ ] ^ |` and for no byte above X'7F'. A literal alphabet's THRU ranges and its unnamed characters follow the

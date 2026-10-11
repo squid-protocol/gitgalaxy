@@ -64,6 +64,19 @@ def test_keys_are_unique_in_key_order_and_filler_is_blank():
     assert len(values["ACCT.ACCT-BAL"]) == 20
 
 
+def test_text_keys_are_loaded_in_ibms_order_not_ascii():
+    """#4876: GnuCOBOL's BDB keeps an alternate key's duplicates in load order and VSAM returns them in prime-key order,
+    EBCDIC's: a key of letters and digits is generated in cp037 order (letters before digits), digit keys as before."""
+    spec = {**_spec(30, key_len=6), "reclen": 11}
+    data, _ = ei.generate_dataset("XREF", spec, XREF, {})
+    keys = [r[:6] for r in _rows(data, 11)]
+    assert keys == sorted(keys, key=lambda k: k.decode("latin-1").encode("cp037"))
+    assert keys != sorted(keys)  # the ASCII order is a different one for this seed
+    assert any(k[:1].isalpha() for k in keys) and any(k[:1].isdigit() for k in keys)
+    assert ei.ibm_key_order(b"A1", "latin-1") < ei.ibm_key_order(b"1A", "latin-1")
+    assert ei.ibm_key_order(b"\xf1\xc1", "cp037")[0] == b"\xf1\xc1"  # EBCDIC data is already in IBM order
+
+
 def test_a_join_draws_from_the_other_file_and_a_miss_does_not():
     _, pool = ei.generate_dataset("ACCT", _spec(10), ACCOUNT, {})
     accounts = {int(v) for v in pool["ACCT.ACCT-ID"]}

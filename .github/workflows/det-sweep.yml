@@ -148,7 +148,7 @@ jobs:
     needs: plan
     if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # measured: a 9-10 case shard took 5.5-9.5 min from job start (full run, #4901)
+    timeout-minutes: 18  # measured: a 9-10 case shard took 8.5-11.7 min from job start (full run, #4901)
     strategy:
       fail-fast: false
       matrix:

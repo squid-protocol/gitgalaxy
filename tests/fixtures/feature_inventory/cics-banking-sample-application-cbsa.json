@@ -29,7 +29,7 @@
       ]
     },
     "ASKTIME": {
-      "count": 36,
+      "count": 35,
       "programs": [
         "src/base/cobol_src/ACCTCTRL.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -178,13 +178,14 @@
       ]
     },
     "GET": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "HANDLE ABEND": {
@@ -388,17 +389,15 @@
       ]
     },
     "WRITE": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "unknown": {
-      "count": 2,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
+      "count": 0,
+      "programs": []
     }
   },
   "cics_options": {
@@ -465,7 +464,7 @@
       ]
     },
     "ASKTIME: ABSTIME": {
-      "count": 36,
+      "count": 35,
       "programs": [
         "src/base/cobol_src/ACCTCTRL.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -877,63 +876,69 @@
       ]
     },
     "GET: CHANNEL": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "GET: CONTAINER": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "GET: FLENGTH": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "GET: INTO": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "GET: RESP": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "GET: RESP2": {
-      "count": 5,
+      "count": 6,
       "programs": [
         "src/base/cobol_src/CRDTAGY1.cbl",
         "src/base/cobol_src/CRDTAGY2.cbl",
         "src/base/cobol_src/CRDTAGY3.cbl",
         "src/base/cobol_src/CRDTAGY4.cbl",
-        "src/base/cobol_src/CRDTAGY5.cbl"
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "HANDLE ABEND: CANCEL": {
@@ -1817,57 +1822,55 @@
       ]
     },
     "WRITE: FILE": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: FROM": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: KEYLENGTH": {
-      "count": 1,
+      "count": 2,
       "programs": [
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: LENGTH": {
-      "count": 1,
+      "count": 2,
       "programs": [
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: RESP": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: RESP2": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "WRITE: RIDFLD": {
-      "count": 2,
+      "count": 3,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "unknown": {
-      "count": 2,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
+      "count": 0,
+      "programs": []
     }
   },
   "compile_options": {
@@ -2026,12 +2029,6 @@
     }
   },
   "copybook_resolution_gaps": {
-    "COPY CEEIGZCT": {
-      "count": 1,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
     "unknown": {
       "count": 0,
       "programs": []
@@ -2039,7 +2036,7 @@
   },
   "data_types": {
     "BINARY": {
-      "count": 328,
+      "count": 350,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/ACCTCTRL.cbl",
@@ -2059,6 +2056,7 @@
         "src/base/cobol_src/CRDTAGY4.cbl",
         "src/base/cobol_src/CRDTAGY5.cbl",
         "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/CUSTCTRL.cbl",
         "src/base/cobol_src/DBCRFUN.cbl",
         "src/base/cobol_src/DELACC.cbl",
@@ -2079,19 +2077,21 @@
       ]
     },
     "COMP-2": {
-      "count": 4,
+      "count": 5,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/BNK1CRA.cbl",
-        "src/base/cobol_src/BNK1TFN.cbl"
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "COMP-5": {
-      "count": 50,
+      "count": 54,
       "programs": [
         "src/base/cobol_src/ACCTCTRL.cbl",
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/CUSTCTRL.cbl",
         "src/base/cobol_src/DBCRFUN.cbl",
         "src/base/cobol_src/DELACC.cbl",
@@ -2117,7 +2117,7 @@
       ]
     },
     "PACKED": {
-      "count": 84,
+      "count": 87,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/ACCTCTRL.cbl",
@@ -2137,6 +2137,7 @@
         "src/base/cobol_src/CRDTAGY4.cbl",
         "src/base/cobol_src/CRDTAGY5.cbl",
         "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/CUSTCTRL.cbl",
         "src/base/cobol_src/DBCRFUN.cbl",
         "src/base/cobol_src/DELACC.cbl",
@@ -2243,10 +2244,11 @@
       ]
     },
     "INSERT": {
-      "count": 9,
+      "count": 10,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/DBCRFUN.cbl",
         "src/base/cobol_src/DELACC.cbl",
         "src/base/cobol_src/DELCUS.cbl",
@@ -2273,7 +2275,7 @@
       ]
     },
     "STATIC": {
-      "count": 40,
+      "count": 38,
       "programs": [
         "src/base/cobol_src/ACCTCTRL.cbl",
         "src/base/cobol_src/BANKDATA.cbl",
@@ -2303,14 +2305,8 @@
     }
   },
   "statements": {
-    "ADD": {
-      "count": 8,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
     "ARITH": {
-      "count": 26,
+      "count": 30,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -2318,6 +2314,7 @@
         "src/base/cobol_src/BNK1TFN.cbl",
         "src/base/cobol_src/BNK1UAC.cbl",
         "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/INQACCCU.cbl",
         "src/base/cobol_src/INQCUST.cbl",
         "src/base/cobol_src/XFRFUN.cbl"
@@ -2377,7 +2374,7 @@
       ]
     },
     "DISPLAY": {
-      "count": 156,
+      "count": 145,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/BANKDATA.cbl",
@@ -2407,7 +2404,7 @@
       ]
     },
     "EVALUATE": {
-      "count": 39,
+      "count": 36,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -2430,7 +2427,7 @@
       ]
     },
     "EXIT": {
-      "count": 229,
+      "count": 226,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/ACCTCTRL.cbl",
@@ -2480,7 +2477,7 @@
       ]
     },
     "GOTO": {
-      "count": 146,
+      "count": 150,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -2492,6 +2489,7 @@
         "src/base/cobol_src/BNK1TFN.cbl",
         "src/base/cobol_src/BNK1UAC.cbl",
         "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
         "src/base/cobol_src/DBCRFUN.cbl",
         "src/base/cobol_src/DELACC.cbl",
         "src/base/cobol_src/DELCUS.cbl",
@@ -2504,7 +2502,7 @@
       ]
     },
     "IF": {
-      "count": 503,
+      "count": 478,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/ACCTCTRL.cbl",
@@ -2622,7 +2620,7 @@
       ]
     },
     "PERFORM": {
-      "count": 501,
+      "count": 496,
       "programs": [
         "src/base/cobol_src/ABNDPROC.cbl",
         "src/base/cobol_src/ACCTCTRL.cbl",
@@ -2653,18 +2651,6 @@
         "src/base/cobol_src/UPDACC.cbl",
         "src/base/cobol_src/UPDCUST.cbl",
         "src/base/cobol_src/XFRFUN.cbl"
-      ]
-    },
-    "READ": {
-      "count": 5,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
-    "REWRITE": {
-      "count": 3,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
       ]
     },
     "SET-NULL": {
@@ -2700,20 +2686,8 @@
         "src/base/cobol_src/XFRFUN.cbl"
       ]
     },
-    "SORT": {
-      "count": 9,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
-    "START": {
-      "count": 1,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
     "STRING": {
-      "count": 361,
+      "count": 350,
       "programs": [
         "src/base/cobol_src/BANKDATA.cbl",
         "src/base/cobol_src/BNK1CAC.cbl",
@@ -2741,12 +2715,6 @@
         "src/base/cobol_src/XFRFUN.cbl"
       ]
     },
-    "SUBTRACT": {
-      "count": 1,
-      "programs": [
-        "src/base/cobol_src/CRECUST.cbl"
-      ]
-    },
     "UNSTRING": {
       "count": 7,
       "programs": [
@@ -2758,10 +2726,9 @@
       ]
     },
     "WRITE": {
-      "count": 10,
+      "count": 2,
       "programs": [
-        "src/base/cobol_src/BANKDATA.cbl",
-        "src/base/cobol_src/CRECUST.cbl"
+        "src/base/cobol_src/BANKDATA.cbl"
       ]
     },
     "unknown": {
@@ -2769,10 +2736,5 @@
       "programs": []
     }
   },
-  "unparsed_programs": [
-    {
-      "program": "src/base/cobol_src/CRECUST.cbl",
-      "reason": "CopyNotFound: COPY CEEIGZCT"
-    }
-  ]
+  "unparsed_programs": []
 }

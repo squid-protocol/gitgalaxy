@@ -30,6 +30,28 @@ re-derive context.
    named its files, so the payoff is here, at filing time.)
 5. Apply labels (type, area, `priority: ...`) **and the current milestone** to every issue you file.
 
+## Class sweep: name the family, list the siblings
+
+A finding is almost never alone. Owner, 2026-10-11: an issue named `EXEC CICS DOCUMENT READ` while the rest of the
+DOCUMENT family was missing too, and the owner had to argue for the siblings separately. File the gap, not the example.
+
+6. **Name the class** the finding belongs to, in one line: the command family (`EXEC CICS DOCUMENT *`), the statement
+   or clause family (every `INSPECT` form), the data class (national / DBCS / multi-byte across code pages), the
+   construct family (every pipeline file format), the rule family (every unpinned-install form).
+7. **List its members from the authoritative source**, not from memory:
+   - CICS commands: the spec `gitgalaxy/standards/cics/commands/<family>.py` and `docs/language_status/cics_spec_status.md`
+     (and IBM's command reference for options the spec lacks).
+   - COBOL / det translation: `docs/language_status/det_survey.md`, `docs/language_status/construct_correspondence.md`,
+     the language register `docs/language_status/register/`.
+   - Scanner / language support: the language's `docs/language_status/<lang>.md` and its standards definition.
+   - Otherwise the upstream spec or manual; name the source in the issue.
+8. **Mark each member** in a table in the issue body: `member | status (handled / partial / missing / out of scope) |
+   evidence (file:line, survey row, test)`. "Out of scope" needs a reason.
+9. **Scope the issue to the class.** Members that share one mechanism (one handler, one table, one rule) go in THIS
+   issue's acceptance: "every member of the DOCUMENT family translates or is refused by name". Members that need a
+   different mechanism get their own issue, filed now, each linking the others ("Siblings: #a, #b"). Search for
+   duplicates per member before filing.
+
 ## Issue shape
 
 - Title: short, specific, matches the existing style (`[TYPE] Component: specific problem`,
@@ -50,5 +72,5 @@ decide. Filing a bad issue is more expensive to clean up than asking.
 
 ## Output
 
-End with a short list of what was filed (issue numbers + titles + links), what was skipped as
-a duplicate, and anything you flagged as ambiguous.
+End with a short list of what was filed (issue numbers + titles + links), the class each one covers and its sibling
+issues, what was skipped as a duplicate, and anything you flagged as ambiguous.

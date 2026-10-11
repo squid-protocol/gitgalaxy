@@ -24,7 +24,7 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 ```
 
 - `blockers --baseline` reads the survey cached for main's SHA (`survey --baseline [--root DIR]` builds it; a
-  nightly CI job keeps it fresh). Rank: `only` (the gap is all that is left, burned / non-burned), then `one_away`.
+  the nightly Evidence Refresh surveys main and publishes the ranking and a history line to the `generated` branch, #4863: read them with `blockers --generated` / `history show --generated`; no second survey, nothing committed on main). Rank: `only` (the gap is all that is left, burned / non-burned), then `one_away`.
   Non-burned first: burned estates already have ports.
 - A `*` row refuses the whole program, so its count is an upper bound: run `--unmask GAPKEY` to see the gaps behind
   it before promising anything.
@@ -83,7 +83,7 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   changes one does NOT commit the rendered report (#4703): the evidence-refresh bot regenerates it on main and PR CI
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
   baseline. Burned estates only; it never writes an evidence record.
-- `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`);
+- `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
 

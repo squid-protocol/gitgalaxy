@@ -1,19 +1,17 @@
 name: Blocker Baseline
 
-# #4270: the nightly baseline of the "blocker-driven" CICS work -- `cics_census.py survey --baseline` on main's head:
-# every COBOL program of the pinned mainframe corpora translated by the det translator (translation only, no compile),
-# then `blockers`: programs translated whole and every gap ranked by the programs fixing it would make whole. The
-# result is an artifact (blockers.txt / blockers.json / meta.json), never a commit; the series of merged slices is
-# docs/language_status/blockers_history.jsonl, appended by `cics_census.py history append`.
+# #4863: AD-HOC runs only. The nightly blockers baseline is no longer surveyed here: evidence-refresh.yml's `refresh` job
+# surveys main once a night (the same `cics_census.py survey --baseline --no-census` on the same pinned corpora) and its
+# `publish-blockers` job publishes blockers.txt / blockers.json and one blockers_history.jsonl line to the `generated`
+# branch (docs/language_status/blockers/). This workflow surveyed the same corpora a second time (4-22 min a night) and
+# uploaded an artifact nobody read. Kept for a dispatch of a given ref (--sha of the dispatched commit), e.g. a branch
+# before its PR: the artifact is blockers.txt / blockers.json / meta.json, never a commit.
 #
-# The BURNED / pinned corpora only (tests/cobol_mainframe/corpora.json, as every other CI job fetches them), with
-# --no-census: the census repos (estate4_draw.INELIGIBLE_LIST) are never cloned in CI. The full baseline with the
-# census is a local run (`equivalence_env.py --provision`, then `cics_census.py survey --baseline`).
-# Measures only: it fails only when the survey itself cannot run.
+# The BURNED / pinned corpora only (tests/cobol_mainframe/corpora.json), with --no-census: the census repos
+# (estate4_draw.INELIGIBLE_LIST) are never cloned in CI. The census counts are a local run (`equivalence_env.py
+# --provision`, then `cics_census.py survey --baseline`). Measures only.
 
 on:
-  schedule:
-    - cron: "17 5 * * *"
   workflow_dispatch:
 
 permissions:

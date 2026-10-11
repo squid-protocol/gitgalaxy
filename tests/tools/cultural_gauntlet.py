@@ -454,6 +454,7 @@ def _run_cell(args: tuple[Any, ...]) -> dict[str, Any]:
     dbs = layers[1] if len(layers) > 1 else None  # part 3 (D): --db's {target: spec}
     os.environ.setdefault("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")  # a pool process of its own
     os.environ["GITGALAXY_DISABLE_GIT_HISTORY"] = "1"
+    os.environ.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")  # one scan per pool process: no pool inside (#4896)
     cell_dir = Path(work) / f"{dialect}__{column}"
     observe = _observe_collation if dialect in COLLATION_TARGETS else _observe_input if dialect in INPUT_FORMATS \
         else _observe  # fmt: skip

@@ -1310,6 +1310,7 @@ def scan_group(group_dir: Path, out_dir: Path) -> tuple[dict[str, str], set[tupl
     for one group, scanned in a subprocess pinned to THIS checkout (the console-script trap)."""
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env.update(PYTHONPATH=str(REPO_ROOT), GITGALAXY_DISABLE_GIT_HISTORY="1")
+    env.setdefault("GALAXYSCOPE_MAX_WORKERS", "1")  # scan_group runs --jobs at a time: no pool inside (#4896)
     out_dir.mkdir(parents=True, exist_ok=True)
     proc = subprocess.run(
         [sys.executable, "-c", _SCAN, str(REPO_ROOT), str(group_dir), str(out_dir / "g.json")],

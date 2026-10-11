@@ -288,11 +288,12 @@ def test_a_harness_only_change_keeps_the_last_level_marked_stale(tmp_path, monke
     assert (p["level"], p["level_current"]) == ("L3", False)  # not 0 / unknown
     assert p["stale_inputs"] == ["harness", "oracle"] and p["stale_since"] == "abc1234def5678"
     assert er.validate(rep, strict=True) == []
+    # the counts of other programs move with the translator and the cases (#4863): only CASE's stale level is asserted
     s = rep["summary"]
-    assert s["histogram"]["L3"] == 1 and s["histogram_stale"]["L3"] == 1 and s["levels_stale"] == 1
+    assert s["histogram"]["L3"] >= 1 and s["histogram_stale"]["L3"] == 1 and s["levels_stale"] == 1
     md = (tmp_path / estate / "report.md").read_text("utf-8")
     assert f"| {p['program']} | L3* |" in md and "stale since `abc1234def56` (harness, oracle)" in md
-    assert "L3+: 1 (1 awaiting re-check)" in md and "How to read" in md and "Stale levels" in md
+    assert re.search(r"L3\+: \d+ \(1 awaiting re-check\)", md) and "How to read" in md and "Stale levels" in md
     assert not er._FORBIDDEN.search(md)
 
 
@@ -352,11 +353,14 @@ DB2_CASE = "genapp-lgacus01"  # a Db2 case: CI's per-PR det-sweep skips it, the 
 DB2_COV = [3, 3, 4, 8]
 
 
-def db2_fixture(tmp_path, monkeypatch, cov, sweep=None):
+def db2_fixture(tmp_path, monkeypatch, cov, sweep=None, isolate=False):
     """A tmp OUT holding the GenApp report refreshed --live with the ledger's measurement of DB2_CASE = cov (list:
-    current; dict: stale on a scheduled input; None: no entry) and, optionally, a sweep row for it."""
+    current; dict: stale on a scheduled input; None: no entry) and, optionally, a sweep row for it. isolate: every
+    other case's ledger entry dropped too, so DB2_CASE is the only Db2 case with a verdict (#4863: the committed
+    report's ledger grows as cases are added; a front-end case that LINKs a program would otherwise answer for it)."""
     old = json.loads((er.OUT / GENAPP / "report.json").read_text("utf-8"))
-    old["measured"]["det_coverage"] = {**old["measured"]["det_coverage"], DB2_CASE: cov}
+    others = dict.fromkeys(old["measured"]["det_coverage"]) if isolate else old["measured"]["det_coverage"]
+    old["measured"]["det_coverage"] = {**others, DB2_CASE: cov}
     if sweep is not None:
         old["measured"]["sweeps"] = {**old["measured"]["sweeps"], DB2_CASE: sweep}
     (tmp_path / GENAPP).mkdir(exist_ok=True)
@@ -372,7 +376,7 @@ def db2_fixture(tmp_path, monkeypatch, cov, sweep=None):
 
 
 def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monkeypatch):
-    _, p = db2_fixture(tmp_path, monkeypatch, None)
+    _, p = db2_fixture(tmp_path, monkeypatch, None, isolate=True)
     assert p["level"] == "L1" and p["equivalence"]["chosen"]["det"]["state"] == "not run"
 
 
@@ -421,10 +425,10 @@ def test_the_ledger_never_overrides_a_known_unproven_db2_case(monkeypatch):
 
 
 def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdict_is_stale(tmp_path, monkeypatch):
-    """LGSTSQ is only LINKed by the GenApp Db2 cases: equal by the ledger is L2 (no coverage of its own, #4270),
+    """LGSTSQ is only LINKed by the GenApp Db2 cases (here only DB2_CASE has a ledger entry): equal by the ledger is L2 (no coverage of its own, #4270),
     stale with the entry it rests on."""
     stale = {"coverage": DB2_COV, "stale_inputs": ["oracle"], "stale_since": "abc1234def5678"}
-    db2_fixture(tmp_path, monkeypatch, stale)
+    db2_fixture(tmp_path, monkeypatch, stale, isolate=True)
     rep = json.loads((tmp_path / GENAPP / "report.json").read_text("utf-8"))
     p = next(p for p in rep["programs"] if p["program"].endswith("lgstsq.cbl"))
     c = p["equivalence"]["chosen"]

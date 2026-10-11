@@ -47,6 +47,10 @@ REPRO: list[tuple[str, str]] = [
     (r"^crucible-audit", "tests/tools/box/golden-lock.sh " + GATES + " --only golden"),
     (r"^(full-suite|smoke-test)( part \d+/\d+)?$", "python -m pytest -q {tests}"),  # #4828: the suite runs in parts
     (r"^(det|shard \d+/\d+)$", SWEEP + " --cases {cases} --work /tmp/gitgalaxy-scratch/ci-digest/sweep"),
+    (
+        r"^db2 \d+/\d+$",
+        SWEEP.replace("--skip-db2", "--db2-only") + " --cases {cases} --work /tmp/gitgalaxy-scratch/ci-digest/sweep",
+    ),
     (r"^plan$", "python tests/tools/det_sweep_plan.py --base origin/main"),
     (r"^(compile \(.+\)|committed ports compile)$", RATCHET + " ports"),
     (r"^crosscheck$", RATCHET + " fact-crosscheck"),

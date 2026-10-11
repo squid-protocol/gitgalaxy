@@ -13,7 +13,10 @@ tests/equivalence/, a case directory with no case.json (a case added or removed)
 sweep, as is every event that is not a pull request (nightly, manual). When in doubt, full. Stdlib only: the job runs
 before anything is installed.
 
-Prints JSON {mode, cases, shards, matrix, reason}: `cases` is "all" or the names; `matrix` the shard labels "I/N".
+Prints JSON {mode, cases, shards, matrix, db2_cases, db2_shards, db2_matrix, reason}: `cases` is "all" or the names;
+`matrix` the shard labels "I/N". The Db2 cases (a "db2" section in case.json) are split off into `db2_cases` (#4901):
+the PR's `db2` job proves the ones the change moves, on runners of their own that start IBM's Db2 container, in
+parallel with the shards; a full sweep proves all of them (the nightly leaves them to Evidence Refresh's Db2 job).
 """
 
 from __future__ import annotations
@@ -30,6 +33,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
 MAX_SHARDS = 20  # full sweep: runners (#4814: work-sized; a narrow plan starts one per PER_SHARD cases)
 PER_SHARD = 3  # narrow: about this many cases per runner
+# #4901: the Db2 cases run on their own runners (each starts IBM's Db2 container, minutes), in parallel with the shards
+DB2_MAX_SHARDS = 4  # a full sweep: as many as the nightly Evidence Refresh's Db2 job
+DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start is paid per runner)
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
 # #4814: a change confined to these is judged by what it does to the generated ports: `det_port.py check` translates
 # every case at the base and at HEAD and names the ports that differ; only those (and their dependents) are proven.
@@ -97,14 +103,20 @@ def labels_from_event(path: Path) -> list[str]:
 
 def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str] | None = None) -> dict:
     """The plan for `files` (repo-relative, as git prints them) on `event`, given the pull request's `labels`."""
-    full = {"mode": "full", "cases": "all"}
+    # #4901: a full sweep proves every Db2 case too, except in the nightly (Evidence Refresh's Db2 job runs then)
+    full = {"mode": "full", "cases": "all", "db2_cases": [] if event == "schedule" else "all"}
     if event != "pull_request":
         return {**full, "reason": f"{event}: always a full sweep"}
     if FULL_LABEL in (labels or []):
         return {**full, "reason": f"labelled {FULL_LABEL}: a full sweep on request"}
     files = [f for f in files if f not in IGNORED and det_input(f)]
     if not files:
-        return {"mode": "none", "cases": [], "reason": "no changed file is a det-sweep input (DET_INPUTS)"}
+        return {
+            "mode": "none",
+            "cases": [],
+            "db2_cases": [],
+            "reason": "no changed file is a det-sweep input (DET_INPUTS)",
+        }
     touched: set[str] = set()
     translator = sorted(f for f in files if f.startswith(PORT_DIFF))
     for f in files:
@@ -121,11 +133,13 @@ def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str]
         return {
             "mode": "ports",
             "cases": sorted(touched),
+            "db2_cases": [],  # not final: --ports decides
             "reason": f"translator changed ({len(translator)} file(s)): prove the ports it changes",
         }
     affected = sorted(dependents(touched, cases))
-    runnable = [c for c in affected if not is_db2(cases[c])]  # (the sweep is --skip-db2)
-    return {"mode": "narrow", "cases": runnable,
+    runnable = [c for c in affected if not is_db2(cases[c])]
+    db2 = [c for c in affected if is_db2(cases[c])]  # #4901: proven by the db2 job
+    return {"mode": "narrow", "cases": runnable, "db2_cases": db2,
             "reason": f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
 
@@ -137,12 +151,17 @@ def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> 
         rows = json.loads(check.read_text(encoding="utf-8"))
         moved = {r["case"] for r in rows if r.get("status") != "unchanged"}
     except (OSError, ValueError, KeyError, TypeError) as e:
-        return {"mode": "full", "cases": "all", "reason": f"no usable port diff ({e}): a full sweep"}
+        return {
+            "mode": "full",
+            "cases": "all",
+            "db2_cases": "all",
+            "reason": f"no usable port diff ({e}): a full sweep",
+        }
     affected = sorted(dependents(moved | set(touched), cases) & set(cases))
     runnable = [c for c in affected if not is_db2(cases[c])]
     db2 = [c for c in affected if is_db2(cases[c])]
     return {"mode": "narrow", "cases": runnable, "carried": len(cases) - len(affected),
-            "db2_not_swept": db2,
+            "db2_cases": db2,
             "reason": f"port diff: {len(moved)} port(s) changed of {len(rows)}; "
                       f"{len(cases) - len(affected)} case(s) carried forward unchanged"}  # fmt: skip
 
@@ -155,6 +174,14 @@ def shards_for(p: dict) -> list[str]:
         n = MAX_SHARDS
     else:
         n = min(MAX_SHARDS, -(-len(p["cases"]) // PER_SHARD))
+    return [f"{i}/{n}" for i in range(1, n + 1)]
+
+
+def db2_shards_for(p: dict) -> list[str]:
+    """The Db2 runner labels "I/N": DB2_MAX_SHARDS for a full sweep, one per DB2_PER_SHARD cases when narrow, none for none."""
+    if p["mode"] == "ports" or not p["db2_cases"]:
+        return []
+    n = DB2_MAX_SHARDS if p["db2_cases"] == "all" else min(DB2_MAX_SHARDS, -(-len(p["db2_cases"]) // DB2_PER_SHARD))
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
@@ -195,15 +222,17 @@ def main() -> int:
     try:
         files = args.files if args.files is not None else changed_files(args.base)
         p = plan(files, args.event, cases, labels) if files or args.event != "pull_request" else {
-            "mode": "full", "cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
+            "mode": "full", "cases": "all", "db2_cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
-        p = {"mode": "full", "cases": "all", "reason": f"cannot diff ({e})"}
+        p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}
     return emit(p, args.github_output)
 
 
 def emit(p: dict, github_output: Path | None) -> int:
     p["matrix"] = shards_for(p)
     p["shards"] = len(p["matrix"])
+    p["db2_matrix"] = db2_shards_for(p)
+    p["db2_shards"] = len(p["db2_matrix"])
     print(json.dumps(p, indent=1))
     if github_output:
         with github_output.open("a", encoding="utf-8") as fh:
@@ -211,6 +240,9 @@ def emit(p: dict, github_output: Path | None) -> int:
             fh.write(f"cases={'all' if p['cases'] == 'all' else ','.join(p['cases'])}\n")
             fh.write(f"matrix={json.dumps(p['matrix'])}\n")
             fh.write(f"shards={p['shards']}\n")
+            fh.write(f"db2_cases={'all' if p['db2_cases'] == 'all' else ','.join(p['db2_cases'])}\n")
+            fh.write(f"db2_matrix={json.dumps(p['db2_matrix'])}\n")
+            fh.write(f"db2_shards={p['db2_shards']}\n")
     return 0
 
 

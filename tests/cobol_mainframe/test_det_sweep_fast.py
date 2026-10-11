@@ -139,7 +139,7 @@ def test_a_translator_only_change_is_planned_from_its_port_diff(tmp_path):
                                  {"case": "delta", "status": "unchanged", "files": []}]), encoding="utf-8")  # fmt: skip
     n = plan.narrow_by_ports(check, ["delta"], CASES)
     assert n["mode"] == "narrow" and n["cases"] == ["alpha", "beta", "delta", "gamma"]  # alpha's port moved: dependents
-    assert n["db2_not_swept"] == ["dbcase"] and n["carried"] == 0
+    assert n["db2_cases"] == ["dbcase"] and n["carried"] == 0
     assert plan.shards_for(n) == ["1/2", "2/2"]
 
 
@@ -177,6 +177,7 @@ def test_every_event_but_a_pull_request_is_full(event):
 def test_db2_cases_are_not_planned_and_the_runner_count_follows_the_plan():
     p = plan.plan(["tests/equivalence/dbcase/case.json"], "pull_request", CASES)
     assert p["cases"] == [] and plan.shards_for(p) == []
+    assert p["db2_cases"] == ["dbcase"] and plan.db2_shards_for(p) == ["1/1"]  # #4901: the db2 job proves it
     assert plan.shards_for({"mode": "narrow", "cases": ["a"]}) == ["1/1"]
     assert plan.shards_for({"mode": "narrow", "cases": list("abcdefg")}) == ["1/3", "2/3", "3/3"]
     assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/20" for i in range(1, 21)]  # #4814
@@ -219,3 +220,49 @@ def test_reuse_falls_back_to_a_fresh_step_when_the_earlier_run_sh_differs(monkey
     assert common.run_cobol_step(work).args == ["docker"] and runs == [work]  # ran afresh instead of raising
     (work / "run.sh").write_text("pass 2\n", encoding="utf-8")
     assert common.step_reused(work) and common.run_cobol_step(work).args[0] == "reuse" and len(runs) == 1
+
+
+# ---- #4901: the Db2 cases the PR moves are proven by the db2 job ---------------------------------------------
+
+
+def test_db2_cases_are_split_off_and_none_means_no_db2_job():
+    p = plan.plan(["tests/equivalence/delta/case.json"], "pull_request", CASES)
+    assert p["db2_cases"] == [] and plan.db2_shards_for(p) == []  # nothing Db2 moved: the job is skipped
+    none = plan.plan(["README.md"], "pull_request", CASES)
+    assert none["mode"] == "none" and plan.db2_shards_for(none) == []
+    p = plan.plan(["tests/equivalence/dbcase/case.json", "tests/equivalence/delta/case.json"], "pull_request", CASES)
+    assert p["cases"] == ["delta"] and p["db2_cases"] == ["dbcase"]
+
+
+def test_db2_cases_follow_their_dependents():
+    cases = {**CASES, "dbdep": {"db2": {}, "port_from": "alpha"}}
+    p = plan.plan(["tests/equivalence/alpha/port/A.java"], "pull_request", cases)
+    assert p["cases"] == ["alpha", "beta", "gamma"] and p["db2_cases"] == ["dbdep"]
+
+
+def test_a_translator_change_waits_for_the_port_diff_for_db2_too():
+    p = plan.plan(["gitgalaxy/tools/cobol_to_java/det/emit.py"], "pull_request", CASES)
+    assert p["mode"] == "ports" and plan.db2_shards_for(p) == []
+
+
+def test_db2_runner_count_and_full_sweeps():
+    names = [f"d{i}" for i in range(13)]
+    assert plan.db2_shards_for({"mode": "narrow", "db2_cases": names[:6]}) == ["1/1"]
+    assert plan.db2_shards_for({"mode": "narrow", "db2_cases": names[:7]}) == ["1/2", "2/2"]
+    assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names})) == 3
+    assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names * 3})) == plan.DB2_MAX_SHARDS
+    assert plan.db2_shards_for({"mode": "full", "db2_cases": "all"}) == [f"{i}/4" for i in range(1, 5)]
+    # every full sweep proves the Db2 cases, except the nightly: Evidence Refresh's Db2 job does that
+    assert plan.plan([], "workflow_dispatch", CASES)["db2_cases"] == "all"
+    assert (
+        plan.plan(["tests/equivalence/delta/case.json"], "pull_request", CASES, ["shepherd:full"])["db2_cases"] == "all"
+    )
+    assert plan.plan([], "schedule", CASES)["db2_cases"] == []
+
+
+def test_the_cli_writes_the_db2_outputs(tmp_path):
+    out = tmp_path / "out"
+    run = [sys.executable, str(ROOT / "tests" / "tools" / "det_sweep_plan.py"), "--github-output", str(out)]
+    subprocess.run([*run, "--files", "README.md"], capture_output=True, text=True, check=True)  # noqa: S603
+    text = out.read_text(encoding="utf-8")
+    assert "db2_shards=0" in text and "db2_cases=\n" in text and "db2_matrix=[]" in text

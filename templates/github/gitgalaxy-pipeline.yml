@@ -52,7 +52,10 @@ jobs:
 
       - name: Install GitGalaxy & Full Precision Engines
         run: |
-          pip install --require-hashes -r templates/requirements/full.txt
+          GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=67c3b0554379f37f65135b23812a2a38d717303d847d96f27a915e4b260063d0 # gg-pin:full
+          python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/full.txt" /tmp/gg-requirements.txt
+          echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+          pip install --require-hashes -r /tmp/gg-requirements.txt
 
       - uses: actions/checkout@v4
         with:

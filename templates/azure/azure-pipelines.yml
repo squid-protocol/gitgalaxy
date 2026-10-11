@@ -27,7 +27,10 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        pip install --require-hashes -r templates/requirements/core.txt
+        GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+        python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
+        echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+        pip install --require-hashes -r /tmp/gg-requirements.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -43,7 +46,10 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        pip install --require-hashes -r templates/requirements/core.txt
+        GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+        python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
+        echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+        pip install --require-hashes -r /tmp/gg-requirements.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -59,7 +65,10 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        pip install --require-hashes -r templates/requirements/core.txt
+        GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+        python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
+        echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+        pip install --require-hashes -r /tmp/gg-requirements.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -81,7 +90,10 @@ stages:
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
     - script: |
-        pip install --require-hashes -r templates/requirements/full.txt
+        GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=67c3b0554379f37f65135b23812a2a38d717303d847d96f27a915e4b260063d0 # gg-pin:full
+        python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/full.txt" /tmp/gg-requirements.txt
+        echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+        pip install --require-hashes -r /tmp/gg-requirements.txt
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
     - checkout: self
       fetchDepth: 0

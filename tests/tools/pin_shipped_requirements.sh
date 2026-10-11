@@ -12,3 +12,5 @@ for v in core yaml full; do
   } > "$v.txt.tmp"
   mv "$v.txt.tmp" "$v.txt"
 done
+echo "Lockfiles regenerated. Commit templates/requirements, then run: python tests/tools/stamp_template_pins.py"
+echo "(stamps that commit + each file's sha256 into every template), and commit the stamped templates."

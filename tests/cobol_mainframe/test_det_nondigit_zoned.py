@@ -71,13 +71,20 @@ OPS = [
     ["IF @ IS NUMERIC", "DISPLAY '#num y'", "ELSE", "DISPLAY '#num n'", "END-IF"],
     ["IF @ IS POSITIVE", "DISPLAY '#pos y'", "ELSE", "DISPLAY '#pos n'", "END-IF"],
 ]  # fmt: skip
+# a receiver of the sender's own shape: cobc moves it with a memcpy, nothing converted (COCRDUPC's CVV)
+OPS.append(["MOVE @ TO OWN", "DISPLAY '#>OWN ' OWNX"])
 # the operations that print the sender's bytes as they are (a byte >= X'80' in a digit position stays out of them)
-RAW = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}  # the zoned and edited receivers; packed ones as a COMP-5 number
+RAW = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, len(OPS) - 1}  # the zoned and edited receivers; packed ones as a COMP-5 number
 
 
 def _program(kind: str) -> str:
     pic, ln = KINDS[kind]
-    data = DATA + [f"01 R PIC X({ln}).", f"01 S REDEFINES R {pic}."]
+    data = DATA + [
+        f"01 R PIC X({ln}).",
+        f"01 S REDEFINES R {pic}.",
+        f"01 OWN {pic}.",
+        f"01 OWNX REDEFINES OWN PIC X({ln}).",
+    ]
     proc = []
     for n, b in enumerate(CASES[kind], 1):
         label = f"{kind}{n}"
@@ -85,7 +92,7 @@ def _program(kind: str) -> str:
         high = high and not (kind in ("T", "TS") and b[-1] >= 0x80 and all(c < 0x80 for c in b[:-1]))
         high = high and not (kind in ("L", "LS") and b[0] >= 0x80 and all(c < 0x80 for c in b[1:]))
         for i, op in enumerate(OPS):
-            if high and i in RAW:
+            if (high and i in RAW) or (i == len(OPS) - 1 and any(c >= 0x80 for c in b)):
                 continue
             proc.append(f"MOVE X'{b.hex().upper()}' TO R")
             proc += [x.replace("@", "S").replace("#", label) for x in op]

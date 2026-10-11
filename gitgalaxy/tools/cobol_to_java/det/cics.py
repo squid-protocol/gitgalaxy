@@ -1112,6 +1112,8 @@ class Cics:
             return self.receive(opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)
+        if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
+            return self.web(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
@@ -1162,6 +1164,91 @@ class Cics:
                 f"{ind}if ({r}.length() >= 0) "
                 + g.store_into(self.ref(_arg(opts["LENGTH"])), f"BigDecimal.valueOf({r}.length())", False)
             )
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def web(self, key: str, opts: dict, ind: str) -> list[str]:
+        """WEB OPEN / WEB CONVERSE / WEB CLOSE (IBM CICS TS, EXEC CICS WEB OPEN, WEB CONVERSE, WEB CLOSE; register X35) on
+        the HTTP peers the run states (CicsTask.withHttpPeers). OPEN: HOST(area) HOSTLENGTH [PORTNUMBER] SCHEME, or
+        URIMAP(name); the SESSTOKEN written on NORMAL only. CONVERSE: the request from METHOD, PATH / PATHLENGTH,
+        QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
+        task); on NORMAL or LENGERR 57 the response goes INTO (at most MAXLENGTH, INTO's length when omitted; MAXLENGTH
+        read before TOLENGTH is written: zECS names one area for both), TOLENGTH, STATUSCODE, STATUSTEXT (the reason
+        phrase's bytes) and MEDIATYPE (blank-padded to 56). CLOSE: NOTOPEN 27 for a token that is no open session's.
+        Every other option is refused by name by the spec entry (check_options)."""
+        g = self.g
+        r = g.tmpname("web")
+        if not opts.get("SESSTOKEN"):
+            raise CicsError(_msg(key, "required", "SESSTOKEN"))
+        if key == "WEB CLOSE":
+            tok = f"Cobol.text({self.read_field(_arg(opts['SESSTOKEN']))}, CS)"
+            return [f"{ind}int[] {r} = task.webClose({tok});", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if key == "WEB OPEN":
+            if ("URIMAP" in opts) == ("HOST" in opts):
+                raise CicsError(_msg(key, "one_of", "URIMAP"))
+            if ("HOST" in opts) != ("HOSTLENGTH" in opts):
+                raise CicsError(_requires(key, "HOST", "HOSTLENGTH"))
+            if "HOST" in opts and "SCHEME" not in opts:
+                raise CicsError(_requires(key, "HOST", "SCHEME"))
+            for o in ("PORTNUMBER", "SCHEME"):
+                if o in opts and "HOST" not in opts:
+                    raise CicsError(_requires(key, "PORTNUMBER", "HOST").format(o))
+            if "URIMAP" in opts:
+                call = f"task.webOpenUrimap({self.name(_arg(opts['URIMAP']))})"
+            else:
+                host = f"Cobol.text({self.read_field(_arg(opts['HOST']))}, CS)"
+                port = self.int_(_arg(opts["PORTNUMBER"])) if "PORTNUMBER" in opts else "0"
+                call = (f"task.webOpenHost({host}, {self.int_(_arg(opts['HOSTLENGTH']))}, {port}, "
+                        f"{'true' if 'PORTNUMBER' in opts else 'false'}, {self.int_(_arg(opts['SCHEME']))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebOpened {r} = {call};",
+                    f"{ind}if ({r}.resp() == 0) DetCics.putText({self.field(_arg(opts['SESSTOKEN']))}, {r}.sesstoken(), CS);",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        for o in ("METHOD", "INTO"):
+            if not opts.get(o):
+                raise CicsError(_msg(key, "required", o))
+        for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
+                     ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
+            if (a in opts) != (n in opts):
+                raise CicsError(_requires(key, a, n))
+        if sum(o in opts for o in ("CLIENTCONV", "CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")) > 1:
+            raise CicsError(_msg(key, "at_most_one", "CLIENTCONV"))
+        if "CLIENTCONV" in opts:  # (its value changes nothing within the model, but it is read as IBM reads it)
+            _arg(opts["CLIENTCONV"])
+
+        def text(o: str) -> str:
+            return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
+
+        def num(o: str, absent: str) -> str:
+            return self.int_(_arg(opts[o])) if o in opts else absent
+
+        into = _arg(opts["INTO"])
+        call = (f"task.webConverse({text('SESSTOKEN')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
+                f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
+                f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
+
+        def received(area: str, data: str, what: str) -> str:
+            """What a WEB CONVERSE received, at the area's start (the rest left alone); more bytes than the area holds
+            refused (PastFrom): CICS writes the storage that follows it, which GnuCOBOL lays out unlike IBM's (X6)."""
+            f = self.field(area)
+            return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
+                    f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
+
+        out = [f"{ind}CicsTask.WebResponse {r} = {call};", f"{ind}if ({r}.body() != null) {{",
+               received(into, f"{r}.body()", "WEB CONVERSE INTO")]  # fmt: skip
+        if "TOLENGTH" in opts:
+            out.append(
+                f"{ind}    "
+                + g.store_into(self.ref(_arg(opts["TOLENGTH"])), f"BigDecimal.valueOf({r}.toLength())", False)
+            )
+        if "STATUSCODE" in opts:
+            out.append(
+                f"{ind}    "
+                + g.store_into(self.ref(_arg(opts["STATUSCODE"])), f"BigDecimal.valueOf({r}.status())", False)
+            )
+        if "STATUSTEXT" in opts:
+            out.append(received(_arg(opts["STATUSTEXT"]), f"{r}.statusText().getBytes(CS)", "WEB CONVERSE STATUSTEXT"))
+        if opts.get("MEDIATYPE"):
+            out.append(f"{ind}    DetCics.putText({self.field(_arg(opts['MEDIATYPE']))}, {r}.mediaType(), CS);")
+        out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     # -- #4270: channels and containers

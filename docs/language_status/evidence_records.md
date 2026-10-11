@@ -114,6 +114,8 @@ proven**. Its status says why, for example "1 ported_unproven method (executeCsu
 method is either removed from the port or reached by a proof. Stubs and left-as-generated methods are counted and
 never block. Setting the switch to `"report"` turns ported_unproven into counts only, with no change to any record.
 
+**Holes in called programs** (owner decision 2026-10-11, #4803): a program is not proven while any program it LINKs or CALLs (transitively) has a hole, reached by a scenario or not. The det sweep counts them for the caller (`called_holes`); the caller is listed in `det_sweep_baseline.json` as "CALLs X, which has holes" and stays at L1. Example: `mortgage-csmrt` (EPSCSMRT -> EPSMPMT, C6 float exponent at line 125, FUNCTION ANNUITY at line 144).
+
 The rendered pages judge each record on its own contents (verdict, policy, approvals), so they do not change when
 the tree moves. Staleness is always computed live.
 

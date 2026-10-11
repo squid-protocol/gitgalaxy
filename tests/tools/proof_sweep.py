@@ -28,6 +28,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -143,6 +144,13 @@ def missing_cases(results: dict[str, dict[str, dict]], expect: list[str]) -> lis
     return [f"det {c}: no result (its shard did not report)" for c in expect if c not in results.get("det", {})]
 
 
+def port_proved(row: dict[str, Any]) -> bool:
+    """A det port is proven when its proof passes AND no program it LINKs or CALLs has a hole (owner decision
+    2026-10-11, #4803): the holes of a called program count for its caller even when no scenario reaches them --
+    "proven" must not depend on which scenarios were written."""
+    return bool(row.get("proved")) and not row.get("called_holes")
+
+
 def det_sweep(
     work: Path, jobs: int, faults: str, skip_db2: bool = False, only: list[str] | None = None
 ) -> dict[str, dict]:
@@ -157,7 +165,8 @@ def det_sweep(
     out = {}
     for row in summary:
         cov = _coverage(work / row["case"] / "proof.log")
-        out[row["case"]] = {"proved": bool(row.get("proved")), "coverage": cov,
+        out[row["case"]] = {"proved": port_proved(row), "coverage": cov,
+                            "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
                             "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip

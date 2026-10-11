@@ -80,6 +80,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
                        and ".git" not in p.parts], bms)  # fmt: skip
     dirs.append(bms)
     out: dict[str, Any] = {"case": name, "program": case["program"]}
+    called_holes: list[str] = []  # #4803 (owner): the holes of the programs this one LINKs / CALLs count for it
     port = work / name / "port"
     try:
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
@@ -90,7 +91,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         return out
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
-    for extra in case.get("programs", []):  # the programs the task LINKs to: translated the same way
+    for extra in _extra_programs(case):  # the programs the task LINKs to, and those it CALLs: translated the same way
         x_svc = ej._service_class(extra["program"])
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
         try:
@@ -104,16 +105,33 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         r.stats["statements"] += x.stats["statements"]
         r.stats["translated"] += x.stats["translated"]
         r.stats["holes"] += x.stats["holes"]
+        called_holes += [f"{extra['program']}: {h}" for h in x.stats["holes"]]
         r.stats["warnings"] = [*r.stats.get("warnings", []), *x.stats.get("warnings", [])]
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
                 "holes": r.stats["holes"]})  # fmt: skip
+    if called_holes:
+        out["called_holes"] = called_holes
     if r.stats.get("warnings"):  # #4486: the SYSLIB collisions taken through the first library's member
         out["warnings"] = r.stats["warnings"]
     out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
-                       + [(x["program"], x["program_source"]) for x in case.get("programs", [])]))  # fmt: skip
+                       + [(x["program"], x["program_source"]) for x in _extra_programs(case)]))  # fmt: skip
+    return out
+
+
+def _extra_programs(case: dict[str, Any]) -> list[dict[str, str]]:
+    """The case's other programs, each translated into the port: `programs` (LINK targets) and `subprograms` (CALLed
+    programs, #4803: the Java side runs the real program through handleCall, not the generator's empty stub). The
+    COBOL side compiles a subprogram as SUB<NAME> and a LINK target under its own name; the Java side needs neither."""
+    out = list(case.get("programs", []))
+    seen = {x["program"].upper() for x in out} | {case["program"].upper()}
+    for rel in case.get("subprograms", []):
+        name = Path(rel).stem.upper()
+        if name not in seen:
+            seen.add(name)
+            out.append({"program": name, "program_source": rel})
     return out
 
 

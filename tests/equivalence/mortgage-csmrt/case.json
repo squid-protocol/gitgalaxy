@@ -1,0 +1,93 @@
+{
+ "kind": "cics",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSCSMRT",
+ "program_source": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "subprograms": [
+  "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+ ],
+ "transid": "EPSP",
+ "clock": "2026/10/03 10:30:15.00",
+ "datasets": {},
+ "screens": {},
+ "linked": true,
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "compiler": {
+  "product": "Enterprise COBOL",
+  "version": "6.1",
+  "evidence": "Migration/jclToZBuilder/samples/BLDMORT.jcl compiles EPSMPMT with STEPLIB IGY.V6R1M0.SIGYCOMP (Enterprise COBOL 6.1) and no PARM: the program's CBL NUMPROC(MIG) compiles as the default NUMPROC(NOPFD) (oracle_assumptions.md C5)"
+ },
+ "notes": "IBM DBB MortgageApplication's CICS-LINKed front for the payment calculator: EPSCSMRT moves its COMMAREA into EPSPDATA, CALLs the program its table names (WS-CALLED-PROGRAM = EPSMPMT, a case `subprograms` entry: det-translated and run through handleCall, #4803), and copies the payment, the error text and a return code (0, or 8 when the text is not spaces) back. Its scenarios are the VALIDATION paths only (principal not > 0, over 100000000.01, rate not > 0): EPSMPMT's A999 returns before the annuity formula, so its float `**` (line 125, oracle_assumptions.md C6) and the dead FUNCTION ANNUITY (line 144) are never reached. The payment itself (the success path) is not compared: mortgage-mpmt carries it, unproven on purpose (#4271).",
+ "scenarios": [
+  {
+   "name": "principal-zero",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "0",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.000",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "principal not > 0: EPSMPMT's error 1, RETCODE 8, the payment left as EPSCSMRT zeroed it"
+  },
+  {
+   "name": "principal-negative",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "-500.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 10,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.000",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "a negative principal: error 1 text 'PRINCIPLE AMOUNT IS NEGATIVE'"
+  },
+  {
+   "name": "principal-too-large",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "100000000.50",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "5.000",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "above the maximum 100000000.01: error 2"
+  },
+  {
+   "name": "rate-zero",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "100000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "0",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "a rate not > 0: error 3"
+  },
+  {
+   "name": "rate-negative",
+   "commarea": {
+    "PROCESS-INDICATOR": "3",
+    "EPSPCOM-PRINCIPLE-DATA": "100000.00",
+    "EPSPCOM-NUMBER-OF-YEARS": 30,
+    "EPSPCOM-NUMBER-OF-MONTHS": 0,
+    "EPSPCOM-QUOTED-INTEREST-RATE": "-1.250",
+    "EPSPCOM-YEAR-MONTH-IND": "Y"
+   },
+   "why": "a negative rate: error 3"
+  }
+ ]
+}

@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 55 full, 2 engine-only, 198 name-only.
+**255 entries:** 60 full, 2 engine-only, 193 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -44,7 +44,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | ENDBR | full | yes (5 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |
 | WRITE | full | yes (12 options, 1 refused by name) | yes | — | — | 10 (9 / 1) | — |
 | REWRITE | full | yes (7 options, 1 refused by name) | yes | — | — | 11 (10 / 1) | — |
-| DELETE | full | yes (10 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | — |
+| DELETE | full | yes (11 options, 1 refused by name) | yes | X22 | — | 6 (6 / 0) | — |
 | SEND MAP | full | yes (22 options, 1 refused by name) | yes | X31 | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | X31 | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
@@ -72,7 +72,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DELETE COUNTER | full | yes (5 options) | yes | X30 | — | 1 (1 / 0) | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
 | FORMATTIME | full | yes (13 options) | yes | — | — | 56 (55 / 1) | — |
-| INQUIRE PROGRAM | full | yes (4 options) | yes | — | — | 2 (2 / 0) | — |
+| INQUIRE PROGRAM | full | yes (5 options) | yes | X34 | — | 2 (2 / 0) | — |
 | SYNCPOINT | full | yes (4 options) | yes | X3 | — | 15 (9 / 6) | — |
 | SYNCPOINT ROLLBACK | full | yes (3 options) | yes | X3 | — | 14 (14 / 0) | — |
 | BIF DEEDIT | full | yes (5 options) | yes | X26 | — | 5 (5 / 0) | — |
@@ -81,6 +81,11 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | INQUIRE ASSOCIATION | full | yes (9 options) | yes | X29 | origin | 0 | — |
 | INQUIRE URIMAP | full | yes (9 options) | yes | X32 | urimaps | 0 | — |
 | WRITE OPERATOR | full | yes (4 options) | yes | X32 | — | 1 (1 / 0) | — |
+| WEB OPEN | full | yes (9 options, 4 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
+| WEB CONVERSE | full | yes (23 options, 8 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
+| WEB CLOSE | full | yes (4 options) | yes | X35 | http_peers | 4 (4 / 0) | — |
+| WEB PARSE URL | full | yes (13 options, 1 refused by name) | yes | X36 | — | 3 (3 / 0) | — |
+| WEB SEND | full | yes (12 options, 10 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
 | LOAD | engine-only | refused whole | refused whole | — | — | 0 | — |
 | RELEASE | engine-only | refused whole | refused whole | — | — | 0 | — |
 
@@ -90,11 +95,6 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 
 | command | census use | crucible cases |
 |---|---|---|
-| WEB CONVERSE | 5 (4 / 1) | — |
-| WEB OPEN | 5 (4 / 1) | — |
-| WEB CLOSE | 4 (4 / 0) | — |
-| WEB SEND | 3 (2 / 1) | — |
-| WEB PARSE URL | 3 (3 / 0) | — |
 | FETCH CHILD | 2 (0 / 2) | — |
 | FETCH ANY | 2 (1 / 1) | — |
 | STARTBROWSE CONTAINER | 2 (1 / 1) | — |

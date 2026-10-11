@@ -17,8 +17,8 @@ These files are derived output. A feature PR does not commit them: the Evidence 
 | [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 3 | 4 | 12 | 6 | 6 | 0 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 13 | 13 | 5 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 2 | 1 | 3 | 0 | 0 | 0 |
-| [zecs](zecs/report.md) | 5 | 4 | 0 | 0 | 0 | 1 | 0 |
-| total | 127 | 23 | 9 | 40 | 22 | 33 | 0 |
+| [zecs](zecs/report.md) | 5 | 1 | 3 | 0 | 0 | 1 | 0 |
+| total | 127 | 20 | 12 | 40 | 22 | 33 | 0 |
 
 ## Non-burned estates
 

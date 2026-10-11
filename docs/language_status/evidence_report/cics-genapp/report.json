@@ -50,7 +50,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   },
@@ -1640,7 +1640,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1f01d61b6fd54cb3b543e1c3059cbe42f8cab358"
+   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
   },
   "sweeps": {}
  },
@@ -5750,7 +5750,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -7079,7 +7079,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -8368,7 +8368,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
+       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -8443,7 +8443,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
+      "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -10299,6 +10299,12 @@
     "named_by_commands": [
      {
       "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
@@ -10502,7 +10508,9 @@
      "command": "DELETE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X22"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10644,6 +10652,7 @@
    "program": "base/src/lgdpvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [
+     "X22",
      "X27"
     ],
     "branch_outcomes_unrun": 4,
@@ -10754,7 +10763,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
+       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -10827,7 +10836,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
+      "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
       "oracle_matches_pin": true,
       "records_compared": 24,
       "records_equal": 24,
@@ -14571,7 +14580,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -14963,7 +14972,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -15099,7 +15108,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
+       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -15430,8 +15439,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1f01d61b6fd54cb3b543e1c3059cbe42f8cab358",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1f01d61b6fd54cb3b543e1c3059cbe42f8cab358",
+   "python tests/tools/cics_census.py survey --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
@@ -15448,17 +15457,17 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:08ffcacb887d62164b4f43697d32b9e97d45ce71796fb0f7e75e6b7c6ff592ba",
-   "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa"
+   "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+   "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1f01d61b6fd54cb3b543e1c3059cbe42f8cab358"
+   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
   },
-  "translator_commit": "1f01d61b6fd54cb3b543e1c3059cbe42f8cab358"
+  "translator_commit": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
  },
  "summary": {
   "cics_programs": 31,

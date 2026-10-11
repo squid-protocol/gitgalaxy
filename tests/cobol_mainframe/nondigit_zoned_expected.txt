@@ -47,6 +47,8 @@ U1num n
 U1af     
 U1pos n
 U1af     
+U1>OWN     
+U1af     
 U2>DU 00012A4
 U2af 12A4
 U2>DS 00012AD
@@ -94,6 +96,8 @@ U2af 12A4
 U2num n
 U2af 12A4
 U2pos y
+U2af 12A4
+U2>OWN 12A4
 U2af 12A4
 U3>DU 0001034
 U3af 1 34
@@ -143,6 +147,8 @@ U3num n
 U3af 1 34
 U3pos n
 U3af 1 34
+U3>OWN 1 34
+U3af 1 34
 U4>DU 0000000
 U4af \x00\x00\x00\x00
 U4>DS 000000{
@@ -190,6 +196,8 @@ U4af \x00\x00\x00\x00
 U4num n
 U4af \x00\x00\x00\x00
 U4pos n
+U4af \x00\x00\x00\x00
+U4>OWN \x00\x00\x00\x00
 U4af \x00\x00\x00\x00
 U5>BN  000000003274
 U5af 12#4
@@ -265,6 +273,8 @@ U6num y
 U6af 1234
 U6pos y
 U6af 1234
+U6>OWN 1234
+U6af 1234
 U7>DU 0000012
 U7af 0012
 U7>DS 000001B
@@ -312,6 +322,8 @@ U7af 0012
 U7num y
 U7af 0012
 U7pos y
+U7af 0012
+U7>OWN 0012
 U7af 0012
 == end
 == U BIN
@@ -363,6 +375,8 @@ U1num n
 U1af     
 U1pos n
 U1af     
+U1>OWN     
+U1af     
 U2>DU 00012A4
 U2af 12A4
 U2>DS 00012AD
@@ -410,6 +424,8 @@ U2af 12A4
 U2num n
 U2af 12A4
 U2pos y
+U2af 12A4
+U2>OWN 12A4
 U2af 12A4
 U3>DU 0001034
 U3af 1 34
@@ -459,6 +475,8 @@ U3num n
 U3af 1 34
 U3pos n
 U3af 1 34
+U3>OWN 1 34
+U3af 1 34
 U4>DU 0000000
 U4af \x00\x00\x00\x00
 U4>DS 000000{
@@ -506,6 +524,8 @@ U4af \x00\x00\x00\x00
 U4num n
 U4af \x00\x00\x00\x00
 U4pos n
+U4af \x00\x00\x00\x00
+U4>OWN \x00\x00\x00\x00
 U4af \x00\x00\x00\x00
 U5>BN  000000003274
 U5af 12#4
@@ -581,6 +601,8 @@ U6num y
 U6af 1234
 U6pos y
 U6af 1234
+U6>OWN 1234
+U6af 1234
 U7>DU 0000012
 U7af 0012
 U7>DS 000001B
@@ -628,6 +650,8 @@ U7af 0012
 U7num y
 U7af 0012
 U7pos y
+U7af 0012
+U7>OWN 0012
 U7af 0012
 == end
 == T STD
@@ -679,6 +703,8 @@ T1num n
 T1af     
 T1pos n
 T1af     
+T1>OWN     
+T1af     
 T2>DU 00012A4
 T2af 12AD
 T2>DS 00012AD
@@ -726,6 +752,8 @@ T2af 12A4
 T2num n
 T2af 12A4
 T2pos y
+T2af 12A4
+T2>OWN 12A4
 T2af 12A4
 T3>DU 0001230
 T3af 123{
@@ -775,6 +803,8 @@ T3num n
 T3af 123 
 T3pos y
 T3af 123 
+T3>OWN 123 
+T3af 123 
 T4>DU 0001230
 T4af 123}
 T4>DS 000123}
@@ -822,6 +852,8 @@ T4af 123}
 T4num y
 T4af 123}
 T4pos n
+T4af 123}
+T4>OWN 123}
 T4af 123}
 T5>DU 0001234
 T5af 123D
@@ -871,6 +903,8 @@ T5num y
 T5af 1234
 T5pos y
 T5af 1234
+T5>OWN 1234
+T5af 1234
 T6>DU 0000000
 T6af \x00\x00\x00{
 T6>DS 000000{
@@ -918,6 +952,8 @@ T6af \x00\x00\x00\x00
 T6num n
 T6af \x00\x00\x00\x00
 T6pos n
+T6af \x00\x00\x00\x00
+T6>OWN \x00\x00\x00\x00
 T6af \x00\x00\x00\x00
 T7>DU 0001230
 T7af 123{
@@ -1015,6 +1051,8 @@ T8num n
 T8af 123!
 T8pos y
 T8af 123!
+T8>OWN 123!
+T8af 123!
 T9>DU 0001204
 T9af 12 D
 T9>DS 000120D
@@ -1062,6 +1100,8 @@ T9af 12 4
 T9num n
 T9af 12 4
 T9pos y
+T9af 12 4
+T9>OWN 12 4
 T9af 12 4
 T10>DU 0001231
 T10af 123J
@@ -1111,6 +1151,8 @@ T10num y
 T10af 123J
 T10pos n
 T10af 123J
+T10>OWN 123J
+T10af 123J
 T11>DU 0001230
 T11af 123{
 T11>DS 000123{
@@ -1158,6 +1200,8 @@ T11af 123p
 T11num n
 T11af 123p
 T11pos y
+T11af 123p
+T11>OWN 123p
 T11af 123p
 == end
 == T BIN
@@ -1209,6 +1253,8 @@ T1num n
 T1af     
 T1pos n
 T1af     
+T1>OWN     
+T1af     
 T2>DU 00012A4
 T2af 12AD
 T2>DS 00012AD
@@ -1256,6 +1302,8 @@ T2af 12A4
 T2num n
 T2af 12A4
 T2pos y
+T2af 12A4
+T2>OWN 12A4
 T2af 12A4
 T3>DU 0001230
 T3af 123{
@@ -1305,6 +1353,8 @@ T3num n
 T3af 123 
 T3pos y
 T3af 123 
+T3>OWN 123 
+T3af 123 
 T4>DU 0001230
 T4af 123}
 T4>DS 000123}
@@ -1352,6 +1402,8 @@ T4af 123}
 T4num y
 T4af 123}
 T4pos n
+T4af 123}
+T4>OWN 123}
 T4af 123}
 T5>DU 0001234
 T5af 123D
@@ -1401,6 +1453,8 @@ T5num y
 T5af 1234
 T5pos y
 T5af 1234
+T5>OWN 1234
+T5af 1234
 T6>DU 0000000
 T6af \x00\x00\x00{
 T6>DS 000000{
@@ -1448,6 +1502,8 @@ T6af \x00\x00\x00\x00
 T6num n
 T6af \x00\x00\x00\x00
 T6pos n
+T6af \x00\x00\x00\x00
+T6>OWN \x00\x00\x00\x00
 T6af \x00\x00\x00\x00
 T7>DU 0001230
 T7af 123{
@@ -1545,6 +1601,8 @@ T8num n
 T8af 123!
 T8pos y
 T8af 123!
+T8>OWN 123!
+T8af 123!
 T9>DU 0001204
 T9af 12 D
 T9>DS 000120D
@@ -1592,6 +1650,8 @@ T9af 12 4
 T9num n
 T9af 12 4
 T9pos y
+T9af 12 4
+T9>OWN 12 4
 T9af 12 4
 T10>DU 0001231
 T10af 123J
@@ -1641,6 +1701,8 @@ T10num y
 T10af 123J
 T10pos n
 T10af 123J
+T10>OWN 123J
+T10af 123J
 T11>DU 0001230
 T11af 123{
 T11>DS 000123{
@@ -1688,6 +1750,8 @@ T11af 123p
 T11num n
 T11af 123p
 T11pos y
+T11af 123p
+T11>OWN 123p
 T11af 123p
 == end
 == L STD
@@ -1739,6 +1803,8 @@ L1num n
 L1af     
 L1pos y
 L1af {   
+L1>OWN     
+L1af     
 L2>DU 0000123
 L2af {123
 L2>DS 000012C
@@ -1787,6 +1853,8 @@ L2num n
 L2af  123
 L2pos y
 L2af {123
+L2>OWN  123
+L2af  123
 L3>DU 0000123
 L3af {123
 L3>DS 000012C
@@ -1834,6 +1902,8 @@ L3af {123
 L3num y
 L3af {123
 L3pos y
+L3af {123
+L3>OWN {123
 L3af {123
 L4>DU 0001234
 L4af A234
@@ -1883,6 +1953,8 @@ L4num y
 L4af 1234
 L4pos y
 L4af A234
+L4>OWN 1234
+L4af 1234
 L5>DU 0000123
 L5af }123
 L5>DS 000012L
@@ -1930,6 +2002,8 @@ L5af }123
 L5num y
 L5af }123
 L5pos n
+L5af }123
+L5>OWN }123
 L5af }123
 L6>DU 0000123
 L6af {123
@@ -2027,6 +2101,8 @@ L7num n
 L7af !123
 L7pos y
 L7af A123
+L7>OWN !123
+L7af !123
 L8>DU 0001123
 L8af J123
 L8>DS 000112L
@@ -2074,6 +2150,8 @@ L8af J123
 L8num y
 L8af J123
 L8pos n
+L8af J123
+L8>OWN J123
 L8af J123
 == end
 == L BIN
@@ -2125,6 +2203,8 @@ L1num n
 L1af     
 L1pos y
 L1af {   
+L1>OWN     
+L1af     
 L2>DU 0000123
 L2af {123
 L2>DS 000012C
@@ -2173,6 +2253,8 @@ L2num n
 L2af  123
 L2pos y
 L2af {123
+L2>OWN  123
+L2af  123
 L3>DU 0000123
 L3af {123
 L3>DS 000012C
@@ -2220,6 +2302,8 @@ L3af {123
 L3num y
 L3af {123
 L3pos y
+L3af {123
+L3>OWN {123
 L3af {123
 L4>DU 0001234
 L4af A234
@@ -2269,6 +2353,8 @@ L4num y
 L4af 1234
 L4pos y
 L4af A234
+L4>OWN 1234
+L4af 1234
 L5>DU 0000123
 L5af }123
 L5>DS 000012L
@@ -2316,6 +2402,8 @@ L5af }123
 L5num y
 L5af }123
 L5pos n
+L5af }123
+L5>OWN }123
 L5af }123
 L6>DU 0000123
 L6af {123
@@ -2413,6 +2501,8 @@ L7num n
 L7af !123
 L7pos y
 L7af A123
+L7>OWN !123
+L7af !123
 L8>DU 0001123
 L8af J123
 L8>DS 000112L
@@ -2460,6 +2550,8 @@ L8af J123
 L8num y
 L8af J123
 L8pos n
+L8af J123
+L8>OWN J123
 L8af J123
 == end
 == TS STD
@@ -2511,6 +2603,8 @@ TS1num n
 TS1af 12A4+
 TS1pos y
 TS1af 12A4+
+TS1>OWN 12A4+
+TS1af 12A4+
 TS2>DU 0001204
 TS2af 12 4-
 TS2>DS 000120M
@@ -2558,6 +2652,8 @@ TS2af 12 4-
 TS2num n
 TS2af 12 4-
 TS2pos n
+TS2af 12 4-
+TS2>OWN 12 4-
 TS2af 12 4-
 TS3>DU 0001234
 TS3af 1234+
@@ -2607,6 +2703,8 @@ TS3num n
 TS3af 1234 
 TS3pos y
 TS3af 1234+
+TS3>OWN 1234 
+TS3af 1234 
 TS4>DU 0001234
 TS4af 1234+
 TS4>DS 000123D
@@ -2655,6 +2753,8 @@ TS4num n
 TS4af 1234\x00
 TS4pos y
 TS4af 1234+
+TS4>OWN 1234\x00
+TS4af 1234\x00
 TS5>DU 0001234
 TS5af 1234+
 TS5>DS 000123D
@@ -2702,6 +2802,8 @@ TS5af 1234+
 TS5num y
 TS5af 1234+
 TS5pos y
+TS5af 1234+
+TS5>OWN 1234+
 TS5af 1234+
 TS6>DU 0001234
 TS6af 1234-
@@ -2751,6 +2853,8 @@ TS6num y
 TS6af 1234-
 TS6pos n
 TS6af 1234-
+TS6>OWN 1234-
+TS6af 1234-
 TS7>DU 0000000
 TS7af     +
 TS7>DS 000000{
@@ -2798,6 +2902,8 @@ TS7af     +
 TS7num n
 TS7af     +
 TS7pos y
+TS7af     +
+TS7>OWN     +
 TS7af     +
 TS8>DU 0000000
 TS8af     -
@@ -2847,6 +2953,8 @@ TS8num n
 TS8af     -
 TS8pos n
 TS8af     -
+TS8>OWN     -
+TS8af     -
 TS9>DU 0001234
 TS9af 1234+
 TS9>DS 000123D
@@ -2895,6 +3003,8 @@ TS9num n
 TS9af 1234x
 TS9pos y
 TS9af 1234+
+TS9>OWN 1234x
+TS9af 1234x
 == end
 == TS BIN
 TS1>DU 00012A4
@@ -2945,6 +3055,8 @@ TS1num n
 TS1af 12A4+
 TS1pos y
 TS1af 12A4+
+TS1>OWN 12A4+
+TS1af 12A4+
 TS2>DU 0001204
 TS2af 12 4-
 TS2>DS 000120M
@@ -2992,6 +3104,8 @@ TS2af 12 4-
 TS2num n
 TS2af 12 4-
 TS2pos n
+TS2af 12 4-
+TS2>OWN 12 4-
 TS2af 12 4-
 TS3>DU 0001234
 TS3af 1234+
@@ -3041,6 +3155,8 @@ TS3num n
 TS3af 1234 
 TS3pos y
 TS3af 1234+
+TS3>OWN 1234 
+TS3af 1234 
 TS4>DU 0001234
 TS4af 1234+
 TS4>DS 000123D
@@ -3089,6 +3205,8 @@ TS4num n
 TS4af 1234\x00
 TS4pos y
 TS4af 1234+
+TS4>OWN 1234\x00
+TS4af 1234\x00
 TS5>DU 0001234
 TS5af 1234+
 TS5>DS 000123D
@@ -3136,6 +3254,8 @@ TS5af 1234+
 TS5num y
 TS5af 1234+
 TS5pos y
+TS5af 1234+
+TS5>OWN 1234+
 TS5af 1234+
 TS6>DU 0001234
 TS6af 1234-
@@ -3185,6 +3305,8 @@ TS6num y
 TS6af 1234-
 TS6pos n
 TS6af 1234-
+TS6>OWN 1234-
+TS6af 1234-
 TS7>DU 0000000
 TS7af     +
 TS7>DS 000000{
@@ -3232,6 +3354,8 @@ TS7af     +
 TS7num n
 TS7af     +
 TS7pos y
+TS7af     +
+TS7>OWN     +
 TS7af     +
 TS8>DU 0000000
 TS8af     -
@@ -3281,6 +3405,8 @@ TS8num n
 TS8af     -
 TS8pos n
 TS8af     -
+TS8>OWN     -
+TS8af     -
 TS9>DU 0001234
 TS9af 1234+
 TS9>DS 000123D
@@ -3329,6 +3455,8 @@ TS9num n
 TS9af 1234x
 TS9pos y
 TS9af 1234+
+TS9>OWN 1234x
+TS9af 1234x
 == end
 == LS STD
 LS1>DU 00012A4
@@ -3379,6 +3507,8 @@ LS1num n
 LS1af +12A4
 LS1pos y
 LS1af +12A4
+LS1>OWN +12A4
+LS1af +12A4
 LS2>DU 0001204
 LS2af -12 4
 LS2>DS 000120M
@@ -3426,6 +3556,8 @@ LS2af -12 4
 LS2num n
 LS2af -12 4
 LS2pos n
+LS2af -12 4
+LS2>OWN -12 4
 LS2af -12 4
 LS3>DU 0001234
 LS3af +1234
@@ -3475,6 +3607,8 @@ LS3num n
 LS3af  1234
 LS3pos y
 LS3af +1234
+LS3>OWN  1234
+LS3af  1234
 LS4>DU 0001234
 LS4af +1234
 LS4>DS 000123D
@@ -3522,6 +3656,8 @@ LS4af +1234
 LS4num y
 LS4af +1234
 LS4pos y
+LS4af +1234
+LS4>OWN +1234
 LS4af +1234
 LS5>DU 0001234
 LS5af -1234
@@ -3571,6 +3707,8 @@ LS5num y
 LS5af -1234
 LS5pos n
 LS5af -1234
+LS5>OWN -1234
+LS5af -1234
 LS6>DU 0000000
 LS6af +    
 LS6>DS 000000{
@@ -3619,6 +3757,8 @@ LS6num n
 LS6af +    
 LS6pos y
 LS6af +    
+LS6>OWN +    
+LS6af +    
 LS7>DU 0000000
 LS7af -    
 LS7>DS 000000}
@@ -3666,6 +3806,8 @@ LS7af -
 LS7num n
 LS7af -    
 LS7pos n
+LS7af -    
+LS7>OWN -    
 LS7af -    
 == end
 == LS BIN
@@ -3717,6 +3859,8 @@ LS1num n
 LS1af +12A4
 LS1pos y
 LS1af +12A4
+LS1>OWN +12A4
+LS1af +12A4
 LS2>DU 0001204
 LS2af -12 4
 LS2>DS 000120M
@@ -3764,6 +3908,8 @@ LS2af -12 4
 LS2num n
 LS2af -12 4
 LS2pos n
+LS2af -12 4
+LS2>OWN -12 4
 LS2af -12 4
 LS3>DU 0001234
 LS3af +1234
@@ -3813,6 +3959,8 @@ LS3num n
 LS3af  1234
 LS3pos y
 LS3af +1234
+LS3>OWN  1234
+LS3af  1234
 LS4>DU 0001234
 LS4af +1234
 LS4>DS 000123D
@@ -3860,6 +4008,8 @@ LS4af +1234
 LS4num y
 LS4af +1234
 LS4pos y
+LS4af +1234
+LS4>OWN +1234
 LS4af +1234
 LS5>DU 0001234
 LS5af -1234
@@ -3909,6 +4059,8 @@ LS5num y
 LS5af -1234
 LS5pos n
 LS5af -1234
+LS5>OWN -1234
+LS5af -1234
 LS6>DU 0000000
 LS6af +    
 LS6>DS 000000{
@@ -3957,6 +4109,8 @@ LS6num n
 LS6af +    
 LS6pos y
 LS6af +    
+LS6>OWN +    
+LS6af +    
 LS7>DU 0000000
 LS7af -    
 LS7>DS 000000}
@@ -4004,5 +4158,7 @@ LS7af -
 LS7num n
 LS7af -    
 LS7pos n
+LS7af -    
+LS7>OWN -    
 LS7af -    
 == end

@@ -323,10 +323,22 @@ public final class Cobol {
             moveBytes(from, to, null, cs);
             return;
         }
+        // cobc compiles a MOVE between zoned items of one shape (digits, scale, sign, sign position, size) as a memcpy
+        // (cb_build_move_copy): libcob's store_common_region, and the sign rewrite, never run, so a space or letter in
+        // a digit position travels as it is (COCRDUPC's CVV, register C11).
+        if (to.kind == Field.Kind.NUMERIC_DISPLAY && sameZonedShape(from, to)) {
+            System.arraycopy(from.st.bytes, from.off, to.st.bytes, to.off, from.len);
+            return;
+        }
         // #4662: libcob reads a zoned sender's sign (GET_SIGN) and writes it back (PUT_SIGN) after the MOVE
         Zoned.Raw raw = Zoned.get(from, cs);
         moveBytes(from, to, raw, cs);
         Zoned.putSign(from, raw, cs);
+    }
+
+    private static boolean sameZonedShape(Field a, Field b) {
+        return a.digits == b.digits && a.scale == b.scale && a.signed == b.signed && a.signLeading == b.signLeading
+                && a.signSeparate == b.signSeparate && a.len == b.len && a.blankWhenZero == b.blankWhenZero;
     }
 
     private static void moveBytes(Field from, Field to, Zoned.Raw raw, Charset cs) {

@@ -28,7 +28,8 @@ while true; do
         if flock -n 8; then flock -u 8; else held=$((held + 1)); fi
         exec 8>&-
       done
-      cores=$(nproc 2>/dev/null || echo 4)
+      # online CPUs, not `nproc`: GNU nproc honours OMP_NUM_THREADS (CI sets 1), which would starve the job
+      cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)
       GG_JOB_CORES=$((cores / held)); [ "$GG_JOB_CORES" -ge 1 ] || GG_JOB_CORES=1
       export GG_JOB_CORES
       "$@"; rc=$?; exec 9>&-; exit $rc

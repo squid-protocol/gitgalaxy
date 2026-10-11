@@ -235,7 +235,6 @@ DELETE = _file(
         RuntimeRefusal(
             "a GENERIC KEYLENGTH not shorter than the key, or not above zero",
             "X22",
-            java="DELETE GENERIC KEYLENGTH",
             c="DELETE GENERIC KEYLENGTH",
         ),
     ),

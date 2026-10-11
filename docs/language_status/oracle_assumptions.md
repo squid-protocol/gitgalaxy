@@ -1332,9 +1332,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   generic key with a length specified in the KEYLENGTH option"; KEYLENGTH and RIDFLD required with it; NOTFND RESP2 80
   "An attempt to delete a record based on the search argument provided is unsuccessful"; INVREQ 25 / 42 as READ's):
   every record whose key starts with RIDFLD's first KEYLENGTH bytes is deleted (the page's "same starting characters";
-  ASSUMED: all of them, in one command, as the page's warning about many locks implies), NOTFND RESP2 80 when none.
+  IBM: "delete a group of records with a single invocation"; ASSUMED: no record is locked by another task, so none is left behind (IBM's LOCKED / RECORDBUSY outcomes, a single-task run never meets them), and the generic delete is not a non-KSDS one, INVREQ RESP2 22, the stores being KSDS), NOTFND RESP2 80 when none.
   The stub: `GGCDELT` with GG-FLAGS `GENERIC`; the det port: `CicsTask.delete` over repeated `DetCics.Store.search` /
-  `remove`. Refused: a GENERIC KEYLENGTH not shorter than the key or not above zero (here when the file is known, at
+  `remove`. Refused: a GENERIC KEYLENGTH not shorter than the key or not above zero (IBM: RESP2 25 at or above the full key; zero "unpredictable", RESP2 42 below zero) (here when the file is known, at
   run time when it is named then), a KEYLENGTH that is no constant, NUMREC (no corpus program asks for the count).
   Pinned by `test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key`,
   `test_delete_generic_deletes_every_record_with_the_generic_key`, `test_a_delete_generic_is_named_to_the_stub` and the

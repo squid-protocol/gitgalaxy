@@ -113,6 +113,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
+    _snapshot_generated(port.parent / "generated", project, stub, [t.java for t in translated])
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
                 "holes": r.stats["holes"]})  # fmt: skip
     called_holes += unlisted_callees(case, [t.stats for t in translated])
@@ -123,6 +124,19 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
                        + [(x["program"], x["program_source"]) for x in _extra_programs(case)]))  # fmt: skip
     return out
+
+
+def _snapshot_generated(dest: Path, project: Path, stub: str, services: list[str]) -> None:
+    """#4847: the generated classes this port is proven against, copied to `dest` so `check` sees a generator (forge)
+    change: the service stub (what the port replaces) and every other class of the generated project (DTO, entity,
+    repository ...) whose name the stub or a translated service uses. They are never part of the proven port."""
+    shutil.rmtree(dest, ignore_errors=True)
+    words = set(re.findall(r"\w+", " ".join([stub, *services])))
+    root = project / "src/main/java"
+    for f in sorted(root.rglob("*.java")):
+        if f.stem in words:
+            (dest / f.relative_to(root)).parent.mkdir(parents=True, exist_ok=True)
+            (dest / f.relative_to(root)).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 def unlisted_callees(case: dict[str, Any], stats: list[dict[str, Any]]) -> list[str]:
@@ -219,6 +233,9 @@ def _ports(work: Path) -> dict[str, dict[str, str]]:
     for port in sorted(work.glob("*/port")):
         out[port.parent.name] = {f.relative_to(port).as_posix(): f.read_text(encoding="utf-8")
                                  for f in sorted(port.rglob("*.java"))}  # fmt: skip
+        gen = port.parent / "generated"  # #4847: the generated classes the port is proven against (the forges' output)
+        out[port.parent.name].update({"generated/" + f.relative_to(gen).as_posix(): f.read_text(encoding="utf-8")
+                                      for f in sorted(gen.rglob("*.java"))})  # fmt: skip
     return out
 
 
@@ -234,9 +251,13 @@ def compare(base: Path, new: Path) -> list[dict[str, Any]]:
         if case not in a or case not in b:
             rows.append({"case": case, "status": "new" if case not in a else "gone"})
             continue
-        own = " ".join(t for rel, t in b[case].items() if not rel.startswith("cobolrt/"))
+        own = " ".join(t for rel, t in b[case].items() if not rel.startswith(("cobolrt/", "generated/")))
         files = []
+        # (a base from before the snapshot existed, #4847, has no generated/ files: compare those only when both have)
+        both = any(r.startswith("generated/") for r in a[case]) and any(r.startswith("generated/") for r in b[case])
         for rel in sorted(set(a[case]) | set(b[case])):
+            if rel.startswith("generated/") and not both:
+                continue
             x, y = a[case].get(rel, ""), b[case].get(rel, "")
             if x == y:
                 continue

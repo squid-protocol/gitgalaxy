@@ -60,7 +60,25 @@ jobs:
           cd main
           PYTHONPATH="$PWD" python tests/tools/evidence.py render
 
+      # #4925: only main may write `generated`. A workflow_dispatch from any other ref lays the rendered pages into a
+      # scratch dir and uploads them (evidence-pages-preview); it never touches the shared branch.
+      - name: Preview the pages (not main, nothing is pushed)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence-pages-preview/docs/language_status/evidence"
+          cp main/docs/language_status/evidence/*.md "$RUNNER_TEMP/evidence-pages-preview/docs/language_status/evidence/"
+          echo "Evidence pages PREVIEW ($(ls "$RUNNER_TEMP/evidence-pages-preview/docs/language_status/evidence" | wc -l) pages, ref ${GITHUB_REF_NAME}; generated NOT written)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the preview
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: evidence-pages-preview
+          path: ${{ runner.temp }}/evidence-pages-preview/
+          retention-days: 7
+
       - name: Checkout the generated branch
+        if: github.ref == 'refs/heads/main'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: generated
@@ -68,6 +86,7 @@ jobs:
           persist-credentials: true  # this job pushes the pages; it runs no PR code (push to main / dispatch only)
 
       - name: Publish to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
           cd generated
           if git fetch --depth 1 origin generated 2>/dev/null; then

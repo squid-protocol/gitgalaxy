@@ -80,3 +80,6 @@ hung test fails by name after 10 minutes instead of running the job into its tim
 
 ## Nightly blockers baseline (#4863)
 Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.
+
+## Evidence pages publish (#4925)
+`evidence-pages.yml` writes the `generated` branch only when the run's ref is `refs/heads/main`. A `workflow_dispatch` from any other ref renders the pages into a scratch dir and uploads them as the `evidence-pages-preview` artifact; it never writes `generated` (same rule as the `publish-blockers` job in Evidence Refresh, #4924).

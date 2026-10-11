@@ -42,7 +42,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
 IMAGE = "gitgalaxy-gnucobol:3"
 # #4904: timeouts for docker execution of GnuCOBOL steps
-DOCKER_STEP_TIMEOUT = 180  # seconds: ~3-5x normal GnuCOBOL compile + run step time (~15-30s)
+DOCKER_STEP_TIMEOUT = (
+    1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
+)
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 _register_ebcdic()  # #3816: cp277 / cp278 / ... resolve in every decode and encode below

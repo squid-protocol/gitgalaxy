@@ -133,9 +133,7 @@ REGION_USERID = "CICSUSER"
 REGION_SCREEN = (24, 80)
 # #4904: timeouts for Container docker operations
 CONTAINER_START_TIMEOUT = 60  # seconds: ~5-10x normal docker run -d container startup (~2-5s under load)
-CONTAINER_EXEC_TIMEOUT = (
-    120  # seconds: ~3-5x normal cobc compile (~10s) or scenario task run (<1s); bounds runaway loops
-)
+CONTAINER_EXEC_TIMEOUT = 300  # seconds: hang guard, well above a cobc compile under CI load (~10s) or scenario task run (<1s); bounds runaway loops
 CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).

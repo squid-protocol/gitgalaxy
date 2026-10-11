@@ -436,10 +436,18 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
 # Lombok found on the classpath)
 JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
 # #4904: timeouts for javac/java execution in equivalence tests
-JAVAC_RUNNER_TIMEOUT = 60  # seconds: ~3-5x normal single-file javac compile (~1-2s)
-JAVA_DIRECT_TIMEOUT = 180  # seconds: ~3-5x normal Java equivalence test execution (~10-30s)
-JAVAC_OVERLAY_TIMEOUT = 120  # seconds: ~3-5x normal overlay javac compile (~3-10s)
-MAVEN_TEST_TIMEOUT = 300  # seconds: ~3-5x normal mvn test execution (~20-60s)
+JAVAC_RUNNER_TIMEOUT = (
+    300  # seconds: hang guard, well above the slowest honest run (normal single-file javac compile (~1-2s))
+)
+JAVA_DIRECT_TIMEOUT = (
+    1200  # seconds: hang guard, well above the slowest honest run (normal Java equivalence test execution (~10-30s))
+)
+JAVAC_OVERLAY_TIMEOUT = (
+    600  # seconds: hang guard, well above the slowest honest run (normal overlay javac compile (~3-10s))
+)
+MAVEN_TEST_TIMEOUT = (
+    1200  # seconds: hang guard, well above the slowest honest run (normal mvn test execution (~20-60s))
+)
 PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
 TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath the tests run on, this project's
 TEST_SOURCE = "target/equivalence-test-source"  # the EquivalenceRunTest source target/test-classes was built from

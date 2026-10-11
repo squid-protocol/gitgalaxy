@@ -41,9 +41,13 @@ PKG_DIR = PKG.replace(".", "/")
 EXTS = {".cbl", ".cob", ".cobol"}
 COPY_EXTS = {".cpy", ".copy", ".cbl", ".cob", ""}
 # #4904: timeouts for mvn and javac operations
-MVN_COMPILE_TIMEOUT = 300  # seconds: ~3-5x normal estate mvn compile time (~30-60s)
-MVN_CLASSPATH_TIMEOUT = 180  # seconds: ~3-5x normal dependency:build-classpath resolution (~15-30s)
-JAVAC_PORT_TIMEOUT = 60  # seconds: ~3-5x normal javac compilation of translated port (~5-10s)
+MVN_COMPILE_TIMEOUT = (
+    900  # seconds: hang guard, well above the slowest honest run (normal estate mvn compile time (~30-60s))
+)
+MVN_CLASSPATH_TIMEOUT = 600  # seconds: hang guard, well above the slowest honest run (normal dependency:build-classpath resolution (~15-30s))
+JAVAC_PORT_TIMEOUT = (
+    300  # seconds: hang guard, well above the slowest honest run (normal javac compilation of translated port (~5-10s))
+)
 
 
 def jdk() -> str:

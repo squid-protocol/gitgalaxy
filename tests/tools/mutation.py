@@ -55,8 +55,10 @@ sys.path.insert(0, str(REPO_ROOT))
 EQUIVALENCE = TOOLS / "equivalence.py"
 CASES = REPO_ROOT / "tests" / "equivalence"
 # #4904: timeouts for mvn, javac, and process termination in mutation tooling
-MVN_CLASSPATH_TIMEOUT = 300  # seconds: ~3-5x normal mvn compile -X (~30-60s)
-JAVAC_MUTANT_TIMEOUT = 60  # seconds: ~3-5x normal single mutant javac compile (~5-10s)
+MVN_CLASSPATH_TIMEOUT = 600  # seconds: hang guard, well above the slowest honest run (normal mvn compile -X (~30-60s))
+JAVAC_MUTANT_TIMEOUT = (
+    300  # seconds: hang guard, well above the slowest honest run (normal single mutant javac compile (~5-10s))
+)
 KILL_WAIT_TIMEOUT = 10  # seconds: wait for process group termination after SIGKILL
 
 # ---- the mutation operators ---------------------------------------------------------------------------------------

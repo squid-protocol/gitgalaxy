@@ -20,8 +20,7 @@ pipelines:
               - pip
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
-              - pip install --upgrade pip
-              - pip install gitgalaxy
+              - pip install --require-hashes -r templates/requirements/core.txt
               - vault-sentinel .
 
         - step:
@@ -30,8 +29,7 @@ pipelines:
               - pip
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
-              - pip install --upgrade pip
-              - pip install gitgalaxy
+              - pip install --require-hashes -r templates/requirements/core.txt
               - xray-inspector .
 
         - step:
@@ -40,8 +38,7 @@ pipelines:
               - pip
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
-              - pip install --upgrade pip
-              - pip install gitgalaxy
+              - pip install --require-hashes -r templates/requirements/core.txt
               - supply-chain-firewall .
 
         - step:
@@ -50,8 +47,7 @@ pipelines:
               - pip
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
-              - pip install --upgrade pip
-              - pip install "gitgalaxy[yaml]" tiktoken xgboost pandas numpy
+              - pip install --require-hashes -r templates/requirements/full.txt
               - |
                 galaxyscope . --config .galaxyscope.yaml --fail-on-malware --sarif-only --output gitgalaxy-results.json
               # Publishes SARIF results as native Bitbucket Code Insights PR

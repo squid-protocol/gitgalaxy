@@ -27,8 +27,7 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        python -m pip install --upgrade pip
-        pip install gitgalaxy
+        pip install --require-hashes -r templates/requirements/core.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -44,8 +43,7 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        python -m pip install --upgrade pip
-        pip install gitgalaxy
+        pip install --require-hashes -r templates/requirements/core.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -61,8 +59,7 @@ stages:
       inputs:
         versionSpec: '3.12'
     - script: |
-        python -m pip install --upgrade pip
-        pip install gitgalaxy
+        pip install --require-hashes -r templates/requirements/core.txt
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
@@ -84,8 +81,7 @@ stages:
         cacheHitVar: PIP_CACHE_RESTORED
       displayName: 'Configure Dependency Caching'
     - script: |
-        python -m pip install --upgrade pip
-        pip install "gitgalaxy[yaml]" tiktoken xgboost pandas numpy
+        pip install --require-hashes -r templates/requirements/full.txt
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
     - checkout: self
       fetchDepth: 0

@@ -52,8 +52,7 @@ jobs:
 
       - name: Install GitGalaxy & Full Precision Engines
         run: |
-          python -m pip install --upgrade pip
-          pip install "gitgalaxy[yaml]" tiktoken xgboost pandas numpy
+          pip install --require-hashes -r templates/requirements/full.txt
 
       - uses: actions/checkout@v4
         with:

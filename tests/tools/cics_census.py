@@ -46,6 +46,10 @@ gap refuses, with that one refusal check of the det translator switched off (det
 in det_survey's what-if mode), and reports the gaps hidden behind it and whether any program would become whole.
 WHAT-IF, NOT A TRANSLATION: it uses this checkout's translator and the surveyed estates.
 
+#4863: the nightly Evidence Refresh surveys main once (burned / pinned corpora, no census) and publishes blockers.txt /
+.json / meta.json plus one `history append --nightly` line to the `generated` branch (docs/language_status/blockers/,
+via `publish --into DIR`); `blockers --generated` and `history show --generated` read them. Nothing is committed on main.
+
 `history append --pr N` adds one JSON line (main SHA, date, whole / total, burned + non-burned, refused whole, top 5
 gaps, PR) to docs/language_status/blockers_history.jsonl from the cached baseline of origin/main (or --sha); `history
 show` prints the series. Names and counts only.
@@ -546,6 +550,16 @@ def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
 
 
 def cmd_blockers(args: argparse.Namespace) -> int:
+    if args.generated:  # the nightly ranking published on the generated branch (#4863)
+        _git("fetch", "-q", "origin", "generated")
+        res = json.loads(read_generated(f"{GENERATED_DIR}/blockers.json"))
+        meta = json.loads(read_generated(f"{GENERATED_DIR}/meta.json"))
+        where = f"nightly {meta['sha'][:12]} ({meta['scope']}, surveyed {meta['surveyed_utc']})"
+        if args.json:
+            print(json.dumps(res, indent=1))
+            return 0
+        print(format_blockers(res, where, args.top))
+        return 0
     if args.baseline:
         d, label = baseline_dir(args), "before"
         if args.unmask:
@@ -580,6 +594,12 @@ def cmd_blockers(args: argparse.Namespace) -> int:
 CACHE = "census-cache"
 SNAPSHOT_PATHS = ("gitgalaxy", "tests/tools", "pyproject.toml")  # what det_survey needs from the surveyed commit
 HISTORY = REPO / "docs" / "language_status" / "blockers_history.jsonl"
+# #4863: the nightly baseline (blockers.txt / .json / meta.json) and its history are published to the `generated` branch by
+# evidence-refresh.yml (one survey a night), not committed on main. The per-slice HISTORY above stays on main as the seed.
+GENERATED_REF = "origin/generated"
+GENERATED_DIR = "docs/language_status/blockers"
+GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
+GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
 
 
 def _git(*argv: str) -> str:
@@ -920,7 +940,11 @@ def read_history(path: Path = HISTORY) -> list[dict[str, Any]]:
 def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
-        rows = read_history(path)
+        if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
+            _git("fetch", "-q", "origin", "generated")
+            rows = [json.loads(ln) for ln in read_generated(GENERATED_HISTORY).splitlines() if ln.strip()]
+        else:
+            rows = read_history(path)
         if args.json:
             print(json.dumps(rows, indent=1))
             return 0
@@ -929,27 +953,62 @@ def cmd_history(args: argparse.Namespace) -> int:
         for e in rows:
             top = e["top_gaps"][0]["gap"] if e.get("top_gaps") else "-"
             ref = "?" if e.get("refused_whole") is None else e["refused_whole"]
-            print(f"{e['date'][:10]:<10} {'#' + str(e['pr']):>6} {e['main_sha'][:9]:<10} "
+            print(f"{e['date'][:10]:<10} {('#' + str(e['pr'])) if e['pr'] else 'nightly':>6} {e['main_sha'][:9]:<10} "
                   f"{e['whole']:>4}/{e['total']:<4} {e['whole_burned']:>3}/{e['total_burned']:<3} "
                   f"{e['whole_non_burned']:>5}/{e['total_non_burned']:<4} {ref!s:>7}  {top[:70]}"
                   f"{'  (note)' if e.get('note') else ''}")  # fmt: skip
         return 0
-    if args.pr is None:
-        raise SystemExit("history append needs --pr N (the merged slice)")
-    d = baseline_dir(args)
+    if args.pr is None and not args.nightly:
+        raise SystemExit("history append needs --pr N (the merged slice), or --nightly")
+    return append_history(path, baseline_dir(args), 0 if args.nightly else args.pr, args.note, args.nightly)
+
+
+def append_history(path: Path, d: Path, pr: int, note: str | None, nightly: bool = False) -> int:
+    """One history line from the baseline in `d`. A slice line is keyed (pr, SHA); a nightly line (pr 0) by SHA alone."""
     meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))
     sha = meta["sha"]
-    if any(e["pr"] == args.pr and e["main_sha"] == sha for e in read_history(path)):
-        print(f"history already has #{args.pr} at {sha[:12]}: nothing appended", file=sys.stderr)
+    rows = read_history(path)
+    if any(e["main_sha"] == sha and (nightly and e["pr"] == 0 or e["pr"] == pr) for e in rows):
+        what = "a nightly line" if nightly else f"#{pr}"
+        print(f"history already has {what} at {sha[:12]}: nothing appended", file=sys.stderr)
         return 2
     stamp = _git("show", "-s", "--format=%ct", sha)
     date = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(stamp))) if stamp.isdigit() else stamp
-    entry = history_entry(baseline_blockers(d), sha, date, args.pr, args.note, meta["scope"])
+    entry = history_entry(baseline_blockers(d), sha, date, pr, note, meta["scope"])
+    if nightly:
+        entry["nightly"] = True
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    print(f"appended to {path}: #{args.pr} {sha[:12]} whole {entry['whole']}/{entry['total']} (non-burned "
-          f"{entry['whole_non_burned']}/{entry['total_non_burned']}), refused whole {entry['refused_whole']}")  # fmt: skip
+    print(f"appended to {path}: {'nightly' if nightly else '#' + str(pr)} {sha[:12]} whole {entry['whole']}/"
+          f"{entry['total']} (non-burned {entry['whole_non_burned']}/{entry['total_non_burned']}), refused whole "
+          f"{entry['refused_whole']}")  # fmt: skip
     return 0
+
+
+def cmd_publish(args: argparse.Namespace) -> int:
+    """Lay the baseline of --sha into a checkout of the `generated` branch (#4863): blockers.txt / .json / meta.json and
+    one nightly history line, seeded from main's per-slice history when the branch has none. Counts and names only."""
+    d = baseline_dir(args)
+    out = args.into / GENERATED_DIR
+    out.mkdir(parents=True, exist_ok=True)
+    meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))
+    if meta.get("census"):
+        raise SystemExit(
+            "publish: this baseline includes the census repos; only the burned / pinned scope is published"
+        )
+    hist = args.into / GENERATED_HISTORY
+    if not hist.is_file() and HISTORY.is_file():
+        shutil.copyfile(HISTORY, hist)
+    for name in GENERATED_FILES:
+        shutil.copyfile(d / name, out / name)
+    rc = append_history(hist, d, 0, args.note, nightly=True)
+    return 0 if rc in (0, 2) else rc  # 2: this SHA is already in the series (a rerun)
+
+
+def read_generated(path: str) -> str:
+    """A file of the published `generated` branch (after `git fetch origin generated`)."""
+    return _git("show", f"{GENERATED_REF}:{path}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -992,6 +1051,8 @@ def main(argv: list[str] | None = None) -> int:
     k = sub.add_parser("blockers", parents=[common, base], help="rank every gap by the programs fixing it makes whole")
     k.add_argument("dir", type=Path, nargs="?", help="a survey directory (or --baseline)")
     k.add_argument("--baseline", action="store_true", help="the cached baseline of --sha (survey --baseline)")
+    k.add_argument("--generated", action="store_true", help="the nightly ranking published on origin/generated "
+                   "(blockers.json there; fetched first)")  # fmt: skip
     k.add_argument("--unmask", metavar="GAPKEY", help="WHAT-IF: re-translate the programs this whole-program refusal "
                    "(a `*` row; a unique substring will do) refuses, with its check off; report what it hides")  # fmt: skip
     k.add_argument("--label", default="before", help="the survey run prefix (DIR/<label>-*/survey.json)")
@@ -1002,14 +1063,21 @@ def main(argv: list[str] | None = None) -> int:
     h = sub.add_parser("history", parents=[base], help="the whole counts per merged slice (blockers_history.jsonl)")
     h.add_argument("action", choices=["append", "show"])
     h.add_argument("--pr", type=int, help="append: the merged PR")
+    h.add_argument("--nightly", action="store_true", help="append: a nightly line (no PR; one per SHA)")
+    h.add_argument("--generated", action="store_true", help="show: the nightly series on origin/generated "
+                   "(blockers_history.jsonl there; fetched first)")  # fmt: skip
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")
+    pub = sub.add_parser("publish", parents=[base], help="lay the baseline + a nightly history line into a checkout of "
+                         "the generated branch (evidence-refresh.yml, #4863)")  # fmt: skip
+    pub.add_argument("--into", type=Path, required=True, help="the checkout of the `generated` branch")
+    pub.add_argument("--note", help="a note for the history line")
     args = ap.parse_args(argv)
     if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
         ap.error("--no-census and --census-corpora contradict each other: give one")
     cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers,
-            "history": cmd_history}  # fmt: skip
+            "history": cmd_history, "publish": cmd_publish}  # fmt: skip
     return cmds[args.cmd](args)
 
 

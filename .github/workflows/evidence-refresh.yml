@@ -719,6 +719,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      surveyed: ${{ steps.survey.outcome == 'success' }}  # the publish-blockers job runs only on a survey that ran (#4863)
+      sha: ${{ steps.asof.outputs.sha }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -778,7 +781,7 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
-      - name: Setup JDK 17 (the translation survey, as blocker-baseline.yml)
+      - name: Setup JDK 17 (the translation survey)
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
@@ -787,9 +790,10 @@ jobs:
       # #4863: the report's translation column (programs translated whole, holes, refusals) is a cics_census survey. It was
       # frozen into report.json and only re-rendered here, so the reports kept the translator of 2026-10-07 for days and
       # showed programs made whole since then at L0. Survey the run's pinned commit of main on the burned / pinned corpora
-      # (translation only, no census repos in CI: the same survey blocker-baseline.yml runs, ~5 min) and build the reports
-      # from it below. A survey that cannot run never holds back the records: the reports are then re-rendered from their
-      # last measured survey, as before, and the run warns.
+      # (translation only, no census repos in CI, ~5 min) and build the reports from it below. The SAME survey is the
+      # nightly blockers baseline (blockers.txt / .json + a history line): the publish-blockers job below hands it to the
+      # `generated` branch, so one survey a night feeds both (blocker-baseline.yml no longer runs on a schedule). A survey that cannot run
+      # never holds back the records: the reports are then re-rendered from their last measured survey, as before, and the run warns.
       - name: Survey the translation (#4863)
         id: survey
         continue-on-error: true
@@ -806,6 +810,17 @@ jobs:
             head -4 "$GG_SCRATCH/census-cache/$SHA/blockers.txt"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          # the survey's cache dir minus the translator snapshot (src/) and logs: what `cics_census.py publish` reads
+          mkdir -p "$RUNNER_TEMP/blockers-cache/census-cache"
+          rsync -a --exclude src --exclude '*.log' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
+
+      - name: Keep the survey for the blockers publisher (#4863)
+        if: steps.survey.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blockers-survey
+          path: ${{ runner.temp }}/blockers-cache/
+          retention-days: 7
 
       # #4744: the proofs ran in the `sweep` and `records` jobs, in parallel on their own runners; this job only merges them.
       #
@@ -1007,3 +1022,84 @@ jobs:
         run: |
           echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
           exit 1
+
+  # #4863 (step 3, one survey a night, one writer): the refresh job's translation survey of main is also the nightly blockers
+  # baseline (`cics_census.py blockers`). This job publishes it -- blockers.txt / blockers.json / meta.json and one line in
+  # blockers_history.jsonl -- to the `generated` branch under docs/language_status/blockers/, like evidence-pages.yml does
+  # for the pages (never a commit on main; blocker-baseline.yml, which surveyed the same corpora a second time and kept an
+  # artifact nobody read, no longer runs on a schedule). Burned / pinned corpora only: the census counts stay a local run.
+  publish-blockers:
+    needs: [refresh]
+    if: ${{ !cancelled() && needs.refresh.outputs.surveyed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write  # push to the `generated` branch only
+    concurrency:
+      group: evidence-pages  # the same one writer as evidence-pages.yml: they push the same branch
+      cancel-in-progress: false
+    steps:
+      - name: Checkout the surveyed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: main
+          ref: ${{ needs.refresh.outputs.sha }}
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./main
+
+      - name: Take the refresh job's survey
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: blockers-survey
+          path: ${{ runner.temp }}/blockers-survey
+
+      - name: Checkout the generated branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: generated
+          fetch-depth: 1
+          persist-credentials: true  # this job pushes; it runs no PR code (nightly / dispatch only)
+
+      - name: Publish blockers and the history line to the generated branch
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          if git -C generated fetch --depth 1 origin generated 2>/dev/null; then
+            git -C generated checkout -q -B generated FETCH_HEAD
+          else  # first run: an orphan branch holding only generated output
+            git -C generated checkout -q --orphan generated
+            git -C generated rm -rqf .
+          fi
+          (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
+            --root "$RUNNER_TEMP/blockers-survey" --into "$GITHUB_WORKSPACE/generated")
+          cd generated
+          [ -f GENERATED_FROM ] || echo "Generated output only -- never edit by hand." > GENERATED_FROM
+          if ! grep -q "docs/language_status/blockers/" GENERATED_FROM; then
+            echo "docs/language_status/blockers/: the nightly blockers ranking and history, from the evidence refresh's survey (#4863)." >> GENERATED_FROM
+          fi
+          git add -A
+          if git diff --cached --quiet; then
+            echo "blockers unchanged at ${SHA::12}"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "blockers baseline as of main $SHA"
+          git push -q origin HEAD:generated
+          {
+            echo "## Blockers published (${SHA::12})"
+            echo '```'
+            head -6 docs/language_status/blockers/blockers.txt
+            echo '```'
+            echo "history: $(wc -l < docs/language_status/blockers/blockers_history.jsonl) lines"
+          } >> "$GITHUB_STEP_SUMMARY"

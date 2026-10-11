@@ -124,7 +124,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
-| X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
+| X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
 | X23 | CICS | A COMMAREA of a stated length (a scenario's `commarea_length`, EIBCALEN shorter than the record): the program is given exactly those bytes; a reference past EIBCALEN refused on both sides, the task judged up to it | ASSUMED (REFUSED past EIBCALEN) | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01) |
 | X24 | CICS | A task started with a channel (a scenario's `channel`: what a RUN TRANSID CHANNEL parent or a LINK CHANNEL caller passed), made its first program's current channel; the containers left on that channel compared at the task's end (dropped on an abend), byte for byte; RUN TRANSID children not run | ASSUMED | yes (async credit-card CRDTCHK, CSSTATS2, CSSTATUS, GETADDR, GETNAME; CBSA CRDTAGY1-5, an explicit CHANNEL(CIPCREDCHANN)) |
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
@@ -1289,7 +1289,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `tests/cics_crucible/test_cics_runtimes.py` (the stub and CicsTask, stated, unstated and refused) and
   `tests/cobol_mainframe/test_equivalence_cics.py` (the drivers, the scenario / case / default order).
 
-### X22. READ GTEQ / GENERIC — ASSUMED, REFUSED where IBM is silent or the layout decides (#4270)
+### X22. READ GTEQ / GENERIC, DELETE GENERIC — ASSUMED, REFUSED where IBM is silent or the layout decides (#4270, #4771)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS READ, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read):
   GENERIC "specifies that the search key is a generic key whose length is specified in the KEYLENGTH option"; GTEQ
   "specifies that, if the search for a record that has the same key (complete or generic) as that specified in the
@@ -1312,6 +1312,23 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   is a known constant, the stub at run time ("READ GENERIC KEYLENGTH ..."); a KEYLENGTH the translator cannot read as
   a constant, or a partial one without GENERIC (INVREQ 26, as before); a RIDFLD shorter than the bytes searched (CICS
   would read the storage after it, which GnuCOBOL lays out unlike IBM's compiler, X6).
+- **#4771 (zECS ZECS000 / ZECS003): a file named at run time, and DELETE GENERIC.** zECS names its cache file by a data
+  item (`ZF-FCT`: 'ZC' + the transaction's last two characters + 'FILE', ZC##FILE instantiated per table by the install
+  JCL), so no file is known when translating. READ GTEQ on the full key then searches with the key length of the store
+  the name picks at run time (the project's stores, by name; a name it stores none for is a Hole then, as for every
+  other command on such a file), and a RIDFLD shorter than that key is refused then (X6). DELETE GENERIC (IBM, EXEC
+  CICS DELETE, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete: GENERIC "Specifies that the search key is a
+  generic key with a length specified in the KEYLENGTH option"; KEYLENGTH and RIDFLD required with it; NOTFND RESP2 80
+  "An attempt to delete a record based on the search argument provided is unsuccessful"; INVREQ 25 / 42 as READ's):
+  every record whose key starts with RIDFLD's first KEYLENGTH bytes is deleted (the page's "same starting characters";
+  ASSUMED: all of them, in one command, as the page's warning about many locks implies), NOTFND RESP2 80 when none.
+  The stub: `GGCDELT` with GG-FLAGS `GENERIC`; the det port: `CicsTask.delete` over repeated `DetCics.Store.search` /
+  `remove`. Refused: a GENERIC KEYLENGTH not shorter than the key or not above zero (here when the file is known, at
+  run time when it is named then), a KEYLENGTH that is no constant, NUMREC (no corpus program asks for the count).
+  Pinned by `test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key`,
+  `test_delete_generic_deletes_every_record_with_the_generic_key`, `test_a_delete_generic_is_named_to_the_stub` and the
+  runtime tests (`test_the_stub_delete_generic_*`, `test_cics_task_delete_generic_*`). No case runs zECS's file yet: the
+  estate must state which table's file (ZCnnFILE) a case runs, the open half of #4771.
 - **Reached.** GenApp LGICVS01 (READ ... KEYLENGTH(10) GTEQ on KSDSCUST): equivalence case genapp-lgicvs01 -- the
   key on file, the next greater key, none past the end (NOTFND) and a RANDOM key in range, all PROVED. To run that
   terminal transaction the equivalence harness now states, as the cics-crucible runner does, a case's or scenario's

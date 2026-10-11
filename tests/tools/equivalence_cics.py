@@ -676,6 +676,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"DELETE {bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
+        if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
+            for o in ("KEYLENGTH", "RIDFLD"):
+                if not opts.get(o):
+                    raise Unsupported(next(g.msg for g in SPEC["DELETE"].groups if o in g.any_of), ["DELETE GENERIC"])
+            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
+            return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
+                    + _resp(opts, True, labels))  # fmt: skip
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]

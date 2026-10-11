@@ -904,7 +904,9 @@ int GGCENBR(gg_cics *c) {
 }
 
 /* DELETE FILE(name1) [RIDFLD]: the record with that key, or (no RIDFLD: GG-FLAGS 'HELD') the one a READ UPDATE
- * holds -- INVREQ when none is held; NOTFND when the key is not there. */
+ * holds -- INVREQ when none is held; NOTFND when the key is not there. #4771: GG-FLAGS 'GENERIC', every record whose key
+ * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none; a KEYLENGTH not shorter than the key, or not above
+ * zero, refused: IBM's INVREQ 25 / 42, X22). */
 int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -923,6 +925,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
+    if (strstr(c->flags, "GENERIC") && (keylen <= 0 || keylen >= klen)) refuse("DELETE GENERIC KEYLENGTH");
     char key[256];
     memset(key, 0, sizeof key);
     int s = -1;
@@ -934,6 +937,21 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     }
     long n;
     char *all = load_records(path, reclen, &n);
+    if (strstr(c->flags, "GENERIC")) { /* #4771 (X22): every record whose key starts with the KEYLENGTH-byte generic key */
+        long gone = 0;
+        uow_save(path);
+        FILE *data = fopen(path, "wb");
+        for (long i = 0; data && i < n; i++) {
+            if (memcmp(all + i * reclen + keyoff, key, (size_t)keylen) == 0) gone++;
+            else fwrite(all + i * reclen, 1, (size_t)reclen, data);
+        }
+        if (data) fclose(data);
+        c->resp = gone ? NORMAL : NOTFND;
+        c->resp2 = gone ? 0 : 80;
+        free(all);
+        file_event("DELETE", want, key, keylen, c->resp);
+        return 0;
+    }
     long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
     if (by_hold && s < 0) {
         c->resp = INVREQ;

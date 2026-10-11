@@ -71,6 +71,14 @@ def _msg(key: str, kind: GroupKind, option: str, *parts: str) -> str:
     return SPEC[key].group(kind, option).msg.format(*parts)
 
 
+def _requires(key: str, option: str, needed: str) -> str:
+    """#4767: the message of the command's `requires` rule from `option` to `needed` (its spec Group)."""
+    for g in SPEC[key].groups:
+        if g.kind == "requires" and g.options[0] == option and needed in g.any_of:
+            return g.msg
+    raise KeyError(f"{key}: no requires group of {option} -> {needed}")
+
+
 def command_key(words: list[str], opts: dict) -> str:
     """The OPTIONS key of a parsed command (the verb words, plus the option that names the form: SEND MAP)."""
     verb = " ".join(words)
@@ -1700,17 +1708,33 @@ class Cics:
         if generic and "KEYLENGTH" not in opts:
             raise CicsError(_msg("READ", "requires", "GENERIC"))
         n = self._keylength("READ", opts)
+        rid = _arg(opts.get("RIDFLD"))
+        gt = "true" if gteq else "false"
+        update = "true" if "UPDATE" in opts else "false"
         if n is None:  # GTEQ on the full key: the file's
             name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+            if name is None:
+                # #4771 (zECS FILE(ZF-FCT)): a file named at run time -- its key length is the one of the store that name
+                # picks then; a name the project stores no file for is a Hole then, as store() makes it for every other
+                # command on such a file; a RIDFLD shorter than that key is refused then, as below (X6)
+                if not self.gp.files:
+                    hole = f'throw new Hole("CICS file " + {file} + ": the program names no file the generated project stores");'
+                    return f"task.readSearch({file}, {update}, () -> {{ {hole} }})", f"{st}.keyOf({{}}.record())"
+                k = self.g.tmpname("keylen")
+                search = (f"{{ int {k} = {self._runtime_keylength(file)}; if ({rec}.length < {k}) throw new "
+                          f'DetCics.PastFrom("READ RIDFLD({rid}) shorter than the key searched: not modelled"); '
+                          f"return {st}.search({rec}, {k}, {gt}); }}")  # fmt: skip
+                return f"task.readSearch({file}, {update}, () -> {search})", f"{st}.keyOf({{}}.record())"
             mapped = self.gp.file(name) if name is not None else None
             if mapped is None:
-                raise CicsError("READ GTEQ: not a known file, so not a known key length")
+                raise CicsError(
+                    "READ GTEQ: not a known file, so not a known key length"
+                    + f" (FILE {name!r} is no file the project stores)"
+                )
             _, n = self.gp.entity_key(mapped[1], mapped[2])
-        rid = _arg(opts.get("RIDFLD"))
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"READ RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n} bytes searched")
-        update = "true" if "UPDATE" in opts else "false"
-        call = f"task.readSearch({file}, {update}, () -> {st}.search({rec}, {n}, {'true' if gteq else 'false'}))"
+        call = f"task.readSearch({file}, {update}, () -> {st}.search({rec}, {n}, {gt}))"
         return call, f"{st}.keyOf({{}}.record())"
 
     def _read_length(self, verb: str, opts: dict) -> str | None:
@@ -1809,9 +1833,60 @@ class Cics:
             return f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
         return f"DetCics.bytes({frm})"
 
+    def _runtime_keylength(self, file: str) -> str:
+        """#4771: the key length of the store a file name picks at run time (the project's stores, by name); a name it
+        stores no file for is a Hole then, as store() makes it."""
+        lengths = "; ".join(f"case {G_jstr(f)} -> {self.gp.entity_key(e, p)[1]}"
+                            for f, (_repo, e, p) in self.gp.files.items())  # fmt: skip
+        return (f'switch ({file}) {{ {lengths}; default -> throw new Hole("CICS file " + {file} + ": no store in the '
+                f'generated project"); }}')  # fmt: skip
+
+    def delete_generic(self, opts: dict, ind: str) -> list[str]:
+        """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
+        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.delete). KEYLENGTH a known value above
+        zero and shorter than the file's key (IBM's INVREQ RESP2 25 / 42 refused by name: here for a file the port knows,
+        at run time for one named at run time)."""
+        for o in ("KEYLENGTH", "RIDFLD"):
+            if not opts.get(o):
+                raise CicsError(_requires("DELETE", "GENERIC", o))
+        arg = _arg(opts["KEYLENGTH"])
+        n = self.constant_int(arg)
+        if n is None:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
+        if n <= 0:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        rid = _arg(opts["RIDFLD"])
+        if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
+            raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
+        st = self.store(opts)
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        g = self.g
+        r, gk, found = g.tmpname("resp"), g.tmpname("generic"), g.tmpname("found")
+        out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
+        if name is not None:
+            mapped = self.gp.file(name)
+            if mapped is None:
+                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
+            key = self.gp.entity_key(mapped[1], mapped[2])[1]
+            if n >= key:
+                raise CicsError(
+                    f"DELETE GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled"
+                )
+        elif self.gp.files:  # named at run time: the key of the store the name picks then
+            out.append(f'{ind}if ({n} >= {self._runtime_keylength(file)}) throw new UnsupportedOperationException('
+                       f'"DELETE GENERIC KEYLENGTH {n} not shorter than the key of " + {file} + ": not modelled");')  # fmt: skip
+        out += [f"{ind}int {r} = task.delete({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
+                f"{ind}    java.util.Optional<byte[]> {found};",
+                f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
+                f"{ind}}});"]  # fmt: skip
+        return out + self.outcome(opts, r, "task.resp2()", ind)
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
             return self.rba_browse(verb, opts, ind)
+        if verb == "DELETE" and "GENERIC" in opts:  # #4771
+            return self.delete_generic(opts, ind)
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

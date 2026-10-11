@@ -204,13 +204,41 @@ REWRITE = _file(
     outcomes=(_NORMAL, Outcome("INVREQ", None, "no READ UPDATE holds a record of the file")),
 )
 
+# #4771 (zECS ZECS003): DELETE GENERIC (IBM, EXEC CICS DELETE): GENERIC "Specifies that the search key is a generic key
+# with a length specified in the KEYLENGTH option"; KEYLENGTH "must be specified if GENERIC is specified", RIDFLD too; every
+# record whose key has "the same starting characters (generic key)" is deleted; NOTFND RESP2 80 when none; INVREQ RESP2 25
+# (KEYLENGTH not shorter than the full key) and 42 (below zero) are refused by name, as READ GENERIC's (X22). NUMREC (the
+# count) stays refused: no corpus program asks for it
 DELETE = _file(
     "DELETE",
     "EXEC CICS DELETE",
     "delete",
-    options={**_FILE, "RIDFLD": Arg("area_in"), "KEYLENGTH": _KEYLENGTH, **RESP_OPTIONS},
+    register="X22",
+    options={**_FILE, "RIDFLD": Arg("area_in"), "KEYLENGTH": _KEYLENGTH, "GENERIC": Arg("flag"), **RESP_OPTIONS},
     refused=_REMOTE,
-    outcomes=(_NORMAL, _NOTFND, Outcome("INVREQ", None, "no RIDFLD, and no READ UPDATE holds a record")),
+    groups=(
+        requires(("GENERIC",), ("KEYLENGTH",), msg="DELETE GENERIC without KEYLENGTH"),
+        requires(("GENERIC",), ("RIDFLD",), msg="DELETE GENERIC without RIDFLD"),
+    ),
+    outcomes=(
+        _NORMAL,
+        _NOTFND,
+        Outcome(
+            "NOTFND",
+            80,
+            "An attempt to delete a record based on the search argument provided is unsuccessful",
+            raised_by=("GENERIC",),
+        ),
+        Outcome("INVREQ", None, "no RIDFLD, and no READ UPDATE holds a record"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a GENERIC KEYLENGTH not shorter than the key, or not above zero",
+            "X22",
+            java="DELETE GENERIC KEYLENGTH",
+            c="DELETE GENERIC KEYLENGTH",
+        ),
+    ),
 )
 
 COMMANDS = (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE)

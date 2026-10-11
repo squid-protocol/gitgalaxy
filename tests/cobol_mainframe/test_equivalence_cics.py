@@ -325,12 +325,24 @@ def test_a_read_gteq_generic_search_is_named_to_the_stub():
             ec.translate_command(bad)
 
 
+def test_a_delete_generic_is_named_to_the_stub():
+    """#4771 zECS (ZECS003, X22): DELETE GENERIC -> GGCDELT with GG-FLAGS 'GENERIC' and KEYLENGTH as the generic key's
+    length (the stub deletes every record with it); without KEYLENGTH or RIDFLD refused as the translator; NUMREC refused."""
+    got = ec.translate_command("DELETE FILE(ZF-FCT) RIDFLD(ZF-KEY-16) KEYLENGTH(DELETE-LENGTH) GENERIC NOHANDLE")
+    assert got[:3] == ["MOVE ZF-FCT TO GG-NAME1", "MOVE 'GENERIC' TO GG-FLAGS", "CALL 'GGCDELT' USING GG-CICS"]
+    assert got[3:5] == ["    BY REFERENCE ZF-KEY-16", "    BY VALUE DELETE-LENGTH"]
+    for bad, why in (("DELETE FILE(F) RIDFLD(K) GENERIC", "without KEYLENGTH"),
+                     ("DELETE FILE(F) KEYLENGTH(2) GENERIC", "without RIDFLD")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
 @pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
-                                  "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
+                                  "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2) NUMREC(N)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):
         ec.translate_command(body)

@@ -472,6 +472,55 @@ def test_read_generic_gteq_update_holds_the_record_found():
     assert "() -> store(F).search(rec2, 6, false));" in plain[1]  # GENERIC alone: EQUAL on the generic key
 
 
+def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
+    """#4771 zECS (FILE(ZF-FCT): ZC##FILE, the table's own file, named at run time): GTEQ on the full key searches with
+    the key length of the store the name picks then; a name the project stores no file for is a Hole then, and a
+    RIDFLD shorter than that key is refused then (X6) -- as for a file named by a literal, only later."""
+    out = _LenCics().command("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) GTEQ LENGTH(VARLEN) RESP(R)", "")
+    assert out[1] == (
+        "CicsTask.FileRead<byte[]> read1 = task.readSearch(WS-FILE.strip(), false, () -> { int keylen5 = switch "
+        '(WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole("CICS file " + WS-FILE.strip() + ": no store '
+        'in the generated project"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom("READ RIDFLD(KEY) shorter '
+        'than the key searched: not modelled"); return store(F).search(rec2, keylen5, true); });'
+    )
+    upd = _LenCics().command("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) GTEQ UPDATE RESP(R)", "")
+    assert any("heldKey.put(" in x and ".keyOf(read1.record())" in x for x in upd)
+    with pytest.raises(C.CicsError, match="not a known file"):  # a literal the project maps to no file
+        _LenCics().command("READ FILE('NOPE') INTO(REC) RIDFLD(KEY) GTEQ RESP(R)", "")
+    bare = _LenCics()
+    bare.gp.files = {}  # (ZECS003: the generated project stores no file -- a Hole at run time, as store() makes it)
+    none = bare.command("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) GTEQ RESP(R)", "")
+    assert none[1].endswith(
+        '() -> { throw new Hole("CICS file " + WS-FILE.strip() + ": the program names no file the '
+        'generated project stores"); });'
+    )
+
+
+def test_delete_generic_deletes_every_record_with_the_generic_key():
+    """#4771 zECS (ZECS003 3100-DELETE; IBM, EXEC CICS DELETE, register X22): GENERIC deletes every record whose key
+    starts with RIDFLD's first KEYLENGTH bytes (CicsTask.delete: NOTFND RESP2 80 when none); on a file named at run time
+    a KEYLENGTH not shorter than that file's key is refused then. INVREQ 25 / 42 and an unknown KEYLENGTH refused."""
+    out = _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
+    assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
+    assert out[1] == "int resp1 = task.delete('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
+                      "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
+    assert "OUTCOME(resp1, task.resp2());" in out
+    rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
+    assert rt[1].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert "not shorter than the key of" in rt[1]
+    for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
+                     ("DELETE FILE('KSDS') KEYLENGTH(6) GENERIC", "GENERIC without RIDFLD"),
+                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),
+                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(0) GENERIC", "not above zero"),
+                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
+                     ("DELETE FILE('KSDS') RIDFLD(SHORTKEY) KEYLENGTH(8) GENERIC", "shorter than the 8-byte"),
+                     ("DELETE FILE('NOPE') RIDFLD(KEY) KEYLENGTH(6) GENERIC", "no file the project stores"),
+                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC NUMREC(R)", "not modelled")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            _LenCics().command(bad, "")
+
+
 @pytest.mark.parametrize(
     ("text", "why"),
     [

@@ -1023,6 +1023,71 @@ def test_cics_task_read_search_answers_as_the_stub_does(tmp_path):
     assert out.splitlines() == _READ_SEARCH_WANT
 
 
+_DELETE_GENERIC_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCDELT(gg_cics *c, char *rid, int kl);
+int main(int argc, char **argv) {
+    gg_cics c;
+    for (int i = 1; i < argc; i++) {
+        char rid[4] = "???";
+        memset(&c, 0, sizeof c);
+        memset(c.name1, ' ', 8);
+        memcpy(c.name1, "F", 1);
+        memset(c.flags, ' ', 40);
+        memcpy(c.flags, "GENERIC", 7);
+        memcpy(rid, argv[i], strlen(argv[i]) < 3 ? strlen(argv[i]) : 3);
+        GGCDELT(&c, rid, (int)strlen(argv[i]));
+        printf("%s resp=%d resp2=%d\n", argv[i], c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_delete_generic_deletes_every_record_with_the_generic_key(tmp_path):
+    """#4771 zECS (ZECS003; IBM, EXEC CICS DELETE; X22): GENERIC deletes every record whose key starts with the KEYLENGTH
+    bytes of RIDFLD; NOTFND RESP2 80 when none does; a KEYLENGTH not shorter than the key is refused (INVREQ 25)."""
+    (tmp_path / "f.dat").write_bytes(b"300d210c100a200b")
+    (tmp_path / "files.cfg").write_text(f"F {tmp_path / 'f.dat'} 4 0 3\n", encoding="ascii")
+    exe = _stub(tmp_path, _DELETE_GENERIC_MAIN)
+    assert _run_stub(exe, tmp_path, "2", "2", "10", "4") == [
+        "2 resp=0 resp2=0", "2 resp=13 resp2=80", "10 resp=0 resp2=0", "4 resp=13 resp2=80"]  # fmt: skip
+    assert (tmp_path / "f.dat").read_bytes() == b"300d"
+    refused = subprocess.run([str(exe), "300"], env={"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path),
+                                                     "GGCICS_OUT": str(tmp_path / "out")},
+                             capture_output=True, text=True, check=False)  # noqa: S603  # fmt: skip
+    assert refused.returncode == 98 and "DELETE GENERIC KEYLENGTH" in refused.stdout
+
+
+@needs_javac
+def test_cics_task_delete_generic_answers_as_the_stub_does(tmp_path):
+    """#4771: CicsTask.delete with the det port's generic loop (search the generic key, remove what it finds, until
+    none is left) over the same file and keys: the same RESP / RESP2 and the same records left."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.TreeMap<String, String> f = new java.util.TreeMap<>(java.util.Map.of(
+                "300", "300d", "210", "210c", "100", "100a", "200", "200b"));
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        for (String k : new String[] {"2", "2", "10", "4"}) {
+            java.util.function.Supplier<java.util.Optional<String>> search =
+                    () -> f.keySet().stream().filter(x -> x.startsWith(k)).findFirst();
+            int resp = t.delete("F", search.get().isPresent(), () -> {
+                java.util.Optional<String> found;
+                while ((found = search.get()).isPresent()) f.remove(found.get());
+            });
+            System.out.println(k + " resp=" + resp + " resp2=" + t.resp2());
+        }
+        System.out.println(String.join("", f.values()));""",
+    )
+    assert out.splitlines() == ["2 resp=0 resp2=0", "2 resp=13 resp2=80", "10 resp=0 resp2=0", "4 resp=13 resp2=80",
+                                "300d"]  # fmt: skip
+
+
 @needs_javac
 def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
     """ABSTIME is milliseconds since 00:00 on 1 January 1900 (IBM, EXEC CICS ASKTIME): 3867129015000 at

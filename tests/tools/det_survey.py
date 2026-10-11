@@ -40,6 +40,10 @@ PKG = "com.gitgalaxy.modernized"
 PKG_DIR = PKG.replace(".", "/")
 EXTS = {".cbl", ".cob", ".cobol"}
 COPY_EXTS = {".cpy", ".copy", ".cbl", ".cob", ""}
+# #4904: timeouts for mvn and javac operations
+MVN_COMPILE_TIMEOUT = 300  # seconds: ~3-5x normal estate mvn compile time (~30-60s)
+MVN_CLASSPATH_TIMEOUT = 180  # seconds: ~3-5x normal dependency:build-classpath resolution (~15-30s)
+JAVAC_PORT_TIMEOUT = 60  # seconds: ~3-5x normal javac compilation of translated port (~5-10s)
 
 
 def jdk() -> str:
@@ -60,8 +64,13 @@ def estate(corpus: Path, work: Path) -> tuple[Path, bool]:
     env = dict(os.environ, JAVA_HOME=jdk())
     log = work / "mvn.log"
     with log.open("wb") as fh:
-        rc = subprocess.run(["mvn", "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,  # noqa: S607
-                            stderr=subprocess.STDOUT, check=False).returncode  # fmt: skip
+        try:
+            rc = subprocess.run(["mvn", "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,  # noqa: S607
+                                stderr=subprocess.STDOUT, check=False,
+                                timeout=MVN_COMPILE_TIMEOUT).returncode  # fmt: skip
+        except subprocess.TimeoutExpired:
+            fh.write(f"\n[ERROR] mvn compile timed out after {MVN_COMPILE_TIMEOUT}s\n".encode())
+            rc = 124
     done.write_text(f"{project} {'built' if rc == 0 else 'failed'}\n", encoding="utf-8")
     return project, rc == 0
 
@@ -82,10 +91,28 @@ def classpath(project: Path) -> str:
         env = dict(os.environ, JAVA_HOME=jdk())
         goal = "org.apache.maven.plugins:maven-dependency-plugin:3.6.1:build-classpath"
         argv = ["mvn", "-q", goal, "-Dmdep.includeScope=compile", f"-Dmdep.outputFile={out}"]
-        res = subprocess.run(["mvn", "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True,  # noqa: S603, S607
-                             check=False)  # fmt: skip
+        try:
+            res = subprocess.run(["mvn", "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True,  # noqa: S603, S607
+                                 check=False, timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(
+                f"{project}: mvn dependency:build-classpath timed out after {MVN_CLASSPATH_TIMEOUT}s"
+            ) from exc
         if res.returncode:  # the plugin not yet in the local repository: fetched once
-            res = subprocess.run(argv, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603, S607
+            try:
+                res = subprocess.run(
+                    argv,
+                    cwd=project,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=MVN_CLASSPATH_TIMEOUT,
+                )  # noqa: S603, S607
+            except subprocess.TimeoutExpired as exc:
+                raise RuntimeError(
+                    f"{project}: mvn dependency:build-classpath timed out after {MVN_CLASSPATH_TIMEOUT}s"
+                ) from exc
         if res.returncode or not out.is_file():
             raise RuntimeError(f"{project}: mvn dependency:build-classpath failed: {(res.stdout + res.stderr)[-400:]}")
     deps = out.read_text(encoding="utf-8").strip()
@@ -141,12 +168,16 @@ def compile_port(row: dict[str, Any], work: Path, runtime: Path, cp: str) -> Non
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
     files = [str(p) for p in src.rglob("*.java")] + [str(p) for p in runtime.rglob("*.java")]
-    res = subprocess.run([str(Path(jdk()) / "bin/javac"), "-nowarn", "-encoding", "UTF-8", "--release", "17",  # noqa: S603
-                          "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True,
-                         check=False)  # fmt: skip
-    row["compiles"] = res.returncode == 0
-    if res.returncode:
-        row["compile_errors"] = [ln for ln in res.stderr.splitlines() if ": error:" in ln][:5]
+    try:
+        res = subprocess.run([str(Path(jdk()) / "bin/javac"), "-nowarn", "-encoding", "UTF-8", "--release", "17",  # noqa: S603
+                              "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True,
+                             check=False, timeout=JAVAC_PORT_TIMEOUT)  # fmt: skip
+        row["compiles"] = res.returncode == 0
+        if res.returncode:
+            row["compile_errors"] = [ln for ln in res.stderr.splitlines() if ": error:" in ln][:5]
+    except subprocess.TimeoutExpired:
+        row["compiles"] = False
+        row["compile_errors"] = [f"javac timed out after {JAVAC_PORT_TIMEOUT}s"]
 
 
 def hole_reason(h: str) -> str:

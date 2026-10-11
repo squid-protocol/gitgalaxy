@@ -131,6 +131,12 @@ STUB_DIR = REPO_ROOT / "tests" / "equivalence" / "cics"
 # terminal's 3270 screen, for ASSIGN USERID / SCRNHT / SCRNWD (the generated Java test states the same)
 REGION_USERID = "CICSUSER"
 REGION_SCREEN = (24, 80)
+# #4904: timeouts for Container docker operations
+CONTAINER_START_TIMEOUT = 60  # seconds: ~5-10x normal docker run -d container startup (~2-5s under load)
+CONTAINER_EXEC_TIMEOUT = (
+    120  # seconds: ~3-5x normal cobc compile (~10s) or scenario task run (<1s); bounds runaway loops
+)
+CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
@@ -1891,18 +1897,37 @@ class Container:
         import equivalence_common as common
 
         user = ["--user", f"{os.getuid()}:{os.getgid()}"] if hasattr(os, "getuid") else []  # files stay the caller's
-        proc = subprocess.run(["docker", "run", "-d", "--rm", *user, "-v", f"{work}:/work", common.IMAGE,  # noqa: S603, S607
-                               "sleep", "infinity"], capture_output=True, text=True, check=False)  # fmt: skip
+        try:
+            proc = subprocess.run(["docker", "run", "-d", "--rm", *user, "-v", f"{work}:/work", common.IMAGE,  # noqa: S603, S607
+                                   "sleep", "infinity"], capture_output=True, text=True, check=False,
+                                  timeout=CONTAINER_START_TIMEOUT)  # fmt: skip
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(
+                f"docker run timed out after {CONTAINER_START_TIMEOUT}s: cannot start the GnuCOBOL container"
+            ) from exc
         if proc.returncode != 0:
             raise RuntimeError(f"cannot start the GnuCOBOL container: {_tail(proc.stderr, 3)}")
         self.id = proc.stdout.strip()
 
     def sh(self, script: str) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(["docker", "exec", self.id, "bash", "-c", script],  # noqa: S603, S607
-                              capture_output=True, text=True, check=False)  # fmt: skip
+        try:
+            return subprocess.run(["docker", "exec", self.id, "bash", "-c", script],  # noqa: S603, S607
+                                  capture_output=True, text=True, check=False,
+                                  timeout=CONTAINER_EXEC_TIMEOUT)  # fmt: skip
+        except subprocess.TimeoutExpired as exc:
+            self.close()  # clean up container on timeout so nothing is orphaned
+            raise RuntimeError(f"docker exec timed out after {CONTAINER_EXEC_TIMEOUT}s: {_tail(script, 3)}") from exc
 
     def close(self) -> None:
-        subprocess.run(["docker", "rm", "-f", self.id], capture_output=True, check=False)  # noqa: S603, S607
+        try:
+            subprocess.run(
+                ["docker", "rm", "-f", self.id],
+                capture_output=True,
+                check=False,  # noqa: S603, S607
+                timeout=CONTAINER_STOP_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            pass
 
 
 def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: list[str], ctx: cc.Context,

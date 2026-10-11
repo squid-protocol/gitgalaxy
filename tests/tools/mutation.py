@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import contextlib
 import hashlib
 import json
 import os
@@ -53,6 +54,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 EQUIVALENCE = TOOLS / "equivalence.py"
 CASES = REPO_ROOT / "tests" / "equivalence"
+# #4904: timeouts for mvn, javac, and process termination in mutation tooling
+MVN_CLASSPATH_TIMEOUT = 300  # seconds: ~3-5x normal mvn compile -X (~30-60s)
+JAVAC_MUTANT_TIMEOUT = 60  # seconds: ~3-5x normal single mutant javac compile (~5-10s)
+KILL_WAIT_TIMEOUT = 10  # seconds: wait for process group termination after SIGKILL
 
 # ---- the mutation operators ---------------------------------------------------------------------------------------
 # Each operator rewrites one site in code (never inside a comment; string / char literals only by LIT). The binary
@@ -293,8 +298,14 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
     if scratch.exists():
         shutil.rmtree(scratch)
     shutil.copytree(project, scratch, ignore=shutil.ignore_patterns("target"))
-    proc = subprocess.run(["mvn", "-o", "-X", "-B", "compile"], cwd=scratch, env=_java_env(),  # noqa: S607
-                          capture_output=True, text=True, check=False)  # fmt: skip
+    try:
+        proc = subprocess.run(["mvn", "-o", "-X", "-B", "compile"], cwd=scratch, env=_java_env(),  # noqa: S607
+                              capture_output=True, text=True, check=False,
+                              timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        raise SystemExit(
+            f"could not read the baseline's classpath (mvn compile timed out after {MVN_CLASSPATH_TIMEOUT}s)"
+        ) from exc
     m = re.search(r"-classpath (\S+)", proc.stdout)
     if proc.returncode != 0 or not m:
         raise SystemExit(f"could not read the baseline's classpath (mvn exit {proc.returncode})")
@@ -304,8 +315,12 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
 def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
     sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
-    proc = subprocess.run(["javac", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
-                          env=_java_env(), capture_output=True, text=True, check=False)  # fmt: skip
+    try:
+        proc = subprocess.run(["javac", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+                              env=_java_env(), capture_output=True, text=True, check=False,
+                              timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired:
+        return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
     errors = [x for x in proc.stderr.splitlines() if ": error: " in x]
     return proc.returncode == 0, (errors[0].split(": error: ", 1)[1] if errors else proc.stderr.strip()[:200])
 
@@ -325,7 +340,8 @@ def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple
             proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             os.killpg(proc.pid, signal.SIGKILL)
-            proc.wait()
+            with contextlib.suppress(subprocess.TimeoutExpired):
+                proc.wait(timeout=KILL_WAIT_TIMEOUT)
             return {"verdict": "timeout", "seconds": round(time.time() - start)}
     report_file = work / "report.json"
     if not report_file.is_file():

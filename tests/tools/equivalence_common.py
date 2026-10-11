@@ -21,6 +21,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,9 @@ from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
 IMAGE = "gitgalaxy-gnucobol:3"
+# #4904: timeouts for docker execution of GnuCOBOL steps
+DOCKER_STEP_TIMEOUT = 180  # seconds: ~3-5x normal GnuCOBOL compile + run step time (~15-30s)
+DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 _register_ebcdic()  # #3816: cp277 / cp278 / ... resolve in every decode and encode below
 
@@ -902,8 +906,42 @@ def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subproc
     # copied over it and the work directory removed (#4476: the copy over a root-owned pass-1 file was refused)
     owner = f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else "0:0"
     keep_status = 'bash /work/run.sh; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
-    return subprocess.run(["docker", "run", "--rm", *docker_args, "-v", f"{work}:/work", image, "bash", "-c",  # noqa: S603, S607
-                           keep_status, owner], capture_output=True, text=True, check=False)  # fmt: skip
+    cid = f"gg-eq-{os.getpid()}-{int(time.time() * 1000) % 10000000}"
+    cmd = [
+        "docker",
+        "run",
+        "--rm",
+        f"--name={cid}",
+        *docker_args,
+        "-v",
+        f"{work}:/work",
+        image,
+        "bash",
+        "-c",  # noqa: S603, S607
+        keep_status,
+        owner,
+    ]
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, check=False,
+                              timeout=DOCKER_STEP_TIMEOUT)  # fmt: skip
+    except subprocess.TimeoutExpired as exc:
+        try:
+            subprocess.run(
+                ["docker", "rm", "-f", cid],
+                capture_output=True,
+                check=False,  # noqa: S603, S607
+                timeout=DOCKER_CLEANUP_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            pass
+        return subprocess.CompletedProcess(
+            args=["docker", *cmd[1:]],
+            returncode=124,
+            stdout=exc.stdout or "",
+            stderr=(
+                (exc.stderr or "") + f"\ndocker run timed out after {DOCKER_STEP_TIMEOUT}s: GnuCOBOL pass"
+            ).lstrip(),
+        )
 
 
 def run_cobol_step(

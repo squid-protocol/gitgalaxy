@@ -83,7 +83,15 @@ def _lock_path(database: str) -> Path:
     return Path.home() / ".cache" / name
 
 
-def hold_lock() -> None:
+# #4904: deadline waiting for a free Db2 database pool slot
+DB2_POOL_DEADLINE = 1200  # seconds (20 min): max time waiting for a free Db2 pool slot before giving up
+
+
+class Db2PoolTimeoutError(TimeoutError):
+    """Raised when waiting for a free Db2 database pool slot exceeds the deadline."""
+
+
+def hold_lock(timeout: float = DB2_POOL_DEADLINE) -> None:
     """A database of the pool to this process until it ends (an exclusive lock on it; with every database taken,
     the next one free)."""
     global _LOCK, DATABASE
@@ -91,6 +99,7 @@ def hold_lock() -> None:
 
     if _LOCK is not None:
         return
+    deadline = time.monotonic() + timeout
     while True:
         for database in pool():
             path = _lock_path(database)
@@ -103,6 +112,8 @@ def hold_lock() -> None:
                 continue
             _LOCK, DATABASE = fh, database
             return
+        if time.monotonic() >= deadline:
+            raise Db2PoolTimeoutError(f"timed out after {timeout}s waiting for a free Db2 database in pool ({pool()})")
         time.sleep(1)
 
 

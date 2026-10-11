@@ -154,10 +154,18 @@ def field_value(rng: random.Random, f: dict[str, Any], row: int, alphabet: str =
     return _numeric_value(rng, signed, digits, scale, row)
 
 
+def _cp037(ch: str) -> bytes:
+    try:
+        return ch.encode("cp037")
+    except UnicodeEncodeError:
+        return b"\x6f"  # '?'
+
+
 def ibm_key_order(key: bytes, data_encoding: str) -> tuple[bytes, bytes]:
     """#4876: the sort key of a record key held in `data_encoding`: its characters in code page 037 (z/OS's order, the
     letters before the digits); a character cp037 lacks is its '?', the bytes themselves break such a tie."""
-    return key.decode(data_encoding, errors="replace").encode("cp037", errors="replace"), key
+    text = key.decode(data_encoding, errors="surrogateescape")  # lossless: a byte the page lacks stays a surrogate
+    return b"".join(_cp037(ch) for ch in text), key
 
 
 def generate_dataset(

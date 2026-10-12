@@ -65,6 +65,21 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
+## Heavy jobs on the PR and again on the push (tested-tree, #4935)
+
+`mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges. Their `tested-tree` job
+(`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
+the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
+merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
+in-progress or missing PR runs, a PR that was behind main, a merge commit, a direct push, and every
+schedule / `workflow_dispatch` run all run in full; an API error runs too. In smoke-test only the `full-suite` parts are
+skipped: the 9-way OS grid is not run on PRs, so it always runs on the push.
+
+Main Watch still gets a verdict: the workflow concludes `success` or `failure` (the gate job always runs), and a skip
+is a true green, because that exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs
+that conclude `skipped` or `cancelled`. Ground-truth history rows (`--history`) are written by the push run, so the
+nightly run writes them too (one row set per day, at that day's HEAD, when a number moved).
+
 ## Main is red (main-watch)
 
 `.github/workflows/main-watch.yml` opens one `ci-red-main` issue per workflow that fails on main and closes it when

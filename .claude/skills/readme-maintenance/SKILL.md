@@ -1,6 +1,6 @@
 ---
 name: readme-maintenance
-description: Develop, edit, or status-check the GitGalaxy README (and by extension tests/README.md) against the project's tone and evidence rules -- keeps new claims paired with links/numbers, keeps section order trust-ranked, and tracks which future claims are staged vs. shipped. Use when the user asks to update the README, add or reorder a README section, do a tone/quality pass on README.md, or check "readme status" / what's staged in the evidence roadmap.
+description: Develop, edit, or status-check the GitGalaxy README (and by extension tests/README.md) against the project's tone and evidence rules -- keeps new claims paired with links/numbers, keeps the show-then-prove section order, and tracks which future claims are staged vs. shipped. Use when the user asks to update the README, add or reorder a README section, do a tone/quality pass on README.md, or check "readme status" / what's staged in the evidence roadmap.
 ---
 
 Source of truth is `docs/how_to_maintain_the_readme.md` (the five style rules + target
@@ -12,17 +12,18 @@ summary kept here.
 
 ## Editing README.md
 
-1. Read the two tone-bar sections first if you haven't recently — "What GitGalaxy Finds — and
-   What It Doesn't Claim" and "Proof, Not Just Claims." Every other section is edited toward
-   matching their register, not the other way around.
+1. Read the tone bar first if you haven't recently: "What the Structural Surface Profile
+   claims" in `docs/validation.md` and the README's "Accuracy, measured". Every other section
+   is edited toward matching their register, not the other way around.
 2. For a new claim: does it already have something in this repo a reader could click to
    verify (a test count, a corpus, a benchmark script)? If yes, write it with the link. If
    no, it belongs in `docs/readme_evidence_roadmap.md` as a new gated row with a concrete
    activation trigger — do not write it into README.md ahead of the evidence, even
    provisionally.
-3. New or moved sections follow the trust-ordering in `how_to_maintain_the_readme.md`'s
-   section-order list (proof and limitations before benchmarks, benchmarks before adoption
-   numbers, adoption before licensing).
+3. New or moved sections follow `how_to_maintain_the_readme.md`'s section-order list:
+   show-what-it-does first (hero tiles, pipeline diagram, speed chart, quickstart, front
+   door), then the scanner and translator, then all proof in one "Accuracy, measured"
+   section. Never add a second evidence section.
 4. Run the five-rule self-check from the doc against your actual diff before considering the
    edit done — not a vibe check, line by line.
 5. If the edit unlocks a roadmap item (e.g. a comparison script landed, a case study got

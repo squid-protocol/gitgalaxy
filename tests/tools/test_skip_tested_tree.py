@@ -14,7 +14,7 @@ TREE, SHA, PARENT, HEAD = "t" * 40, "m" * 40, "p" * 40, "h" * 40
 def snap(**kw):
     s = {
         "event": "push", "ref": st.MAIN_REF, "sha": SHA, "parents": 1, "tree": TREE,
-        "pr": {"head_tree": TREE, "merge_sha": SHA}, "parent_in_head": True,
+        "pr": {"head_tree": TREE, "merge_sha": SHA, "base": "main"}, "parent_in_head": True,
         "runs": [{"id": 5, "event": "pull_request", "status": "completed", "conclusion": "success"}],
     }  # fmt: skip
     s.update(kw)
@@ -44,13 +44,15 @@ def test_older_red_then_newer_green_skips():
 
 
 @pytest.mark.parametrize("kw", [
-    {"pr": {"head_tree": "x" * 40, "merge_sha": SHA}},  # tree differs (the PR was behind main)
+    {"pr": {"head_tree": "x" * 40, "merge_sha": SHA, "base": "main"}},  # tree differs (the PR was behind main)
     {"parent_in_head": False},  # head lacks main's previous commit
     {"parent_in_head": None},
     {"parents": 2},  # a merge commit
     {"parents": 0},
     {"pr": None},  # direct push
-    {"pr": {"head_tree": TREE, "merge_sha": "z" * 40}},
+    {"pr": {"head_tree": TREE, "merge_sha": "z" * 40, "base": "main"}},
+    {"pr": {"head_tree": TREE, "merge_sha": SHA, "base": "v6-dev"}},  # a PR into another base proved nothing about main
+    {"pr": {"head_tree": TREE, "merge_sha": SHA}},  # base unknown
     {"ref": "refs/heads/other"},
 ])  # fmt: skip
 def test_tree_or_history_mismatch_runs(kw):
@@ -67,7 +69,9 @@ class FakeGh:
         self.calls = []
         self.parents, self.head_tree, self.status, self.runs = parents, head_tree, status, list(runs)
         self.pulls = (
-            pulls if pulls is not None else [{"merged_at": "t", "merge_commit_sha": SHA, "head": {"sha": HEAD}}]
+            pulls
+            if pulls is not None
+            else [{"merged_at": "t", "merge_commit_sha": SHA, "head": {"sha": HEAD}, "base": {"ref": "main"}}]
         )
 
     def __call__(self, path):
@@ -106,7 +110,7 @@ def test_snapshot_behind_pr_runs_without_asking_for_runs(monkeypatch):
 
 def test_snapshot_merge_commit_and_two_prs_run(monkeypatch):
     assert not decide_with(monkeypatch, FakeGh(parents=2, runs=[run(9, "success")]))[0]
-    two = [{"merged_at": "t", "merge_commit_sha": SHA, "head": {"sha": HEAD}}] * 2
+    two = [{"merged_at": "t", "merge_commit_sha": SHA, "head": {"sha": HEAD}, "base": {"ref": "main"}}] * 2
     assert not decide_with(monkeypatch, FakeGh(pulls=two, runs=[run(9, "success")]))[0]
 
 
@@ -126,3 +130,15 @@ def test_api_error_fails_open(monkeypatch, tmp_path, capsys):
         monkeypatch.setenv(k, v)
     assert st.main(["x", "wf.yml"]) == 0
     assert out.read_text() == "skip=false\n"
+
+
+def test_paths_filtered_pr_has_no_run_so_the_push_runs(monkeypatch):
+    """#4964: the PR's `paths` filter skipped the workflow (no run on the head) but the push filter matches on main (or
+    there is none, tree-sitter-accuracy-audit): an absent PR run is never a proof, whatever else is equal. A run from
+    another workflow or another event on the same head does not count either."""
+    fake = FakeGh(runs=[])
+    skip, why = decide_with(monkeypatch, fake)
+    assert not skip and "paths filter" in why
+    assert any("/actions/workflows/wf.yml/runs?head_sha=" in c and "event=pull_request" in c for c in fake.calls)
+    assert not decide_with(monkeypatch, FakeGh(runs=[run(9, "success", event="push")]))[0]
+    assert not decide_with(monkeypatch, FakeGh(runs=[run(9, "skipped")]))[0]

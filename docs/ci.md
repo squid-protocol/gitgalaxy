@@ -67,13 +67,21 @@ The local shepherd still works from a maintainer's checkout:
 
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
-`mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges. Their `tested-tree` job
+`mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges; since #4964 so do `fact-crosscheck`,
+`estate-crucible`, `ports-compile`, `java-compile`, `cics-crucible`, `unicode-gauntlet` and `tree-sitter-accuracy-audit`. Their `tested-tree` job
 (`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
 the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
 merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
 in-progress or missing PR runs, a PR that was behind main, a merge commit, a direct push, and every
 schedule / `workflow_dispatch` run all run in full; an API error runs too. In smoke-test only the `full-suite` parts are
 skipped: the 9-way OS grid is not run on PRs, so it always runs on the push.
+
+Paths filters (#4964): the proof is a `pull_request` run of the same workflow on the head, and GitHub creates that run only
+when the PR's own `paths` filter matches. A PR the filter skipped therefore has no run, and the push runs even though its
+filter (or, for tree-sitter-accuracy-audit, no filter at all) matched on main: a missing run is never a proof. The PR must
+also have targeted `main`. `tests/tools/test_tested_tree_workflows.py` pins each workflow's wiring and its PR/push filter
+pair, so a filter edit is a reviewed decision. `java-compile`'s PR run may skip its build when the generated Java equals the
+base's (`--same-as`); the skipped push is then the same tree as a base whose own push built it.
 
 Main Watch still gets a verdict: the workflow concludes `success` or `failure` (the gate job always runs), and a skip
 is a true green, because that exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs

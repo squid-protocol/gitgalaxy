@@ -2,7 +2,8 @@
 """#4939: Windows siblings of #4934 -- the bare `mvn` executable and POSIX-mode argline splitting.
 
 `subprocess` without `shell=True` does not apply PATHEXT, so on Windows (Maven ships `mvn.cmd`) a literal "mvn" in an
-argv is not found. Every caller resolves through `maven_exe.mvn_executable`; the guard below fails on a new bare one.
+argv is not found. Every caller resolves through `maven_exe.mvn_executable` / `launcher_exe` (#4969: npm); the guard below fails on a
+new bare one.
 """
 
 from __future__ import annotations
@@ -11,7 +12,9 @@ import ast
 import shutil
 from pathlib import Path
 
+import callgraph_refs
 import equivalence_java as ej
+import launcher_exe
 import maven_exe
 
 TOOLS = Path(__file__).resolve().parent
@@ -74,28 +77,66 @@ def test_split_argline_follows_os_name(monkeypatch):
     assert ej.split_argline("-Da='b c' -Dd=1") == ["-Da=b c", "-Dd=1"]
 
 
-def _bare_mvn(source: str) -> list[int]:
-    """Lines where a list/tuple literal starts with the string "mvn" (an argv for subprocess/run helpers)."""
+# Launchers that ship as `.cmd`/`.bat` shims on Windows (#4939 mvn, #4969 npm and its siblings).
+SHIMS = ("mvn", "npm", "npx", "yarn", "pnpm", "gradle", "tsc")
+SHIM_ARGV = frozenset(n + ext for n in SHIMS for ext in ("", ".cmd", ".bat"))
+
+
+def _bare_launcher(source: str) -> list[int]:
+    """Lines where a list/tuple literal starts with a Windows-shim launcher name (an argv for subprocess/run helpers)."""
     return sorted(
         n.lineno
         for n in ast.walk(ast.parse(source))
         if isinstance(n, (ast.List, ast.Tuple))
         and n.elts
         and isinstance(n.elts[0], ast.Constant)
-        and n.elts[0].value in ("mvn", "mvn.cmd")
+        and n.elts[0].value in SHIM_ARGV
     )
 
 
-def test_no_bare_mvn_argv_in_tests_tools():
-    """#4939: resolve through maven_exe.mvn_executable; a literal "mvn" argv is not found on Windows."""
+def test_no_bare_launcher_argv_in_tests_tools():
+    """#4939/#4969: resolve through launcher_exe; a literal "mvn"/"npm" argv is not found on Windows."""
     found = [
         f"{p.relative_to(TOOLS)}:{n}"
         for p in sorted(TOOLS.rglob("*.py"))
         if p.name != Path(__file__).name
-        for n in _bare_mvn(p.read_text(encoding="utf-8"))
+        for n in _bare_launcher(p.read_text(encoding="utf-8"))
     ]
     assert found == []
 
 
-def test_the_guard_catches_a_bare_mvn():
-    assert _bare_mvn('subprocess.run(["mvn", "-q"])\nx = ("mvn", "a")\ny = [mvn_executable(), "-q"]\n') == [1, 2]
+def test_the_guard_catches_a_bare_launcher():
+    src = 'subprocess.run(["mvn", "-q"])\nx = ("mvn", "a")\ny = [mvn_executable(), "-q"]\n'
+    assert _bare_launcher(src) == [1, 2]
+    assert _bare_launcher('run(["npm", "root", "-g"])\nz = ("npx", "tsc")\nw = [npm_executable(), "root"]\n') == [1, 2]
+    assert _bare_launcher('run(["npm.cmd", "i"])\nrun(["node", "x.js"])\n') == [1]
+
+
+def test_npm_resolves_to_npm_cmd_on_windows(monkeypatch):
+    seen = {}
+
+    def fake_which(cmd, path=None):
+        seen.update(cmd=cmd, path=path)
+        return r"C:\Program Files\nodejs\npm.cmd"
+
+    monkeypatch.setattr(shutil, "which", fake_which)
+    assert launcher_exe.npm_executable({"PATH": r"C:\Program Files\nodejs"}) == r"C:\Program Files\nodejs\npm.cmd"
+    assert seen == {"cmd": "npm", "path": r"C:\Program Files\nodejs"}
+
+
+def test_npm_falls_back_to_the_bare_name(monkeypatch):
+    monkeypatch.setattr(shutil, "which", lambda cmd, path=None: None)
+    assert launcher_exe.npm_executable({"PATH": ""}) == "npm"
+
+
+def test_node_env_runs_the_resolved_npm(monkeypatch):
+    calls = []
+    monkeypatch.delenv("NODE_PATH", raising=False)
+    monkeypatch.setattr(callgraph_refs, "npm_executable", lambda env=None: r"C:\nodejs\npm.cmd")
+    monkeypatch.setattr(
+        callgraph_refs.subprocess,
+        "run",
+        lambda cmd, **kw: calls.append(cmd) or callgraph_refs.subprocess.CompletedProcess(cmd, 0, "C:\\g\\nm\n", ""),
+    )
+    assert callgraph_refs.node_env()["NODE_PATH"] == "C:\\g\\nm"
+    assert calls == [[r"C:\nodejs\npm.cmd", "root", "-g"]]

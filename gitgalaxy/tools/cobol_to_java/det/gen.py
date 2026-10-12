@@ -70,8 +70,24 @@ LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
     "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
+    # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
+    "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
+    "CEEUTC": ("__PACKAGE__.cobolrt.le.Ceeutc.call", 3),
+    "CEEDATM": ("__PACKAGE__.cobolrt.le.Ceedatm.call", 4),
+    "CEESECS": ("__PACKAGE__.cobolrt.le.Ceesecs.call", 4),
+    "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
+    "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
+    "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
 }
-LIBRARY_CLOCK = {"CEELOCT"}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
+LIBRARY_CLOCK = {
+    "CEELOCT",
+    "CEEGMT",
+    "CEEUTC",
+}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
+# The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
+# z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
+LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
 
 def jstr(s: str) -> str:
@@ -2555,12 +2571,15 @@ class Gen:
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: {lib[1]} items BY REFERENCE expected")
-            refs = [self.value_field(a) if i == 1 and prog in LIBRARY_CLOCK else self.field_expr(a)
+            floats = LIBRARY_FLOATS.get(prog, ())
+            refs = [self.value_field(a) if i in floats else self.field_expr(a)
                     for i, (_, a) in enumerate(args)]  # fmt: skip
+            # a COMP-2 argument (CEELOCT's output_seconds, CEEDATM's input) is a float the runtime reads and stores by
+            # value (Cobol.num / Cobol.store, as MOVE does), never by bytes: HFP on z/OS, IEEE on the oracle (C6)
             if prog in LIBRARY_CLOCK:
-                # CEELOCT's output_seconds is a float the runtime stores by value (Cobol.store, as MOVE does), never
-                # by bytes: HFP on z/OS, IEEE on the oracle (register C6)
-                refs = [self.current_date_expr(), *refs, "CS"]
+                refs = [self.current_date_expr(), *refs]
+            if prog in LIBRARY_CHARSET:
+                refs.append("CS")
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 

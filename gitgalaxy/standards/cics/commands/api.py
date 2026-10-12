@@ -26,9 +26,6 @@ from __future__ import annotations
 from gitgalaxy.standards.cics.commands.shared import ibm
 from gitgalaxy.standards.cics.model import Command
 
-# the whole-command reasons det/cics.py gave before PR 2, word for word
-CONTAINER_LATER = "#4270: container MOVE / browse, a later slice"
-
 _BTS = "business transaction services (BTS processes, activities, events, timers) are not modelled"
 _DTP = "distributed transaction processing (APPC / LUTYPE6.1 / MRO conversations) is not modelled"
 _GDS = "generalized data stream (APPC conversations from assembler) is not modelled"
@@ -51,11 +48,7 @@ _TRACE = "user trace and monitoring points are not modelled"
 
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
-    # channels and containers beyond PUT / GET / DELETE CONTAINER (#4270 slice 1)
-    ("MOVE CONTAINER", "move-container-channel", CONTAINER_LATER),
-    ("STARTBROWSE CONTAINER", "startbrowse-container-channel", CONTAINER_LATER),
-    ("GETNEXT CONTAINER", "getnext-container-channel", CONTAINER_LATER),
-    ("ENDBROWSE CONTAINER", "endbrowse-container-channel", CONTAINER_LATER),
+    # channels and containers beyond the container commands (#4270 slice 1, #4951)
     ("DELETE CHANNEL", None, "deleting a channel is not modelled"),
     ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),

@@ -1481,6 +1481,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return _container_command(verb, opts, labels)
+    if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
+        return _container_browse_command(verb, opts, labels)
     raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
@@ -1555,6 +1557,34 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if settable:
         lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {flength}", "END-IF"]
     return lines + _resp(opts, True, labels)
+
+
+def _container_browse_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER in GG-QNAME, AS in GG-AS, CHANNEL in GG-CHAN, TOCHANNEL in GG-TOCHAN;
+    GG-FLAGS says which channels are given), STARTBROWSE CONTAINER -> GGCSBRC (the token comes back in GG-NUM), GETNEXT
+    CONTAINER -> GGCGNXC (the token in GG-NUM; the name comes back in GG-QNAME) and ENDBROWSE CONTAINER -> GGCEBRC."""
+    key = f"{verb} CONTAINER"
+    _check_spec(key, opts, (verb, "CONTAINER") if verb in ("STARTBROWSE", "ENDBROWSE") else (verb,))
+    for need in SPEC[key].groups:
+        if need.kind == "required" and not opts.get(need.options[0]):
+            raise Unsupported(need.msg, [key])
+    flags = [f for f, o in (("CHANNEL", "CHANNEL"), ("TOCHAN", "TOCHANNEL")) if opts.get(o)]
+    chans = ([f"MOVE {opts['CHANNEL']} TO GG-CHAN"] if opts.get("CHANNEL") else []) + (
+        [f"MOVE {opts['TOCHANNEL']} TO GG-TOCHAN"] if opts.get("TOCHANNEL") else []
+    )
+    setflags = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
+    if verb == "MOVE":
+        lines = [f"MOVE {opts['CONTAINER']} TO GG-QNAME", f"MOVE {opts['AS']} TO GG-AS", *chans, setflags]
+        return lines + _call("GGCMOVC", []) + _resp(opts, True, labels)
+    if verb == "STARTBROWSE":
+        token = opts["BROWSETOKEN"]
+        return ([*chans, setflags] + _call("GGCSBRC", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {token}", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
+    lines = [f"MOVE {opts['BROWSETOKEN']} TO GG-NUM"]
+    if verb == "GETNEXT":
+        return (lines + _call("GGCGNXC", []) + ["IF GG-RESP = 0", f"    MOVE GG-QNAME TO {opts['CONTAINER']}", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
+    return lines + _call("GGCEBRC", []) + _resp(opts, True, labels)
 
 
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
@@ -2187,6 +2217,7 @@ FAULT_COMMANDS = (
     # IOERR, NOTAUTH (7), TRANSIDERR, TERMIDERR, SYSIDERR (1); RETRIEVE ENDDATA, ENVDEFERR, INVREQ, IOERR,
     # LENGERR; CANCEL NOTFND, NOTAUTH, ISCINVREQ, SYSIDERR (CANCEL has no INVREQ).
     "XCTL",
+    "LINK",  # #4648: its `program` too; LINK PGMIDERR, NOTAUTH, INVREQ, LENGERR (CICS TS, LINK "Conditions")
     "WRITEQ-TS",
     "START",
     "RETRIEVE",

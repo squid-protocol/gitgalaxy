@@ -95,13 +95,14 @@ typedef struct {
     char chan[16];  /* #4270: a channel's name (in: CHANNEL; out: ASSIGN CHANNEL) */
     int hours, mins, secs;  /* #4270 slice 2: START AFTER / AT's HOURS, MINUTES, SECONDS (-1: not given) */
     char rtran[4], rterm[4], rqueue[8];  /* START / RETRIEVE RTRANSID, RTERMID, QUEUE (GG-FLAGS names which) */
+    char as[16], tochan[16];  /* #4951: MOVE CONTAINER's AS and TOCHANNEL */
 } gg_cics;
 
 /* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
 enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
        PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
-       CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
+       END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -470,10 +471,13 @@ static void uow_end(int rollback) {
     release(NULL);
 }
 
+static void browses_end(void); /* #4951 */
+
 /* SYNCPOINT (flags empty: commit) / SYNCPOINT ROLLBACK (flags ROLLBACK: undo since the last SYNCPOINT). */
 int GGCSYNC(gg_cics *c) {
     int rollback = strstr(c->flags, "ROLLBACK") != NULL;
     uow_end(rollback);
+    browses_end(); /* #4951: a container browse token does not survive a sync point */
     c->resp = NORMAL;
     c->resp2 = 0;
     event(rollback ? "SYNCPOINT-ROLLBACK" : "SYNCPOINT", NULL, 0);
@@ -1370,9 +1374,11 @@ typedef struct {
     char dropped[32][17];
     int ndropped;
     int next_chan;           /* the channel an XCTL passes to the program pending at this level (index + 1) */
+    int gen;                 /* #4951: which LINKed program this level runs (0: the task's first), the owner of its browses */
 } level;
 
 static level levels[MAX_LEVELS];
+static int link_gen = 0; /* #4951: the last LINK's generation */
 static void channel_pass(level *L, int passed); /* #4270 */
 static int lvl = 0; /* the current level, 0 = level 1 */
 static char task_abcode[5] = "    ";
@@ -1815,7 +1821,7 @@ int GGCNOPG(gg_cics *c) {
  * area's bytes as the command is issued. */
 int GGCLINK(gg_cics *c, char *area) {
     char program[9], ev[128], flags[41], name[17];
-    int has = c->item != 0, len = has ? c->len : 0, chan = 0;
+    int has = c->item != 0, len = has ? c->len : 0, chan = 0, fresp, fresp2;
     trim(c->name1, 8, program);
     trim(c->flags, 40, flags);
     if (strstr(flags, "CHANNEL")) { /* #4270: LINK CHANNEL -- made empty if absent ("a new empty channel is created") */
@@ -1827,6 +1833,7 @@ int GGCLINK(gg_cics *c, char *area) {
     if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
     else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
     else if (lvl + 1 >= MAX_LEVELS) { c->resp = INVREQ; }
+    else if (injected("LINK", program, &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; }  /* #4648: as XCTL's */
     snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
     event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
     if (c->resp != NORMAL) return 0;
@@ -1844,6 +1851,7 @@ int GGCLINK(gg_cics *c, char *area) {
     L->link_area = has ? area : NULL;
     L->link_len = len;
     L->pending = 1;
+    L->gen = ++link_gen;
     channel_pass(L, chan); /* #4270: the callee's channel, the only one in its scope (0: none) */
     return 0;
 }
@@ -1879,8 +1887,8 @@ int GGCLRET(gg_cics *c) {
  * (#4270, X24) the containers a task leaves on its first program's current channel are compared at its end. */
 #define MAX_CHANNELS 64
 #define MAX_CONTAINERS 64
-typedef struct { char name[17]; int bit; char *data; int len; int used; } gg_container;
-typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; } gg_channel;
+typedef struct { char name[17]; int bit; char *data; int len; int used; long order; } gg_container; /* order: creation order (#4951) */
+typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; int shape; } gg_channel; /* shape: containers added + removed (#4951) */
 static gg_channel chans[MAX_CHANNELS];
 static int nchans = 0;
 
@@ -1946,6 +1954,8 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
     return levels[lvl].cur;
 }
 
+static long container_seq = 0;
+
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
     gg_container *free_slot = NULL;
     for (int i = 0; i < MAX_CONTAINERS; i++) {
@@ -1957,6 +1967,8 @@ static gg_container *container_named(gg_channel *ch, const char *name, int creat
     memset(free_slot, 0, sizeof *free_slot);
     snprintf(free_slot->name, sizeof free_slot->name, "%s", name);
     free_slot->used = 1;
+    free_slot->order = ++container_seq;
+    ch->shape++;
     return free_slot;
 }
 
@@ -2037,6 +2049,127 @@ int GGCDELC(gg_cics *c) {
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
     free(k->data);
     memset(k, 0, sizeof *k);
+    chans[ch - 1].shape++;
+    return 0;
+}
+
+/* ---- #4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL), STARTBROWSE /
+ * GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); the same semantics as CicsTask (register X42). */
+
+/* MOVE CONTAINER(GG-QNAME) AS(GG-AS) [CHANNEL: GG-CHAN] [TOCHANNEL: GG-TOCHAN]; GG-FLAGS: CHANNEL, TOCHAN. INVREQ RESP2 4
+ * (CHANNEL or TOCHANNEL omitted, no current channel), CHANNELERR 2, CONTAINERERR 10, in that order; a move that
+ * raises a condition changes nothing and creates no channel. The container keeps its data type. */
+int GGCMOVC(gg_cics *c) {
+    char flags[41], name[17], target[17], cn[17] = "", tn[17] = "";
+    int from, to;
+    trim(c->flags, 40, flags);
+    int has_from = strstr(flags, "CHANNEL") != NULL, has_to = strstr(flags, "TOCHAN") != NULL;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->qname, name, "container");
+    cics_name(c->as, target, "container");
+    if (has_from) { cics_name(c->chan, cn, "channel"); from = channel_named(cn, 0); }
+    else from = levels[lvl].cur;
+    if (has_to) { cics_name(c->tochan, tn, "channel"); to = channel_named(tn, 0); }
+    else to = levels[lvl].cur;
+    if ((!has_from || !has_to) && !levels[lvl].cur) { c->resp = INVREQ; c->resp2 = 4; return 0; }
+    if (!from) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    gg_container *src = container_named(&chans[from - 1], name, 0);
+    if (!src) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    gg_container *dst = to ? container_named(&chans[to - 1], target, 0) : NULL;
+    if (to == from && strcmp(name, target) == 0) refuse("MOVE CONTAINER onto itself");
+    if (dst && dst->bit != src->bit) refuse("MOVE CONTAINER onto a container of the other data type");
+    if (!to) to = channel_named(tn, 1);
+    if (!dst) {
+        dst = container_named(&chans[to - 1], target, 1);
+        dst->bit = src->bit;
+    } else {
+        free(dst->data);
+    }
+    dst->data = src->data;
+    dst->len = src->len;
+    src->data = NULL;
+    memset(src, 0, sizeof *src);
+    chans[from - 1].shape++;
+    return 0;
+}
+
+#define MAX_BROWSES 64
+typedef struct { int token; int owner; int chan; int shape; int n; int next; char names[MAX_CONTAINERS][17]; } gg_browse;
+static gg_browse browses[MAX_BROWSES];
+static int browse_tokens = 0;
+
+static gg_browse *browse_of(int token) {
+    for (int i = 0; i < MAX_BROWSES; i++) {
+        if (browses[i].token == token && token != 0 && browses[i].owner == levels[lvl].gen) return &browses[i];
+    }
+    return NULL;
+}
+
+static void browses_end(void) { memset(browses, 0, sizeof browses); }
+
+/* STARTBROWSE CONTAINER [CHANNEL: GG-CHAN, GG-FLAGS CHANNEL]: the token into GG-NUM (1, 2, 3 ... per task). CHANNELERR
+ * RESP2 2; no CHANNEL and no current channel is refused (IBM: the BTS form). The containers come in creation order. */
+int GGCSBRC(gg_cics *c) {
+    char flags[41], cn[17];
+    int ch;
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strstr(flags, "CHANNEL")) {
+        cics_name(c->chan, cn, "channel");
+        ch = channel_named(cn, 0);
+        if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    } else {
+        ch = levels[lvl].cur;
+        if (!ch) refuse("STARTBROWSE CONTAINER with no channel");
+    }
+    gg_browse *b = NULL;
+    for (int i = 0; i < MAX_BROWSES && !b; i++) if (!browses[i].token) b = &browses[i];
+    if (!b) refuse("more container browses than the stub holds");
+    memset(b, 0, sizeof *b);
+    b->token = ++browse_tokens;
+    b->owner = levels[lvl].gen;
+    b->chan = ch;
+    b->shape = chans[ch - 1].shape;
+    long last = 0; /* the names, in creation order: each time the oldest after the last taken */
+    for (;;) {
+        gg_container *best = NULL;
+        for (int i = 0; i < MAX_CONTAINERS; i++) {
+            gg_container *k = &chans[ch - 1].c[i];
+            if (k->used && k->order > last && (!best || k->order < best->order)) best = k;
+        }
+        if (!best) break;
+        last = best->order;
+        snprintf(b->names[b->n++], 17, "%s", best->name);
+    }
+    c->num = b->token;
+    return 0;
+}
+
+/* GETNEXT CONTAINER BROWSETOKEN(GG-NUM): the next name into GG-QNAME (16 characters). END RESP2 2 past the last (again
+ * on a later GETNEXT), TOKENERR 3 for a token that is not a current one of this program's. A container added to or
+ * removed from the browsed channel since the start is refused. */
+int GGCGNXC(gg_cics *c) {
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    gg_browse *b = browse_of(c->num);
+    if (!b) { c->resp = TOKENERR; c->resp2 = 3; return 0; }
+    if (chans[b->chan - 1].shape != b->shape) refuse("GETNEXT CONTAINER: the browsed channel changed during the browse");
+    if (b->next >= b->n) { c->resp = END; c->resp2 = 2; return 0; }
+    memset(c->qname, ' ', 16);
+    memcpy(c->qname, b->names[b->next], strlen(b->names[b->next]));
+    b->next++;
+    return 0;
+}
+
+/* ENDBROWSE CONTAINER BROWSETOKEN(GG-NUM): TOKENERR RESP2 3 for a token that is not a current one of this program's. */
+int GGCEBRC(gg_cics *c) {
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    gg_browse *b = browse_of(c->num);
+    if (!b) { c->resp = TOKENERR; c->resp2 = 3; return 0; }
+    memset(b, 0, sizeof *b);
     return 0;
 }
 

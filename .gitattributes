@@ -62,3 +62,6 @@ tests/cultural_gauntlet/baseline.txt merge=union
 tests/equivalence/** text=auto eol=lf
 tests/cics_crucible/ports/** text=auto eol=lf
 tests/cics_crucible/strengthened/** text=auto eol=lf
+# #4918 / #4915: template requirement lockfiles are hashed byte-for-byte by sha256sum
+# in CI templates and tested against raw.githubusercontent.com contents; keep them LF on every OS.
+templates/requirements/** text eol=lf

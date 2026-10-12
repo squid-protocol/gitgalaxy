@@ -15,12 +15,15 @@ def test_unexpected_failures_and_stale_entries_are_named():
     ok = {"proved": True, "coverage": "proven on 3 scenarios"}
     bad = {"proved": False, "coverage": "not proven; 3 scenarios"}
     results = {"det": {"a": ok, "carddemo-cardupdate": bad, "b": bad}, "model": {"carddemo-cardupdate": ok}}
-    problems = ps.verdict(results)
+    known = {
+        ("det", "carddemo-cardupdate"): "a known det non-proof"
+    }  # explicit: the live baseline shrinks as ports are fixed
+    problems = ps.verdict(results, known)
     assert len(problems) == 1 and problems[0].startswith(
         "det b: NOT PROVEN (not proven; 3 scenarios)"
     )  # cardupdate is a known det non-proof
     results["det"]["carddemo-cardupdate"] = ok
-    assert ps.verdict(results)[-1].startswith("det carddemo-cardupdate: now proven -- update the baseline")
+    assert ps.verdict(results, known)[-1].startswith("det carddemo-cardupdate: now proven -- update the baseline")
 
 
 def test_every_known_entry_names_a_case_and_a_reason():

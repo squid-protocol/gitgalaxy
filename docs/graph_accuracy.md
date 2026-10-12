@@ -23,7 +23,7 @@ Every step appends its table to the workflow's job summary, so the current numbe
 PR's checks page. The committed baselines hold the numbers on `main`.
 
 **Coverage at a glance:**
-[`self_scan/graph_coverage_chart.svg`](self_scan/graph_coverage_chart.svg) shows the checks
+[`self_scan/graph_coverage_chart.svg`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/graph_coverage_chart.svg) shows the checks
 above for every language on one chart, with n. Languages that no check measures yet are listed
 by name. How it's drawn is in
 [`self_scan/graph_comparison_README.md`](self_scan/graph_comparison_README.md#the-coverage-chart).

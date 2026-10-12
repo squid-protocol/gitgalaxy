@@ -47,6 +47,25 @@ public class GtworkService {
         region.run(task, "GTWORK", this::runTask);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the
+     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */
+    public void handleTransaction(String transid, byte[] area) {
+        log.info("Gtwork: handleTransaction (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null, area);
+        region.run(task, "GTWORK", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+    }
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
+    }
+
     /** One task of GTWORK (transaction GT02, no terminal): RETRIEVEs the START data it was started for and
      *  logs each response to TS queue GTLOG, then RETURNs. */
     public void runTask(CicsTask task) {

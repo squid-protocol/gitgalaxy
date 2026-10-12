@@ -73,7 +73,7 @@ When you modify GitGalaxy's core engine, several CI workflows will rigorously te
    - Run `python tests/tools/tri_comparison_chart.py --all --ci` to test.
    - If you improved precision, lock it in: `python tests/tools/tri_comparison_chart.py --regenerate --languages <lang>`
 
-3. **Tree-Sitter Accuracy (`docs/self_scan/tree_sitter_accuracy_history.csv`)**
+3. **Tree-Sitter Accuracy (`docs/self_scan/tree_sitter_accuracy_history.csv`, appended on the `generated` branch)**
    This audits AST accuracy against tree-sitter ground truth. 
    - Run `python tests/tools/tree_sitter_accuracy_audit.py --ci --all`.
    - If your regex fix legitimately drops false positives causing ground truth drift, regenerate the baseline: `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`

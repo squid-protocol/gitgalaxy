@@ -130,6 +130,22 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-12T07:32:19+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "b415c27220a00f5b415fd83d7f480871618b29b514746fe2cfcd0887b1b139e9",
+    "harness_commit": "d1cc9721aa4f8fe0f262a71c02b2eb8ec054ed62",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXEXT --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -172,6 +188,18 @@
    "removed": [
     "executeHxext",
     "submitHxm2"
+   ]
+  },
+  {
+   "at": "2026-10-12T07:11:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/HxextService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,HxextWsCa,byte[])",
+    "lastAnswerBytes()"
    ]
   }
  ],

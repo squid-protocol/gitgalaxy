@@ -428,6 +428,7 @@ public class CicsTask {
         callee.invoker = this.program;
         callee.linkLength = len;
         callee.linkArea = area;
+        callee.callerArea = area != null;  // #4816: that area is the caller's own storage, not a copy
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
@@ -3476,6 +3477,17 @@ public class CicsTask {
         return resp;
     }
 
+    private boolean callerArea;      // #4816: linkArea is the LINK caller's storage (not a copy, not a task's own area)
+    private boolean xctlOfLinkage;   // #4816: the next XCTL's COMMAREA is inside this program's DFHCOMMAREA
+
+    /** #4816: the XCTL about to be issued passes (part of) this program's own DFHCOMMAREA. A LINKed program's is its
+     *  caller's storage; IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether
+     *  the target then addresses that storage or a copy, so a successful XCTL of it is refused, never guessed
+     *  (register X39). */
+    public void xctlOfLinkage() {
+        xctlOfLinkage = true;
+    }
+
     private String xctl(String program, Object commarea, Integer length, Channel pendingChannel) {
         String resp = "NORMAL";
         Integer resp2 = null;
@@ -3494,6 +3506,12 @@ public class CicsTask {
         }
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
+        boolean ofLinkage = xctlOfLinkage;
+        xctlOfLinkage = false;
+        if ("NORMAL".equals(resp) && ofLinkage && callerArea) {
+            throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
+                    + "whether the target addresses the caller's storage or a copy, not modelled");
+        }
         if ("NORMAL".equals(resp)) {
             xctlTarget = program;
             xctlCommarea = commarea;
@@ -4518,6 +4536,26 @@ class CicsForge:
                 f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'});",
                 f"        region.run(task, {name}, this::runTask);",
                 *([f"        return task.returned({tresp}.class);"] if tresp else []),
+                "    }\n",
+                # #4870: the same entry with the bytes of the COMMAREA the previous task's RETURN passed on in, and
+                # the bytes this task's RETURN passes on out (lastAnswerBytes()): a DTO cannot carry a numeric DISPLAY
+                # field holding spaces. The signature above is unchanged (the equivalence harness reads it).
+                "    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the",
+                "     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */",
+                f"    public {tresp or 'void'} handleTransaction({params}, byte[] area) {{",
+                f'        log.info("{prog.cls}: handleTransaction (bytes)");',
+                "        CicsTask.Region region = CicsTask.region();",
+                f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'}, area);",
+                f"        region.run(task, {name}, this::runTask);",
+                "        lastAnswerBytes = task.returnedBytes();",
+                *([f"        return task.returned({tresp}.class);"] if tresp else []),
+                "    }\n",
+                "    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",
+                "    private byte[] lastAnswerBytes;\n",
+                "    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).",
+                "     *  @facade-helper */",
+                "    public byte[] lastAnswerBytes() {",
+                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
                 "    }\n",
             ]  # fmt: skip
         elif prog.transactions:

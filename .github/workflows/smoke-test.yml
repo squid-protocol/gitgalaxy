@@ -36,7 +36,7 @@ jobs:
   # (#813) without adding real signal over running it once.
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
-    needs: full-suite-part
+    needs: [tested-tree, full-suite-part]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -44,9 +44,36 @@ jobs:
       - name: Every part of the suite passed
         env:
           PARTS: ${{ needs.full-suite-part.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
         run: |
-          echo "full-suite parts: $PARTS"
-          test "$PARTS" = "success"
+          echo "full-suite parts: $PARTS (tested-tree skip: $SKIP)"
+          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
+          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && test "$SKIP" = "true"; }
+
+  # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
+  # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  tested-tree:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.decide.outputs.skip }}
+    steps:
+      - name: Checkout the gate script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tests/tools/skip_tested_tree.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
   smoke-test:
     # #4520: PRs get ubuntu/3.12 via the full-suite job below (which also runs
@@ -119,6 +146,8 @@ jobs:
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
+    needs: tested-tree
+    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4935: not again for a tree the PR run proved
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

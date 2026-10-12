@@ -302,8 +302,10 @@ chart/ledger/report themselves. A separate push-to-main companion,
 `.github/workflows/tri-comparison-history.yml`, does that automatically after a relevant change
 lands on `main`: re-render `tri_comparison_chart.svg`, refresh `tri_comparison_ledger.json`
 (`last_seen_count`/`last_seen_examples`/`still_reproduces` only — never a validated entry's
-`status`/`verdict`), and regenerate `tri_comparison_points_of_interest.md`, opening an auto-merged
-PR only when something actually changed. This is the same split
+`status`/`verdict`), and regenerate `tri_comparison_points_of_interest.md`, publishing them to the `generated`
+branch (#4847: no PR, no commit to `main`) only when something actually changed. The
+ledger committed on `main` is where verdicts are written and the input of that refresh; the
+chart, the report and the refreshed counts are read from `generated`. This is the same split
 `tree-sitter-accuracy-audit.yml`/`tree-sitter-accuracy-history.yml` already use for the 2-tool
 system, adopted here rather than requiring every PR author to run a full corpus scan + a real
 `ctags` locally just to unblock their own merge.

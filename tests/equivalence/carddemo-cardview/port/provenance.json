@@ -41,6 +41,18 @@
    "replaced": [
     "handleTransaction"
    ]
+  },
+  {
+   "at": "2026-10-12T07:09:13+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/CocrdslcService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,CocrdslcCommarea,byte[])",
+    "lastAnswerBytes()"
+   ]
   }
  ]
 }

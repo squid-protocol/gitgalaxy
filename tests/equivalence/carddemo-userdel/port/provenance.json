@@ -37,6 +37,18 @@
    "replaced": [
     "handleTransaction"
    ]
+  },
+  {
+   "at": "2026-10-12T07:09:15+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/Cousr03cService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,Cousr03cCarddemoCommarea,byte[])",
+    "lastAnswerBytes()"
+   ]
   }
  ]
 }

@@ -2,13 +2,17 @@
 stale entries). Fingerprints are stubbed; no sweep, git or corpus needed."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cobol_coverage as cov
 import det_coverage_ledger as dcl
+
+TOOLS = Path(__file__).resolve().parent
 
 LINE = "proven on 8 scenarios, covering 4/4 paragraphs and 2/2 branches"
 FP = {"case": "a", "corpus": "b", "harness": "c", "oracle": "d"}
@@ -25,6 +29,46 @@ def test_parse_line():
                                     "branches": {"covered": 2, "total": 2}}  # fmt: skip
     assert dcl.parse_line("not proven") is None
     assert dcl.parse_line("") is None
+
+
+# #5008: the harness that proves each case kind, and so prints its coverage line (each counts its own unit).
+KIND_HARNESS = {"batch": "equivalence.py", "call": "equivalence_call.py", "cics": "equivalence_cics.py"}
+_HEADLINE = re.compile(r"cov\.headline\(([^\n]*)\)\}")
+
+
+def _harness_units(harness: str) -> list[str]:
+    """The unit word(s) a harness's printed coverage line uses: cov.headline's `what` (default "run")."""
+    calls = _HEADLINE.findall((TOOLS / harness).read_text(encoding="utf-8"))
+    assert calls, f"{harness} prints no COBOL coverage line through cov.headline"
+    return [m.group(1) if (m := re.search(r"'(\w+)'\s*$", c)) else "run" for c in calls]
+
+
+def test_every_case_kind_has_a_harness():
+    kinds = {json.loads(f.read_text(encoding="utf-8")).get("kind", "batch") for f in dcl.CASES.glob("*/case.json")}
+    assert kinds <= set(KIND_HARNESS), f"a case kind with no harness here: {sorted(kinds - set(KIND_HARNESS))}"
+
+
+@pytest.mark.parametrize("kind", sorted(KIND_HARNESS))
+@pytest.mark.parametrize("n", [1, 3])
+def test_a_proven_case_of_every_kind_gets_a_ledger_entry(monkeypatch, kind, n):
+    """#5008: a passing det proof's coverage line, as its kind's harness prints it, yields a ledger entry (the ledger
+    once read only "scenarios", so no batch ("runs") or CALL ("calls") case ever got one) and passes the check."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    s = {"paragraphs": {"covered": 4, "live": 5}, "branches": {"covered": 2, "total": 6}}
+    for unit in _harness_units(KIND_HARNESS[kind]):
+        line = cov.headline(s, n, True, unit)
+        built = dcl.build({CASE: {"proved": True, "coverage": line}}, {})
+        assert CASE in built, f"{kind}: {line!r} gave no ledger entry"
+        assert dcl.fresh_coverage(CASE, built) == (4, 5, 2, 6) and built[CASE]["scenarios"] == n
+        assert dcl.check({CASE: {"proved": True, "coverage": line}}, built) == ([], [])
+
+
+def test_check_fails_on_a_coverage_line_it_cannot_read(monkeypatch):
+    """#5008: an unknown wording used to be a warning only, so the cases it hid never reached the ledger."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    problems, _ = dcl.check({CASE: {"proved": True, "coverage": "proven on 2 widgets, covering 1/1 paragraphs"}}, {})
+    assert "not understood" in problems[0]
+    assert dcl.check({CASE: {"proved": True, "coverage": ""}}, {})[0] == []  # no line at all: reported, not failed
 
 
 def test_check(monkeypatch):

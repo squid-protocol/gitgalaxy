@@ -673,9 +673,8 @@ class LanguageDetector:
             # #4546: a neighbourhood vote cannot confer a language the file's own
             # content must prove (Objective-C on `.h`: any `.h` beside `.m` files
             # was locked to it with no ObjC marker), and cannot hide C++ evidence.
-            if gravity_lang and self.languages.get(gravity_lang, {}).get("extensions_needing_discriminator"):
-                if ext in self.languages[gravity_lang]["extensions_needing_discriminator"]:
-                    gravity_lang = None
+            if gravity_lang and ext in self.languages.get(gravity_lang, {}).get("extensions_needing_discriminator", ()):
+                gravity_lang = None
             if gravity_lang and (evidenced := self._shared_extension_evidence(content_sample, ext)):
                 gravity_lang = evidenced
 

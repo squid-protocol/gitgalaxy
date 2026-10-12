@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """skip-tested-tree (#4935): skip a workflow's post-merge push run when the PR run already proved the same tree green.
 
-Used by the `tested-tree` job of mainframe-ground-truth.yml and smoke-test.yml (stdlib only; reads run metadata through
+Used by the `tested-tree` job of every workflow triggered on both `pull_request` and a main `push` (mainframe-ground-truth,
+smoke-test, and the #4964 members: fact-crosscheck, estate-crucible, ports-compile, java-compile, cics-crucible,
+unicode-gauntlet, tree-sitter-accuracy-audit; stdlib only; reads run metadata through
 `gh api`, never checks out or runs PR code):
 
     python tests/tools/skip_tested_tree.py <workflow-file.yml>      # env: GH_TOKEN, GITHUB_REPOSITORY, GITHUB_SHA,
@@ -17,6 +19,7 @@ run is skipped only when ALL of these hold:
   * the commit's parent is an ancestor of the PR head. A `pull_request` run checks out the test merge of head and base,
     and the API does not say which base. On a linear main, "the final parent is in the head" means every earlier base
     was too, so that test merge was the head's own tree and not some other one (a PR behind main fails this);
+  * the PR targeted main (a run on a PR into another base proved nothing about main's tree);
   * the newest `pull_request` run of THIS workflow on that head SHA completed with `success` (red, cancelled, in
     progress or missing: run it).
 
@@ -45,7 +48,7 @@ def newest_run(runs: list[dict[str, Any]]) -> dict[str, Any] | None:
 
 
 def decide(s: dict[str, Any]) -> tuple[bool, str]:
-    """snapshot -> (skip, reason). s: event, ref, parents (count), tree, pr (None | {head_tree, merged, merge_sha}),
+    """snapshot -> (skip, reason). s: event, ref, parents (count), tree, pr (None | {head_tree, merge_sha, base}),
     sha, parent_in_head (bool | None), runs (the workflow's runs on the PR head SHA)."""
     if s["event"] != "push" or s["ref"] != MAIN_REF:
         return False, f"{s['event']} on {s['ref']}: never skipped"
@@ -60,9 +63,13 @@ def decide(s: dict[str, Any]) -> tuple[bool, str]:
         return False, "main's tree differs from the PR head's tree (the PR was behind main, or main moved)"
     if not s.get("parent_in_head"):
         return False, "the PR head does not contain main's previous commit (its test merge was another tree)"
+    if pr.get("base") != "main":
+        return False, f"the PR's base is {pr.get('base')!r}, not main"
     run = newest_run(s.get("runs", []))
     if run is None:
-        return False, "no pull_request run of this workflow on the PR head"
+        # Also the paths-filter case (#4964): a workflow whose pull_request `paths` skipped this PR has no run on the head,
+        # while its push filter (or none, tree-sitter-accuracy-audit) still fires on main. Absence is never a proof.
+        return False, "no pull_request run of this workflow on the PR head (its PR paths filter may have skipped it)"
     if run.get("status") != "completed" or run.get("conclusion") != "success":
         return False, f"the PR head's newest run is {run.get('status')}/{run.get('conclusion')}, not a green verdict"
     return True, f"tree {s['tree'][:12]} passed in PR run {run['id']}"
@@ -100,7 +107,11 @@ def snapshot(repo: str, workflow: str, env: dict[str, str]) -> dict[str, Any]:
         return s
     head_sha = merged[0]["head"]["sha"]
     head = gh(f"repos/{repo}/commits/{head_sha}")
-    s["pr"] = {"head_tree": head["commit"]["tree"]["sha"], "merge_sha": merged[0]["merge_commit_sha"]}
+    s["pr"] = {
+        "head_tree": head["commit"]["tree"]["sha"],
+        "merge_sha": merged[0]["merge_commit_sha"],
+        "base": (merged[0].get("base") or {}).get("ref"),
+    }
     parent = commit["parents"][0]["sha"]
     s["parent_in_head"] = gh(f"repos/{repo}/compare/{parent}...{head_sha}")["status"] in ("ahead", "identical")
     if s["pr"]["head_tree"] == s["tree"] and s["parent_in_head"]:

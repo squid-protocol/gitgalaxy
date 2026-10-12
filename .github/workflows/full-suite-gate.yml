@@ -161,12 +161,12 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist pytest-split "pytest-timeout==2.4.0"
+          pip install --require-hashes -r ci/requirements/test.txt
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
-          pip install "tree-sitter-language-pack==1.20.0"
+          pip install --require-hashes -r ci/requirements/treesitter.txt
           pip install --no-build-isolation -e .
 
       # Sharding (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836): a leg

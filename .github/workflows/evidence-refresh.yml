@@ -190,7 +190,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
           pip install -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
@@ -357,7 +358,7 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install -e "./gitgalaxy"
 
       - name: Take the parts' results
@@ -453,9 +454,10 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
           pip install -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
@@ -599,9 +601,10 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
           pip install -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
@@ -764,9 +767,10 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
           pip install -e "./gitgalaxy[translator]"
 
       - name: Cache the pinned corpora
@@ -1054,7 +1058,7 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
           pip install -e ./main
 
       - name: Take the refresh job's survey

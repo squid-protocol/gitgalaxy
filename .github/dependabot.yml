@@ -25,3 +25,19 @@ updates:
       default-days: 7
     labels:
       - "python"
+
+  # #4918: the hash-pinned install sets our own workflows use (ci/requirements/*.in -> *.txt, regenerated
+  # with tests/tools/pin_ci_requirements.sh). One grouped PR so a bump of a shared dependency lands in
+  # every set at once. Pins that nothing updates rot, so this entry is part of the pin.
+  - package-ecosystem: "pip"
+    directory: "/ci/requirements"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    labels:
+      - "python"
+    groups:
+      ci-requirements:
+        patterns:
+          - "*"

@@ -45,7 +45,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install Dependencies
-        run: pip install "mkdocs<2.0" mkdocs-material pymdown-extensions mkdocs-redirects
+        run: pip install --require-hashes -r ci/requirements/docs.txt
 
       - name: Build and Deploy Docs
         run: mkdocs gh-deploy --force

@@ -65,9 +65,9 @@ jobs:
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Same pin golden-crucible.yml uses -- this tool reuses that corpus rather than
       # a fresh clone (see tests/tools/tree_sitter_accuracy_audit.py's own CORPUS section).

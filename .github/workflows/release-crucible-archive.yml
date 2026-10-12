@@ -56,8 +56,8 @@ jobs:
       - name: Install GitGalaxy (full-precision)
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip setuptools wheel
-          pip install PyYAML tiktoken "pandas>=2.0.0" xgboost
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --require-hashes -r ci/requirements/engines.txt
           pip install -e .
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml, same as CI)

@@ -69,9 +69,9 @@ jobs:
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Hard preflight, not optional: PR #2111 (2026-08-22, see
       # docs/self_scan/tri_comparison_README.md) is a real incident where Ubuntu's

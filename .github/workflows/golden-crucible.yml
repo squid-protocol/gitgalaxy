@@ -44,7 +44,7 @@ jobs:
       - name: Install GitGalaxy Environment
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           # PyYAML is installed in BOTH legs -- since #1104 it's an optional
           # `gitgalaxy[yaml]` extra, not a core dependency, so `pip install -e .`
           # no longer pulls it in for either leg. "Zero-Dependency Mode" here has
@@ -54,13 +54,13 @@ jobs:
           # expects PyYAML present even on this leg.
           if [ "${{ matrix.mode }}" = "full-precision" ]; then
             echo "Installing heavy engines for Full-Precision Mode..."
-            pip install PyYAML tiktoken "pandas>=2.0.0" xgboost
+            pip install --require-hashes -r ci/requirements/engines.txt
           else
             echo "Deliberately skipping tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
-            pip install PyYAML
+            pip install --require-hashes -r ci/requirements/yaml.txt
           fi
           pip install -e .
-          pip install pytest
+          pip install --require-hashes -r ci/requirements/pytest.txt
 
       - name: Fetch Golden Test Repo (Language Crucible)
         run: |

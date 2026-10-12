@@ -1,0 +1,5 @@
+PyYAML
+tiktoken
+numpy
+pandas>=2.0.0
+xgboost

@@ -105,7 +105,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
 
       - name: Cache the pinned corpora

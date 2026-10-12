@@ -41,7 +41,7 @@ int CEELOCT(unsigned char *lilian, unsigned char *seconds, unsigned char *gregor
     lilian[1] = (unsigned char)(days >> 16);
     lilian[2] = (unsigned char)(days >> 8);
     lilian[3] = (unsigned char)days;
-    double secs = (double)(days * 86400L + hh * 3600L + mi * 60L + ss) + hs / 100.0;
+    double secs = (double)((long long)days * 86400LL + hh * 3600LL + mi * 60LL + ss) + hs / 100.0;
     memcpy(seconds, &secs, sizeof secs);
     char g[24];
     snprintf(g, sizeof g, "%04d%02d%02d%02d%02d%02d%03d", y, mo, d, hh, mi, ss, hs * 10);

@@ -481,12 +481,8 @@ def _launcher(classpath: list[str]) -> Path | None:
     import re
 
     for e in classpath:
-<<<<<<< HEAD
-        m = re.search(r"(.*)[\\/]junit-platform-engine[\\/]([^\\/]+)[\\/]junit-platform-engine-\2\.jar$", e)
-=======
         e = e.replace("\\", "/")  # Windows entries are backslash paths
         m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
->>>>>>> origin/main
         if m:
             jar = (
                 Path(m.group(1)) / "junit-platform-launcher" / m.group(2) / f"junit-platform-launcher-{m.group(2)}.jar"

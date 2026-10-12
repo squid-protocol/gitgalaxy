@@ -39,6 +39,12 @@ CHANNEL_NAME_CHARS = (
 _CHANNEL_ERR = Outcome(
     "CHANNELERR", 1, "the channel name contains an incorrect character or combination", raised_by=("CHANNEL",)
 )
+_BOTH_BAD = RuntimeRefusal(
+    "a transaction not defined together with an incorrect CHANNEL name: which condition IBM raises first is not documented",
+    "X18",
+    java="of a transaction not defined, with ",
+    c="of a transaction not defined, with an incorrect CHANNEL name",
+)
 _DFH_CHANNEL = RuntimeRefusal(
     "a channel whose name starts DFH: CICS's own (DFHTRANSACTION, the transaction channel) is not modelled",
     "X18",
@@ -118,6 +124,13 @@ START = Command(
     ),
     runtime_refusals=(
         _DFH_CHANNEL,
+        _BOTH_BAD,
+        RuntimeRefusal(
+            "START CHANNEL naming a channel not in the program's scope (IBM does not say it is created)",
+            "X18",
+            java=") of a channel not in the ",
+            c="START CHANNEL of a channel not in the program's scope",
+        ),
         RuntimeRefusal(
             "a REQID that exists, reused other than as this task's own with FROM",
             "X18",
@@ -228,11 +241,17 @@ _CHILD_RUNS = RuntimeRefusal(
     c="child transaction %s: its program is not one the case runs",
 )  # fmt: skip
 _CHILD_RESOURCE = RuntimeRefusal(
-    "a child task's command on a region resource (a file, a queue, a START ...): its order against its parent's and "
-    "its siblings' is not modelled",
+    "a dispatched child task's command on a region resource or a terminal (a file, a queue, a START, a counter, SQL ...):"
+    " its order against its parent's and its siblings' is not modelled (the harness refuses the ones with no event)",
     "X18",
     java="a RUN TRANSID child's ",
-    c="a RUN TRANSID child's %s",
+    c="a RUN TRANSID child's %.*s",
+)
+_CHILD_RECOVERED = RuntimeRefusal(
+    "a child that went on after an abend (HANDLE ABEND): its completion status is not documented",
+    "X18",
+    java="a RUN TRANSID child that went on after an abend",
+    c="a RUN TRANSID child that went on after an abend",
 )
 _CHILD_TIE = RuntimeRefusal(
     "a FETCH whose answer turns on a child completing at the instant its parent resumed from a wait (a tie)",
@@ -271,6 +290,7 @@ RUN = Command(
             java="RUN TRANSID in a RUN TRANSID child",
             c="RUN TRANSID in a RUN TRANSID child",
         ),
+        _BOTH_BAD,
         _CHILD_RUNS,
         _CHILD_RESOURCE,
     ),
@@ -293,6 +313,12 @@ _FETCH_TIMEOUT = RuntimeRefusal(
     java="FETCH TIMEOUT(",
     c="FETCH TIMEOUT(%d)",
 )
+_NO_REPLY = RuntimeRefusal(
+    "FETCH CHANNEL of a child that left no current channel (IBM does not say what CHANNEL gets)",
+    "X18",
+    java="FETCH CHANNEL of a child that left no current channel",
+    c="FETCH CHANNEL of a child that left no current channel",
+)
 FETCH_ANY = Command(
     key="FETCH ANY",
     ibm=ibm("EXEC CICS FETCH ANY", "summary-fetch-any"),
@@ -313,7 +339,7 @@ FETCH_ANY = Command(
         Outcome("NOTFND", 1, "No unfetched children were found"),
         Outcome("INVREQ", 52, "the parent has no children"),
     ),
-    runtime_refusals=(_FETCH_TIMEOUT, _CHILD_TIE, _CHILD_RUNS),
+    runtime_refusals=(_FETCH_TIMEOUT, _CHILD_TIE, _CHILD_RUNS, _CHILD_RECOVERED, _NO_REPLY),
     state=("child_tasks", "handle_table", "channel_scope"),
     impl=Impl(translator="Cics.fetch", java="fetch", c="GGCFETCH", harness="_fetch_child"),
 )
@@ -341,6 +367,8 @@ FETCH_CHILD = Command(
         _FETCH_TIMEOUT,
         _CHILD_TIE,
         _CHILD_RUNS,
+        _CHILD_RECOVERED,
+        _NO_REPLY,
         RuntimeRefusal(
             "a second FETCH of a child, but for its channel fetched again (INVREQ 51): IBM does not say what it answers",
             "X18",
@@ -357,10 +385,18 @@ FREE_CHILD = Command(
     ibm=ibm("EXEC CICS FREE CHILD", "summary-free-child"),
     status="modelled",
     register="X18",
-    event="FREE CHILD",
+    event="FREE-CHILD",
     options={"CHILD": Arg("area_in", width=16), **RESP_OPTIONS},
     refused={},
     groups=(required("CHILD", msg="FREE CHILD without CHILD"),),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "FREE CHILD of a child already fetched (IBM does not say)",
+            "X18",
+            java="FREE CHILD of a child already fetched",
+            c="FREE CHILD of a child already fetched",
+        ),
+    ),
     outcomes=(
         Outcome("NORMAL", 0, "the token is freed: a later FETCH CHILD of it is INVREQ, FETCH ANY skips it"),
         Outcome("INVREQ", 50, "CHILD is not a valid child token, or the child task has already been freed"),

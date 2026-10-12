@@ -76,7 +76,7 @@ DELAY = Command(
     runtime_refusals=(
         # #4950 (X18): a DELAY is the wait at which a RUN child is dispatched; its length orders their completions
         RuntimeRefusal(
-            "a DELAY TIME (a time of day), or a value out of range, in a task with RUN TRANSID children",
+            "a DELAY TIME (a time of day), or a value out of range, in a task with RUN TRANSID children or in a child",
             "X18",
             java="DELAY in a task with RUN TRANSID children",
             c="DELAY %s in a task with RUN TRANSID children",

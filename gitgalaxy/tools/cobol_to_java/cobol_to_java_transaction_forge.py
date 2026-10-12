@@ -281,6 +281,10 @@ public class CicsTask {
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
     private int children;                                   // #4270: the RUN TRANSID children it attached
+    private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
+    private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
+    private boolean dispatched;                             // #4950: a child its parent's wait dispatched (root's)
+    private int replies;                                    // #4950: the reply channels FETCH CHANNEL named (root's)
     private final java.util.Set<String> ownWithData = new java.util.HashSet<>();  // #4270: own REQIDs with FROM
     private Map<String, LocalDateTime> unexpired = Map.of();
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
@@ -361,6 +365,12 @@ public class CicsTask {
         /** Whether the region has a terminal (START's TERMIDERR, #4006). */
         default boolean terminal(String termid) {
             return true;
+        }
+
+        /** #4950: the program a transaction runs -- a RUN TRANSID child's -- or null when the case does not run it
+         *  (the child is then refused when its parent's wait would dispatch it). */
+        default String program(String transid) {
+            return null;
         }
     }
 
@@ -1924,6 +1934,7 @@ public class CicsTask {
         private Integer hours;
         private Integer minutes;
         private Integer seconds;
+        private String channel;
 
         private StartRequest(CicsTask task, String transid) {
             this.task = task;
@@ -2007,6 +2018,13 @@ public class CicsTask {
             return this;
         }
 
+        /** #4950: CHANNEL(name): the started task gets a copy of the channel's containers as they are at the START,
+         *  as its current channel (IBM, EXEC CICS START CHANNEL). */
+        public StartRequest channel(String channel) {
+            this.channel = channel;
+            return this;
+        }
+
         public StartResult issue() {
             return task.issueStart(this);
         }
@@ -2062,7 +2080,24 @@ public class CicsTask {
             }
         }
         int range = resp2;
-        if (range != 0) {
+        String chan = q.channel == null ? null : handedChannel(q.channel);  // #4950: START CHANNEL
+        Channel copy = null;
+        if (q.channel != null && chan == null && programs != null && !programs.transaction(q.transid)) {
+            throw new UnsupportedOperationException("START TRANSID(" + q.transid + ") of a transaction not defined, "
+                    + "with an incorrect CHANNEL name: which condition IBM raises is not documented, not modelled");
+        }
+        if (chan != null) {
+            Channel ch = scopeChannel(chan, false);
+            if (ch == null) {
+                throw new UnsupportedOperationException("START CHANNEL(" + chan + ") of a channel not in the "
+                        + "program's scope: not modelled");
+            }
+            copy = copyOf(ch, chan);
+        }
+        if (q.channel != null && chan == null) {
+            resp = "CHANNELERR";
+            resp2 = 1;
+        } else if (range != 0) {
             resp = "INVREQ";
         } else if (q.from != null && q.from.length < 1) {  // IBM: LENGERR "if LENGTH is not greater than zero"
             resp = "LENGERR";
@@ -2111,10 +2146,17 @@ public class CicsTask {
         if (q.queue != null) {
             e.put("queue", q.queue);
         }
+        if (copy != null && "NORMAL".equals(resp)) {  // #4950: the copy the started task gets, its containers' bytes
+            Map<String, String> data = new LinkedHashMap<>();
+            copy.containers().forEach((n, v) -> data.put(n, java.util.HexFormat.of().withUpperCase().formatHex(v)));
+            e.put("channel", Map.of("name", chan, "containers", data));
+        }
         e.put("protect", q.protect);
         e.put("resp", resp);
         if (range != 0) {
             e.put("resp2", range);  // (SPEC 6.2: where IBM documents it -- INVREQ RESP2 4 / 5 / 6)
+        } else if ("CHANNELERR".equals(resp)) {
+            e.put("resp2", 1);
         }
         e.put("expires", at == null ? null : at.format(ISO));
         add(e);
@@ -2138,31 +2180,42 @@ public class CicsTask {
     /** #4270 slice 2: RUN TRANSID(transid) CHILD (IBM CICS TS, EXEC CICS RUN TRANSID): it "starts a task on the
      *  local system ... The started task (child task) runs asynchronously with the starting task", and CICS places
      *  "the child token that represents the child task" in CHILD's 16-character area. TRANSIDERR RESP2 1 for a
-     *  transaction not defined. The harness's scheduler runs the child as a non-terminal task once this task has
-     *  ended: a parent that never FETCHes it cannot tell when it ran (SPEC section 4, no ties). The token's bytes are
-     *  the harness's own (IBM does not document them), the same on both sides. */
+     *  transaction not defined. #4950 (X18): the child runs at this task's next wait (delay, fetch); a task that
+     *  never waits ends with it not run. The token's bytes are the harness's own (IBM does not document them), the
+     *  same on both sides. */
     public RunResult runTransid(String transid) {
         return runTransid(transid, null);
     }
 
-    /** #4884: RUN TRANSID CHANNEL(channel) (IBM: "if the channel does not exist, it is created"; the child "receives a
-     *  copy of the channel's containers" when RUN is issued). The child runs only after this task has ended, so the
-     *  copy is never read here and the parent's channels do not change. A name of anything but letters and digits
-     *  (IBM lists the allowed symbols without saying which are valid in this release) is refused, never guessed. */
+    /** #4884, #4950: RUN TRANSID CHANNEL(channel) (IBM: "if the channel does not exist, it is created"; the child
+     *  "receives a copy of the channel's containers" when RUN is issued, and that copy is its current channel). A name
+     *  with a character IBM does not list is CHANNELERR RESP2 1 (handedChannel). */
     public RunResult runTransid(String transid, String channel) {
         CicsTask task = root();
-        if (channel != null && !channel.matches("[A-Za-z0-9]{1,16}")) {
-            throw new UnsupportedOperationException("RUN CHANNEL(" + channel + ") with a name of anything but letters "
-                + "and digits is not modelled: IBM does not say which symbols a channel name allows");
+        if (task.dispatched) {
+            throw new UnsupportedOperationException("RUN TRANSID in a RUN TRANSID child task (a grandchild): not "
+                    + "modelled");
+        }
+        String name = channel == null ? null : handedChannel(channel);
+        boolean badName = channel != null && name == null;
+        boolean undefined = programs != null && !programs.transaction(transid);
+        if (badName && undefined) {
+            throw new UnsupportedOperationException("RUN TRANSID(" + transid + ") of a transaction not defined, with "
+                    + "an incorrect CHANNEL name: which condition IBM raises is not documented, not modelled");
         }
         String resp = "NORMAL";
         int resp2 = 0;
         String child = null;
-        if (programs != null && !programs.transaction(transid)) {
+        if (badName) {
+            resp = "CHANNELERR";
+            resp2 = 1;
+        } else if (undefined) {
             resp = "TRANSIDERR";
             resp2 = 1;
         } else {
             child = String.format(java.util.Locale.ROOT, "GGCHILD%09d", ++task.children);
+            task.kids.add(new Child(child, transid, name == null ? null : copyOf(scopeChannel(name, true), name),
+                    task.children));
         }
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "RUN");
@@ -2175,34 +2228,310 @@ public class CicsTask {
         return new RunResult(resp, resp2, child);
     }
 
-    /** #4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH): a child runs only once its parent
-     *  has ended (the harness's scheduler, as runTransid), so no child has completed while this task runs:
-     *  NOTFINISHED RESP2 52. FETCH ANY with no children: INVREQ 52 ("the parent has no children"); FETCH CHILD of a
-     *  token this task was not given: INVREQ 50. A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused by the
-     *  translator. `child` null: FETCH ANY. */
-    public FetchResult fetch(String child) {
-        CicsTask task = root();
-        String resp = "NOTFINISHED";
-        int resp2 = 52;
-        if (child == null) {
-            if (task.children == 0) {
-                resp = "INVREQ";
-            }
-        } else if (!child.matches("GGCHILD[0-9]{9}") || Integer.parseInt(child.substring(7)) < 1
-                || Integer.parseInt(child.substring(7)) > task.children) {
-            resp = "INVREQ";
-            resp2 = 50;
+    // #4950: the characters IBM allows in the name of a channel RUN TRANSID / START hands on (EXEC CICS RUN TRANSID,
+    // CHANNEL: "The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = \\u00ac , ; < >. Leading and
+    // embedded blank characters are not permitted"); the spec's CHANNEL_NAME_CHARS, as ggcics.c's channel_chars
+    private static final String CHANNEL_CHARS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#./-_%&?!:|\\"=\\u00ac,;<>";
+
+    /** #4950: the channel name RUN / START CHANNEL gives, without its trailing blanks; null when it holds a character
+     *  IBM does not allow (a blank before its end included: CHANNELERR RESP2 1). An all-blank name is refused, as a
+     *  name starting DFH (CICS's own channels, DFHTRANSACTION, are not modelled). */
+    private static String handedChannel(String channel) {
+        String n = channel;
+        int end = n.length();
+        while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
+            end--;
         }
+        n = n.substring(0, end);
+        if (n.isEmpty()) {
+            throw new UnsupportedOperationException("a CHANNEL() with a blank name: not modelled");
+        }
+        if (n.startsWith("DFH")) {
+            throw new UnsupportedOperationException("CHANNEL(" + n + "), a channel whose name starts DFH: not modelled");
+        }
+        for (int i = 0; i < n.length(); i++) {
+            if (CHANNEL_CHARS.indexOf(n.charAt(i)) < 0) {
+                return null;
+            }
+        }
+        return n.length() > 16 ? null : n;
+    }
+
+    /** #4950: a copy of a channel's containers, under `name`. */
+    private static Channel copyOf(Channel from, String name) {
+        Channel ch = new Channel(name);
+        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit)));
+        return ch;
+    }
+
+    /** #4950: a RUN TRANSID child: its token, transaction, copy of the RUN's channel, number (RUN order), and what
+     *  the scheduler made of it. */
+    private static final class Child {
+        private final String token;
+        private final String transid;
+        private final Channel channel;
+        private final int number;
+        private boolean dispatched;
+        private boolean fetched;
+        private boolean freed;
+        private long completes;
+        private String abcode;
+        private Channel reply;
+
+        private Child(String token, String transid, Channel channel, int number) {
+            this.token = token;
+            this.transid = transid;
+            this.channel = channel;
+            this.number = number;
+        }
+    }
+
+    private Child kid(String token) {
+        for (Child k : root().kids) {
+            if (k.token.equals(token)) {
+                return k;
+            }
+        }
+        return null;
+    }
+
+    // #4950: the events a dispatched child may record -- any other is a region resource or a terminal's (R1)
+    private static final java.util.Set<Object> CHILD_EVENTS = java.util.Set.of("RETURN", "ABEND", "LINK", "XCTL");
+
+    /** #4950 (X18, ASSUMED): this task waits (a DELAY, or a FETCH that waits): the RUN children not yet dispatched
+     *  run now, in RUN order, each to its end before this task resumes (one quasi-reentrant TCB: a task keeps control
+     *  until it waits; a task takes no processor time, X4). A child completes at its dispatch plus its own DELAYs. It
+     *  is a non-terminal task: EIBTASKN this task's plus its RUN number (a stated fact, as the stub's), no COMMAREA, its
+     *  current channel the copy RUN made. What it does is recorded as one CHILD event, compared as a whole. */
+    private void dispatchChildren() {
+        CicsTask task = root();
+        for (Child k : task.kids) {
+            if (k.dispatched || k.freed) {
+                continue;
+            }
+            k.dispatched = true;
+            String program = task.programs == null ? null : task.programs.program(k.transid);
+            if (program == null) {
+                throw new UnsupportedOperationException("child transaction " + k.transid + ": its program is not one "
+                        + "the case runs, not modelled");
+            }
+            CicsTask c = new CicsTask(k.transid, "DFHNULL", null, null, Map.of())
+                    .withClock(task.now)
+                    .withPrograms(task.programs)
+                    .withSnapshot(task.snapshot)
+                    .withTaskNumber(task.taskNumber + k.number)
+                    .withRunChild(true);
+            c.applid = task.applid;
+            c.sysid = task.sysid;
+            c.dispatched = true;
+            if (k.channel != null) {
+                c.withChannel(copyOf(k.channel, k.channel.name));
+            }
+            c.run(program);
+            Map<String, Object> last = null;
+            for (Map<String, Object> e : c.events) {
+                if ("ABEND".equals(e.get("event"))) {
+                    last = e;
+                }
+            }
+            if (last != null && "terminated".equals(last.get("outcome"))) {
+                k.abcode = (String) last.get("abcode");
+            } else if (!c.abcode.isBlank()) {
+                throw new UnsupportedOperationException("a RUN TRANSID child that went on after an abend (HANDLE "
+                        + "ABEND): its completion status is not documented, not modelled");
+            }
+            k.completes = task.waited + c.waited;
+            k.reply = c.currentChannel;
+            List<Map<String, Object>> did = new ArrayList<>();
+            for (Map<String, Object> e : c.events) {
+                did.add(new LinkedHashMap<>(e));
+            }
+            if (c.currentChannel != null) {  // the containers it leaves, as the harness records a task's (X24)
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "CONTAINERS");
+                left.put("channel", c.currentChannel.name);
+                Map<String, String> data = new LinkedHashMap<>();
+                c.currentChannel.containers().forEach((n, v) -> data.put(n,
+                        java.util.HexFormat.of().withUpperCase().formatHex(v)));
+                left.put("containers", data);
+                did.add(left);
+            }
+            event("CHILD", "child", k.token, "transid", k.transid, "events", did);
+        }
+    }
+
+    /** #4950: DELAY (IBM CICS TS, EXEC CICS DELAY) for `millis` milliseconds (delayMillis), -1 for a DELAY TIME or a
+     *  value out of range. A task takes no time (X4): the delay ends at once, after the RUN children it dispatches;
+     *  the scheduler's clock moves by it. In a task with RUN children, or in a child, a DELAY that is not a length
+     *  of time is refused (what it means for the children's order is not modelled). */
+    public void delay(long millis, String what) {
+        CicsTask task = root();
+        if (millis < 0) {
+            if (!task.kids.isEmpty() || task.dispatched) {
+                throw new UnsupportedOperationException("DELAY in a task with RUN TRANSID children (or in a child): "
+                        + what + ", not modelled");
+            }
+            return;
+        }
+        task.dispatchChildren();
+        task.waited += millis;
+    }
+
+    /** #4950: a DELAY's length in milliseconds, -1 out of IBM's ranges (EXEC CICS DELAY): INTERVAL(hhmmss) with mm
+     *  and ss 0 - 59; FOR HOURS(0 - 99) MINUTES(0 - 59) SECONDS(0 - 59) MILLISECS(0 - 999), or one of them alone:
+     *  MINUTES(0 - 5999), SECONDS(0 - 359999), MILLISECS(0 - 359999999). `interval` null: the FOR form (each
+     *  null: not given). */
+    public static long delayMillis(Long interval, Long hours, Long minutes, Long seconds, Long millisecs) {
+        if (interval != null) {
+            long v = interval;
+            if (v < 0 || v / 10000 > 99 || v / 100 % 100 > 59 || v % 100 > 59) {
+                return -1;
+            }
+            return (v / 10000 * 3600 + v / 100 % 100 * 60 + v % 100) * 1000;
+        }
+        int given = (hours != null ? 1 : 0) + (minutes != null ? 1 : 0) + (seconds != null ? 1 : 0)
+                + (millisecs != null ? 1 : 0);
+        boolean one = given == 1;
+        if (hours != null && (hours < 0 || hours > 99)
+                || minutes != null && (minutes < 0 || minutes > (one ? 5999 : 59))
+                || seconds != null && (seconds < 0 || seconds > (one ? 359999 : 59))
+                || millisecs != null && (millisecs < 0 || millisecs > (one ? 359999999 : 999))) {
+            return -1;
+        }
+        return ((hours == null ? 0 : hours) * 3600 + (minutes == null ? 0 : minutes) * 60
+                + (seconds == null ? 0 : seconds)) * 1000 + (millisecs == null ? 0 : millisecs);
+    }
+
+    /** #4884: FETCH CHILD(token) / FETCH ANY NOSUSPEND, as fetch(child, "NOSUSPEND", 0, false). */
+    public FetchResult fetch(String child) {
+        return fetch(child, "NOSUSPEND", 0, false);
+    }
+
+    /** #4884, #4950: FETCH ANY / FETCH CHILD(token) (IBM CICS TS, EXEC CICS FETCH); `child` null: FETCH ANY. `mode`
+     *  NOSUSPEND, WAIT (neither NOSUSPEND nor TIMEOUT) or TIMEOUT (`timeout` milliseconds). INVREQ 52 for FETCH ANY in
+     *  a task with no children, INVREQ 50 for a token that is not a child's or was freed. A FETCH that waits dispatches
+     *  the children not yet run (dispatchChildren). At the scheduler's time T a child that completed before T is
+     *  fetched -- FETCH ANY the first to complete, RUN order on a tie (ASSUMED) -- else NOSUSPEND is NOTFINISHED 52,
+     *  WAIT resumes when it completes, TIMEOUT is NOTFINISHED 53 when none completes before T + timeout. A completion
+     *  at the very instant the answer turns on is a tie IBM does not order: refused. On NORMAL: the token (ANY), the
+     *  completion status (NORMAL / ABEND, with the abend code), and with `wantChannel` the child's channel as it left
+     *  it, under a name of the harness's own in this program's scope (IBM generates it). */
+    public FetchResult fetch(String child, String mode, long timeout, boolean wantChannel) {
+        CicsTask task = root();
+        if ("TIMEOUT".equals(mode) && (timeout < 0 || timeout > 4080000)) {
+            throw new UnsupportedOperationException("FETCH TIMEOUT(" + timeout + "): outside 0 to 4080000 "
+                    + "milliseconds (IBM's FETCH ANY and FETCH CHILD pages give different maximums), not modelled");
+        }
+        Child one = null;
+        if (child != null) {
+            one = kid(child);
+            if (one == null || one.freed) {
+                return fetched("INVREQ", 50, null, null);
+            }
+            if (one.fetched) {
+                throw new UnsupportedOperationException("FETCH CHILD of a child already fetched (INVREQ 51 is for its "
+                        + "channel, fetched again): what IBM answers is not documented, not modelled");
+            }
+        } else if (task.children == 0) {
+            return fetched("INVREQ", 52, null, null);
+        }
+        if (!"NOSUSPEND".equals(mode)) {
+            task.dispatchChildren();
+        }
+        Child first = null;
+        boolean any = false;
+        for (Child k : task.kids) {
+            if (one != null ? k != one : k.fetched || k.freed) {
+                continue;
+            }
+            any = true;
+            if (k.dispatched && (first == null || k.completes < first.completes)) {
+                first = k;
+            }
+        }
+        if (!any) {
+            return fetched("NOTFND", 1, null, null);
+        }
+        long now = task.waited;
+        if ("NOSUSPEND".equals(mode)) {
+            if (first == null || first.completes > now) {
+                return fetched("NOTFINISHED", 52, null, null);
+            }
+            if (first.completes == now) {
+                throw tie();
+            }
+        } else if ("TIMEOUT".equals(mode)) {
+            if (first.completes == now + timeout) {
+                throw tie();
+            }
+            if (first.completes > now + timeout) {
+                task.waited = now + timeout;
+                return fetched("NOTFINISHED", 53, null, null);
+            }
+            task.waited = Math.max(now, first.completes);
+        } else {
+            task.waited = Math.max(now, first.completes);
+        }
+        first.fetched = true;
+        String reply = null;
+        if (wantChannel) {
+            if (first.reply == null) {
+                throw new UnsupportedOperationException("FETCH CHANNEL of a child that left no current channel: not "
+                        + "modelled");
+            }
+            reply = String.format(java.util.Locale.ROOT, "GGREPLY%09d", ++task.replies);
+            channels.put(reply, copyOf(first.reply, reply));
+        }
+        return fetched("NORMAL", 0, first, reply);
+    }
+
+    private static UnsupportedOperationException tie() {
+        return new UnsupportedOperationException("a FETCH whose answer turns on a child completing at the instant its "
+                + "parent resumed from a wait (a tie IBM does not order): not modelled");
+    }
+
+    private FetchResult fetched(String resp, int resp2, Child k, String reply) {
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "FETCH");
         e.put("resp", resp);
         e.put("resp2", resp2);
+        if (k != null) {
+            e.put("child", k.token);
+            e.put("compstatus", k.abcode == null ? "NORMAL" : "ABEND");
+            e.put("abcode", k.abcode);
+            e.put("channel", reply);
+        }
         add(e);
-        return new FetchResult(resp, resp2);
+        return k == null ? new FetchResult(resp, resp2)
+                : new FetchResult(resp, resp2, k.token, reply, k.abcode, k.abcode == null ? 1016 : 900);
     }
 
-    /** #4884: a FETCH's condition and RESP2. */
-    public record FetchResult(String resp, int resp2) {
+    /** #4884, #4950: a FETCH's condition and RESP2; on NORMAL the child's token, the reply channel's name (null when
+     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900). */
+    public record FetchResult(String resp, int resp2, String child, String channel, String abcode, int compstatus) {
+        public FetchResult(String resp, int resp2) {
+            this(resp, resp2, null, null, null, 0);
+        }
+    }
+
+    /** #4950: FREE CHILD(token) (IBM CICS TS, EXEC CICS FREE CHILD): the token is freed -- a later FETCH CHILD of it
+     *  is INVREQ 50 and FETCH ANY passes it by. INVREQ 50 for a token that is not a child's or was freed; freeing a
+     *  child already fetched is refused (IBM does not say). */
+    public FetchResult freeChild(String child) {
+        Child k = kid(child);
+        String resp = "NORMAL";
+        int resp2 = 0;
+        if (k == null || k.freed) {
+            resp = "INVREQ";
+            resp2 = 50;
+        } else if (k.fetched) {
+            throw new UnsupportedOperationException("FREE CHILD of a child already fetched: not modelled");
+        } else {
+            k.freed = true;
+        }
+        event("FREE-CHILD", "resp", resp, "resp2", resp2);
+        return new FetchResult(resp, resp2);
     }
 
     /** #4270: a RUN TRANSID's outcome: its condition, RESP2 and the child token (null unless NORMAL). */
@@ -4109,6 +4438,10 @@ public class CicsTask {
     }
 
     private void add(Map<String, Object> e) {
+        if (root().dispatched && !CHILD_EVENTS.contains(e.get("event"))) {  // #4950 (X18, R1)
+            throw new UnsupportedOperationException("a RUN TRANSID child's " + e.get("event") + " (a region resource or "
+                    + "a terminal): its order against its parent's and its siblings' commands is not modelled");
+        }
         if (program != null) {
             e.put("issuer", program);  // #4004: the program issuing the command, at whichever level
         }

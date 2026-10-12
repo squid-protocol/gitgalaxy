@@ -104,6 +104,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
 
       - name: Install GitGalaxy with the translator (port diff)
         if: steps.plan.outputs.mode == 'ports'
@@ -181,6 +184,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy with the translator
         run: |
@@ -373,6 +379,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy with the translator
         run: |

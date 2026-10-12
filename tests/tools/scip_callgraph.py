@@ -51,6 +51,7 @@ from typing import Any
 from collections.abc import Iterator
 
 from gitgalaxy.core.source_text import read_source
+from maven_exe import mvn_executable
 
 # ----------------------------------------------------------------------------- protobuf
 
@@ -495,7 +496,7 @@ def scip_java_tools() -> tuple[Path, Path]:
     if not done.is_file():
         SCIP_JAVA_HOME.mkdir(parents=True, exist_ok=True)
         (SCIP_JAVA_HOME / "pom.xml").write_text(_FETCH_POM.format(v=SCIP_JAVA_VERSION))
-        mvn = shutil.which("mvn") or "mvn"
+        mvn = mvn_executable()
         _run(
             [mvn, *MAVEN_FLAGS, "dependency:copy-dependencies", f"-DoutputDirectory={lib}"],
             SCIP_JAVA_HOME,
@@ -538,7 +539,7 @@ def scip_java_contract(repo: Path) -> dict[str, Any]:
     build runs on a copy, so the corpus checkout stays clean. Needs network the first time
     (Maven Central) and a JDK 17+."""
     lib, plugin = scip_java_tools()
-    mvn = shutil.which("mvn") or "mvn"
+    mvn = mvn_executable()
     javac = shutil.which("javac") or "javac"
     with tempfile.TemporaryDirectory(prefix="scip-java-") as tmp:
         tmpdir = Path(tmp)

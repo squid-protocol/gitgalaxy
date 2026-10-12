@@ -45,9 +45,20 @@ DEFINITION: dict[str, Any] = {
     "shebangs": [],
     "internal_discriminator": re.compile(
         r'^[ \t]*#import\s+[<"][^>"]+\.h[>"]|'
-        r"^[ \t]*@(?:interface|implementation|protocol|property|class)\b",
+        r"^[ \t]*@(?:interface|implementation|protocol|property|class)\b|"
+        # #4546: Foundation-only headers -- an NS_ENUM/NS_ASSUME_NONNULL macro, a
+        # FOUNDATION_EXPORT, or a NSString-style pointer declaration -- are Objective-C
+        # with no `@interface` or `#import` anywhere in them.
+        r"^[ \t]*(?:NS_ASSUME_NONNULL_BEGIN|FOUNDATION_EXPORT|UIKIT_EXTERN|APPKIT_EXTERN)\b|"
+        r"\bNS_(?:ENUM|OPTIONS|CLOSED_ENUM|SWIFT_NAME|REFINED_FOR_SWIFT)\s*\(|"
+        r"\bNS(?:String|MutableString|Array|MutableArray|Dictionary|MutableDictionary|Object|Error|Data|URL)\s*\*",
         re.M,
     ),
+    # #4546: the shared `.h` extension. Objective-C is Tier-2 proven by the
+    # `internal_discriminator` above or it is not a candidate for these extensions in
+    # the Tier-3 lexical scan: its broad call/branch rules otherwise outscore C and
+    # C++ on any macro-heavy API header (SDL/GL/Vulkan) that has no ObjC marker.
+    "extensions_needing_discriminator": [".h"],
     # UPGRADED: Maps to Family 1 (Standard C-Style)
     # Rationale: Uses standard '//' for line-level literature and '/*' '*/' for blocks.
     "lexical_family": "standard_block",

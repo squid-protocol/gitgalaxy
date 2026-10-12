@@ -49,6 +49,7 @@ import equivalence as eq  # noqa: E402
 import equivalence_java as ej  # noqa: E402
 import mainframe_corpus as mc  # noqa: E402
 from equivalence_common import _fixed, _input_path, data_encoding, sysout_lines  # noqa: E402
+from maven_exe import mvn_executable  # noqa: E402
 
 from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 
@@ -263,7 +264,7 @@ def tool(jdk: Path | None, name: str) -> str:
 def build(port: dict[str, Any], tree: Path, work: Path, jdk: Path | None) -> str:
     """The port built as it ships; returns its classpath. Its own tests are skipped (they are not our judge)."""
     kind, where, jar = port["build"]
-    mvn = ["mvn", "-q", "-B", "-DskipTests", f"-Dmaven.repo.local={work / 'm2'}"]
+    mvn = [mvn_executable(), "-q", "-B", "-DskipTests", f"-Dmaven.repo.local={work / 'm2'}"]
     if kind == "jar":
         if not (tree / jar).is_file():
             p = run([*mvn, "package"], cwd=tree / where, env=jdk_env(jdk))

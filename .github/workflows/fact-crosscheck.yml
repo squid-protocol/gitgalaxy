@@ -104,6 +104,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy with the translator extra
         run: |

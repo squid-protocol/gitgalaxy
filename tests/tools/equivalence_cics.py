@@ -544,15 +544,33 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND -> GGCFETCH (no child has completed while its parent runs; the
+    runner's scheduler runs a child once the parent has ended). A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused."""
+    form = key.split()[1]
+    _check_spec(key, opts, ("FETCH",))
+    if not opts.get(form):
+        raise Unsupported(_rule(key, "required", form), [key])
+    if "NOSUSPEND" not in opts:
+        raise Unsupported(_rule(key, "required", "NOSUSPEND"), [key])
+    token = [f"MOVE {opts['CHILD']} TO GG-QNAME", "MOVE 'CHILD' TO GG-FLAGS"] if form == "CHILD" else [
+        "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    return token + _call("GGCFETCH", []) + _resp(opts, True, labels)
+
+
 def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
-    once this task has ended). CHANNEL (the child's copy of a channel) is refused, as is any option IBM's RUN TRANSID
-    lists beyond TRANSID / CHILD."""
+    once this task has ended). CHANNEL (#4884): the child's copy of a channel, in GG-CHAN. Any option IBM's RUN TRANSID
+    lists beyond TRANSID / CHILD / CHANNEL is refused."""
     _check_spec("RUN", opts, ("RUN",))
     if not opts.get("TRANSID") or not opts.get("CHILD"):
         raise Unsupported(_rule("RUN", "required", "TRANSID"), ["RUN"])
+    if "CHANNEL" in opts and not opts["CHANNEL"]:
+        raise Unsupported(NEEDS_ARGUMENT, ["RUN CHANNEL"])
+    channel = ["MOVE 'CHANNEL' TO GG-FLAGS", f"MOVE {opts['CHANNEL']} TO GG-CHAN"] if opts.get("CHANNEL") else [
+        "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
     return (
-        [f"MOVE {opts['TRANSID']} TO GG-NAME1"]
+        [f"MOVE {opts['TRANSID']} TO GG-NAME1", *channel]
         + _call("GGCRUNT", [f"BY REFERENCE {opts['CHILD']}"])
         + _resp(opts, True, labels)
     )
@@ -1349,8 +1367,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCXCTL", args)
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
-    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (a channel copy and FETCH: later)
+    if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
         return _run_transid(opts, labels)
+    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884: NOSUSPEND only
+        return _fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
@@ -4044,6 +4064,11 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
             out.append({"event": "RUN", "transid": kv.get("transid", ""), "resp": resp})
+        elif verb == "FETCH":  # #4884: as CicsTask.fetch records it
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append(
+                {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
+            )
     if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
         out.append({"event": "CONTAINERS", **res["containers"]})
     if res.get("linked_commarea") is not None:
@@ -4159,6 +4184,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
             if c.get("cursor") != j.get("cursor"):
                 bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
+        if c["event"] == "FETCH":  # #4884 (X18, DIFFERS): both sides answer NOTFINISHED, IBM's child may have finished
+            bad.append({"field": "FETCH", "cobol": FETCH_DIFFERS, "java": FETCH_DIFFERS})  # never counted equal
         if bad:
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:
@@ -4169,6 +4196,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
     return out
 
 
+FETCH_DIFFERS = ("FETCH ANY / CHILD NOSUSPEND: both runtimes answer NOTFINISHED because a child runs only after its "
+                 "parent ends; on IBM a child can finish during the parent's DELAY, so a program that executes a FETCH "
+                 "is not proven (oracle_assumptions.md X18, DIFFERS)")  # fmt: skip
 UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
                     "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
                     "compared)")  # fmt: skip

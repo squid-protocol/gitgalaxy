@@ -1895,7 +1895,19 @@ public class CicsTask {
      *  ended: a parent that never FETCHes it cannot tell when it ran (SPEC section 4, no ties). The token's bytes are
      *  the harness's own (IBM does not document them), the same on both sides. */
     public RunResult runTransid(String transid) {
+        return runTransid(transid, null);
+    }
+
+    /** #4884: RUN TRANSID CHANNEL(channel) (IBM: "if the channel does not exist, it is created"; the child "receives a
+     *  copy of the channel's containers" when RUN is issued). The child runs only after this task has ended, so the
+     *  copy is never read here and the parent's channels do not change. A name of anything but letters and digits
+     *  (IBM lists the allowed symbols without saying which are valid in this release) is refused, never guessed. */
+    public RunResult runTransid(String transid, String channel) {
         CicsTask task = root();
+        if (channel != null && !channel.matches("[A-Za-z0-9]{1,16}")) {
+            throw new UnsupportedOperationException("RUN CHANNEL(" + channel + ") with a name of anything but letters "
+                + "and digits is not modelled: IBM does not say which symbols a channel name allows");
+        }
         String resp = "NORMAL";
         int resp2 = 0;
         String child = null;
@@ -1914,6 +1926,36 @@ public class CicsTask {
         }
         add(e);
         return new RunResult(resp, resp2, child);
+    }
+
+    /** #4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH): a child runs only once its parent
+     *  has ended (the harness's scheduler, as runTransid), so no child has completed while this task runs:
+     *  NOTFINISHED RESP2 52. FETCH ANY with no children: INVREQ 52 ("the parent has no children"); FETCH CHILD of a
+     *  token this task was not given: INVREQ 50. A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused by the
+     *  translator. `child` null: FETCH ANY. */
+    public FetchResult fetch(String child) {
+        CicsTask task = root();
+        String resp = "NOTFINISHED";
+        int resp2 = 52;
+        if (child == null) {
+            if (task.children == 0) {
+                resp = "INVREQ";
+            }
+        } else if (!child.matches("GGCHILD[0-9]{9}") || Integer.parseInt(child.substring(7)) < 1
+                || Integer.parseInt(child.substring(7)) > task.children) {
+            resp = "INVREQ";
+            resp2 = 50;
+        }
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "FETCH");
+        e.put("resp", resp);
+        e.put("resp2", resp2);
+        add(e);
+        return new FetchResult(resp, resp2);
+    }
+
+    /** #4884: a FETCH's condition and RESP2. */
+    public record FetchResult(String resp, int resp2) {
     }
 
     /** #4270: a RUN TRANSID's outcome: its condition, RESP2 and the child token (null unless NORMAL). */

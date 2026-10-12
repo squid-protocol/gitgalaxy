@@ -121,6 +121,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
 
       - name: Install GitGalaxy & Full Precision Engines
         run: |

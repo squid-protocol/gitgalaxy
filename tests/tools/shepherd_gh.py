@@ -240,6 +240,45 @@ def _attempts(api: Api, run_id: int) -> tuple[int, float | None]:
     return int(r.get("run_attempt") or 1) - 1, _to_epoch(r.get("updated_at"))
 
 
+def _files(api: Api, base: str, head: str) -> dict[str, tuple[str, str]] | None:
+    """{path: (status, blob sha)} of the three-dot compare base...head, or None when it cannot be trusted
+    (an unreadable compare, or a file list GitHub may have truncated at 300 files)."""
+    try:
+        files = pr_check.paged(api, f"repos/{REPO_SLUG}/compare/{base}...{head}", "files", limit=3)
+    except SystemExit:
+        return None
+    if len(files) >= 300:
+        return None
+    return {f["filename"]: (f.get("status", ""), f.get("sha", "")) for f in files}
+
+
+def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
+    """True only when `head` is a plain merge of main into the approved head and brought in nothing but main's changes.
+
+    Parents are exactly (approved head, a commit already on main), in either order. The change the merge made to the
+    approved head must equal main's own change since the merge base, file for file and blob for blob, and the PR's own
+    files must not overlap main's (so no conflict resolution, and no three-way merge to judge). Anything else, or any
+    read that fails, is False: the new head then goes to re-approval (#4948, #4966 waited on this, 2026-10-12)."""
+    try:
+        parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{head}").get("parents", [])]
+        if len(parents) != 2 or approved not in parents:
+            return False
+        other = parents[1] if parents[0] == approved else parents[0]
+        if (api(f"repos/{REPO_SLUG}/compare/{quote(base_ref, safe='')}...{other}") or {}).get("status") not in (
+            "behind",
+            "identical",
+        ):
+            return False  # the other parent is not already on main
+        merged = _files(api, approved, head)  # what the merge changed on the approved head
+        theirs = _files(api, approved, other)  # what main changed since the merge base
+        mine = _files(api, other, approved)  # what the PR itself changed against main
+    except (SystemExit, KeyError, TypeError):
+        return False
+    if merged is None or theirs is None or mine is None or not theirs:
+        return False
+    return merged == theirs and not (set(mine) & set(theirs))
+
+
 def _perm(api: Api, login: str) -> str | None:
     try:
         return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
@@ -270,6 +309,8 @@ def gather(
       * its sha is the current head -> approved;
       * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
         first parent is the approved commit) -> approved, carried over;
+      * the head is a plain merge of main into the approved head that brought in nothing but main's changes
+        (clean_main_merge) -> approved, carried over; any other new head is not;
       * the bot's update is between its two markers -> pending, no decision;
       * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
       * otherwise the head moved without approval -> the label is dropped."""
@@ -344,6 +385,8 @@ def gather(
             carried = approved = len(parents) == 2 and parents[0] == approved_sha
         elif frm == approved_sha and not to:
             pending = True
+        else:  # someone else's plain merge of main (the web "update branch", a local `git merge`): same approval
+            carried = approved = clean_main_merge(api, approved_sha, sha, (pr.get("base") or {}).get("ref") or "main")
     # no decision either way: the push time or the label time is unknown (a read failed, or the timeline lags)
     awaiting = MERGE in labels and not (approved or pending) and not (pushed and labelled)
     head_fork = head_repo != REPO_SLUG

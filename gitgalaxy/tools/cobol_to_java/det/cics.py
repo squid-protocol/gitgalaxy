@@ -751,7 +751,10 @@ class Cics:
 
     def in_dfhcommarea(self, text: str) -> bool:
         """#4816: whether a COMMAREA operand lies inside the program's LINKAGE DFHCOMMAREA record."""
-        it = self.g.resolve(self.ref(text))
+        try:
+            it = self.g.resolve(self.ref(text))
+        except LookupError:  # an operand commarea_out handled without an item of its own: no caller's record
+            return False
         while it.parent is not None:
             it = it.parent
         return it.section == "LINKAGE" and it.name == "DFHCOMMAREA"
@@ -973,11 +976,11 @@ class Cics:
                     raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
+                dto, length = self.commarea_out(opts, prog_lit)
                 if self.in_dfhcommarea(
                     str(opts["COMMAREA"])
                 ):  # #4816: a LINKed program's is its caller's storage (X39)
                     pre.append(f"{ind}task.xctlOfLinkage();")
-                dto, length = self.commarea_out(opts, prog_lit)
                 if not dto.startswith("DetCics.commareaOut("):
                     # #4806: the bytes too -- a det target's DFHCOMMAREA is them, not the DTO's reading of them
                     xarea = self.commarea_bytes(opts, prog_lit)

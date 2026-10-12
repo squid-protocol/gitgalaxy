@@ -91,10 +91,7 @@ def test_norm_value(raw: str, norm: str) -> None:
 
 
 def test_depending_on_qualifier_is_dropped() -> None:
-    assert (
-        F.item_values(4, 5, "V", occurs_min=0, occurs_max=9, depending_on="LEN OF GRP")["occurs"]
-        == "L4 V 0..9 DEPENDING ON LEN"
-    )
+    assert F.item_values(4, 5, "V", occurs_min=0, occurs_max=9, depending_on="LEN OF GRP")["occurs"] == "L4 V 0..9 DEPENDING ON LEN"
 
 
 def test_call_value_strips_cics_padding() -> None:
@@ -117,9 +114,7 @@ def test_score_channel_counts_and_failed_files() -> None:
     sc = S.score_channel(key, ref, "units")
     assert sc == {"tp": 1, "reported": 2, "true": 3, "true_parsed": 3, "files": 2, "files_parsed": 1}
     # B.cbl has no units, so its failure costs nothing; program_ids shows the cost of a failed file
-    pid = S.score_channel(
-        key, _doc("ref", {"A.cbl": ("ok", {"program_ids": ["PROGA"]}), "B.cbl": ("fail", {})}), "program_ids"
-    )
+    pid = S.score_channel(key, _doc("ref", {"A.cbl": ("ok", {"program_ids": ["PROGA"]}), "B.cbl": ("fail", {})}), "program_ids")
     assert (pid["tp"], pid["true"], pid["true_parsed"]) == (1, 3, 2)
 
 
@@ -163,16 +158,7 @@ def test_cobrix_layout_units_skip_overlays_and_fillers() -> None:
         {"root": "R", "name": "A", "level": 5, "group": False, "offset": 0, "size": 4, "pic": "X(4)"},
         {"root": "R", "name": "B", "level": 5, "group": True, "offset": 0, "size": 4, "redefines": "A"},
         {"root": "R", "name": "B1", "level": 10, "group": False, "offset": 0, "size": 4, "pic": "9(4)"},
-        {
-            "root": "R",
-            "name": "FILLER",
-            "level": 5,
-            "group": False,
-            "offset": 4,
-            "size": 2,
-            "pic": "X(2)",
-            "filler": True,
-        },
+        {"root": "R", "name": "FILLER", "level": 5, "group": False, "offset": 4, "size": 2, "pic": "X(2)", "filler": True},
         {"root": "R", "name": "C", "level": 5, "group": False, "offset": 6, "size": 4, "pic": "X(2)"},
     ]
     assert cobrix_adapter.layout_units(fields) == {"R/A @0+4", "R/C @6+4"}

@@ -232,7 +232,6 @@ def test_pli_dependency_capture_redos_immunity():
     assert_redos_immune(dep, "%INCLUDE SYSLIB(" + " " * 200000, timeout_sec=3.0)
     assert dep.search("%INCLUDE P0019908;")
 
-
 # ==============================================================================
 # INTENT EXTRACTION -- verify decorators (pragmas) do not shadow doc comments
 # ==============================================================================
@@ -246,7 +245,7 @@ def test_pli_intent_extraction_ignores_decorators():
     extractor.raw_content_lines = [
         "%PROCESS SOURCE RULES(LAXIF);",
         "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
-        "END PSAM2;",
+        "END PSAM2;"
     ]
     intent1 = extractor._extract_documentation_tether(2, "pli")
     assert "%PROCESS" not in intent1
@@ -256,7 +255,7 @@ def test_pli_intent_extraction_ignores_decorators():
     extractor.raw_content_lines = [
         "/* This is actual prose intent */",
         "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
-        "END PSAM2;",
+        "END PSAM2;"
     ]
     intent2 = extractor._extract_documentation_tether(2, "pli")
     assert "actual prose intent" in intent2
@@ -268,7 +267,7 @@ def test_pli_intent_extraction_ignores_decorators():
         "/* Main processing intent */",
         "%PROCESS SOURCE RULES(LAXIF);",
         "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
-        "END PSAM2;",
+        "END PSAM2;"
     ]
     intent3 = extractor._extract_documentation_tether(3, "pli")
     assert "Main processing intent" in intent3

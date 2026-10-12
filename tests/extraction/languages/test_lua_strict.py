@@ -287,18 +287,17 @@ def test_lua_api_contract_2730():
     assert not api.search("function ()"), "anonymous function"
     assert not api.search("local function helper()"), "local function"
 
-
 def test_lua_calls_out_strict():
     """Epic #3264 Phase 3: Lua calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
+    
     lua = LANGUAGE_DEFINITIONS["lua"]
     calls_out = lua["rules"]["calls_out"]
-
+    
     assert calls_out.groups == 1
-
+    
     code = """
 function test_lua()
     for k, v in pairs(t) do end
@@ -317,19 +316,19 @@ end
     extractor = StructuralExtractor("lua", {"lua": lua})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-
+    
     assert "probe_branch" in calls
     assert "probe_io" in calls
     assert "open" in calls
     assert "read" in calls
     assert "execute" in calls
     assert "exit" in calls
-
+    
     # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
     assert "pairs" in calls
     assert "ipairs" in calls
     assert "tostring" in calls
     assert "type" in calls
-
+    
     payload = "pairs" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

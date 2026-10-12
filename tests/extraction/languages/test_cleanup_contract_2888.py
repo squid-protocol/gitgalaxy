@@ -100,7 +100,7 @@ CASES = {
     ),
     "scala": (
         ["close(channel.id)", "receive.close()", "} finally {", "bracket"],
-        ["def close(): Unit = {", 'error(s"session close with correlation")'],
+        ['def close(): Unit = {', 'error(s"session close with correlation")'],
     ),
     "typescript": (
         ["conn.close();", "subscription.dispose();", "clearTimeout(id);"],
@@ -137,13 +137,7 @@ CASES = {
         ["(call-port-handler close-port who port)", "(set-who! close-port", "close-port"],
     ),
     "matlab": (
-        [
-            "clear ALLEEG;",
-            "delete(EEGMENU(end));",
-            "close; error('ABORT');",
-            "onCleanup(conn);",
-            "if x, fclose(fid); end",
-        ],
+        ["clear ALLEEG;", "delete(EEGMENU(end));", "close; error('ABORT');", "onCleanup(conn);", "if x, fclose(fid); end"],
         ["x = close_price + 1", "disp('use clear when done')"],
     ),
     # --- C4: configuring the reclaimer is not reclaiming ---------------------------

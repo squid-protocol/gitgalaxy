@@ -40,8 +40,7 @@ def _raw_imports(db: Path, repo_name: str, commit_hash: str) -> dict[str, set[st
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
         rows = con.execute(
-            "SELECT file_path, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ?",
-            (repo_name, commit_hash),
+            "SELECT file_path, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ?", (repo_name, commit_hash)
         ).fetchall()
     finally:
         con.close()

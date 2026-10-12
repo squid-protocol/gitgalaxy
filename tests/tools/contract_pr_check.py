@@ -82,10 +82,7 @@ def leg_rosetta(corpus: str | None) -> tuple[str, int, str]:
     if corpus:
         cmd += ["--corpus", corpus]
     rc, out = sh(cmd)
-    tail = next(
-        (ln for ln in reversed(out.splitlines()) if "rosetta_audit:" in ln),
-        out.strip().splitlines()[-1] if out.strip() else "",
-    )
+    tail = next((ln for ln in reversed(out.splitlines()) if "rosetta_audit:" in ln), out.strip().splitlines()[-1] if out.strip() else "")
     return ("rosetta_audit --allow-regressions", rc, tail)
 
 
@@ -139,20 +136,14 @@ def main(argv: list[str] | None = None) -> int:
 
     family = "score-contract" if args.score else "rule-contract"
     failed = [name for name, (_, rc, _) in results.items() if rc != 0]
-    print(
-        f"\n{'=' * 72}\n## PR body -- {family} gauntlet ({'ALL GREEN' if not failed else 'FAILED: ' + ', '.join(failed)})\n"
-    )
+    print(f"\n{'=' * 72}\n## PR body -- {family} gauntlet ({'ALL GREEN' if not failed else 'FAILED: ' + ', '.join(failed)})\n")
     print("### Measured")
     print(f"- touched languages: {', '.join(langs) or 'none'}")
-    print(
-        f"- {results['extraction'][0]}: {'PASS' if results['extraction'][1] == 0 else 'FAIL'} -- {results['extraction'][2]}"
-    )
+    print(f"- {results['extraction'][0]}: {'PASS' if results['extraction'][1] == 0 else 'FAIL'} -- {results['extraction'][2]}")
     print("\n### Corpus")
     print(f"- {results['rosetta'][0]}: {'PASS' if results['rosetta'][1] == 0 else 'FAIL'} -- {results['rosetta'][2]}")
     print("\n### Golden masters")
-    print(
-        f"- {results['crucible'][0]}: {'PASS' if results['crucible'][1] == 0 else 'FAIL'} -- {results['crucible'][2]}"
-    )
+    print(f"- {results['crucible'][0]}: {'PASS' if results['crucible'][1] == 0 else 'FAIL'} -- {results['crucible'][2]}")
     for ln in results["bless"][2].splitlines():
         print(f"  {ln}")
     print("\n### Tests")

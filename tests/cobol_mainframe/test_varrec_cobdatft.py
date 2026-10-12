@@ -1,7 +1,6 @@
 """CBACT01C's new ground (carddemo-readacct): variable-length records (oracle_assumptions.md F3), the scoped zoned
 sign tolerance (C10) and the COBDATFT library routine (A1) -- the harness's framing and comparison, the det
 translator's reading of an FD's RECORD VARYING clause, and the runtime routine it calls."""
-
 from __future__ import annotations
 
 import sys

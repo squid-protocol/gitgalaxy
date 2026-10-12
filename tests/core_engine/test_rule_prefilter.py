@@ -391,7 +391,7 @@ _PARITY_SAMPLES = {
         "    n := 0\n"
         "    n++\n"
         "    m := map[string]int{}\n"
-        '    delete(m, "k")\n'
+        "    delete(m, \"k\")\n"
         "}\n"
     ),
 }
@@ -416,9 +416,7 @@ def test_coding_analysis_output_identical_with_and_without_gates(lang_id):
     # (name, pat, key, None, None): no segment gate, no line gate (#3072) --
     # i.e. pre-#3069 behavior.
     ungated._active_rules_cache = {
-        lang_id: [
-            (name, pat, key, None, None) for name, pat, key, _gate, _line_gate in gated._active_coding_rules(lang_id)
-        ]
+        lang_id: [(name, pat, key, None, None) for name, pat, key, _gate, _line_gate in gated._active_coding_rules(lang_id)]
     }
 
     gated_telemetry: dict = {}

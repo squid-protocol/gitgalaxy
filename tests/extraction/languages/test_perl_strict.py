@@ -622,18 +622,17 @@ def test_perl_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search("sub _private_helper {"), "underscore-private sub"
 
-
 def test_perl_calls_out_strict():
     """Epic #3264 Phase 3: Perl calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
+    
     perl = LANGUAGE_DEFINITIONS["perl"]
     calls_out = perl["rules"]["calls_out"]
-
+    
     assert calls_out.groups == 1
-
+    
     code = """
 sub my_func {
     my ($x, $y) = @_;
@@ -650,11 +649,11 @@ sub my_func {
     extractor = StructuralExtractor("perl", {"perl": perl})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-
+    
     assert "probe_branch" in calls
     assert "probe_io" in calls
     assert "open" in calls
-
+    
     assert "my" not in calls
     assert "elsif" not in calls
     assert "unless" not in calls

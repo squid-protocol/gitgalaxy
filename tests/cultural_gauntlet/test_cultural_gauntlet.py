@@ -411,10 +411,8 @@ def test_the_db_layer_reads_all_as_the_generated_readall_orders():
     private String custKeySort;
 """
     svc = "    public List<CustRec> readAllCustFile() {{\n        return repo.findAll({});\n"
-    sources = {
-        "entity/vsam/CustRec.java": entity,
-        "service/CustbatService.java": svc.format('org.springframework.data.domain.Sort.by("custKeySort")'),
-    }
+    sources = {"entity/vsam/CustRec.java": entity,
+               "service/CustbatService.java": svc.format('org.springframework.data.domain.Sort.by("custKeySort")')}
     assert cg.read_all_sql(sources, "vsam_t", "CUST_KEY") == "SELECT CUST_KEY FROM vsam_t ORDER BY CUST_KEY_SORT"
     both = {**sources, "service/CustbatService.java": svc.format('Sort.by("custKey", "custKeySort")')}
     assert cg.read_all_sql(both, "vsam_t", "CUST_KEY").endswith("ORDER BY CUST_KEY, CUST_KEY_SORT")

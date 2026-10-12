@@ -125,14 +125,7 @@ _BASELINE_KEYS = [
     "system_config_mutation",
 ]  # fmt: skip
 
-_EXPECTED_NONE_KEYS = {
-    "ui_framework",
-    "closures",
-    "ssr_boundaries",
-    "dependency_injection",
-    "auth_middleware",
-    "system_config_mutation",
-}
+_EXPECTED_NONE_KEYS = {"ui_framework", "closures", "ssr_boundaries", "dependency_injection", "auth_middleware", "system_config_mutation"}
 
 
 def test_ada_schema_completeness():
@@ -507,26 +500,25 @@ def test_ada_api_contract_2730():
     api = ADA_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search("procedure Probe_Globals (Env : Integer) is"), "library-level procedure"
-    assert api.search("function Compute (X : Integer) return Integer is"), "library-level function"
-    assert api.search("package Foo is"), "package spec (kept)"
+    assert api.search('procedure Probe_Globals (Env : Integer) is'), 'library-level procedure'
+    assert api.search('function Compute (X : Integer) return Integer is'), 'library-level function'
+    assert api.search('package Foo is'), 'package spec (kept)'
 
     # Not declarations -- must not match.
-    assert not api.search("   procedure Helper (X : Integer) is"), "nested (body-local) procedure"
-    assert not api.search("package body Foo is"), "package body"
-
+    assert not api.search('   procedure Helper (X : Integer) is'), 'nested (body-local) procedure'
+    assert not api.search('package body Foo is'), 'package body'
 
 def test_ada_calls_out_strict():
     """Epic #3264 Phase 3: Ada calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
+    
     ada = LANGUAGE_DEFINITIONS["ada"]
     calls_out = ada["rules"]["calls_out"]
-
+    
     assert calls_out.groups == 1
-
+    
     code = """
 procedure test_ada is
 begin
@@ -544,16 +536,16 @@ end test_ada;
     extractor = StructuralExtractor("ada", {"ada": ada})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-
+    
     assert "Probe_Branch" in calls
     assert "Probe_Io" in calls
     assert "Open" in calls
     assert "Read" in calls
-
+    
     assert "Volatile" not in calls
     assert "Suppress" not in calls
     assert "delay" not in calls
     assert "raise" not in calls
-
+    
     payload = "pragma" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

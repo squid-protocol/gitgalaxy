@@ -79,12 +79,7 @@ def test_operand_forms():
 def ir(tmp_path_factory):
     base = tmp_path_factory.mktemp("copy_replacing")
     repo = base / "estate"
-    for rel, text in {
-        "cbl/PAYMAIN.cbl": PAYMAIN,
-        "cpy/PAYTPL.cpy": PAYTPL,
-        "cpy/PLAIN.cpy": PLAIN,
-        "cbl/REPDEMO.cbl": REPDEMO,
-    }.items():
+    for rel, text in {"cbl/PAYMAIN.cbl": PAYMAIN, "cpy/PAYTPL.cpy": PAYTPL, "cpy/PLAIN.cpy": PLAIN, "cbl/REPDEMO.cbl": REPDEMO}.items():
         (repo / rel).parent.mkdir(parents=True, exist_ok=True)
         (repo / rel).write_text(text, encoding="utf-8")
     db = scan_to_db(repo, base / "scan")

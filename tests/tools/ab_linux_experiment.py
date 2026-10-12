@@ -33,7 +33,6 @@ void mock_kernel_function() {
 
     # 2. Simulate the New Method (Shielded block)
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
     splicer = StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
     safe_block = splicer._apply_literal_shield(test_block, "c")
     new_raw_calls = invocation_pattern.findall(safe_block)
@@ -46,7 +45,6 @@ void mock_kernel_function() {
     print(f"False Positives Eliminated: {len(old_calls_out) - len(new_calls_out)}")
     print(f"Old JSON Size: {len(json.dumps(old_calls_out))} bytes")
     print(f"New JSON Size: {len(json.dumps(new_calls_out))} bytes")
-
 
 if __name__ == "__main__":
     run_experiment()

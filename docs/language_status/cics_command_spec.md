@@ -96,67 +96,52 @@ is never committed.
 
 ```python
 # gitgalaxy/standards/cics/model.py (sketch; each field is checked in __post_init__)
-Kind = Literal[
-    "area_in",
-    "area_out",
-    "area_inout",  # a data area: read / written / both
-    "value",
-    "name",
-    "hhmmss",
-    "pointer",
-    "flag",
-    "label",
-    "cvda",
-]
-
+Kind = Literal["area_in", "area_out", "area_inout",   # a data area: read / written / both
+               "value", "name", "hhmmss", "pointer", "flag", "label", "cvda"]
 
 @dataclass(frozen=True)
 class Arg:
     kind: Kind
-    width: int | None = None  # a name's 1-16 characters, a fullword ...
-    inout_unless_literal: bool = False  # FLENGTH / LENGTH: in-out for a data area, in-only for a literal
-
+    width: int | None = None        # a name's 1-16 characters, a fullword ...
+    inout_unless_literal: bool = False   # FLENGTH / LENGTH: in-out for a data area, in-only for a literal
 
 @dataclass(frozen=True)
 class Outcome:
-    condition: str  # a DFHRESP name (checked against resp.DFHRESP)
-    resp2: int | None  # None: IBM documents none
-    when: str  # the IBM sentence, quoted
-    writes: tuple[str, ...] = ()  # the output options written with this outcome (else left alone)
-
+    condition: str                  # a DFHRESP name (checked against resp.DFHRESP)
+    resp2: int | None               # None: IBM documents none
+    when: str                       # the IBM sentence, quoted
+    writes: tuple[str, ...] = ()    # the output options written with this outcome (else left alone)
 
 @dataclass(frozen=True)
 class Refusal:
-    why: str  # the reason the user sees, word for word, on every side
-    register: str | None = None  # "X17"
+    why: str                        # the reason the user sees, word for word, on every side
+    register: str | None = None     # "X17"
     at: Literal["translate", "run"] = "translate"
 
-
 @dataclass(frozen=True)
-class Fact:  # a fact the runtime cannot know; whoever runs the task states it
-    name: str  # "startcode"
-    java: str  # "withStartcode"
-    env: str  # "GGCICS_STARTCODE"
-    region_default: str | None  # the reference region's (cics-crucible SPEC 2) value, None: per task
-
+class Fact:                         # a fact the runtime cannot know; whoever runs the task states it
+    name: str                       # "startcode"
+    java: str                       # "withStartcode"
+    env: str                        # "GGCICS_STARTCODE"
+    region_default: str | None      # the reference region's (cics-crucible SPEC 2) value, None: per task
 
 @dataclass(frozen=True)
 class Command:
-    key: str  # "GET CONTAINER": the form OPTIONS uses today
-    ibm: Doc  # topic title + verified URL
+    key: str                        # "GET CONTAINER": the form OPTIONS uses today
+    ibm: Doc                        # topic title + verified URL
     status: Literal["modelled", "refused", "engine-only"]
-    options: Mapping[str, Arg]  # the options it honours
-    refused: Mapping[str, Refusal] = {}  # options it refuses, by name
+    options: Mapping[str, Arg]                      # the options it honours
+    refused: Mapping[str, Refusal] = {}             # options it refuses, by name
     default_refusal: str = "not modelled (no corpus program uses it)"
-    groups: tuple[Group, ...] = ()  # one_of / at_most_one / requires (2.2)
-    outcomes: tuple[Outcome, ...] = ()  # every (condition, RESP2) it can raise
-    runtime_refusals: tuple[Refusal, ...] = ()  # situations refused while running (at="run")
-    state: tuple[str, ...] = ()  # named state it reads or changes (section 4)
+    groups: tuple[Group, ...] = ()                  # one_of / at_most_one / requires (2.2)
+    outcomes: tuple[Outcome, ...] = ()              # every (condition, RESP2) it can raise
+    runtime_refusals: tuple[Refusal, ...] = ()      # situations refused while running (at="run")
+    state: tuple[str, ...] = ()                     # named state it reads or changes (section 4)
     facts: tuple[Fact, ...] = ()
-    engine: EngineFacts | None = None  # what the scanner lifts out (3.1)
-    impl: Impl | None = None  # where the hand-written semantics live (3.3)
-    register: str | None = None  # its X-register entry
-    event: str | None = None  # the SPEC 6.2 event it records (a name only, section 6)
+    engine: EngineFacts | None = None               # what the scanner lifts out (3.1)
+    impl: Impl | None = None                        # where the hand-written semantics live (3.3)
+    register: str | None = None                     # its X-register entry
+    event: str | None = None                        # the SPEC 6.2 event it records (a name only, section 6)
 ```
 
 `Group` has three forms. `one_of("INTO", "NODATA")` requires exactly one, `at_most_one(...)` allows none or one,
@@ -167,25 +152,20 @@ translator raises today.
 
 ```python
 GET_CONTAINER = Command(
-    key="GET CONTAINER",
-    status="modelled",
-    register="X17",
-    event=None,  # no event: a breadcrumb shows it
-    ibm=Doc("EXEC CICS GET CONTAINER (CHANNEL)", url=...),  # verified in PR 1
+    key="GET CONTAINER", status="modelled", register="X17", event=None,  # no event: a breadcrumb shows it
+    ibm=Doc("EXEC CICS GET CONTAINER (CHANNEL)", url=...),               # verified in PR 1
     options={
         "CONTAINER": Arg("name", width=16),
-        "CHANNEL": Arg("name", width=16),  # omitted: the current channel
-        "INTO": Arg("area_out"),
-        "FLENGTH": Arg("area_inout", inout_unless_literal=True),
+        "CHANNEL":   Arg("name", width=16),     # omitted: the current channel
+        "INTO":      Arg("area_out"),
+        "FLENGTH":   Arg("area_inout", inout_unless_literal=True),
         #  in: "the length of the data to be read"; out: "the length of the data in the container"
-        "NODATA": Arg("flag"),
-        **RESP_OPTIONS,  # RESP / RESP2 area_out, NOHANDLE flag
+        "NODATA":    Arg("flag"),
+        **RESP_OPTIONS,                          # RESP / RESP2 area_out, NOHANDLE flag
     },
-    refused={
-        **CODEPAGE_REFUSALS,  # INTOCCSID / INTOCODEPAGE / CONVERTST -> X17's reason
-        "SET": Refusal("the address of CICS's copy of the data (a pointer) is not modelled", "X17"),
-        "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17"),
-    },
+    refused={**CODEPAGE_REFUSALS,                # INTOCCSID / INTOCODEPAGE / CONVERTST -> X17's reason
+             "SET": Refusal("the address of CICS's copy of the data (a pointer) is not modelled", "X17"),
+             "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17")},
     groups=(one_of("INTO", "NODATA", msg="GET CONTAINER needs one of INTO / NODATA"),),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "FLENGTH")),
@@ -200,10 +180,10 @@ GET_CONTAINER = Command(
         Refusal("GET CONTAINER FLENGTH below zero", "X17", at="run"),
     ),
     state=("channel_scope",),
-    engine=EngineFacts(
-        resource="CONTAINER", access="read", name_option="CONTAINER", qualifier_option="CHANNEL", record_option="INTO"
-    ),
-    impl=Impl(translator="Cics.container", java="CicsTask.getContainer", c="GGCGETC", harness="_container_command"),
+    engine=EngineFacts(resource="CONTAINER", access="read", name_option="CONTAINER",
+                       qualifier_option="CHANNEL", record_option="INTO"),
+    impl=Impl(translator="Cics.container", java="CicsTask.getContainer", c="GGCGETC",
+              harness="_container_command"),
 )
 ```
 
@@ -216,58 +196,34 @@ container row shape and the X17 option list (now checked, see 3.5).
 
 ```python
 START = Command(
-    key="START",
-    status="modelled",
-    register="X18",
-    event="START",
+    key="START", status="modelled", register="X18", event="START",
     ibm=Doc("EXEC CICS START", url=...),
     options={
-        "TRANSID": Arg("name", width=4),
-        "TERMID": Arg("name", width=4),
-        "REQID": Arg("name", width=8),
-        "FROM": Arg("area_in"),
-        "LENGTH": Arg("value"),
-        "FLENGTH": Arg("value"),
-        "INTERVAL": Arg("hhmmss"),
-        "TIME": Arg("hhmmss"),
-        "AFTER": Arg("flag"),
-        "AT": Arg("flag"),
-        "HOURS": Arg("value"),
-        "MINUTES": Arg("value"),
-        "SECONDS": Arg("value"),
+        "TRANSID": Arg("name", width=4), "TERMID": Arg("name", width=4), "REQID": Arg("name", width=8),
+        "FROM": Arg("area_in"), "LENGTH": Arg("value"), "FLENGTH": Arg("value"),
+        "INTERVAL": Arg("hhmmss"), "TIME": Arg("hhmmss"), "AFTER": Arg("flag"), "AT": Arg("flag"),
+        "HOURS": Arg("value"), "MINUTES": Arg("value"), "SECONDS": Arg("value"),
         "PROTECT": Arg("flag"),
-        "RTRANSID": Arg("name", width=4),
-        "RTERMID": Arg("name", width=4),
-        "QUEUE": Arg("name", width=8),
+        "RTRANSID": Arg("name", width=4), "RTERMID": Arg("name", width=4), "QUEUE": Arg("name", width=8),
         **RESP_OPTIONS,
     },
     refused={
-        "CHANNEL": Refusal(
-            "START CHANNEL: a started task's channel is not modelled (no corpus program uses it)", "X18"
-        ),
-        "SYSID": REMOTE,
-        "NOCHECK": Refusal("less error checking for a START on a remote system ...", "X18"),
+        "CHANNEL": Refusal("START CHANNEL: a started task's channel is not modelled (no corpus program uses it)", "X18"),
+        "SYSID": REMOTE, "NOCHECK": Refusal("less error checking for a START on a remote system ...", "X18"),
         "USERID": Refusal("a started task's user (surrogate security) is not modelled", "X18"),
-        "ATTACH": ...,
-        "BREXIT": ...,
-        "FMH": ...,  # today's _REFUSED_WHY text, word for word
+        "ATTACH": ..., "BREXIT": ..., "FMH": ...,   # today's _REFUSED_WHY text, word for word
     },
     groups=(
         required("TRANSID", msg="START without TRANSID"),
         at_most_one("INTERVAL", "TIME", "AFTER", "AT", msg="START {}: one expiry option"),
-        requires(
-            ("HOURS", "MINUTES", "SECONDS"),
-            any_of=("AFTER", "AT"),
-            both_ways=True,
-            msg="START {}: HOURS / MINUTES / SECONDS go with AFTER / AT",
-        ),
-        at_most_one("LENGTH", "FLENGTH"),
-        requires(("LENGTH", "FLENGTH"), any_of=("FROM",), msg="START LENGTH without FROM"),
+        requires(("HOURS", "MINUTES", "SECONDS"), any_of=("AFTER", "AT"), both_ways=True,
+                 msg="START {}: HOURS / MINUTES / SECONDS go with AFTER / AT"),
+        at_most_one("LENGTH", "FLENGTH"), requires(("LENGTH", "FLENGTH"), any_of=("FROM",),
+                                                 msg="START LENGTH without FROM"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=()),
-        Outcome("INVREQ", 4, "hours out of range"),
-        Outcome("INVREQ", 5, "minutes out of range"),
+        Outcome("INVREQ", 4, "hours out of range"), Outcome("INVREQ", 5, "minutes out of range"),
         Outcome("INVREQ", 6, "seconds out of range"),
         Outcome("LENGERR", None, "LENGTH is not greater than zero, or past 32763"),
         Outcome("TRANSIDERR", None, "the transaction is not defined"),
@@ -276,17 +232,10 @@ START = Command(
     ),
     runtime_refusals=(Refusal("START REQID of a request that exists, without FROM: not settled", "X18", at="run"),),
     state=("interval_requests", "virtual_clock"),
-    engine=EngineFacts(
-        task_verb="START",
-        target_option="TRANSID",
-        token_option="REQID",
-        record_option="FROM",
-        timing=TIMING,
-        channel_option="CHANNEL",
-    ),
-    impl=Impl(
-        translator="Cics.start", java="CicsTask.StartRequest/issueStart", c="GGCSTRT", harness="_interval_command"
-    ),
+    engine=EngineFacts(task_verb="START", target_option="TRANSID", token_option="REQID",
+                       record_option="FROM", timing=TIMING, channel_option="CHANNEL"),
+    impl=Impl(translator="Cics.start", java="CicsTask.StartRequest/issueStart", c="GGCSTRT",
+              harness="_interval_command"),
 )
 ```
 
@@ -297,51 +246,34 @@ behaviour that X18 records as ASSUMED, and it stays code in both runtimes, which
 
 ```python
 ASSIGN = Command(
-    key="ASSIGN",
-    status="modelled",
-    register="X19",
+    key="ASSIGN", status="modelled", register="X19",
     ibm=Doc("EXEC CICS ASSIGN", url="https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign"),
     options={
-        "APPLID": Arg("area_out", width=8),
-        "SYSID": Arg("area_out", width=4),
-        "ABCODE": Arg("area_out", width=4),
-        "PROGRAM": Arg("area_out", width=8),
-        "INVOKINGPROG": Arg("area_out", width=8),
-        "CHANNEL": Arg("area_out", width=16),
-        "STARTCODE": Arg("area_out", width=2),
-        "USERID": Arg("area_out", width=8),
+        "APPLID": Arg("area_out", width=8), "SYSID": Arg("area_out", width=4),
+        "ABCODE": Arg("area_out", width=4), "PROGRAM": Arg("area_out", width=8),
+        "INVOKINGPROG": Arg("area_out", width=8), "CHANNEL": Arg("area_out", width=16),
+        "STARTCODE": Arg("area_out", width=2), "USERID": Arg("area_out", width=8),
         "FACILITY": Arg("area_out", width=4),
-        "SCRNHT": Arg("area_out", width=2, binary=True),
-        "SCRNWD": Arg("area_out", width=2, binary=True),
+        "SCRNHT": Arg("area_out", width=2, binary=True), "SCRNWD": Arg("area_out", width=2, binary=True),
         **RESP_OPTIONS,
     },
-    refused=ASSIGN_REFUSED,  # the 18 entries of today's _ASSIGN_REFUSED_WHY, moved as they are
+    refused=ASSIGN_REFUSED,          # the 18 entries of today's _ASSIGN_REFUSED_WHY, moved as they are
     outcomes=(
         Outcome("NORMAL", 0, "", writes=ALL_OUTPUTS),
-        Outcome(
-            "INVREQ",
-            5,
-            "The task is not associated with a terminal; or the task has no principal facility",
-            writes=(),
-            raised_by=("FACILITY", "SCRNHT", "SCRNWD"),
-        ),  # X19: no area written on INVREQ
+        Outcome("INVREQ", 5, "The task is not associated with a terminal; or the task has no principal facility",
+                writes=(), raised_by=("FACILITY", "SCRNHT", "SCRNWD")),   # X19: no area written on INVREQ
     ),
     facts=(
-        Fact(
-            "startcode",
-            java="withStartcode",
-            env="GGCICS_STARTCODE",
-            region_default=None,
-            values=("TD", "S", "SD"),
-            options=("STARTCODE",),
-        ),
+        Fact("startcode", java="withStartcode", env="GGCICS_STARTCODE", region_default=None,
+             values=("TD", "S", "SD"), options=("STARTCODE",)),
         Fact("userid", java="withUserid", env="GGCICS_USERID", region_default="CICSUSER", options=("USERID",)),
-        Fact("facility", java="(task terminal)", env="GGCICS_FACILITY", region_default=None, options=("FACILITY",)),
-        Fact("screen", java="withScreen", env="GGCICS_SCREEN", region_default="24 80", options=("SCRNHT", "SCRNWD")),
+        Fact("facility", java="(task terminal)", env="GGCICS_FACILITY", region_default=None,
+             options=("FACILITY",)),
+        Fact("screen", java="withScreen", env="GGCICS_SCREEN", region_default="24 80",
+             options=("SCRNHT", "SCRNWD")),
     ),
-    runtime_refusals=(
-        Refusal("ASSIGN STARTCODE in a RUN TRANSID child task: IBM lists no code for it", "X19", at="run"),
-    ),
+    runtime_refusals=(Refusal("ASSIGN STARTCODE in a RUN TRANSID child task: IBM lists no code for it", "X19",
+                              at="run"),),
     impl=Impl(translator="Cics.assign", java="CicsTask.assign*", c="GGCASGN", harness="_handle"),
 )
 ```

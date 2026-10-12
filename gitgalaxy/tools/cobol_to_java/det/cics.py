@@ -1589,7 +1589,7 @@ class Cics:
         if "NOSUSPEND" not in opts:
             raise CicsError(_msg(key, "required", "NOSUSPEND"))
         r = self.g.tmpname("fetch")
-        return [f"{ind}CicsTask.FetchResult {r} = task.fetch({self.name(token) if form == 'CHILD' else 'null'});",
+        return [f"{ind}CicsTask.FetchResult {r} = task.fetch({self.name(token) if form == 'CHILD' and token else 'null'});",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def cancel(self, opts: dict, ind: str) -> list[str]:

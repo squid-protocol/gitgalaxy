@@ -21,6 +21,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -194,9 +195,10 @@ def bms_dir(corpus: Path) -> Path:
     if not out.is_dir():
         # Atomic: the cases of one sweep run in parallel (--jobs), and bms_copybooks makes the directory before it
         # writes the files, so a case that saw the directory could stage a half-written set (`COPY BNK1CDM` -> "No
-        # such file", an intermittent red Evidence Refresh, #4977). Generate beside it, then rename into place.
-        tmp = out.with_name(f"{out.name}.tmp{os.getpid()}")
-        shutil.rmtree(tmp, ignore_errors=True)
+        # such file", an intermittent red Evidence Refresh, #4977). Generate beside it, then rename into place. The
+        # temp name must be unique per call, not per process: the det sweep's cases are threads of one process.
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = Path(tempfile.mkdtemp(prefix=f"{out.name}.tmp", dir=out.parent))
         bms_copybooks([p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
                        and ".git" not in p.parts], tmp)  # fmt: skip
         try:

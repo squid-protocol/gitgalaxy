@@ -2622,7 +2622,9 @@ class Orchestrator:
                 continue
             try:
                 _, deps = UniversalManifestSlicer.slice_manifest(self.root / disk_paths.get(rel_path, rel_path))
-            except Exception:  # noqa: BLE001 -- an unreadable manifest only lowers the alert level
+            except Exception as exc:
+                # An unreadable manifest only lowers the alert level.
+                logger.debug(f"typosquat radar: could not read manifest {rel_path}: {exc}")
                 continue
             for dep in deps:
                 low = str(dep).lower()

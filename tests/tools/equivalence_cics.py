@@ -4184,6 +4184,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
             if c.get("cursor") != j.get("cursor"):
                 bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
+        if c["event"] == "FETCH":  # #4884 (X18, DIFFERS): both sides answer NOTFINISHED, IBM's child may have finished
+            bad.append({"field": "FETCH", "cobol": FETCH_DIFFERS, "java": FETCH_DIFFERS})  # never counted equal
         if bad:
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:
@@ -4194,6 +4196,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
     return out
 
 
+FETCH_DIFFERS = ("FETCH ANY / CHILD NOSUSPEND: both runtimes answer NOTFINISHED because a child runs only after its "
+                 "parent ends; on IBM a child can finish during the parent's DELAY, so a program that executes a FETCH "
+                 "is not proven (oracle_assumptions.md X18, DIFFERS)")  # fmt: skip
 UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
                     "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
                     "compared)")  # fmt: skip

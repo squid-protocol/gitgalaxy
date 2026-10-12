@@ -14,6 +14,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 pytest.importorskip("tree_sitter_language_pack")
 
@@ -102,3 +103,14 @@ def test_the_ceeloct_model_against_the_calendar(tmp_path):
     assert ok.stdout.split() == [str(days), f"{secs}.25", "20261001103015250", "0"], ok
     refused = subprocess.run([str(tmp_path / "t")], env={}, capture_output=True, text=True)  # noqa: S603
     assert refused.returncode == 98 and "not modelled" in refused.stderr
+
+
+def test_a_program_that_executes_fetch_is_never_proven():
+    """X18 DIFFERS: both runtimes answer NOTFINISHED, which IBM need not; the harness never counts the event equal."""
+    import equivalence_cics as ec
+
+    ev = [{"event": "FETCH", "resp": "NOTFINISHED", "resp2": 52}]
+    d = ec.compare_events(ev, [dict(ev[0])])
+    assert d["equal"] == 0 and d["diffs"][0]["kind"] == "FETCH" and "X18" in d["diffs"][0]["fields"][0]["cobol"]
+    other = [{"event": "RUN", "transid": "T", "resp": "NORMAL"}]
+    assert ec.compare_events(other, [dict(other[0])])["equal"] == 1

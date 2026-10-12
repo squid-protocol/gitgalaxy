@@ -14,7 +14,7 @@ IBM's "CICS command summary" (CICS TS 6.x) lists 336 API command topics: 259 com
 variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... -- are one name. 50 of them have full
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
-NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 189 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
+NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 187 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
 WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE and WEB READ / WRITE HTTPHEADER moved to web.py).
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
@@ -61,9 +61,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
-    # child tasks (#4270 slice 2: RUN TRANSID)
-    ("FETCH CHILD", None, CHILD_LATER),
-    ("FETCH ANY", None, CHILD_LATER),
+    # child tasks (#4270 slice 2: RUN TRANSID; FETCH ANY / FETCH CHILD are in interval.py, #4884)
     ("FREE CHILD", None, CHILD_LATER),
     # BTS
     ("ACQUIRE", None, _BTS),

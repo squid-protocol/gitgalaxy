@@ -69,7 +69,9 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
 }
+LIBRARY_CLOCK = {"CEELOCT"}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 
 
 def jstr(s: str) -> str:
@@ -1086,6 +1088,10 @@ class Gen:
         finally:
             self.intr -= 1
 
+    def current_date_expr(self) -> str:
+        """The run's clock as FUNCTION CURRENT-DATE's text (the CICS task's, or the batch clock)."""
+        return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
+
     def _func(self, f: E.Func) -> str:
         name = f.name
         args = [a for a in f.args if not (isinstance(a, tuple) and a[0] == "REFMOD")]
@@ -1094,7 +1100,7 @@ class Gen:
         if name in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name == "CURRENT-DATE":
-            return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
+            return self.current_date_expr()
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.numval_arg(args[0])})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
@@ -2549,7 +2555,13 @@ class Gen:
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: {lib[1]} items BY REFERENCE expected")
-            return [f"{ind}{lib[0]}({', '.join(self.field_expr(a) for _, a in args)});"]
+            refs = [self.value_field(a) if i == 1 and prog in LIBRARY_CLOCK else self.field_expr(a)
+                    for i, (_, a) in enumerate(args)]  # fmt: skip
+            if prog in LIBRARY_CLOCK:
+                # CEELOCT's output_seconds is a float the runtime stores by value (Cobol.store, as MOVE does), never
+                # by bytes: HFP on z/OS, IEEE on the oracle (register C6)
+                refs = [self.current_date_expr(), *refs, "CS"]
+            return [f"{ind}{lib[0]}({', '.join(refs)});"]
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 
         if prog in REFUSED_BY_NAME:

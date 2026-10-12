@@ -108,6 +108,7 @@ _FORM_OPTION = {
     "SET": ("TERMINAL",),
     "WEB READ": ("HTTPHEADER",),  # #4767 (X38): WEB READ / WRITE HTTPHEADER(area); FORMFIELD / QUERYPARM stay refused
     "WEB WRITE": ("HTTPHEADER",),
+    "FETCH": ("ANY", "CHILD"),  # #4884
     "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
 
@@ -796,7 +797,9 @@ class Cics:
             raise CicsError(f"EXEC CICS {key} not modelled ({CONTAINER_LATER})")
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
-        if words[:1] == ["FETCH"] or verb == "FREE CHILD":
+        if words[:1] == ["FETCH"]:  # #4884: FETCH ANY / FETCH CHILD, NOSUSPEND only
+            return self.fetch(key, opts, ind)
+        if verb == "FREE CHILD":
             raise CicsError(f"EXEC CICS {verb} not modelled ({CHILD_LATER})")
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
@@ -1562,8 +1565,31 @@ class Cics:
         if not transid or not child:
             raise CicsError(_msg("RUN", "required", "TRANSID"))
         r = self.g.tmpname("run")
-        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(transid)});",
+        channel = _option(opts, "CHANNEL")  # #4884: the child's copy of a channel (it runs after this task ends)
+        if "CHANNEL" in opts and not channel:
+            raise CicsError(NEEDS_ARGUMENT)
+        arg = self.name(transid) + (f", {self.name(channel)}" if channel else "")
+        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({arg});",
                 f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+
+    # the areas a FETCH writes for a completed child (the token, its reply channel, abend code, completion status):
+    # none completes while its parent runs, so they are accepted and never written
+    _FETCH_AREAS = ("CHANNEL", "ABCODE", "COMPSTATUS")
+
+    def fetch(self, key: str, opts: dict, ind: str) -> list[str]:
+        """FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH) on CicsTask.fetch: a child runs only
+        once this task has ended, so none has completed -- NOTFINISHED RESP2 52 (INVREQ 52 for FETCH ANY with no
+        children, INVREQ 50 for a token this task was not given), through RESP / HANDLE CONDITION. A FETCH that
+        waits (no NOSUSPEND) is refused, as is TIMEOUT; the output areas are never written."""
+        form = key.split()[1]
+        token = _option(opts, form)
+        if not token and form == "CHILD":
+            raise CicsError(_msg(key, "required", form))
+        if "NOSUSPEND" not in opts:
+            raise CicsError(_msg(key, "required", "NOSUSPEND"))
+        r = self.g.tmpname("fetch")
+        return [f"{ind}CicsTask.FetchResult {r} = task.fetch({self.name(token) if form == 'CHILD' else 'null'});",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def cancel(self, opts: dict, ind: str) -> list[str]:

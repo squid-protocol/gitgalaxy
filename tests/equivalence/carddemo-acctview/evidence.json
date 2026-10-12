@@ -419,7 +419,23 @@
   "score_raw": "105/129",
   "score_adjusted": "105/113",
   "source": "docs/language_status/mutation_scores.json#carddemo-acctview/COACTVWC",
-  "inputs": null
+  "inputs": {
+   "port": {
+    "sha256": "c1734f35fe73bed715f2381de3e27b2d743e24d988cf1c43f882bacf8d1edc4e"
+   },
+   "case": {
+    "sha256": "148af5f69abed6acc72e8cd672a301fd075be981f27b382789fbe3c9da821e48"
+   },
+   "corpus": {
+    "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+   },
+   "harness": {
+    "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+   },
+   "oracle": {
+    "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+   }
+  }
  },
  "differences": [],
  "oracle": {

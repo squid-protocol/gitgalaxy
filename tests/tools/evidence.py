@@ -778,7 +778,7 @@ def _score(n: int, d: int) -> str:
     return f"{n}/{d}"
 
 
-def mutation_section(t: Target) -> dict[str, Any] | None:
+def mutation_section(t: Target, existing_mutation: dict[str, Any] | None = None) -> dict[str, Any] | None:
     """The port's entry of docs/language_status/mutation_scores.json (#4047), with the inputs it was judged against
     (recomputed at its commit from git history; None in a shallow clone)."""
     if not MUTATION_SCORES.is_file():
@@ -792,6 +792,12 @@ def mutation_section(t: Target) -> dict[str, Any] | None:
     judged = tot["killed"] + tot["survived"]
     commit = e.get("rejudged", {}).get("commit") or e["commit"]
     at = inputs_at(t, commit)
+    inputs = {k: {"sha256": at[k]["sha256"]} for k in MUTATION_INPUTS} if at else None
+    if inputs is None:
+        old_mut = existing_mutation if existing_mutation is not None else ((load(t) or {}).get("mutation") or {})
+        old_commit = (old_mut.get("rejudged") or {}).get("commit") or old_mut.get("commit")
+        if old_commit == commit and old_mut.get("inputs"):
+            inputs = old_mut["inputs"]
     return {"commit": e["commit"], "rejudged": e.get("rejudged"), "seed": e.get("seed"), "mode": e.get("mode"),
             "mutants": e["mutants"], "chosen": e["chosen"],
             "killed": tot["killed"], "survived": tot["survived"], "stillborn": tot["stillborn"],
@@ -800,7 +806,7 @@ def mutation_section(t: Target) -> dict[str, Any] | None:
             "score_raw": _score(tot["killed"], judged),
             "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
             "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
-            "inputs": ({k: {"sha256": at[k]["sha256"]} for k in MUTATION_INPUTS} if at else None)}  # fmt: skip
+            "inputs": inputs}
 
 
 # ---- the record --------------------------------------------------------------------------------------------------------
@@ -840,7 +846,7 @@ def record_proof(t: Target, report: dict[str, Any], work: Path | None = None) ->
         "coverage": coverage_section(t, report, inputs["digest"]),
         "reach": reach_section(t, work, [e["method"] for e in report.get("entries") or []]
                                + [e["method"] for e in (report.get("facade") or {}).get("entry_points") or []]),
-        "mutation": mutation_section(t),
+        "mutation": mutation_section(t, rec.get("mutation")),
         "oracle": oracle_section(t, report.get("oracle")),
         "provenance": provenance_section(t),
     })  # fmt: skip
@@ -864,7 +870,7 @@ def refresh_mutation(keys: list[str] | None = None) -> list[str]:
         rec = load(t)
         if rec is None:
             continue
-        rec["mutation"] = mutation_section(t)
+        rec["mutation"] = mutation_section(t, rec.get("mutation"))
         save(t, rec)
         done.append(t.key)
     return done

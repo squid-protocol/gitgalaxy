@@ -1,0 +1,28 @@
+{
+ "sha": "05ea9a7421d3ac94915e50725ed62500a52726c5",
+ "surveyed_utc": "2026-10-12T11:29:12Z",
+ "scope": "burned + local corpora (no census)",
+ "census": false,
+ "seconds": 255,
+ "runs": {
+  "b": {
+   "root": "/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora",
+   "corpora": [
+    "aws-mainframe-modernization-carddemo",
+    "cics-async-api-credit-card-application-example",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "dbb-mortgage-application",
+    "zecs"
+   ]
+  },
+  "nb-local": {
+   "root": "/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora",
+   "corpora": [
+    "dsf",
+    "zopeneditor-sample"
+   ]
+  }
+ },
+ "translator": "git archive 05ea9a7421d3ac94915e50725ed62500a52726c5 (gitgalaxy, tests/tools, pyproject.toml)"
+}

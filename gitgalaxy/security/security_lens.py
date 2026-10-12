@@ -375,9 +375,9 @@ class SecurityLens:
             # `CONTRASENA` field is the same leak as an English `password`.
             "hardcoded_secrets": re.compile(
                 r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
-                # #4548: a COBOL data item opens with a level number (`05 WS-PASSWORD ...`); without it
+                # #4548: a COBOL data item opens with a level number, 1-2 digits (`05 WS-PASSWORD ...`, `1 WS-PASSWORD ...`); without it
                 # the stem `KEY` matched English prose ("keyword value 'acs'" in a changelog).
-                r"\b\d{2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
+                r"\b\d{1,2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
                 + COBOL_CREDENTIAL_ALTERNATION
                 + r")[A-Za-z0-9_-]*\b[ \t]+(?:IS[ \t]+)?(?:PIC[ \t]+[A-Za-z0-9\-\(\)]+[ \t]+)?VALUE[ \t]+['\"][^'\"]+['\"]|"
                 r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"

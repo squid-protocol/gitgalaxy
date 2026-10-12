@@ -70,6 +70,12 @@ def test_changelog_prose_is_not_a_cobol_secret(lens):
     assert _scan(lens, cob, lang="cobol")["counts"]["hardcoded_secrets"] == 2
 
 
+@pytest.mark.parametrize("level", ["1", "01", "05", "77"])
+def test_cobol_level_numbers_one_and_two_digits(lens, level):
+    cob = f"       {level} WS-PASSWORD   PIC X(8) VALUE 'hunter22'.\n"
+    assert _scan(lens, cob, lang="cobol")["counts"]["hardcoded_secrets"] == 1
+
+
 def test_credential_in_prose_still_found(lens):
     assert _scan(lens, 'password = "abcdefghijklmnop1234"\n', prose=True)["counts"]["hardcoded_secrets"] == 1
 

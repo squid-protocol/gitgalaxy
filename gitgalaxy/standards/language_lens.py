@@ -670,6 +670,15 @@ class LanguageDetector:
         if ext in self.COLLISION_FREQUENCIES and ext_tally and lock_tier > 2:
             gravity_lang, dominance = self._evaluate_ecosystem_gravity(file_path, ext, ext_tally)
 
+            # #4546: a neighbourhood vote cannot confer a language the file's own
+            # content must prove (Objective-C on `.h`: any `.h` beside `.m` files
+            # was locked to it with no ObjC marker), and cannot hide C++ evidence.
+            if gravity_lang and self.languages.get(gravity_lang, {}).get("extensions_needing_discriminator"):
+                if ext in self.languages[gravity_lang]["extensions_needing_discriminator"]:
+                    gravity_lang = None
+            if gravity_lang and (evidenced := self._shared_extension_evidence(content_sample, ext)):
+                gravity_lang = evidenced
+
             if gravity_lang and dominance >= self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70):
                 best_lang = gravity_lang
                 best_conf = 0.95
@@ -1091,6 +1100,15 @@ class LanguageDetector:
 
         return None, ""
 
+    def _shared_extension_evidence(self, content: str, ext: str) -> str | None:
+        """#4546: the language that owns shared extension `ext` by content evidence
+        alone (`shared_extension_evidence`, e.g. C++ markers in a `.h`), else None."""
+        for lid, data in self.languages.items():
+            evidence = data.get("shared_extension_evidence", {}).get(ext)
+            if evidence and ext not in data.get("extensions", []) and evidence.search(content):
+                return lid
+        return None
+
     def _tier_3_lexical_scan(
         self,
         content: str,
@@ -1107,6 +1125,22 @@ class LanguageDetector:
         candidates = []
         if ext:
             candidates = [l for l, d in self.languages.items() if ext in d.get("extensions", [])]
+
+            # #4546: a language that only owns a shared extension on proof (its
+            # internal_discriminator, already tried in Tier 2) is not a lexical
+            # candidate for it, or its broad rules outscore C/C++ on a plain header.
+            proven_only = [
+                l for l in candidates if ext in self.languages[l].get("extensions_needing_discriminator", ())
+            ]
+            if proven_only and len(proven_only) < len(candidates):
+                candidates = [l for l in candidates if l not in proven_only]
+
+            # #4546: C++ owns a shared extension (`.h`) only on content evidence.
+            # A language here that does not list the extension itself is proven by
+            # `shared_extension_evidence`; C remains the structural default.
+            evidenced = self._shared_extension_evidence(content, ext)
+            if evidenced:
+                return evidenced, 0.95
 
             # --- DEFENSIVE GUARD: STRICT BOUNDARY ---
             if not candidates:

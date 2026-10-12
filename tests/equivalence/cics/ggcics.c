@@ -100,7 +100,7 @@ typedef struct {
 /* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
 enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
-       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE,
+       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
        CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
 
 static int seq = 0;
@@ -3646,5 +3646,212 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
         snprintf(ev, sizeof ev, "WEB-HEADER name=%s value=%s resp=0 resp2=0", hx[0], hx[1]);
         event(ev, NULL, 0);
     }
+    return 0;
+}
+
+/* ---- #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (HTTPHEADER, FORMFIELD, QUERYPARM) ----
+ * GG-ITEM names the kind (0 HTTPHEADER, 1 FORMFIELD, 2 QUERYPARM). FORMFIELD reads the name=value pairs of the body (a form,
+ * application/x-www-form-urlencoded), QUERYPARM those of the query string (both unescaped: %XX only), HTTPHEADER the headers.
+ * As CicsTask.webReadParam / webStartBrowse / webReadNext / webEndBrowse answer. */
+static const char *const web_kinds[3] = {"HTTPHEADER", "FORMFIELD", "QUERYPARM"};
+static int web_browse_on[3], web_browse_at[3], web_browse_end[3];
+typedef struct { int n; char **name, **value; } web_pairs;
+
+static void web_badform(int kind) {
+    char m[80];
+    snprintf(m, sizeof m, "WEB %s data outside the modelled name=value form", web_kinds[kind]);
+    refuse(m);
+}
+
+static char *web_plain(int kind, const char *s, int len) {
+    char *o = malloc((size_t)len + 1);
+    int n = 0, i;
+    if (!o) refuse("out of memory");
+    for (i = 0; i < len; i++) {
+        unsigned char ch = (unsigned char)s[i];
+        if (ch == '+' || ch == ';' || ch <= ' ' || ch > '~') web_badform(kind);
+        if (ch == '%') {
+            int hi, lo;
+            if (i + 2 >= len || !isxdigit((unsigned char)s[i + 1]) || !isxdigit((unsigned char)s[i + 2])) web_badform(kind);
+            hi = web_hexval(s[i + 1]);
+            lo = web_hexval(s[i + 2]);
+            if (hi * 16 + lo < 32 || hi * 16 + lo > 126) web_badform(kind);
+            o[n++] = (char)(hi * 16 + lo);
+            i += 2;
+        } else {
+            o[n++] = (char)ch;
+        }
+    }
+    o[n] = '\0';
+    return o;
+}
+
+/* the pairs of the kind; 0 when the request has none */
+static int web_getpairs(int kind, web_pairs *p) {
+    const char *data, *piece;
+    int i;
+    p->n = 0;
+    if (kind == 0) {
+        p->name = malloc(sizeof(char *) * (size_t)(webreq.nh + 1));
+        p->value = malloc(sizeof(char *) * (size_t)(webreq.nh + 1));
+        for (i = 0; i < webreq.nh; i++) { p->name[i] = webreq.hname[i]; p->value[i] = webreq.hval[i]; }
+        p->n = webreq.nh;
+        return webreq.nh > 0;
+    }
+    data = kind == 2 ? webreq.query : (webreq.hasbody ? webreq.body : "");
+    if (kind == 1 && data[0] != '\0' && strcasecmp(webreq.media, "application/x-www-form-urlencoded") != 0)
+        refuse("WEB FORMFIELD body not application/x-www-form-urlencoded");
+    if (data[0] == '\0') return 0;
+    p->name = malloc(sizeof(char *) * (strlen(data) + 2));
+    p->value = malloc(sizeof(char *) * (strlen(data) + 2));
+    if (!p->name || !p->value) refuse("out of memory");
+    for (piece = data;; ) {
+        const char *amp = strchr(piece, '&'), *eq = memchr(piece, '=', amp ? (size_t)(amp - piece) : strlen(piece));
+        const char *pct = memchr(piece, '%', eq ? (size_t)(eq - piece) : 0);
+        size_t plen = amp ? (size_t)(amp - piece) : strlen(piece);
+        if (!eq || eq == piece || pct) web_badform(kind);
+        p->name[p->n] = web_plain(kind, piece, (int)(eq - piece));
+        p->value[p->n] = web_plain(kind, eq + 1, (int)(plen - (size_t)(eq - piece) - 1));
+        p->n++;
+        if (!amp) break;
+        piece = amp + 1;
+    }
+    return 1;
+}
+
+/* GG-ITEM kind, GG-LEN NAMELENGTH, GG-NUM VALUELENGTH (in; out: the value's whole length). */
+int GGCWRDP(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
+    int kind = c->item, nl = c->len, vl = c->num, conds = 0, i, hit = -1, nfound = 0;
+    web_pairs p;
+    char n[257], m[96];
+    webreq_load();
+    if (nl > namecap || vl > valuecap || nl > 256) {
+        snprintf(m, sizeof m, "WEB READ %s length beyond its area", web_kinds[kind]);
+        refuse(m);
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!web_getpairs(kind, &p)) { c->resp = INVREQ; c->resp2 = 13; conds++; }
+    else if (nl > 0) {
+        memcpy(n, name, (size_t)nl);
+        n[nl] = '\0';
+        for (i = 0; i < p.n; i++) if (strcasecmp(p.name[i], n) == 0) { hit = i; nfound++; }
+        if (nfound > 1) {
+            snprintf(m, sizeof m, "WEB READ %s two pairs of the name", web_kinds[kind]);
+            refuse(m);
+        }
+        if (nfound == 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
+    }
+    if (nl <= 0 || vl <= 0) { c->resp = LENGERR; c->resp2 = 1; conds++; }
+    if (conds > 1) {
+        snprintf(m, sizeof m, "WEB READ %s with more than one condition at once", web_kinds[kind]);
+        refuse(m);
+    }
+    if (conds == 1) return 0;
+    {
+        int n2 = (int)strlen(p.value[hit]), k = n2 > vl ? vl : n2;
+        memcpy(value, p.value[hit], (size_t)k);
+        if (n2 > vl) { c->resp = LENGERR; c->resp2 = 5; }
+        c->num = n2;
+    }
+    return 0;
+}
+
+/* GG-ITEM kind; GG-FLAGS names NAME given; GG-LEN NAMELENGTH. */
+int GGCWSBR(gg_cics *c, char *name, int namecap) {
+    int kind = c->item, nl = c->len, conds = 0, i, start = 0, nfound = 0, named, at = -1;
+    web_pairs p;
+    char flags[41], n[257], m[96];
+    webreq_load();
+    trim(c->flags, 40, flags);
+    named = strstr(flags, "NAME") != NULL;
+    if (named && (nl > namecap || nl > 256)) {
+        snprintf(m, sizeof m, "WEB STARTBROWSE %s length beyond its area", web_kinds[kind]);
+        refuse(m);
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (web_browse_on[kind]) { c->resp = ILLOGIC; c->resp2 = kind == 0 ? 10 : 5; conds++; }
+    if (named && nl <= 0) { c->resp = LENGERR; c->resp2 = 1; conds++; }
+    if (!web_getpairs(kind, &p)) { c->resp = INVREQ; c->resp2 = kind == 0 ? 43 : 13; conds++; }
+    else if (named && nl > 0) {
+        memcpy(n, name, (size_t)nl);
+        n[nl] = '\0';
+        for (i = 0; i < p.n; i++) if (strcasecmp(p.name[i], n) == 0) { at = i; nfound++; }
+        if (nfound > 1) {
+            snprintf(m, sizeof m, "WEB STARTBROWSE %s two pairs of the name", web_kinds[kind]);
+            refuse(m);
+        }
+        if (nfound == 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
+        else if (strcmp(p.name[at], n) != 0) {
+            snprintf(m, sizeof m, "WEB STARTBROWSE %s name found only without case", web_kinds[kind]);
+            refuse(m);
+        } else start = at;
+    }
+    if (conds > 1) {
+        snprintf(m, sizeof m, "WEB STARTBROWSE %s with more than one condition at once", web_kinds[kind]);
+        refuse(m);
+    }
+    if (conds == 1) return 0;
+    web_browse_on[kind] = 1;
+    web_browse_at[kind] = start;
+    web_browse_end[kind] = 0;
+    return 0;
+}
+
+/* GG-ITEM kind, GG-LEN NAMELENGTH, GG-NUM VALUELENGTH (in: the areas' sizes as the program gives them; out: the pair's whole lengths). */
+int GGCWRNX(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
+    int kind = c->item, nl = c->len, vl = c->num, conds = 0, end, cutn, cutv, k;
+    web_pairs p;
+    char m[96];
+    webreq_load();
+    if (nl > namecap || vl > valuecap) {
+        snprintf(m, sizeof m, "WEB READNEXT %s length beyond its area", web_kinds[kind]);
+        refuse(m);
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!web_browse_on[kind]) { c->resp = INVREQ; c->resp2 = 4; return 0; }
+    web_getpairs(kind, &p);
+    end = web_browse_at[kind] >= p.n;
+    if (end && web_browse_end[kind]) {
+        snprintf(m, sizeof m, "WEB READNEXT %s after ENDFILE", web_kinds[kind]);
+        refuse(m);
+    }
+    if (nl <= 0 || vl <= 0) { c->resp = LENGERR; c->resp2 = 1; conds++; }
+    if (end) { c->resp = ENDFILE; c->resp2 = 0; conds++; }
+    if (conds > 1) {
+        snprintf(m, sizeof m, "WEB READNEXT %s with more than one condition at once", web_kinds[kind]);
+        refuse(m);
+    }
+    if (conds == 1) {
+        if (end) web_browse_end[kind] = 1;
+        return 0;
+    }
+    k = web_browse_at[kind];
+    cutn = (int)strlen(p.name[k]) > nl;
+    cutv = (int)strlen(p.value[k]) > vl;
+    if (cutn && cutv) {
+        snprintf(m, sizeof m, "WEB READNEXT %s name and value both truncated", web_kinds[kind]);
+        refuse(m);
+    }
+    if ((cutn || cutv) && kind == 0) refuse("WEB READNEXT HTTPHEADER truncated");
+    memcpy(name, p.name[k], cutn ? (size_t)nl : strlen(p.name[k]));
+    memcpy(value, p.value[k], cutv ? (size_t)vl : strlen(p.value[k]));
+    c->len = (int)strlen(p.name[k]);
+    c->num = (int)strlen(p.value[k]);
+    if (cutn || cutv) { c->resp = LENGERR; c->resp2 = cutn ? 4 : 5; }
+    else web_browse_at[kind]++;
+    return 0;
+}
+
+/* GG-ITEM kind. */
+int GGCWEBR(gg_cics *c) {
+    int kind = c->item;
+    webreq_load();
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!web_browse_on[kind]) { c->resp = INVREQ; c->resp2 = 4; return 0; }
+    web_browse_on[kind] = 0;
     return 0;
 }

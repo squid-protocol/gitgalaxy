@@ -1392,6 +1392,220 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
+    // #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (STARTBROWSE / READNEXT / ENDBROWSE of
+    // HTTPHEADER, FORMFIELD, QUERYPARM) on the stated request. FORMFIELD reads the name=value pairs of the body (a form,
+    // application/x-www-form-urlencoded), QUERYPARM those of the query string (both unescaped, %XX only), HTTPHEADER the
+    // headers; a browse's position is the task's (kind -> {next pair, 1 once ENDFILE was returned}).
+    private final java.util.Map<String, int[]> webBrowses = new java.util.HashMap<>();
+
+    private static String webPlain(String kind, String s) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == '+' || ch == ';' || ch <= ' ' || ch > '~') {
+                throw refused("WEB " + kind + " data outside the modelled name=value form");
+            }
+            if (ch == '%') {
+                int hi = i + 2 < s.length() ? Character.digit(s.charAt(i + 1), 16) : -1;
+                int lo = i + 2 < s.length() ? Character.digit(s.charAt(i + 2), 16) : -1;
+                if (hi < 0 || lo < 0 || hi * 16 + lo < 32 || hi * 16 + lo > 126) {
+                    throw refused("WEB " + kind + " data outside the modelled name=value form");
+                }
+                b.append((char) (hi * 16 + lo));
+                i += 2;
+            } else {
+                b.append(ch);
+            }
+        }
+        return b.toString();
+    }
+
+    /** The pairs a form's data holds (null: the request has none), unescaped. */
+    private static java.util.List<String[]> webPairs(HttpRequest q, String kind) {
+        if (kind.equals("HTTPHEADER")) {
+            return q.headers().isEmpty() ? null : q.headers();
+        }
+        String data = kind.equals("QUERYPARM") ? q.query() : q.body();
+        if (kind.equals("FORMFIELD") && data != null && !data.isEmpty()
+                && !"application/x-www-form-urlencoded".equalsIgnoreCase(q.mediaType())) {
+            throw refused("WEB FORMFIELD body not application/x-www-form-urlencoded");
+        }
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
+        java.util.List<String[]> pairs = new java.util.ArrayList<>();
+        for (String piece : data.split("&", -1)) {
+            int eq = piece.indexOf('=');
+            if (eq <= 0 || piece.indexOf('%') >= 0 && piece.indexOf('%') < eq) {
+                throw refused("WEB " + kind + " data outside the modelled name=value form");
+            }
+            pairs.add(new String[] {webPlain(kind, piece.substring(0, eq)), webPlain(kind, piece.substring(eq + 1))});
+        }
+        return pairs;
+    }
+
+    /** WEB READ FORMFIELD / QUERYPARM's outcome: RESP, RESP2 and, on NORMAL or LENGERR 5 (a value longer than VALUELENGTH:
+     *  cut to it), the value; `length` is the value's whole length (what VALUELENGTH then holds). Else value is null. */
+    public record WebParam(int resp, int resp2, String value, int length) {
+    }
+
+    /** WEB READ FORMFIELD(name) / QUERYPARM(name) NAMELENGTH(n) VALUE(area) VALUELENGTH(area) (server form; IBM CICS TS, EXEC
+     *  CICS WEB READ FORMFIELD, WEB READ QUERYPARM; register X38). `kind` FORMFIELD or QUERYPARM. The name is not case
+     *  sensitive (IBM); the value is unescaped (IBM). INVREQ 13 (no forms data / keyword parameters), NOTFND 1, LENGERR 1
+     *  (NAMELENGTH or VALUELENGTH not above zero), LENGERR 5 (the value cut, VALUELENGTH its real length). Refused: no
+     *  request stated, data outside the modelled name=value form, two pairs of the name (IBM does not say), a length past
+     *  its area, two conditions at once. */
+    public WebParam webReadParam(String kind, String name, int nameLength, int valueLength, int valueCap) {
+        HttpRequest q = statedRequest().httpRequest;
+        if (nameLength > name.length() || valueLength > valueCap) {
+            throw refused("WEB READ " + kind + " length beyond its area");
+        }
+        java.util.List<String[]> pairs = webPairs(q, kind);
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        String[] hit = null;
+        if (pairs == null) {
+            c.add(new int[] {16, 13});
+        } else if (nameLength > 0) {
+            String n = name.substring(0, nameLength);
+            java.util.List<String[]> found = pairs.stream().filter(p -> p[0].equalsIgnoreCase(n)).toList();
+            if (found.size() > 1) {
+                throw refused("WEB READ " + kind + " two pairs of the name");
+            }
+            if (found.isEmpty()) {
+                c.add(new int[] {13, 1});
+            } else {
+                hit = found.get(0);
+            }
+        }
+        if (nameLength <= 0 || valueLength <= 0) {
+            c.add(new int[] {22, 1});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB READ " + kind + " with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return new WebParam(c.get(0)[0], c.get(0)[1], null, 0);
+        }
+        int n = hit[1].length();
+        return n > valueLength ? new WebParam(22, 5, hit[1].substring(0, valueLength), n) : new WebParam(0, 0, hit[1], n);
+    }
+
+    /** WEB STARTBROWSE HTTPHEADER | FORMFIELD [(name) NAMELENGTH(n)] | QUERYPARM [(name) NAMELENGTH(n)] (server form; IBM CICS
+     *  TS; register X38). `name` null: from the first pair (HTTPHEADER has no name); else from the pair of that name. ILLOGIC
+     *  5 (10 for HTTPHEADER) when a browse of the kind is already in progress, INVREQ 13 (43 for HTTPHEADER) when there is
+     *  nothing to browse, NOTFND 1, LENGERR 1. A start that raises a condition starts no browse (ASSUMED). Refused: no
+     *  request stated, a name found only without case or twice (IBM does not say), data outside the modelled form, a
+     *  length past its area, two conditions at once. */
+    public int[] webStartBrowse(String kind, String name, Integer nameLength) {
+        CicsTask r = statedRequest();
+        boolean header = kind.equals("HTTPHEADER");
+        if (nameLength != null && nameLength > name.length()) {
+            throw refused("WEB STARTBROWSE " + kind + " length beyond its area");
+        }
+        java.util.List<String[]> pairs = webPairs(r.httpRequest, kind);
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        int start = 0;
+        if (r.webBrowses.containsKey(kind)) {
+            c.add(new int[] {21, header ? 10 : 5});
+        }
+        if (nameLength != null && nameLength <= 0) {
+            c.add(new int[] {22, 1});
+        }
+        if (pairs == null) {
+            c.add(new int[] {16, header ? 43 : 13});
+        } else if (nameLength != null && nameLength > 0) {
+            String n = name.substring(0, nameLength);
+            java.util.List<Integer> at = new java.util.ArrayList<>();
+            for (int i = 0; i < pairs.size(); i++) {
+                if (pairs.get(i)[0].equalsIgnoreCase(n)) {
+                    at.add(i);
+                }
+            }
+            if (at.size() > 1) {
+                throw refused("WEB STARTBROWSE " + kind + " two pairs of the name");
+            }
+            if (at.isEmpty()) {
+                c.add(new int[] {13, 1});
+            } else if (!pairs.get(at.get(0))[0].equals(n)) {
+                throw refused("WEB STARTBROWSE " + kind + " name found only without case");
+            } else {
+                start = at.get(0);
+            }
+        }
+        if (c.size() > 1) {
+            throw refused("WEB STARTBROWSE " + kind + " with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return c.get(0);
+        }
+        r.webBrowses.put(kind, new int[] {start, 0});
+        return new int[] {0, 0};
+    }
+
+    /** WEB READNEXT's outcome: RESP, RESP2 and, on NORMAL or a truncation (LENGERR 4 / 5), the pair's name and value (cut to
+     *  the lengths the program gave) and their whole lengths; else the strings are null. */
+    public record WebNext(int resp, int resp2, String name, String value, int nameLength, int valueLength) {
+    }
+
+    /** WEB READNEXT HTTPHEADER | FORMFIELD | QUERYPARM (name) NAMELENGTH(area) VALUE(area) VALUELENGTH(area) (server form; IBM
+     *  CICS TS; register X38): the next pair in the order the request states them; each length is the area's size in and the
+     *  pair's whole length out. INVREQ 4 before a start, ENDFILE (RESP2 0: IBM lists none) at the end, LENGERR 1 (a length
+     *  not above zero: nothing is read, the browse stays), LENGERR 4 / 5 for a FORMFIELD / QUERYPARM name / value that does
+     *  not fit (cut; the same pair is returned again, IBM). Refused: no request stated, a READNEXT after ENDFILE, a name and
+     *  a value both too long, a header that does not fit (IBM does not say what the lengths hold or whether the browse
+     *  moves on), data outside the modelled form, a length past its area, two conditions at once. */
+    public WebNext webReadNext(String kind, int nameLength, int nameCap, int valueLength, int valueCap) {
+        CicsTask r = statedRequest();
+        if (nameLength > nameCap || valueLength > valueCap) {
+            throw refused("WEB READNEXT " + kind + " length beyond its area");
+        }
+        int[] st = r.webBrowses.get(kind);
+        if (st == null) {
+            return new WebNext(16, 4, null, null, 0, 0);
+        }
+        java.util.List<String[]> pairs = webPairs(r.httpRequest, kind);
+        boolean end = st[0] >= pairs.size();
+        if (end && st[1] != 0) {
+            throw refused("WEB READNEXT " + kind + " after ENDFILE");
+        }
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (nameLength <= 0 || valueLength <= 0) {
+            c.add(new int[] {22, 1});
+        }
+        if (end) {
+            c.add(new int[] {20, 0});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB READNEXT " + kind + " with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            st[1] = end ? 1 : st[1];
+            return new WebNext(c.get(0)[0], c.get(0)[1], null, null, 0, 0);
+        }
+        String[] p = pairs.get(st[0]);
+        boolean cutName = p[0].length() > nameLength;
+        boolean cutValue = p[1].length() > valueLength;
+        if (cutName && cutValue) {
+            throw refused("WEB READNEXT " + kind + " name and value both truncated");
+        }
+        if ((cutName || cutValue) && kind.equals("HTTPHEADER")) {
+            throw refused("WEB READNEXT HTTPHEADER truncated");
+        }
+        String name = cutName ? p[0].substring(0, nameLength) : p[0];
+        String value = cutValue ? p[1].substring(0, valueLength) : p[1];
+        if (!cutName && !cutValue) {
+            st[0]++;
+        }
+        return new WebNext(cutName ? 22 : cutValue ? 22 : 0, cutName ? 4 : cutValue ? 5 : 0, name, value, p[0].length(),
+                p[1].length());
+    }
+
+    /** WEB ENDBROWSE HTTPHEADER | FORMFIELD | QUERYPARM (server form; IBM CICS TS; register X38): INVREQ 4 before a start. */
+    public int[] webEndBrowse(String kind) {
+        CicsTask r = statedRequest();
+        return r.webBrowses.remove(kind) == null ? new int[] {16, 4} : new int[] {0, 0};
+    }
+
     // #4767 zECS (register X36): WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL) -- pure: no peer is involved.
     /** WEB PARSE URL's outcome: RESP, RESP2 and, on NORMAL, the scheme (upper case, blank-padded to SCHEMENAME's area),
      *  host, port (explicit, else 80 for HTTP / 443 for HTTPS), path (with its leading '/') and query string (without

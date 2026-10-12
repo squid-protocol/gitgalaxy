@@ -842,6 +842,59 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + _call(entry, args) + after + _resp(opts, True, labels)
 
 
+_WEB_KIND = {"HTTPHEADER": 0, "FORMFIELD": 1, "QUERYPARM": 2}  # GG-ITEM: which pairs a WEB READ / browse form reads
+
+
+def _web_forms(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4940 (register X38): WEB READ FORMFIELD / QUERYPARM -> GGCWRDP (NAMELENGTH in GG-LEN, VALUELENGTH in GG-NUM, moved
+    back when the value was returned, also cut), WEB STARTBROWSE -> GGCWSBR (GG-FLAGS NAME when a name is given), WEB READNEXT
+    -> GGCWRNX (both lengths in, the pair's whole lengths out), WEB ENDBROWSE -> GGCWEBR; GG-ITEM names the kind
+    (_WEB_KIND). The option rules as the det translator's."""
+    kind = next(k for k in _WEB_KIND if k in opts)
+    key = f"WEB {form} {kind}"
+    _check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
+    item = f"MOVE {_WEB_KIND[kind]} TO GG-ITEM"
+    if form == "ENDBROWSE":
+        return [item] + _call("GGCWEBR", []) + _resp(opts, True, labels)
+    if form == "STARTBROWSE":
+        named = bool(opts.get(kind))
+        if kind == "HTTPHEADER" and named:
+            raise Unsupported("WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled", [key])
+        if named and not opts.get("NAMELENGTH"):
+            raise Unsupported(
+                f"WEB STARTBROWSE {kind}(name) without NAMELENGTH (IBM: it is required with a name)", [key]
+            )
+        if "NAMELENGTH" in opts and not named:
+            raise Unsupported(f"WEB STARTBROWSE {kind} NAMELENGTH without a name", [key])
+        if named and _literal(opts[kind]):
+            raise Unsupported(f"{key} {kind} as a literal: a data area is the COBOL form", [key])
+        area = opts[kind] if named else "GG-QNAME"
+        lines = [item, f"MOVE {opts['NAMELENGTH']} TO GG-LEN" if named else "MOVE 0 TO GG-LEN",
+                 "MOVE 'NAME' TO GG-FLAGS" if named else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+        return (
+            lines + _call("GGCWSBR", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
+        )
+    for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH"):
+        if not opts.get(o):
+            raise Unsupported(_rule(key, "required", o), [key])
+    for o in (kind, "VALUE"):
+        if _literal(opts[o]):
+            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+    lines = [item, f"MOVE {opts['NAMELENGTH']} TO GG-LEN", f"MOVE {opts['VALUELENGTH']} TO GG-NUM"]
+    args = [f"BY REFERENCE {opts[kind]}", f"BY VALUE LENGTH OF {opts[kind]}",
+            f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
+    if form == "READ":
+        after = [
+            "IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 5)",
+            f"    MOVE GG-NUM TO {opts['VALUELENGTH']}",
+            "END-IF",
+        ]
+        return lines + _call("GGCWRDP", args) + after + _resp(opts, True, labels)
+    after = ["IF GG-RESP = 0 OR (GG-RESP = 22 AND (GG-RESP2 = 4 OR GG-RESP2 = 5))",
+             f"    MOVE GG-LEN TO {opts['NAMELENGTH']}", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]  # fmt: skip
+    return lines + _call("GGCWRNX", args) + after + _resp(opts, True, labels)
+
+
 def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X35): WEB OPEN -> GGCWOPN (GG-FLAGS URIMAP, the name in GG-NAME1; or HOST [PORT], HOSTLENGTH in
     GG-LEN, the SCHEME CVDA in GG-ITEM, PORTNUMBER in GG-NUM), the SESSTOKEN area written by the stub on NORMAL; WEB
@@ -1148,6 +1201,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _web_receive(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
         return _web_header("READ" if "READ" in opts else "WRITE", opts, labels)
+    if (
+        verb == "WEB"
+        and ({"READ", "STARTBROWSE", "READNEXT", "ENDBROWSE"} & set(opts))
+        and any(k in opts for k in _WEB_KIND)
+    ):
+        return _web_forms(next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels)
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
         return _web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler

@@ -2313,6 +2313,7 @@ public class CicsTask {
     public static final class Channel {
         private final String name;
         private final Map<String, Container> containers = new LinkedHashMap<>();
+        private int shape;  // #4951: counts the containers added and removed, so a browse can tell the channel changed
 
         public Channel(String name) {
             this.name = name;
@@ -2326,6 +2327,7 @@ public class CicsTask {
          *  CHANNEL, or a LINK CHANNEL caller outside the region, put there (BIT or CHAR, as its PUT gave it). */
         public Channel with(String container, byte[] data, boolean bit) {
             containers.put(channelName(container, "container"), new Container(data.clone(), bit));
+            shape++;
             return this;
         }
 
@@ -2348,8 +2350,13 @@ public class CicsTask {
     }
 
     /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
-     *  NORMAL / LENGERR, else -1) and the bytes it moves INTO (GET, else null). */
-    public record ContainerResult(String resp, int resp2, int length, byte[] data) {
+     *  NORMAL / LENGERR, else -1) and the bytes it moves INTO (GET, else null). #4951: STARTBROWSE's token comes
+     *  back as the length, GETNEXT's container name as `name`. */
+    public record ContainerResult(String resp, int resp2, int length, byte[] data, String name) {
+        public ContainerResult(String resp, int resp2, int length, byte[] data) {
+            this(resp, resp2, length, data, null);
+        }
+
         public boolean normal() {
             return "NORMAL".equals(resp);
         }
@@ -2434,6 +2441,7 @@ public class CicsTask {
         }
         if (c == null) {
             ch.containers.put(name, new Container(data.clone(), !"CHAR".equals(type)));
+            ch.shape++;
         } else if (append) {
             byte[] joined = Arrays.copyOf(c.data, c.data.length + data.length);
             System.arraycopy(data, 0, joined, c.data.length, data.length);
@@ -2481,8 +2489,121 @@ public class CicsTask {
         if (ch.containers.remove(name) == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
+        ch.shape++;
         return new ContainerResult("NORMAL", 0, -1, null);
     }
+
+    /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
+     *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
+     *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the
+     *  current channel. Conditions, in this order (IBM gives none): INVREQ RESP2 4 (CHANNEL or TOCHANNEL omitted and
+     *  no current channel), CHANNELERR RESP2 2 (CHANNEL not in scope), CONTAINERERR RESP2 10 (no such container). A
+     *  move that raises a condition changes nothing, and creates no channel (ASSUMED). The container keeps its data
+     *  type; one moved onto an existing container of the other type, or onto itself, is refused. */
+    public ContainerResult moveContainer(String channel, String container, String as, String toChannel) {
+        String name = channelName(container, "container");
+        String target = channelName(as, "container");
+        Channel from = channel == null ? currentChannel : scopeChannel(channel, false);
+        Channel to = toChannel == null ? currentChannel : scopeChannel(toChannel, false);
+        if ((channel == null || toChannel == null) && currentChannel == null) {
+            return new ContainerResult("INVREQ", 4, -1, null);
+        }
+        if (from == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        Container src = from.containers.get(name);
+        if (src == null) {
+            return new ContainerResult("CONTAINERERR", 10, -1, null);
+        }
+        Container dst = to == null ? null : to.containers.get(target);
+        if (to == from && name.equals(target)) {
+            throw refused("MOVE CONTAINER onto itself");
+        }
+        if (dst != null && dst.bit != src.bit) {
+            throw refused("MOVE CONTAINER onto a container of the other data type");
+        }
+        if (to == null) {
+            to = scopeChannel(toChannel, true);
+        }
+        if (dst == null) {
+            to.containers.put(target, src);
+            to.shape++;
+        } else {
+            dst.data = src.data;
+        }
+        from.containers.remove(name);
+        from.shape++;
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** STARTBROWSE CONTAINER [CHANNEL(channel)] BROWSETOKEN (IBM, EXEC CICS STARTBROWSE CONTAINER (CHANNEL)): the
+     *  token comes back as the result's length. CHANNELERR RESP2 2 for a channel not in scope. IBM: "The order of
+     *  returned containers is undefined": they come in the order they were created (ASSUMED). With no CHANNEL and no
+     *  current channel IBM treats it as the BTS form: refused. Tokens are 1, 2, 3 ... per task (ASSUMED: IBM calls
+     *  the value a token), valid for this program until its ENDBROWSE or the task's next SYNCPOINT. */
+    public ContainerResult startBrowseContainer(String channel) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        if (ch == null) {
+            if (channel == null) {
+                throw refused("STARTBROWSE CONTAINER with no channel (IBM treats it as the BTS form)");
+            }
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        CicsTask r = root();
+        int token = ++r.browseTokens;
+        r.containerBrowses.put(token, new ContainerBrowse(this, ch));
+        return new ContainerResult("NORMAL", 0, token, null);
+    }
+
+    /** GETNEXT CONTAINER(name) BROWSETOKEN(token): the next container's name, as the 16-character area IBM
+     *  describes. END RESP2 2 past the last (and again on a later GETNEXT: the token stays valid until ENDBROWSE);
+     *  TOKENERR RESP2 3 for a token that is not a current one of this program's (never started, ended, or taken by
+     *  a SYNCPOINT). A container added to or removed from the browsed channel since the start is refused: IBM does
+     *  not say what the browse then returns. */
+    public ContainerResult getNextContainer(int token) {
+        ContainerBrowse b = root().containerBrowses.get(token);
+        if (b == null || b.owner != this) {
+            return new ContainerResult("TOKENERR", 3, -1, null);
+        }
+        if (b.channel.shape != b.shape) {
+            throw refused("GETNEXT CONTAINER: the browsed channel changed during the browse");
+        }
+        if (b.next >= b.names.size()) {
+            return new ContainerResult("END", 2, -1, null);
+        }
+        String n = b.names.get(b.next++);
+        return new ContainerResult("NORMAL", 0, -1, null, String.format(java.util.Locale.ROOT, "%-16s", n));
+    }
+
+    /** ENDBROWSE CONTAINER BROWSETOKEN(token): TOKENERR RESP2 3 for a token that is not a current one of this
+     *  program's. */
+    public ContainerResult endBrowseContainer(int token) {
+        ContainerBrowse b = root().containerBrowses.get(token);
+        if (b == null || b.owner != this) {
+            return new ContainerResult("TOKENERR", 3, -1, null);
+        }
+        root().containerBrowses.remove(token);
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** One container browse: who started it, the channel, the names then (in creation order) and how far it is. */
+    private static final class ContainerBrowse {
+        private final CicsTask owner;
+        private final Channel channel;
+        private final int shape;
+        private final List<String> names;
+        private int next;
+
+        private ContainerBrowse(CicsTask owner, Channel channel) {
+            this.owner = owner;
+            this.channel = channel;
+            this.shape = channel.shape;
+            this.names = new ArrayList<>(channel.containers.keySet());
+        }
+    }
+
+    private final Map<Integer, ContainerBrowse> containerBrowses = new HashMap<>();  // #4951 (the root's)
+    private int browseTokens;
 
     /** ASSIGN CHANNEL: "the 16-character name of the current channel of the program, if one exists; otherwise,
      *  blanks". */
@@ -3217,6 +3338,7 @@ public class CicsTask {
     public void syncpoint() {
         refuseInDplServer("SYNCPOINT");
         root().held.clear();
+        root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         event("SYNCPOINT");
     }
@@ -3230,6 +3352,7 @@ public class CicsTask {
             throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
         }
         root().held.clear();
+        root().containerBrowses.clear();
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }

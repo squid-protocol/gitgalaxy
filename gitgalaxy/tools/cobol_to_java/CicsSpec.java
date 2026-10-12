@@ -106,6 +106,7 @@ public final class CicsSpec {
             case 102 -> "UOWNOTFOUND";
             case 103 -> "UOWLNOTFOUND";
             case 110 -> "CONTAINERERR";
+            case 112 -> "TOKENERR";
             case 113 -> "NOTFINISHED";
             case 122 -> "CHANNELERR";
             case 123 -> "CCSIDERR";
@@ -224,6 +225,7 @@ public final class CicsSpec {
             case "UOWNOTFOUND" -> 102;
             case "UOWLNOTFOUND" -> 103;
             case "CONTAINERERR" -> 110;
+            case "TOKENERR" -> 112;
             case "NOTFINISHED" -> 113;
             case "CHANNELERR" -> 122;
             case "CCSIDERR" -> 123;
@@ -249,6 +251,9 @@ public final class CicsSpec {
             case "INVREQ" -> "AEIP";
             case "CONTAINERERR" -> "AEZJ";
             case "CHANNELERR" -> "AEZV";
+            case "TOKENERR" -> "AEZL";
+            case "ILLOGIC" -> "AEIU";
+            case "END" -> "AEXK";
             default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
         };
     }

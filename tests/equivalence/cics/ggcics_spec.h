@@ -101,6 +101,7 @@ enum {
     DFHRESP_UOWNOTFOUND = 102,
     DFHRESP_UOWLNOTFOUND = 103,
     DFHRESP_CONTAINERERR = 110,
+    DFHRESP_TOKENERR = 112,
     DFHRESP_NOTFINISHED = 113,
     DFHRESP_CHANNELERR = 122,
     DFHRESP_CCSIDERR = 123,
@@ -125,6 +126,9 @@ static const char *condition_abcode(int resp) {
     case DFHRESP_INVREQ: return "AEIP";
     case DFHRESP_CONTAINERERR: return "AEZJ";
     case DFHRESP_CHANNELERR: return "AEZV";
+    case DFHRESP_TOKENERR: return "AEZL";
+    case DFHRESP_ILLOGIC: return "AEIU";
+    case DFHRESP_END: return "AEXK";
     default: return "????";
     }
 }

@@ -577,6 +577,11 @@ _IBM_OPTIONS = {
     "PUT CONTAINER": "CONTAINER CHANNEL FROM FLENGTH BIT CHAR DATATYPE FROMCCSID FROMCODEPAGE APPEND PREPEND",
     "GET CONTAINER": "CONTAINER CHANNEL INTO SET NODATA FLENGTH BYTEOFFSET INTOCCSID INTOCODEPAGE CONVERTST CCSID",
     "DELETE CONTAINER": "CONTAINER CHANNEL",
+    # #4951: MOVE CONTAINER and the container browse
+    "MOVE CONTAINER": "CONTAINER AS CHANNEL TOCHANNEL",
+    "STARTBROWSE CONTAINER": "CHANNEL BROWSETOKEN",
+    "GETNEXT CONTAINER": "CONTAINER BROWSETOKEN",
+    "ENDBROWSE CONTAINER": "BROWSETOKEN",
     # #4270 slice 2: interval control (START, RETRIEVE, CANCEL)
     "START": "TRANSID INTERVAL TIME AFTER AT HOURS MINUTES SECONDS FROM LENGTH FLENGTH FMH TERMID USERID SYSID "
     "RTRANSID RTERMID QUEUE REQID NOCHECK PROTECT ATTACH BREXIT CHANNEL",
@@ -955,6 +960,9 @@ _RESP_SAMPLES = {
     "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
     "DELETE CONTAINER": "DELETE CONTAINER('C')",
+    "MOVE CONTAINER": "MOVE CONTAINER('C') AS('D')", "STARTBROWSE CONTAINER": "STARTBROWSE CONTAINER BROWSETOKEN(REC)",
+    "GETNEXT CONTAINER": "GETNEXT CONTAINER(REC) BROWSETOKEN(REC)",
+    "ENDBROWSE CONTAINER": "ENDBROWSE CONTAINER BROWSETOKEN(REC)",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
@@ -1163,6 +1171,40 @@ def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     assert out[0].endswith("task.getContainer(null, CN.strip(), -1);") and "STORE(FL" in out[1]
     out = _ChanCics().command("DELETE CONTAINER(CN) RESP(R)", "")
     assert out[0] == "CicsTask.ContainerResult cont1 = task.deleteContainer(null, CN.strip());"
+
+
+def test_move_container_is_a_rename_across_channels():
+    """IBM, MOVE CONTAINER (CHANNEL): CONTAINER and AS, CHANNEL and TOCHANNEL (omitted: the current channel); the
+    answer is CicsTask's, with RESP2 (INVREQ 4, CHANNELERR 2, CONTAINERERR 10), through RESP / HANDLE CONDITION."""
+    out = _ChanCics().command("MOVE CONTAINER('A') AS('B') CHANNEL(CH) TOCHANNEL(TC) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult cont1 = task.moveContainer(CH.strip(), 'A'.strip(), 'B'.strip(), TC.strip());",
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    out = _ChanCics().command("MOVE CONTAINER(CN) AS(NEW)", "")
+    assert out[0] == "CicsTask.ContainerResult cont1 = task.moveContainer(null, CN.strip(), NEW.strip(), null);"
+    for bad in ("MOVE CONTAINER(CN)", "MOVE CONTAINER AS(NEW)", "MOVE CONTAINER(CN) AS"):
+        with pytest.raises(C.CicsError):
+            _ChanCics().command(bad, "")
+
+
+def test_the_container_browse_stores_the_token_and_the_name():
+    """IBM, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (CHANNEL): the token (a fullword) is stored by STARTBROWSE
+    on NORMAL only; GETNEXT's 16-character name is stored on NORMAL only; END, TOKENERR, ILLOGIC and CHANNELERR come
+    back with their RESP2 through RESP / HANDLE CONDITION."""
+    c = _ChanCics()
+    out = c.command("STARTBROWSE CONTAINER CHANNEL(CH) BROWSETOKEN(REC) RESP(R)", "")
+    assert out[0] == "CicsTask.ContainerResult cont1 = task.startBrowseContainer(CH.strip());"
+    assert out[1].startswith("if (cont1.length() >= 0) STORE(REC, BigDecimal.valueOf(cont1.length()))")
+    assert out[-1] == "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"
+    assert "task.startBrowseContainer(null);" in _ChanCics().command("STARTBROWSE CONTAINER BROWSETOKEN(REC)", "")[0]
+    out = _ChanCics().command("GETNEXT CONTAINER(AREA) BROWSETOKEN(TK) RESP(R)", "")
+    assert out[0] == "CicsTask.ContainerResult cont1 = task.getNextContainer(INT(TK));"
+    assert out[1] == "if (cont1.name() != null) DetCics.putText(f_AREA, cont1.name(), CS);"
+    out = _ChanCics().command("ENDBROWSE CONTAINER BROWSETOKEN(TK) NOHANDLE", "")
+    assert out[0] == "CicsTask.ContainerResult cont1 = task.endBrowseContainer(INT(TK));"
+    for bad in ("STARTBROWSE CONTAINER CHANNEL(CH)", "GETNEXT CONTAINER(AREA)", "GETNEXT BROWSETOKEN(TK)",
+                "ENDBROWSE CONTAINER"):  # fmt: skip
+        with pytest.raises(C.CicsError):
+            _ChanCics().command(bad, "")
 
 
 def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
@@ -1649,9 +1691,7 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
         ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),
         ("RETURN TRANSID('T') CHANNEL(CH)", "next task's channel"),
-        ("MOVE CONTAINER(A) AS(B)", "MOVE CONTAINER not modelled"),
-        ("STARTBROWSE CONTAINER BROWSETOKEN(T)", "browse"),
-        ("GETNEXT CONTAINER(N) BROWSETOKEN(T)", "browse"),
+        ("MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)", "CONTAINERTYPE"),
     ],
 )
 def test_what_the_container_commands_do_not_model_is_refused_by_name(text, why):

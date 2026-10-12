@@ -7,7 +7,8 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-"""#4270 slice 1 (#4575): PUT / GET / DELETE CONTAINER (CHANNEL), register X17."""
+"""#4270 slice 1 (#4575): PUT / GET / DELETE CONTAINER (CHANNEL), register X17; #4951: MOVE CONTAINER and the container
+browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), register X42."""
 
 from __future__ import annotations
 
@@ -157,4 +158,119 @@ DELETE_CONTAINER = Command(
     impl=Impl(java="deleteContainer", c="GGCDELC", **_CONTAINER_IMPL),
 )
 
-COMMANDS = (PUT_CONTAINER, GET_CONTAINER, DELETE_CONTAINER)
+MOVE_CONTAINER = Command(
+    key="MOVE CONTAINER",
+    ibm=ibm("EXEC CICS MOVE CONTAINER (CHANNEL)", "summary-move-container-channel"),
+    status="modelled",
+    register="X42",
+    options={
+        "CONTAINER": _NAME,  # the source
+        "AS": _NAME,  # the target: "If it already exists, its contents are overwritten"
+        "CHANNEL": _NAME,  # the source's channel; omitted: the current channel
+        "TOCHANNEL": _NAME,  # the target's channel ("created" when absent); omitted: the current channel
+        **RESP_OPTIONS,
+    },
+    groups=(required("CONTAINER", msg=NEEDS_ARGUMENT), required("AS", msg=NEEDS_ARGUMENT)),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("CHANNELERR", 2, "the channel named on CHANNEL could not be found"),
+        Outcome("INVREQ", 4, "CHANNEL or TOCHANNEL not given and no current channel"),
+        Outcome("CONTAINERERR", 10, "the source container could not be found"),
+    ),
+    runtime_refusals=(
+        _SCOPE,
+        _ILLEGAL_NAME,
+        RuntimeRefusal(
+            "a container moved onto itself (the same name in the same channel): IBM does not say",
+            "X42",
+            java="MOVE CONTAINER onto itself",
+            c="MOVE CONTAINER onto itself",
+        ),
+        RuntimeRefusal(
+            "a container moved onto an existing one of the other data type: its type, or INVREQ, is not documented",
+            "X42",
+            java="MOVE CONTAINER onto a container of the other data type",
+            c="MOVE CONTAINER onto a container of the other data type",
+        ),
+    ),
+    state=("channel_scope", "handle_table"),
+    engine=EngineFacts(resource="CONTAINER", access="move"),
+    impl=Impl(java="moveContainer", c="GGCMOVC", **_CONTAINER_IMPL),
+)
+
+_BROWSE_IMPL = {"translator": "Cics.container_browse", "harness": "_container_browse_command"}
+_BROWSE_STALE = RuntimeRefusal(
+    "a GETNEXT after a container was added to or removed from the browsed channel: IBM says nothing of changes "
+    "during a browse",
+    "X42",
+    java="the browsed channel changed during the browse",
+    c="the browsed channel changed during the browse",
+)
+
+STARTBROWSE_CONTAINER = Command(
+    key="STARTBROWSE CONTAINER",
+    ibm=ibm("EXEC CICS STARTBROWSE CONTAINER (CHANNEL)", "summary-startbrowse-container-channel"),
+    status="modelled",
+    register="X42",
+    options={"CHANNEL": _NAME, "BROWSETOKEN": Arg("area_out", width=4, binary=True), **RESP_OPTIONS},
+    groups=(required("BROWSETOKEN", msg=NEEDS_ARGUMENT),),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("BROWSETOKEN",)),
+        Outcome("CHANNELERR", 2, "the channel named on CHANNEL could not be found"),
+    ),
+    runtime_refusals=(
+        _SCOPE,
+        _ILLEGAL_NAME,
+        RuntimeRefusal(
+            "no CHANNEL and no current channel: IBM treats the command as the BTS form, which is not modelled",
+            "X42",
+            java="STARTBROWSE CONTAINER with no channel",
+            c="STARTBROWSE CONTAINER with no channel",
+        ),
+    ),
+    state=("channel_scope", "handle_table"),
+    impl=Impl(java="startBrowseContainer", c="GGCSBRC", **_BROWSE_IMPL),
+)
+
+GETNEXT_CONTAINER = Command(
+    key="GETNEXT CONTAINER",
+    ibm=ibm("EXEC CICS GETNEXT CONTAINER (CHANNEL)", "summary-getnext-container-channel"),
+    status="modelled",
+    register="X42",
+    options={
+        "CONTAINER": Arg("area_out", width=16),  # "the 16-character name of the next data-container"
+        "BROWSETOKEN": Arg("value", width=4, binary=True),
+        **RESP_OPTIONS,
+    },
+    groups=(required("CONTAINER", msg=NEEDS_ARGUMENT), required("BROWSETOKEN", msg=NEEDS_ARGUMENT)),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("CONTAINER",)),
+        Outcome("END", 2, "no more containers remain"),
+        Outcome("TOKENERR", 3, "the browse token is not valid"),
+    ),
+    runtime_refusals=(_BROWSE_STALE,),
+    state=("handle_table",),
+    impl=Impl(java="getNextContainer", c="GGCGNXC", **_BROWSE_IMPL),
+)
+
+ENDBROWSE_CONTAINER = Command(
+    key="ENDBROWSE CONTAINER",
+    ibm=ibm("EXEC CICS ENDBROWSE CONTAINER (CHANNEL)", "summary-endbrowse-container-channel"),
+    status="modelled",
+    register="X42",
+    options={"BROWSETOKEN": Arg("value", width=4, binary=True), **RESP_OPTIONS},
+    groups=(required("BROWSETOKEN", msg=NEEDS_ARGUMENT),),
+    outcomes=(Outcome("NORMAL", 0, ""), Outcome("TOKENERR", 3, "the browse token is not valid")),
+    state=("handle_table",),
+    impl=Impl(java="endBrowseContainer", c="GGCEBRC", **_BROWSE_IMPL),
+)
+
+COMMANDS = (
+    PUT_CONTAINER,
+    GET_CONTAINER,
+    DELETE_CONTAINER,
+    MOVE_CONTAINER,
+    STARTBROWSE_CONTAINER,
+    GETNEXT_CONTAINER,
+    ENDBROWSE_CONTAINER,
+)

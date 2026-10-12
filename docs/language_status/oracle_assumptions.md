@@ -143,12 +143,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X37 | CICS | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike and record the same event; no cics-crucible case yet) |
 | X38 | CICS | #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike, now also for FORMFIELD / QUERYPARM and the browse forms; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
 | X39 | CICS | EXEC CICS LINK passes the caller's COMMAREA by address; EXEC CICS XCTL says only that the contents of the data area are passed. When a LINKed program XCTLs with (part of) its own DFHCOMMAREA, whether the target's writes reach the LINK caller is not documented, so a successful XCTL of the caller's area is refused by name in both runtimes | REFUSED (IBM is silent) | no (unit-proven on CicsTask and the det emission; a cobc regression refuses on the oracle's side) |
+| X40 | CICS | EXEC CICS XCTL / LINK conditions INVREQ, LENGERR, NOTAUTH, PGMIDERR: with no RESP and no HANDLE CONDITION for the condition the task abends with the condition's abend code (AEIP, AEIV, AEY7, AEI0). NOTAUTH had no code in the shared table, so the det runtime threw 'no abend code known' and the stub printed '????'; LINK also takes a planned fault, as XCTL does. EIBRESP2 of a planned fault is not the plan's RESP2 (see the sibling note) | ASSUMED | no (unit-proven on CicsTask and the stub's table; the CardDemo scenarios wait for their model ports) |
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
 | L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: its Db2 estate and its credit-agency children are not a case yet; see X18, L5) |
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | no (CBSA CRECUST, the only caller, has no equivalence case) |
+| L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
@@ -2029,6 +2031,20 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfiel
   copy: no LINK caller's storage).
 - **Status:** REFUSED. When IBM's reference or a system run settles it, replace the refusal with the model.
 
+### X40. A failed XCTL / LINK the program neither handles nor checks abends with the condition's code (NOTAUTH: AEY7); a planned LINK fault (#4648)
+- **IBM.** EXEC CICS XCTL (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-xctl) and EXEC CICS LINK
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-link) list INVREQ, LENGERR, NOTAUTH and PGMIDERR (LINK adds
+  ROLLEDBACK, SYSIDERR, TERMERR). A condition with no RESP / NOHANDLE and no HANDLE CONDITION for it takes CICS's default
+  action: the task abends. The code of an unhandled NOTAUTH is AEY7 (https://www.ibm.com/docs/en/cics-ts/6.x?topic=codes-aey7).
+  A failed XCTL transfers nothing and a failed LINK runs nothing: the issuing program continues, or abends.
+- **What we do.** `resp.CONDITION_ABEND` gains NOTAUTH -> AEY7 (regenerated into `CicsSpec.java` and `ggcics_spec.h`, and the
+  crucible runner's table). `CicsTask.link` and the stub's `GGCLINK` read a planned fault (`LINK <program> NTH RESP RESP2`) the
+  way `xctl` / `GGCXCTL` do (#4049), so a scenario can fail a LINK on both sides.
+- **Assumed / not modelled.** Which of NOTAUTH's RESP2 values (IBM lists 100 / 101 for resource security) a region gives is
+  the scenario's to state; the runtimes carry whatever the plan names in the event. LINK's ROLLEDBACK / SYSIDERR / TERMERR are
+  not raised by the region and have no entry in `CONDITION_ABEND` (abend codes not sourced here).
+- **Status:** ASSUMED; the abend code is the documented one, the planned fault is the harness's.
+
 ### X41. WEB RETRIEVE (CICS web support, the document of the last WEB SEND) — ASSUMED, REFUSED where IBM is silent (#4941, sibling of #4767)
 - **WEB RETRIEVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-retrieve). "Retrieves the DOCTOKEN for a CICS document
   that was sent with a WEB SEND command"; DOCTOKEN(data-area) "a buffer for the 16-byte binary token", the only option. The previous
@@ -2114,6 +2130,64 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfiel
   17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
   (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
 - **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
+
+### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
+- **What IBM documents** (Language Environment Programming Reference, the callable services; the message lists below are
+  those IBM publishes for the same services as the ILE CEE APIs, which share their definitions and message numbers:
+  https://www.ibm.com/docs/en/ssw_ibm_i_73/apis/CEEDATM.htm, `CEESECS.htm`, `CEEDATE.htm`, `CEEISEC.htm`, `CEEUTC.htm`
+  (CEEGMT is its alias), `CEEQCEN.htm`). A Lilian date is the days since 14 October 1582 (15 October 1582 is day 1,
+  16 May 1988 is day 148 138); a Lilian second counts from 00:00:00 on 14 October 1582 (second 86 401 is 00:00:01 on
+  15 October 1582; 19:00:01 on 16 May 1988 is 12 799 191 601), a COMP-2, the valid range 86 400 to
+  265 621 679 999.999 (31 December 9999). Every service ends with a 12-byte feedback token.
+  - **CEEGMT / CEEUTC** `(output_Lilian, output_seconds, fc)`: the current UTC as a Lilian date and Lilian seconds.
+  - **CEEDATM** `(input_seconds, picture_string, output_timestamp, fc)`: CEE2505 the seconds are out of range
+    (output_timestamp then all blanks); CEE2518 the picture is not valid; CEE2527 the timestamp is truncated.
+  - **CEESECS** `(input_timestamp, picture_string, output_seconds, fc)`: a full date is required, a time omitted is
+    zeros, the rest of the string past the picture is ignored, a delimiter lets leading zeros go; on an invalid value
+    output_seconds is 0 and the code is CEE2508 day, CEE2510 hour, CEE2513 Lilian date (before 15 October 1582),
+    CEE2515 millisecond, CEE2516 minute, CEE2517 month, CEE2519 second, CEE2521 year, CEE2525 timestamp picture
+    mismatch.
+  - **CEEDATE** `(input_Lilian_date, picture_string, output_char_date, fc)`: valid 1 to 3 074 324; CEE2512 otherwise,
+    output blanks; a picture with time characters outputs zeros for the time (IBM's sample: day 148 142,
+    `YY/MM/DD HH:MI:SS.99`, `88/05/20 00:00:00.00`).
+  - **CEEISEC** `(year, month, day, hours, minutes, seconds, milliseconds, output_seconds, fc)`: fullword inputs,
+    year 1582-9999, month 1-12, day 1-31, hours 0-23, minutes 0-59, seconds 0-59, milliseconds 0-999; output 0 and
+    CEE2510 hour, CEE2511 day, CEE2513 Lilian date, CEE2514 Lilian year, CEE2515 millisecond, CEE2516 minute,
+    CEE2517 month, CEE2519 second.
+  - **CEEQCEN** `(century_start, fc)`: the ILE default window starts 80 years before the system date and the value
+    is 80.
+- **Modelled.** `tests/equivalence/le/le_time.c` (COBOL side, linked into every case like CEEDAYS) and
+  `cobolrt/le/LeTime.java` with the thin classes `Ceegmt`, `Ceeutc`, `Ceedatm`, `Ceesecs`, `Ceedate`, `Ceeisec`, `Ceeqcen`
+  (the port): the same Lilian arithmetic, the same codes, the same refusals. The token is the CEEDAYS one (L1):
+  severity 3, the message number, `0x59`, `CEE` in EBCDIC, zero on success. Pictures modelled: `YYYY YY MM DD DDD HH
+  MI SS 99 999` and punctuation. An output is cut to hundredths / milliseconds, never rounded (IBM's sample: 661.986
+  with `99` is `.98`). The translator reads and stores every COMP-2 argument by value (`gen.LIBRARY_FLOATS`: the
+  HFP / IEEE bytes differ, C6) and passes the run's clock to CEEGMT / CEEUTC as it does to CEELOCT (L5).
+  `tests/cobol_mainframe/test_det_le_time.py` runs one table of IBM's own samples and every documented condition,
+  one invalid field at a time, through both sides.
+- **Assumed.** (1) CEEGMT's GMT is the pinned clock: the det runtime's CURRENT-DATE carries offset +0000 and the
+  oracle's case clock is read as GMT; a zone is not modelled (no CEEGMTO / CEEUTCO, below). (2) Output_timestamp and
+  output_char_date (CEEDATM, CEEDATE) are halfword-prefixed VSTRINGs in COBOL: the model writes the length then the
+  text and touches nothing past it; a failing call writes a zero length and leaves the text. IBM says the output is
+  blanks on error and cut to the output's length (CEE2526 / CEE2527) but states no COBOL layout for an output declared
+  `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). The Java side refuses an
+  output item shorter than the result (the C model cannot see the item's size), so 2526 / 2527 are never produced.
+  (3) The milliseconds of a Lilian second are the fraction floored to a thousandth, so a value in `.9995` is `.999`;
+  a seconds value is valid below 265 621 680 000. (4) CEESECS answers CEE2525 (picture mismatch) for a non-digit in
+  a numeric position or a delimiter that differs from the picture's: IBM names the code, not its trigger. (5) A
+  value that is not exact in both HFP and IEEE (`.12`) can differ in the last bits; only the millisecond is compared.
+- **Refused (exit 98, "NAME: ... is not modelled"), because IBM leaves it open or the model has no rule for it.**
+  A picture with names (`Mmm`, `Www`), `AP`, Z-suppression, eras (`<JJJJ>`, `<CCCC>`), `RRRR`, a lone `Y` / `M` /
+  `D` / `H` / `S` / `9`, a repeated token, or none (IBM: the country default). CEEISEC and CEESECS with **more than
+  one** invalid field (IBM lists the codes, not their order). CEESECS: a timestamp shorter than its picture (IBM
+  lists no insufficient-data code for it), with a leading blank, with leading zeros omitted after a delimiter
+  (`1988-5-16`: IBM accepts it; the model has no rule), `YY` (the century window, which depends on the system date;
+  CEEQCEN's 80 is the default, no CEESCEN is modelled) or `DDD` in the input, or a picture without a full date.
+  CEEGMT without a pinned clock.
+- **Not modelled: sibling services** of the same set: CEEUTCO / CEEGMTO (the offset from UTC, zone), CEESECI,
+  CEEDYWK, CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
+  country-default pictures.
+- **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
 
 ## Assembler routines
 

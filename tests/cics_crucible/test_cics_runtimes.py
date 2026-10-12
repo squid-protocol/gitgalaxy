@@ -383,6 +383,58 @@ def test_cics_task_xctl_fails_in_place_with_lengerr_or_pgmiderr(tmp_path):
 
 
 @needs_javac
+def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_path):
+    """#4648, IBM EXEC CICS XCTL / LINK conditions (INVREQ, LENGERR, NOTAUTH, PGMIDERR): a planned failure of either
+    command is its RESP, and with no HANDLE CONDITION / RESP the program's default action abends the task with the
+    condition's code (AEIP, AEIV, AEY7, AEI0) -- NOTAUTH had none, so the runtime threw instead. An XCTL that failed
+    transfers nothing; a LINK that failed runs nothing."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("CAXA")) {
+                    for (String cmd : new String[] {"XCTL", "LINK"}) {
+                        for (String want : new String[] {"INVREQ", "LENGERR", "NOTAUTH", "PGMIDERR"}) {
+                            String r = cmd.equals("XCTL") ? task.xctl("CAXB", "V1", 80) : task.link("CAXB", "V1", 80);
+                            System.out.println(cmd + " " + r + " " + task.ended());
+                            if (!r.equals("NORMAL")) {
+                                task.abendOnCondition(r);
+                                System.out.println(task.abcode());
+                            }
+                        }
+                    }
+                } else {
+                    System.out.println("ran " + p);
+                }
+            }
+        };
+        CicsTask t = new CicsTask("CA02", "ENTER", null, null).withPrograms(programs).withFaults(java.util.List.of(
+                "XCTL CAXB 1 " + CicsSpec.resp("INVREQ") + " 1", "XCTL CAXB 2 " + CicsSpec.resp("LENGERR") + " 11",
+                "XCTL CAXB 3 " + CicsSpec.resp("NOTAUTH") + " 100", "XCTL CAXB 4 " + CicsSpec.resp("PGMIDERR") + " 3",
+                "LINK CAXB 1 " + CicsSpec.resp("INVREQ") + " 1", "LINK CAXB 2 " + CicsSpec.resp("LENGERR") + " 11",
+                "LINK CAXB 3 " + CicsSpec.resp("NOTAUTH") + " 100", "LINK CAXB 4 " + CicsSpec.resp("PGMIDERR") + " 3"),
+                null);
+        t.run("CAXA");
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (!"ABEND".equals(e.get("event"))) {
+                System.out.println(e.get("event") + " " + e.get("resp") + " " + e.get("resp2"));
+            }
+        }""",
+    )
+    lines = out.splitlines()
+    assert lines[:2] == ["XCTL INVREQ false", "AEIP"]
+    assert [ln for ln in lines if ln.startswith(("AE", "ran"))] == ["AEIP", "AEIV", "AEY7", "AEI0"] * 2
+    assert "ran CAXB" not in lines  # nothing transferred, nothing linked
+    assert lines[-8:] == [f"{c} {r} {x}" for c in ("XCTL", "LINK")
+                          for r, x in (("INVREQ", 1), ("LENGERR", 11), ("NOTAUTH", 100), ("PGMIDERR", 3))]  # fmt: skip
+
+
+@needs_javac
 def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp_path):
     out = _cics_task(
         tmp_path,

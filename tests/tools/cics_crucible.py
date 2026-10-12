@@ -141,7 +141,9 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
                     "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
-                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV"}  # fmt: skip
+                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
+                    # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
+                    "NOTAUTH": "AEY7"}  # fmt: skip
 SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "FRSET", "CURSOR", "WAIT", "LAST")
 
 # What each scenario side records (see cics_crucible_compare.Capabilities).

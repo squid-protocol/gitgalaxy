@@ -125,6 +125,7 @@ static const char *condition_abcode(int resp) {
     case DFHRESP_INVREQ: return "AEIP";
     case DFHRESP_CONTAINERERR: return "AEZJ";
     case DFHRESP_CHANNELERR: return "AEZV";
+    case DFHRESP_NOTAUTH: return "AEY7";
     default: return "????";
     }
 }

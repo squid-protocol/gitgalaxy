@@ -1,237 +1,172 @@
+<div align="center">
+
 # GitGalaxy
 
-**Repository-scale structural intelligence without compilation.**
+### Know any codebase deeply, and give your AI agents the same knowledge.
 
-[Docs](https://squid-protocol.github.io/gitgalaxy/) ·
-[Visualizer](https://gitgalaxy.io/) ·
-[Language Crucible](https://github.com/squid-protocol/language-crucible) ·
-[Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) ·
-[Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
+GitGalaxy is a scanning engine we built for one job: pulling the structure that matters out
+of a whole repository. It reads every language in the repo in one pass and needs no build or
+compiler. It is fast enough to run on every repo and every commit. The same facts then drive
+a COBOL-to-Java translator that proves each ported program against the original.
 
-**1 scan · 98 structural signals · 50+ languages · no compilation · 17
-risk-exposure categories · 6 outputs**
+<table>
+<tr>
+<td align="center" width="190"><h2>51 s</h2></td>
+<td align="center" width="190"><h2>50+</h2></td>
+<td align="center" width="190"><h2>100%</h2></td>
+<td align="center" width="190"><h2>48</h2></td>
+</tr>
+<tr>
+<td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
+<td align="center" valign="top"><sub><strong>languages in one scan</strong><br />no build, no per-language toolchain<br /><em>broken and half-migrated code too</em></sub></td>
+<td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
+<td align="center" valign="top"><sub><strong>COBOL programs ported, then proven</strong><br />no model; byte-identical outputs<br /><em><a href="#cobol-to-java-ported-then-proven">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+</tr>
+</table>
 
-## The short version
+<a href="#quickstart"><strong>Quickstart</strong></a> ·
+<a href="#pick-your-front-door"><strong>Scanner or translator</strong></a> ·
+<a href="#the-scanner"><strong>Scanner</strong></a> ·
+<a href="#cobol-to-java-ported-then-proven"><strong>Translator</strong></a> ·
+<a href="#accuracy-measured"><strong>Evidence</strong></a> ·
+<a href="#what-gitgalaxy-is-and-isnt"><strong>Is / isn't</strong></a> ·
+<a href="#installation"><strong>Install</strong></a> ·
+<a href="https://squid-protocol.github.io/gitgalaxy/"><strong>Docs</strong></a> ·
+<a href="https://gitgalaxy.io/"><strong>Visualizer</strong></a>
 
-GitGalaxy builds a **language-agnostic structural graph of an entire
-repository** directly from source text — no build, no per-language toolchain.
+</div>
 
-It is designed for repositories that are polyglot, partially broken, legacy,
-vendor-heavy, or otherwise difficult to analyze through a build-first workflow:
+---
 
-``` text
-Go + C++ + Python + Java + Bash + YAML
-+ generated code + vendored code + legacy code
-+ half-migrated modules + broken dependencies
+## One scan, every language, six reports
+
+![One GitGalaxy scan: files on disk are filtered, every language is read by one engine, and six reports come out](docs/wiki/assets/sankey_v4.3.1.png)
+
+This is one real scan, drawn as a flow. 1,310 files on disk come in on the left. Version
+control, generated code, binaries and denied extensions are filtered out, and every exclusion
+is counted with its reason. The remaining 935 files, in about 50 languages from Python and Go
+to COBOL, JCL and Apollo-era AGC assembly, go through **one engine** that measures them all
+with the same signal set. Six reports come out the right-hand side: an AI-ready architecture
+brief, a CycloneDX SBOM, SARIF, a SQLite knowledge graph, the 3D visualizer payload and a
+forensic audit manifest.
+
+GitGalaxy does not run a separate parser per language. It pulls a common set of
+**structural signatures** from the source text: functions, classes, arguments, control flow,
+state mutation, I/O, APIs and dependencies. So a Perl test helper and a C header rank in the
+same list, and a repository that doesn't build can still be read.
+
+<a id="real-world-scale"></a>
+
+## Every size, in seconds
+
+![Engine time against lines of code for 636 public repositories, log-log](https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png)
+
+Every dot is a real public repository, from a 10-line npm package to `flutter` and
+`freebsd-src`. Most repos finish in under a second. **Kubernetes**, about 1.39M lines across
+Go, YAML, JSON, Shell and Proto, scans end to end in **50.83 seconds**. Scan time follows a
+fitted two-regime model: flat at about 0.11 s below about 4.3K LOC, then
+`time(s) ≈ 3.36e-05 × LOC^0.969` (R²=0.88 across 599 repos). The limit: a handful of 20M+ LOC
+outliers still take minutes, and a fast scan shows throughput, not insight quality. Accuracy
+is measured separately [below](#accuracy-measured). Every scan behind the chart is published
+unedited in [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output).
+
+---
+
+<a id="quickstart"></a>
+
+## Quickstart
+
+```bash
+pip install gitgalaxy                 # zero install dependencies
+galaxyscope path/to/repo              # all six reports
+galaxyscope path/to/repo --llm-only   # just the architecture brief, for you or your agent
 ```
 
-Instead of a separate parser per language, GitGalaxy extracts a common
-vocabulary of **structural signatures** — functions, classes, arguments,
-control flow, state mutation, I/O, APIs, dependencies — and normalizes them
-into one deterministic repository model that feeds architecture analysis,
-risk-exposure prioritization, SBOM generation, refactoring and ownership
-analysis, AI-oriented codebase context, and CI/CD gates.
+Hand the brief to an agent with *"Read this architecture brief, then tell me where to start
+reading this codebase"*. The brief carries its own interpretation prompt, so the model doesn't
+have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`, `--db-only`,
+`--gpu-only`, `--audit-only`. Everything runs locally. See
+[Installation](#installation) for the optional extras and CI templates.
 
-> **Central thesis:** complete language parsing is not always necessary to
-> recover highly useful structural information at repository scale.
+## Pick your front door
 
-How that thesis is tested — against Tree-sitter and Ctags, against a planted
-control corpus, and next against Git history — is summarized in
-[Accuracy, measured](#accuracy-measured) below and laid out in full in
-[the validation program](docs/validation.md).
+| If you want to... | Start here |
+|---|---|
+| **Understand a repository fast**, or hand an AI agent a real mental model of it | [The scanner ↓](#the-scanner): the architecture brief, the graph, the reports |
+| **Gate CI** with SARIF, an SBOM and structural checks | [What a scan gives you ↓](#what-a-scan-gives-you) and the [CI templates](templates/) |
+| **Move a COBOL estate to Java** with proof that each program still behaves the same | [The translator ↓](#cobol-to-java-ported-then-proven) |
+| **Check our claims** before you trust any of the above | [Accuracy, measured ↓](#accuracy-measured) |
 
-For mainframe estates, the same facts drive a COBOL-to-Java migration where every ported
-program is proven against the original: [COBOL to Java](#cobol-to-java-ported-then-proven).
+---
 
-------------------------------------------------------------------------
+<a id="the-scanner"></a>
+<a id="one-graph-not-five-separate-tools"></a>
 
-## What a scan gives you
+## The scanner
 
-One command:
+### What you ask, what you get
 
-``` bash
-pip install gitgalaxy
-galaxyscope path/to/repo
-```
+| You ask | GitGalaxy gives you |
+|---|---|
+| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](docs/gitgalaxy_architecture_brief.md). |
+| *What is load-bearing? What breaks if I change this?* | An import graph and a function call graph with PageRank blast radius, articulation points, choke points and cycles. [Call graph](docs/function_call_graph.md) · [graph accuracy](docs/graph_accuracy.md) |
+| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](docs/gitgalaxy_architecture_brief.md) |
+| *Where are secrets, unsafe calls, dynamic execution, I/O, concurrency?* | The Structural Surface Profile: 13 per-file vectors showing where each pattern concentrates. [Vectors](docs/vectors.md) |
+| *What dependencies are actually on disk?* | A CycloneDX SBOM from the scan itself, plus supply-chain audits. [SBOM](docs/wiki/04-02-sbom-generator.md) |
+| *Which code is complex, high-churn, or owned by one person?* | Refactoring targets ranked by volatility and authorship concentration, and bus-factor exposure. |
+| *Can I query it myself?* | A SQLite knowledge graph of every file, function and edge. |
+| *What did the scan skip?* | An itemized list of every file it refused to scan, and why. Nothing is dropped silently. |
 
-Six coordinated views of the same deterministic scan:
+<a id="what-a-scan-gives-you"></a>
+
+### What a scan gives you
 
 | Output | Purpose |
 |---|---|
-| **LLM architecture brief** | Compact machine/agent-oriented context (below) |
-| **SARIF** | CI/security dashboard integration |
-| **CycloneDX SBOM** | Dependency inventory/compliance |
+| **LLM architecture brief** | Compact Markdown context for an engineer or an agent (below) |
+| **SARIF** | CI and security dashboard integration |
+| **CycloneDX SBOM** | Dependency inventory and compliance |
 | **SQLite** | Queryable repository knowledge graph |
-| **JSON audit data** | Forensic/automation workflows |
-| **3D visualization data** | Interactive repository topology |
+| **JSON audit data** | Forensic and automation workflows |
+| **3D visualization data** | Interactive repository topology in the [Visualizer](https://gitgalaxy.io/) |
 
 ### The architecture brief
 
-The flagship report is a single Markdown brief built to hand an engineer — or
-an AI agent — a working mental model of a repository they've never seen. It is
-a self-contained package: the risk equations are printed in the report itself,
-and an embedded interpretation prompt lets any LLM narrate it without
-hallucinating what the numbers mean. Sections cover macro state and language
-composition, network topology (modularity, articulation points, cyclic
-density), dependency choke points, the heaviest functions and files, per-file
-structural signatures with PageRank blast radius, targeted and cumulative risk
-hitlists, supply-chain audits, and refactoring targets ranked by volatility and
-authorship centralization — plus an itemized list of every file it *refused* to
-scan, and why.
+The flagship report is a single Markdown brief built to give an engineer, or an AI agent, a
+working mental model of a repository they've never seen. It is self-contained: the risk
+equations are printed in the report, and an embedded interpretation prompt lets any LLM
+narrate it without hallucinating what the numbers mean. It covers macro state and language
+composition, network topology (modularity, articulation points, cyclic density), dependency
+choke points, the heaviest functions and files, per-file structural signatures with PageRank
+blast radius, targeted and cumulative hitlists, supply-chain audits, and refactoring targets.
+It ends with an itemized list of every file it *refused* to scan, and why.
 
-Two examples, scanned 2026-08-31 with the current engine. Both repositories
-are public — clone either and run `galaxyscope --llm-only <path>` to reproduce
-the full brief:
+Two examples, scanned 2026-08-31 with the current engine. Both repositories are public. Clone
+either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
 
-**curl** — 4,250 artifacts, 696 scanned, 112,653 LOC across C, Perl, Python,
-Shell, M4 and Makefile. The brief ranks `src/tool_setup.h` as the top
-structural pillar (80 inbound connections) and puts a *Perl* function —
-`APPEND_imap` in `tests/ftpserver.pl`, Impact 2135, 1,672 LOC — at the top of
-the repo-wide function hitlist, in the same ranking as the C code. That
-cross-language graph is the product: one comparable signal set across every
-language in the repo. The honest caveat in the same brief: only 16.4% of
-artifacts were scanned — the ingestion filter drops binaries, generated code
-and test data aggressively, and §5 of the brief itemizes every exclusion by
-extension and reason.
+**curl**: 4,250 artifacts, 696 scanned, 112,653 LOC across C, Perl, Python, Shell, M4 and
+Makefile. The brief ranks `src/tool_setup.h` as the top structural pillar (80 inbound
+connections) and puts a *Perl* function, `APPEND_imap` in `tests/ftpserver.pl` (Impact 2135,
+1,672 LOC), at the top of the repo-wide function hitlist, in the same ranking as the C code.
+That cross-language graph is the product: one comparable signal set across every language in
+the repo. The limit, stated in the same brief: only 16.4% of artifacts were scanned. The
+ingestion filter drops binaries, generated code and test data aggressively, and §5 of the
+brief itemizes every exclusion by extension and reason.
 
-**cics-genapp** (IBM's CICS COBOL/DB2 sample) — 92.1% scanned: 44 COBOL
-programs, 29 JCL jobs. The cumulative structural-surface hitlist leads with
-`base/src/lgupdb01.cbl` (mutation surface ~100%, complexity load 92%), and the
-heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO` — the `SELECT FOR
-UPDATE` row-locking logic, which is exactly where a maintainer of that program
-would want to look first. The same brief also shows a limitation plainly: on a
-flat architecture with no real import graph, the "structural pillars" list
-degenerates to zero-connection files, and the report says to check the
-connection counts before trusting it.
+**cics-genapp** (IBM's CICS COBOL/DB2 sample): 92.1% scanned, 44 COBOL programs and 29 JCL
+jobs. The cumulative hitlist leads with `base/src/lgupdb01.cbl` (mutation surface ~100%,
+complexity load 92%). The heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO`, the
+`SELECT FOR UPDATE` row-locking logic, which is exactly where a maintainer of that program
+would want to look first. The same brief also shows a limitation plainly. On a flat
+architecture with no real import graph, the "structural pillars" list degenerates to
+zero-connection files, and the report says to check the connection counts before trusting it.
 
-Hundreds of unedited briefs for independently selected repositories are
-committed at
-[gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output);
-this repo's own always-current self-scan brief is at
+Hundreds of unedited briefs for independently selected repositories are committed at
+[gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's
+own always-current self-scan brief is at
 [`docs/gitgalaxy_architecture_brief.md`](docs/gitgalaxy_architecture_brief.md).
 
-### One graph, many consumers
-
-| Consumer | Question |
-|---|---|
-| Architecture | What is this repository made of? |
-| Structural analysis | Where are the functions, classes, APIs, dependencies and control structures? |
-| Structural Surface Profile (formerly Risk exposure) | Where is a given structural/content pattern concentrated? |
-| Refactoring | Which files are complex, high-churn or load-bearing? |
-| Supply chain | What dependencies physically exist on disk? |
-| AI context | What architecture and relationships should an agent know? |
-| Legacy migration | Where are the structural units to transform? |
-| Historical analysis | How does measured exposure change as the repository evolves? |
-
-![GitGalaxy architecture pipeline](docs/wiki/assets/sankey_v4.3.1.png)
-
-------------------------------------------------------------------------
-
-## Accuracy, measured
-
-Two standing measurement programs back the claims above, and a third, for the
-dependency and call graphs, is in progress. The full narrative —
-methodology, verdicts, limits, and what comes next — lives in
-[the validation program](docs/validation.md); this is the summary.
-
-### Structural validation: GitGalaxy vs Tree-sitter vs Ctags
-
-GitGalaxy is benchmarked against **Tree-sitter and Universal Ctags** on the
-pinned [Language Crucible](https://github.com/squid-protocol/language-crucible)
-corpus — 24 of 45 languages get all three tools, 13 more get two, and every
-disagreement is investigated against real source and recorded with a verdict
-(200 of 201 logged discrepancy shapes validated). On that corpus, GitGalaxy's
-validated function precision is 100% across all 31 tree-sitter-comparable
-languages, and it is never the tool found wrong in a validated class or
-argument disagreement. The limit: three structural targets, one fixed corpus —
-not "parses as accurately as an AST" in general.
-
-![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
-
-### Graph validation: imports and calls (in progress)
-
-Blast radius, PageRank and the "structural pillars" come from the **import graph**. The
-function-level rankings come from the **call graph**. Neither graph is measured in every
-language yet, and the chart below says which ones are:
-- Measured languages show precision and recall with n.
-- Every language not yet measured is listed by name.
-
-As of 2026-09-26, out of 59 languages:
-- **The import graph is measured in 20.** Engine edges are checked against each language's
-  own import statements on pinned real repos
-  ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
-- **Callee names are measured in 11**, against tree-sitter.
-- **Call resolution is measured in 3**, against a reference analyser:
-  - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
-  - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
-    57.1% recall;
-  - Java, vs scip-java (javac's own resolution): 93.2% precision on 3,727 judged links,
-    44.2% recall. A call to an overloaded method is linked only when its argument count picks
-    one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
-
-  A call link, when made, is usually right, but about half or more of calls are left
-  unlinked. So function-level fan-in and PageRank are a lower bound.
-
-The limits:
-- The other 38 languages' graphs are built the same way but are **not measured**.
-- Several measured languages rest on one repo with fewer than 100 imports. The chart fades
-  those out.
-- A `*` marks a number with disagreements still awaiting a verdict against source.
-
-The plan to close these gaps is
-[epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
-
-![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
-
-### Cross-language consistency: the Keyword Rosetta control corpus
-
-The newer program asks the opposite question: **does GitGalaxy measure
-identical intent identically in every language?** The
-[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
-plants the same 12-probe program in all 50 supported languages with exact known
-signal counts — so any divergence is measured language bias, by construction.
-The chart colours each deviation by *cause*, not size: red is an open engine
-defect (a rule matching the wrong construct, or a scoring weight sitting inside
-a count); grey is a documented variation the ledger has validated — the language
-cannot express the construct, a deliberate scoring choice, or an echo of another
-row. Current answer: on average 94% of languages sit within ±25% of the
-cross-language median per gated metric (56 chartable metrics, 54 holding ≥80%),
-and **the open-defect share is 0.0% (1 of 2,844 comparable cells across 59 gated
-metrics)** — a single unexplained cell, `classes_found` in the newly planted
-`bms` (CICS Basic Mapping Support) corpus; every other out-of-band cell is a
-variation the ledger has validated (a strictness stratum, a construct the
-language cannot express, an echo of another row, or a deliberate scoring
-choice), not an open engine defect. The weakest metrics are named rather than
-hidden — `cog_raw` holds 74% of languages in band, `raw_arch_api` 78%,
-`avg_func_args` 80% — but their sub-band cells are documented, not defects.
-The claim also survives expansion: when the corpus planted its first
-security-lens probe — one identical hardcoded secret in every language —
-`credential_material` (formerly `risk_secrets_risk`; the `risk_*` name remains
-the DB column — see [`docs/vectors.md`](docs/vectors.md)) read a **uniform
-score across all 50 languages** (an identical 25.000 per column). The two
-inert-format exceptions the lens originally skipped, and the formula's measured
-length dependence, were ledgered and filed the same day
-([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978),
-[#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)). #2978 is
-closed: the lens now runs on all five inert formats
-(plaintext/markdown/json/yaml/csv), with a `SECURITY_SCAN_INERT_FORMATS`
-config opt-out for repos where that trades too much doc/config noise for the
-coverage, and keyword-rosetta's corpus re-verification against the merged fix
-now lands entirely in band (the ledger's `secrets-lens-inert-formats` entry).
-Every deviation is recorded in a validated ledger, the work is tracked by cause
-family under the [contract roadmap](docs/contract_roadmap.md), and
-the defect classes found this way are
-[filed as GitGalaxy issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
-
-![Cross-language variance chart](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)
-
-A control corpus proves measurement inequality on identical intent; it says
-nothing about accuracy on real code (the tri-comparison's job above) — and a
-constant per-file bias still preserves ranking *within* a language. The
-[incidence report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/incidence_report.md)
-sizes each confirmed shape against real licensed code.
-
-------------------------------------------------------------------------
+---
 
 ## COBOL to Java: ported, then proven
 
@@ -288,7 +223,8 @@ CICS programs that LINK to others in the same task (the task's programs proven t
 ROLLBACK and abend backout across files and Db2. The design, the runtime contract and every result are in
 [det_port_design.md](docs/language_status/det_port_design.md).
 
-**Proven so far, model-written ports,** on CardDemo:
+<details>
+<summary><strong>Proven so far, model-written ports</strong> (23 CardDemo programs)</summary>
 
 | program | kind | ported by | proven on | COBOL branches covered | mutants caught |
 |---|---|---|---|---|---|
@@ -315,6 +251,8 @@ ROLLBACK and abend backout across files and Db2. The design, the runtime contrac
 | CBACT03C (card xref listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
 | CBCUS01C (customer listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
 | CBTRN01C (daily transaction check) | batch, no JCL in the estate | Claude Sonnet 5.5, attempt 3 | normal run + 20 faults | -- | not measured |
+
+</details>
 
 On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
 applications built around known migration traps, all 17 programs are proven on 44 scenarios.
@@ -347,217 +285,124 @@ What these numbers do not show:
 - **No model-written port:** COACTUPC (account update, 4,236 lines) is too large to port in one model answer; its
   det port is proven.
 
-------------------------------------------------------------------------
+The full pipeline, commands and target config are in the
+[translator README](gitgalaxy/tools/cobol_to_java/README.md).
 
-## Real-world scale
+---
 
-Example: **Kubernetes** — ~1.39M lines across Go, YAML, JSON, Shell and Proto.
-End-to-end scan: **50.83 seconds**. Scan time follows a fitted two-regime model
-(flat ~0.11s below ~4.3K LOC, then `time(s) ≈ 3.36e-05 × LOC^0.969`, R²=0.88
-across 599 repos) — so a handful of 20M+ LOC outliers still take minutes, and a
-fast scan proves throughput, not insight quality; the accuracy question is
-handled separately below.
+<a id="proof-not-just-claims"></a>
+<a id="evidence-not-just-claims"></a>
 
-![GitGalaxy scan
-speed](https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png)
+## Accuracy, measured
 
-See the [raw output
-repository](https://github.com/squid-protocol/gitgalaxy-raw-output) for
-unedited artifacts.
+Every number above links to something you can inspect. This section is the summary. The full
+argument (method, verdicts, limits and what comes next) is in
+[the validation program](docs/validation.md).
 
-------------------------------------------------------------------------
+### Structural validation: GitGalaxy vs Tree-sitter vs Ctags
 
-# Structural Surface Profile: what GitGalaxy claims (formerly "Risk exposure")
+GitGalaxy is benchmarked against **Tree-sitter and Universal Ctags** on the pinned
+[Language Crucible](https://github.com/squid-protocol/language-crucible) corpus. 24 of 45
+languages get all three tools and 13 more get two. Every disagreement is investigated against
+real source and recorded with a verdict (200 of 201 logged discrepancy shapes validated). On
+that corpus, GitGalaxy's validated function precision is 100% across all 31
+tree-sitter-comparable languages, and it is never the tool found wrong in a validated class or
+argument disagreement. The limit: three structural targets on one fixed corpus. This does not
+show that it parses as accurately as an AST in general.
 
-GitGalaxy's 13 per-file vectors were originally named `risk_*` and described as
-**risk-exposure measurements**. The question this section used to leave open —
-"are these signatures empirically associated with meaningful classes of
-software risk?" — has since been tested, not just asked. The
-temporal-crucible validation program (epic
-[#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982), ~3,550
-scanned snapshots, two repositories, three label families, every test
-pre-registered before the data was looked at) ran that experiment to
-exhaustion, and the honest result drove a rename
-([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)): the
-vectors are now called the **Structural Surface Profile**. `risk_*` remains
-the DB column / JSON key name for compatibility (see
-[`docs/vectors.md`](docs/vectors.md) for the full name table and the
-deprecation note).
+![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
 
-**What the record found, restated honestly:**
+### Graph validation: imports and calls (in progress)
 
-- **Per-file standing risk, falsified.** The founding hypothesis — that a
-  file's `risk_*` level, or its change after a fix, tracks defect
-  probability — did not hold. Median structural delta after a security fix
-  was +0.000 (equivalence-confirmed near-zero on a second, independent
-  repository, not just non-significant); summed structural exposure ranked
-  *last* of six features for predicting fix-touched files; a 26-signal
-  multivariate structural vector scored at chance (AUC 0.479) under a
-  temporal split, below a plain line count (0.531). The full ledger is in
-  temporal-crucible's `docs/HYPOTHESES.md` and is linked from
-  [#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982).
-- **What the vectors actually validated for:** describing **activity and
-  content**, not defect probability. The fix-shaped composite reliably
-  tracks a security-fix → ordinary-fix → control → revert gradient; deltas
-  correspond to real code events (guard code added, threading introduced,
-  debt markers diluted). That's the x-ray this document now names
-  accurately — see [`docs/vectors.md`](docs/vectors.md) vector-by-vector.
-- **System-level / history signal, restated as the actual predictive
-  finding.** Two features *did* survive validation: **recidivism** (the file
-  that had the last fix gets the next one — the single most replicated
-  result of the program, p<1e-4 on both repositories) and **change entropy /
-  Hassan HCM**, validated out-of-selection on fresh bug labels (AUC 0.868 vs
-  a line count's 0.830). Both are **history** metrics, not structural
-  content metrics — and both are currently zeroed in every scan
-  (`GITGALAXY_DISABLE_GIT_HISTORY`, tracked in
-  [temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29)).
-  This is the seed of a separate, honestly-named **predictive layer** — the
-  `hist_stability`/`hist_churn` vectors are named to mark that status
-  explicitly — gated on shipping history-enabled mode and then clearing
-  [#2987](https://github.com/squid-protocol/gitgalaxy/issues/2987)'s
-  defect-lift promotion contract.
+Blast radius, PageRank and the "structural pillars" come from the **import graph**. The
+function-level rankings come from the **call graph**. Neither graph is measured in every
+language yet, and the chart below says which ones are:
+- Measured languages show precision and recall with n.
+- Every language not yet measured is listed by name.
 
-A high Structural Surface Profile reading means:
+As of 2026-09-26, out of 59 languages:
+- **The import graph is measured in 20.** Engine edges are checked against each language's
+  own import statements on pinned real repos
+  ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
+- **Callee names are measured in 11**, against tree-sitter.
+- **Call resolution is measured in 3**, against a reference analyser:
+  - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
+  - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
+    57.1% recall;
+  - Java, vs scip-java (javac's own resolution): 93.2% precision on 3,727 judged links,
+    44.2% recall. A call to an overloaded method is linked only when its argument count picks
+    one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
 
-> **This location has more of a given structural/content pattern present,
-> relative to the rest of the repository.**
+  A call link, when made, is usually right, but about half or more of calls are left
+  unlinked. So function-level fan-in and PageRank are a lower bound.
 
-It does not mean:
+The limits:
+- The other 38 languages' graphs are built the same way but are **not measured**.
+- Several measured languages rest on one repo with fewer than 100 imports. The chart fades
+  those out.
+- A `*` marks a number with disagreements still awaiting a verdict against source.
 
-> "This code is more likely to contain a defect" — the per-file version of
-> that claim was tested and did not hold.
+The plan to close these gaps is
+[epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
 
-The underlying signatures cover patterns involving areas such as:
+![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
 
--   secrets
--   injection surface
--   unsafe/memory operations
--   dynamic execution
--   I/O
--   concurrency
--   state mutation
--   reflection
--   APIs
--   dependencies
--   entropy
--   other structural/security characteristics
+### Cross-language consistency: the Keyword Rosetta control corpus
 
-See [`docs/vectors.md`](docs/vectors.md) for the per-vector rename table,
-evidence, and appropriate/inappropriate uses, and
-[temporal-crucible](https://github.com/squid-protocol/temporal-crucible)'s
-`docs/HYPOTHESES.md` for the full validation ledger this section summarizes.
+This program asks the opposite question: **does GitGalaxy measure identical intent
+identically in every language?** The
+[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus plants the same
+12-probe program in all 50 supported languages with exact known signal counts, so any
+divergence is measured language bias, by construction.
 
-------------------------------------------------------------------------
+Current answer: on average 94% of languages sit within ±25% of the cross-language median per
+gated metric (56 chartable metrics, 54 holding ≥80%). **The open-defect share is 0.0%: 1 of
+2,844 comparable cells** across 59 gated metrics. Every other out-of-band cell is a variation
+the deviation ledger has validated, such as a construct the language cannot express. The
+chart colours each deviation by cause: red is an open engine defect, grey is a validated
+variation. The limit: a control corpus shows measurement inequality on identical intent. It
+says nothing about accuracy on real code, which is the tri-comparison's job. The weakest
+metrics, the security-lens probe and the full ledger story are in
+[the validation program](docs/validation.md#cross-language-consistency-the-keyword-rosetta-control-corpus).
 
-# Evidence, not just claims
+![Cross-language variance chart](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)
 
-### Language Crucible
+<a id="structural-surface-profile-what-gitgalaxy-claims-formerly-risk-exposure"></a>
 
-A pinned corpus of real-world source including projects such as Godot, Roslyn,
-curl, Kubernetes and Apollo 11 flight software.
+### What the Structural Surface Profile claims
 
-[Language Crucible](https://github.com/squid-protocol/language-crucible)
+The 13 per-file vectors describe **where a structural or content pattern is concentrated**
+relative to the rest of the repository. They do **not** predict defects. That per-file claim
+was tested over Git history on ~3,550 scanned snapshots of two repositories, with every test
+pre-registered, and it did not hold. What did predict were two *history* metrics: recidivism
+and change entropy. Structure describes, history predicts. The full record is in
+[the validation program](docs/validation.md#what-the-structural-surface-profile-claims) and
+[`docs/vectors.md`](docs/vectors.md).
 
-### Golden-master regression
+### The rest of the evidence
 
-Real source is rescanned and compared against checked-in expected output so
-parser changes have an observable diff. Regenerated with
-[`tests/tools/update_golden_master.py`](tests/tools/update_golden_master.py),
-never hand-edited.
+| Evidence | What it is |
+|---|---|
+| [Language Crucible](https://github.com/squid-protocol/language-crucible) | A pinned corpus of real-world source, including Godot, Roslyn, curl, Kubernetes and Apollo 11 flight software |
+| Golden-master regression | Real source rescanned and compared against checked-in expected output, so every parser change has an observable diff ([`tests/README.md`](tests/README.md)) |
+| Regression suite | **13,281 tests** collected (2026-10-01), of which 8,704 are per-language extraction tests across 54 languages and 1,222 cover the mainframe pipeline and the COBOL-to-Java proofs ([`tests/README.md`](tests/README.md)) |
+| [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited GitGalaxy output for hundreds of independently selected repositories |
+| [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible) | The pre-registered Git-history validation behind the claim above ([hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)) |
+| [Where it beats an AST](docs/why_gitgalaxy_beats_ast_here.md) · [where it goes blind](docs/known_blind_spots.md) | Specific, evidenced cases both ways |
 
-### Tri-comparison
+---
 
-The same corpus is analyzed against GitGalaxy, Tree-sitter and Ctags where
-coverage exists — 24 of 45 languages get all three tools, 200 of 201 logged
-discrepancies validated. On the pinned corpus, GitGalaxy is never the tool
-found wrong in a validated function-precision, class, or argument disagreement,
-and matches tree-sitter's function recall everywhere except one nested shell
-definition it skips by design. See
-[the methodology](docs/self_scan/tri_comparison_README.md) and
-[the validation program](docs/validation.md) for the full picture and its
-limits.
+<a id="what-gitgalaxy-is-and-isnt"></a>
 
-### Keyword Rosetta control corpus
+## What GitGalaxy is, and isn't
 
-The same 12-probe program planted in all 50 supported languages with exact
-known signal counts, measuring cross-language consistency of every metric —
-with a validated deviation ledger and the resulting engine defects
-[filed as issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
+**GitGalaxy is** repository-scale structural intelligence: language-agnostic source analysis,
+one structural representation across mixed code, architecture mapping, CI-native evidence,
+useful on broken or uncompiled repositories, and built for local and offline use.
 
-[Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta)
-
-### Raw repository output
-
-Unedited GitGalaxy output is retained for hundreds of independently selected
-repositories.
-
-[Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
-
-### Regression suite
-
-**13,281 tests** collected in the default suite (`python -m pytest tests/
---collect-only -q`, 2026-10-01), of which **8,704** are per-language extraction
-tests (`tests/extraction/languages`, 54 languages) — positive matches, explicit
-exclusions, and adversarial/ReDoS inputs — and **1,222** cover the mainframe
-pipeline and the COBOL-to-Java proofs (`tests/cobol_mainframe`,
-`tests/cics_crucible`). The end-to-end proofs that need Docker GnuCOBOL and a JDK
-are skipped by default and run with `EQUIVALENCE_E2E=1`. See [`tests/README.md`](tests/README.md) for the breakdown, and
-[`docs/why_gitgalaxy_beats_ast_here.md`](docs/why_gitgalaxy_beats_ast_here.md)
-for specific, evidenced cases where this extraction beats an AST read.
-
-### Temporal Crucible (historical validation)
-
-Whether the Structural Surface Profile corresponds to real security and
-maintenance events over Git history is no longer an open question — it has been
-tested. The [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible)
-program scanned ~3,550 repository snapshots across two repositories (curl, nDPI)
-and three label families (CVE fix/introduce commits, bug labels, CWE families),
-with every confirmatory test pre-registered before the data was looked at. What
-it found, stated honestly:
-
--   **Per-file standing structural risk does not predict defects** — it reduces
-    to a line count, a null confirmed by equivalence testing on a second,
-    independent repository (not merely "not significant").
--   **Two *history* metrics do predict**: recidivism (the file that had the last
-    fix gets the next one — p<1e-4 on both repositories, the most replicated
-    result of the program) and change entropy (Hassan HCM), validated
-    out-of-selection on fresh bug labels.
--   **Structure describes; history predicts.** More predictions died in the
-    ledger than survived it — that is the pre-registration discipline working,
-    not a disappointment.
-
-The full record is public and reproducible: the pre-registered
-[hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)
-and a [predictor × outcome index](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/EXPERIMENTS.md)
-of everything the program has tried to correlate. Design and method:
-[the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
-
-[Temporal Crucible](https://github.com/squid-protocol/temporal-crucible)
-
-------------------------------------------------------------------------
-
-# What GitGalaxy is --- and isn't
-
-### GitGalaxy is
-
--   repository-scale structural intelligence
--   language-agnostic source analysis
--   a common structural representation across heterogeneous code
--   risk-exposure prioritization
--   architecture mapping
--   CI-native evidence generation
--   useful on broken/uncompiled repositories
--   designed for local/offline operation
-
-### GitGalaxy is not
-
--   a replacement for CodeQL's deep dataflow analysis
--   a replacement for Semgrep's rule ecosystem
--   a replacement for dependency CVE databases
--   a proof of exploitability
--   a runtime analyzer
--   a complete language parser
--   a guarantee that a high exposure is a vulnerability
+**GitGalaxy is not** a replacement for CodeQL's deep dataflow analysis, Semgrep's rule
+ecosystem or a dependency CVE database. It is not a proof of exploitability, a runtime
+analyzer or a complete language parser, and a high surface reading is not a vulnerability.
 
 | Tool | Primary question |
 |---|---|
@@ -568,20 +413,11 @@ of everything the program has tried to correlate. Design and method:
 | CodeQL | What data/control relationships can deeper analysis establish? |
 | SCA/CVE tools | Is this dependency/version associated with a known advisory? |
 
-------------------------------------------------------------------------
+GitGalaxy also uses Git history for churn, contributor concentration, bus-factor exposure,
+refactoring hotspots and file ownership. Extending history from context to validation is
+described in [the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
 
-# Git history and architecture
-
-GitGalaxy already incorporates Git history into signals such as churn,
-contributor concentration, bus-factor exposure, refactoring hotspots, file
-ownership and temporal activity. The research direction is to extend this from
-**history as a contextual signal** to **history as an external validation
-source for the exposure model** — the experiment design is in
-[the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
-
-------------------------------------------------------------------------
-
-# Privacy and deployment
+## Privacy and deployment
 
 GitGalaxy is designed for local and air-gapped operation.
 
@@ -591,9 +427,7 @@ GitGalaxy is designed for local and air-gapped operation.
 -   CI/CD execution can remain inside the user's environment.
 -   The browser visualizer operates on locally supplied data.
 
-------------------------------------------------------------------------
-
-# Installation
+## Installation
 
 ``` bash
 pip install gitgalaxy            # zero install dependencies
@@ -626,9 +460,7 @@ Azure Pipelines, and generic shell-invocable CI environments. See
 [`templates/`](templates/) and the [CI integration
 guide](github-action-readme.md).
 
-------------------------------------------------------------------------
-
-# Explore the evidence
+## Explore further
 
 | Resource | What it contains |
 |---|---|
@@ -645,15 +477,12 @@ guide](github-action-readme.md).
 | [Population analyses](https://github.com/squid-protocol/gitgalaxy-population-analyses) | Statistical analyses over the raw-output scan population: archetype clustering, risk distributions, threat-classifier studies |
 | [Museum of Code](https://squid-protocol.github.io/gitgalaxy/museum-of-code/) | Full architectural teardowns of real codebases (Apollo 11, IBM CICS benchmarks) |
 | [Distribution telemetry](https://github.com/squid-protocol/squid-telemetry) | Public fetch metrics across GitHub/GitLab/[PyPI](https://pypi.org/project/gitgalaxy/), regenerated daily |
-| [`tests/README.md`](tests/README.md) | Regression and golden-master methodology |
 | [`tri_comparison_ledger.json`](docs/self_scan/tri_comparison_ledger.json) | Disagreement-by-disagreement validation record |
 | [`manual_verification.json`](docs/self_scan/manual_verification.json) | Reviewed cases where comparator coverage is unavailable |
 | [`how_to_investigate_a_discrepancy.md`](docs/self_scan/how_to_investigate_a_discrepancy.md) | Comparator-disagreement methodology |
 | [Visualizer](https://gitgalaxy.io/) | Local browser-based repository visualization |
 
-------------------------------------------------------------------------
-
-# License
+## License
 
 Copyright (c) 2026 Joe Esquibel
 

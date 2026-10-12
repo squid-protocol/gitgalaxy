@@ -28,7 +28,6 @@ from gitgalaxy.standards.cics.model import Command
 
 # the whole-command reasons det/cics.py gave before PR 2, word for word
 CONTAINER_LATER = "#4270: container MOVE / browse, a later slice"
-CHILD_LATER = "#4270: a parent waiting for its child task, a later slice"
 
 _BTS = "business transaction services (BTS processes, activities, events, timers) are not modelled"
 _DTP = "distributed transaction processing (APPC / LUTYPE6.1 / MRO conversations) is not modelled"
@@ -61,8 +60,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
-    # child tasks (#4270 slice 2: RUN TRANSID; FETCH ANY / FETCH CHILD are in interval.py, #4884)
-    ("FREE CHILD", None, CHILD_LATER),
     # BTS
     ("ACQUIRE", None, _BTS),
     ("ADD SUBEVENT", None, _BTS),

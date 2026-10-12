@@ -72,7 +72,16 @@ DELAY = Command(
         "MILLISECS": Arg("value"),
         **RESP_OPTIONS,
     },
-    outcomes=(Outcome("NORMAL", 0, "a task takes no time: the delay ends at once"),),
+    outcomes=(Outcome("NORMAL", 0, "a task takes no time (X4): the delay ends at once, after the children it dispatches"),),
+    runtime_refusals=(
+        # #4950 (X18): a DELAY is the wait at which a RUN child is dispatched; its length orders their completions
+        RuntimeRefusal(
+            "a DELAY TIME (a time of day), or a value out of range, in a task with RUN TRANSID children",
+            "X18",
+            java="DELAY in a task with RUN TRANSID children",
+            c="DELAY %s in a task with RUN TRANSID children",
+        ),
+    ),
     engine=EngineFacts(task_verb="DELAY", handle_option="REQID"),
 )
 

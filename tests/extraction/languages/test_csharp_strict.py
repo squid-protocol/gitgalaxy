@@ -781,6 +781,9 @@ def test_csharp_func_start_adjacent_bracket_tokens_redos_3320():
     # same run on a single line, and indented (the runtime/roslyn text-in-a-string shapes)
     assert_redos_immune(func_start, "    " + "[a][b][c][d][e][f][g][h][i][j][k][l][m][n] 1\n" * 50, timeout_sec=1.0)
     assert_redos_immune(func_start, "[a]" * 3000 + " x\n", timeout_sec=1.0)
+    # empty rank specifiers (the one bracket shape a token may start with) stay linear too
+    assert_redos_immune(func_start, "[] " * 300 + "x\n", timeout_sec=1.0)
+    assert_redos_immune(func_start, "int [] [,] [] [,,] " * 100 + "x\n", timeout_sec=1.0)
 
 
 def test_csharp_func_start_compound_assignment_file_shape_under_fuse_3320():
@@ -824,9 +827,14 @@ def test_csharp_func_start_compound_assignment_file_shape_under_fuse_3320():
         ("    public List<int[]>[] Nest(int x) { }\n", ["Nest"]),
         ("    public (int, string)[] Pairs(int x) { }\n", ["Pairs"]),
         ("    static string[]? Maybe(int x) { }\n", ["Maybe"]),
+        # a rank specifier set off by a space (Mono / older corpora style)
+        ("    public override byte [] Invoke (int bla) { }\n", ["Invoke"]),
+        ("    public static T [,] method<S> () { }\n", ["method"]),
         # a call whose receiver is indexed must not become a phantom function
         ("            _dictionary[new WeakReference(x)] = y;\n", []),
         ("                [.. items.Select(x => x)];\n", []),
+        ("        item[await GetOffsetAsync(GetOffset(ref item))] += 1;\n", []),
+        ("        [\n            Edit(SemanticEditKind.Update, c => c),\n        ];\n", []),
     ],
 )
 def test_csharp_func_start_bracket_ownership_parity_3320(source, expected):

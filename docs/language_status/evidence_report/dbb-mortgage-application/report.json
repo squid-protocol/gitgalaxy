@@ -156,7 +156,12 @@
     146,
     149
    ],
-   "carddemo-cardupdate": null,
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
    "carddemo-cardview": [
     30,
     30,
@@ -1068,7 +1073,11 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
   "sweeps": {}
  },
@@ -1669,6 +1678,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2043,6 +2053,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2183,6 +2194,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2327,6 +2339,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2662,6 +2675,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "<name> SET ADDRESS OF",
@@ -2840,6 +2854,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "COMPUTE FUNCTION ANNUITY",
@@ -2860,8 +2875,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
+   "python tests/tools/cics_census.py survey --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -2882,9 +2897,14 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
-  "translator_commit": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+  "translator_commit": "0d74a182b6d6636912be3db10d7a63d03b722885",
+  "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 3,
@@ -2905,8 +2925,17 @@
    "L4": 0,
    "L5": 0
   },
+  "histogram_stale_survey": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
   "holes": 22,
   "levels_stale": 0,
+  "levels_stale_survey": 0,
   "programs": 6,
   "records_current": 0,
   "refused_whole": 0,
@@ -2914,5 +2943,9 @@
   "translated_whole": 4,
   "with_case": 5,
   "with_record": 0
+ },
+ "survey_translator": {
+  "current": true,
+  "fingerprint": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
  }
 }

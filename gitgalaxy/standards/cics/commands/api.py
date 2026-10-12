@@ -210,7 +210,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("DOCUMENT INSERT", None, _DOCUMENT),
     ("DOCUMENT SET", None, _DOCUMENT),
     # web, web services, transformation
-    ("WEB RETRIEVE", None, _WEB),
     ("EXTRACT WEB", None, _WEB),
     ("EXTRACT TCPIP", None, _WEB),
     ("INVOKE APPLICATION", None, "invoking an application by its operation (INVOKE APPLICATION) is not modelled"),

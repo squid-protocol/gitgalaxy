@@ -6,8 +6,9 @@
 
 GitGalaxy is a scanning engine we built for one job: pulling the structure that matters out
 of a whole repository. It reads every language in the repo in one pass and needs no build or
-compiler. It is fast enough to run on every repo and every commit. The same facts then drive
-a COBOL-to-Java translator that proves each ported program against the original.
+compiler. It is fast enough to run on every repo and every commit. And the facts go deep
+enough to generate code: they drive an automated CICS-to-Java translator that proves each
+ported program against the original.
 
 <table>
 <tr>
@@ -20,14 +21,14 @@ a COBOL-to-Java translator that proves each ported program against the original.
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
 <td align="center" valign="top"><sub><strong>languages in one scan</strong><br />no build, no per-language toolchain<br /><em>broken and half-migrated code too</em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
-<td align="center" valign="top"><sub><strong>COBOL programs ported, then proven</strong><br />no model; byte-identical outputs<br /><em><a href="#cobol-to-java-ported-then-proven">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+<td align="center" valign="top"><sub><strong>CICS and batch programs ported, then proven</strong><br />no model; byte-identical outputs<br /><em><a href="#cics-to-java-ported-then-proven">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
 </table>
 
 <a href="#quickstart"><strong>Quickstart</strong></a> ·
 <a href="#pick-your-front-door"><strong>Scanner or translator</strong></a> ·
 <a href="#the-scanner"><strong>Scanner</strong></a> ·
-<a href="#cobol-to-java-ported-then-proven"><strong>Translator</strong></a> ·
+<a href="#cics-to-java-ported-then-proven"><strong>Translator</strong></a> ·
 <a href="#accuracy-measured"><strong>Evidence</strong></a> ·
 <a href="#what-gitgalaxy-is-and-isnt"><strong>Is / isn't</strong></a> ·
 <a href="#installation"><strong>Install</strong></a> ·
@@ -94,7 +95,7 @@ have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`,
 |---|---|
 | **Understand a repository fast**, or hand an AI agent a real mental model of it | [The scanner ↓](#the-scanner): the architecture brief, the graph, the reports |
 | **Gate CI** with SARIF, an SBOM and structural checks | [What a scan gives you ↓](#what-a-scan-gives-you) and the [CI templates](templates/) |
-| **Move a COBOL estate to Java** with proof that each program still behaves the same | [The translator ↓](#cobol-to-java-ported-then-proven) |
+| **Move a CICS estate to Java** with proof that each program still behaves the same | [The translator ↓](#cics-to-java-ported-then-proven) |
 | **Check our claims** before you trust any of the above | [Accuracy, measured ↓](#accuracy-measured) |
 
 ---
@@ -168,10 +169,13 @@ own always-current self-scan brief is at
 
 ---
 
-## COBOL to Java: ported, then proven
+<a id="cobol-to-java-ported-then-proven"></a>
+
+## CICS to Java: ported, then proven
 
 For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
-turns an estate into a compiling Spring Boot project, and an equivalence harness proves
+turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
+a compiling Spring Boot project, and an equivalence harness proves
 each ported program against the original COBOL: same inputs, byte-identical outputs.
 A port that is not proven is not done, and a person approves every port.
 
@@ -432,7 +436,7 @@ GitGalaxy is designed for local and air-gapped operation.
 ``` bash
 pip install gitgalaxy            # zero install dependencies
 pip install "gitgalaxy[full]"    # + tiktoken, xgboost, pandas, numpy, pyyaml
-pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the COBOL-to-Java translator
+pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the CICS-to-Java translator
 ```
 
 See the [documentation](https://squid-protocol.github.io/gitgalaxy/) for
@@ -471,7 +475,7 @@ guide](github-action-readme.md).
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
 | [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 50-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
-| [COBOL → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |
+| [CICS → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |
 | [Porting loop](docs/language_status/porting_loop.md) · [Mutation testing](docs/language_status/mutation_testing.md) · [CICS crucible](docs/language_status/cics_crucible.md) · [Statement inventory](docs/language_status/statement_inventory.md) | How ports are written and proven, how strong each proof is, the CICS trap corpus, and how much of a port a deterministic translator could write |
 | [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | 10 COBOL repos auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |
 | [Population analyses](https://github.com/squid-protocol/gitgalaxy-population-analyses) | Statistical analyses over the raw-output scan population: archetype clustering, risk distributions, threat-classifier studies |

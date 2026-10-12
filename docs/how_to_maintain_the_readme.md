@@ -63,7 +63,7 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
 1. **Hero** (centered): name, the benefit tagline ("Know any codebase deeply, and give your
    AI agents the same knowledge."), a three-sentence description covering both products,
    four stat tiles (Kubernetes scan time, languages, tri-comparison function precision,
-   det-ported COBOL programs proven), each with n + limit + a link to its proof, then the
+   det-ported CICS and batch programs proven), each with n + limit + a link to its proof, then the
    nav row (Quickstart, Scanner or translator, Scanner, Translator, Evidence, Is/isn't,
    Install, Docs, Visualizer). Re-verify tile numbers when their source sections change.
 2. **One scan, every language, six reports**: the sankey pipeline diagram with a caption
@@ -78,8 +78,8 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
    you get" table (each answer links to a doc), "What a scan gives you" six-outputs table,
    and "The architecture brief" with the dated curl and cics-genapp excerpts. Refresh the
    excerpts by rerunning `galaxyscope --llm-only` on the same repos, not by editing numbers.
-7. **COBOL to Java: ported, then proven** (heading text is an inbound anchor; do not
-   rename): the five steps, the det-port table, the model-written table inside
+7. **CICS to Java: ported, then proven** (renamed from "COBOL to Java" 2026-10-12; keep the
+   explicit `#cobol-to-java-ported-then-proven` id above it, an inbound anchor): the five steps, the det-port table, the model-written table inside
    `<details>`, the CICS crucible line, and "What these numbers do not show" (visible,
    never collapsed). Re-verify numbers from `tests/equivalence/*/port/provenance.json`, the
    harness reports and `docs/language_status/mutation_testing.md`.

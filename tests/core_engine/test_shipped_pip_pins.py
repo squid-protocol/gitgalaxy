@@ -89,7 +89,7 @@ def test_markers_match_committed_lockfiles(path):
     assert markers, path.name
     for ref, sha, name in markers:
         assert ref != "0" * 40 and sha != "0" * 64, "unstamped marker: run tests/tools/stamp_template_pins.py"
-        assert sha == hashlib.sha256((REQS / f"{name}.txt").read_bytes()).hexdigest(), (
+        assert sha == hashlib.sha256((REQS / f"{name}.txt").read_bytes().replace(b"\r\n", b"\n")).hexdigest(), (
             f"{path.name}: gg-pin:{name} stale; run tests/tools/stamp_template_pins.py"
         )
     assert len({ref for ref, _, _ in markers}) == 1

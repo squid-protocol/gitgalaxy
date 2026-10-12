@@ -215,7 +215,7 @@ static int gmt(unsigned char *lilian, unsigned char *seconds, unsigned char *fc)
     }
     long days = civil(y, mo, d) - EPOCH;
     put_int(lilian, days);
-    put_double(seconds, (double)(days * 86400L + hh * 3600L + mi * 60L + ss) + hs / 100.0);
+    put_double(seconds, (double)((long long)days * 86400LL + hh * 3600LL + mi * 60LL + ss) + hs / 100.0);
     put_fc(fc, 0);
     return 0;
 }
@@ -259,10 +259,10 @@ int CEEDATM(unsigned char *seconds, unsigned char *pic, unsigned char *out, unsi
         put_fc(fc, 2505);
         return 0;
     }
-    long w = (long)whole;
+    long long w = (long long)whole;
     int ms = (int)floor((v - whole) * 1000.0);
-    long sod = w % 86400;
-    put_vstring(out, buf, format(p, np, w / 86400, (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
+    long long sod = w % 86400LL;
+    put_vstring(out, buf, format(p, np, (long)(w / 86400LL), (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
     put_fc(fc, 0);
     return 0;
 }
@@ -312,7 +312,7 @@ static void isec(const long *v, unsigned char *seconds, unsigned char *fc, int d
         put_fc(fc, code);
         return;
     }
-    put_double(seconds, (double)(days * 86400L + v[3] * 3600 + v[4] * 60 + v[5]) + v[6] / 1000.0);
+    put_double(seconds, (double)((long long)days * 86400LL + (long long)v[3] * 3600LL + (long long)v[4] * 60LL + v[5]) + v[6] / 1000.0);
     put_fc(fc, 0);
 }
 

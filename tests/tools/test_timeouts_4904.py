@@ -29,6 +29,7 @@ import porting_loop
 # --------------------------------------------------------------------------------------------------
 def test_db2_pool_deadline_raises_by_name(monkeypatch):
     """Waiting for a free Db2 database in the pool raises Db2PoolTimeoutError by name after deadline."""
+    pytest.importorskip("fcntl")
     monkeypatch.setattr(equivalence_db2, "_LOCK", None)
     monkeypatch.setattr(equivalence_db2, "pool", lambda: ["GGDB_TEST"])
 

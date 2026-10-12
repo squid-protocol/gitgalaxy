@@ -73,6 +73,7 @@ CONDITION_ABEND: Mapping[str, str] = {
     "INVREQ": "AEIP",
     "CONTAINERERR": "AEZJ",  # #4270: "CONTAINERERR condition not handled"
     "CHANNELERR": "AEZV",  # "CHANNELERR condition not handled"
+    "NOTAUTH": "AEY7",  # #4648: "NOTAUTH condition not handled" -- a failed XCTL / LINK / START ... security check
 }
 ABEND_DOCS: Mapping[str, Doc] = {code: _abend_doc(code) for code in CONDITION_ABEND.values()}
 

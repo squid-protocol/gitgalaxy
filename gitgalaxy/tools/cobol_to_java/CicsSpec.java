@@ -249,6 +249,7 @@ public final class CicsSpec {
             case "INVREQ" -> "AEIP";
             case "CONTAINERERR" -> "AEZJ";
             case "CHANNELERR" -> "AEZV";
+            case "NOTAUTH" -> "AEY7";
             default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
         };
     }

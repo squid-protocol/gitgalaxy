@@ -414,6 +414,12 @@ public class CicsTask {
         } else if (programs == null || !programs.defined(program)) {
             resp = "PGMIDERR";
             resp2 = 1;
+        } else {
+            int[] planned = root().injected("LINK", program.stripTrailing());  // #4648: as an XCTL's (#4049)
+            if (planned != null) {
+                resp = respName(planned[0]);
+                resp2 = planned[1];
+            }
         }
         event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
                 "resp2", resp2);

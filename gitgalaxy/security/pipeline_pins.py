@@ -186,8 +186,9 @@ def find_unpinned(content: str) -> list[tuple[int, str, str]]:
         if ref is not None:
             found.append((lineno, "uses", f"uses: {ref}"))
             continue
-        if _PIPE_SHELL.search(line):
-            found.append((lineno, "curl-pipe-shell", _PIPE_SHELL.search(line).group(0)[:120]))
+        pipe = _PIPE_SHELL.search(line)
+        if pipe:
+            found.append((lineno, "curl-pipe-shell", pipe.group(0)[:120]))
             continue
         for cmd in _commands(line):
             for kind, verb, check in (

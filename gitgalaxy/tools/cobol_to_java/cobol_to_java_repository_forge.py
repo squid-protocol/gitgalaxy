@@ -99,7 +99,10 @@ def _b(v: bool) -> str:
     return "true" if v else "false"
 
 
-def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
+def _codec_get(f: Field, dbcs_page: str | None = None, rec: str = "rec") -> str:
+    """The value of `f` read from the record buffer `rec` (#4875: `read`, the bytes the entity was read from)."""
+    if rec != "rec":
+        return re.sub(r"\(rec, ", f"({rec}, ", _codec_get(f, dbcs_page))
     kind = _codec_kind(f)
     if kind == "national":
         return f'CobolRecords.text(rec, {f.offset}, {f.bytes}, java.nio.charset.Charset.forName("UTF-16BE"))'
@@ -944,8 +947,16 @@ class RepositoryForge:
         if why:
             return ["", f"    // #3624: no record codec: {why}."]
         cls, key = st.entity, (lambda f: f"id.get{f.java[0].upper()}{f.java[1:]}()")
+        taken = {f.java for f in st.fields} | {"id", "vsamKey"}
+        raw = "vsamRecord"
+        while raw in taken:
+            raw += "X"
+        column = "VSAM_RECORD"
+        while column in {f.cobol.upper().replace("-", "_") for f in st.fields} | {"VSAM_KEY"}:
+            column += "_X"
         load = [f"        {cls} r = new {cls}();"]
-        store = [f"        byte[] rec = CobolRecords.blank({reclen}, text);"]
+        store = [f"        byte[] read = {raw} != null && {raw}.length == {reclen} ? {raw} : null;",
+                 f"        byte[] rec = read != null ? read.clone() : CobolRecords.blank({reclen}, text);"]  # fmt: skip
         if st.composite:
             load.append(f"        r.id = new {st.key_type}();")
         elif st.key is None and (st.raw.get("organization") or "").upper() not in ("NONINDEXED", "NUMBERED"):
@@ -955,23 +966,39 @@ class RepositoryForge:
         for f in st.fields:
             dbcs_page = getattr(self.target.data, "dbcs_code_page", None)
             get = _codec_get(f, dbcs_page)
+            value = key(f) if f in st.composite else f.java
             if f in st.composite:
                 load.append(f"        r.id.set{f.java[0].upper()}{f.java[1:]}({get});")
-                store.append(f"        {_codec_put(f, key(f), dbcs_page)};")
             else:
                 load.append(f"        r.{f.java} = {get};")
-                store.append(f"        {_codec_put(f, f.java, dbcs_page)};")
+            # #4875: a field whose value is still the one its bytes read as keeps the bytes (spaces in a PIC 9)
+            store.append(f"        if (read == null || !java.util.Objects.equals({value}, "
+                         f"{_codec_get(f, dbcs_page, 'read')})) {{")  # fmt: skip
+            store.append(f"            {_codec_put(f, value, dbcs_page)};")
+            store.append("        }")
+        load.append(f"        r.{raw} = java.util.Arrays.copyOf(rec, {reclen});")
+        hidden = (["    @lombok.Getter(lombok.AccessLevel.NONE)", "    @lombok.Setter(lombok.AccessLevel.NONE)",
+                   "    @lombok.EqualsAndHashCode.Exclude", "    @lombok.ToString.Exclude"]
+                  if self.target.lombok else [])  # fmt: skip
         return [
+            "",
+            "    /** #4875: the record bytes this entity was read from, kept beside the typed columns: a field whose",
+            "     *  value is unchanged is written back as these bytes, so a value no column type holds (spaces in a",
+            "     *  PIC 9, a non-preferred sign) and FILLER survive the round trip, as the VSAM record keeps them. */",
+            f'    @Column(name = "{column}", length = {reclen})',
+            *hidden,
+            f"    private byte[] {raw};",
             "",
             f"    /** #3624: this record from its fixed-width VSAM form ({reclen} bytes, as REPRO unloads it), each",
             "     *  field at its COBOL offset; `text` is the record's character set (ISO-8859-1 for an ASCII",
-            "     *  transfer, IBM037 on z/OS). FILLER bytes are not kept. */",
+            f"     *  transfer, IBM037 on z/OS). The bytes themselves are kept in {raw} (#4875). */",
             f"    public static {cls} fromRecord(byte[] rec, java.nio.charset.Charset text) {{",
             *load,
             "        return r;",
             "    }",
             "",
-            "    /** #3624: the fixed-width VSAM record of this entity (FILLER as spaces). */",
+            f"    /** #3624: the fixed-width VSAM record of this entity: the bytes it was read from ({raw}), each field",
+            "     *  whose value changed since re-encoded; a new entity's FILLER as spaces. */",
             "    public byte[] toRecord(java.nio.charset.Charset text) {",
             *store,
             "        return rec;",

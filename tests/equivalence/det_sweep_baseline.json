@@ -2,10 +2,6 @@
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
  "det": {
-  "carddemo-cardupdate": {
-   "issue": "#4875",
-   "why": "COCRDUPC writes spaces into a PIC 9(3) CVV (its BMS map has no CVV field, so MOVE CCUP-NEW-CVV-CD carries blanks); the COMMAREA now agrees (cobc moves same-shape zoned items as a memcpy, Cobol.move follows), but the REWRITE goes through the typed CardRecord entity, which holds 000 where the COBOL file holds spaces; 30 branches are also uncovered"
-  },
   "mortgage-mpmt": {
    "issue": "#4271",
    "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"

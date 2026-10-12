@@ -956,6 +956,311 @@
      "EXPDAYI": "09"
     }
    }
+  },
+  {
+   "name": "pf3-no-commarea",
+   "aid": "DFHPF3",
+   "commarea": null,
+   "why": "EIBCALEN 0: the COMMAREA is INITIALIZEd, so CDEMO-FROM-TRANID and CDEMO-FROM-PROGRAM are SPACES on PF3 -- XCTL to the menu (CM00 / COMEN01C)"
+  },
+  {
+   "name": "search-both-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "ABC",
+     "CARDSIDI": "05000244537657AB"
+    }
+   },
+   "why": "both keys not numeric: the account's message is kept, the card edit finds WS-RETURN-MSG already set"
+  },
+  {
+   "name": "search-keys-zeros",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000000",
+     "CARDSIDI": "0000000000000000"
+    }
+   },
+   "why": "all-zero keys count as blank; on the re-entered screen CC-ACCT-ID-N and CC-CARD-NUM-N are 0, so both key fields go out as LOW-VALUES"
+  },
+  {
+   "name": "edit-all-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "",
+     "CRDSTCDI": "",
+     "EXPMONI": "",
+     "EXPYEARI": "",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "every edit field blank: the name's prompt is kept, the status, month and year edits find WS-RETURN-MSG already set"
+  },
+  {
+   "name": "edit-all-invalid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA V0N",
+     "CRDSTCDI": "X",
+     "EXPMONI": "13",
+     "EXPYEARI": "1900",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "every edit field invalid: the name's message is kept, the status, month and year edits find WS-RETURN-MSG already set"
+  },
+  {
+   "name": "unexpected-change-action",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "X",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "CCUP-CHANGE-ACTION 'X' (none of its 88s) with no change on the screen: 2000-DECIDE-ACTION WHEN OTHER, 'UNEXPECTED DATA SCENARIO' through ABEND-ROUTINE, ABEND 9999"
+  },
+  {
+   "name": "pf12-reread-card-not-on-file",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "9999999999999999",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "PF12 from the menu path with no change: NO-CHANGES-DETECTED is already the message when the re-read gets NOTFND"
+  },
+  {
+   "name": "pf12-reread-file-error",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the re-read -> WHEN OTHER with NO-CHANGES-DETECTED already the message"
+    }
+   ],
+   "why": "PF12 from the menu path with no change, the re-read fails"
+  },
+  {
+   "name": "pf5-no-change-could-not-lock",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ UPDATE: WS-RETURN-MSG already holds NO-CHANGES-DETECTED, so COULD-NOT-LOCK-FOR-UPDATE is not set and 2000-DECIDE-ACTION's EVALUATE ends in WHEN OTHER (CCUP-CHANGES-OKAYED-AND-DONE), no REWRITE"
+    }
+   ],
+   "why": "PF5 confirming with the screen as fetched: 1200 sets NO-CHANGES-DETECTED before 9200's READ UPDATE fails"
+  },
+  {
+   "name": "pf3-xctl-fails-abend-routine",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDLIC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL back to the caller fails with no RESP, so CICS abends the task and the active HANDLE ABEND passes control to ABEND-ROUTINE"
   }
  ],
  "notes": "CardDemo's card update (transaction CCUP, program COCRDUPC), a conversation over several tasks whose state travels in the COMMAREA (CCUP-CHANGE-ACTION and the details last shown): a search reads the card; an edit validates the name (alphabetic), status (Y/N), expiry month (1-12) and year (1950-2099) and asks for PF5; PF5 reads the card FOR UPDATE, refuses if it changed since it was shown, and REWRITEs it; PF3 SYNCPOINTs and returns. Each scenario's card file is compared after the task. The scenarios that start mid-conversation set that state as the program itself leaves it. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own. A defect of the original the proof shows: the REWRITE record takes its CVV from CCUP-NEW-CVV-CD, which no input sets, so a confirmed update replaces the card's CVV (747) with blanks -- in a PIC 9(3) field, invalid numeric data whose bytes are GnuCOBOL's (IBM's MOVE may repair the sign nibble)."

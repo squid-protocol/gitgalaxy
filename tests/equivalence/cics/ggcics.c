@@ -1704,6 +1704,11 @@ int GGCRETI(gg_cics *c, char *commarea, int len) {
 
 static void xctl_next(const char *program, char *commarea, int len) {
     level *L = &levels[lvl];
+    /* #4816 (X39): a LINKed program XCTLing with (part of) the area its caller passed: IBM does not say whether the
+     * target then addresses that storage or a copy (XCTL COMMAREA: "the contents of the data-area are passed") */
+    if (commarea && lvl > 0 && L->link_area && commarea >= L->link_area
+        && commarea < L->link_area + L->link_len)
+        refuse("XCTL passing the COMMAREA its LINK caller passed");
     snprintf(L->next_invoker, sizeof L->next_invoker, "%s", L->prog);  /* the XCTLing program */
     L->state = XCTLED;
     snprintf(L->next, sizeof L->next, "%s", program);

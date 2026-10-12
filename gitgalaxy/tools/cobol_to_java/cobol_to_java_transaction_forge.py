@@ -428,6 +428,7 @@ public class CicsTask {
         callee.invoker = this.program;
         callee.linkLength = len;
         callee.linkArea = area;
+        callee.callerArea = area != null;  // #4816: that area is the caller's own storage, not a copy
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
@@ -3476,6 +3477,17 @@ public class CicsTask {
         return resp;
     }
 
+    private boolean callerArea;      // #4816: linkArea is the LINK caller's storage (not a copy, not a task's own area)
+    private boolean xctlOfLinkage;   // #4816: the next XCTL's COMMAREA is inside this program's DFHCOMMAREA
+
+    /** #4816: the XCTL about to be issued passes (part of) this program's own DFHCOMMAREA. A LINKed program's is its
+     *  caller's storage; IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether
+     *  the target then addresses that storage or a copy, so a successful XCTL of it is refused, never guessed
+     *  (register X39). */
+    public void xctlOfLinkage() {
+        xctlOfLinkage = true;
+    }
+
     private String xctl(String program, Object commarea, Integer length, Channel pendingChannel) {
         String resp = "NORMAL";
         Integer resp2 = null;
@@ -3494,6 +3506,12 @@ public class CicsTask {
         }
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
+        boolean ofLinkage = xctlOfLinkage;
+        xctlOfLinkage = false;
+        if ("NORMAL".equals(resp) && ofLinkage && callerArea) {
+            throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
+                    + "whether the target addresses the caller's storage or a copy, not modelled");
+        }
         if ("NORMAL".equals(resp)) {
             xctlTarget = program;
             xctlCommarea = commarea;

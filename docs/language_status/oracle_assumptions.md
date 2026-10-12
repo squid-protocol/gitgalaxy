@@ -103,6 +103,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
+| F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -945,6 +946,21 @@ instrument). Rows for the other options of #4706 follow in its later slices.
     GIVING file whose records are not the SD record's length, SORT-RETURN set by the program (16 ends a sort), an
     alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
+
+### F5. RECORD KEY / ALTERNATE RECORD KEY outside the file's record
+- IBM Enterprise COBOL Language Reference, RECORD KEY clause (ALTERNATE RECORD KEY likewise): the key data item is
+  defined in a record description entry of the file the SELECT names. A key defined elsewhere (a WORKING-STORAGE
+  item such as a `COPY`'d work record) is not a valid program.
+- The instrument agrees: GnuCOBOL 3, `-std=ibm`, stops with `'EXPORT-SEQUENCE-NUM' is not defined` (measured
+  2026-10-09 on CardDemo CBEXPORT; the key is in WORKING-STORAGE, the FD record is one `PIC X(500)`). So no
+  equivalence case can build the COBOL side.
+- The det translator reads each SELECT's RECORD KEY and every ALTERNATE RECORD KEY, resolves it, and refuses the file
+  by name (`<key> is not defined in a record of file <select>`) when its 01 record is not one of the FD's records
+  (any of several 01 records under the FD counts; a key reached through `COPY` inside the FD counts). A statement
+  that uses the file is refused with that reason, so the program does not count as translated whole.
+  Never translated: the port does not guess which bytes of the record the author meant.
+- RELATIVE KEY has the opposite placement rule in IBM's reference (not in the file's own record); `ORGANIZATION
+  IS RELATIVE` is refused by name as a whole, so that rule is not reached.
 
 ## CICS (`ggcics.c`)
 

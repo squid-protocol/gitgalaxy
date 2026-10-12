@@ -64,6 +64,9 @@
            05 GG-RTRAN  PIC X(4).
            05 GG-RTERM  PIC X(4).
            05 GG-RQUEUE PIC X(8).
+      * #4951: MOVE CONTAINER's AS and TOCHANNEL names.
+           05 GG-AS     PIC X(16).
+           05 GG-TOCHAN PIC X(16).
       * ASKTIME / FORMATTIME (CardDemo's bill payment): the translator
       * computes them in COBOL from the task's clock (CURRENT-DATE is the
       * case's clock), ABSTIME being milliseconds since 00:00 on

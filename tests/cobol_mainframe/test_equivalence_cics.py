@@ -249,11 +249,34 @@ def test_channels_and_containers_become_stub_calls():
         "GET CONTAINER(C) FLENGTH(L)",
         "RETURN TRANSID('T') CHANNEL(C)",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
-        "MOVE CONTAINER(A) AS(B)",
+        "MOVE CONTAINER(A)",
+        "MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)",
+        "STARTBROWSE CONTAINER CHANNEL(C)",
+        "GETNEXT CONTAINER(N)",
+        "ENDBROWSE CONTAINER",
         "PUT CONTAINER(C) FROM(A) BIT CHAR",
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
+
+
+def test_move_container_and_the_container_browse_call_the_stub():
+    """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER / AS / CHANNEL / TOCHANNEL in GG-QNAME / GG-AS / GG-CHAN / GG-TOCHAN,
+    GG-FLAGS naming the channels given), STARTBROWSE -> GGCSBRC (the token out of GG-NUM on NORMAL), GETNEXT -> GGCGNXC
+    (the token in GG-NUM, the name out of GG-QNAME on NORMAL) and ENDBROWSE -> GGCEBRC."""
+    move = ec.translate_command("MOVE CONTAINER('A') AS('B') CHANNEL(WS-F) TOCHANNEL(WS-T)")
+    assert move[:6] == ["MOVE 'A' TO GG-QNAME", "MOVE 'B' TO GG-AS", "MOVE WS-F TO GG-CHAN", "MOVE WS-T TO GG-TOCHAN",
+                        "MOVE 'CHANNEL TOCHAN' TO GG-FLAGS", "CALL 'GGCMOVC' USING GG-CICS"]  # fmt: skip
+    bare = ec.translate_command("MOVE CONTAINER('A') AS('B')")
+    assert "MOVE SPACES TO GG-FLAGS" in bare and "CALL 'GGCMOVC' USING GG-CICS" in bare
+    start = ec.translate_command("STARTBROWSE CONTAINER CHANNEL(WS-F) BROWSETOKEN(WS-TOK)")
+    assert start[:4] == ["MOVE WS-F TO GG-CHAN", "MOVE 'CHANNEL' TO GG-FLAGS", "CALL 'GGCSBRC' USING GG-CICS",
+                         "IF GG-RESP = 0"] and start[4] == "    MOVE GG-NUM TO WS-TOK"  # fmt: skip
+    nxt = ec.translate_command("GETNEXT CONTAINER(WS-NAME) BROWSETOKEN(WS-TOK) RESP(WS-R)")
+    assert nxt[:3] == ["MOVE WS-TOK TO GG-NUM", "CALL 'GGCGNXC' USING GG-CICS", "IF GG-RESP = 0"]
+    assert nxt[3] == "    MOVE GG-QNAME TO WS-NAME" and "MOVE GG-RESP TO WS-R" in nxt
+    end = ec.translate_command("ENDBROWSE CONTAINER BROWSETOKEN(WS-TOK)")
+    assert end[:2] == ["MOVE WS-TOK TO GG-NUM", "CALL 'GGCEBRC' USING GG-CICS"]
 
 
 def test_send_map_records_its_options_and_area():

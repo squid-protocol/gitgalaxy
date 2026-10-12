@@ -1538,6 +1538,287 @@ def test_cics_task_channels_and_containers(tmp_path):
     ]
 
 
+# ---- #4951: MOVE CONTAINER and the container browse ------------------------------------------------------
+# One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS MOVE CONTAINER (CHANNEL),
+# STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); what IBM leaves open is refused (register X42).
+_MOVE_FULL_STRUCT = r"""
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+"""
+_MOVE_STUB_MAIN = (
+    r"""
+#include <stdio.h>
+#include <string.h>
+"""
+    + _MOVE_FULL_STRUCT
+    + r"""
+int GGCPUTC(gg_cics *c, char *from); int GGCGETC(gg_cics *c, char *into); int GGCMOVC(gg_cics *c);
+int GGCSBRC(gg_cics *c); int GGCGNXC(gg_cics *c); int GGCEBRC(gg_cics *c); int GGCSYNC(gg_cics *c);
+int GGCTASK(gg_cics *c); int GGCLINK(gg_cics *c, char *area); int GGCNEXT(gg_cics *c, char **area); int GGCLRET(gg_cics *c);
+static gg_cics c;
+static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
+static const char *nm(int r) {
+    switch (r) { case 0: return "NORMAL"; case 16: return "INVREQ"; case 22: return "LENGERR"; case 83: return "END";
+                 case 110: return "CONTAINERERR"; case 112: return "TOKENERR"; case 122: return "CHANNELERR"; }
+    return "?";
+}
+static void say(const char *what) { printf("%s=%s/%d\n", what, nm(c.resp), c.resp2); }
+static void put(const char *chan, const char *cont, const char *data, const char *flags) {
+    blank(c.qname, 16, cont); blank(c.chan, 16, chan); blank(c.flags, 40, flags); c.len = (int)strlen(data);
+    GGCPUTC(&c, (char *)data);
+}
+static void get(const char *what, const char *chan, const char *cont) {
+    char into[16]; memset(into, '.', sizeof into);
+    blank(c.qname, 16, cont); blank(c.chan, 16, chan); blank(c.flags, 40, chan[0] ? "CHANNEL" : ""); c.len = 16;
+    GGCGETC(&c, into);
+    printf("%s=%s/%d", what, nm(c.resp), c.resp2);
+    if (c.resp == 0) printf("/%d/%.*s", c.len, c.len, into);
+    printf("\n");
+}
+static void move(const char *what, const char *cont, const char *as, const char *chan, const char *tochan) {
+    char fl[40] = "";
+    blank(c.qname, 16, cont); blank(c.as, 16, as); blank(c.chan, 16, chan); blank(c.tochan, 16, tochan);
+    if (chan[0]) strcat(fl, "CHANNEL ");
+    if (tochan[0]) strcat(fl, "TOCHAN");
+    blank(c.flags, 40, fl);
+    GGCMOVC(&c); say(what);
+}
+static int start(const char *what, const char *chan) {
+    blank(c.chan, 16, chan); blank(c.flags, 40, chan[0] ? "CHANNEL" : "");
+    GGCSBRC(&c); printf("%s=%s/%d", what, nm(c.resp), c.resp2);
+    if (c.resp == 0) printf("/token %d", c.num);
+    printf("\n"); return c.num;
+}
+static void next(const char *what, int token) {
+    c.num = token; GGCGNXC(&c); printf("%s=%s/%d", what, nm(c.resp), c.resp2);
+    if (c.resp == 0) printf("/[%.*s]", (int)strcspn(c.qname, " "), c.qname);
+    printf("\n");
+}
+static void end(const char *what, int token) { c.num = token; GGCEBRC(&c); say(what); }
+int main(void) {
+    char *area = NULL;
+    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);
+    move("move-no-channel", "A", "Q", "", "CH2");
+    put("CH1", "A", "aa", "CHANNEL CHAR"); put("CH1", "B", "bb", "CHANNEL");
+    move("rename", "A", "A2", "CH1", "CH1");
+    get("get-old", "CH1", "A"); get("get-new", "CH1", "A2");
+    move("to-new-channel", "B", "B", "CH1", "CH2");
+    get("source-gone", "CH1", "B"); get("target", "CH2", "B");
+    move("no-container", "X", "Y", "CH1", "CH3"); get("not-created", "CH3", "Y");
+    move("no-channel", "B", "B", "NOPE", "CH2");
+    put("CH2", "T", "tttt", "CHANNEL CHAR");
+    move("overwrite", "A2", "T", "CH1", "CH2"); get("overwritten", "CH2", "T");
+    int t1 = start("start", "CH2");
+    next("n1", t1); next("n2", t1); next("n3", t1); next("n4", t1);
+    end("end", t1); next("after-end", t1); end("end-again", t1); next("never-started", 99);
+    start("start-no-channel", "NOPE");
+    int t2 = start("start2", "CH2");
+    put("CH2", "B", "xx", "CHANNEL");  /* the data changes, not the names */
+    next("n1", t2);
+    int t3 = start("start3", "CH2"); GGCSYNC(&c); next("after-syncpoint", t3);
+    int t4 = start("start4", "CH2");
+    blank(c.name1, 8, "SUB"); c.item = 0; c.len = 0; blank(c.flags, 40, "CHANNEL"); blank(c.chan, 16, "CH2");
+    GGCLINK(&c, NULL); GGCNEXT(&c, &area);
+    next("other-program", t4); int t5 = start("sub-start", "");
+    end("sub-end", t5);
+    GGCLRET(&c);
+    next("owner", t4);
+    return 0;
+}
+"""
+)
+
+_MOVE_EXPECTED = [
+    "move-no-channel=INVREQ/4",
+    "rename=NORMAL/0",
+    "get-old=CONTAINERERR/10",
+    "get-new=NORMAL/0/2/aa",
+    "to-new-channel=NORMAL/0",
+    "source-gone=CONTAINERERR/10",
+    "target=NORMAL/0/2/bb",
+    "no-container=CONTAINERERR/10",
+    "not-created=CHANNELERR/2",
+    "no-channel=CHANNELERR/2",
+    "overwrite=NORMAL/0",
+    "overwritten=NORMAL/0/2/aa",
+    "start=NORMAL/0/token 1",
+    "n1=NORMAL/0/[B]",
+    "n2=NORMAL/0/[T]",
+    "n3=END/2",
+    "n4=END/2",
+    "end=NORMAL/0",
+    "after-end=TOKENERR/3",
+    "end-again=TOKENERR/3",
+    "never-started=TOKENERR/3",
+    "start-no-channel=CHANNELERR/2",
+    "start2=NORMAL/0/token 2",
+    "n1=NORMAL/0/[B]",
+    "start3=NORMAL/0/token 3",
+    "after-syncpoint=TOKENERR/3",
+    "start4=NORMAL/0/token 4",
+    "other-program=TOKENERR/3",
+    "sub-start=NORMAL/0/token 5",
+    "sub-end=NORMAL/0",
+    "owner=NORMAL/0/[B]",
+]
+
+
+@needs_cc
+def test_the_stub_moves_containers_and_browses_a_channel(tmp_path):
+    """#4951, IBM MOVE CONTAINER: the container leaves its channel and is AS in TOCHANNEL (made when absent, and not made
+    by a move that raises a condition), overwriting an existing AS; INVREQ RESP2 4, CHANNELERR 2, CONTAINERERR 10.
+    STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER: END RESP2 2 past the last, TOKENERR RESP2 3 for a token after ENDBROWSE,
+    after a sync point, never given, or another program's; the order is creation order (ASSUMED, X42)."""
+    out = _run_stub(_stub(tmp_path, _MOVE_STUB_MAIN), tmp_path)
+    assert out == _MOVE_EXPECTED
+
+
+@needs_javac
+def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_path):
+    """#4951: CicsTask answers the scenario above line for line."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask[] sub = new CicsTask[1];
+        int[] tokens = new int[8];
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> say = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2());
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                CicsTask.ContainerResult g = s.getNextContainer(tokens[4]);
+                System.out.println("other-program=" + g.resp() + "/" + g.resp2());
+                CicsTask.ContainerResult b = s.startBrowseContainer(null);
+                System.out.println("sub-start=" + b.resp() + "/" + b.resp2() + "/token " + b.length());
+                say.accept("sub-end", s.endBrowseContainer(b.length()));
+            }
+        });
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> got = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2()
+                + (r.normal() ? "/" + r.length() + "/" + new String(r.data()) : ""));
+        say.accept("move-no-channel", t.moveContainer(null, "A", "Q", "CH2"));
+        t.putContainer("CH1", "A", "aa".getBytes(), 2, "CHAR", false);
+        t.putContainer("CH1", "B", "bb".getBytes(), 2, null, false);
+        say.accept("rename", t.moveContainer("CH1", "A", "A2", "CH1"));
+        got.accept("get-old", t.getContainer("CH1", "A", 16));
+        got.accept("get-new", t.getContainer("CH1", "A2", 16));
+        say.accept("to-new-channel", t.moveContainer("CH1", "B", "B", "CH2"));
+        got.accept("source-gone", t.getContainer("CH1", "B", 16));
+        got.accept("target", t.getContainer("CH2", "B", 16));
+        say.accept("no-container", t.moveContainer("CH1", "X", "Y", "CH3"));
+        got.accept("not-created", t.getContainer("CH3", "Y", 16));
+        say.accept("no-channel", t.moveContainer("NOPE", "B", "B", "CH2"));
+        t.putContainer("CH2", "T", "tttt".getBytes(), 4, "CHAR", false);
+        say.accept("overwrite", t.moveContainer("CH1", "A2", "T", "CH2"));
+        got.accept("overwritten", t.getContainer("CH2", "T", 16));
+        java.util.function.BiConsumer<String, Integer> next = (what, tok) -> {
+            CicsTask.ContainerResult r = t.getNextContainer(tok);
+            System.out.println(what + "=" + r.resp() + "/" + r.resp2() + (r.normal() ? "/[" + r.name().strip() + "]" : ""));
+        };
+        java.util.function.BiFunction<String, String, Integer> start = (what, ch) -> {
+            CicsTask.ContainerResult r = t.startBrowseContainer(ch);
+            System.out.println(what + "=" + r.resp() + "/" + r.resp2() + (r.normal() ? "/token " + r.length() : ""));
+            return r.length();
+        };
+        int t1 = start.apply("start", "CH2");
+        next.accept("n1", t1); next.accept("n2", t1); next.accept("n3", t1); next.accept("n4", t1);
+        say.accept("end", t.endBrowseContainer(t1)); next.accept("after-end", t1);
+        say.accept("end-again", t.endBrowseContainer(t1)); next.accept("never-started", 99);
+        start.apply("start-no-channel", "NOPE");
+        int t2 = start.apply("start2", "CH2");
+        t.putContainer("CH2", "B", "xx".getBytes(), 2, null, false);
+        next.accept("n1", t2);
+        int t3 = start.apply("start3", "CH2");
+        t.syncpoint();
+        next.accept("after-syncpoint", t3);
+        tokens[4] = start.apply("start4", "CH2");
+        t.linkChannel("SUB", "CH2");
+        next.accept("owner", tokens[4]);""",
+    )
+    assert out.splitlines() == _MOVE_EXPECTED
+
+
+@needs_cc
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        ('put("CH1", "A", "a", "CHANNEL"); move("m", "A", "A", "CH1", "CH1");', "MOVE CONTAINER onto itself"),
+        (
+            'put("CH1", "A", "a", "CHANNEL CHAR"); put("CH1", "B", "b", "CHANNEL"); move("m", "A", "B", "CH1", "CH1");',
+            "onto a container of the other data type",
+        ),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); int t = start("s", "CH1"); put("CH1", "B", "b", "CHANNEL"); next("n", t);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            'put("CH1", "A", "a", "CHANNEL"); int t = start("s", "CH1"); blank(c.qname, 16, "A"); blank(c.chan, 16, "CH1"); '
+            'blank(c.flags, 40, "CHANNEL"); GGCDELC(&c); next("n", t);',
+            "browsed channel changed during the browse",
+        ),
+        ('start("s", "");', "STARTBROWSE CONTAINER with no channel"),
+        ('put("CH1", " A", "a", "CHANNEL");', "container name"),
+    ],
+)
+def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, steps, why):
+    """#4951 (X42): a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no
+    channel (IBM: the BTS form) and a name with an embedded blank are refused, never guessed."""
+    main = (
+        _MOVE_STUB_MAIN.replace("int GGCSYNC(gg_cics *c);", "int GGCSYNC(gg_cics *c); int GGCDELC(gg_cics *c);").split(
+            "int main(void) {"
+        )[0]
+        + "int main(void) {\n    char *area = NULL;\n"
+        + '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n'
+        + steps
+        + "\n    return 0;\n}\n"
+    )
+    exe = _stub(tmp_path, main)
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode != 0 and why in proc.stderr + proc.stdout
+
+
+@needs_javac
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); t.moveContainer("CH1", "A", "A", "CH1");',
+            "MOVE CONTAINER onto itself",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, "CHAR", false); t.putContainer("CH1", "B", "b".getBytes(), 1, null, false);'
+            ' t.moveContainer("CH1", "A", "B", "CH1");',
+            "onto a container of the other data type",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); int k = t.startBrowseContainer("CH1").length();'
+            ' t.putContainer("CH1", "B", "b".getBytes(), 1, null, false); t.getNextContainer(k);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); int k = t.startBrowseContainer("CH1").length();'
+            ' t.deleteContainer("CH1", "A"); t.getNextContainer(k);',
+            "browsed channel changed during the browse",
+        ),
+        ("t.startBrowseContainer(null);", "STARTBROWSE CONTAINER with no channel"),
+        ('t.putContainer("CH1", " A", "a".getBytes(), 1, null, false);', "container name"),
+    ],
+)
+def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, steps, why):
+    """#4951 (X42): the same refusals as the stub's."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        "try {\n" + steps + '\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and why in out, out
+
+
 # ---- #4270 slice 2: START AFTER / AT, the data options, ENVDEFERR, IOERR ---------------------------------------
 _IC2_MAIN = r"""
 #include <stdio.h>

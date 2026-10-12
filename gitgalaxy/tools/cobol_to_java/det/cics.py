@@ -13,7 +13,7 @@ from pathlib import Path
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands import whole_refusal
-from gitgalaxy.standards.cics.commands.api import CHILD_LATER, CONTAINER_LATER, COUNTER
+from gitgalaxy.standards.cics.commands.api import CHILD_LATER, COUNTER
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
@@ -87,6 +87,8 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if first == "GETNEXT" and "CONTAINER" in opts:  # #4951: GETNEXT CONTAINER(area) BROWSETOKEN(token)
+        return "GETNEXT CONTAINER"
     if verb == "GET" and "DCOUNTER" in opts:  # #4767 (X30): GET DCOUNTER is the doubleword form of GET COUNTER's entry
         return "GET COUNTER"
     if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -805,9 +807,8 @@ class Cics:
         key = command_key(words, opts)
         if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
             return self.container(key, opts, ind)
-        if key == "MOVE CONTAINER" or words[:1] in (["STARTBROWSE"], ["GETNEXT"], ["ENDBROWSE"]):
-            # #4270: no non-burned corpus program MOVEs a container; one browses (with GETMAIN / SOAPFAULT beside)
-            raise CicsError(f"EXEC CICS {key} not modelled ({CONTAINER_LATER})")
+        if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
+            return self.container_browse(key, opts, ind)  # #4951
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
         if words[:1] == ["FETCH"]:  # #4884: FETCH ANY / FETCH CHILD, NOSUSPEND only
@@ -1553,6 +1554,43 @@ class Cics:
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def container_browse(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL),
+        STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (CHANNEL)) on CicsTask's channels. MOVE: CONTAINER and AS, the
+        channels CHANNEL / TOCHANNEL (omitted: the current channel). STARTBROWSE: BROWSETOKEN, a fullword the token
+        is stored in (not on a condition: IBM does not say); CHANNEL, omitted: the current channel. GETNEXT: the next
+        container's 16-character name into CONTAINER (not on END / TOKENERR). ENDBROWSE: the token. CHANNELERR,
+        CONTAINERERR, INVREQ, END, ILLOGIC and TOKENERR come back with their RESP2 through RESP / HANDLE CONDITION;
+        what IBM leaves open is refused or assumed at run time (register X42)."""
+        g = self.g
+        r = g.tmpname("cont")
+
+        def named(option: str) -> str:
+            return self.name(_arg(opts[option])) if option in opts else "null"
+
+        if key == "MOVE CONTAINER":
+            for need in ("CONTAINER", "AS"):
+                _arg(opts.get(need))
+            call = f"task.moveContainer({named('CHANNEL')}, {named('CONTAINER')}, {named('AS')}, {named('TOCHANNEL')})"
+            return [f"{ind}CicsTask.ContainerResult {r} = {call};",
+                    *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+        token = _arg(opts.get("BROWSETOKEN"))
+        out: list[str] = []
+        if key == "STARTBROWSE CONTAINER":
+            out.append(f"{ind}CicsTask.ContainerResult {r} = task.startBrowseContainer({named('CHANNEL')});")
+            out.append(
+                f"{ind}if ({r}.length() >= 0) "
+                + g.store_into(self.ref(token), f"BigDecimal.valueOf({r}.length())", False)
+            )
+        elif key == "GETNEXT CONTAINER":
+            out.append(f"{ind}CicsTask.ContainerResult {r} = task.getNextContainer({self.int_(token)});")
+            out.append(
+                f"{ind}if ({r}.name() != null) DetCics.putText({self.field(_arg(opts['CONTAINER']))}, {r}.name(), CS);"
+            )
+        else:
+            out.append(f"{ind}CicsTask.ContainerResult {r} = task.endBrowseContainer({self.int_(token)});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
 
     # -- #4270 slice 2: interval control

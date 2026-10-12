@@ -143,7 +143,8 @@ CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QID
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
                     "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
                     # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
-                    "NOTAUTH": "AEY7"}  # fmt: skip
+                    # #4951: container browse -- GETNEXT / ENDBROWSE CONTAINER's TOKENERR, ILLOGIC and END
+                    "NOTAUTH": "AEY7", "TOKENERR": "AEZL", "ILLOGIC": "AEIU", "END": "AEXK"}  # fmt: skip
 SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "FRSET", "CURSOR", "WAIT", "LAST")
 
 # What each scenario side records (see cics_crucible_compare.Capabilities).

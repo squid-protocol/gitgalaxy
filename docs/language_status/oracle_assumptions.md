@@ -120,7 +120,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
-| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
@@ -145,6 +145,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X39 | CICS | EXEC CICS LINK passes the caller's COMMAREA by address; EXEC CICS XCTL says only that the contents of the data area are passed. When a LINKed program XCTLs with (part of) its own DFHCOMMAREA, whether the target's writes reach the LINK caller is not documented, so a successful XCTL of the caller's area is refused by name in both runtimes | REFUSED (IBM is silent) | no (unit-proven on CicsTask and the det emission; a cobc regression refuses on the oracle's side) |
 | X40 | CICS | EXEC CICS XCTL / LINK conditions INVREQ, LENGERR, NOTAUTH, PGMIDERR: with no RESP and no HANDLE CONDITION for the condition the task abends with the condition's abend code (AEIP, AEIV, AEY7, AEI0). NOTAUTH had no code in the shared table, so the det runtime threw 'no abend code known' and the stub printed '????'; LINK also takes a planned fault, as XCTL does. EIBRESP2 of a planned fault is not the plan's RESP2 (see the sibling note) | ASSUMED | no (unit-proven on CicsTask and the stub's table; the CardDemo scenarios wait for their model ports) |
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
+| X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1235,8 +1236,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
   time): FROMCCSID, FROMCODEPAGE, INTOCCSID, INTOCODEPAGE, CONVERTST, CCSID (code-page conversion of a CHAR
   container); GET SET (a pointer to CICS's copy); BYTEOFFSET and PREPEND (no corpus program uses them); RETURN
-  CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); MOVE CONTAINER and
-  STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (later #4270 slices); LINK / XCTL with both CHANNEL and COMMAREA. At run
+  CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); LINK / XCTL with both CHANNEL and COMMAREA. At run
   time: a PUT naming the other data type for an existing container (IBM says DATATYPE "applies only to new
   containers" and also lists INVREQ RESP2 33 for "an attempt ... to change the data-type"); a channel an XCTL left
   behind (IBM's scope tables do not say); an FLENGTH past FROM / INTO, or a negative one on GET; a name that is
@@ -2067,6 +2067,47 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfiel
   for line over two request fixtures (tests/cics_crucible/test_cics_runtimes.py), both translators refuse every unmodelled option
   (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). No estate program uses WEB RETRIEVE (det survey, the burned
   estates), so no port moves.
+
+### X42. MOVE CONTAINER and the container browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER) — ASSUMED, REFUSED where IBM is silent (#4951, sibling of #4884)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS MOVE CONTAINER (CHANNEL), STARTBROWSE CONTAINER (CHANNEL), GETNEXT CONTAINER
+  (CHANNEL), ENDBROWSE CONTAINER (CHANNEL): https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-move-container-channel and its
+  `startbrowse-` / `getnext-` / `endbrowse-container-channel` siblings). MOVE: CONTAINER names the source, AS the target ("If it
+  already exists, its contents are overwritten"), CHANNEL the source's channel and TOCHANNEL the target's ("If the channel does not
+  exist, CICS creates it"); each omitted means the current channel. CHANNELERR 1 (illegal TOCHANNEL name), 2 (CHANNEL not found),
+  3 (read-only channel); CONTAINERERR 10 (source not found), 18 (illegal AS name); INVREQ 4 (CHANNEL or TOCHANNEL omitted, no
+  current channel, outside a BTS activity), 30 / 31 (a CICS-defined read-only container as source / target). STARTBROWSE: CHANNEL
+  ("must be either the current channel or a channel created by the program"; omitted with no current channel it "is treated as
+  STARTBROWSE CONTAINER (BTS)"), BROWSETOKEN a fullword; CHANNELERR 2. "The order of returned containers is undefined and may
+  change." GETNEXT: CONTAINER(data-area) "the 16-character name of the next data-container", BROWSETOKEN a fullword; END 2 (no more
+  containers), ILLOGIC 1 (a current token, but not a container browse's), TOKENERR 3 (not valid: after the browse ended, after a
+  sync point before it completed, or no STARTBROWSE). ENDBROWSE: ILLOGIC 1, TOKENERR 3. The unhandled conditions abend AEIU
+  (ILLOGIC), AEXK (END) and AEZL (TOKENERR) (IBM's AEI/AEY/AEZ abend table; APAR PK43600 shows GETNEXT CONTAINER's TOKENERR as AEZL).
+  Both sides model it: `ggcics.c` GGCMOVC / GGCSBRC / GGCGNXC / GGCEBRC and CicsTask moveContainer / startBrowseContainer /
+  getNextContainer / endBrowseContainer; the spec entries are `standards/cics/commands/containers.py`.
+- **Assumed.** (1) The browse returns the containers in the order they were created; IBM calls the order undefined, so a program
+  that depends on it is outside what IBM promises, and the port and the stub agree on this one order. A container MOVEd to a new
+  AS is created at that moment; an overwritten AS keeps its place. (2) Tokens are 1, 2, 3 ... in the order the task started
+  browses (IBM only says "token"); a token is the issuing program's own: another program (a LINKed one) naming it gets TOKENERR 3
+  (IBM: "meant only for the program that issued STARTBROWSE"); a SYNCPOINT (and a ROLLBACK) ends every browse. (3) After END, a
+  further GETNEXT is END again; the token stays valid until ENDBROWSE. (4) The browse lists the names at STARTBROWSE; a GETNEXT
+  after a container was added to or removed from the channel is refused (below), so no program here sees the unspecified middle
+  ground; PUT over an existing container and a MOVE onto an existing AS change data, not names, and are allowed. (5) A MOVE that
+  raises a condition changes nothing and creates no TOCHANNEL; the conditions are checked in the order INVREQ 4, CHANNELERR 2,
+  CONTAINERERR 10 (IBM does not rank them). (6) The moved container keeps its data type (BIT / CHAR); the bytes are never
+  converted, as for PUT / GET (X17). (7) GETNEXT's CONTAINER area takes the 16-character name, blank-padded; a shorter program area
+  takes its first bytes.
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run time): any
+  option IBM's command does not list; MOVE CONTAINER onto itself (the same name in the same channel: IBM does not say); MOVE onto an
+  existing container of the other data type (its type, or an INVREQ, is not documented; the same open question PUT has, X17);
+  GETNEXT after the browsed channel gained or lost a container (IBM says nothing of changes during a browse); STARTBROWSE with no
+  CHANNEL and no current channel (IBM: the BTS form, not modelled); a channel an XCTL left behind and a blank / embedded-blank name
+  (X17's refusals). **Unreachable, so no outcome:** CHANNELERR 1 and CONTAINERERR 18 (the names' illegal-character rules are not
+  modelled: such a name is refused, X17), CHANNELERR 3 and INVREQ 30 / 31 (no channel or container is read-only: CICS-defined
+  containers are not modelled), ILLOGIC 1 (no other browse hands out a token: WEB browses and INQUIRE URIMAP's have none).
+- **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 31-step scenario (MOVE across, within and to a new
+  channel, onto an existing container, every condition; browse to END, ENDBROWSE, a reused token, a never-given token, a sync point,
+  another program's token) on the stub and on CicsTask, which print the same lines, and the refusals above on both. No cics-crucible
+  case yet: a hand-traced case is a companion PR on the crucible.
 
 ## Language Environment
 

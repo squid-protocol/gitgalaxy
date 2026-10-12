@@ -53,7 +53,9 @@ def decide(s: dict[str, Any]) -> dict[str, Any]:
                        f"({s.get('blocked', 0)} tasks stuck in D state{culprit})")  # fmt: skip
     elif load_ratio >= 1.0:
         red = True
-        reasons.append(f"load1 {s['load1']:.1f} >= {cores} cores" + (f", mostly tasks waiting on disk{culprit}" if on_disk else ""))
+        reasons.append(
+            f"load1 {s['load1']:.1f} >= {cores} cores" + (f", mostly tasks waiting on disk{culprit}" if on_disk else "")
+        )
     elif load_ratio >= 0.7:
         yellow = True
         reasons.append(f"load1 {s['load1']:.1f} >= 70% of {cores} cores"
@@ -278,8 +280,14 @@ def snapshot(sample: float = 1.0) -> dict[str, Any]:
          for pid, b in io1.items() if b - io0.get(pid, 0) >= 1e6 * sample),
         key=lambda x: -x["mb_s"])[:6]  # fmt: skip
     blocked = _blocked()
-    held = sorted(({"pid": p, "threads": n, "who": _group(p), "age_min": _age_min(p), "cmd": _cmd(p)}
-                   for p, n in blocked.items() if _argv(p)), key=lambda x: -x["threads"])[:6]  # user processes; fmt: skip
+    held = sorted(
+        (
+            {"pid": p, "threads": n, "who": _group(p), "age_min": _age_min(p), "cmd": _cmd(p)}
+            for p, n in blocked.items()
+            if _argv(p)
+        ),
+        key=lambda x: -x["threads"],
+    )[:6]  # user processes; fmt: skip
     strays = [{"pid": p, "age_min": a, "cmd": _cmd(p)} for p in t1 if (a := _age_min(p)) >= STRAY_MINUTES
               and is_stray_scan(_argv(p), a)]  # fmt: skip
     culprit = (f"{strays[0]['cmd'][:60]} (pid {strays[0]['pid']}, {strays[0]['age_min']} min)" if strays

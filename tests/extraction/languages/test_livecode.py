@@ -192,7 +192,7 @@ def test_livecode_dependency_capture():
         ('start \t using \t behavior \t "btnBehavior"', "btnBehavior"),
         ('start \t using \t stack \t "lib"', "lib"),
         ('require \t "database"', "database"),
-        ("use \t com.livecode.math", "com.livecode.math")  # #2875 C3: `use` binds, `module` declares,
+        ("use \t com.livecode.math", "com.livecode.math"),  # #2875 C3: `use` binds, `module` declares,
     ]
 
     for payload, expected in valid:

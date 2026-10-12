@@ -135,7 +135,14 @@ CASES = {
         ],
     ),
     "java": (  # C1: `assert...(` keeps JUnit `assertEquals(`, drops the runtime `assert(cond)` statement
-        ["@Test", "@ParameterizedTest", "assertEquals(a, b)", "assertThat(x).isNull()", "verify(mock).run()", "when(mock.get())"],
+        [
+            "@Test",
+            "@ParameterizedTest",
+            "assertEquals(a, b)",
+            "assertThat(x).isNull()",
+            "verify(mock).run()",
+            "when(mock.get())",
+        ],
         ["assert(cond);", "assert x > 0;", "assert cond : message;"],
     ),
     "groovy": (  # C1: keeps `assertEquals(`, drops groovy's parenthesized power-assert; Spock labels stay
@@ -171,9 +178,21 @@ COUNTS = [
     ("ruby", "x = respond_to?(:foo)\n# context here", 0),
     ("javascript", "describe('x', () => {\n  expect(a).toBe(b);\n});", 2),
     ("javascript", "if (name === 'assert') doThing();", 0),
-    ("java", "@Test\nvoid t() { assertEquals(a, b); assert(raw); }", 2),  # framework assert counts, runtime assert(raw) does not
-    ("groovy", "def 'spec'() {\n  expect:\n  assertEquals(a, b)\n  assert(raw)\n}", 2),  # label + framework assert; power-assert(raw) excluded
-    ("assembly", "%macro testcase 2\n; describe the flow\ntestcase {", 2),  # macro decl + invocation; comment prose excluded
+    (
+        "java",
+        "@Test\nvoid t() { assertEquals(a, b); assert(raw); }",
+        2,
+    ),  # framework assert counts, runtime assert(raw) does not
+    (
+        "groovy",
+        "def 'spec'() {\n  expect:\n  assertEquals(a, b)\n  assert(raw)\n}",
+        2,
+    ),  # label + framework assert; power-assert(raw) excluded
+    (
+        "assembly",
+        "%macro testcase 2\n; describe the flow\ntestcase {",
+        2,
+    ),  # macro decl + invocation; comment prose excluded
 ]
 
 PAYLOADS = [

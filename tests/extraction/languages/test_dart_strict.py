@@ -431,14 +431,14 @@ def test_dart_api_contract_2730():
     api = DART_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('int probeGlobals(int env) {'), 'top-level public function'
-    assert api.search('Future<void> main() async {'), 'generic return type'
-    assert api.search("export 'src/foo.dart';"), 'export directive (kept)'
+    assert api.search("int probeGlobals(int env) {"), "top-level public function"
+    assert api.search("Future<void> main() async {"), "generic return type"
+    assert api.search("export 'src/foo.dart';"), "export directive (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search("@pragma('vm:prefer-inline')"), 'compiler pragma'
-    assert not api.search('  int helper(int x) {'), 'indented method'
-    assert not api.search('int _private(int x) {'), 'underscore-private top-level function'
+    assert not api.search("@pragma('vm:prefer-inline')"), "compiler pragma"
+    assert not api.search("  int helper(int x) {"), "indented method"
+    assert not api.search("int _private(int x) {"), "underscore-private top-level function"
 
     # ReDoS detonation on an unclosed generic argument list.
     assert_redos_immune(api, "int " + "<" * 40000, timeout_sec=3.0)

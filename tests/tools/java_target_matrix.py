@@ -42,6 +42,7 @@ from unittest.mock import patch
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 sys.path.insert(0, str(REPO_ROOT))
 from maven_exe import mvn_executable  # noqa: E402
+
 _TIMESTAMP = re.compile(rb"gitgalaxy_(clean|java_spring)_[0-9]{8}_[0-9]{6}")
 
 MATRIX: dict[str, dict] = {

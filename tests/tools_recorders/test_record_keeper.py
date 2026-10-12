@@ -792,9 +792,7 @@ def test_record_keeper_tier_columns_migration_on_legacy_db(keeper, mock_pipeline
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    row = conn.execute(
-        "SELECT fam_guards, rel_guard_balance FROM file_data ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    row = conn.execute("SELECT fam_guards, rel_guard_balance FROM file_data ORDER BY id DESC LIMIT 1").fetchone()
     conn.close()
     assert row["fam_guards"] == 9, "post-migration insert must carry the real fam_guards"
     assert row["rel_guard_balance"] == 4.5, "post-migration insert must carry the real rel_guard_balance"

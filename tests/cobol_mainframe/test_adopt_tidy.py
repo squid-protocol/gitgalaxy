@@ -50,8 +50,11 @@ def test_strip_comments_keeps_string_literals():
 def test_a_code_change_is_refused(monkeypatch):
     monkeypatch.setattr(pl, "RESP_NOTE", "x();")  # a "retag" that would touch code outside a comment
     with pytest.raises(RuntimeError):
-        pl.tidy_scaffold("int a; // TODO: the RESP of X at line 1 (paragraph P) is never tested\nint b;\n"
-                         .replace("// ", "").replace("\n", " "))
+        pl.tidy_scaffold(
+            "int a; // TODO: the RESP of X at line 1 (paragraph P) is never tested\nint b;\n".replace(
+                "// ", ""
+            ).replace("\n", " ")
+        )
 
 
 def test_tidy_port_records_the_edit_in_provenance(tmp_path):

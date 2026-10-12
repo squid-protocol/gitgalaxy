@@ -34,6 +34,7 @@ MACRO MY-MACRO
 END-MACRO
 """
 
+
 def test_easytrieve_splicing_functions():
     result = _splice(CODE)
     funcs = result["functions"]
@@ -41,14 +42,14 @@ def test_easytrieve_splicing_functions():
     assert funcs[0]["name"] == "INPUT"
     assert funcs[1]["name"] == "MY-PROC"
     assert funcs[2]["name"] == "MY-MACRO"
-    
+
     # Check lines
     lines = CODE.splitlines()
     assert lines[funcs[0]["start_line"] - 1].startswith("JOB INPUT")
     assert lines[funcs[1]["start_line"] - 1].startswith("PROC MY-PROC")
     assert lines[funcs[2]["start_line"] - 1].startswith("MACRO MY-MACRO")
 
+
 def test_easytrieve_splicing_no_functions():
     code = "* just a comment\nGET FILEA\n"
     assert _splice(code)["functions"] == []
-

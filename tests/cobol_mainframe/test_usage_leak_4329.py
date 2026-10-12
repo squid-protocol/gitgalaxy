@@ -6,8 +6,7 @@ separator period, literals blanked), as NATIONAL already was (#3816)."""
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 
 HEAD = (
-    "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. USG.\n       DATA DIVISION.\n"
-    "       WORKING-STORAGE SECTION.\n"
+    "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. USG.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
 )
 
 

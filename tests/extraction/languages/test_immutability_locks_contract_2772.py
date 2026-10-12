@@ -84,7 +84,7 @@ CASES = {
         ["name: &'static str,", "*const Entry", "const fn new() -> Self {"],
     ),
     "go": (
-        ["const prefix = \"GODEBUG=\""],
+        ['const prefix = "GODEBUG="'],
         [],
     ),
     # --- C2: locks on non-data are not this signal --------------------------------

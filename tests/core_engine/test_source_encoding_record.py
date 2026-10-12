@@ -26,7 +26,9 @@ def _files():
 def _rows(db):
     conn = sqlite3.connect(db)
     try:
-        return {p: (e, h) for p, e, h in conn.execute("SELECT file_path, source_encoding, source_decode FROM file_data")}
+        return {
+            p: (e, h) for p, e, h in conn.execute("SELECT file_path, source_encoding, source_decode FROM file_data")
+        }
     finally:
         conn.close()
 

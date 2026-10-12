@@ -880,10 +880,10 @@ def test_groovy_api_contract_2730():
     api = GROOVY_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public static void setText(Element e, String v) {'), 'public method'
+    assert api.search("public static void setText(Element e, String v) {"), "public method"
 
     # Not declarations -- must not match.
-    assert not api.search('log.warn("Could not open the public key ring.")'), 'keyword in a string'
+    assert not api.search('log.warn("Could not open the public key ring.")'), "keyword in a string"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

@@ -145,6 +145,7 @@ def test_build_line_gate_requires_both_checks():
 # EVALUATION: line_gated_finditer exact parity
 # ==============================================================================
 
+
 def _c_sm():
     return LANGUAGE_DEFINITIONS["c"]["rules"]["state_mutation"]
 
@@ -152,13 +153,7 @@ def _c_sm():
 def test_parity_on_representative_c_text():
     _assert_parity(
         _c_sm(),
-        "int x;\n"
-        "x = 1;\n"
-        "/* comment line */\n"
-        "x += 2; y--;\n"
-        "if (a) { b = c; }\n"
-        "no mutation here\n"
-        "++counter;\n",
+        "int x;\nx = 1;\n/* comment line */\nx += 2; y--;\nif (a) { b = c; }\nno mutation here\n++counter;\n",
     )
 
 
@@ -227,12 +222,7 @@ def test_parity_go_channel_and_delete_forms():
     pattern = LANGUAGE_DEFINITIONS["go"]["rules"]["state_mutation"]
     _assert_parity(
         pattern,
-        "ch <- v\n"
-        "n++\n"
-        "delete(m, k)\n"
-        "atomic.AddInt64(&c, 1)\n"
-        "plain line\n"
-        "x := 1\n",
+        "ch <- v\nn++\ndelete(m, k)\natomic.AddInt64(&c, 1)\nplain line\nx := 1\n",
     )
 
 

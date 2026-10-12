@@ -50,9 +50,12 @@ def test_no_psi_kernel_still_decides():
 
 # --- #4930: disk-blocked load, I/O pressure, strays -------------------------------------------------------------------
 
+
 def test_load_from_disk_wait_is_yellow_and_names_the_culprit():
     # 2026-10-11: load 9.3 on 12 cores, CPU pressure 0, I/O pressure 53% -- a stray `find /` held the box YELLOW 40 min
-    d = bs.decide(snap(load1=9.3, cpu_psi=0.0, io_psi=53.0, blocked=9, culprit="bfs / -name box_status.py (pid 830173)"))
+    d = bs.decide(
+        snap(load1=9.3, cpu_psi=0.0, io_psi=53.0, blocked=9, culprit="bfs / -name box_status.py (pid 830173)")
+    )
     assert d["verdict"] == "YELLOW"
     assert "waiting on disk" in d["reasons"][0] and "pid 830173" in d["reasons"][0]
     assert any(r.startswith("disk I/O pressure 53%") for r in d["reasons"])
@@ -89,5 +92,7 @@ def test_is_stray_scan_covers_the_whole_filesystem_scanners_only():
     assert bs.is_stray_scan(["rg", "-l", "TODO", str(Path.home())], 30)
     assert not bs.is_stray_scan(["find", "/", "-name", "x"], 5)  # young: maybe on purpose
     assert not bs.is_stray_scan(["find", "/srv/storage_16tb/projects/gitgalaxy-worktrees/x", "-name", "*.py"], 60)
-    assert not bs.is_stray_scan(["find", "/tmp", "/var/tmp", "-type", "f"], 400)  # chkrootkit's daily walk: not a root scan
+    assert not bs.is_stray_scan(
+        ["find", "/tmp", "/var/tmp", "-type", "f"], 400
+    )  # chkrootkit's daily walk: not a root scan
     assert not bs.is_stray_scan(["python", "/", "x"], 60)

@@ -44,7 +44,7 @@ def test_rust_pattern_is_registered_and_used():
         ('format_ident!("field{}", m)', ["format_ident"]),
         ("let v = vec![1, 2];", ["vec"]),
         ("quote! { #x }", ["quote"]),
-        ("std::println!(\"{}\", x)", ["println"]),
+        ('std::println!("{}", x)', ["println"]),
     ],
 )
 def test_macro_is_a_call_to_its_name(text, callees):

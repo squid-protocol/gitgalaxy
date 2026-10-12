@@ -65,11 +65,11 @@ The leak, concretely:
 
 ```python
 # gitgalaxy/core/spatial_correlation.py, Block 6 (documented + pinned by #2631)
-counts["state_mutation"] += cascading_flux * 2   # +2 on top of the raw hit = x3 net
+counts["state_mutation"] += cascading_flux * 2  # +2 on top of the raw hit = x3 net
 mitigations["amplified_cascading_flux"] = ... + cascading_flux
 
 # gitgalaxy/metrics/signal_processor.py:1786
-net_volatility = max(0.0, raw_flux - (freeze_hits * 0.5))   # writes minus declarations
+net_volatility = max(0.0, raw_flux - (freeze_hits * 0.5))  # writes minus declarations
 ```
 
 #2631 documented the ×3 and made the raw count recoverable (`raw = recorded − 2 × amplified`),

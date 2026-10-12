@@ -3414,6 +3414,24 @@ int main(int argc, char **argv) {
 """
 
 
+@pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK")
+def test_cics_task_web_percent_decoding_is_ascii_hex_only(tmp_path):
+    """#4940: a non-ASCII digit after '%' (fullwidth, Arabic-Indic, ...) is refused, never decoded as hex."""
+    body = (
+        "        try {\n"
+        '        var m = CicsTask.class.getDeclaredMethod("webPlain", String.class, String.class);\n'
+        "        m.setAccessible(true);\n"
+        '        for (String s : new String[] {"%41", "%4a", "%4A", "%\\uff14\\uff11", "%\\u0664\\u0661",\n'
+        '                "%4\\uff11", "%\\u0664A", "%g1"}) {\n'
+        '            try { System.out.println(m.invoke(null, "FORMFIELD", s)); }\n'
+        '            catch (java.lang.reflect.InvocationTargetException e) { System.out.println("refused"); }\n'
+        "        }\n"
+        "        } catch (Exception e) { throw new RuntimeException(e); }"
+    )
+    out = _cics_task(tmp_path, body).split()
+    assert out == ["A", "J", "J", "refused", "refused", "refused", "refused", "refused"]
+
+
 def _x38_cfg(name: str) -> str:
     scheme, host, port, method, version, path, query, headers, media, body = _X38_REQ[name]
     hx = lambda v: v.encode("latin-1").hex().upper() if v else "-"  # noqa: E731
@@ -3809,3 +3827,317 @@ def test_cics_task_sends_a_document_as_the_stub_does(tmp_path):
     assert len(refusals) == len(_X37_DOC_REFUSED)
     for got, (_steps, why) in zip(refusals, _X37_DOC_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+# ---- #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms ----------------------------------------
+# One step table, run alike by the stub (C) and CicsTask (Java): rdf / rdq NAME NAMELENGTH VALUELENGTH (areas: name 32, value
+# 24), sbr KIND [NAME NAMELENGTH], rnx KIND NAMELENGTH VALUELENGTH (areas: name 16, value 30), ebr KIND; KIND h / f / q
+# (HTTPHEADER / FORMFIELD / QUERYPARM). Areas start as dots, so "the rest of the area is left alone" shows.
+_URL = "application/x-www-form-urlencoded"
+_FORM_Q = "a=1&B=two%20words&c=&e=x%3Dy"
+_FORM_B = "user=joe&Pass=p%40ss%21&empty=&long=abcdefghijklmnopqrstuvwxy"
+_H2 = [("Host", "h"), ("X-Long", "abcdefghijklmnopqrstuvwxyz0123456789")]
+_LONGV = "0123456789" * 3 + "0123"
+_X4940_REQ = {
+    "form": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", _FORM_Q, _H2, _URL, _FORM_B),
+    "hdrs": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "", [("A", "1"), ("B", "2")], None, None),
+    "dup": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "a=1&A=2", [], _URL, "k=1&k=2"),
+    "emptybody": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], _URL, ""),
+    "multipart": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], "multipart/form-data", "a=1"),
+    "textplain": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], "text/plain", "a=1"),
+    "eqval": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "k=a=b", [], None, None),
+    "longname": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "averyverylongfieldname=v&z=1", [], _URL,
+                 "averyverylongfieldname=v&z=1"),
+    "bothlong": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", f"averyverylongfieldname={_LONGV}", [], _URL,
+                 f"averyverylongfieldname={_LONGV}"),
+}  # fmt: skip
+_X4940_BAD = {  # data IBM leaves open: the same string as a query string and as a form body
+    "plus": "a=b+c", "semi": "a=1;b=2", "noeq": "abc", "badesc": "a=%zz", "shortesc": "a=%4", "ctl": "a=%00",
+    "hi": "a=%FF", "escname": "%41=1", "emptypair": "a=1&&b=2", "emptyname": "=v", "trailamp": "a=1&",
+}  # fmt: skip
+for _n, _d in _X4940_BAD.items():
+    _X4940_REQ[_n] = ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", _d, [], _URL, _d)
+_X38_REQ.update(_X4940_REQ)
+
+
+def _d(s: str, n: int) -> str:
+    return s + "." * (n - len(s))
+
+
+def _rd(step: str, resp: str, value: str | None = None, n: int | None = None) -> str:
+    return f"{step} {resp}" + ("" if value is None else f" {_d(value, 24)}|{n}")
+
+
+def _rn(resp: str, name: str | None = None, value: str = "", nl: int = 0, vl: int = 0) -> str:
+    return f"rnx {resp}" + ("" if name is None else f" {_d(name, 16)}|{_d(value, 30)}|{nl}|{vl}")
+
+
+_LONGFIELD = "abcdefghijklmnopqrstuvwxy"
+_FORM_ROWS = [("user", "joe"), ("Pass", "p@ss!"), ("empty", ""), ("long", _LONGFIELD)]
+_QUERY_ROWS = [("a", "1"), ("B", "two words"), ("c", ""), ("e", "x=y")]
+_MORE = "with more than one condition at once"
+_X4940_CASES: list[tuple[str, list[str], list[str]]] = [
+    # -- WEB READ FORMFIELD / QUERYPARM: the name without case, the value unescaped, cut with the real length
+    ("form", ["rdf user 4 24"], [_rd("rdf", "0/0", "joe", 3)]),
+    ("form", ["rdf USER 4 24"], [_rd("rdf", "0/0", "joe", 3)]),
+    ("form", ["rdf Pass 4 24"], [_rd("rdf", "0/0", "p@ss!", 5)]),
+    ("form", ["rdf empty 5 24"], [_rd("rdf", "0/0", "", 0)]),
+    ("form", ["rdf long 4 24"], [f"rdf 22/5 {_LONGFIELD[:24]}|25"]),
+    ("form", ["rdf long 4 10"], [_rd("rdf", "22/5", _LONGFIELD[:10], 25)]),
+    ("form", ["rdf long 4 25"], ["WEB READ FORMFIELD length beyond its area"]),
+    ("form", ["rdf nobody 6 24"], ["rdf 13/1"]),
+    ("form", ["rdf user 0 24"], ["rdf 22/1"]),
+    ("form", ["rdf user 4 0"], ["rdf 22/1"]),
+    ("form", ["rdf user 4 -1"], ["rdf 22/1"]),
+    ("form", ["rdf user -2 24"], ["rdf 22/1"]),
+    ("form", ["rdf user 33 24"], ["WEB READ FORMFIELD length beyond its area"]),
+    ("form", ["rdf nobody 6 0"], [f"WEB READ FORMFIELD {_MORE}"]),
+    ("form", ["rdq a 1 24"], [_rd("rdq", "0/0", "1", 1)]),
+    ("form", ["rdq b 1 24"], [_rd("rdq", "0/0", "two words", 9)]),
+    ("form", ["rdq B 1 24", "rdq e 1 24", "rdq c 1 24"],
+     [_rd("rdq", "0/0", "two words", 9), _rd("rdq", "0/0", "x=y", 3), _rd("rdq", "0/0", "", 0)]),
+    ("form", ["rdq e 1 2"], [_rd("rdq", "22/5", "x=", 3)]),
+    ("form", ["rdq user 4 24"], ["rdq 13/1"]),
+    ("form", ["rdq a 1 25"], ["WEB READ QUERYPARM length beyond its area"]),
+    ("form", ["rdq a 33 24"], ["WEB READ QUERYPARM length beyond its area"]),
+    ("form", ["rdq a 0 24"], ["rdq 22/1"]),
+    ("form", ["rdq zz 2 0"], [f"WEB READ QUERYPARM {_MORE}"]),
+    ("eqval", ["rdq k 1 24"], [_rd("rdq", "0/0", "a=b", 3)]),
+    ("bare", ["rdf a 1 24"], ["rdf 16/13"]),
+    ("bare", ["rdq a 1 24"], ["rdq 16/13"]),
+    ("bare", ["rdf a 0 24"], [f"WEB READ FORMFIELD {_MORE}"]),
+    ("bare", ["rdq a 1 0"], [f"WEB READ QUERYPARM {_MORE}"]),
+    ("emptybody", ["rdf a 1 24"], ["rdf 16/13"]),
+    ("dup", ["rdq a 1 24"], ["WEB READ QUERYPARM two pairs of the name"]),
+    ("dup", ["rdq A 1 24"], ["WEB READ QUERYPARM two pairs of the name"]),
+    ("dup", ["rdf k 1 24"], ["WEB READ FORMFIELD two pairs of the name"]),
+    ("dup", ["rdq zz 2 24"], ["rdq 13/1"]),
+    ("multipart", ["rdf a 1 24"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("textplain", ["rdf a 1 24"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("multipart", ["sbr f"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("multipart", ["rdq a 1 24"], ["rdq 16/13"]),
+    # -- the data IBM leaves open, refused on every form
+    *[
+        (n, [step], [f"WEB {kind} data outside the modelled name=value form"])
+        for n in _X4940_BAD
+        for step, kind in (("rdq a 1 24", "QUERYPARM"), ("rdf a 1 24", "FORMFIELD"), ("sbr q", "QUERYPARM"),
+                           ("sbr f", "FORMFIELD"))  # fmt: skip
+    ],
+    # -- WEB STARTBROWSE / READNEXT / ENDBROWSE FORMFIELD
+    ("form", ["sbr f", "rnx f 16 30", "rnx f 16 30", "rnx f 16 30", "rnx f 16 12", "rnx f 16 12", "rnx f 16 30",
+              "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "user", "joe", 4, 3), _rn("0/0", "Pass", "p@ss!", 4, 5), _rn("0/0", "empty", "", 5, 0),
+      _rn("22/5", "long", _LONGFIELD[:12], 4, 25), _rn("22/5", "long", _LONGFIELD[:12], 4, 25),
+      _rn("0/0", "long", _LONGFIELD, 4, 25), "rnx 20/0", "WEB READNEXT FORMFIELD after ENDFILE"]),
+    ("form", ["sbr f", "sbr f"], ["sbr 0/0", "sbr 21/5"]),
+    ("form", ["rnx f 16 30", "ebr f"], ["rnx 16/4", "ebr 16/4"]),
+    ("form", ["sbr f", "ebr f", "ebr f"], ["sbr 0/0", "ebr 0/0", "ebr 16/4"]),
+    ("form", ["sbr f", "rnx f 16 30", "ebr f", "sbr f", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "user", "joe", 4, 3), "ebr 0/0", "sbr 0/0", _rn("0/0", "user", "joe", 4, 3)]),
+    ("form", ["sbr f Pass 4", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "Pass", "p@ss!", 4, 5), _rn("0/0", "empty", "", 5, 0)]),
+    ("form", ["sbr f nobody 6", "ebr f", "rnx f 16 30"], ["sbr 13/1", "ebr 16/4", "rnx 16/4"]),
+    ("form", ["sbr f user 0"], ["sbr 22/1"]),
+    ("form", ["sbr f user -1"], ["sbr 22/1"]),
+    ("form", ["sbr f user 33"], ["WEB STARTBROWSE FORMFIELD length beyond its area"]),
+    ("form", ["sbr f PASS 4"], ["WEB STARTBROWSE FORMFIELD name found only without case"]),
+    ("form", ["sbr f", "sbr f nobody 6"], ["sbr 0/0", f"WEB STARTBROWSE FORMFIELD {_MORE}"]),
+    ("form", ["sbr f", "rnx f 0 30", "rnx f 16 0", "rnx f -1 30", "rnx f 16 30"],
+     ["sbr 0/0", "rnx 22/1", "rnx 22/1", "rnx 22/1", _rn("0/0", "user", "joe", 4, 3)]),
+    ("form", ["sbr f", "rnx f 17 30"], ["sbr 0/0", "WEB READNEXT FORMFIELD length beyond its area"]),
+    ("form", ["sbr f", "rnx f 16 31"], ["sbr 0/0", "WEB READNEXT FORMFIELD length beyond its area"]),
+    ("longname", ["sbr f", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("22/4", "averyverylongfie", "v", 22, 1), _rn("22/4", "averyverylongfie", "v", 22, 1)]),
+    ("bothlong", ["sbr f", "rnx f 16 30"], ["sbr 0/0", "WEB READNEXT FORMFIELD name and value both truncated"]),
+    ("bare", ["sbr f"], ["sbr 16/13"]),
+    ("emptybody", ["sbr f"], ["sbr 16/13"]),
+    ("bare", ["sbr f x 0"], [f"WEB STARTBROWSE FORMFIELD {_MORE}"]),
+    ("dup", ["sbr f", "rnx f 16 30", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "k", "1", 1, 1), _rn("0/0", "k", "2", 1, 1), "rnx 20/0"]),
+    ("dup", ["sbr f k 1"], ["WEB STARTBROWSE FORMFIELD two pairs of the name"]),
+    # -- QUERYPARM
+    ("form", ["sbr q", *["rnx q 16 30"] * 5],
+     ["sbr 0/0", *[_rn("0/0", n, v, len(n), len(v)) for n, v in _QUERY_ROWS], "rnx 20/0"]),
+    ("form", ["sbr q e 1", "rnx q 16 30", "rnx q 16 30"], ["sbr 0/0", _rn("0/0", "e", "x=y", 1, 3), "rnx 20/0"]),
+    ("form", ["sbr q E 1"], ["WEB STARTBROWSE QUERYPARM name found only without case"]),
+    ("form", ["sbr q", "sbr q"], ["sbr 0/0", "sbr 21/5"]),
+    ("form", ["rnx q 16 30", "ebr q"], ["rnx 16/4", "ebr 16/4"]),
+    ("form", ["sbr q", "ebr q", "ebr q"], ["sbr 0/0", "ebr 0/0", "ebr 16/4"]),
+    ("form", ["sbr q user 4"], ["sbr 13/1"]),
+    ("bare", ["sbr q"], ["sbr 16/13"]),
+    ("longname", ["sbr q", "rnx q 16 30"], ["sbr 0/0", _rn("22/4", "averyverylongfie", "v", 22, 1)]),
+    ("bothlong", ["sbr q", "rnx q 16 30"], ["sbr 0/0", "WEB READNEXT QUERYPARM name and value both truncated"]),
+    ("dup", ["sbr q", "rnx q 16 30", "rnx q 16 30", "rnx q 16 30"],
+     ["sbr 0/0", _rn("0/0", "a", "1", 1, 1), _rn("0/0", "A", "2", 1, 1), "rnx 20/0"]),
+    ("dup", ["sbr q a 1"], ["WEB STARTBROWSE QUERYPARM two pairs of the name"]),
+    # -- HTTPHEADER
+    ("hdrs", ["sbr h", "rnx h 16 30", "rnx h 16 30", "rnx h 16 30", "ebr h"],
+     ["sbr 0/0", _rn("0/0", "A", "1", 1, 1), _rn("0/0", "B", "2", 1, 1), "rnx 20/0", "ebr 0/0"]),
+    ("hdrs", ["sbr h", "sbr h"], ["sbr 0/0", "sbr 21/10"]),
+    ("hdrs", ["rnx h 16 30", "ebr h"], ["rnx 16/4", "ebr 16/4"]),
+    ("hdrs", ["sbr h", "rnx h 16 0"], ["sbr 0/0", "rnx 22/1"]),
+    ("hdrs", ["sbr h", "rnx h 16 30", "rnx h 16 30", "rnx h 0 30"],
+     ["sbr 0/0", _rn("0/0", "A", "1", 1, 1), _rn("0/0", "B", "2", 1, 1), f"WEB READNEXT HTTPHEADER {_MORE}"]),
+    ("form", ["sbr h", "rnx h 16 30", "rnx h 16 30"],
+     ["sbr 0/0", _rn("0/0", "Host", "h", 4, 1), "WEB READNEXT HTTPHEADER truncated"]),
+    ("bare", ["sbr h"], ["sbr 16/43"]),
+    # -- the three browses are independent of each other and of a read
+    ("form", ["sbr f", "sbr q", "sbr h", "rnx q 16 30", "rnx f 16 30", "rnx h 16 30", "ebr q", "rnx q 16 30",
+              "rnx f 16 30", "rdq a 1 24"],
+     ["sbr 0/0", "sbr 0/0", "sbr 0/0", _rn("0/0", "a", "1", 1, 1), _rn("0/0", "user", "joe", 4, 3),
+      _rn("0/0", "Host", "h", 4, 1), "ebr 0/0", "rnx 16/4", _rn("0/0", "Pass", "p@ss!", 4, 5),
+      _rd("rdq", "0/0", "1", 1)]),
+]  # fmt: skip
+_X4940_HEADS = ("rdf", "rdq", "sbr", "rnx", "ebr")
+
+_X4940_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWRDP(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWSBR(gg_cics *c, char *name, int namecap);
+int GGCWRNX(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWEBR(gg_cics *c);
+static gg_cics c;
+static int kind(const char *s) { return s[0] == 'h' ? 0 : s[0] == 'f' ? 1 : 2; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[6], name[40], value[40];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 6; t = strtok(NULL, " ")) w[k++] = t;
+        memset(name, '.', 40); memset(value, '.', 40);
+        if (strcmp(w[0], "rdf") == 0 || strcmp(w[0], "rdq") == 0) {
+            memset(name, ' ', 32); memcpy(name, w[1], strlen(w[1]));
+            c.item = w[0][2] == 'f' ? 1 : 2; c.len = atoi(w[2]); c.num = atoi(w[3]);
+            GGCWRDP(&c, name, 32, value, 24);
+            printf("%s %d/%d", w[0], c.resp, c.resp2);
+            if (c.resp == 0 || c.resp2 == 5) printf(" %.24s|%d", value, c.num);
+            printf("\n");
+        } else if (strcmp(w[0], "sbr") == 0) {
+            memset(name, ' ', 32);
+            c.item = kind(w[1]);
+            if (k > 2) { memcpy(name, w[2], strlen(w[2])); c.len = atoi(w[3]); memset(c.flags, ' ', 40); memcpy(c.flags, "NAME", 4); }
+            else { c.len = 0; memset(c.flags, ' ', 40); }
+            GGCWSBR(&c, name, 32);
+            printf("sbr %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rnx") == 0) {
+            c.item = kind(w[1]); c.len = atoi(w[2]); c.num = atoi(w[3]);
+            GGCWRNX(&c, name, 16, value, 30);
+            printf("rnx %d/%d", c.resp, c.resp2);
+            if (c.resp == 0 || (c.resp == 22 && c.resp2 != 1)) printf(" %.16s|%.30s|%d|%d", name, value, c.len, c.num);
+            printf("\n");
+        } else {
+            c.item = kind(w[1]);
+            GGCWEBR(&c);
+            printf("ebr %d/%d\n", c.resp, c.resp2);
+        }
+    }
+    return 0;
+}
+"""
+
+
+def _x4940_refused(answers: list[str]) -> bool:
+    return not answers[-1].split()[0] in _X4940_HEADS
+
+
+@needs_cc
+def test_the_stub_reads_form_fields_query_parameters_and_browses(tmp_path):
+    """#4940 (register X38), IBM WEB READ FORMFIELD / QUERYPARM and WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER,
+    FORMFIELD, QUERYPARM (server): the stated request's pairs unescaped, names without case on a read, the documented
+    conditions with their RESP2 (INVREQ 13 / 43 / 4, NOTFND 1, LENGERR 1 / 4 / 5, ILLOGIC 5 / 10, ENDFILE), a cut value or
+    name returned again by the next READNEXT; what IBM leaves open is refused by name; no stated request refuses all."""
+    exe = _stub(tmp_path, _X4940_MAIN)
+    for n, (fixture, steps, answers) in enumerate(_X4940_CASES):
+        req = tmp_path / f"webreq{n}.cfg"
+        req.write_text(_x38_cfg(fixture), encoding="ascii")
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        if _x4940_refused(answers):
+            assert run.returncode == 98 and answers[-1] + ": not modelled" in run.stdout, (fixture, steps, run.stdout)
+            assert run.stdout.splitlines()[:-1] == answers[:-1], (fixture, steps, run.stdout)
+        else:
+            assert run.returncode == 0 and run.stdout.splitlines() == answers, (fixture, steps, run.stdout)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    for step in ("rdf a 1 24", "rdq a 1 24", "sbr f", "sbr h", "rnx f 16 30", "ebr q"):
+        unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
+
+
+def _jstr(v: str | None) -> str:
+    return "null" if v is None else f'"{v}"'
+
+
+def _x4940_jtask(fixture: str) -> str:
+    scheme, host, port, method, version, path, query, headers, media, body = _X38_REQ[fixture]
+    hs = ", ".join(f'new String[] {{"{n}", "{v}"}}' for n, v in headers)
+    return (
+        'new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest('
+        f'"{scheme}", "{host}", {port}, "{method}", "{version}", "{path}", "{query}", '
+        f"java.util.List.<String[]>of({hs}), {_jstr(media)}, {_jstr(body)}))"
+    )
+
+
+@needs_javac
+def test_cics_task_reads_form_fields_query_parameters_and_browses_as_the_stub_does(tmp_path):
+    """#4940 (X38): CicsTask.webReadParam / webStartBrowse / webReadNext / webEndBrowse answer the steps above as the stub does
+    and refuse what the stub refuses; without a stated request every one is refused."""
+    helpers = r"""
+    static String area(String s, int cap) { return s + ".".repeat(cap - s.length()); }
+    static String pad(String s, int n) { return String.format("%-" + n + "s", s); }
+    static String kind(String k) { return k.equals("h") ? "HTTPHEADER" : k.equals("f") ? "FORMFIELD" : "QUERYPARM"; }
+    static void step(CicsTask t, String line) {
+        String[] w = line.split(" ");
+        switch (w[0]) {
+            case "rdf", "rdq" -> {
+                CicsTask.WebParam r = t.webReadParam(w[0].equals("rdf") ? "FORMFIELD" : "QUERYPARM", pad(w[1], 32),
+                        Integer.parseInt(w[2]), Integer.parseInt(w[3]), 24);
+                String o = w[0] + " " + r.resp() + "/" + r.resp2();
+                if (r.value() != null) o += " " + area(r.value(), 24) + "|" + r.length();
+                System.out.println(o);
+            }
+            case "sbr" -> {
+                int[] r = w.length > 2 ? t.webStartBrowse(kind(w[1]), pad(w[2], 32), Integer.valueOf(w[3]))
+                        : t.webStartBrowse(kind(w[1]), null, null);
+                System.out.println("sbr " + r[0] + "/" + r[1]);
+            }
+            case "rnx" -> {
+                CicsTask.WebNext r = t.webReadNext(kind(w[1]), Integer.parseInt(w[2]), 16, Integer.parseInt(w[3]), 30);
+                String o = "rnx " + r.resp() + "/" + r.resp2();
+                if (r.name() != null) o += " " + area(r.name(), 16) + "|" + area(r.value(), 30) + "|" + r.nameLength() + "|"
+                        + r.valueLength();
+                System.out.println(o);
+            }
+            default -> {
+                int[] r = t.webEndBrowse(kind(w[1]));
+                System.out.println("ebr " + r[0] + "/" + r[1]);
+            }
+        }
+    }
+"""
+    parts = []
+    for fixture, steps, _answers in _X4940_CASES:
+        body = "\n".join(f'step(t, "{st}");' for st in steps)
+        parts.append(
+            f"{{ CicsTask t = {_x4940_jtask(fixture)};\n try {{\n{body}\n}} catch (UnsupportedOperationException e) {{"
+            ' System.out.println("refused " + e.getMessage()); }\nSystem.out.println("--"); }'
+        )
+    parts.append(
+        'for (String s : new String[] {"rdf a 1 24", "rdq a 1 24", "sbr f", "sbr h", "rnx f 16 30", "ebr q"}) { try { step(new '
+        'CicsTask("ZC01", "ENTER", null, null), s); } catch (UnsupportedOperationException e) { System.out.println("refused " '
+        "+ e.getMessage()); } }"
+    )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for fixture, steps, answers in _X4940_CASES:
+        end = lines.index("--", pos)
+        want = [a if not (i == len(answers) - 1 and _x4940_refused(answers)) else f"refused {a}: not modelled"
+                for i, a in enumerate(answers)]  # fmt: skip
+        assert lines[pos:end] == want, (fixture, steps, lines[pos:end], want)
+        pos = end + 1
+    assert lines[pos:] == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 6

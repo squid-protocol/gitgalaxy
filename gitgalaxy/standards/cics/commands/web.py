@@ -737,6 +737,218 @@ WEB_RETRIEVE = Command(
     ),
 )
 
+# #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (STARTBROWSE / READNEXT / ENDBROWSE of
+# HTTPHEADER, FORMFIELD, QUERYPARM) over the same stated `http_request`. FORMFIELD reads the name=value pairs of the
+# request body (an application/x-www-form-urlencoded form), QUERYPARM those of the query string, HTTPHEADER the headers.
+_CODEPAGE = Refusal("code-page conversion is not modelled: the data is in the program's characters", "X38")
+_DATA_FORM = (
+    "data that is not plain escaped NAME=VALUE pairs joined by '&' (a pair without '=' or with an empty name, a ';' "
+    "or '+' (IBM does not say what they mean), an escape that is not %XX, an escaped name, a byte outside the printable "
+    "ASCII characters): IBM does not say where the data is invalid (INVREQ RESP2 17 / 6) or how such a pair reads"
+)
+_FORM_BODY = (
+    "a form body whose media type is not application/x-www-form-urlencoded (IBM does not say how the form type is "
+    "told: LENGERR RESP2 153 / 154)"
+)
+_TWO_CONDITIONS = "more than one condition at once"
+
+
+def _read_param(kind: str, topic: str) -> Command:
+    return Command(
+        key=f"WEB READ {kind}",
+        ibm=ibm(f"EXEC CICS WEB READ {kind}", topic),
+        status="modelled",
+        register="X38",
+        options={
+            kind: Arg("area_in"),
+            "NAMELENGTH": Arg("value"),
+            "VALUE": Arg("area_out"),
+            "VALUELENGTH": Arg("area_inout", binary=True),
+            **RESP_OPTIONS,
+        },
+        refused={
+            "SET": Refusal("a value in CICS storage (SET) needs the pointer lane, which is not modelled", "X38"),
+            "HOSTCODEPAGE": _CODEPAGE,
+            "CHARACTERSET": _CODEPAGE,
+            "CLNTCODEPAGE": _CODEPAGE,
+        },
+        default_refusal=Refusal(f"only {kind} / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
+        groups=(
+            required(kind, msg=f"WEB READ {kind} without the name"),
+            required("NAMELENGTH", msg=f"WEB READ {kind} without NAMELENGTH"),
+            required("VALUE", msg=f"WEB READ {kind} without VALUE"),
+            required("VALUELENGTH", msg=f"WEB READ {kind} without VALUELENGTH"),
+        ),
+        outcomes=(
+            Outcome("NORMAL", 0, "", writes=("VALUE", "VALUELENGTH")),
+            Outcome(
+                "INVREQ",
+                13,
+                "The HTTP request contains no forms data"
+                if kind == "FORMFIELD"
+                else "No keyword parameters were supplied",
+            ),
+            Outcome(
+                "LENGERR", 1, "NAMELENGTH or VALUELENGTH not greater than zero", raised_by=("NAMELENGTH", "VALUELENGTH")
+            ),
+            Outcome(
+                "LENGERR",
+                5,
+                "The value was truncated because the receiving buffer is too small (VALUELENGTH returns the real length)",
+                writes=("VALUE", "VALUELENGTH"),
+                raised_by=("VALUELENGTH",),
+            ),
+            Outcome("NOTFND", 1, "No such name was found", raised_by=(kind,)),
+        ),
+        facts=(
+            Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=(kind,)),
+        ),
+        runtime_refusals=(
+            _NO_REQUEST_READ,
+            RuntimeRefusal(
+                f"{_DATA_FORM}; two pairs of the name (IBM does not say how duplicates read); {_TWO_CONDITIONS}"
+                + (f"; {_FORM_BODY}" if kind == "FORMFIELD" else ""),
+                "X38",
+                java=f"WEB {kind}" if kind == "FORMFIELD" else f"WEB READ {kind}",
+                c=f"WEB {kind}" if kind == "FORMFIELD" else f"WEB READ {kind}",
+            ),
+            RuntimeRefusal(
+                _NOT_BYTES,
+                "X38",
+                java=f"WEB READ {kind} length beyond its area",
+                c=f"WEB READ {kind} length beyond its area",
+            ),
+        ),
+    )
+
+
+def _browse(kind: str, form: str, topic: str) -> Command:
+    header = kind == "HTTPHEADER"
+    named = not header
+    if form == "STARTBROWSE":
+        options = {kind: Arg("area_in")} if named else {kind: Arg("flag")}
+        if named:
+            options["NAMELENGTH"] = Arg("value")
+        outcomes = [
+            Outcome("NORMAL", 0, ""),
+            Outcome("ILLOGIC", 10 if header else 5, f"A {kind} browse is already in progress"),
+            Outcome(
+                "INVREQ",
+                43 if header else 13,
+                "No HTTP headers were found" if header else "No forms data / keyword parameters",
+            ),
+        ]
+        if named:
+            outcomes += [
+                Outcome("LENGERR", 1, "NAMELENGTH not greater than zero", raised_by=("NAMELENGTH",)),
+                Outcome("NOTFND", 1, "The name was not found", raised_by=(kind,)),
+            ]
+        groups: tuple = ()
+    elif form == "READNEXT":
+        options = {
+            kind: Arg("area_out"),
+            "NAMELENGTH": Arg("area_inout", binary=True),
+            "VALUE": Arg("area_out"),
+            "VALUELENGTH": Arg("area_inout", binary=True),
+        }
+        outcomes = [
+            Outcome("NORMAL", 0, "", writes=(kind, "NAMELENGTH", "VALUE", "VALUELENGTH")),
+            Outcome("INVREQ", 4, "Issued before WEB STARTBROWSE"),
+            Outcome("ENDFILE", None, "All the pairs have been read"),
+            Outcome(
+                "LENGERR", 1, "NAMELENGTH or VALUELENGTH is zero or negative", raised_by=("NAMELENGTH", "VALUELENGTH")
+            ),
+        ]
+        if not header:  # (a header truncated: refused, below)
+            outcomes += [
+                Outcome(
+                    "LENGERR",
+                    4,
+                    "The name was truncated; the same pair is returned again",
+                    writes=(kind, "NAMELENGTH", "VALUE", "VALUELENGTH"),
+                    raised_by=("NAMELENGTH",),
+                ),
+                Outcome(
+                    "LENGERR",
+                    5,
+                    "The value was truncated; the same pair is returned again",
+                    writes=(kind, "NAMELENGTH", "VALUE", "VALUELENGTH"),
+                    raised_by=("VALUELENGTH",),
+                ),
+            ]
+        groups = tuple(
+            required(o, msg=f"WEB READNEXT {kind} without {o}") for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH")
+        )
+    else:
+        options = {kind: Arg("flag")}
+        outcomes = [Outcome("NORMAL", 0, ""), Outcome("INVREQ", 4, "Issued before WEB STARTBROWSE")]
+        groups = ()
+    refused = {"SESSTOKEN": Refusal("the client form (a response's headers) is not modelled", "X38")} if header else {}
+    if not header and form == "STARTBROWSE":
+        refused = {"HOSTCODEPAGE": _CODEPAGE, "CHARACTERSET": _CODEPAGE, "CLNTCODEPAGE": _CODEPAGE}
+    refusals = [_NO_REQUEST_READ]
+    key = f"WEB {form} {kind}"
+    if form == "STARTBROWSE" and named:
+        refusals.append(
+            RuntimeRefusal(
+                f"a name found only when the names are compared without case, two pairs of the name (IBM does not say how "
+                f"duplicates or case read), {_DATA_FORM}, {_TWO_CONDITIONS}"
+                + (f"; {_FORM_BODY}" if kind == "FORMFIELD" else ""),
+                "X38",
+                java=key,
+                c=key,
+            )
+        )
+        refusals.append(
+            RuntimeRefusal(_NOT_BYTES, "X38", java=f"{key} length beyond its area", c=f"{key} length beyond its area")
+        )
+    elif form == "STARTBROWSE":
+        refusals.append(RuntimeRefusal(_TWO_CONDITIONS, "X38", java=key, c=key))
+    elif form == "READNEXT":
+        refusals.append(
+            RuntimeRefusal(
+                "a READNEXT after ENDFILE (IBM does not say what it returns), a name and a value both truncated (which "
+                f"RESP2), {_TWO_CONDITIONS}"
+                + (
+                    "; a truncated header (IBM does not say what the lengths hold or whether the browse moves on)"
+                    if header
+                    else f"; {_DATA_FORM}" + (f"; {_FORM_BODY}" if kind == "FORMFIELD" else "")
+                ),
+                "X38",
+                java=key,
+                c=key,
+            )
+        )
+        refusals.append(
+            RuntimeRefusal(_NOT_BYTES, "X38", java=f"{key} length beyond its area", c=f"{key} length beyond its area")
+        )
+    return Command(
+        key=key,
+        ibm=ibm(f"EXEC CICS WEB {form} {kind}", topic),
+        status="modelled",
+        register="X38",
+        options={**options, **RESP_OPTIONS},
+        refused=refused,
+        default_refusal=Refusal(
+            "only the name / value options are modelled" if form != "ENDBROWSE" else "ENDBROWSE takes no option", "X38"
+        ),
+        groups=groups,
+        outcomes=tuple(outcomes),
+        facts=(
+            Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=(kind,)),
+        ),
+        runtime_refusals=tuple(refusals),
+    )
+
+
+WEB_READ_FORMFIELD = _read_param("FORMFIELD", "summary-web-read-formfield")
+WEB_READ_QUERYPARM = _read_param("QUERYPARM", "summary-web-read-queryparm")
+WEB_BROWSE = tuple(
+    _browse(kind, form, f"summary-web-{form.lower()}-{kind.lower()}")
+    for kind in ("HTTPHEADER", "FORMFIELD", "QUERYPARM")
+    for form in ("STARTBROWSE", "READNEXT", "ENDBROWSE")
+)
+
 COMMANDS = (
     WEB_OPEN,
     WEB_CONVERSE,
@@ -748,4 +960,7 @@ COMMANDS = (
     WEB_READ_HTTPHEADER,
     WEB_WRITE_HTTPHEADER,
     WEB_RETRIEVE,
+    WEB_READ_FORMFIELD,
+    WEB_READ_QUERYPARM,
+    *WEB_BROWSE,
 )

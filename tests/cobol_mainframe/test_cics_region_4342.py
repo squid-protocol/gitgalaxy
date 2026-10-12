@@ -18,14 +18,18 @@ def _forge(programs: list[CicsProgram]) -> CicsForge:
 
 
 def test_one_program_name_with_two_sources_runs_neither():
-    region = _forge([
-        CicsProgram("src_r0010101", "SrcR0010101", "src/R0010101.pli", ["R0010101"]),
-        CicsProgram("src_gml_r0010101", "SrcGmlR0010101", "src/GML/R0010101.pli", ["R0010101"]),
-        CicsProgram("menu", "Menu", "cbl/MENU.cbl", ["MENU"], transactions=[{"transid": "MN01"}]),
-    ]).region_source()
+    region = _forge(
+        [
+            CicsProgram("src_r0010101", "SrcR0010101", "src/R0010101.pli", ["R0010101"]),
+            CicsProgram("src_gml_r0010101", "SrcGmlR0010101", "src/GML/R0010101.pli", ["R0010101"]),
+            CicsProgram("menu", "Menu", "cbl/MENU.cbl", ["MENU"], transactions=[{"transid": "MN01"}]),
+        ]
+    ).region_source()
     assert region.count('case "R0010101"') == 1
-    assert ('case "R0010101" -> throw new IllegalStateException("program R0010101 has more than one source '
-            '(src/GML/R0010101.pli, src/R0010101.pli); the CSD decides which one runs");') in region
+    assert (
+        'case "R0010101" -> throw new IllegalStateException("program R0010101 has more than one source '
+        '(src/GML/R0010101.pli, src/R0010101.pli); the CSD decides which one runs");'
+    ) in region
     assert 'static final Set<String> PROGRAMS = Set.of("MENU", "R0010101");' in region
     assert 'case "MENU" -> context.getBean(MenuService.class).runTask(task);' in region
     assert "SrcR0010101Service" not in region and "SrcGmlR0010101Service" not in region

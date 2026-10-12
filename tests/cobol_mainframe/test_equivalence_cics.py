@@ -1263,6 +1263,64 @@ def test_web_read_and_write_httpheader_become_stub_calls():
             )
 
 
+def test_web_forms_and_browses_become_stub_calls():
+    """#4940 (register X38): WEB READ FORMFIELD / QUERYPARM -> GGCWRDP, STARTBROWSE -> GGCWSBR (GG-FLAGS NAME with a start name),
+    READNEXT -> GGCWRNX, ENDBROWSE -> GGCWEBR; GG-ITEM names the kind (0 HTTPHEADER, 1 FORMFIELD, 2 QUERYPARM); the lengths go
+    back when a value / pair came back. The options the det translator refuses are refused here too."""
+    for kind, item in (("FORMFIELD", 1), ("QUERYPARM", 2)):
+        r = ec.translate_command(f"WEB READ {kind}(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) NOHANDLE")
+        assert r[:4] == [
+            f"MOVE {item} TO GG-ITEM",
+            "MOVE WS-NL TO GG-LEN",
+            "MOVE WS-VL TO GG-NUM",
+            "CALL 'GGCWRDP' USING GG-CICS",
+        ]
+        assert r[8:11] == ["IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 5)", "    MOVE GG-NUM TO WS-VL", "END-IF"]
+    for kind, item in (("HTTPHEADER", 0), ("FORMFIELD", 1), ("QUERYPARM", 2)):
+        e = ec.translate_command(f"WEB ENDBROWSE {kind} NOHANDLE")
+        assert e[:2] == [f"MOVE {item} TO GG-ITEM", "CALL 'GGCWEBR' USING GG-CICS"]
+        s = ec.translate_command(f"WEB STARTBROWSE {kind} NOHANDLE")
+        assert s[:4] == [
+            f"MOVE {item} TO GG-ITEM",
+            "MOVE 0 TO GG-LEN",
+            "MOVE SPACES TO GG-FLAGS",
+            "CALL 'GGCWSBR' USING GG-CICS",
+        ]
+        n = ec.translate_command(f"WEB READNEXT {kind}(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) NOHANDLE")
+        assert n[:4] == [
+            f"MOVE {item} TO GG-ITEM",
+            "MOVE WS-NL TO GG-LEN",
+            "MOVE WS-VL TO GG-NUM",
+            "CALL 'GGCWRNX' USING GG-CICS",
+        ]
+        assert n[8:13] == ["IF GG-RESP = 0 OR (GG-RESP = 22 AND (GG-RESP2 = 4 OR GG-RESP2 = 5))",
+                           "    MOVE GG-LEN TO WS-NL", "    MOVE GG-NUM TO WS-VL", "END-IF", "MOVE GG-RESP TO EIBRESP"]  # fmt: skip
+    named = ec.translate_command("WEB STARTBROWSE FORMFIELD(WS-N) NAMELENGTH(WS-NL) NOHANDLE")
+    assert named[:4] == [
+        "MOVE 1 TO GG-ITEM",
+        "MOVE WS-NL TO GG-LEN",
+        "MOVE 'NAME' TO GG-FLAGS",
+        "CALL 'GGCWSBR' USING GG-CICS",
+    ]
+    assert named[4:6] == ["    BY REFERENCE WS-N", "    BY VALUE LENGTH OF WS-N"]
+    for bad, why in (("WEB READ FORMFIELD(WS-N) VALUE(WS-V) VALUELENGTH(WS-VL)", "NAMELENGTH"),
+                     ("WEB READ QUERYPARM(WS-N) NAMELENGTH(WS-NL) VALUELENGTH(WS-VL)", "VALUE"),
+                     ("WEB READ QUERYPARM(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V)", "VALUELENGTH"),
+                     ("WEB READ FORMFIELD(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) SET(WS-P)", "pointer lane"),
+                     ("WEB READ QUERYPARM(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) HOSTCODEPAGE(WS-C)", "code-page"),
+                     ("WEB READ FORMFIELD('A') NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL)", "literal"),
+                     ("WEB READNEXT QUERYPARM(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V)", "VALUELENGTH"),
+                     ("WEB READNEXT HTTPHEADER NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL)", "HTTPHEADER"),
+                     ("WEB READNEXT HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) SESSTOKEN(WS-T)", "client form"),
+                     ("WEB STARTBROWSE HTTPHEADER(WS-N)", "not documented"),
+                     ("WEB STARTBROWSE FORMFIELD(WS-N)", "without NAMELENGTH"),
+                     ("WEB STARTBROWSE QUERYPARM NAMELENGTH(WS-NL)", "NAMELENGTH without a name"),
+                     ("WEB STARTBROWSE FORMFIELD HOSTCODEPAGE(WS-C)", "code-page"),
+                     ("WEB STARTBROWSE HTTPHEADER SESSTOKEN(WS-T)", "client form")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
 def test_a_web_header_event_reads_back_and_is_compared():
     """#4767 zECS (X38): a WEB-HEADER line of the stub's events reads back as CicsTask records it; the headers each side wrote
     are compared exactly (name, value, RESP2)."""

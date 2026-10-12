@@ -188,7 +188,10 @@ def test_calls_become_service_calls(scanned, tmp_path):
     # proof drives: CICS resolves the name when it runs (PGMIDERR for one the region does not define), so no switch
     # over the candidates and no case mapping (CICS program names are case-sensitive)
     assert "public String dispatchWsNextL" in menu
-    assert "(CicsTask task, String program, Object commarea) {\n        return task.xctl(program.stripTrailing(), commarea);" in menu
+    assert (
+        "(CicsTask task, String program, Object commarea) {\n        return task.xctl(program.stripTrailing(), commarea);"
+        in menu
+    )
     assert "candidates the engine found: ACCTINQ (moves), ACCTUPD (moves)" in menu
     assert "toUpperCase" not in menu and "no known target" not in menu
     # ACCTUPD is reached only through the data-driven XCTL, so it was resolved to its own DFHCOMMAREA:
@@ -205,15 +208,22 @@ def test_calls_become_service_calls(scanned, tmp_path):
     assert "executeMenu" not in menu and "executeCblSubpgm" not in sub
     assert not list(src.glob("controller/*Subpgm*Controller.java"))
     # #4342 / #4343: the CICS entry points run the program -- one task of it in the region -- never a log line alone
-    assert ('        CicsTask task = region.transaction(transid, null);\n        region.run(task, "MENU", this::runTask);'
-            in menu)
+    assert (
+        '        CicsTask task = region.transaction(transid, null);\n        region.run(task, "MENU", this::runTask);'
+        in menu
+    )
     inq = (src / "service/AcctinqService.java").read_text(encoding="utf-8")
     assert re.search(r"public (\w+) handleLink\(\1 request\) \{", inq), inq
-    assert ('CicsTask task = region.linked("ACCTINQ", request);\n        region.run(task, "ACCTINQ", this::runTask);\n'
-            "        return request;") in inq
+    assert (
+        'CicsTask task = region.linked("ACCTINQ", request);\n        region.run(task, "ACCTINQ", this::runTask);\n'
+        "        return request;"
+    ) in inq
     region = (src / "cics/CicsRegion.java").read_text(encoding="utf-8")
     assert 'case "ACCTINQ" -> context.getBean(AcctinqService.class).runTask(task);' in region
-    assert "CicsTask.deploy(new CicsTask.LocalRegion(this, null,\n                at.isEmpty() ? () -> LocalDateTime.now(zone)" in region
+    assert (
+        "CicsTask.deploy(new CicsTask.LocalRegion(this, null,\n                at.isEmpty() ? () -> LocalDateTime.now(zone)"
+        in region
+    )
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "Service calls (#3616)    : 1 LINK, 0 XCTL, 1 CALL, 1 data-driven dispatch, 1 remote; 1 remote" in audit
 

@@ -502,7 +502,10 @@ def test_java_io_a_decorated_open_is_one_hit():
 
 
 def test_java_io_decorators_alone_open_nothing():
-    assert _java_io("class A {\n  void f() {\n    b = new BufferedReader(reader);\n    p = new PrintWriter(w);\n  }\n}\n") == 0
+    assert (
+        _java_io("class A {\n  void f() {\n    b = new BufferedReader(reader);\n    p = new PrintWriter(w);\n  }\n}\n")
+        == 0
+    )
 
 
 def test_java_io_opening_alternatives_redos_immune():

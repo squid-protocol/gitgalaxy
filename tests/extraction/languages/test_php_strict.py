@@ -436,13 +436,13 @@ def test_php_api_contract_2730():
     api = PHP_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public function __construct('), 'public method'
-    assert api.search('public readonly int $x;'), 'typed readonly property'
-    assert api.search('public const FOO = 1;'), 'public constant'
+    assert api.search("public function __construct("), "public method"
+    assert api.search("public readonly int $x;"), "typed readonly property"
+    assert api.search("public const FOO = 1;"), "public constant"
 
     # Not declarations -- must not match.
-    assert not api.search("$public = (bool) get_option('blog_public');"), 'variable named $public'
-    assert not api.search("$this->instance('path.public', $path);"), 'keyword inside a string key'
+    assert not api.search("$public = (bool) get_option('blog_public');"), "variable named $public"
+    assert not api.search("$this->instance('path.public', $path);"), "keyword inside a string key"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

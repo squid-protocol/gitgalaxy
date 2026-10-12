@@ -592,7 +592,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": -0.076,
-      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": -0.184,
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": -0.219,
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": -0.412,
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": 0.15,
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": 0.01,
@@ -880,7 +880,7 @@
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": 3.144,
       "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": 0.0,
-      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": 1.478,
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": 1.457,
       "cobol/cics-banking-sample-application-cbsa/INQACC.cpy": -0.433,
       "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": 1.447,
       "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": -0.454,
@@ -1370,12 +1370,12 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": 2.5,
-      "go/core/mgc.go": 2.418,
-      "go/core/mutex.go": 0.154,
-      "go/core/proc.go": 1.365,
-      "go/core/server.go": 0.836,
-      "go/core/syscall_linux.go": 0.602,
-      "go/core/value.go": 1.313
+      "go/core/mgc.go": 2.538,
+      "go/core/mutex.go": 0.191,
+      "go/core/proc.go": 1.426,
+      "go/core/server.go": 0.897,
+      "go/core/syscall_linux.go": 0.621,
+      "go/core/value.go": 1.355
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0.587
@@ -2320,7 +2320,7 @@
       "lua/cosmopolitan/db.lua": 0.714,
       "lua/cosmopolitan/errors.lua": 0.708,
       "lua/cosmopolitan/events.lua": 2.465,
-      "lua/cosmopolitan/fetch.lua": 2.255,
+      "lua/cosmopolitan/fetch.lua": 2.24,
       "lua/cosmopolitan/files.lua": 0.134,
       "lua/cosmopolitan/finger.lua": -0.291,
       "lua/cosmopolitan/gc.lua": 1.511,

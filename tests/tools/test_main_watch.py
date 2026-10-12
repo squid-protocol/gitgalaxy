@@ -4,6 +4,8 @@ import re
 import sys
 from pathlib import Path
 
+import pytest
+
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 import main_watch as mw  # noqa: E402
@@ -107,3 +109,37 @@ def test_a_cancelled_leg_says_how_long_it_ran():
         {"name": "old", "conclusion": "cancelled"},  # no timestamps: the bare name
     ]  # fmt: skip
     assert mw.legs(jobs) == ([], ["mac 3 after 45 min", "old"])
+
+
+def _on(doc):
+    return doc.get("on", doc.get(True)) or {}  # PyYAML reads the bare key `on` as True
+
+
+def _runs_on_main(trigger):
+    """True when the workflow's `on:` block can produce a run whose head branch is main."""
+    if "schedule" in trigger or "workflow_dispatch" in trigger:
+        return True
+    push = trigger.get("push")
+    if push is None:
+        return False
+    branches = (push or {}).get("branches")
+    if branches is None:
+        return not (push or {}).get("tags")  # tags-only push never runs on the main branch
+    return "main" in branches
+
+
+def test_every_watched_workflow_exists_and_runs_on_main():
+    """Main Watch must not subscribe to a workflow that cannot complete on main (each such event is a wasted run)."""
+    yaml = pytest.importorskip("yaml")
+    by_name = {}
+    for p in sorted((REPO / ".github" / "workflows").glob("*.yml")):
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        by_name[doc.get("name", p.stem)] = (p.name, doc)
+    watched = _on(yaml.safe_load(read("main-watch.yml")))["workflow_run"]["workflows"]
+    assert watched, "main-watch.yml lists no workflows"
+    assert len(watched) == len(set(watched)), "a workflow is listed twice"
+    for name in watched:
+        assert name in by_name, f"{name!r} is not the `name:` of any workflow file"
+        fname, doc = by_name[name]
+        assert _runs_on_main(_on(doc)), f"{fname} ({name!r}) never runs on main (no main push, schedule or dispatch)"
+        assert "workflow_run" not in _on(doc), f"{fname} is itself a workflow_run consumer: Main Watch would loop"

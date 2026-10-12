@@ -59,6 +59,26 @@ public class HxextService {
         return task.returned(HxextWsCa.class);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the
+     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */
+    public HxextWsCa handleTransaction(String transid, HxextWsCa request, byte[] area) {
+        log.info("Hxext: handleTransaction (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request, area);
+        region.run(task, "HXEXT", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+        return task.returned(HxextWsCa.class);
+    }
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
+    }
+
     /** One pseudo-conversational task of this program (#3754). */
     public void runTask(CicsTask task) {
         log.info("Hxext: runTask");

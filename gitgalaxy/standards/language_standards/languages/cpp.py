@@ -59,6 +59,23 @@ DEFINITION: dict[str, Any] = {
         "BUILD.bazel",
         "WORKSPACE",
     ],
+    # #4546: C++ evidence for a shared `.h` (cpp does not list `.h`: a plain header is C).
+    # Line-anchored constructs C cannot contain; `extern "C"` guards are NOT evidence.
+    "shared_extension_evidence": {
+        ".h": re.compile(
+            r"^[ \t]*namespace\s+\w*\s*\{|"
+            r"^[ \t]*using\s+namespace\s+\w|"
+            r"^[ \t]*template\s*<|"
+            r"^[ \t]*class\s+(?:\w+\s+)?\w+(?:\s+final)?\s*[:{]|"
+            r"^[ \t]*struct\s+\w+(?:\s+final)?\s*:\s*(?:public|private|protected|virtual)\b|"
+            r"^[ \t]*(?:public|private|protected)\s*:|"
+            r"\bstd::\w|"
+            r"^[ \t]*#\s*include\s*<(?:vector|string|map|set|memory|iostream|algorithm|functional|utility|cstdint|cstdio|cstdlib|cstring|unordered_map|array|optional|mutex|thread)>|"
+            r"\b(?:constexpr|nullptr|noexcept)\b|"
+            r"^[ \t]*(?:static\s+)?(?:inline\s+)?(?:virtual|explicit)\s+\w",
+            re.M,
+        ),
+    },
     # EXECUTION SIGNATURES: Interpreters found on Line 1.
     "shebangs": ["cling", "cint"],
     # UPGRADED: Maps to Family 1 (Standard C)

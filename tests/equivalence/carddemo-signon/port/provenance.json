@@ -35,6 +35,18 @@
    "by": "tests/tools/evidence.py prove carddemo-signon",
    "summary": "runTask 12/12, java-facade 12/12 (handleTransaction takes the COMMAREA, #4464)",
    "cleared_stale": "the java-facade side (#4449) -- re-proof through the deployed entry points failed: java-facade 1/12 scenarios pass (admin-signs-on, both-empty, invalid-key, lowercase-credentials, password-empty, pf3-thank-you, user-file-io-error, user-id-empty, user-not-found, user-signs-on, wrong-password); runTask 12/12 pass"
+  },
+  {
+   "at": "2026-10-12T07:09:13+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/Cosgn00cService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,CarddemoCommarea,byte[])",
+    "lastAnswerBytes()"
+   ]
   }
  ]
 }

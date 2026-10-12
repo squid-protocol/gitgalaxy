@@ -106,7 +106,7 @@ surface shapes it doesn't cover; the mandatory occurrence-level
 [recall audit](self_scan/tri_comparison_README.md#the-recall-audit-is-gitgalaxy-missing-anything)
 is the standing process for the next one.
 
-![Tri-comparison](self_scan/tri_comparison_chart.svg)
+![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
 
 See:
 
@@ -115,7 +115,7 @@ See:
 -   [`tests/tools/tri_comparison_chart.py`](../tests/tools/tri_comparison_chart.py)
 -   [`docs/self_scan/tri_comparison_ledger.json`](self_scan/tri_comparison_ledger.json)
     — the full, per-shape validated record
--   [`docs/self_scan/tri_comparison_points_of_interest.md`](self_scan/tri_comparison_points_of_interest.md)
+-   [`docs/self_scan/tri_comparison_points_of_interest.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/tri_comparison_points_of_interest.md)
     — the same ledger, rendered and ranked by signal strength
 -   [`docs/self_scan/how_to_investigate_a_discrepancy.md`](self_scan/how_to_investigate_a_discrepancy.md)
 -   [`docs/self_scan/manual_verification.json`](self_scan/manual_verification.json)

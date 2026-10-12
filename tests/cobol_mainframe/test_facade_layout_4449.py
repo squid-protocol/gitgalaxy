@@ -109,13 +109,32 @@ def test_records_cut_the_same_way_convert_and_the_facade_answers_its_own_dto():
         assert f"public static {name} fromCommarea(byte[] rec) {{" in dtos[name]
 
 
-def test_the_facade_signature_is_unchanged_by_4817():
-    """#4817 carries the RETURN TRANSID COMMAREA bytes in the runtime (CicsTask.returnedBytes, Region.transaction with
-    bytes); the generated facade is unchanged for now (exposing the bytes there needs every committed port resurfaced,
-    a follow-up): one handleTransaction, the signature the harness reads."""
+def test_the_facade_keeps_its_signature_and_adds_the_bytes_overload_4870():
+    """#4870: the RETURN TRANSID COMMAREA bytes (CicsTask.returnedBytes, Region.transaction with bytes) reach the
+    facade as an overload beside the unchanged handleTransaction(String, T) the harness reads, plus a field and an
+    accessor tagged for port_surface -- for a program that takes a DTO and one that takes none."""
     _, svc = _wizard()
-    assert svc["PCWIZ"].count("public PcwizWsState handleTransaction(") == 1
-    assert "lastAnswerBytes" not in svc["PCWIZ"]
+    s = svc["PCWIZ"]
+    assert s.count("public PcwizWsState handleTransaction(String transid, PcwizWsState request) {") == 1
+    assert s.count("public PcwizWsState handleTransaction(String transid, PcwizWsState request, byte[] area) {") == 1
+    assert "region.transaction(transid, request, area);" in s
+    assert "lastAnswerBytes = task.returnedBytes();" in s
+    assert "// @facade-helper" in s and "@facade-helper */" in s
+    assert "private byte[] lastAnswerBytes;" in s and "public byte[] lastAnswerBytes() {" in s
+    # the harness's contract regex still reads exactly the DTO overload (det/cics.py target_contract)
+    assert re.findall(r"handleTransaction\(String transid, (\w+) request\)", s) == ["PcwizWsState"]
+    assert "public PcconfWsState handleTransaction(String transid, Object request, byte[] area) {" in svc["PCCONF"]
+
+
+def test_det_facades_rebuild_both_overloads_and_the_tagged_helpers_4870():
+    _, svc = _wizard()
+    from gitgalaxy.tools.cobol_to_java.det.program import facades
+
+    out = "\n".join(facades(svc["PCWIZ"]))
+    assert out.count("handleTransaction(") == 2
+    assert "region.transaction(transid, request, area);" in out
+    assert "lastAnswerBytes = task.returnedBytes();" in out
+    assert "// @facade-helper" in out and "public byte[] lastAnswerBytes() {" in out
 
 
 @pytest.mark.parametrize(

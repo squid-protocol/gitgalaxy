@@ -65,6 +65,21 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
+## Heavy jobs on the PR and again on the push (tested-tree, #4935)
+
+`mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges. Their `tested-tree` job
+(`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
+the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
+merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
+in-progress or missing PR runs, a PR that was behind main, a merge commit, a direct push, and every
+schedule / `workflow_dispatch` run all run in full; an API error runs too. In smoke-test only the `full-suite` parts are
+skipped: the 9-way OS grid is not run on PRs, so it always runs on the push.
+
+Main Watch still gets a verdict: the workflow concludes `success` or `failure` (the gate job always runs), and a skip
+is a true green, because that exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs
+that conclude `skipped` or `cancelled`. Ground-truth history rows (`--history`) are written by the push run, so the
+nightly run writes them too (one row set per day, at that day's HEAD, when a number moved).
+
 ## Main is red (main-watch)
 
 `.github/workflows/main-watch.yml` opens one `ci-red-main` issue per workflow that fails on main and closes it when
@@ -83,3 +98,6 @@ Evidence Refresh surveys main once a night; its `publish-blockers` job writes `d
 
 ## Evidence pages publish (#4925)
 `evidence-pages.yml` writes the `generated` branch only when the run's ref is `refs/heads/main`. A `workflow_dispatch` from any other ref renders the pages into a scratch dir and uploads them as the `evidence-pages-preview` artifact; it never writes `generated` (same rule as the `publish-blockers` job in Evidence Refresh, #4924).
+
+## History bots publish to `generated` (#4847)
+`call-resolution-history.yml`, `graph-comparison-history.yml`, `tree-sitter-accuracy-history.yml`, `tri-comparison-history.yml` and `archetype-validation.yml` no longer open an auto-merged PR into main (they were about 40 of 322 main commits in a week, each queueing every open PR behind it). Each publishes its output files to the `generated` branch with `tests/tools/generated_branch.py publish`, only when the run's ref is `refs/heads/main`; an appended CSV is first restored from `generated` (`fetch`), and `show PATH` reads the published copy, else the committed one. The copies already committed on main are left as they are: frozen, and the seed and fallback. A ledger (`graph_comparison_ledger.json`, `tri_comparison_ledger.json`) keeps its verdicts on main, where people write them; the bot refreshes the counts from main's copy and publishes the result. `tests/tools/test_generated_branch.py` lists every workflow that still commits to main. A first publish needs one `workflow_dispatch` run of each from main.

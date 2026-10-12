@@ -526,6 +526,12 @@ Only generator output, never a test case:
   went through characters. `Cics.declared` reads a DTO's copybook in its declared page too (it read Latin-1).
   Newly passing on the det port (cics-crucible): hc-perform-range 4/4 (`length-trap` byte for byte), hc-abend-link
   push-pop, pushed-abend, sub-own-exit, sub-resp, ca-link-lengths no-commarea.
+- #4875 (carddemo-cardupdate): COCRDUPC REWRITEs spaces into its PIC 9(3) CARD-CVV-CD, and VSAM keeps the bytes;
+  the generated entity's typed column could not hold them (`zoned` reads no number, `toRecord` wrote `000`), on the
+  det port and the java-facade alike. Every generated entity now keeps the bytes it was read from (`vsamRecord`,
+  column `VSAM_RECORD`) beside its typed columns, and `toRecord` re-encodes only a field whose value changed since:
+  a non-digit in a zoned field, a non-preferred packed sign and FILLER survive a READ / REWRITE, while a value a
+  service sets is still stored as MOVE stores it. A declared difference was rejected: it would loosen the proof.
 
 ### Keyed reads
 

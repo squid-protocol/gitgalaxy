@@ -750,6 +750,16 @@ class Cics:
             dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
         return dto, length
 
+    def in_dfhcommarea(self, text: str) -> bool:
+        """#4816: whether a COMMAREA operand lies inside the program's LINKAGE DFHCOMMAREA record."""
+        try:
+            it = self.g.resolve(self.ref(text))
+        except LookupError:  # an operand commarea_out handled without an item of its own: no caller's record
+            return False
+        while it.parent is not None:
+            it = it.parent
+        return it.section == "LINKAGE" and it.name == "DFHCOMMAREA"
+
     def commarea_bytes(self, opts: dict, program: str | None = None) -> str:
         """#4806: the COMMAREA's bytes as its DTO spans them (a byte[] expression): passed beside the DTO, they are
         the target's DFHCOMMAREA as they are -- a numeric field holding spaces too, which the DTO reads as a number."""
@@ -970,6 +980,10 @@ class Cics:
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
                 dto, length = self.commarea_out(opts, prog_lit)
+                if self.in_dfhcommarea(
+                    str(opts["COMMAREA"])
+                ):  # #4816: a LINKed program's is its caller's storage (X39)
+                    pre.append(f"{ind}task.xctlOfLinkage();")
                 if not dto.startswith("DetCics.commareaOut("):
                     # #4806: the bytes too -- a det target's DFHCOMMAREA is them, not the DTO's reading of them
                     xarea = self.commarea_bytes(opts, prog_lit)

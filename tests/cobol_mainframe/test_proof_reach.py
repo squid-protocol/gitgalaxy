@@ -269,7 +269,12 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     stale = {prog for c, prog in crucible if not _mutated_port_is_current(c, prog)}
     # only the ports not yet re-run are stale: their survivors are skipped until the next run judges them again
     assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
-    assert len(flagged) == 3 and verdicts.count("unreachable") == 3
+    # #4870 re-ran the same 13 after the byte-carrying handleTransaction overload joined every region facade (seed 0, 24
+    # mutants each; the added code moved the sample): 7 flagged survivors, all unreachable -- 4 in that overload
+    # (CALINK, CAXA x2, GTSTART: the crucible enters by handleTransaction(String, T) only, so no scenario calls it; its
+    # bytes are covered by the runtime and facade tests) plus HCQREAD's overload name literal, and the dead helpers
+    # CASUB writeqTsXatrace and HCQREAD readqTsHcwork.
+    assert len(flagged) == 7 and verdicts.count("unreachable") == 7
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 
@@ -278,17 +283,27 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
     a port's mutants shows up as a stale record here, not as a silent change. Killed / survived per port, and the
     harness gaps (none: the facade bodies are proven on the java-facade side too)."""
     expected = {
-        "CALINK": (19, 3), "CASUB": (15, 9), "CAXA": (17, 4), "CAXB": (15, 8), "GTSTART": (15, 7),
-        "GTWORK": (19, 2), "GTSHOW": (19, 5), "GTTERM": (13, 8), "HCMAIN": (10, 13), "HCSUB": (18, 6),
-        "HCQREAD": (10, 11), "HXATTR": (21, 2), "HXEXT": (14, 8),
-    }  # fmt: skip
+        "CALINK": (14, 8),
+        "CASUB": (15, 9),
+        "CAXA": (13, 8),
+        "CAXB": (17, 6),
+        "GTSTART": (15, 7),
+        "GTWORK": (17, 4),
+        "GTSHOW": (17, 6),
+        "GTTERM": (10, 11),
+        "HCMAIN": (12, 11),
+        "HCSUB": (18, 6),
+        "HCQREAD": (13, 8),
+        "HXATTR": (17, 5),
+        "HXEXT": (16, 7),
+    }  # fmt: skip  (#4870: re-run after the byte-carrying facade overload; the floor is the measured one)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 205 and sum(s for _, s in expected.values()) == 86
+    assert sum(k for k, _ in expected.values()) == 194 and sum(s for _, s in expected.values()) == 96
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

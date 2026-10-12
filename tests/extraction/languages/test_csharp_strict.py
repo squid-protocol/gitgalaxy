@@ -749,3 +749,87 @@ def test_csharp_func_start_branch_c_lookahead_equivalence_3182():
         for chars in itertools.product(alphabet, repeat=n):
             s = "".join(chars)
             assert bool(old.match(s)) == bool(new.match(s)), repr(s)
+
+
+# ==============================================================================
+# #3320: adjacent `[...]` runs at a line start (second func_start backtracking trigger)
+# A `[...]` run had three derivations (the attribute shield, single `[`/`]` chars in the
+# return-type token class, and the `\[...\]` token), so k adjacent brackets parsed 3^k ways
+# whenever no identifier + `(` followed. Roslyn's UserDefinedCompoundAssignmentOperatorsTests.cs
+# (stacked `[GetA][Get0][G1][operator]1True` expected-output lines) ran past the 60s worker
+# fuse and shipped with 0 functions.
+# ==============================================================================
+def _csharp_func_names(source: str) -> list[str]:
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+    return [next(g for g in m.groups() if g) for m in func_start.finditer(source)]
+
+
+def test_csharp_func_start_stacked_inlinedata_redos_3320():
+    """Stacked xunit `[InlineData(...)]` lines cost ~2x per extra line before the fix."""
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+    payload = "        [InlineData(1, 2)]\n" * 400 + "        public void Real(int a, int b) { }\n"
+    assert_redos_immune(func_start, payload, timeout_sec=1.0)
+    assert _csharp_func_names(payload) == ["Real"]
+
+
+def test_csharp_func_start_adjacent_bracket_tokens_redos_3320():
+    """The roslyn expected-output shape: ~16x per extra line before the fix (12s at six lines)."""
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+    payload = "".join(f"[GetA][Get0][G1][operator]{i}True\n" for i in range(400))
+    assert_redos_immune(func_start, payload, timeout_sec=1.0)
+    assert not func_start.search(payload)
+    # same run on a single line, and indented (the runtime/roslyn text-in-a-string shapes)
+    assert_redos_immune(func_start, "    " + "[a][b][c][d][e][f][g][h][i][j][k][l][m][n] 1\n" * 50, timeout_sec=1.0)
+    assert_redos_immune(func_start, "[a]" * 3000 + " x\n", timeout_sec=1.0)
+
+
+def test_csharp_func_start_compound_assignment_file_shape_under_fuse_3320():
+    """A synthetic UserDefinedCompoundAssignmentOperatorsTests.cs: real methods around a 20k-line
+    verbatim expected-output blob of adjacent-bracket lines. It must extract every method well inside
+    the 60s worker fuse (it used to exceed it, so the file shipped with 0 functions)."""
+    import time
+
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+    blob = "".join(
+        f"[GetA][Get0][G1][operator]{i}True\n[GetA][Get0][G1][operator checked]{i + 1}True\n" for i in range(0, 4000, 2)
+    )
+    source = (
+        "public class C\n{\n"
+        "    [Fact]\n    public void Test1(bool fromMetadata)\n    {\n"
+        '        const string expectedOutput = @"\n' + blob + '";\n    }\n\n'
+        "    [Theory]\n    [InlineData(1, 2)]\n    [InlineData(3, 4)]\n    public static int Test2(int a, int b) => a + b;\n"
+        "}\n"
+    )
+    started = time.perf_counter()
+    names = _csharp_func_names(source)
+    elapsed = time.perf_counter() - started
+    assert names == ["Test1", "Test2"]
+    assert elapsed < 5.0, f"func_start sweep took {elapsed:.1f}s"
+
+
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        # a method whose attribute has bracketed arguments (an array initialiser, a collection expression)
+        ("    [Array(new int[] { })] void M1(int x) { }\n", ["M1"]),
+        ("    [A([B])] void Goo(int x) { }\n", ["Goo"]),
+        ("    [A(new[] { 1, 2 })]\n    public void Goo(int x) { }\n", ["Goo"]),
+        # attribute stacks up to the shield's cap of five, on one line and across lines
+        ("[A][B][C][D][E] public void M(int x) { }\n", ["M"]),
+        ("    [A]\n    [B]\n    [C]\n    public async Task<int> M(int x) { }\n", ["M"]),
+        # return types that carry their own brackets still reach the name through the token alternative
+        ("    public int[] Get(int x) { }\n", ["Get"]),
+        ("    public T[,] Grid<T>(int x) { }\n", ["Grid"]),
+        ("    public int[][] Jagged(int x) { }\n", ["Jagged"]),
+        ("    public List<int[]>[] Nest(int x) { }\n", ["Nest"]),
+        ("    public (int, string)[] Pairs(int x) { }\n", ["Pairs"]),
+        ("    static string[]? Maybe(int x) { }\n", ["Maybe"]),
+        # a call whose receiver is indexed must not become a phantom function
+        ("            _dictionary[new WeakReference(x)] = y;\n", []),
+        ("                [.. items.Select(x => x)];\n", []),
+    ],
+)
+def test_csharp_func_start_bracket_ownership_parity_3320(source, expected):
+    """Brackets now have one owner each (the line-start shield, or a token's `[...]` suffix); every
+    legitimate declaration shape that used to match through the redundant derivations still does."""
+    assert _csharp_func_names(source) == expected

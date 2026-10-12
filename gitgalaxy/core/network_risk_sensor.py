@@ -118,6 +118,10 @@ _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
 _ESM_EMITTED_EXTS = frozenset({".js", ".jsx", ".mjs", ".cjs"})
 _ESM_SOURCE_EXTS = (".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs", ".cjs")
 
+# #4943: languages whose files are configuration, data or prose -- never the module an
+# import names. `_resolve_target` accepts one only when the token spells its extension.
+NON_IMPORTABLE_LANGS = frozenset({"yaml", "json", "markdown", "plaintext", "csv", "pbtxt"})
+
 # #3544: languages whose dotted/compound import token IS the target's path
 # (`pkg.utils` lives at .../pkg/utils.*): a candidate must end in that path even
 # when it is the only file with the name. Declared per language via the
@@ -348,6 +352,36 @@ class NetworkRiskSensor:
         return stem
 
     def _resolve_target(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        curr_path: str,
+        folded_maps: dict[str, dict[str, list[str]]] | None = None,
+        fold_lang: str | None = None,
+        src_lang: str | None = None,
+        file_facts: dict[str, tuple[str, bool]] | None = None,
+    ) -> str | None:
+        """Resolves an import token to one file (see `_resolve_target_unguarded`), then
+        refuses a target no import can name.
+
+        #4943: a configuration / data / prose file is not a module. Once CI workflows were
+        scanned (#4928), a Dart `dart` token's stem search found `.github/workflows/dart.yml`
+        and five false edges appeared. A target in `NON_IMPORTABLE_LANGS` is accepted only
+        when the token spells that file's own extension (`require("./data.json")`, `source
+        ci.yml`), which is a positive statement that a data file is meant."""
+        hit = self._resolve_target_unguarded(
+            target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
+        )
+        if hit is None or not file_facts:
+            return hit
+        cand_lang = (file_facts.get(hit) or ("", False))[0]
+        if cand_lang in NON_IMPORTABLE_LANGS and src_lang not in NON_IMPORTABLE_LANGS:
+            token_ext = posixpath.splitext(target_token.replace("\\", "/"))[1].lower()
+            if not token_ext or token_ext != posixpath.splitext(hit)[1].lower():
+                return None
+        return hit
+
+    def _resolve_target_unguarded(
         self,
         target_token: str,
         resolution_map: dict[str, list[str]],

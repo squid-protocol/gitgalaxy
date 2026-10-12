@@ -229,6 +229,50 @@ _BARE_BUILTINS: dict[str, frozenset[str]] = {
     ),
 }
 
+# #3756: methods of the JS/TS built-in classes (String, Array, Map, Set, WeakMap,
+# Promise, Object, Number, Date, RegExp, Function). `s.trim()` on a receiver the
+# scan cannot type is far more often the built-in than a repo class's method of
+# the same name: tsc resolved 52 confident zod links (`input.data.trim()`,
+# `seen.has(x)`, `set.add(x)`) to lib.d.ts only. A repo method with one of these
+# names reached through an UNTYPED non-`this` receiver is therefore the ambiguous
+# `receiver` guess, never `file`/`import`. `typed`, `class`, `qualified` and
+# alias/import-stem steps (a receiver the scan does know) are unaffected.
+_BUILTIN_INSTANCE_METHODS_JS = frozenset(
+    (
+        # String
+        "at charAt charCodeAt codePointAt concat endsWith includes indexOf lastIndexOf localeCompare "
+        "match matchAll normalize padEnd padStart repeat replace replaceAll search slice split startsWith "
+        "substring substr toLocaleLowerCase toLocaleUpperCase toLowerCase toUpperCase trim trimEnd trimStart "
+        # Array (and TypedArray)
+        "copyWithin entries every fill filter find findIndex findLast findLastIndex flat flatMap forEach join "
+        "keys map pop push reduce reduceRight reverse shift some sort splice unshift values with "
+        "toReversed toSorted toSpliced "
+        # Map / Set / WeakMap / WeakSet
+        "add clear delete get has set "
+        # Promise
+        "catch finally then "
+        # Object / Number / Date / RegExp / Function / Symbol
+        "hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf toFixed "
+        "toPrecision toExponential getTime toISOString toJSON exec test apply bind call"
+    ).split()
+)
+_BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
+    "typescript": _BUILTIN_INSTANCE_METHODS_JS,
+    "javascript": _BUILTIN_INSTANCE_METHODS_JS,
+}
+
+# #3756: JS/TS global namespaces whose static members (`Number.isFinite`,
+# `JSON.parse`, `Object.keys`) are the built-in unless the repo defines a class
+# of that name (a repo class is found first by `owned`, so reaching the
+# fallback means it does not).
+_BUILTIN_NAMESPACES: dict[str, frozenset[str]] = {
+    lang: frozenset(
+        "Object Array String Number Boolean Symbol BigInt Math JSON Date RegExp Promise Reflect Proxy "
+        "Map Set WeakMap WeakSet Error Intl Atomics ArrayBuffer Buffer process console".split()
+    )
+    for lang in ("typescript", "javascript")
+}
+
 # Languages where a directory is a namespace: a class in a sibling file is
 # visible without an import (a Java/Kotlin/Scala/Groovy package, a Go package,
 # a C# namespace by convention). Elsewhere (Python, JS/TS, Ruby, PHP, C++) a
@@ -901,8 +945,17 @@ def _resolve_one(
     # A receiver the engine cannot type: a variable, a call result, an external
     # module. Only a method can answer it (a free function is not reachable
     # through a receiver), and only a visible one confidently.
+    if qualifier in _BUILTIN_NAMESPACES.get(caller.lang, ()) and bucket.defs:
+        return "none", None  # #3756: `Number.isFinite`, `JSON.parse`: the global, not a repo method
     cset = bucket.all if ownerless else bucket.methods
     step, d = _ladder(cset, caller, True, cache)
+    if (
+        step in ("file", "import")
+        and bucket.defs
+        and _leaf(bucket.defs[0].name)[0] in _BUILTIN_INSTANCE_METHODS.get(caller.lang, ())
+    ):
+        # #3756: `input.data.trim()`, `seen.has(x)` on a receiver the scan cannot type.
+        return "receiver", d
     if step == "file" and d is not None and d.owner_key in lineage and _other_visible_class(cset, caller):
         # #3837: `members.entrySet()` inside JsonObject, which has its own
         # entrySet. An explicit receiver other than `this` is usually ANOTHER

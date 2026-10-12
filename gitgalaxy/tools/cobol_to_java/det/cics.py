@@ -13,7 +13,7 @@ from pathlib import Path
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands import whole_refusal
-from gitgalaxy.standards.cics.commands.api import CHILD_LATER, COUNTER
+from gitgalaxy.standards.cics.commands.api import COUNTER
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
@@ -114,6 +114,7 @@ _FORM_OPTION = {
     "WEB READNEXT": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
     "WEB ENDBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
     "FETCH": ("ANY", "CHILD"),  # #4884
+    "FREE": ("CHILD",),  # #4950: FREE CHILD(token): the form word is an option with an argument
     "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
 
@@ -811,10 +812,12 @@ class Cics:
             return self.container_browse(key, opts, ind)  # #4951
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
-        if words[:1] == ["FETCH"]:  # #4884: FETCH ANY / FETCH CHILD, NOSUSPEND only
+        if words[:1] == ["FETCH"]:  # #4884, #4950: FETCH ANY / FETCH CHILD
             return self.fetch(key, opts, ind)
-        if verb == "FREE CHILD":
-            raise CicsError(f"EXEC CICS {verb} not modelled ({CHILD_LATER})")
+        if key == "FREE CHILD":  # #4950
+            return self.free_child(opts, ind)
+        if verb.split()[0] == "DELAY":  # #4950: the wait at which RUN children are dispatched
+            return self.delay(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
@@ -1615,13 +1618,16 @@ class Cics:
         hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
         if (when in ("AFTER", "AT")) != bool(hms):
             raise CicsError(_msg("START", "requires", "HOURS", when, " ".join(hms)))
+        for g in SPEC["START"].groups:  # #4950: START CHANNEL's form -- no expiry, no data options, no REQID
+            if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
+                raise CicsError(g.msg.format(g.options[1]))
         chain = f"task.startRequest({self.name(_arg(opts['TRANSID']))})"
         if hms:
             vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
             chain += f".{when.lower()}({', '.join(vals)})"
         elif when in opts:
             chain += f".{when.lower()}({self._number(_arg(opts[when]))})"
-        for o in ("TERMID", "REQID", "RTRANSID", "RTERMID", "QUEUE"):
+        for o in ("TERMID", "REQID", "RTRANSID", "RTERMID", "QUEUE", "CHANNEL"):  # (#4950: START CHANNEL)
             if o in opts:
                 chain += f".{o.lower()}({self.name(_arg(opts[o]))})"
         if "FROM" in opts:
@@ -1685,24 +1691,69 @@ class Cics:
                 f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
-    # the areas a FETCH writes for a completed child (the token, its reply channel, abend code, completion status):
-    # none completes while its parent runs, so they are accepted and never written
-    _FETCH_AREAS = ("CHANNEL", "ABCODE", "COMPSTATUS")
-
     def fetch(self, key: str, opts: dict, ind: str) -> list[str]:
-        """FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH) on CicsTask.fetch: a child runs only
-        once this task has ended, so none has completed -- NOTFINISHED RESP2 52 (INVREQ 52 for FETCH ANY with no
-        children, INVREQ 50 for a token this task was not given), through RESP / HANDLE CONDITION. A FETCH that
-        waits (no NOSUSPEND) is refused, as is TIMEOUT; the output areas are never written."""
+        """FETCH ANY / FETCH CHILD(token) (IBM CICS TS, EXEC CICS FETCH) on CicsTask.fetch, #4950: NOSUSPEND, TIMEOUT
+        (milliseconds) or neither (it waits); on NORMAL the token goes to ANY, the reply channel's name to CHANNEL, the
+        abend code to ABCODE (only for a child that abended) and the completion status's CVDA to COMPSTATUS. The
+        conditions (NOTFINISHED 52 / 53, NOTFND, INVREQ 50 / 52) through RESP / HANDLE CONDITION."""
         form = key.split()[1]
         token = _option(opts, form)
-        if not token and form == "CHILD":
+        if not token:
             raise CicsError(_msg(key, "required", form))
-        if "NOSUSPEND" not in opts:
-            raise CicsError(_msg(key, "required", "NOSUSPEND"))
+        if "NOSUSPEND" in opts and "TIMEOUT" in opts:
+            raise CicsError(_msg(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"))
+        mode, timeout = "WAIT", "0"
+        if "NOSUSPEND" in opts:
+            mode = "NOSUSPEND"
+        elif "TIMEOUT" in opts:
+            mode, timeout = "TIMEOUT", self._number(_arg(opts["TIMEOUT"]))
         r = self.g.tmpname("fetch")
-        return [f"{ind}CicsTask.FetchResult {r} = task.fetch({self.name(token) if form == 'CHILD' and token else 'null'});",
+        child = self.name(token) if form == "CHILD" else "null"
+        out = [f'{ind}CicsTask.FetchResult {r} = task.fetch({child}, "{mode}", {timeout}, {str("CHANNEL" in opts).lower()});',
+               f"{ind}if ({r}.child() != null) {{"]  # fmt: skip
+        if form == "ANY":
+            out.append(f"{ind}    DetCics.putPadded({self.field(token)}, {r}.child(), CS);")
+        if "CHANNEL" in opts:
+            out.append(f"{ind}    DetCics.putPadded({self.field(_arg(opts['CHANNEL']))}, {r}.channel(), CS);")
+        if "ABCODE" in opts:
+            out.append(
+                f"{ind}    if ({r}.abcode() != null) DetCics.putPadded({self.field(_arg(opts['ABCODE']))}, {r}.abcode(), CS);"
+            )
+        if "COMPSTATUS" in opts:
+            out.append(ind + "    " + self.g.store_into(self.ref(_arg(opts["COMPSTATUS"])),
+                                                     f"BigDecimal.valueOf({r}.compstatus())", False))  # fmt: skip
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def free_child(self, opts: dict, ind: str) -> list[str]:
+        """#4950: FREE CHILD(token) (IBM CICS TS, EXEC CICS FREE CHILD) on CicsTask.freeChild: INVREQ 50 for a token
+        that is not a child's or was freed, through RESP / HANDLE CONDITION."""
+        token = _option(opts, "CHILD")
+        if not token:
+            raise CicsError(_msg("FREE CHILD", "required", "CHILD"))
+        r = self.g.tmpname("freed")
+        return [f"{ind}CicsTask.FetchResult {r} = task.freeChild({self.name(token)});",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+
+    def delay(self, opts: dict, ind: str) -> list[str]:
+        """#4950: DELAY (IBM CICS TS, EXEC CICS DELAY) on CicsTask.delay: INTERVAL(hhmmss), or [FOR] HOURS / MINUTES /
+        SECONDS / MILLISECS, as milliseconds (CicsTask.delayMillis: -1 out of IBM's ranges); none, INTERVAL(0). A task
+        takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
+        value out of range are refused in a task with RUN children (CicsTask.delay)."""
+
+        def num(o: str) -> str:
+            return f"Long.valueOf({self._number(_arg(opts[o]))})" if o in opts else "null"
+
+        if "TIME" in opts:
+            ms, what = "-1L", "DELAY TIME (a time of day)"
+        elif "INTERVAL" in opts:
+            ms, what = f"CicsTask.delayMillis({num('INTERVAL')}, null, null, null, null)", "DELAY out of range"
+        elif any(o in opts for o in ("HOURS", "MINUTES", "SECONDS", "MILLISECS")):
+            ms = f"CicsTask.delayMillis(null, {num('HOURS')}, {num('MINUTES')}, {num('SECONDS')}, {num('MILLISECS')})"
+            what = "DELAY out of range"
+        else:
+            ms, what = "0L", "DELAY"
+        return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
 
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,

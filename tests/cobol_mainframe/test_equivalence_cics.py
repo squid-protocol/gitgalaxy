@@ -2005,3 +2005,87 @@ def test_web_retrieve_becomes_a_stub_call_and_refuses_every_other_option():
     for extra in ("SESSTOKEN(WS-S)", "FROM(WS-F)", "ACTION(WS-A)", "DOCSTATUS(WS-D)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(f"WEB RETRIEVE DOCTOKEN(WS-T) {extra}")
+
+
+def test_the_async_child_commands_become_stub_calls():
+    """#4950 (X18): DELAY -> GGCDLAY (INTERVAL / TIME / FOR's values; none: INTERVAL(0)), FETCH ANY / CHILD -> GGCFETCH
+    (NOSUSPEND / TIMEOUT / CHANNEL named in GG-FLAGS; on NORMAL the token, the reply channel, the abend code and the
+    completion status moved to the program's areas), FREE CHILD -> GGCFREE, START CHANNEL -> GGCSTRT with GG-CHAN."""
+    d = ec.translate_command("DELAY FOR SECONDS(3)")
+    assert d[:6] == ["MOVE 'FOR' TO GG-FLAGS", "MOVE -999999999 TO GG-HOURS", "MOVE -999999999 TO GG-MINS",
+                     "MOVE 3 TO GG-SECS", "MOVE -999999999 TO GG-LEN", "CALL 'GGCDLAY' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("DELAY INTERVAL(105)")[:2] == ["MOVE 'INTERVAL' TO GG-FLAGS", "MOVE 105 TO GG-NUM"]
+    assert ec.translate_command("DELAY TIME(120000)")[0] == "MOVE 'TIME' TO GG-FLAGS"
+    assert ec.translate_command("DELAY")[:2] == ["MOVE SPACES TO GG-FLAGS", "CALL 'GGCDLAY' USING GG-CICS"]
+    f = ec.translate_command("FETCH ANY(WS-T) CHANNEL(WS-C) COMPSTATUS(WS-S) ABCODE(WS-A) NOSUSPEND RESP(R)")
+    assert f[:4] == ["MOVE SPACES TO GG-QNAME", "MOVE 'NOSUSPEND CHANNEL' TO GG-FLAGS", "MOVE 0 TO GG-NUM",
+                     "CALL 'GGCFETCH' USING GG-CICS"]  # fmt: skip
+    assert f[4:12] == ["IF GG-RESP = 0", "    MOVE GG-QNAME TO WS-T", "    MOVE GG-CHAN TO WS-C", "    IF GG-ITEM = 1",
+                       "        MOVE GG-NAME1(1:4) TO WS-A", "    END-IF", "    MOVE GG-NUM TO WS-S", "END-IF"]  # fmt: skip
+    t = ec.translate_command("FETCH CHILD(WS-T) TIMEOUT(250)")
+    assert t[:4] == ["MOVE WS-T TO GG-QNAME", "MOVE 'CHILD TIMEOUT' TO GG-FLAGS", "MOVE 250 TO GG-NUM",
+                     "CALL 'GGCFETCH' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("FETCH CHILD(WS-T)")[1] == "MOVE 'CHILD' TO GG-FLAGS"  # (it waits)
+    with pytest.raises(ec.Unsupported, match="FETCH NOSUSPEND and TIMEOUT together"):
+        ec.translate_command("FETCH ANY(WS-T) NOSUSPEND TIMEOUT(5)")
+    assert ec.translate_command("FREE CHILD(WS-T) RESP(R)")[:2] == [
+        "MOVE WS-T TO GG-QNAME",
+        "CALL 'GGCFREE' USING GG-CICS",
+    ]
+    s = ec.translate_command("START TRANSID('GT24') CHANNEL('CH.1')")
+    assert "MOVE 'INTERVAL CHANNEL' TO GG-FLAGS" in s and "MOVE 'CH.1' TO GG-CHAN" in s
+    with pytest.raises(ec.Unsupported, match="START CHANNEL with FROM"):
+        ec.translate_command("START TRANSID('GT24') CHANNEL('CH.1') FROM(WS-A)")
+
+
+def test_a_case_s_run_children_reach_both_runtimes():
+    """#4950: "child_programs" ({TRANSID: PROGRAM}, each one of the case's "programs") is what a RUN child runs: the
+    driver lets a child process run its program through the dispatcher (GGCCHLD), the stub reads childprogs.cfg and
+    CicsTask its Programs.program; a child program that holds a region resource with no event of its own (ENQ, a
+    counter, SQL) is refused when the case is built."""
+    case = {"programs": [{"program": "CRDTAGY1", "program_source": "x"}], "child_programs": {"OCR1": "crdtagy1"}}
+    assert ec.case_child_programs(case) == {"OCR1": "CRDTAGY1"} and ec.case_child_programs({}) == {}
+    with pytest.raises(ec.Unsupported, match="child_programs"):
+        ec.case_child_programs({**case, "child_programs": {"OCR1": "OTHER"}})
+    drv = ec.cics_driver("PROG", False, True)
+    assert "CALL 'GGCCHLD' USING GG-CICS" in drv and "CALL 'GGCRUN' USING WS-CA" in drv
+    assert "GGCCHLD" not in ec.cics_driver("PROG", False)
+    assert ec._CHILD_STATIC.search("EXEC CICS ENQ RESOURCE(X) END-EXEC") and ec._CHILD_STATIC.search("EXEC SQL SELECT")
+    assert ec._CHILD_STATIC.search("EXEC CICS GET COUNTER(X)") and not ec._CHILD_STATIC.search("EXEC CICS DELAY")
+
+
+def test_a_child_s_events_and_the_fetch_are_compared_both_ways():
+    """#4950: FETCH_DIFFERS is gone -- a FETCH is compared by its outcome and, on NORMAL, the child, its completion
+    status, abend code and reply channel; a CHILD event (what a dispatched child did) is compared as a task's events."""
+    res = {"events": ["FETCH resp=0 resp2=0 child=GGCHILD000000002 compstatus=NORMAL abcode=- channel=GGREPLY000000001",
+                      "FREE-CHILD resp=16 resp2=50", "CHILD child=GGCHILD000000001 transid=OCR1 dir=child_001"],
+           "screens": [], "text": [], "children": [{"events": ["RETURN level=1"], "screens": [], "text": [],
+                                                    "return": {"transid": "", "commarea": None}, "containers": None,
+                                                    "linked_commarea": None}]}  # fmt: skip
+    cev = ec.cobol_events(res)
+    assert cev[0] == {"event": "FETCH", "resp": "NORMAL", "resp2": 0, "child": "GGCHILD000000002",
+                      "compstatus": "NORMAL", "abcode": None, "channel": "GGREPLY000000001"}  # fmt: skip
+    assert cev[1] == {"event": "FREE-CHILD", "resp": "INVREQ", "resp2": 50}
+    assert cev[2] == {"event": "CHILD", "child": "GGCHILD000000001", "transid": "OCR1",
+                      "events": [{"event": "RETURN", "transid": None, "commarea": None}]}  # fmt: skip
+    assert ec.compare_events(cev, [dict(e) for e in cev])["diffs"] == []
+    other = [dict(cev[0], channel=None), cev[1], dict(cev[2], events=[{"event": "ABEND", "abcode": "KIDA"}])]
+    diffs = ec.compare_events(cev, other)["diffs"]
+    assert [d["fields"][0]["field"] for d in diffs] == ["channel", "events"]
+
+
+def test_exec_in_a_literal_or_a_debugging_line_is_not_a_command():
+    """#4950 (CBSA CRECUST): `DISPLAY 'EXEC CICS FETCH ANY failed. RESP='` is a literal, and an EXEC CICS on a
+    debugging line (indicator D) is a comment as cobc reads it without WITH DEBUGGING MODE; with that clause in force the
+    program is refused by name. The LE models are linked when the program itself CALLs a CEE service, and the det
+    translator's CEEIGZCT stand-in (register L4) is the COPY member where the estate has none."""
+    assert ec._in_literal("    DISPLAY 'EXEC CICS FETCH", 13) and not ec._in_literal("    EXEC CICS RETURN", 4)
+    assert ec._in_literal('    DISPLAY "A" "EXEC', 17) and not ec._in_literal("    MOVE 'IT''S' TO X EXEC", 22)
+    src = ("       PROCEDURE DIVISION.\n"
+           "           DISPLAY 'EXEC CICS FETCH ANY failed. RESP=' WS-R\n"
+           "      D    EXEC CICS ASKTIME ABSTIME(START-DEQ) END-EXEC\n"
+           "           EXEC CICS RETURN END-EXEC.\n")  # fmt: skip
+    assert [b[3].strip() for b in ec._exec_blocks(src.splitlines())] == ["RETURN"]
+    with pytest.raises(ec.Unsupported, match="WITH DEBUGGING MODE"):
+        ec.translate("       SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.\n" + src)
+    assert (ec.DET_COPY / "CEEIGZCT.cpy").is_file()

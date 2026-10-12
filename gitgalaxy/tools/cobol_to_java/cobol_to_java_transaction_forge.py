@@ -4519,6 +4519,26 @@ class CicsForge:
                 f"        region.run(task, {name}, this::runTask);",
                 *([f"        return task.returned({tresp}.class);"] if tresp else []),
                 "    }\n",
+                # #4870: the same entry with the bytes of the COMMAREA the previous task's RETURN passed on in, and
+                # the bytes this task's RETURN passes on out (lastAnswerBytes()): a DTO cannot carry a numeric DISPLAY
+                # field holding spaces. The signature above is unchanged (the equivalence harness reads it).
+                "    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the",
+                "     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */",
+                f"    public {tresp or 'void'} handleTransaction({params}, byte[] area) {{",
+                f'        log.info("{prog.cls}: handleTransaction (bytes)");',
+                "        CicsTask.Region region = CicsTask.region();",
+                f"        CicsTask task = region.transaction(transid, {'request' if treq else 'null'}, area);",
+                f"        region.run(task, {name}, this::runTask);",
+                "        lastAnswerBytes = task.returnedBytes();",
+                *([f"        return task.returned({tresp}.class);"] if tresp else []),
+                "    }\n",
+                "    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",
+                "    private byte[] lastAnswerBytes;\n",
+                "    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).",
+                "     *  @facade-helper */",
+                "    public byte[] lastAnswerBytes() {",
+                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
+                "    }\n",
             ]  # fmt: skip
         elif prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")

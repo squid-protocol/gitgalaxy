@@ -183,6 +183,18 @@
    "removed": [
     "executeCalink"
    ]
+  },
+  {
+   "at": "2026-10-12T07:11:36+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/CalinkService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,byte[])",
+    "lastAnswerBytes()"
+   ]
   }
  ],
  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer"

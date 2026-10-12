@@ -1537,25 +1537,39 @@ def facades(stub: str) -> list[str]:
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
     for meth in ("handleTransaction", "handleLink"):
-        m = re.search(rf"public (\S+) {meth}\(([^)]*)\)", stub)
-        if not m:
-            continue
-        ret, params = m.group(1), m.group(2)
-        req = re.search(r"(\w+) request\b", params)
-        arg = "request" if req else "null"
-        if name is None:
-            body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a channel '
-                     'program); it runs as runTask");')]  # fmt: skip
-        else:
-            task = (f"region.transaction(transid, {arg})" if meth == "handleTransaction"
-                    else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
-            body = ["        CicsTask.Region region = CicsTask.region();",
-                    f"        CicsTask task = {task};",
-                    f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
-            if ret != "void":
-                body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
-                            else f"        return task.returned({ret}.class);")  # fmt: skip
-        out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+        # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
+        # through lastAnswerBytes(), out) -- each rebuilt on its own
+        for m in re.finditer(rf"public (\S+) {meth}\(([^)]*)\)", stub):
+            ret, params = m.group(1), m.group(2)
+            req = re.search(r"(\w+) request\b", params)
+            arg = "request" if req else "null"
+            area = re.search(r"byte\[\] (\w+)", params)
+            if name is None:
+                body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a '
+                         'channel program); it runs as runTask");')]  # fmt: skip
+            else:
+                task = (f"region.transaction(transid, {arg}{', ' + area.group(1) if area else ''})"
+                        if meth == "handleTransaction" else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
+                body = ["        CicsTask.Region region = CicsTask.region();",
+                        f"        CicsTask task = {task};",
+                        f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
+                if area and meth == "handleTransaction":
+                    body.append("        lastAnswerBytes = task.returnedBytes();")
+                if ret != "void":
+                    body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
+                                else f"        return task.returned({ret}.class);")  # fmt: skip
+            out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+    # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
+    if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
+        out += ["    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",
+                "    private byte[] lastAnswerBytes;",
+                "",
+                "    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).",
+                "     *  @facade-helper */",
+                "    public byte[] lastAnswerBytes() {",
+                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
+                "    }",
+                ""]  # fmt: skip
     # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its
     # controller calls: kept so the project compiles, it stops by name -- no task runtime carries a channel's DTO in
     # (#4342: no generated entry that does nothing).

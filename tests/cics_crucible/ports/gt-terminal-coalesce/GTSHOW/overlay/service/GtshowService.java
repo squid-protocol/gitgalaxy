@@ -42,6 +42,25 @@ public class GtshowService {
         region.run(task, "GTSHOW", this::runTask);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the
+     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */
+    public void handleTransaction(String transid, byte[] area) {
+        log.info("Gtshow: handleTransaction (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, null, area);
+        region.run(task, "GTSHOW", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+    }
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
+    }
+
     /** One task of transaction GT12 (#3754): the PROCEDURE DIVISION of GTSHOW. */
     public void runTask(CicsTask task) {
         log.info("Gtshow: runTask");

@@ -18,6 +18,7 @@ CANON = ("pyproject.toml", "ci/requirements/*.txt")
 # workflow -> why it is not on the canonical path list yet (each is a sibling gap, not a design)
 EXEMPT = {
     "mainframe-ground-truth.yml": "owner-protected (#4935): hashes gitgalaxy/pyproject.toml alone",
+    "smoke-test.yml": "owner-protected (#4935): hashes pyproject.toml alone",
 }
 VOLATILE = re.compile(r"github\.(sha|run_id|run_number|run_attempt|ref|head_ref|event)|\bdate\b|\bnow\b|runner\.temp")
 

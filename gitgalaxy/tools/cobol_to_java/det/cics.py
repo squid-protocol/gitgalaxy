@@ -106,8 +106,11 @@ _FORM_OPTION = {
     "GET": ("COUNTER",),
     "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
-    "WEB READ": ("HTTPHEADER",),  # #4767 (X38): WEB READ / WRITE HTTPHEADER(area); FORMFIELD / QUERYPARM stay refused
+    "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
+    "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
+    "WEB READNEXT": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
+    "WEB ENDBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
     "FETCH": ("ANY", "CHILD"),  # #4884
     "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
@@ -1148,7 +1151,9 @@ class Cics:
             return self.web_parse(key, opts, ind)
         if key == "WEB SEND":  # #4767 (X37): the response to the stated inbound request
             return self.web_send(key, opts, ind)
-        if key in ("WEB EXTRACT", "WEB RECEIVE", "WEB READ HTTPHEADER", "WEB WRITE HTTPHEADER"):  # #4767 (X38)
+        if key in ("WEB EXTRACT", "WEB RECEIVE", "WEB READ HTTPHEADER", "WEB WRITE HTTPHEADER") or key.startswith(
+            ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
+        ):  # #4767 / #4940 (X38)
             return self.web_request(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
@@ -1388,6 +1393,10 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
+        if key.startswith(
+            ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
+        ):
+            return self.web_forms(key, opts, ind, text, req, store, put)
         if key == "WEB WRITE HTTPHEADER":
             call = f"task.webWriteHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {text('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
@@ -1444,6 +1453,48 @@ class Cics:
             out.append(store("REQUESTTYPE", "1033"))
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def web_forms(self, key: str, opts: dict, ind: str, text, req, store, put) -> list[str]:
+        """#4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (IBM CICS TS, EXEC CICS WEB READ
+        FORMFIELD, WEB READ QUERYPARM, WEB STARTBROWSE / READNEXT / ENDBROWSE HTTPHEADER, FORMFIELD, QUERYPARM) on the stated
+        request (CicsTask.webReadParam / webStartBrowse / webReadNext / webEndBrowse). A read: the value at VALUE's start
+        (cut to VALUELENGTH, LENGERR RESP2 5) and VALUELENGTH its whole length. READNEXT: the pair's name and value at the
+        areas' starts and their whole lengths (also when cut, LENGERR RESP2 4 / 5)."""
+        g = self.g
+        r = g.tmpname("web")
+        form, kind = key.split()[1], key.split()[2]
+        ok = f"{ind}if ({r}.value() != null) {{"
+        if form == "READ":
+            call = (f'task.webReadParam("{kind}", {text(kind)}, {self.int_(req("NAMELENGTH"))}, '
+                    f"{self.int_(req('VALUELENGTH'))}, {self.size(req('VALUE'))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebParam {r} = {call};", ok,
+                    put(req("VALUE"), f"{r}.value().getBytes(CS)", f"{key} VALUE"),
+                    store("VALUELENGTH", f"{r}.length()"), f"{ind}}}",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        if form == "READNEXT":
+            for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH"):
+                req(o)
+            call = (f'task.webReadNext("{kind}", {self.int_(req("NAMELENGTH"))}, {self.size(req(kind))}, '
+                    f"{self.int_(req('VALUELENGTH'))}, {self.size(req('VALUE'))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebNext {r} = {call};", f"{ind}if ({r}.name() != null) {{",
+                    put(req(kind), f"{r}.name().getBytes(CS)", f"{key} {kind}"), store("NAMELENGTH", f"{r}.nameLength()"),
+                    put(req("VALUE"), f"{r}.value().getBytes(CS)", f"{key} VALUE"),
+                    store("VALUELENGTH", f"{r}.valueLength()"), f"{ind}}}",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        if form == "ENDBROWSE":
+            return [f'{ind}int[] {r} = task.webEndBrowse("{kind}");', *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        named = bool(opts.get(kind))  # STARTBROWSE
+        if kind == "HTTPHEADER" and named:
+            raise CicsError("WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled")
+        if named and not opts.get("NAMELENGTH"):
+            raise CicsError(f"WEB STARTBROWSE {kind}(name) without NAMELENGTH (IBM: it is required with a name)")
+        if "NAMELENGTH" in opts and not named:
+            raise CicsError(f"WEB STARTBROWSE {kind} NAMELENGTH without a name")
+        if named:
+            call = f'task.webStartBrowse("{kind}", {text(kind)}, Integer.valueOf({self.int_(req("NAMELENGTH"))}))'
+        else:
+            call = f'task.webStartBrowse("{kind}", null, null)'
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     # -- #4270: channels and containers
     def container(self, key: str, opts: dict, ind: str) -> list[str]:

@@ -14,9 +14,9 @@
   },
   {
    "area": "CICS",
-   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
    "id": "X18",
-   "status": "ASSUMED (REFUSED where IBM is silent)"
+   "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
   },
   {
    "area": "CICS",
@@ -168,7 +168,12 @@
     146,
     149
    ],
-   "carddemo-cardupdate": null,
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
    "carddemo-cardview": [
     30,
     30,
@@ -671,20 +676,15 @@
     "program": "src/ASYNCPNT.cbl",
     "row": {
      "holes": [
-      "line 212: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 220: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 228: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 236: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 246: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-      "line 259: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 279: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-      "line 298: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-      "line 318: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-      "line 348: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)"
+      "line 246: EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended",
+      "line 279: EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended",
+      "line 298: EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended",
+      "line 318: EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended",
+      "line 348: EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
      ],
      "kind": "cics",
      "statements": 52,
-     "translated": 42
+     "translated": 47
     },
     "source_read": true
    },
@@ -1227,7 +1227,11 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
   "sweeps": {}
  },
@@ -1697,6 +1701,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -1721,9 +1726,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -2023,6 +2028,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2362,6 +2368,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2684,6 +2691,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2997,6 +3005,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3289,6 +3298,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3581,6 +3591,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4119,6 +4130,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4400,6 +4412,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4437,9 +4450,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -4490,7 +4503,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (10 holes left)"
+    "translated whole (5 holes left)"
    ],
    "options": {
     "assumed": 4,
@@ -4584,8 +4597,10 @@
      "command": "FETCH CHILD",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
-     "spec_entry": "name-only"
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
     },
     {
      "backed": false,
@@ -4908,34 +4923,33 @@
      "RUN"
     ],
     "facts_unstated": 1,
-    "holes": 10,
+    "holes": 5,
     "paragraphs_unrun": null,
     "refused": null
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "EXEC CICS FETCH",
-     "EXEC CICS RUN CHANNEL"
+     "EXEC CICS FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
     ],
-    "hole_count": 10,
+    "hole_count": 5,
     "holes": [
-     "EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-     "EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))"
+     "EXEC EXEC CICS: FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 52,
-    "translated": 42,
+    "translated": 47,
     "whole": false
    }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
+   "python tests/tools/cics_census.py survey --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4956,9 +4970,14 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
-  "translator_commit": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+  "translator_commit": "0d74a182b6d6636912be3db10d7a63d03b722885",
+  "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 10,
@@ -4979,8 +4998,17 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 10,
+  "histogram_stale_survey": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 5,
   "levels_stale": 0,
+  "levels_stale_survey": 0,
   "programs": 10,
   "records_current": 0,
   "refused_whole": 0,
@@ -4988,5 +5016,9 @@
   "translated_whole": 9,
   "with_case": 9,
   "with_record": 0
+ },
+ "survey_translator": {
+  "current": true,
+  "fingerprint": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
  }
 }

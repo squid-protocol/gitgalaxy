@@ -26,9 +26,9 @@
   },
   {
    "area": "CICS",
-   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
    "id": "X18",
-   "status": "ASSUMED (REFUSED where IBM is silent)"
+   "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
   },
   {
    "area": "CICS",
@@ -204,7 +204,12 @@
     146,
     149
    ],
-   "carddemo-cardupdate": null,
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
    "carddemo-cardview": [
     30,
     30,
@@ -1631,15 +1636,10 @@
     },
     "program": "src/base/cobol_src/CRECUST.cbl",
     "row": {
-     "holes": [
-      "line 582: EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-      "line 639: EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-      "line 657: IF condition: DFHRESP(NOTFINISHED) is not a documented condition",
-      "line 1393: CALL CALL CEELOCT"
-     ],
+     "holes": [],
      "kind": "cics",
-     "statements": 296,
-     "translated": 292
+     "statements": 321,
+     "translated": 321
     },
     "source_read": true
    },
@@ -2314,7 +2314,11 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
   "sweeps": {}
  },
@@ -2701,7 +2705,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
+       "oracle_image": "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -2952,6 +2956,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3231,6 +3236,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3491,6 +3497,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3751,6 +3758,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3835,7 +3843,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
+       "oracle_image": "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -3890,7 +3898,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
+      "oracle_image": "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -4105,6 +4113,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -4430,6 +4439,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5002,6 +5012,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5595,6 +5606,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6167,6 +6179,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6565,6 +6578,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6879,6 +6893,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7158,6 +7173,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7769,6 +7785,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8323,6 +8340,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8742,6 +8760,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9161,6 +9180,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9580,6 +9600,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9999,6 +10020,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10418,6 +10440,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10829,6 +10852,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10962,7 +10986,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
+       "oracle_image": "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -11025,7 +11049,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df",
+      "oracle_image": "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -11349,6 +11373,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11772,6 +11797,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -12278,6 +12304,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -12687,6 +12714,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -13211,6 +13239,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -13757,6 +13786,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -14299,6 +14329,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -14823,6 +14854,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -14832,134 +14864,6 @@
     "statements": 441,
     "translated": 441,
     "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "translated whole (6 holes left)"
-   ],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "OPT"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "src/base/cobol_src/BANKDATA.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 6,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [
-     "<name>: no repository for this file in the generated project",
-     "CALL CEEDATM",
-     "CALL CEEGMT"
-    ],
-    "hole_count": 6,
-    "holes": [
-     "CALL CALL CEEDATM",
-     "CALL CALL CEEGMT",
-     "CLOSE CUSTOMER-FILE: no repository for this file in the generated project",
-     "OPEN CUSTOMER-FILE: no repository for this file in the generated project",
-     "WRITE CUSTOMER-FILE: no repository for this file in the generated project"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 464,
-    "translated": 458,
-    "whole": false
    }
   },
   {
@@ -14989,9 +14893,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -15036,13 +14940,13 @@
     "cases": [],
     "chosen": null
    },
-   "level": "L0",
+   "level": "L1",
    "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (4 holes left)"
+    "an equivalence case that runs it"
    ],
    "options": {
     "assumed": 5,
@@ -15195,8 +15099,10 @@
      "command": "FETCH ANY",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
-     "spec_entry": "name-only"
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
     },
     {
      "backed": false,
@@ -15421,30 +15327,150 @@
      "WRITE"
     ],
     "facts_unstated": 2,
-    "holes": 4,
+    "holes": 0,
     "paragraphs_unrun": null,
     "refused": null
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 321,
+    "translated": 321,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (6 holes left)"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "src/base/cobol_src/BANKDATA.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 6,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "CALL CEELOCT",
-     "EXEC CICS FETCH",
-     "EXEC CICS RUN CHANNEL",
-     "IF condition: DFHRESP(\u2026) is not a documented condition"
+     "<name>: no repository for this file in the generated project",
+     "CALL CEEDATM",
+     "CALL CEEGMT"
     ],
-    "hole_count": 4,
+    "hole_count": 6,
     "holes": [
-     "CALL CALL CEELOCT",
-     "EXEC EXEC CICS: EXEC CICS FETCH not modelled (#4270: a parent waiting for its child task, a later slice)",
-     "EXEC EXEC CICS: RUN CHANNEL: option not modelled (RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice))",
-     "IF condition: DFHRESP(NOTFINISHED) is not a documented condition"
+     "CALL CALL CEEDATM",
+     "CALL CALL CEEGMT",
+     "CLOSE CUSTOMER-FILE: no repository for this file in the generated project",
+     "OPEN CUSTOMER-FILE: no repository for this file in the generated project",
+     "WRITE CUSTOMER-FILE: no repository for this file in the generated project"
     ],
     "refused": null,
     "source_defects": [],
-    "statements": 296,
-    "translated": 292,
+    "statements": 464,
+    "translated": 458,
     "whole": false
    }
   },
@@ -15822,6 +15848,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "EXEC CICS DELETE TOKEN",
@@ -15842,8 +15869,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
+   "python tests/tools/cics_census.py survey --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (13) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
@@ -15860,23 +15887,28 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:a8f10b32a3d36d03893d793c2e07ca0191f4f2173b0b9f5c42fb40b6442382df"
+   "sha256:a8fbb65c2db22194f7c7ec721399c9002aad1bcc5f3d5a5a0ccc11d2714bc023"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
-  "translator_commit": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+  "translator_commit": "0d74a182b6d6636912be3db10d7a63d03b722885",
+  "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 30,
   "det_equal": 24,
   "histogram": {
-   "L0": 3,
-   "L1": 4,
+   "L0": 2,
+   "L1": 5,
    "L2": 12,
    "L3": 6,
    "L4": 6,
@@ -15890,14 +15922,27 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 14,
+  "histogram_stale_survey": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 10,
   "levels_stale": 0,
+  "levels_stale_survey": 0,
   "programs": 31,
   "records_current": 2,
   "refused_whole": 0,
   "source_unread": 0,
-  "translated_whole": 28,
+  "translated_whole": 29,
   "with_case": 24,
   "with_record": 2
+ },
+ "survey_translator": {
+  "current": true,
+  "fingerprint": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
  }
 }

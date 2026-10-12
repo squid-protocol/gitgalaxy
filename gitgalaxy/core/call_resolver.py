@@ -238,23 +238,100 @@ _BARE_BUILTINS: dict[str, frozenset[str]] = {
 # `receiver` guess, never `file`/`import`. `typed`, `class`, `qualified` and
 # alias/import-stem steps (a receiver the scan does know) are unaffected.
 _BUILTIN_INSTANCE_METHODS_JS = frozenset(
-    (
+    {
         # String
-        "at charAt charCodeAt codePointAt concat endsWith includes indexOf lastIndexOf localeCompare "
-        "match matchAll normalize padEnd padStart repeat replace replaceAll search slice split startsWith "
-        "substring substr toLocaleLowerCase toLocaleUpperCase toLowerCase toUpperCase trim trimEnd trimStart "
+        "at",
+        "charAt",
+        "charCodeAt",
+        "codePointAt",
+        "concat",
+        "endsWith",
+        "includes",
+        "indexOf",
+        "lastIndexOf",
+        "localeCompare",
+        "match",
+        "matchAll",
+        "normalize",
+        "padEnd",
+        "padStart",
+        "repeat",
+        "replace",
+        "replaceAll",
+        "search",
+        "slice",
+        "split",
+        "startsWith",
+        "substring",
+        "substr",
+        "toLocaleLowerCase",
+        "toLocaleUpperCase",
+        "toLowerCase",
+        "toUpperCase",
+        "trim",
+        "trimEnd",
+        "trimStart",
         # Array (and TypedArray)
-        "copyWithin entries every fill filter find findIndex findLast findLastIndex flat flatMap forEach join "
-        "keys map pop push reduce reduceRight reverse shift some sort splice unshift values with "
-        "toReversed toSorted toSpliced "
+        "copyWithin",
+        "entries",
+        "every",
+        "fill",
+        "filter",
+        "find",
+        "findIndex",
+        "findLast",
+        "findLastIndex",
+        "flat",
+        "flatMap",
+        "forEach",
+        "join",
+        "keys",
+        "map",
+        "pop",
+        "push",
+        "reduce",
+        "reduceRight",
+        "reverse",
+        "shift",
+        "some",
+        "sort",
+        "splice",
+        "unshift",
+        "values",
+        "with",
+        "toReversed",
+        "toSorted",
+        "toSpliced",
         # Map / Set / WeakMap / WeakSet
-        "add clear delete get has set "
+        "add",
+        "clear",
+        "delete",
+        "get",
+        "has",
+        "set",
         # Promise
-        "catch finally then "
+        "catch",
+        "finally",
+        "then",
         # Object / Number / Date / RegExp / Function / Symbol
-        "hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf toFixed "
-        "toPrecision toExponential getTime toISOString toJSON exec test apply bind call"
-    ).split()
+        "hasOwnProperty",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+        "toLocaleString",
+        "toString",
+        "valueOf",
+        "toFixed",
+        "toPrecision",
+        "toExponential",
+        "getTime",
+        "toISOString",
+        "toJSON",
+        "exec",
+        "test",
+        "apply",
+        "bind",
+        "call",
+    }
 )
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
@@ -267,8 +344,33 @@ _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
 # fallback means it does not).
 _BUILTIN_NAMESPACES: dict[str, frozenset[str]] = {
     lang: frozenset(
-        "Object Array String Number Boolean Symbol BigInt Math JSON Date RegExp Promise Reflect Proxy "
-        "Map Set WeakMap WeakSet Error Intl Atomics ArrayBuffer Buffer process console".split()
+        {
+            "Object",
+            "Array",
+            "String",
+            "Number",
+            "Boolean",
+            "Symbol",
+            "BigInt",
+            "Math",
+            "JSON",
+            "Date",
+            "RegExp",
+            "Promise",
+            "Reflect",
+            "Proxy",
+            "Map",
+            "Set",
+            "WeakMap",
+            "WeakSet",
+            "Error",
+            "Intl",
+            "Atomics",
+            "ArrayBuffer",
+            "Buffer",
+            "process",
+            "console",
+        }
     )
     for lang in ("typescript", "javascript")
 }

@@ -1641,6 +1641,21 @@ def _container_browse_command(verb: str, opts: dict[str, str | None], labels: li
     return lines + _call("GGCEBRC", []) + _resp(opts, True, labels)
 
 
+# the det translator's system members (register L4: CEEIGZCT, a GitGalaxy-written stand-in)
+DET_COPY = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "copy"
+
+
+def _in_literal(code: str, pos: int) -> bool:
+    """Whether `pos` of a source line's code area falls inside a quoted literal (' or ", doubled to escape)."""
+    quote = None
+    for ch in code[:pos]:
+        if quote is None and ch in "'\"":
+            quote = ch
+        elif ch == quote:
+            quote = None  # (a doubled quote closes and reopens: the same state at the next character)
+    return quote is not None
+
+
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
     """Each EXEC CICS block of a fixed-format program: (first line, last line, the code before
     it, its body, the code after END-EXEC)."""
@@ -1648,8 +1663,9 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
     while i < len(lines):
         line = lines[i]
         code = line[7:72] if len(line) > 7 else ""
-        start = _EXEC.search(code)
-        if (len(line) > 6 and line[6] in "*/") or not start:
+        # (#4950: not inside a literal -- CBSA CRECUST DISPLAYs 'EXEC CICS FETCH ANY failed. RESP=')
+        start = next((m for m in _EXEC.finditer(code) if not _in_literal(code, m.start())), None)
+        if (len(line) > 6 and line[6] in "*/dD") or not start:  # (#4950: a debugging line is a comment, as cobc reads it)
             i += 1
             continue
         prefix, body, j = code[: start.start()], code[start.end() :], i
@@ -1658,7 +1674,7 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
             if j >= len(lines):
                 raise Unsupported(f"EXEC CICS at line {i + 1} has no END-EXEC")
             nxt = lines[j]
-            if len(nxt) > 6 and nxt[6] in "*/":
+            if len(nxt) > 6 and nxt[6] in "*/dD":
                 continue
             if len(nxt) > 6 and nxt[6] == "-":
                 raise Unsupported(f"continuation line inside EXEC CICS at line {j + 1}")
@@ -1673,6 +1689,8 @@ def translate(source: str) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
     lines = source.splitlines()
+    if any(len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines):
+        raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
@@ -1778,15 +1796,16 @@ def cics_driver(program: str, has_commarea: bool, children: bool = False) -> str
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
-              "    CALL 'GGCCHIN' USING GG-CICS"]  # fmt: skip
-    task = ["    SET WS-PTR TO ADDRESS OF WS-CA",
+              ]  # fmt: skip
+    task = ["    CALL 'GGCCHIN' USING GG-CICS", "    SET WS-PTR TO ADDRESS OF WS-CA",
             "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
             "    SET ADDRESS OF LK-CA TO WS-PTR",
             f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
             "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN"]  # fmt: skip
     if children:  # #4950: a RUN TRANSID child runs its own program, through the dispatcher
         lines += ["    CALL 'GGCCHLD' USING GG-CICS", "    IF GG-ITEM = 1", "        MOVE 0 TO GG-LEN",
-                  "        CALL 'GGCTASK' USING GG-CICS", "        CALL 'GGCRUN' USING WS-CA", "    ELSE",
+                  "        CALL 'GGCTASK' USING GG-CICS", "        CALL 'GGCCHIN' USING GG-CICS",
+                  "        CALL 'GGCRUN' USING WS-CA", "    ELSE",
                   *("    " + ln for ln in task), "    END-IF"]  # fmt: skip
     else:
         lines += task
@@ -2356,6 +2375,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
+    if not (src / "CEEIGZCT.cpy").exists():  # #4950: the det translator's LE stand-in, where the estate has none (L4)
+        shutil.copy(DET_COPY / "CEEIGZCT.cpy", src / "CEEIGZCT.cpy")
     shutil.copy(common.CASES / "faults" / "ggdisplay.c", src / "ggdisplay.c")  # #4635: DISPLAY as IBM writes it
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
     common.require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
@@ -2407,7 +2428,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
-    for model in sorted(LE_MODELS.glob("*.c")) if subs else []:
+    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT)
+    for model in sorted(LE_MODELS.glob("*.c")) if subs or re.search(r"(?i)\bCALL\s+['\"]CEE", source) else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as

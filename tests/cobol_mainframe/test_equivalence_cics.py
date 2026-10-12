@@ -2069,3 +2069,20 @@ def test_a_child_s_events_and_the_fetch_are_compared_both_ways():
     other = [dict(cev[0], channel=None), cev[1], dict(cev[2], events=[{"event": "ABEND", "abcode": "KIDA"}])]
     diffs = ec.compare_events(cev, other)["diffs"]
     assert [d["fields"][0]["field"] for d in diffs] == ["channel", "events"]
+
+
+def test_exec_in_a_literal_or_a_debugging_line_is_not_a_command():
+    """#4950 (CBSA CRECUST): `DISPLAY 'EXEC CICS FETCH ANY failed. RESP='` is a literal, and an EXEC CICS on a
+    debugging line (indicator D) is a comment as cobc reads it without WITH DEBUGGING MODE; with that clause in force the
+    program is refused by name. The LE models are linked when the program itself CALLs a CEE service, and the det
+    translator's CEEIGZCT stand-in (register L4) is the COPY member where the estate has none."""
+    assert ec._in_literal("    DISPLAY 'EXEC CICS FETCH", 13) and not ec._in_literal("    EXEC CICS RETURN", 4)
+    assert ec._in_literal('    DISPLAY "A" "EXEC', 17) and not ec._in_literal("    MOVE 'IT''S' TO X EXEC", 22)
+    src = ("       PROCEDURE DIVISION.\n"
+           "           DISPLAY 'EXEC CICS FETCH ANY failed. RESP=' WS-R\n"
+           "      D    EXEC CICS ASKTIME ABSTIME(START-DEQ) END-EXEC\n"
+           "           EXEC CICS RETURN END-EXEC.\n")  # fmt: skip
+    assert [b[3].strip() for b in ec._exec_blocks(src.splitlines())] == ["RETURN"]
+    with pytest.raises(ec.Unsupported, match="WITH DEBUGGING MODE"):
+        ec.translate("       SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.\n" + src)
+    assert (ec.DET_COPY / "CEEIGZCT.cpy").is_file()

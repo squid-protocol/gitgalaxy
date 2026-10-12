@@ -121,7 +121,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
-| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
+| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
@@ -1246,7 +1246,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   CONDITION, AEZJ by default), cobol-stub and the det port both passing the hand-written logs (crucible branch
   `cases/channel-containers`, not yet released or pinned).
 
-### X18. Interval control: START / RETRIEVE / CANCEL / RUN TRANSID — ASSUMED, REFUSED where IBM is silent (#4270 slice 2)
+### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL
   "the expiration time as an interval of time that is to elapse from the time at which the START command is issued"
   ("The mm and ss are each in the range 0 - 59"); TIME / AT a time of day, "If you specify a time with an hours
@@ -1267,20 +1267,38 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   INTERVAL / AFTER / AT only); several values out of range on one START report the first of hours, minutes, seconds;
   the RTRANSID / RTERMID / QUEUE values come back on LENGERR too; a RUN child runs once its parent has ended (a parent
   that never FETCHes it cannot tell, SPEC 4); the child token's bytes are the harness's own, the same on both sides.
-  **#4884:** FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM: NOTFINISHED RESP 113, RESP2 52 "NOSUSPEND was specified, but
-  there were no completed children to fetch"; INVREQ RESP2 52 "the parent has no children"; INVREQ RESP2 50 for a token
-  that is not a child's) follow from the same assumption: no child has completed while its parent runs, so a FETCH
-  always answers NOTFINISHED 52 (INVREQ 52 for FETCH ANY with no RUN before it, INVREQ 50 for a token this task was not
-  given); the ANY / CHANNEL / ABCODE / COMPSTATUS areas are never written. **DIFFERS from IBM** (status of the FETCH part): where a child
-  finishes while the parent DELAYs: a program whose FETCH finds a completed child (CBSA CRECUST's credit-agency fan-out
-  after its 3-second DELAY) takes its NOTFINISHED path here, so such a program is translated, not proven. Enforced: `equivalence_cics.compare_events` records every FETCH event as a difference on both sides (`FETCH_DIFFERS`), so a case that executes a FETCH can never come out equal. RUN TRANSID
-  CHANNEL(name): IBM creates a missing channel and gives the child "a copy of the channel's containers" when RUN is
-  issued; the child never runs here, so the copy is never read and the parent's channels are unchanged.
+  **#4950: the child schedule (ASSUMED, IBM is silent on the order).** A RUN child is dispatched at its parent's next
+  wait -- a DELAY, or a FETCH without NOSUSPEND (it waits, or has a TIMEOUT) -- in RUN order, and runs to its end
+  before its parent resumes (one quasi-reentrant TCB: a task keeps control until it waits). A task takes no processor
+  time (X4): a child completes at its dispatch time plus its own DELAYs, on a scheduling clock that counts only DELAYs
+  and FETCH waits (EIBTIME / ASKTIME stay at dispatch: a child's EIBDATE / EIBTIME are its parent's). A child never
+  dispatched (its parent ends first) is not run. A child is a non-terminal task: no COMMAREA, EIBAID X'00', EIBTASKN
+  its parent's plus its RUN number (a stated fact on both sides, X21), its current channel the copy RUN made. FETCH at
+  the parent's scheduling time T: NOSUSPEND finds a child that completed before T, else NOTFINISHED 52 (IBM: "NOSUSPEND
+  was specified, but there were no completed children to fetch"); a waiting FETCH resumes when the child completes;
+  TIMEOUT(t) is NOTFINISHED 53 when none completes before T + t ("No children have completed within the interval");
+  FETCH ANY takes the first to complete, RUN order on a tie; NOTFND RESP2 1 when no unfetched child is left, INVREQ 52
+  with no children, INVREQ 50 for a token that is not a child's or was freed (FREE CHILD). On NORMAL: ANY gets the
+  token, COMPSTATUS the CVDA NORMAL (1016) or ABEND (900), ABCODE the abend code of a child that abended (left alone
+  otherwise), CHANNEL the name of a copy of the channel the child left -- a name of the harness's own,
+  GGREPLY000000001... (IBM generates it; its bytes are not documented). RUN / START CHANNEL take IBM's character set
+  ("The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = ¬ , ; < >. Leading and embedded
+  blank characters are not permitted"): any other is CHANNELERR RESP2 1. START CHANNEL hands the started task a copy
+  of the containers as they are at the START (the event carries it). Both sides: `ggcics.c` (a child is the task
+  re-run as a process of its own -- GGCCHLD names its program, `childprogs.cfg` the case's `child_programs` -- its
+  end state in end.txt / reply.cfg) and CicsTask (`dispatchChildren`, `delay`, `fetch`, `freeChild`); a child's events
+  are one CHILD event, compared as a task's (`equivalence_cics.compare_events`).
   A START's FROM bytes travel in the region's page, as a TS item's (#4528).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
-  time): a FETCH that waits (no NOSUSPEND, or TIMEOUT) and FREE CHILD; START CHANNEL
-  (the child's copy of a channel); RUN CHANNEL with a name of anything but letters and digits (IBM does not give the
-  symbols a name allows in the text read); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
+  time): a FETCH whose answer turns on a child completing at the very instant its parent resumed (a tie); FETCH TIMEOUT
+  outside 0 to 4080000 ms (IBM's FETCH ANY and FETCH CHILD pages differ); a second FETCH CHILD of a fetched child (INVREQ
+  51 is for its channel), FREE CHILD of a fetched one, FETCH CHANNEL of a child that left no current channel; a child
+  that went on after an abend (HANDLE ABEND: its completion status); a dispatched child's command on a region resource
+  or a terminal (only RETURN / ABEND / LINK / XCTL are recorded; ENQ / DEQ / counters / SQL, which leave no event, are
+  refused when the case is built) and its RUN TRANSID (a grandchild); a child whose transaction the case runs no
+  program for; a DELAY TIME, or a DELAY out of range, in a task with children or in a child; a CHANNEL name starting
+  DFH; an undefined transaction together with an incorrect CHANNEL name (which condition comes first); START CHANNEL of
+  a channel not in scope; START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
   and WAIT; CANCEL of anything but a REQID. At run time: a START LENGTH past FROM's end (X6); a REQID that exists
   other than this task's own with FROM, reused with FROM; RETRIEVE INTO for a record whose START gave no FROM
   (whether that is ENVDEFERR); any RETRIEVE after ENVDEFERR (whether the record was used up); a RETRIEVE in a RUN

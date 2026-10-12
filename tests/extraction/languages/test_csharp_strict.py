@@ -841,3 +841,15 @@ def test_csharp_func_start_bracket_ownership_parity_3320(source, expected):
     """Brackets now have one owner each (the line-start shield, or a token's `[...]` suffix); every
     legitimate declaration shape that used to match through the redundant derivations still does."""
     assert _csharp_func_names(source) == expected
+
+
+def test_csharp_func_start_nested_generic_chain_redos_3320():
+    """Same mechanism on `<...>`: `.C0<int>.C1<int>...` (runtime's NestedGenericClasses.cs, 260 levels)
+    had `<` as a char and as a group start, so it parsed 2^k ways and timed out the file."""
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+    chain = "".join(f".MyClass{i}<int>" for i in range(260))
+    payload = f"      MyClass{chain}\n\n      Console.WriteLine(1);\n"
+    assert_redos_immune(func_start, payload, timeout_sec=1.0)
+    assert "M" in _csharp_func_names("public class A\n{\n    static int M(int x) { }\n}\n" + payload)
+    # deep (3+ level) nesting still reaches the name through the `<` char alternative
+    assert _csharp_func_names("    public List<Foo<Bar<Baz>>> Deep(int x) { }\n") == ["Deep"]

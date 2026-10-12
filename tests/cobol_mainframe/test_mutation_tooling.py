@@ -162,7 +162,7 @@ def test_the_test_runs_without_maven_only_on_a_build_of_this_very_source(tmp_pat
     jar = tmp_path / "m2/junit-platform-launcher/1.10.2/junit-platform-launcher-1.10.2.jar"
     jar.parent.mkdir(parents=True)
     jar.write_bytes(b"")
-    engine = f"{tmp_path}/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar"
+    engine = (tmp_path / "m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar").as_posix()
     assert ej._launcher(["/x/classes", engine]) == jar
 
 
@@ -203,7 +203,10 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     ej.run_maven(project, work2, inputs, props="-Dgitgalaxy.faults.plan=b")
     (mvn, mvn_kw), (java, java_kw) = calls
     assert mvn[0] == "mvn" and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
-    maven_flags = shlex.split(next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :])
+    posix_args = os.name != "nt"
+    maven_flags = shlex.split(
+        next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :], posix=posix_args
+    )
     assert maven_flags[-1] == "-Dgitgalaxy.faults.plan=a"
     assert java[1 : 1 + len(maven_flags) - 1] == maven_flags[:-1]  # the same JVM flags and properties, but the run's
     assert java[len(maven_flags)] == "-Dgitgalaxy.faults.plan=b"

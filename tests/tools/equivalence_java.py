@@ -479,7 +479,7 @@ def _launcher(classpath: list[str]) -> Path | None:
     import re
 
     for e in classpath:
-        m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
+        m = re.search(r"(.*)[\\/]junit-platform-engine[\\/]([^\\/]+)[\\/]junit-platform-engine-\2\.jar$", e)
         if m:
             jar = (
                 Path(m.group(1)) / "junit-platform-launcher" / m.group(2) / f"junit-platform-launcher-{m.group(2)}.jar"
@@ -529,13 +529,14 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
     java_bin = Path(shell["JAVA_HOME"]) / "bin"
     runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
     full = os.pathsep.join([*classpath, str(launcher), str(runner)])
+    posix_args = os.name != "nt"
     try:
-        return subprocess.run([str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+        return subprocess.run([str(java_bin / "java"), *shlex.split(argline, posix=posix_args), "-cp", full, "EquivalenceMain"],  # noqa: S603
                               cwd=project, env=shell, capture_output=True, text=True, check=False,
                               timeout=JAVA_DIRECT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         return subprocess.CompletedProcess(
-            args=[str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],
+            args=[str(java_bin / "java"), *shlex.split(argline, posix=posix_args), "-cp", full, "EquivalenceMain"],
             returncode=124,
             stdout=exc.stdout or "",
             stderr=((exc.stderr or "") + f"\njava EquivalenceMain timed out after {JAVA_DIRECT_TIMEOUT}s").lstrip(),

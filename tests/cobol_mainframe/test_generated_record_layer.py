@@ -311,3 +311,68 @@ def test_the_entity_codec_rejects_invalid_packed_data_too(tmp_path):
             assert line == "null", (h, line)
         else:
             assert line == want, h
+
+
+# ---- #4875 ---------------------------------------------------------------------------------------------------
+# A record whose typed columns cannot hold its bytes: spaces in a PIC 9(3) (COCRDUPC REWRITEs its CVV so), a FILLER
+# and a COMP-3 with the non-preferred sign F. VSAM keeps the bytes; the entity must write them back unchanged.
+LOSSY = [_fld("CUST-KEY", "X(8)", 0, 8, "X"), _fld("CUST-CVV", "9(3)", 8, 3, "9"), _fld("FILLER", "X(2)", 11, 2, "X"),
+         _fld("CUST-BAL", "S9(3)V99", 13, 3, "P", "COMP-3"), _fld("CUST-NAME", "X(5)", 16, 5, "X")]  # fmt: skip
+_LOSSY_REC = "4b303030303030312020205a5a12345f414c494345"  # K0000001, 3 spaces, ZZ, +123.45 (F), ALICE
+_JAKARTA = _maven_jar("jakarta.persistence", "jakarta.persistence-api")
+
+
+def _lossy_driver(setters: str) -> str:
+    return ("import com.test.entity.vsam.*;\nimport java.nio.charset.StandardCharsets;\npublic class Rt {\n"
+            "    static String hex(byte[] b) { StringBuilder s = new StringBuilder();"
+            " for (byte x : b) s.append(String.format(\"%02x\", x)); return s.toString(); }\n"
+            "    public static void main(String[] a) {\n        java.nio.charset.Charset cs = StandardCharsets.ISO_8859_1;\n"
+            f"        byte[] rec = {_bytes(_LOSSY_REC)};\n"
+            "        CustRec r = CustRec.fromRecord(rec, cs);\n"
+            "        System.out.println(r.getCustCvv());\n"  # no number: null
+            "        System.out.println(hex(r.toRecord(cs)));\n"  # unchanged: the bytes as read
+            "        r.setCustName(\"BOB\");\n        System.out.println(hex(r.toRecord(cs)));\n"
+            "        r.setCustCvv(7);\n        System.out.println(hex(r.toRecord(cs)));\n"
+            "        CustRec n = new CustRec();\n        n.setCustKey(\"K0000002\");\n        n.setCustCvv(12);\n"
+            "        n.setCustBal(new java.math.BigDecimal(\"-1.5\"));\n        n.setCustName(\"EVE\");\n"
+            f"        System.out.println(hex(n.toRecord(cs)));\n{setters}    }}\n}}\n")  # fmt: skip
+
+
+@pytest.mark.skipif(jdk() is None or _JAKARTA is None, reason="no JDK or jakarta.persistence-api jar")
+def test_an_entity_writes_back_the_bytes_its_columns_cannot_hold(tmp_path):
+    """#4875: fromRecord keeps the record bytes beside the typed columns; toRecord writes each unchanged field (and
+    FILLER) back as those bytes and re-encodes only what was set since -- so spaces in a PIC 9(3), a FILLER and a
+    non-preferred packed sign survive a READ / REWRITE, while a set value is still stored as COBOL MOVE stores it."""
+    forge = _forge(LOSSY, config={"java": {"data_classes": "plain"}})
+    st = forge.stores[0]
+    entity = forge.entity_source(st)
+    assert '@Column(name = "VSAM_RECORD", length = 21)' in entity and "private byte[] vsamRecord;" in entity
+    src = {"com/test/entity/vsam/CobolRecords.java": forge.records_source(),
+           "com/test/entity/vsam/CustRec.java": entity}  # fmt: skip
+    got = _run(tmp_path, src, "Rt", _lossy_driver(""), classpath=_JAKARTA or "")
+    assert got == [
+        "null",
+        _LOSSY_REC,
+        "4b303030303030312020205a5a12345f424f422020",  # the name re-encoded, the rest as read
+        "4b303030303030313030375a5a12345f424f422020",  # the CVV set: zoned digits
+        "4b30303030303032303132202000150d4556452020",  # a new entity: FILLER as spaces
+    ]
+
+
+@pytest.mark.skipif(
+    jdk() is None or _JAKARTA is None or _maven_jar("org.projectlombok", "lombok") is None,
+    reason="no JDK, jakarta.persistence-api or lombok jar",
+)
+def test_the_kept_record_bytes_are_no_lombok_property(tmp_path):
+    """#4875: under Lombok @Data the kept bytes get no getter / setter (no API or JSON property) and stay out of
+    equals / hashCode / toString; the round trip is the same."""
+    forge = _forge(LOSSY)
+    src = {"com/test/entity/vsam/CobolRecords.java": forge.records_source(),
+           "com/test/entity/vsam/CustRec.java": forge.entity_source(forge.stores[0])}  # fmt: skip
+    cp = os.pathsep.join([_JAKARTA or "", _maven_jar("org.projectlombok", "lombok") or ""])
+    probe = ('        System.out.println(java.util.Arrays.stream(CustRec.class.getMethods())'
+             '.anyMatch(m -> m.getName().toLowerCase().contains("vsamrecord")));\n'
+             "        System.out.println(CustRec.fromRecord(rec, cs).equals(n));\n")  # fmt: skip
+    got = _run(tmp_path, src, "Rt", _lossy_driver(probe), classpath=cp)
+    assert got[1] == _LOSSY_REC and got[3].startswith("4b30303030303031303037")
+    assert got[-2:] == ["false", "false"]

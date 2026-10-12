@@ -4474,3 +4474,324 @@ def test_cics_task_reads_form_fields_query_parameters_and_browses_as_the_stub_do
         assert lines[pos:end] == want, (fixture, steps, lines[pos:end], want)
         pos = end + 1
     assert lines[pos:] == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 6
+
+
+# ---- #4950: the async child scheduler (X18): RUN / DELAY / FETCH / FREE CHILD, both runtimes on one script --------
+# A step script both runtimes run: P:chan:cont:data (PUT CONTAINER), R:tran[:chan] (RUN TRANSID CHILD [CHANNEL]),
+# D:ms (DELAY FOR MILLISECS), F:ANY|n:NOSUSPEND|WAIT|TIMEOUT:ms[:C] (FETCH ANY / CHILD n, C: CHANNEL), X:n (FREE CHILD
+# n), G:chan:cont (GET CONTAINER). A child's program is K<ms>[P][A][F]: DELAY ms, PUT CONTAINER R (its EIBTASKN) on its
+# channel, ABEND KIDA, a FETCH ANY (a command a child may not issue, R1). Each step prints one line.
+_KIDS = {"KA": "K2000P", "KB": "K1000P", "KC": "K1000A", "KD": "K500", "KF": "K0F", "KZ": "K1000"}
+
+_SCHED_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCRUNT(gg_cics *c, char *child); int GGCFETCH(gg_cics *c); int GGCDLAY(gg_cics *c); int GGCFREE(gg_cics *c);
+int GGCCHIN(gg_cics *c); int GGCCHLD(gg_cics *c); int GGCEND(gg_cics *c); int GGCPUTC(gg_cics *c, char *from);
+int GGCGETC(gg_cics *c, char *into); int GGCABND(gg_cics *c);
+static gg_cics c;
+static void pad(char *dst, int n, const char *src) { memset(dst, ' ', n); memcpy(dst, src, strlen(src)); }
+static void delay_ms(int ms) {
+    pad(c.flags, 40, "FOR"); c.hours = c.mins = c.secs = -999999999; c.len = ms; GGCDLAY(&c);
+}
+static void token(int n, char *out) { snprintf(out, 17, "GGCHILD%09d", n); }
+int main(int argc, char **argv) {
+    char buf[64], tok[17], prog[9];
+    memset(&c, 0, sizeof c);
+    GGCCHIN(&c);
+    GGCCHLD(&c);
+    if (c.item == 1) { /* a child */
+        memcpy(prog, c.name1, 8); prog[8] = 0;
+        int ms = atoi(prog + 1);
+        if (ms) delay_ms(ms);
+        if (strchr(prog, 'P')) {
+            const char *n = getenv("GGCICS_TASKN");
+            pad(c.flags, 40, ""); pad(c.qname, 16, "R"); c.len = (int)strlen(n); GGCPUTC(&c, (char *)n);
+        }
+        if (strchr(prog, 'F')) { pad(c.flags, 40, ""); GGCFETCH(&c); }
+        if (strchr(prog, 'A')) { pad(c.name1, 8, "KIDA"); pad(c.flags, 40, ""); GGCABND(&c); }
+        GGCEND(&c);
+        return 0;
+    }
+    for (int i = 1; i < argc; i++) {
+        char *s = argv[i], *f[5] = {0};
+        int nf = 0;
+        for (char *p = strtok(s, ":"); p && nf < 5; p = strtok(NULL, ":")) f[nf++] = p;
+        if (f[0][0] == 'P') {
+            pad(c.flags, 40, "CHANNEL"); pad(c.chan, 16, f[1]); pad(c.qname, 16, f[2]); c.len = (int)strlen(f[3]);
+            GGCPUTC(&c, f[3]); printf("P %d\n", c.resp);
+        } else if (f[0][0] == 'R') {
+            char child[17] = "-               ";
+            pad(c.name1, 8, f[1]); pad(c.flags, 40, nf > 2 ? "CHANNEL" : ""); if (nf > 2) pad(c.chan, 16, f[2]);
+            GGCRUNT(&c, child); printf("R %d/%d/%.16s\n", c.resp, c.resp2, child);
+        } else if (f[0][0] == 'D') {
+            delay_ms(atoi(f[1])); printf("D %d\n", c.resp);
+        } else if (f[0][0] == 'F') {
+            char fl[40] = "";
+            if (strcmp(f[1], "ANY")) { strcat(fl, "CHILD "); token(atoi(f[1]), tok); memcpy(c.qname, tok, 16); }
+            if (strcmp(f[2], "WAIT")) strcat(fl, f[2]);
+            if (nf > 4 || (nf > 3 && !strcmp(f[3], "C"))) strcat(fl, " CHANNEL");
+            c.num = nf > 3 && strcmp(f[3], "C") ? atoi(f[3]) : 0;
+            pad(c.flags, 40, fl);
+            GGCFETCH(&c);
+            if (c.resp == 0)
+                printf("F %d/%d/%.16s/%.16s/%.4s/%d\n", c.resp, c.resp2, c.qname, strstr(fl, "CHANNEL") ? c.chan : "-               ",
+                       c.item ? c.name1 : "-   ", c.num);
+            else
+                printf("F %d/%d\n", c.resp, c.resp2);
+        } else if (f[0][0] == 'X') {
+            token(atoi(f[1]), tok); memcpy(c.qname, tok, 16); GGCFREE(&c); printf("X %d/%d\n", c.resp, c.resp2);
+        } else if (f[0][0] == 'G') {
+            pad(c.flags, 40, "CHANNEL"); pad(c.chan, 16, f[1]); pad(c.qname, 16, f[2]); c.len = 60; memset(buf, 0, sizeof buf);
+            GGCGETC(&c, buf); printf("G %d/%s\n", c.resp, buf);
+        }
+        fflush(stdout);
+    }
+    GGCEND(&c);
+    return 0;
+}
+"""
+
+_SCHED_JAVA = """
+        java.util.Map<String, String> kids = new java.util.HashMap<>();
+        for (String k : "%KIDS%".split(",")) {
+            kids.put(k.split("=")[0], k.split("=")[1]);
+        }
+        CicsTask t = new CicsTask("GTPA", "ENTER", null, null).withTaskNumber(100).withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public String program(String tr) {
+                return kids.get(tr);
+            }
+
+            public boolean transaction(String tr) {
+                return kids.containsKey(tr) || tr.equals("KN");
+            }
+
+            public void run(String p, CicsTask s) {
+                int ms = Integer.parseInt(p.substring(1).replaceAll("[A-Z]", ""));
+                if (ms > 0) {
+                    s.delay(CicsTask.delayMillis(null, null, null, null, Long.valueOf(ms)), "x");
+                }
+                if (p.contains("P")) {
+                    byte[] n = Long.toString(s.taskNumber()).getBytes();
+                    s.putContainer(null, "R", n, n.length, null, false);
+                }
+                if (p.contains("F")) {
+                    s.fetch(null, "WAIT", 0, false);
+                }
+                if (p.contains("A")) {
+                    s.abend("KIDA");
+                    return;
+                }
+                s.returnTransid(null, null);
+            }
+        });
+        try {
+            for (String step : "%STEPS%".split("~")) {
+                String[] f = step.split(":");
+                switch (f[0]) {
+                    case "P" -> System.out.println("P " + t.putContainer(f[1], f[2], f[3].getBytes(), f[3].length(), null, false).resp());
+                    case "R" -> {
+                        CicsTask.RunResult r = f.length > 2 ? t.runTransid(f[1], f[2]) : t.runTransid(f[1]);
+                        System.out.println("R " + r.resp() + "/" + r.resp2() + "/" + (r.child() == null ? "-" : r.child()));
+                    }
+                    case "D" -> {
+                        t.delay(CicsTask.delayMillis(null, null, null, null, Long.valueOf(f[1])), "x");
+                        System.out.println("D NORMAL");
+                    }
+                    case "F" -> {
+                        String child = f[1].equals("ANY") ? null : String.format("GGCHILD%09d", Integer.parseInt(f[1]));
+                        boolean chan = f.length > 4 || (f.length > 3 && f[3].equals("C"));
+                        long ms = f.length > 3 && !f[3].equals("C") ? Long.parseLong(f[3]) : 0;
+                        CicsTask.FetchResult r = t.fetch(child, f[2], ms, chan);
+                        System.out.println("F " + r.resp() + "/" + r.resp2() + (r.child() == null ? "" : "/" + r.child() + "/"
+                                + (r.channel() == null ? "-" : r.channel()) + "/" + (r.abcode() == null ? "-" : r.abcode()) + "/"
+                                + r.compstatus()));
+                    }
+                    case "X" -> {
+                        CicsTask.FetchResult r = t.freeChild(String.format("GGCHILD%09d", Integer.parseInt(f[1])));
+                        System.out.println("X " + r.resp() + "/" + r.resp2());
+                    }
+                    case "G" -> {
+                        CicsTask.ContainerResult r = t.getContainer(f[1], f[2], 60);
+                        System.out.println("G " + r.resp() + "/" + (r.data() == null ? "" : new String(r.data())));
+                    }
+                    default -> throw new IllegalStateException(step);
+                }
+            }
+        } catch (UnsupportedOperationException e) {
+            System.out.println("REFUSED " + e.getMessage());
+        }
+        for (java.util.Map<String, Object> e : t.events()) {
+            if ("CHILD".equals(e.get("event"))) {
+                System.out.println("CHILD " + e.get("child") + " " + e.get("transid"));
+            }
+        }"""
+
+
+def _sched_stub(tmp_path: Path, steps: list[str]) -> list[str]:
+    """The stub runs `steps` (the parent EIBTASKN 100); its lines with RESP by name, a refusal as REFUSED <why>, and
+    the CHILD events it logged."""
+    from equivalence_cics import RESP_NAMES
+
+    exe = _stub(tmp_path, _SCHED_MAIN)
+    work = tmp_path / "work"
+    (work / "out").mkdir(parents=True)
+    (work / "childprogs.cfg").write_text("".join(f"{t} {p}\n" for t, p in _KIDS.items()))
+    (work / "transactions.cfg").write_text("".join(f"{t}\n" for t in [*_KIDS, "KN"]))
+    (work / "eib.in").write_text("GTPA DFHENTER 0126285 0103015     \n")
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out"),
+           "EIBIN": str(work / "eib.in"), "GGCICS_TASKN": "100"}  # fmt: skip
+    proc = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode in (0, 98), proc.stdout + proc.stderr
+    out = []
+    for ln in proc.stdout.splitlines():
+        if ln.endswith(": not modelled"):
+            out.append("REFUSED " + ln.removesuffix(": not modelled"))
+            break
+        verb, _, rest = ln.partition(" ")
+        parts = [p.strip() or "-" for p in rest.split("/")]
+        parts[0] = RESP_NAMES[int(parts[0])]
+        out.append(f"{verb} {'/'.join(parts)}")
+    events = (work / "out" / "events.txt").read_text().splitlines() if (work / "out" / "events.txt").exists() else []
+    out += [f"CHILD {kv['child']} {kv['transid']}" for kv in (
+        dict(a.split("=", 1) for a in ln.split()[3:] if "=" in a) for ln in events if ln.split()[1] == "CHILD")]  # fmt: skip
+    return out
+
+
+def _sched_java(tmp_path: Path, steps: list[str]) -> list[str]:
+    body = _SCHED_JAVA.replace("%KIDS%", ",".join(f"{t}={p}" for t, p in _KIDS.items())).replace("%STEPS%", "~".join(steps))
+    return _cics_task(tmp_path, body).splitlines()
+
+
+_SCHEDULES = {
+    # completion order, then RUN order; NOSUSPEND before the first wait; the reply channel and the child's EIBTASKN
+    "order": (["P:CH.1:IN:x", "R:KA:CH.1", "R:KB:CH.1", "F:ANY:NOSUSPEND", "D:3000", "F:ANY:NOSUSPEND:C",
+               "G:GGREPLY000000001:R", "G:GGREPLY000000001:IN", "F:ANY:NOSUSPEND", "F:ANY:NOSUSPEND"],
+              ["P NORMAL", "R NORMAL/0/GGCHILD000000001", "R NORMAL/0/GGCHILD000000002", "F NOTFINISHED/52", "D NORMAL",
+               "F NORMAL/0/GGCHILD000000002/GGREPLY000000001/-/1016", "G NORMAL/102", "G NORMAL/x",
+               "F NORMAL/0/GGCHILD000000001/-/-/1016", "F NOTFND/1",
+               "CHILD GGCHILD000000001 KA", "CHILD GGCHILD000000002 KB"]),
+    # a FETCH that waits dispatches; TIMEOUT runs out (53) and moves the clock; FREE CHILD; an abended child
+    "waits": (["R:KA", "R:KC", "R:KD", "X:3", "X:3", "F:1:TIMEOUT:1000", "F:1:WAIT", "F:ANY:NOSUSPEND", "F:3:NOSUSPEND",
+               "F:ANY:WAIT"],
+              ["R NORMAL/0/GGCHILD000000001", "R NORMAL/0/GGCHILD000000002", "R NORMAL/0/GGCHILD000000003",
+               "X NORMAL/0", "X INVREQ/50", "F NOTFINISHED/53", "F NORMAL/0/GGCHILD000000001/-/-/1016",
+               "F NORMAL/0/GGCHILD000000002/-/KIDA/900", "F INVREQ/50", "F NOTFND/1",
+               "CHILD GGCHILD000000001 KA", "CHILD GGCHILD000000002 KC"]),
+    # no children: FETCH ANY is INVREQ 52; a token that is not a child's is INVREQ 50, as FREE CHILD of it
+    "none": (["F:ANY:NOSUSPEND", "F:7:WAIT", "X:7", "D:100"], ["F INVREQ/52", "F INVREQ/50", "X INVREQ/50", "D NORMAL"]),
+    # a child that never gets a wait is not run; IBM's channel characters, and one it does not list
+    "names": (["R:KA:$@#./-_%&?!|=,;<", "R:KB:CH*1", "R:KB:CH X", "R:NONE"],
+              ["R NORMAL/0/GGCHILD000000001", "R CHANNELERR/1/-", "R CHANNELERR/1/-", "R TRANSIDERR/1/-"]),
+    # a tie: the child completes at the very instant its parent resumed
+    "tie": (["R:KZ", "D:1000", "F:ANY:NOSUSPEND"], ["R NORMAL/0/GGCHILD000000001", "D NORMAL", "REFUSED",
+                                                    "CHILD GGCHILD000000001 KZ"]),
+    "timeout-tie": (["R:KZ", "F:ANY:TIMEOUT:1000"], ["R NORMAL/0/GGCHILD000000001", "REFUSED",
+                                                     "CHILD GGCHILD000000001 KZ"]),
+    # R1: a dispatched child may not issue a command on a region resource (here a FETCH)
+    "child-fetch": (["R:KF", "D:10"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+    # a second FETCH CHILD of a fetched child, FREE CHILD of one: refused (IBM does not say)
+    "refetch": (["R:KD", "F:1:WAIT", "F:1:WAIT"], ["R NORMAL/0/GGCHILD000000001", "F NORMAL/0/GGCHILD000000001/-/-/1016",
+                                                  "REFUSED", "CHILD GGCHILD000000001 KD"]),
+    "free-fetched": (["R:KD", "F:1:WAIT", "X:1"], ["R NORMAL/0/GGCHILD000000001",
+                                                   "F NORMAL/0/GGCHILD000000001/-/-/1016", "REFUSED",
+                                                   "CHILD GGCHILD000000001 KD"]),
+    "dfh": (["R:KA:DFHTRANSACTION"], ["REFUSED"]),
+    "timeout-range": (["R:KA", "F:ANY:TIMEOUT:4080001"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+    "no-program": (["R:KN", "D:1"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+}
+
+
+def _no_why(lines: list[str]) -> list[str]:
+    return [ln.split(" ", 1)[0] if ln.startswith("REFUSED") else ln for ln in lines]
+
+
+@needs_cc
+@pytest.mark.skipif(not Path("/proc/self/exe").exists(), reason="the stub runs a RUN child by re-running itself")
+@pytest.mark.parametrize("name", sorted(_SCHEDULES))
+def test_the_stub_schedules_run_children_at_the_parents_waits(tmp_path, name):
+    """#4950 (X18, ASSUMED): a RUN child is dispatched at its parent's next wait (DELAY, a FETCH that waits) and runs
+    to its end first; it completes at its dispatch plus its own DELAYs. FETCH NOSUSPEND finds a child that completed
+    before the parent's time (FETCH ANY: the first to complete, RUN order on a tie), TIMEOUT runs out with NOTFINISHED
+    53; a tie at the parent's instant, a grandchild's command on a region resource and a second FETCH are refused."""
+    steps, want = _SCHEDULES[name]
+    assert _no_why(_sched_stub(tmp_path, steps)) == want
+
+
+@needs_javac
+@pytest.mark.parametrize("name", sorted(_SCHEDULES))
+def test_cics_task_schedules_run_children_as_the_stub(tmp_path, name):
+    """#4950: CicsTask.runTransid / delay / fetch / freeChild on the same scripts give the stub's answers."""
+    steps, want = _SCHEDULES[name]
+    assert _no_why(_sched_java(tmp_path, steps)) == want
+
+
+_START_CHANNEL_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCSTRT(gg_cics *c, char *from); int GGCPUTC(gg_cics *c, char *from);
+static gg_cics c;
+static void pad(char *dst, int n, const char *src) { memset(dst, ' ', n); memcpy(dst, src, strlen(src)); }
+int main(int argc, char **argv) {
+    pad(c.flags, 40, "CHANNEL"); pad(c.chan, 16, "CH.1"); pad(c.qname, 16, "IN"); c.len = 2; GGCPUTC(&c, "ab");
+    for (int i = 1; i < argc; i++) {
+        pad(c.name1, 8, "GT24"); pad(c.name2, 8, ""); pad(c.qname, 16, ""); pad(c.flags, 40, "INTERVAL CHANNEL");
+        pad(c.chan, 16, argv[i]); c.num = 0; c.item = 0; c.len = 0;
+        GGCSTRT(&c, c.flags);
+        printf("%d/%d ", c.resp, c.resp2);
+        pad(c.flags, 40, "CHANNEL"); pad(c.chan, 16, "CH.1"); pad(c.qname, 16, "IN"); c.len = 2; GGCPUTC(&c, "zz");
+    }
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_start_channel_hands_on_a_copy_and_checks_the_name(tmp_path):
+    """#4950, IBM EXEC CICS START CHANNEL: the started task gets a copy of the channel's containers as they are at the
+    START (a PUT after it does not reach it: NNN.channel); a name with a character IBM does not list is CHANNELERR
+    RESP2 1; a channel not in the program's scope is refused (IBM does not say it is created)."""
+    exe = _stub(tmp_path, _START_CHANNEL_MAIN)
+    (tmp_path / "transactions.cfg").write_text("GT24\n")
+    assert _run_stub(exe, tmp_path, "CH.1", "CH*1") == ["0/0 122/1 "]
+    events = (tmp_path / "out" / "events.txt").read_text().splitlines()
+    assert events[0].endswith(" channel=CH.1") and " resp=0 " in events[0] and " resp=122 resp2=1 " in events[1]
+    assert (tmp_path / "out" / "001.channel").read_text().splitlines() == ["CH.1", "IN BIT 6162"]  # (no data type: BIT)
+    (tmp_path / "out" / "events.txt").unlink()
+    with pytest.raises(subprocess.CalledProcessError) as gone:
+        _run_stub(exe, tmp_path, "OTHER")
+    assert "START CHANNEL of a channel not in the program's scope: not modelled" in gone.value.stdout
+
+
+@needs_javac
+def test_cics_task_start_channel_as_the_stubs(tmp_path):
+    """#4950: CicsTask.startRequest(...).channel(name) as the stub's GGCSTRT: the event carries the copy."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("GT21", "ENTER", null, null).withClock(java.time.LocalDateTime.parse("2026-10-01T10:30:15"));
+        t.putContainer("CH.1", "IN", "ab".getBytes(), 2, "CHAR", false);
+        System.out.print(t.startRequest("GT24").channel("CH.1").issue().resp() + " ");
+        t.putContainer("CH.1", "IN", "zz".getBytes(), 2, null, false);
+        System.out.println(t.startRequest("GT24").channel("CH*1").issue().resp());
+        System.out.println(t.events().get(0).get("channel") + " " + t.events().get(1).get("resp2"));
+        try {
+            t.startRequest("GT24").channel("OTHER").issue();
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }""",
+    )
+    assert out.splitlines() == ["NORMAL CHANNELERR", "{name=CH.1, containers={IN=6162}} 1",
+                                "START CHANNEL(OTHER) of a channel not in the program's scope: not modelled"]  # fmt: skip

@@ -2149,7 +2149,10 @@ public class CicsTask {
         if (copy != null && "NORMAL".equals(resp)) {  // #4950: the copy the started task gets, its containers' bytes
             Map<String, String> data = new LinkedHashMap<>();
             copy.containers().forEach((n, v) -> data.put(n, java.util.HexFormat.of().withUpperCase().formatHex(v)));
-            e.put("channel", Map.of("name", chan, "containers", data));
+            Map<String, Object> handed = new LinkedHashMap<>();
+            handed.put("name", chan);
+            handed.put("containers", data);
+            e.put("channel", handed);
         }
         e.put("protect", q.protect);
         e.put("resp", resp);

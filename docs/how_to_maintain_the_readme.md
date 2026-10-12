@@ -63,7 +63,7 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
 1. **Hero** (centered): name, the benefit tagline ("Know any codebase deeply, and give your
    AI agents the same knowledge."), a three-sentence description covering both products,
    four stat tiles (Kubernetes scan time, languages, tri-comparison function precision,
-   det-ported CICS and batch programs proven), each with n + limit + a link to its proof, then the
+   CICS and batch programs at L2+ from the evidence report), each with n + limit + a link to its proof, then the
    nav row (Quickstart, Scanner or translator, Scanner, Translator, Evidence, Is/isn't,
    Install, Docs, Visualizer). Re-verify tile numbers when their source sections change.
 2. **One scan, every language, six reports**: the sankey pipeline diagram with a caption
@@ -79,10 +79,16 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
    and "The architecture brief" with the dated curl and cics-genapp excerpts. Refresh the
    excerpts by rerunning `galaxyscope --llm-only` on the same repos, not by editing numbers.
 7. **CICS to Java: ported, then proven** (renamed from "COBOL to Java" 2026-10-12; keep the
-   explicit `#cobol-to-java-ported-then-proven` id above it, an inbound anchor): the five steps, the det-port table, the model-written table inside
-   `<details>`, the CICS crucible line, and "What these numbers do not show" (visible,
-   never collapsed). Re-verify numbers from `tests/equivalence/*/port/provenance.json`, the
-   harness reports and `docs/language_status/mutation_testing.md`.
+   explicit `#cobol-to-java-ported-then-proven` id above it, an inbound anchor): intro, the
+   scoped "iterably solvable" paragraph (always says *six public estates* and that no blind
+   trial has run; links discussion #4784), the five steps, then **"Every port ships with its
+   evidence"**: what an evidence record holds, the L0-L5 table (from
+   `definition_of_done.md`), and one dated "Where it stands" line of totals taken from
+   `docs/language_status/evidence_report/README.md`. Do not copy the per-estate table into the
+   README; link the generated report, which the bot refreshes on every push to main. The
+   hero's translator tile uses the same totals; update both together. Model-written ports
+   stay in `<details>` with their snapshot date. "What these levels do not show" stays
+   visible, never collapsed.
 8. **Accuracy, measured** (`#proof-not-just-claims`, `#evidence-not-just-claims` anchors
    kept): tri-comparison ("Structural validation: GitGalaxy vs Tree-sitter vs Ctags",
    heading text is an inbound anchor), graph validation, a short Keyword Rosetta summary,

@@ -8,20 +8,21 @@ GitGalaxy is a scanning engine we built for one job: pulling the structure that 
 of a whole repository. It reads every language in the repo in one pass and needs no build or
 compiler. It is fast enough to run on every repo and every commit. And the facts go deep
 enough to generate code: they drive an automated CICS-to-Java translator that proves each
-ported program against the original.
+ported program against the original, keeps the full evidence chain, and turns every miss into
+a named, ranked fix.
 
 <table>
 <tr>
 <td align="center" width="190"><h2>51 s</h2></td>
 <td align="center" width="190"><h2>50+</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
-<td align="center" width="190"><h2>48</h2></td>
+<td align="center" width="190"><h2>96 / 127</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
 <td align="center" valign="top"><sub><strong>languages in one scan</strong><br />no build, no per-language toolchain<br /><em>broken and half-migrated code too</em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS and batch programs ported, then proven</strong><br />no model; byte-identical outputs<br /><em><a href="#cics-to-java-ported-then-proven">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+<td align="center" valign="top"><sub><strong>CICS and batch programs proven equal</strong><br />no model; 6 public estates<br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
 </table>
 
@@ -96,6 +97,7 @@ have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`,
 | **Understand a repository fast**, or hand an AI agent a real mental model of it | [The scanner ↓](#the-scanner): the architecture brief, the graph, the reports |
 | **Gate CI** with SARIF, an SBOM and structural checks | [What a scan gives you ↓](#what-a-scan-gives-you) and the [CI templates](templates/) |
 | **Move a CICS estate to Java** with proof that each program still behaves the same | [The translator ↓](#cics-to-java-ported-then-proven) |
+| **Audit what a port claims**, input by input | [Every port ships with its evidence ↓](#every-port-ships-with-its-evidence) |
 | **Check our claims** before you trust any of the above | [Accuracy, measured ↓](#accuracy-measured) |
 
 ---
@@ -175,9 +177,19 @@ own always-current self-scan brief is at
 
 For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
 turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
-a compiling Spring Boot project, and an equivalence harness proves
-each ported program against the original COBOL: same inputs, byte-identical outputs.
-A port that is not proven is not done, and a person approves every port.
+a compiling Spring Boot project, and an equivalence harness proves each ported program
+against the original COBOL: same inputs, byte-identical outputs. A port that is not proven
+is not done, and a person approves every port.
+
+**Iterably solvable.** On six public estates, the engine and its proof harness have turned
+CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
+ranked fix: a construct the translator refuses by name, a failed proof, a fuzz difference, a
+coverage hole, or a written-down assumption. One fix to the shared runtime repairs every
+program that uses that rule, and every program carries its evidence chain from source to
+proof. So a miss is a line on a ranked list, not a re-roll. These are the estates the
+translator was developed against; a blind-estate trial has not run yet. The reasoning, and
+the numbers moving week to week:
+[Turning CICS → Java into an iterably solvable problem](https://github.com/squid-protocol/gitgalaxy/discussions/4784).
 
 1. **Facts.** `cobol-refractor` records what the engine verified per program: record
    layouts, datasets, JCL steps, CICS commands, COMMAREAs, CALLs, DB2 tables.
@@ -203,32 +215,56 @@ A port that is not proven is not done, and a person approves every port.
    what was exercised. [Mutation testing](docs/language_status/mutation_testing.md) breaks
    the port on purpose and counts how many broken ports the proof still catches.
 
-The same harness is meant as translation you can verify, with an audit trail. It takes the
-original program's recorded outputs as the answer key, so no one writes expected values. It
-builds inputs from the exact record layouts, compares every output field by field, reports
-which branches the runs reached, and writes an evidence record with hashes of everything
-it ran against. Checking another vendor's replacement needs it to be callable one transaction at a time,
-plus an adapter per interface, which does not exist yet ([how it works](docs/wiki/05-20-equivalence-harness.md),
-[cookbook](docs/wiki/cookbook/cobol-equivalence-testing.md)). The limits are in that page: the
-answer key is GnuCOBOL with stubs rather than z/OS, and a proof covers the inputs tried,
-not all inputs.
+<a id="every-port-ships-with-its-evidence"></a>
 
-**Proven so far, deterministic ports** (2026-10-02, [cases](tests/equivalence); all of them, and the model-written ports, are re-proven in one
-command by [`tests/tools/proof_sweep.py`](tests/tools/proof_sweep.py)):
+### Every port ships with its evidence
 
-| estate | programs proven | of them on Db2 | runs / scenarios | COBOL paragraphs covered | COBOL branches covered |
-|---|---|---|---|---|---|
-| [CardDemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo) | 27 | 3 | 615 | 557/570 | 1,748/2,100 |
-| [CBSA](https://github.com/cicsdev/cics-banking-sample-application-cbsa) | 8 | 6 | 116 | 109/119 | 127/195 |
-| [GenApp](https://github.com/cicsdev/cics-genapp) | 13 | 8 | 102 | 47/61 | 107/231 |
+No model writes the deterministic port, and no one types the claim. Each ported program gets
+an [evidence record](docs/language_status/evidence_records.md) committed beside it, the
+unit a customer receives next to the Java:
 
-They include COACTUPC (account update, 4,236 lines), proven on 137 scenarios, which no model ported in one answer;
-CICS programs that LINK to others in the same task (the task's programs proven together); named counters, SYNCPOINT
-ROLLBACK and abend backout across files and Db2. The design, the runtime contract and every result are in
+- **The claim**, rendered from the numbers: runs and fault runs, records compared,
+  paragraph and branch coverage, mutation scores with every survivor triaged.
+- **The proof**: the verdict, per-output counts and the harness commit.
+- **What it was proven against**: sha256 digests of the port, the case and its inputs.
+- **The options it holds under**: TRUNC, NUMPROC, ARITH and the rest, each marked
+  `found at <file>:<line>` or `assumed`.
+- **The assumptions it rests on**: the entries in the
+  [oracle-assumptions register](docs/language_status/oracle_assumptions.md) its CICS commands
+  name, each tagged MATCHED, REFUSED, DIFFERS or ASSUMED.
+
+Change any input and the record goes stale; the release gate fails until it is re-proven.
+The harness audits its own comparisons too. It has found, filed and fixed places where proofs
+were weaker than they looked: DISPLAY output and low-values skipped
+([#4635](https://github.com/squid-protocol/gitgalaxy/issues/4635)), only the first occurrence
+of repeated fields compared ([#4765](https://github.com/squid-protocol/gitgalaxy/issues/4765)),
+and CALL comparisons limited to mapped fields
+([#4778](https://github.com/squid-protocol/gitgalaxy/issues/4778)).
+
+Every program gets an **evidence level**. Levels are cumulative, and the numbers under each
+are always shown
+([definition of done](docs/language_status/definition_of_done.md)):
+
+| level | name | the program... |
+|---|---|---|
+| L0 | inventoried | is in the estate's survey; nothing more is claimed |
+| L1 | translated whole | translates with no hole and no refusal |
+| L2 | executed equivalent | is equal to the COBOL oracle on every scenario of its case |
+| L3 | paragraph coverage | L2, and the scenarios run every live paragraph |
+| L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
+| L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (not yet measured, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
+
+**Where it stands** (2026-10-12): across **6 public estates and 127 programs, 96 are at L2
+or better and 34 at L4**, all det-ported with no model. The
+[per-estate evidence report](docs/language_status/evidence_report/README.md) is regenerated on
+every push to main, so read the current numbers there. The det ports include COACTUPC
+(account update, 4,236 lines), which no model ported in one answer; CICS programs that LINK
+to others in the same task (proven together); and named counters, SYNCPOINT ROLLBACK and
+abend backout across files and Db2. The design and runtime contract are in
 [det_port_design.md](docs/language_status/det_port_design.md).
 
 <details>
-<summary><strong>Proven so far, model-written ports</strong> (23 CardDemo programs)</summary>
+<summary><strong>Model-written ports</strong> (23 CardDemo programs, snapshot 2026-10-02)</summary>
 
 | program | kind | ported by | proven on | COBOL branches covered | mutants caught |
 |---|---|---|---|---|---|
@@ -263,7 +299,7 @@ applications built around known migration traps, all 17 programs are proven on 4
 The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
 5.5: 9 on the first attempt, 7 on the second, 1 on the third.
 
-What these numbers do not show:
+What these levels do not show:
 
 - **The oracle is not a mainframe.** It is GnuCOBOL, a model of CICS, Db2 for Linux, and IBM
   services modelled only where IBM documents them. Anything else is refused, never guessed. Every
@@ -272,22 +308,21 @@ What these numbers do not show:
   is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
   ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
   [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
-- **This is development data.** CardDemo and the crucible are public, and the porting rules
-  were built on them, so a model's attempt counts on them are not first-try rates. No
-  fresh-estate trial has run yet ([trial protocol](docs/language_status/fresh_estate_trials.md)).
-- **"Proven" covers the paths the runs take.** The date check's runs reach 4 of 10 COBOL
-  branches. The mutation scores are raw: mutants that cannot change behaviour are not
-  removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
-- **28 of CardDemo's 44 programs** have a det port (27 proven); 23 have a model-written port.
-- **Not proven, on purpose** (listed with their reasons in `proof_sweep.py`): a second case of CBACT04C whose
-  generated keys mix letters and digits, so ASCII and EBCDIC order pick different records (D1); and COCRDUPC (card update). Its confirmed update writes blanks into the card's
-  `PIC 9(3)` CVV -- invalid numeric data a typed Java field cannot hold. The case keeps the scenario and the
-  port stays unproven rather than hide the defect.
-- **Blocked, with no faithful run possible yet:** CBACT01C and COBSWAIT CALL assembler routines nothing models
-  (COBDATFT, MVSWAIT); CBSTM03A reads z/OS control blocks (PSA / TCB / TIOT) through a null pointer; CBEXPORT and
-  CBIMPORT do not compile (their RECORD KEY is outside the file's record).
-- **No model-written port:** COACTUPC (account update, 4,236 lines) is too large to port in one model answer; its
-  det port is proven.
+- **These are burned estates.** The six estates and the crucible are public, and the
+  translator and porting rules were built on them, so their levels are not first-try results.
+  The real test is a blind estate seen for the first time; no such trial has run yet
+  ([trial protocol](docs/language_status/fresh_estate_trials.md)).
+- **"Equivalent" covers the paths the runs take**, not every possible input. L3 and L4
+  narrow that gap; they don't close it. Det-port mutation (L5) is not measured yet.
+- **A program is not proven while anything it calls has a hole.** If any program it LINKs or
+  CALLs, however indirectly, has an untranslated construct, it stays at L1, even when no
+  scenario reaches that construct ([#4803](https://github.com/squid-protocol/gitgalaxy/issues/4803)).
+- **Refused programs are listed, not hidden.** IDMS, national/DBCS text, source defects,
+  vendor copybooks and options IBM leaves undefined are refused by name; the families are in
+  the [definition of done](docs/language_status/definition_of_done.md).
+- **Translating the code is not migrating the system.** Data migration, JCL job streams,
+  external interfaces, performance, security and cutover are not measured
+  ([#4514](https://github.com/squid-protocol/gitgalaxy/issues/4514)).
 
 The full pipeline, commands and target config are in the
 [translator README](gitgalaxy/tools/cobol_to_java/README.md).
@@ -475,6 +510,7 @@ guide](github-action-readme.md).
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
 | [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 50-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
+| [Evidence report](docs/language_status/evidence_report/README.md) · [definition of done](docs/language_status/definition_of_done.md) | Per estate, an evidence level per program, regenerated on every push to main; what "done" means |
 | [CICS → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |
 | [Porting loop](docs/language_status/porting_loop.md) · [Mutation testing](docs/language_status/mutation_testing.md) · [CICS crucible](docs/language_status/cics_crucible.md) · [Statement inventory](docs/language_status/statement_inventory.md) | How ports are written and proven, how strong each proof is, the CICS trap corpus, and how much of a port a deterministic translator could write |
 | [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | 10 COBOL repos auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |

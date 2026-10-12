@@ -76,14 +76,14 @@
     },
     "agc_assembly/apollo-11": {
       "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 0,
-      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 1,
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 0,
       "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 0,
       "agc_assembly/apollo-11/CONTRIBUTING.md": 0,
       "agc_assembly/apollo-11/EXECUTIVE.agc": 0,
       "agc_assembly/apollo-11/INTERPRETER.agc": 0,
       "agc_assembly/apollo-11/LICENSE.md": 0,
       "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 0,
-      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 1,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 0,
       "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 0,
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 0,
       "agc_assembly/apollo-11/WAITLIST.agc": 0
@@ -326,16 +326,16 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 0
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 1,
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 1,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 0,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 0,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 2,
-      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 2,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 1,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 1,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 1,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 1,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 1
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 0,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 0,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 0,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 0,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 0,
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0,
@@ -364,7 +364,7 @@
     },
     "assembly/xv6_x86_kernel": {
       "assembly/xv6_x86_kernel/bootasm.S": 0,
-      "assembly/xv6_x86_kernel/entry.S": 1,
+      "assembly/xv6_x86_kernel/entry.S": 0,
       "assembly/xv6_x86_kernel/entryother.S": 0,
       "assembly/xv6_x86_kernel/initcode.S": 0,
       "assembly/xv6_x86_kernel/swtch.S": 0,
@@ -417,7 +417,7 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 0,
-      "c/cpython/ceval.c": 1,
+      "c/cpython/ceval.c": 0,
       "c/cpython/compile.c": 0,
       "c/cpython/dictobject.c": 0,
       "c/cpython/frameobject.c": 0,
@@ -444,14 +444,14 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 2,
+      "c/micropython/compile.c": 0,
       "c/micropython/compile.h": 0,
       "c/micropython/emitnative.c": 0,
       "c/micropython/gc.c": 0,
       "c/micropython/gc.h": 0,
       "c/micropython/modmachine.c": 0,
       "c/micropython/modmachine.h": 0,
-      "c/micropython/objtype.c": 1,
+      "c/micropython/objtype.c": 0,
       "c/micropython/objtype.h": 0,
       "c/micropython/vfs.c": 0,
       "c/micropython/vfs.h": 0,
@@ -519,7 +519,7 @@
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 0
     },
     "cobol/Z-SMS-Gateway": {
-      "cobol/Z-SMS-Gateway/BALANCE.cbl": 1,
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 0,
       "cobol/Z-SMS-Gateway/HISTORY.cbl": 0,
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": 0,
       "cobol/Z-SMS-Gateway/SENDSMS.cbl": 0
@@ -1169,8 +1169,8 @@
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
       "csharp/roslyn/LanguageParser.cs": 0,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 0,
-      "csharp/roslyn/Workspace.cs": 0
+      "csharp/roslyn/MethodCompiler.cs": 1,
+      "csharp/roslyn/Workspace.cs": 2
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1181,7 +1181,7 @@
       "css/bootstrap_dist/bootstrap.rtl.css": 8
     },
     "css/cytoscape_docs": {
-      "css/cytoscape_docs/reset.css": 1,
+      "css/cytoscape_docs/reset.css": 0,
       "css/cytoscape_docs/solarized_dark.css": 0,
       "css/cytoscape_docs/style.css": 0
     },
@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 0,
-      "dart/flutter/events.dart": 0,
+      "dart/flutter/editable_text.dart": 9,
+      "dart/flutter/events.dart": 1,
       "dart/flutter/framework.dart": 0,
-      "dart/flutter/navigator.dart": 0,
+      "dart/flutter/navigator.dart": 1,
       "dart/flutter/object.dart": 0,
-      "dart/flutter/semantics.dart": 1,
-      "dart/flutter/theme_data.dart": 0
+      "dart/flutter/semantics.dart": 0,
+      "dart/flutter/theme_data.dart": 4
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0
@@ -1260,11 +1260,11 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 0,
-      "dockerfile/moby/builder/dockerfile/copy.go": 1,
+      "dockerfile/moby/builder/dockerfile/copy.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 2,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 0,
@@ -1292,16 +1292,16 @@
       "dockerfile/moby/builder/remotecontext/filehash.go": 0,
       "dockerfile/moby/builder/remotecontext/git.go": 0,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 3,
+      "dockerfile/moby/builder/remotecontext/remote.go": 0,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 3,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 3
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
@@ -1316,7 +1316,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 4,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2,
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
@@ -1373,12 +1373,12 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 134,
+      "go/core/server.go": 0,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 1
+      "go/go_runtime_rand/rand.go": 0
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0,
@@ -1404,10 +1404,10 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 0,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 0,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 0,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 1
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 0
     },
     "groovy/flutter_android_gradle": {
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 0,
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 1,
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": 0,
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": 0,
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_app_build.gradle": 0,
@@ -1490,10 +1490,10 @@
       "groovy/gradle_dsl_snippets/files_archiveNaming_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/groovy_crossCompilation_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/initScripts_cacheMarking_groovy_build.gradle": 0,
-      "groovy/gradle_dsl_snippets/ivy-publish_conditional-publishing_groovy_build.gradle": 1,
+      "groovy/gradle_dsl_snippets/ivy-publish_conditional-publishing_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/java-feature-variant_producer-separate-sourceset_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/java-library_module-disabled_groovy_build.gradle": 0,
-      "groovy/gradle_dsl_snippets/maven-publish_conditional-publishing_groovy_build.gradle": 1,
+      "groovy/gradle_dsl_snippets/maven-publish_conditional-publishing_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/modelRules_basicRuleSourcePlugin_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/native-binaries_assembler_groovy_build.gradle": 0,
       "groovy/gradle_dsl_snippets/organizingGradleProjects_configureProjectUsingScript_groovy_build.gradle": 0,
@@ -1700,13 +1700,13 @@
       "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 0,
-      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 0,
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 2,
       "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 0,
-      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 0,
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 2,
       "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 0,
@@ -1817,7 +1817,7 @@
     "html/cesium_sandcastle": {
       "html/cesium_sandcastle/CesiumViewer_index.html": 0,
       "html/cesium_sandcastle/HelloWorld.html": 0,
-      "html/cesium_sandcastle/LICENSE.md": 2,
+      "html/cesium_sandcastle/LICENSE.md": 0,
       "html/cesium_sandcastle/bucket.html": 0,
       "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 0
     },
@@ -1829,9 +1829,9 @@
     },
     "html/html5_boilerplate": {
       "html/html5_boilerplate/LICENSE.txt": 0,
-      "html/html5_boilerplate/dist_404.html": 1,
+      "html/html5_boilerplate/dist_404.html": 0,
       "html/html5_boilerplate/dist_index.html": 0,
-      "html/html5_boilerplate/src_404.html": 1,
+      "html/html5_boilerplate/src_404.html": 0,
       "html/html5_boilerplate/src_index.html": 0
     },
     "html/jquery_test_fixtures": {
@@ -1839,7 +1839,7 @@
       "html/jquery_test_fixtures/csp-nonce.html": 0,
       "html/jquery_test_fixtures/iframe.html": 0,
       "html/jquery_test_fixtures/name.html": 0,
-      "html/jquery_test_fixtures/qunit-fixture.html": 0,
+      "html/jquery_test_fixtures/qunit-fixture.html": 1,
       "html/jquery_test_fixtures/table.html": 0,
       "html/jquery_test_fixtures/trusted-html.html": 0
     },
@@ -1873,7 +1873,7 @@
       "html/revealjs_decks/500-slides.html": 0,
       "html/revealjs_decks/auto-animate.html": 0,
       "html/revealjs_decks/barebones.html": 0,
-      "html/revealjs_decks/demo.html": 0,
+      "html/revealjs_decks/demo.html": 1,
       "html/revealjs_decks/math.html": 0
     },
     "html/threejs_shader_examples": {
@@ -1887,7 +1887,7 @@
       "html/vscode_webviews/LICENSE.txt": 0,
       "html/vscode_webviews/build_builtin_index.html": 0,
       "html/vscode_webviews/github_auth_media_index.html": 0,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 1,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 0,
       "html/vscode_webviews/webview_pre_index.html": 0,
       "html/vscode_webviews/workbench.html": 0
     },
@@ -1909,7 +1909,7 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 1
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 0,
@@ -1926,14 +1926,14 @@
     },
     "javascript/cesium_particle_emitters": {
       "javascript/cesium_particle_emitters/CircleEmitter.js": 0,
-      "javascript/cesium_particle_emitters/LICENSE.md": 2
+      "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
       "javascript/javascript_algorithms_bits/fullAdder.js": 0
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 1,
+      "javascript/jquery/ajax.js": 0,
       "javascript/jquery/buildFragment.js": 0,
       "javascript/jquery/core.js": 0,
       "javascript/jquery/css.js": 0,
@@ -1962,10 +1962,10 @@
       "javascript/react_error_codes/extract-errors.js": 0
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1,
+      "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
-      "javascript/threejs/GLTFLoader.js": 0,
-      "javascript/threejs/Matrix4.js": 1,
+      "javascript/threejs/GLTFLoader.js": 4,
+      "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
       "javascript/threejs/WebGLRenderer.js": 0
@@ -2178,9 +2178,9 @@
       "json/baseline/control-package.json": 0
     },
     "json/kafka/message": {
-      "json/kafka/message/DescribeTransactionsResponse.json": 1,
-      "json/kafka/message/SaslAuthenticateRequest.json": 1,
-      "json/kafka/message/VoteRequest.json": 1
+      "json/kafka/message/DescribeTransactionsResponse.json": 0,
+      "json/kafka/message/SaslAuthenticateRequest.json": 0,
+      "json/kafka/message/VoteRequest.json": 0
     },
     "kotlin": {
       "kotlin/SOURCES.md": 0
@@ -2192,7 +2192,7 @@
       "kotlin/okhttp/OkHttp.android.kt": 0,
       "kotlin/okhttp/OkHttp.jvm.kt": 0,
       "kotlin/okhttp/OkHttp.kt": 0,
-      "kotlin/okhttp/build.gradle.kts": 1
+      "kotlin/okhttp/build.gradle.kts": 0
     },
     "livecode": {
       "livecode/SOURCES.md": 0
@@ -2218,7 +2218,7 @@
       "livecode/livecode/basic.livecodescript": 0,
       "livecode/livecode/binary.lcb": 0,
       "livecode/livecode/bitwise.lcb": 0,
-      "livecode/livecode/bom.livecodescript": 1,
+      "livecode/livecode/bom.livecodescript": 0,
       "livecode/livecode/builder_tool.livecodescript": 0,
       "livecode/livecode/builder_utilities.livecodescript": 0,
       "livecode/livecode/button.livecodescript": 0,
@@ -2250,7 +2250,7 @@
       "livecode/livecode/engine_builder.livecodescript": 0,
       "livecode/livecode/ext-urls.livecodescript": 0,
       "livecode/livecode/file.lcb": 0,
-      "livecode/livecode/filters.livecodescript": 1,
+      "livecode/livecode/filters.livecodescript": 0,
       "livecode/livecode/foreign-aggregate.lcb": 0,
       "livecode/livecode/foreign-binding.lcb": 0,
       "livecode/livecode/foreign.lcb": 0,
@@ -2282,12 +2282,12 @@
       "livecode/livecode/recursion.livecodescript": 0,
       "livecode/livecode/repeat.livecodescript": 0,
       "livecode/livecode/revdeploylibraryandroid.livecodescript": 0,
-      "livecode/livecode/revdeploylibraryemscripten.livecodescript": 3,
+      "livecode/livecode/revdeploylibraryemscripten.livecodescript": 0,
       "livecode/livecode/revdeploylibraryios.livecodescript": 0,
       "livecode/livecode/revdocsparser.livecodescript": 0,
-      "livecode/livecode/revhtml5urllibrary.livecodescript": 1,
-      "livecode/livecode/revliburl.livecodescript": 20,
-      "livecode/livecode/revsaveasandroidstandalone.livecodescript": 1,
+      "livecode/livecode/revhtml5urllibrary.livecodescript": 0,
+      "livecode/livecode/revliburl.livecodescript": 1,
+      "livecode/livecode/revsaveasandroidstandalone.livecodescript": 0,
       "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 0,
       "livecode/livecode/stdlib__arithmetic.lcb": 0,
       "livecode/livecode/stdlib__array.lcb": 0,
@@ -2359,7 +2359,7 @@
       "lua/freebsd-src/cli.lua": 0,
       "lua/freebsd-src/color.lua": 0,
       "lua/freebsd-src/config.lua": 0,
-      "lua/freebsd-src/core.lua": 1,
+      "lua/freebsd-src/core.lua": 0,
       "lua/freebsd-src/drawer.lua": 0,
       "lua/freebsd-src/gfx-beastie.lua": 0,
       "lua/freebsd-src/gfx-beastiebw.lua": 0,
@@ -2382,7 +2382,7 @@
       "lua/pandoc/bytestring-reader.lua": 0,
       "lua/pandoc/bytestring.lua": 0,
       "lua/pandoc/count_words.lua": 0,
-      "lua/pandoc/creole.lua": 1,
+      "lua/pandoc/creole.lua": 0,
       "lua/pandoc/extensions.lua": 0,
       "lua/pandoc/extract-changes.lua": 0,
       "lua/pandoc/globals.lua": 0,
@@ -2431,7 +2431,7 @@
     },
     "m4/curl": {
       "m4/curl/COPYING": 0,
-      "m4/curl/configure.ac": 15
+      "m4/curl/configure.ac": 7
     },
     "m4/curl/m4": {
       "m4/curl/m4/curl-confopts.m4": 2,
@@ -2487,8 +2487,8 @@
       "nix/SOURCES.md": 0
     },
     "nix/bun": {
-      "nix/bun/LICENSE.md": 2,
-      "nix/bun/flake.nix": 0,
+      "nix/bun/LICENSE.md": 0,
+      "nix/bun/flake.nix": 1,
       "nix/bun/shell.nix": 0
     },
     "nix/ghostty": {
@@ -2506,7 +2506,7 @@
       "objective-c/worldwideweb/HyperManager.m": 0,
       "objective-c/worldwideweb/HyperText.h": 0,
       "objective-c/worldwideweb/HyperText.m": 0,
-      "objective-c/worldwideweb/TcpAccess.m": 2
+      "objective-c/worldwideweb/TcpAccess.m": 0
     },
     "perl": {
       "perl/SOURCES.md": 0
@@ -2516,48 +2516,48 @@
       "perl/ack3_tests/file-permission.t": 0
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 1,
-      "perl/bugzilla/Bug.pm": 3,
-      "perl/bugzilla/CGI.pm": 4,
-      "perl/bugzilla/DB.pm": 2,
-      "perl/bugzilla/Requirements.pm": 3
+      "perl/bugzilla/Auth.pm": 0,
+      "perl/bugzilla/Bug.pm": 2,
+      "perl/bugzilla/CGI.pm": 0,
+      "perl/bugzilla/DB.pm": 0,
+      "perl/bugzilla/Requirements.pm": 1
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 19,
+      "perl/exiftool/ExifTool.pm": 14,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 0,
-      "perl/exiftool/exiftool": 8
+      "perl/exiftool/exiftool": 7
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 0,
-      "perl/mojo/Makefile.PL": 0,
+      "perl/mojo/Makefile.PL": 1,
       "perl/mojo/Promise.pm": 0,
       "perl/mojo/Template.pm": 0,
       "perl/mojo/WebSocket.pm": 0
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 2,
-      "perl/spamassassin/Bayes.pm": 1,
-      "perl/spamassassin/HTML.pm": 3,
-      "perl/spamassassin/Makefile.PL": 4,
-      "perl/spamassassin/Message.pm": 4,
-      "perl/spamassassin/Parser.pm": 9,
-      "perl/spamassassin/PerMsgStatus.pm": 11,
-      "perl/spamassassin/SpamAssassin.pm": 2
+      "perl/spamassassin/AsyncLoop.pm": 1,
+      "perl/spamassassin/Bayes.pm": 0,
+      "perl/spamassassin/HTML.pm": 1,
+      "perl/spamassassin/Makefile.PL": 0,
+      "perl/spamassassin/Message.pm": 2,
+      "perl/spamassassin/Parser.pm": 6,
+      "perl/spamassassin/PerMsgStatus.pm": 3,
+      "perl/spamassassin/SpamAssassin.pm": 1
     },
     "php": {
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 1,
-      "php/guzzle/CurlFactory.php": 12,
-      "php/guzzle/CurlMultiHandler.php": 1,
+      "php/guzzle/CurlFactory.php": 11,
+      "php/guzzle/CurlMultiHandler.php": 0,
       "php/guzzle/Middleware.php": 0,
       "php/guzzle/Pool.php": 0,
       "php/guzzle/RequestException.php": 0,
-      "php/guzzle/StreamHandler.php": 5
+      "php/guzzle/StreamHandler.php": 3
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0,
@@ -2580,16 +2580,16 @@
       "php/magento2/Http.php": 0,
       "php/magento2/Interceptor.php": 0,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 1,
+      "php/magento2/Mysql.php": 0,
       "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
       "php/symfony/Application.php": 0,
       "php/symfony/ContainerBuilder.php": 0,
       "php/symfony/EventDispatcher.php": 0,
-      "php/symfony/HttpKernel.php": 1,
+      "php/symfony/HttpKernel.php": 0,
       "php/symfony/Parser.php": 0,
-      "php/symfony/Request.php": 1,
+      "php/symfony/Request.php": 0,
       "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
@@ -2598,11 +2598,11 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 8,
-      "php/wordpress/functions.php": 7,
+      "php/wordpress/formatting.php": 6,
+      "php/wordpress/functions.php": 2,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
-      "php/wordpress/wp-login.php": 0,
+      "php/wordpress/wp-login.php": 1,
       "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
@@ -2694,14 +2694,14 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": 0,
       "powershell/core/PSDiagnostics.psd1": 0,
       "powershell/core/Parse-MarkdownLink.ps1": 0,
-      "powershell/core/PowerShell__build.psm1": 1,
+      "powershell/core/PowerShell__build.psm1": 2,
       "powershell/core/RegisterManifest.ps1": 0,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 0,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0,
       "powershell/core/Run.ps1": 0,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 0,
       "powershell/core/analyze-pr-test-failures.ps1": 0,
-      "powershell/core/build.psm1": 1,
+      "powershell/core/build.psm1": 2,
       "powershell/core/ci.psm1": 0,
       "powershell/core/ciModule.Tests.ps1": 0,
       "powershell/core/install-powershell.ps1": 0,
@@ -2735,7 +2735,7 @@
     "powershell/roslyn": {
       "powershell/roslyn/CommonLibrary.psm1": 0,
       "powershell/roslyn/CreateAndUploadNugetZip.ps1": 0,
-      "powershell/roslyn/Get-CIStatus.ps1": 0,
+      "powershell/roslyn/Get-CIStatus.ps1": 2,
       "powershell/roslyn/Get-CodeflowStatus.ps1": 0,
       "powershell/roslyn/License.txt": 0,
       "powershell/roslyn/PSScriptAnalyzerSettings.psd1": 0,
@@ -2779,8 +2779,8 @@
       "powershell/runtime/collect-coverage.ps1": 0,
       "powershell/runtime/copy_version_files.ps1": 0,
       "powershell/runtime/download-tools.ps1": 0,
-      "powershell/runtime/generate-wasi-http-bindings.ps1": 2,
-      "powershell/runtime/generate-wasi-poll-bindings.ps1": 2,
+      "powershell/runtime/generate-wasi-http-bindings.ps1": 1,
+      "powershell/runtime/generate-wasi-poll-bindings.ps1": 1,
       "powershell/runtime/generateredefinesfile.ps1": 0,
       "powershell/runtime/generateversionscript.ps1": 0,
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": 0,
@@ -2800,27 +2800,27 @@
       "protobuf/SOURCES.md": 0
     },
     "protobuf/baseline": {
-      "protobuf/baseline/control.proto": 3
+      "protobuf/baseline/control.proto": 0
     },
     "python": {
       "python/SOURCES.md": 0
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 1,
-      "python/airflow/s3.py": 1,
-      "python/airflow/scheduler_job_runner.py": 1
+      "python/airflow/dag.py": 0,
+      "python/airflow/s3.py": 2,
+      "python/airflow/scheduler_job_runner.py": 0
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 1,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 1,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 1,
-      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 1
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": 1
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 0
     },
     "python/cython": {
       "python/cython/COPYING.txt": 0,
@@ -2836,7 +2836,7 @@
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
-      "python/fastapi/README.md": 6,
+      "python/fastapi/README.md": 0,
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
@@ -2855,7 +2855,7 @@
       "python/fastapi/fastapi/params.py": 0,
       "python/fastapi/fastapi/requests.py": 0,
       "python/fastapi/fastapi/responses.py": 0,
-      "python/fastapi/fastapi/routing.py": 1,
+      "python/fastapi/fastapi/routing.py": 0,
       "python/fastapi/fastapi/sse.py": 0,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
@@ -3097,7 +3097,7 @@
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 0,
-      "python/numpy/crackfortran.py": 2,
+      "python/numpy/crackfortran.py": 1,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
       "python/numpy/genapi.py": 0,
@@ -3125,8 +3125,8 @@
       "python/scikit-learn_examples/svm_plot_custom_kernel.py": 0
     },
     "python/tensorflow_ml_ops": {
-      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 1,
-      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 1
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 0,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 0
     },
     "python/tensorflow_model_fixtures": {
       "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": 0,
@@ -3139,7 +3139,7 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 8,
+      "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
       "python/twisted/transport.py": 1
     },
@@ -3175,7 +3175,7 @@
       "rexx/ibm_z_zos/bpxwtabs.rexx": 0,
       "rexx/ibm_z_zos/colonies.rexx": 0,
       "rexx/ibm_z_zos/devinfo.rexx": 0,
-      "rexx/ibm_z_zos/domchk.rexx": 2,
+      "rexx/ibm_z_zos/domchk.rexx": 0,
       "rexx/ibm_z_zos/ftpget.rexx": 0,
       "rexx/ibm_z_zos/i.rexx": 0,
       "rexx/ibm_z_zos/jobwait.rexx": 0,
@@ -3195,12 +3195,12 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 2,
-      "ruby/rails/blob.rb": 1,
+      "ruby/rails/base.rb": 0,
+      "ruby/rails/blob.rb": 0,
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
-      "ruby/rails/metal.rb": 0,
-      "ruby/rails/routing.rb": 5
+      "ruby/rails/metal.rb": 2,
+      "ruby/rails/routing.rb": 2
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": 0,
@@ -3260,7 +3260,7 @@
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 0,
-      "rust/tokio/builder.rs": 0,
+      "rust/tokio/builder.rs": 1,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
       "rust/tokio/interval.rs": 0,
@@ -3271,7 +3271,7 @@
       "rust/tokio/tokio_named_pipe.rs": 0
     },
     "rust/tokio_util_rand": {
-      "rust/tokio_util_rand/rand.rs": 1
+      "rust/tokio_util_rand/rand.rs": 0
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
@@ -3305,18 +3305,18 @@
       "scheme/racket/thread.rkt": 0
     },
     "shell": {
-      "shell/SOURCES.md": 1
+      "shell/SOURCES.md": 0
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 0,
       "shell/ansible/aggregate-coverage.sh": 0,
       "shell/ansible/alpine.sh": 0,
       "shell/ansible/ansible-console__runme.sh": 0,
-      "shell/ansible/ansible-doc__runme.sh": 0,
+      "shell/ansible/ansible-doc__runme.sh": 1,
       "shell/ansible/ansible-galaxy__runme.sh": 0,
       "shell/ansible/ansible-inventory__runme.sh": 0,
       "shell/ansible/ansible-playbook-callbacks__runme.sh": 0,
-      "shell/ansible/ansible-pull__runme.sh": 1,
+      "shell/ansible/ansible-pull__runme.sh": 0,
       "shell/ansible/ansible-test-collection-script-dependencies__runme.sh": 0,
       "shell/ansible/ansible-test-config-invalid__runme.sh": 0,
       "shell/ansible/ansible-test-config__runme.sh": 0,
@@ -3326,7 +3326,7 @@
       "shell/ansible/ansible-test-debugging-env__runme.sh": 0,
       "shell/ansible/hello__runme.sh": 0,
       "shell/ansible/module_common_regex_regression.sh": 0,
-      "shell/ansible/runme.sh": 0,
+      "shell/ansible/runme.sh": 1,
       "shell/ansible/test__runme.sh": 0,
       "shell/ansible/windows.sh": 0
     },
@@ -3336,14 +3336,14 @@
       "shell/brew/brew": 3,
       "shell/brew/brew.rb": 0,
       "shell/brew/cask.rb": 0,
-      "shell/brew/download_strategy.rb": 5,
+      "shell/brew/download_strategy.rb": 6,
       "shell/brew/formula.rb": 0,
       "shell/brew/formula_installer.rb": 0,
       "shell/brew/sandbox.rb": 0
     },
     "shell/curl": {
       "shell/curl/COPYING": 0,
-      "shell/curl/appveyor.sh": 3,
+      "shell/curl/appveyor.sh": 4,
       "shell/curl/cmakelint.sh": 3,
       "shell/curl/cmp-pkg-config.sh": 5,
       "shell/curl/codespell.sh": 1,
@@ -3374,11 +3374,11 @@
       "shell/darwin-xnu/generate_symbolset_plist.sh": 1,
       "shell/darwin-xnu/ios_trace_ipc.sh": 0,
       "shell/darwin-xnu/iosspeedtracer.sh": 1,
-      "shell/darwin-xnu/list_supported.sh": 1,
-      "shell/darwin-xnu/mach_install_mig.sh": 1,
-      "shell/darwin-xnu/make_posix_availability.sh": 1,
-      "shell/darwin-xnu/make_symbol_aliasing.sh": 1,
-      "shell/darwin-xnu/makesyscalls.sh": 1,
+      "shell/darwin-xnu/list_supported.sh": 0,
+      "shell/darwin-xnu/mach_install_mig.sh": 0,
+      "shell/darwin-xnu/make_posix_availability.sh": 0,
+      "shell/darwin-xnu/make_symbol_aliasing.sh": 0,
+      "shell/darwin-xnu/makesyscalls.sh": 0,
       "shell/darwin-xnu/persona_test_run_src.sh": 1,
       "shell/darwin-xnu/remote_build.sh": 0,
       "shell/darwin-xnu/setup.sh": 0,
@@ -3404,7 +3404,7 @@
       "shell/freebsd-src/ln_test.sh": 0,
       "shell/freebsd-src/ls_tests.sh": 0,
       "shell/freebsd-src/mkdir_test.sh": 0,
-      "shell/freebsd-src/mkerrno.sh": 1,
+      "shell/freebsd-src/mkerrno.sh": 0,
       "shell/freebsd-src/mv_test.sh": 0,
       "shell/freebsd-src/pgrep-_f_test.sh": 0,
       "shell/freebsd-src/pkg-install.sh": 0,
@@ -3419,14 +3419,14 @@
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/COPYRIGHT": 0,
-      "shell/freebsd_sysbuild/sysbuild.sh": 2
+      "shell/freebsd_sysbuild/sysbuild.sh": 0
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 1,
       "shell/haiku/License.md": 0,
       "shell/haiku/ValidatePeopleEmails.sh": 0,
       "shell/haiku/bootstrap.sh": 0,
-      "shell/haiku/build-toolchain.sh": 3,
+      "shell/haiku/build-toolchain.sh": 0,
       "shell/haiku/catmerge.sh": 0,
       "shell/haiku/colorgrep.sh": 0,
       "shell/haiku/convert.sh": 0,
@@ -3446,60 +3446,60 @@
       "shell/haiku/usb_vision__install.sh": 0
     },
     "shell/illumos-gate": {
-      "shell/illumos-gate/Run.sh": 1,
-      "shell/illumos-gate/acct.sh": 1,
-      "shell/illumos-gate/adbgen.sh": 1,
-      "shell/illumos-gate/amt.sh": 1,
-      "shell/illumos-gate/arch.sh": 1,
-      "shell/illumos-gate/audio_clean.sh": 1,
-      "shell/illumos-gate/audit_warn.sh": 1,
-      "shell/illumos-gate/batch.sh": 1,
-      "shell/illumos-gate/clear.sh": 1,
-      "shell/illumos-gate/devlink.tab.sh": 1,
-      "shell/illumos-gate/dfshares.sh": 1,
-      "shell/illumos-gate/diff3.sh": 1,
-      "shell/illumos-gate/diffmk.sh": 1,
-      "shell/illumos-gate/dircmp.sh": 1,
-      "shell/illumos-gate/dmesg.sh": 1,
-      "shell/illumos-gate/exportfs.sh": 1,
-      "shell/illumos-gate/ikecert.sh": 1,
-      "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 1,
-      "shell/illumos-gate/inetd-upgrade.sh": 1,
-      "shell/illumos-gate/mkerror.sh": 1,
+      "shell/illumos-gate/Run.sh": 0,
+      "shell/illumos-gate/acct.sh": 0,
+      "shell/illumos-gate/adbgen.sh": 0,
+      "shell/illumos-gate/amt.sh": 0,
+      "shell/illumos-gate/arch.sh": 0,
+      "shell/illumos-gate/audio_clean.sh": 0,
+      "shell/illumos-gate/audit_warn.sh": 0,
+      "shell/illumos-gate/batch.sh": 0,
+      "shell/illumos-gate/clear.sh": 0,
+      "shell/illumos-gate/devlink.tab.sh": 0,
+      "shell/illumos-gate/dfshares.sh": 0,
+      "shell/illumos-gate/diff3.sh": 0,
+      "shell/illumos-gate/diffmk.sh": 0,
+      "shell/illumos-gate/dircmp.sh": 0,
+      "shell/illumos-gate/dmesg.sh": 0,
+      "shell/illumos-gate/exportfs.sh": 0,
+      "shell/illumos-gate/ikecert.sh": 0,
+      "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 0,
+      "shell/illumos-gate/inetd-upgrade.sh": 0,
+      "shell/illumos-gate/mkerror.sh": 0,
       "shell/illumos-gate/newvers.sh": 0,
-      "shell/illumos-gate/nfsfind.sh": 1,
-      "shell/illumos-gate/process_msg_template.sh": 1,
-      "shell/illumos-gate/shareall.sh": 1,
-      "shell/illumos-gate/unshareall.sh": 1
+      "shell/illumos-gate/nfsfind.sh": 0,
+      "shell/illumos-gate/process_msg_template.sh": 0,
+      "shell/illumos-gate/shareall.sh": 0,
+      "shell/illumos-gate/unshareall.sh": 0
     },
     "shell/kubernetes": {
-      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": 1,
-      "shell/kubernetes/benchmark-dockerized.sh": 1,
-      "shell/kubernetes/build-image.sh": 1,
-      "shell/kubernetes/build.sh": 1,
-      "shell/kubernetes/cluster__common.sh": 3,
-      "shell/kubernetes/common.sh": 1,
-      "shell/kubernetes/config-common.sh": 1,
-      "shell/kubernetes/config-default.sh": 1,
-      "shell/kubernetes/configure-helper.sh": 9,
-      "shell/kubernetes/e2e-cluster-size.sh": 1,
-      "shell/kubernetes/etcd.sh": 2,
-      "shell/kubernetes/gen-swagger-docs.sh": 1,
-      "shell/kubernetes/gencerts.sh": 1,
-      "shell/kubernetes/generate.sh": 1,
-      "shell/kubernetes/iks__config-default.sh": 1,
-      "shell/kubernetes/kube-addons-main.sh": 1,
+      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": 0,
+      "shell/kubernetes/benchmark-dockerized.sh": 0,
+      "shell/kubernetes/build-image.sh": 0,
+      "shell/kubernetes/build.sh": 0,
+      "shell/kubernetes/cluster__common.sh": 2,
+      "shell/kubernetes/common.sh": 0,
+      "shell/kubernetes/config-common.sh": 0,
+      "shell/kubernetes/config-default.sh": 0,
+      "shell/kubernetes/configure-helper.sh": 5,
+      "shell/kubernetes/e2e-cluster-size.sh": 0,
+      "shell/kubernetes/etcd.sh": 0,
+      "shell/kubernetes/gen-swagger-docs.sh": 0,
+      "shell/kubernetes/gencerts.sh": 0,
+      "shell/kubernetes/generate.sh": 0,
+      "shell/kubernetes/iks__config-default.sh": 0,
+      "shell/kubernetes/kube-addons-main.sh": 0,
       "shell/kubernetes/log-dump.sh": 2,
-      "shell/kubernetes/node-helper.sh": 1,
-      "shell/kubernetes/pre-existing__config-default.sh": 1,
-      "shell/kubernetes/pre-existing__util.sh": 1,
-      "shell/kubernetes/release.sh": 1,
-      "shell/kubernetes/skeleton__util.sh": 1,
-      "shell/kubernetes/stage-upload.sh": 1,
-      "shell/kubernetes/testcerts__gencerts.sh": 1,
-      "shell/kubernetes/testdata__generate.sh": 1,
-      "shell/kubernetes/update-codegen.sh": 1,
-      "shell/kubernetes/util.sh": 1
+      "shell/kubernetes/node-helper.sh": 0,
+      "shell/kubernetes/pre-existing__config-default.sh": 0,
+      "shell/kubernetes/pre-existing__util.sh": 0,
+      "shell/kubernetes/release.sh": 0,
+      "shell/kubernetes/skeleton__util.sh": 0,
+      "shell/kubernetes/stage-upload.sh": 0,
+      "shell/kubernetes/testcerts__gencerts.sh": 0,
+      "shell/kubernetes/testdata__generate.sh": 0,
+      "shell/kubernetes/update-codegen.sh": 0,
+      "shell/kubernetes/util.sh": 0
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -3533,7 +3533,7 @@
       "shell/moby/dockerd-rootless-setuptool.sh": 0,
       "shell/moby/dockerd-rootless.sh": 0,
       "shell/moby/dockerize-disk.sh": 0,
-      "shell/moby/download-frozen-image-v2.sh": 6,
+      "shell/moby/download-frozen-image-v2.sh": 4,
       "shell/moby/e2e-run.sh": 0,
       "shell/moby/generate-swagger-api.sh": 0,
       "shell/moby/generate-test-certs.sh": 0,
@@ -3548,7 +3548,7 @@
       "shell/reactos/COPYING": 0,
       "shell/reactos/CreateCabFile.sh": 0,
       "shell/reactos/autogen.sh": 0,
-      "shell/reactos/check_code_format.sh": 1,
+      "shell/reactos/check_code_format.sh": 0,
       "shell/reactos/codespell_changed_files.sh": 0,
       "shell/reactos/codespell_check.sh": 0,
       "shell/reactos/configure.sh": 0,
@@ -3559,7 +3559,7 @@
       "shell/reactos/make-docu.sh": 0,
       "shell/reactos/mksrctar.sh": 0,
       "shell/reactos/output_to_pcap.sh": 0,
-      "shell/reactos/remaster.sh": 0
+      "shell/reactos/remaster.sh": 1
     },
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": 0,
@@ -3789,10 +3789,10 @@
       "tcl/macports_port_api/portdistcheck.tcl": 0,
       "tcl/macports_port_api/portdistfiles.tcl": 0,
       "tcl/macports_port_api/portextract.tcl": 0,
-      "tcl/macports_port_api/portfetch.tcl": 4,
+      "tcl/macports_port_api/portfetch.tcl": 1,
       "tcl/macports_port_api/portinstall.tcl": 0,
       "tcl/macports_port_api/portlint.tcl": 0,
-      "tcl/macports_port_api/portlivecheck.tcl": 1,
+      "tcl/macports_port_api/portlivecheck.tcl": 0,
       "tcl/macports_port_api/portload.tcl": 0,
       "tcl/macports_port_api/portmain.tcl": 0
     },
@@ -3861,7 +3861,7 @@
       "typescript/assemblyscript/ast.ts": 0,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 1
+      "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -3917,7 +3917,7 @@
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 2
+      "typescript/vscode/vscode.d.ts": 3
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,
@@ -3999,7 +3999,7 @@
     },
     "yaml/grafana_compose": {
       "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 0,
-      "yaml/grafana_compose/frontend-service_docker-compose.yaml": 1,
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": 0,
       "yaml/grafana_compose/local_cdn_docker-compose.yaml": 0
     },
     "yaml/moby_workflows": {
@@ -4043,7 +4043,7 @@
       "zig/SOURCES.md": 0
     },
     "zig/bun": {
-      "zig/bun/LICENSE.md": 2,
+      "zig/bun/LICENSE.md": 0,
       "zig/bun/MimallocArena.zig": 0,
       "zig/bun/Parser.zig": 1,
       "zig/bun/comptime_string_map.zig": 0,
@@ -4078,7 +4078,7 @@
       "zig/zig/InternPool.zig": 0,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
-      "zig/zig/main.zig": 1
+      "zig/zig/main.zig": 0
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0
@@ -4089,7 +4089,7 @@
       "zig/zls/Server.zig": 0,
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
-      "zig/zls/config_gen.zig": 0,
+      "zig/zls/config_gen.zig": 1,
       "zig/zls/print_ast.zig": 0
     }
   },

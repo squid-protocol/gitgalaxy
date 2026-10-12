@@ -3430,6 +3430,7 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
  * ACTION (0: not given), GG-NUM STATUSCODE (-1: not given), GG-HOURS STATUSLEN (-1: not given), GG-MINS the conversion (0, 1
  * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
 static int web_sent = 0;
+static int web_send_failed = 0; /* #4941: a WEB SEND ended in a condition */
 
 static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
@@ -3457,7 +3458,7 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
     if ((status == 204 || status == 205 || status == 304) && fl > 0) { c->resp = INVREQ; c->resp2 = 72; conds++; }
     if (conds > 1) refuse("WEB SEND with more than one condition at once");
-    if (conds == 1) return 0;
+    if (conds == 1) { web_send_failed = 1; return 0; }
     if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
     web_sent = 1;
     web_hex(mt, hasm ? mtl : 0, hx[0]);
@@ -3675,6 +3676,18 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
         snprintf(ev, sizeof ev, "WEB-HEADER name=%s value=%s resp=0 resp2=0", hx[0], hx[1]);
         event(ev, NULL, 0);
     }
+    return 0;
+}
+
+/* WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): INVREQ RESP2 2 no WEB SEND issued, NOTFND
+ * RESP2 1 the last WEB SEND was not an EVENTUAL document send (every send accepted here is IMMEDIATE, so a send that happened
+ * is NOTFND 1). DOCTOKEN is never written: NORMAL needs an EVENTUAL send, which WEB SEND refuses. As CicsTask.webRetrieve. */
+int GGCWRTV(gg_cics *c) {
+    webreq_load();
+    if (web_sent) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (web_send_failed) refuse("WEB RETRIEVE after a WEB SEND that ended in a condition");
+    c->resp = INVREQ;
+    c->resp2 = 2;
     return 0;
 }
 

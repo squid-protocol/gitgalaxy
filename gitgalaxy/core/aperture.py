@@ -399,15 +399,14 @@ class ApertureFilter:
             size_bytes = 0
 
         # --- Gate 1.1: Credential Exposure Radar ---
-        if path_obj.name in self.config.get("SECRETS_EXACT", set()) or ext.lower() in self.config.get(
-            "SECRETS_EXTENSIONS", set()
-        ):
-            # #4548: the extension only nominates a candidate (as the model gate below does). A
-            # key/cert file whose head proves it is PUBLIC material -- a PGP public key block, a
-            # certificate, a public key -- is published on purpose, not a leaked credential.
-            if path_obj.name in self.config.get("SECRETS_EXACT", set()) or not _is_public_key_material(path_obj):
-                reason = f"CRITICAL LEAK (Exposed Secret: '{path_obj.name}')"
-                return False, size_bytes, reason
+        # #4548: the extension only nominates a candidate (as the model gate below does). A key/cert
+        # file whose content proves it is PUBLIC material -- a PGP public key block, a certificate,
+        # a public key -- is published on purpose, not a leaked credential.
+        secrets_exact = path_obj.name in self.config.get("SECRETS_EXACT", set())
+        secrets_ext = ext.lower() in self.config.get("SECRETS_EXTENSIONS", set())
+        if secrets_exact or (secrets_ext and not _is_public_key_material(path_obj)):
+            reason = f"CRITICAL LEAK (Exposed Secret: '{path_obj.name}')"
+            return False, size_bytes, reason
 
         # --- Gate 1.2: Model Weight Shunt ---
         # #4138: the extension only nominates a candidate; the header has to prove

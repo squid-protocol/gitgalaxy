@@ -163,6 +163,24 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-12T07:32:52+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "back-and-fix": "1/1",
+     "back-clear-keeps-amount": "1/1",
+     "clear-and-bad-amount": "1/1",
+     "happy-post": "1/1",
+     "mapfail-clear-cancel": "1/1"
+    },
+    "port_sha256": "0d18662f14f05b095e84423af3ec545817f6f277006edb0247a2706d1930b0ba",
+    "harness_commit": "d1cc9721aa4f8fe0f262a71c02b2eb8ec054ed62",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCCONF --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -237,6 +255,18 @@
    "generated_from": "service/PcconfService.java",
    "replaced": [
     "handleTransaction"
+   ]
+  },
+  {
+   "at": "2026-10-12T07:11:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/PcconfService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,Object,byte[])",
+    "lastAnswerBytes()"
    ]
   }
  ],

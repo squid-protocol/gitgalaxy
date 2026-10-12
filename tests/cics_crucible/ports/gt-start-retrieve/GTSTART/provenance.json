@@ -154,6 +154,25 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-12T07:30:52+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "interval-data": "1/1",
+     "no-data": "1/1",
+     "protect-abend": "1/1",
+     "retrieve-lengerr": "1/1",
+     "time-six-hours": "1/1",
+     "unknown-mode": "1/1"
+    },
+    "port_sha256": "3717131ca1373a9839a5262590d44d43c01580b589e100f8c0e4ff1af3c4e88f",
+    "harness_commit": "d1cc9721aa4f8fe0f262a71c02b2eb8ec054ed62",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTSTART --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -199,6 +218,18 @@
    ],
    "removed": [
     "executeGtstart"
+   ]
+  },
+  {
+   "at": "2026-10-12T07:11:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/GtstartService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,byte[])",
+    "lastAnswerBytes()"
    ]
   }
  ],

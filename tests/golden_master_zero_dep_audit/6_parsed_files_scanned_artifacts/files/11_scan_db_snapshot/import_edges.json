@@ -1659,14 +1659,12 @@
       "go/core/mgc.go": [
         "fcall:go/core/proc.go",
         "fcall:go/core/server.go",
-        "fcall:go/core/value.go",
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+        "fcall:go/core/value.go"
       ],
       "go/core/proc.go": [
         "fcall:go/core/mgc.go",
         "fcall:go/core/server.go",
-        "fcall:go/core/value.go",
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+        "fcall:go/core/value.go"
       ],
       "go/core/server.go": [
         "fcall:go/core/mutex.go",
@@ -1676,23 +1674,15 @@
         "import:livecode/livecode/log.livecodescript",
         "import:lua/cosmopolitan/errors.lua",
         "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss",
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+        "import:scheme/racket/io.ss"
       ],
       "go/core/syscall_linux.go": [
-        "fcall:go/core/value.go",
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+        "fcall:go/core/value.go"
       ],
       "go/core/value.go": [
         "fcall:go/core/mgc.go",
         "fcall:go/core/proc.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
-      ]
-    },
-    "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": [
-        "import:yaml/ansible/yaml_parsing/tasks/unsafe.yml"
+        "import:lua/cosmopolitan/errors.lua"
       ]
     },
     "go/kubernetes": {

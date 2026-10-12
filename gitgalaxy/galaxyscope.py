@@ -74,6 +74,7 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
@@ -2600,6 +2601,34 @@ class Orchestrator:
         attach_function_metrics(self.parsed_files, function_metrics(self.parsed_files, self.fcall_sites))
         logger.debug(f"⏱️ EXECUTION_TIME [Function Graph Metrics]: {time.time() - t_graph:.2f}s")
 
+    def _declared_dependency_names(self) -> set[str]:
+        """Lower-cased dependency names declared by the scan's manifests (#4547).
+
+        The typosquat radar's CRITICAL level requires the suspect to be one of these.
+        A manifest that cannot be read contributes nothing (the radar degrades to
+        WARNING, never to a false CRITICAL).
+        """
+        from gitgalaxy.security.manifest_parser import (
+            SUPPORTED_MANIFEST_FILENAMES,
+            SUPPORTED_MANIFEST_SUFFIXES,
+            UniversalManifestSlicer,
+        )
+
+        names: set[str] = set()
+        disk_paths = getattr(self, "disk_paths", {}) or {}
+        for rel_path in getattr(self, "stem_map", {}).values():
+            path = Path(rel_path)
+            if path.name not in SUPPORTED_MANIFEST_FILENAMES and path.suffix not in SUPPORTED_MANIFEST_SUFFIXES:
+                continue
+            try:
+                _, deps = UniversalManifestSlicer.slice_manifest(self.root / disk_paths.get(rel_path, rel_path))
+            except Exception:  # noqa: BLE001 -- an unreadable manifest only lowers the alert level
+                continue
+            for dep in deps:
+                low = str(dep).lower()
+                names.update({low, low.replace("_", "-"), low.replace("-", "_")})
+        return names
+
     def _resolve_dependency_graph(self):
         """
         Pass 1.5: Optimized relational token aggregation & Fuzzy Suffix Matching.
@@ -2838,9 +2867,24 @@ class Orchestrator:
                     and not (raw_import.startswith(".") and str(meta.get("lang_id", "")).lower() in local_module_langs)
                     and not raw_import.startswith(local_path_prefixes.get(str(meta.get("lang_id", "")).lower(), ()))
                 ):
-                    if clean_path not in external_imports_tally:
-                        external_imports_tally[clean_path] = []
-                    external_imports_tally[clean_path].append(rel_path)
+                    # #4547: the radar tests PACKAGE names. A system / standard header
+                    # (`strings.h`~`string.h`, `<cstring>`~`<string>`) is a file path the
+                    # toolchain supplies, and a Rust `a::b::item` path names an item inside
+                    # a crate -- only its leading segment is the crate. A `name@version` ref
+                    # (`actions/checkout@v3`) is the one package at two pins, so the pin is
+                    # dropped before comparing.
+                    radar_name = clean_path
+                    if "::" in radar_name:
+                        radar_name = radar_name.split("::", 1)[0]
+                        if radar_name in ("std", "core", "alloc"):
+                            continue
+                    if "@" in radar_name[1:]:
+                        radar_name = radar_name[0] + radar_name[1:].split("@", 1)[0]
+                    if radar_name.lower().endswith(HEADER_EXTENSIONS) or is_system_header(radar_name, importer_ext):
+                        continue
+                    if radar_name not in external_imports_tally:
+                        external_imports_tally[radar_name] = []
+                    external_imports_tally[radar_name].append(rel_path)
 
         # =========================================================================
         # ---> NEW: THE AIR-GAPPED TYPOSQUATTING RADAR <---
@@ -2891,6 +2935,8 @@ class Orchestrator:
 
         whitelist = APERTURE_CONFIG.get("TYPOSQUAT_WHITELIST", set())
 
+        declared_deps = self._declared_dependency_names()
+
         typosquat_hits = 0
         for orphan_imp, rel_path in orphans:
             # 1. The Project Override Shield & Length Shield
@@ -2928,9 +2974,18 @@ class Orchestrator:
                 max_dist = 1 if min(len(orphan_imp), len(anchor_imp)) < 10 else 2
 
                 if 0 < dist <= max_dist:
-                    logger.critical(
-                        f"🚨 TYPOSQUATTING DETECTED: '{orphan_imp}' in {rel_path} closely matches anchor '{anchor_imp}'!"
-                    )
+                    # #4547: CRITICAL needs a manifest-level match -- the suspect name is a
+                    # declared dependency. An import-only near-match is a lead, not a verdict.
+                    if orphan_imp.lower() in declared_deps:
+                        logger.critical(
+                            f"🚨 TYPOSQUATTING DETECTED: '{orphan_imp}' in {rel_path} closely matches anchor "
+                            f"'{anchor_imp}' and is a declared dependency!"
+                        )
+                    else:
+                        logger.warning(
+                            f"Possible typosquat (import only, not in any manifest): '{orphan_imp}' in {rel_path} "
+                            f"closely matches anchor '{anchor_imp}'."
+                        )
 
                     # Inject the threat directly into the file's equations before Phase 2
                     if "equations" not in self.ram_cache[rel_path]:

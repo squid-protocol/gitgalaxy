@@ -1308,6 +1308,11 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   gt-start-options (7: data options, ENVDEFERR, RETRIEVE with no INTO, AFTER / AT and TIME(250000), INVREQ RESP2 6 / 5
   / 6 / 4, REQID IOERR, RUN TRANSID and its TRANSIDERR), cobol-stub and the det port both passing the hand-written
   logs (crucible branch `cases/start-retrieve-4270`, squid-protocol/cics-crucible#7, not yet released or pinned).
+  **#4950:** the child schedule is pinned on both runtimes by one set of step scripts (`test_cics_runtimes.py`:
+  completion order, NOSUSPEND before and after a wait, a waiting FETCH, TIMEOUT running out, FREE CHILD, an abended
+  child, a tie, a child's region-resource command, channel names); every port that DELAYs re-proved. CBSA CRECUST's
+  credit check (five RUN children, DELAY 3 seconds, FETCH ANY NOSUSPEND x6) runs on the oracle, but the program is not
+  provable: its CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' (refused, L1).
 
 ### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).

@@ -41,6 +41,7 @@ from unittest.mock import patch
 
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 sys.path.insert(0, str(REPO_ROOT))
+from maven_exe import mvn_executable  # noqa: E402
 _TIMESTAMP = re.compile(rb"gitgalaxy_(clean|java_spring)_[0-9]{8}_[0-9]{6}")
 
 MATRIX: dict[str, dict] = {
@@ -225,7 +226,7 @@ def build(project: Path, version: int, m2: Path) -> tuple[bool, str]:
             f"-Dorg.gradle.java.installations.paths={env['JAVA_HOME']}",
         ]
     else:
-        cmd = ["mvn", "-q", "-B", "compile", f"-Dmaven.repo.local={m2}"]
+        cmd = [mvn_executable(), "-q", "-B", "compile", f"-Dmaven.repo.local={m2}"]
     proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, timeout=1800)  # noqa: S603
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
     return proc.returncode == 0, "\n".join(errors[:8])

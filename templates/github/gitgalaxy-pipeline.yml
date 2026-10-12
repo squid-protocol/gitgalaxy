@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# NOTE (#4918): the three `uses: squid-protocol/gitgalaxy@v2.4.0` steps below still run the v2.4.0 action,
+# which installs unpinned. Bump them to the first release that ships templates/requirements/ (the
+# hash-pinned lockfiles the action reads); until that tag exists the bump would point at an action
+# with no lockfiles. An explicit `version:` input of a release older than the `full` extra drops the
+# ML engines (pip warns "does not provide the extra 'full'" and the scan runs in Zero-Dependency Mode).
 jobs:
   vault-sentinel:
     name: Vault Sentinel
@@ -52,7 +57,7 @@ jobs:
 
       - name: Install GitGalaxy & Full Precision Engines
         run: |
-          GG_REF=1c0805a80b964e4e3d2e9ed1fd8c669fdfba1c39 GG_SHA256=67c3b0554379f37f65135b23812a2a38d717303d847d96f27a915e4b260063d0 # gg-pin:full
+          GG_REF=37e7187247b0414cf872f1694a1aca00501534d5 GG_SHA256=67c3b0554379f37f65135b23812a2a38d717303d847d96f27a915e4b260063d0 # gg-pin:full
           python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/full.txt" /tmp/gg-requirements.txt
           echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
           pip install --require-hashes -r /tmp/gg-requirements.txt

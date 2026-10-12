@@ -54,6 +54,9 @@ runs:
           echo "Installing the hash-pinned GitGalaxy release (--require-hashes)..."
           pip install --require-hashes -r "${REQS}/${SET}.txt"
         else
+          # NOTE: releases from before the `full` extra existed have no such extra, so pip warns and
+          # installs gitgalaxy WITHOUT tiktoken/xgboost/pandas/numpy: an explicit old version silently
+          # runs in Zero-Dependency Mode even with full_precision=true.
           echo "Installing GitGalaxy version ${GALAXY_ACT_VERSION} (exact pin, NOT hash-verified)..."
           pip install "gitgalaxy[${SET}]==${GALAXY_ACT_VERSION}"
         fi

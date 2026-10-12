@@ -1802,9 +1802,11 @@ def test_fetch_waits_times_out_or_not_and_writes_what_the_child_left():
                         "    if (fetch1.abcode() != null) DetCics.putPadded(f_AB, fetch1.abcode(), CS);",
                         out[5], "}"]  # fmt: skip
     assert "fetch1.compstatus()" in out[5] and out[-1] == "OUTCOME(DetCics.resp(fetch1.resp()), fetch1.resp2());"
-    assert _ChanCics().command("FETCH CHILD(REC)", "")[0] == (
-        'CicsTask.FetchResult fetch1 = task.fetch(DetCics.str(f_REC, CS), "WAIT", 0, false);'
-    ) or 'task.fetch(' in _ChanCics().command("FETCH CHILD(REC)", "")[0]
+    assert (
+        _ChanCics().command("FETCH CHILD(REC)", "")[0]
+        == ('CicsTask.FetchResult fetch1 = task.fetch(DetCics.str(f_REC, CS), "WAIT", 0, false);')
+        or "task.fetch(" in _ChanCics().command("FETCH CHILD(REC)", "")[0]
+    )
     timed = _ChanCics().command("FETCH CHILD(REC) TIMEOUT(250)", "")[0]
     assert '"TIMEOUT", 250, false);' in timed and "WAIT" not in timed
 
@@ -1812,7 +1814,11 @@ def test_fetch_waits_times_out_or_not_and_writes_what_the_child_left():
 def test_free_child_delay_and_start_channel():
     """#4950: FREE CHILD on CicsTask.freeChild; DELAY on CicsTask.delay (INTERVAL / FOR as milliseconds, TIME refused at
     run time in a task with children); START CHANNEL hands the channel's name to the request."""
-    assert _ChanCics().command("FREE CHILD(REC) RESP(R)", "")[0].startswith("CicsTask.FetchResult freed1 = task.freeChild(")
+    assert (
+        _ChanCics()
+        .command("FREE CHILD(REC) RESP(R)", "")[0]
+        .startswith("CicsTask.FetchResult freed1 = task.freeChild(")
+    )
     assert _ChanCics().command("DELAY FOR SECONDS(3)", "")[0] == (
         'task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
     )

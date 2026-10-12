@@ -72,7 +72,9 @@ DELAY = Command(
         "MILLISECS": Arg("value"),
         **RESP_OPTIONS,
     },
-    outcomes=(Outcome("NORMAL", 0, "a task takes no time (X4): the delay ends at once, after the children it dispatches"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "a task takes no time (X4): the delay ends at once, after the children it dispatches"),
+    ),
     runtime_refusals=(
         # #4950 (X18): a DELAY is the wait at which a RUN child is dispatched; its length orders their completions
         RuntimeRefusal(

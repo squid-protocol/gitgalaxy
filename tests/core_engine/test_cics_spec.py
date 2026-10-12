@@ -156,7 +156,12 @@ def test_every_entry_is_consistent():
 
 
 def test_resp_tables():
-    assert len(DFHRESP) == 106 and DFHRESP["CONTAINERERR"] == 110 and DFHRESP["CHANNELERR"] == 122 and DFHRESP["TOKENERR"] == 112
+    assert (
+        len(DFHRESP) == 106
+        and DFHRESP["CONTAINERERR"] == 110
+        and DFHRESP["CHANNELERR"] == 122
+        and DFHRESP["TOKENERR"] == 112
+    )
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
 

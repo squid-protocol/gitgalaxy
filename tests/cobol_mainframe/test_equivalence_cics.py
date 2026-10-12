@@ -2028,7 +2028,10 @@ def test_the_async_child_commands_become_stub_calls():
     assert ec.translate_command("FETCH CHILD(WS-T)")[1] == "MOVE 'CHILD' TO GG-FLAGS"  # (it waits)
     with pytest.raises(ec.Unsupported, match="FETCH NOSUSPEND and TIMEOUT together"):
         ec.translate_command("FETCH ANY(WS-T) NOSUSPEND TIMEOUT(5)")
-    assert ec.translate_command("FREE CHILD(WS-T) RESP(R)")[:2] == ["MOVE WS-T TO GG-QNAME", "CALL 'GGCFREE' USING GG-CICS"]
+    assert ec.translate_command("FREE CHILD(WS-T) RESP(R)")[:2] == [
+        "MOVE WS-T TO GG-QNAME",
+        "CALL 'GGCFREE' USING GG-CICS",
+    ]
     s = ec.translate_command("START TRANSID('GT24') CHANNEL('CH.1')")
     assert "MOVE 'INTERVAL CHANNEL' TO GG-FLAGS" in s and "MOVE 'CH.1' TO GG-CHAN" in s
     with pytest.raises(ec.Unsupported, match="START CHANNEL with FROM"):

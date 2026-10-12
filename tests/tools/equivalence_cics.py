@@ -556,7 +556,9 @@ def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> li
         raise Unsupported(_rule(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"), [key])
     if any(o in opts and not opts[o] for o in ("TIMEOUT", "CHANNEL", "ABCODE", "COMPSTATUS")):
         raise Unsupported(NEEDS_ARGUMENT, [key])
-    flags = " ".join(o for o in ("CHILD", "NOSUSPEND", "TIMEOUT", "CHANNEL") if o in opts or (o == "CHILD" and form == "CHILD"))
+    flags = " ".join(
+        o for o in ("CHILD", "NOSUSPEND", "TIMEOUT", "CHANNEL") if o in opts or (o == "CHILD" and form == "CHILD")
+    )
     lines = [f"MOVE {opts['CHILD']} TO GG-QNAME" if form == "CHILD" else "MOVE SPACES TO GG-QNAME",
              f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
              f"MOVE {opts['TIMEOUT']} TO GG-NUM" if "TIMEOUT" in opts else "MOVE 0 TO GG-NUM"]  # fmt: skip
@@ -650,8 +652,9 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
             for g in SPEC["START"].groups:
                 if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
                     raise Unsupported(g.msg.format(g.options[1]), ["START CHANNEL"])
-        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []) + named
-                         + (["CHANNEL"] if "CHANNEL" in opts else []))
+        flags = " ".join(
+            [when] + (["PROTECT"] if "PROTECT" in opts else []) + named + (["CHANNEL"] if "CHANNEL" in opts else [])
+        )
         length = given_length or (f"LENGTH OF {area}" if area else "0")
         lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
                  f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
@@ -1665,7 +1668,9 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         code = line[7:72] if len(line) > 7 else ""
         # (#4950: not inside a literal -- CBSA CRECUST DISPLAYs 'EXEC CICS FETCH ANY failed. RESP=')
         start = next((m for m in _EXEC.finditer(code) if not _in_literal(code, m.start())), None)
-        if (len(line) > 6 and line[6] in "*/dD") or not start:  # (#4950: a debugging line is a comment, as cobc reads it)
+        if (
+            len(line) > 6 and line[6] in "*/dD"
+        ) or not start:  # (#4950: a debugging line is a comment, as cobc reads it)
             i += 1
             continue
         prefix, body, j = code[: start.start()], code[start.end() :], i
@@ -1689,7 +1694,9 @@ def translate(source: str) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
     lines = source.splitlines()
-    if any(len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines):
+    if any(
+        len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines
+    ):
         raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
@@ -2251,7 +2258,9 @@ def case_child_programs(case: dict[str, Any]) -> dict[str, str]:
 
 # #4950 (X18, R1): what a RUN TRANSID child may not do -- a region resource the stub keeps no event of; the rest
 # (files, queues, START, a terminal) both runtimes refuse at the command
-_CHILD_STATIC = re.compile(r"(?is)\bEXEC\s+(?:SQL\b|CICS\s+(?:ENQ|DEQ|(?:GET|UPDATE|DELETE|DEFINE|QUERY|REWIND)\s+D?COUNTER)\b)")
+_CHILD_STATIC = re.compile(
+    r"(?is)\bEXEC\s+(?:SQL\b|CICS\s+(?:ENQ|DEQ|(?:GET|UPDATE|DELETE|DEFINE|QUERY|REWIND)\s+D?COUNTER)\b)"
+)
 
 
 def case_transactions(case: dict[str, Any]) -> list[str]:

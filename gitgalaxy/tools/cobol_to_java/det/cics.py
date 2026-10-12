@@ -1716,7 +1716,9 @@ class Cics:
         if "CHANNEL" in opts:
             out.append(f"{ind}    DetCics.putPadded({self.field(_arg(opts['CHANNEL']))}, {r}.channel(), CS);")
         if "ABCODE" in opts:
-            out.append(f"{ind}    if ({r}.abcode() != null) DetCics.putPadded({self.field(_arg(opts['ABCODE']))}, {r}.abcode(), CS);")
+            out.append(
+                f"{ind}    if ({r}.abcode() != null) DetCics.putPadded({self.field(_arg(opts['ABCODE']))}, {r}.abcode(), CS);"
+            )
         if "COMPSTATUS" in opts:
             out.append(ind + "    " + self.g.store_into(self.ref(_arg(opts["COMPSTATUS"])),
                                                      f"BigDecimal.valueOf({r}.compstatus())", False))  # fmt: skip
@@ -1738,6 +1740,7 @@ class Cics:
         SECONDS / MILLISECS, as milliseconds (CicsTask.delayMillis: -1 out of IBM's ranges); none, INTERVAL(0). A task
         takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
         value out of range are refused in a task with RUN children (CicsTask.delay)."""
+
         def num(o: str) -> str:
             return f"Long.valueOf({self._number(_arg(opts[o]))})" if o in opts else "null"
 

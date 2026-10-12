@@ -4667,43 +4667,101 @@ def _sched_stub(tmp_path: Path, steps: list[str]) -> list[str]:
 
 
 def _sched_java(tmp_path: Path, steps: list[str]) -> list[str]:
-    body = _SCHED_JAVA.replace("%KIDS%", ",".join(f"{t}={p}" for t, p in _KIDS.items())).replace("%STEPS%", "~".join(steps))
+    body = _SCHED_JAVA.replace("%KIDS%", ",".join(f"{t}={p}" for t, p in _KIDS.items())).replace(
+        "%STEPS%", "~".join(steps)
+    )
     return _cics_task(tmp_path, body).splitlines()
 
 
 _SCHEDULES = {
     # completion order, then RUN order; NOSUSPEND before the first wait; the reply channel and the child's EIBTASKN
-    "order": (["P:CH.1:IN:x", "R:KA:CH.1", "R:KB:CH.1", "F:ANY:NOSUSPEND", "D:3000", "F:ANY:NOSUSPEND:C",
-               "G:GGREPLY000000001:R", "G:GGREPLY000000001:IN", "F:ANY:NOSUSPEND", "F:ANY:NOSUSPEND"],
-              ["P NORMAL", "R NORMAL/0/GGCHILD000000001", "R NORMAL/0/GGCHILD000000002", "F NOTFINISHED/52", "D NORMAL",
-               "F NORMAL/0/GGCHILD000000002/GGREPLY000000001/-/1016", "G NORMAL/102", "G NORMAL/x",
-               "F NORMAL/0/GGCHILD000000001/-/-/1016", "F NOTFND/1",
-               "CHILD GGCHILD000000001 KA", "CHILD GGCHILD000000002 KB"]),
+    "order": (
+        [
+            "P:CH.1:IN:x",
+            "R:KA:CH.1",
+            "R:KB:CH.1",
+            "F:ANY:NOSUSPEND",
+            "D:3000",
+            "F:ANY:NOSUSPEND:C",
+            "G:GGREPLY000000001:R",
+            "G:GGREPLY000000001:IN",
+            "F:ANY:NOSUSPEND",
+            "F:ANY:NOSUSPEND",
+        ],
+        [
+            "P NORMAL",
+            "R NORMAL/0/GGCHILD000000001",
+            "R NORMAL/0/GGCHILD000000002",
+            "F NOTFINISHED/52",
+            "D NORMAL",
+            "F NORMAL/0/GGCHILD000000002/GGREPLY000000001/-/1016",
+            "G NORMAL/102",
+            "G NORMAL/x",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "F NOTFND/1",
+            "CHILD GGCHILD000000001 KA",
+            "CHILD GGCHILD000000002 KB",
+        ],
+    ),
     # a FETCH that waits dispatches; TIMEOUT runs out (53) and moves the clock; FREE CHILD; an abended child
-    "waits": (["R:KA", "R:KC", "R:KD", "X:3", "X:3", "F:1:TIMEOUT:1000", "F:1:WAIT", "F:ANY:NOSUSPEND", "F:3:NOSUSPEND",
-               "F:ANY:WAIT"],
-              ["R NORMAL/0/GGCHILD000000001", "R NORMAL/0/GGCHILD000000002", "R NORMAL/0/GGCHILD000000003",
-               "X NORMAL/0", "X INVREQ/50", "F NOTFINISHED/53", "F NORMAL/0/GGCHILD000000001/-/-/1016",
-               "F NORMAL/0/GGCHILD000000002/-/KIDA/900", "F INVREQ/50", "F NOTFND/1",
-               "CHILD GGCHILD000000001 KA", "CHILD GGCHILD000000002 KC"]),
+    "waits": (
+        [
+            "R:KA",
+            "R:KC",
+            "R:KD",
+            "X:3",
+            "X:3",
+            "F:1:TIMEOUT:1000",
+            "F:1:WAIT",
+            "F:ANY:NOSUSPEND",
+            "F:3:NOSUSPEND",
+            "F:ANY:WAIT",
+        ],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "R NORMAL/0/GGCHILD000000002",
+            "R NORMAL/0/GGCHILD000000003",
+            "X NORMAL/0",
+            "X INVREQ/50",
+            "F NOTFINISHED/53",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "F NORMAL/0/GGCHILD000000002/-/KIDA/900",
+            "F INVREQ/50",
+            "F NOTFND/1",
+            "CHILD GGCHILD000000001 KA",
+            "CHILD GGCHILD000000002 KC",
+        ],
+    ),
     # no children: FETCH ANY is INVREQ 52; a token that is not a child's is INVREQ 50, as FREE CHILD of it
-    "none": (["F:ANY:NOSUSPEND", "F:7:WAIT", "X:7", "D:100"], ["F INVREQ/52", "F INVREQ/50", "X INVREQ/50", "D NORMAL"]),
+    "none": (
+        ["F:ANY:NOSUSPEND", "F:7:WAIT", "X:7", "D:100"],
+        ["F INVREQ/52", "F INVREQ/50", "X INVREQ/50", "D NORMAL"],
+    ),
     # a child that never gets a wait is not run; IBM's channel characters, and one it does not list
-    "names": (["R:KA:$@#./-_%&?!|=,;<", "R:KB:CH*1", "R:KB:CH X", "R:NONE"],
-              ["R NORMAL/0/GGCHILD000000001", "R CHANNELERR/1/-", "R CHANNELERR/1/-", "R TRANSIDERR/1/-"]),
+    "names": (
+        ["R:KA:$@#./-_%&?!|=,;<", "R:KB:CH*1", "R:KB:CH X", "R:NONE"],
+        ["R NORMAL/0/GGCHILD000000001", "R CHANNELERR/1/-", "R CHANNELERR/1/-", "R TRANSIDERR/1/-"],
+    ),
     # a tie: the child completes at the very instant its parent resumed
-    "tie": (["R:KZ", "D:1000", "F:ANY:NOSUSPEND"], ["R NORMAL/0/GGCHILD000000001", "D NORMAL", "REFUSED",
-                                                    "CHILD GGCHILD000000001 KZ"]),
-    "timeout-tie": (["R:KZ", "F:ANY:TIMEOUT:1000"], ["R NORMAL/0/GGCHILD000000001", "REFUSED",
-                                                     "CHILD GGCHILD000000001 KZ"]),
+    "tie": (
+        ["R:KZ", "D:1000", "F:ANY:NOSUSPEND"],
+        ["R NORMAL/0/GGCHILD000000001", "D NORMAL", "REFUSED", "CHILD GGCHILD000000001 KZ"],
+    ),
+    "timeout-tie": (
+        ["R:KZ", "F:ANY:TIMEOUT:1000"],
+        ["R NORMAL/0/GGCHILD000000001", "REFUSED", "CHILD GGCHILD000000001 KZ"],
+    ),
     # R1: a dispatched child may not issue a command on a region resource (here a FETCH)
     "child-fetch": (["R:KF", "D:10"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
     # a second FETCH CHILD of a fetched child, FREE CHILD of one: refused (IBM does not say)
-    "refetch": (["R:KD", "F:1:WAIT", "F:1:WAIT"], ["R NORMAL/0/GGCHILD000000001", "F NORMAL/0/GGCHILD000000001/-/-/1016",
-                                                  "REFUSED", "CHILD GGCHILD000000001 KD"]),
-    "free-fetched": (["R:KD", "F:1:WAIT", "X:1"], ["R NORMAL/0/GGCHILD000000001",
-                                                   "F NORMAL/0/GGCHILD000000001/-/-/1016", "REFUSED",
-                                                   "CHILD GGCHILD000000001 KD"]),
+    "refetch": (
+        ["R:KD", "F:1:WAIT", "F:1:WAIT"],
+        ["R NORMAL/0/GGCHILD000000001", "F NORMAL/0/GGCHILD000000001/-/-/1016", "REFUSED", "CHILD GGCHILD000000001 KD"],
+    ),
+    "free-fetched": (
+        ["R:KD", "F:1:WAIT", "X:1"],
+        ["R NORMAL/0/GGCHILD000000001", "F NORMAL/0/GGCHILD000000001/-/-/1016", "REFUSED", "CHILD GGCHILD000000001 KD"],
+    ),
     "dfh": (["R:KA:DFHTRANSACTION"], ["REFUSED"]),
     "timeout-range": (["R:KA", "F:ANY:TIMEOUT:4080001"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
     "no-program": (["R:KN", "D:1"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),

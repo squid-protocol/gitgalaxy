@@ -33,9 +33,7 @@ _TRANSID = Arg("name", width=4)
 # #4950: the characters IBM allows in the name of a channel RUN TRANSID / START hands on (EXEC CICS RUN TRANSID,
 # CHANNEL: "The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = \xac , ; < >. Leading and embedded
 # blank characters are not permitted"), as both runtimes check them: any other is CHANNELERR RESP2 1
-CHANNEL_NAME_CHARS = (
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + "$@#./-_%&?!:|\"=\xac,;<>"
-)
+CHANNEL_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + '$@#./-_%&?!:|"=\xac,;<>'
 _CHANNEL_ERR = Outcome(
     "CHANNELERR", 1, "the channel name contains an incorrect character or combination", raised_by=("CHANNEL",)
 )
@@ -332,8 +330,12 @@ FETCH_ANY = Command(
         at_most_one("NOSUSPEND", "TIMEOUT", msg="FETCH {} and {} together"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "an unfetched child has completed (the first to complete; RUN order on a tie)",
-                writes=("ANY", *_FETCH_WRITES)),  # fmt: skip
+        Outcome(
+            "NORMAL",
+            0,
+            "an unfetched child has completed (the first to complete; RUN order on a tie)",
+            writes=("ANY", *_FETCH_WRITES),
+        ),
         Outcome("NOTFINISHED", 52, "NOSUSPEND was specified, but there were no completed children to fetch"),
         Outcome("NOTFINISHED", 53, "No children have completed within the interval specified by the TIMEOUT option"),
         Outcome("NOTFND", 1, "No unfetched children were found"),

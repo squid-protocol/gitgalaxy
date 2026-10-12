@@ -188,7 +188,7 @@ JDK17 = Path(os.environ.get("JDK_17") or "/usr/lib/jvm/java-17-openjdk-amd64")
 @pytest.mark.skipif(not shutil.which("mvn") or not (JDK17 / "bin" / "javac").is_file(), reason="no Maven + JDK 17")
 def test_the_generated_project_compiles(generated):
     env = {**os.environ, "JAVA_HOME": str(JDK17)}
-    proc = subprocess.run(["mvn", "-q", "-o", "compile"], cwd=generated, env=env, capture_output=True, text=True,
+    proc = subprocess.run([shutil.which("mvn"), "-q", "-o", "compile"], cwd=generated, env=env, capture_output=True, text=True,
                           timeout=600)  # fmt: skip
     out = proc.stdout + proc.stderr
     if proc.returncode and "COMPILATION ERROR" not in out and re.search(r"offline|resolve|Could not", out):

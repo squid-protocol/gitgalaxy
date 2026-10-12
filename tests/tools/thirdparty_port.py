@@ -52,6 +52,7 @@ import equivalence as eq  # noqa: E402
 import equivalence_java as ej  # noqa: E402
 import mainframe_corpus as mc  # noqa: E402
 from equivalence_common import _fixed, _input_path, sysout_lines  # noqa: E402
+from maven_exe import mvn_executable  # noqa: E402
 
 from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 import subprocess  # noqa: F401 -- kept (#4496)
@@ -132,7 +133,7 @@ def build_programs(port: dict[str, Any], tree: Path, work: Path) -> str:
     cpf = tree / "target" / "gg-classpath.txt"
     out = tree / "target" / "gg-programs"
     if not out.is_dir():
-        p = dp.run(["mvn", "-q", "-B", f"-Dmaven.repo.local={work / 'm2'}", "dependency:build-classpath",
+        p = dp.run([mvn_executable(), "-q", "-B", f"-Dmaven.repo.local={work / 'm2'}", "dependency:build-classpath",
                     f"-Dmdep.outputFile={cpf}"], cwd=tree)  # fmt: skip
         if p.returncode:
             raise RuntimeError(f"dependency classpath:\n{decode_bytes(p.stdout)[-2000:]}")

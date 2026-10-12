@@ -171,6 +171,17 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
           pip install --no-build-isolation -e .
 
+      - name: Cache tree-sitter language pack
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/tree-sitter-language-pack
+            ~/Library/Caches/tree-sitter-language-pack
+            ~\AppData\Local\tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
+
       # Sharding (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836): a leg
       # with "part"/"splits" runs one duration-balanced group. Windows 3.10 is 3 even parts (#4903: 29-41 min as one leg vs 13-25
       # for the other Pythons, the critical path of the gate), macOS 3.10 is 2 parts (~25 min as one leg). macOS 3.11/3.12

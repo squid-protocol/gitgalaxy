@@ -994,11 +994,11 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                         )
 
             # #4918: unpinned dependency installs in pipeline files. Pipeline config is YAML, so this runs on
-            # the yaml language only; it rides the same ledger (equations / threat_snippets / threat_locations)
-            # and surfaces in SARIF as GG-SAST-UNPINNED_INSTALL. Skipped under the same
+            # the yaml language, plus (#4944) Dockerfiles and shell scripts; it rides the same ledger
+            # (equations / threat_snippets / threat_locations) and surfaces in SARIF as GG-SAST-UNPINNED_INSTALL. Skipped under the same
             # SECURITY_SCAN_INERT_FORMATS opt-out as the lens above.
-            if lang_id == "yaml" and scan_inert_security:
-                pin_results = scan_pipeline(content_buffer)
+            if lang_id in ("yaml", "dockerfile", "shell") and scan_inert_security:
+                pin_results = scan_pipeline(content_buffer, lang_id, rel_path)
                 if pin_results["counts"][UNPINNED_INSTALL]:
                     logic_data["equations"][f"sec_{UNPINNED_INSTALL}"] = pin_results["counts"][UNPINNED_INSTALL]
                     logic_data.setdefault("threat_snippets", {}).update(pin_results["snippets"])

@@ -3992,7 +3992,7 @@
     },
     "yaml/ansible/yaml_parsing/tasks": {
       "yaml/ansible/yaml_parsing/tasks/main.yml": 0,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 6
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 0
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": 0

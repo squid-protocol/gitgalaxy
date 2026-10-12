@@ -22,7 +22,7 @@ records a verdict (#3641). Decided 2026-09-25 by Joe:
 
 ## The coverage chart
 
-![Graph accuracy coverage](graph_coverage_chart.svg)
+![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
 
 `tests/tools/graph_coverage_chart.py` (#3796) draws the chart above. It has one row per
 measured language and three panels:
@@ -90,7 +90,7 @@ python tests/tools/call_graph_accuracy.py --ci          # raw regression gate
 
 **Who writes what.** A PR adds verdicts. The count churn -- `last_seen_count`,
 `last_seen_examples` (5 per shape, `LEDGER_EXAMPLES`), `still_reproduces` and new `unvalidated`
-shapes -- is committed after merge by `.github/workflows/graph-comparison-history.yml`, the twin
+shapes -- is published to the `generated` branch after merge by `.github/workflows/graph-comparison-history.yml` (#4847; the ledger on `main` stays the verdict source and the seed), the twin
 of `tri-comparison-history.yml`, which never touches a verdict or the raw baseline.
 
 The ledger lives here, not in a sibling repo: an engine fix and the verdicts it retires land in

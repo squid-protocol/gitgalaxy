@@ -21,6 +21,19 @@ You land one PR. The orchestrator gave you issue(s), acceptance criteria and coo
 7. Scratch files only in `/tmp/gitgalaxy-scratch/claude/<slug>/`, never the repo tree.
 8. NEVER pip install into a shared venv. Different tool version -> private venv under your scratch dir.
 
+## Class sweep (before you code)
+Fix the gap, not just the example (owner, 2026-10-11). The issue should carry a class table (issue-triage.md, "Class
+sweep"); if it does not, build one: name the class, list its members from the authoritative source (CICS spec
+`gitgalaxy/standards/cics/commands/`, `docs/language_status/cics_spec_status.md`, `det_survey.md`,
+`construct_correspondence.md`, the register, the language's status page), and mark each handled / partial / missing /
+out of scope with evidence.
+- Members that share your mechanism (same handler, table or rule, and small: a few lines plus a test each) go in THIS
+  PR, each with its own test or proof case. Say so in the PR body's class table.
+- Members that need a different mechanism or would double the PR: do NOT do them, and do NOT file issues yourself.
+  List them under **Sibling gaps** in your final report (member, status, why not in this PR, source/evidence). The
+  orchestrator's review files them and queues them.
+- Tests cover the whole input class the fix touches (e.g. single-byte AND DBCS national text, #4854), not one example.
+
 ## Box tools (`tests/tools/box/`)
 - `heavy-run.sh <cmd...>`: wrap pr_gates, scans, the full suite (shared slots). **Also every proof run**: `proof_sweep.py`, `det_port.py run`, `evidence.py prove/refresh`, the cics_crucible runner, and any `EQUIVALENCE_E2E=1` pytest (Docker cobc + javac + Db2). The slots are machine-wide, so N parallel agents can't stack N sweeps (2026-10-09: four agents' sweeps drove load to 51 on 12 cores, plus 5 GB swap). `det_port.py check` (translation only) doesn't need it.
 - `golden-lock.sh <cmd...>`: exclusive; golden bless/check only.
@@ -69,8 +82,8 @@ To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md; the label 
 
 Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures; report what it said, not what you expect. A conclusion of `action_required` together with a CONFLICTING PR means merge main (no checks ran); it is not a failure. A killed background watcher is not a CI failure.
 
-## Final report (under 200 words plus the handoff)
-PR URL; the design decision in one line; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
+## Final report (under 200 words plus the sibling gaps and the handoff)
+PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
 
 ## Attribution
 Commit messages and PR bodies end with the attribution lines the launching session gave you, verbatim.

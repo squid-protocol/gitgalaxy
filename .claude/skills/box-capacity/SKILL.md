@@ -20,17 +20,25 @@ python tests/tools/box/box_status.py --json    # for a script or a night-shift t
 
 It reports cores, load (1/5/15), CPU and memory pressure (Linux PSI "some" avg60: the share of time tasks waited for a core
 / for memory), memory available, swap in use, who holds each `heavy-run.sh` slot and the golden lock (PID, worktree,
-command), the busiest worktrees by cores in use, and the running containers, with one verdict (`decide()`, pure, tested in
+command), the busiest worktrees by cores in use, disk I/O pressure with the busiest disk readers/writers and the processes
+blocked on disk, probable strays, and the running containers, with one verdict (`decide()`, pure, tested in
 tests/tools/test_box_status.py):
 
 | Verdict | Means | Do |
 |---|---|---|
 | GREEN | headroom | launch; heavy work only into a free slot (`free_slots`) |
-| YELLOW | load >= 70% of cores, CPU pressure >= 15%, memory pressure >= 5%, memory available < 20%, or all slots held | light work only: a read-only scout, a narrow `pytest -k`, review; no proof, sweep, gate, full suite, Docker run |
+| YELLOW | load >= 70% of cores, CPU pressure >= 15%, disk I/O pressure >= 50%, memory pressure >= 5%, memory available < 20%, or all slots held | light work only: a read-only scout, a narrow `pytest -k`, review; no proof, sweep, gate, full suite, Docker run |
 | RED | load >= cores, CPU pressure >= 40%, memory pressure >= 20%, or memory available < 10% | launch nothing; see 4 |
 
 Swap merely in use is shown but not judged alone: it can be old pages pushed out by a spike long gone (4 GB of swap with
 22 GB available and 0% memory pressure is GREEN). Paging NOW shows as memory pressure.
+
+**Load is not CPU (#4930).** Linux counts tasks blocked on disk (D state) in the load average. YELLOW from load with CPU
+pressure near 0 means the disk is the bottleneck: the reason then says "mostly tasks waiting on disk: <culprit>" and the
+`disk:` lines name the reader. On 2026-10-11 a stray `find /` (aliased to `bfs`) held the box YELLOW for 40 minutes with
+nothing in "busiest". Load with neither CPU nor I/O pressure behind it (tasks stuck on a dead mount) is reported and not
+judged. A whole-filesystem scan (`find`/`bfs`/`fd`/`du`/`rg`/`grep` over `/`, `/home`, `/srv`, `/srv/storage_16tb`, `$HOME`)
+alive 15+ minutes is listed as `STRAY?` with its pid.
 
 ## 2. Admission (before every launch and every heavy run of your own)
 
@@ -64,6 +72,12 @@ pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count
   keep running; parallel-pr-agents: stop-cleanup with `kill-by-cwd.sh --dry-run` first if you must stop one).
 - Find the hog in the "busiest" list: a worktree burning cores with no agent behind it is an orphan (a stopped agent's
   pr_gates or sweep): `kill-by-cwd.sh <worktree> --dry-run`, review, then kill.
+- YELLOW/RED with a `STRAY?` line or a disk culprit nobody owns: it is almost always a command an agent left behind
+  when its tool call timed out (the harness moves it to the background, where it keeps running). Check the pid's parent
+  and cwd; if no agent or person owns it, `kill <pid>`. Never start a whole-filesystem scan yourself: search the project
+  directory, or `git ls-files` / `git grep`.
+- Not ours: the daily `chkrootkit` (root) walks /tmp with a shell per file and can run for hours when /tmp is large; it
+  costs ~0.1 core. Cleaning old scratch under /tmp shortens it.
 - Idle singletons hold memory: a Db2 container up for days with no Db2 run pending can be stopped
   (`docker stop gitgalaxy-db2`; the harness starts it again) -- only when no agent's Db2 proof is queued.
 

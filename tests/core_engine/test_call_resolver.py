@@ -1003,3 +1003,91 @@ def test_this_receiver_still_resolves_to_the_own_class():
     row = _site(resolve_calls(files, edges)[0], "entrySet")
     assert row["dst_path"] == "gson/JsonObject.java"
     assert row["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+# --- #3756: an untyped receiver's built-in method is not a repo method ---------
+
+
+def _builtin_universe(lang, callee, qualifier, ext, run_owner=None):
+    return [
+        _file(
+            f"a.{ext}",
+            lang,
+            [
+                _fn(callee, 5, owner="Box"),
+                _fn("run", 20, owner=run_owner, calls=[callee], quals={callee: [qualifier]}),
+            ],
+            [{"name": "Box", "inheritance": []}],
+        ),
+        _file(
+            f"b.{ext}", lang, [_fn(callee, 3, owner="Reg"), _fn("go", 9, calls=[callee], quals={callee: [qualifier]})]
+        ),
+    ]
+
+
+def test_builtin_method_on_untyped_receiver_is_ambiguous_not_file_3756():
+    # `input.data.trim()` while the file's own class defines `trim`; the Map/Set/String/Array/Promise
+    # families all behave the same (one case per family, TS and JS).
+    for lang, ext in (("typescript", "ts"), ("javascript", "js")):
+        for callee in ("trim", "get", "has", "add", "includes", "map", "then", "toString", "bind"):
+            files = _builtin_universe(lang, callee, "input.data", ext)
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_builtin_method_through_an_import_is_ambiguous_3756():
+    # `seen.has(x)` where the file imports a module whose class has `has`
+    files = [
+        _file("app.ts", "typescript", [_fn("run", 1, calls=["has"], quals={"has": ["seen"]})]),
+        _file("reg.ts", "typescript", [_fn("has", 74, owner="Registry")], [{"name": "Registry", "inheritance": []}]),
+    ]
+    edges = [{"src": "app.ts", "dst": "reg.ts", "edge_kind": "import"}]
+    row = _site(resolve_calls(files, edges)[0], "has")
+    assert row["step"] == "receiver"
+
+
+def test_non_builtin_method_on_untyped_receiver_stays_confident_3756():
+    files = _builtin_universe("typescript", "addIssue", "ctx", "ts")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] == "file"
+
+
+def test_builtin_name_with_this_or_known_class_receiver_stays_confident_3756():
+    files = _builtin_universe("typescript", "trim", "this", "ts", run_owner="Box")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] == "class"
+    files = _builtin_universe("typescript", "get", "Box", "ts")  # `Box.get()`: a repo class
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] == "qualified"
+
+
+def test_global_namespace_static_is_no_repo_edge_3756():
+    # `Number.isFinite(x)` / `JSON.parse(s)` with no repo class of that name
+    for callee, ns in (("isFinite", "Number"), ("parse", "JSON"), ("keys", "Object")):
+        files = [
+            _file(
+                "a.ts",
+                "typescript",
+                [_fn(callee, 5, owner="Box"), _fn("run", 20, calls=[callee], quals={callee: [ns]})],
+            ),
+        ]
+        row = _site(resolve_calls(files)[0], callee)
+        assert row["step"] == "none", callee
+    # ... but a repo class named like the global wins
+    files = [
+        _file(
+            "a.ts",
+            "typescript",
+            [_fn("parse", 5, owner="JSON"), _fn("run", 20, calls=["parse"], quals={"parse": ["JSON"]})],
+            [{"name": "JSON", "inheritance": []}],
+        )
+    ]
+    assert _site(resolve_calls(files)[0], "parse")["step"] == "qualified"
+
+
+def test_other_languages_keep_the_untyped_receiver_rule_3756():
+    # the built-in list is JS/TS only (Python/Java/... unmeasured): `get` on a python file stays `file`
+    files = _builtin_universe("python", "get", "d", "py")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] == "file"

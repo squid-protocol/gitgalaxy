@@ -46,13 +46,16 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       # No full-precision extras needed: classification is pure regex/metadata
       # inference in language_lens.py, identical in both dependency modes.
       - name: Install GitGalaxy
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)

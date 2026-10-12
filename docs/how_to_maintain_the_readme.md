@@ -4,7 +4,9 @@ description: "The README has two sections that already do this right: **'Risk ex
 # How to Maintain the GitGalaxy README
 
 The README has two sections that already do this right: **"Risk exposure: what GitGalaxy
-claims"** and **"Evidence, not just claims"** (renamed from "What GitGalaxy Finds — and What
+claims"** (full text now in `docs/validation.md`'s "What the Structural Surface Profile
+claims", with a short summary in the README) and **"Evidence, not just claims"** (now folded
+into the README's "Accuracy, measured") (renamed from "What GitGalaxy Finds — and What
 It Doesn't Claim" and "Proof, Not Just Claims" in the 2026-08-22 structural rewrite — same
 role, new names, see the "2026-08-22 rewrite" note at the bottom of this doc for what else
 changed). Both state a limitation before a reader has to find it, and every claim links to
@@ -42,79 +44,69 @@ Use this doc every time you touch README.md, not just on a dedicated cleanup pas
    Use Cases" — the current "Real-world scale" section's Kubernetes bullet is the one
    surviving benchmark-shaped claim in the README, and it doesn't yet have a limitation
    clause. Fixing that is a good first task for whoever next touches that section.)
-5. **New sections are ordered by how a skeptical reader would trust them, not how exciting
-   they are.** Proof and limitations before benchmarks; benchmarks before adoption numbers;
-   adoption numbers before enterprise/licensing. A skeptical engineer reads in that order —
-   the README should match.
+5. **Show what it does first, then prove it, in one place.** (Changed 2026-10-12, owner
+   request.) The top of the README answers "what is this and why should I care": the
+   tagline, stat tiles, the pipeline diagram and the speed chart. Every stat tile carries
+   its sample size and its limit in the tile caption, and links to the section that proves
+   it, so rules 1 and 4 still hold on the first screen. All proof sits in **one** section,
+   "Accuracy, measured", ordered proof and limitations before adoption, adoption before
+   licensing. Do not scatter evidence into a second or third section again (the pre-2026-10-12
+   README had three).
 
-## Section order (current target state, as of the 2026-08-31 product-first restructure)
+## Section order (current target state, as of the 2026-10-12 front-page restructure)
 
-The 2026-08-31 restructure split the README in two: `README.md` leads with the product
-(what a scan gives you, shown with real report excerpts), and the long proof narrative —
-the structural-extraction thesis, the full tri-comparison section with its subsections,
-the validity ladder, the risk-over-Git-history experiment, and the closing research
-direction — moved intact to `docs/validation.md`. Edit proof prose there, not by
-reintroducing it into README.md. The README keeps a condensed "Accuracy, measured"
-summary with both charts and per-claim limitation clauses.
+The 2026-10-12 restructure borrowed the *layout* (not the wording) of strong product READMEs:
+benefit-first tagline, stat tiles, a nav row, "you ask / you get" tables, and a "pick your
+front door" table, because the README covers two products (the scanner and the COBOL-to-Java
+translator). The long proof prose moved to `docs/validation.md`. Edit it there.
 
-1. Title + one-line tagline + the Docs/Visualizer/Language Crucible/Keyword
-   Rosetta/Raw Output link line. **No badges currently** — License, PyPI version, Python
-   version, and Dependencies badges all existed before the 2026-08-22 rewrite and were
-   dropped with it; restoring any of them (each still has a real link behind it, so each
-   would pass rule 1) is an open gap, not a considered removal.
-2. Proof strip — `1 scan · 97 structural signals · 50+ languages · no compilation ·
-   17 risk-exposure categories · 6 outputs`. Still missing the "0 dependencies" claim
-   (shipped and true as of #1104) — its absence remains a regression, not a status change.
-3. **The short version** — plain-terms description folding in the old "The problem"
-   polyglot code block, the consumer list as prose, the blockquoted central-thesis line,
-   and a forward link to `docs/validation.md`.
-4. **What a scan gives you** — the product section (new 2026-08-31): install/run command,
-   the six-outputs table (absorbing the old standalone "Outputs" section), and "The
-   architecture brief" showcase with two dated, reproducible scan excerpts (curl,
-   cics-genapp), each carrying its own rule-4 limitation clause. Excerpt numbers are
-   point-in-time by design — they name their scan date and the engine that produced them;
-   refresh the excerpts (rerun `galaxyscope --llm-only` on the same public repos) rather
-   than letting undated numbers drift. Ends with the "One graph, many consumers"
-   consumer/question table + the sankey pipeline diagram.
-5. **Accuracy, measured** — condensed two-part proof summary. Subsection headings
-   "Structural validation: GitGalaxy vs Tree-sitter vs Ctags" (keeps the old
-   `#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags` anchor resolving — do not
-   rename it) and "Cross-language consistency: the Keyword Rosetta control corpus". Chart
-   order is deliberate: tri-comparison SVG (accuracy on real code) before the
-   keyword-rosetta bias-variance SVG (consistency on planted code, embedded from that
-   repo's raw main-branch URL so it self-updates). Each subsection states one limitation
-   and links to `docs/validation.md` for the full treatment. Proof sits before the
-   speed benchmark on purpose (rule 5) — don't float "Real-world scale" back above it.
-5b. **COBOL to Java: ported, then proven** (added 2026-10-01) — the mainframe migration
-   pipeline in five steps, a table of the proven CardDemo ports (kind, who ported it,
-   runs, COBOL branch coverage, mutants caught), the CICS crucible line, and a "What these
-   numbers do not show" list (the oracle is GnuCOBOL, the data is development data, proven
-   covers the runs' paths only, 6 of 44 programs). It sits after "Accuracy, measured" and
-   before "Real-world scale" because it is a proof section with its limitations, not a
-   speed claim. Re-verify its numbers from `tests/equivalence/*/port/provenance.json`, the
-   harness reports and `docs/language_status/mutation_testing.md` when they move.
-6. **Real-world scale** — Kubernetes benchmark + the fitted two-regime speed model as its
-   rule-4 limitation clause (the clause rule 4 previously flagged as missing — now
-   present; keep it) + the self-updating loc_vs_time chart.
-7. **Risk exposure: what GitGalaxy claims** (tone-bar section #1 — do not rewrite its
-   prose, only relocate it if needed; see the intro note above on why the name changed).
-8. **Evidence, not just claims** (tone-bar section #2). Every bullet under it should name
-   a real, current number — "Regression suite" in particular must cite the actual
-   collected test count (`python -m pytest tests/ --collect-only -q`), not a vague
-   "thousands"; numbers drift as the suite grows, so re-verify rather than copying
-   forward. Now includes a "Keyword Rosetta control corpus" bullet alongside the
-   tri-comparison one.
-9. **What GitGalaxy is — and isn't** — is/is-not bullet lists + the tool-comparison table
-   (carries what "How This Compares, Architecturally" used to; the old
-   `#how-this-compares-architecturally` anchor still doesn't resolve anywhere).
-10. **Git history and architecture** — churn/bus-factor/hotspot signals as a short
-    paragraph, linking to the validation doc's Git-history experiment.
-11. **Privacy and deployment** — one section, not two. If a future edit reintroduces a
-    second privacy section (it has happened once already, pre-rewrite), merge them back.
-12. **Installation** (+ CI/CD subsection).
-13. **Explore the evidence** — link table; now includes `docs/validation.md` and Keyword
-    Rosetta rows. Still the only place the Visualizer gets a dedicated mention.
-14. **License.**
+1. **Hero** (centered): name, the benefit tagline ("Know any codebase deeply, and give your
+   AI agents the same knowledge."), a three-sentence description covering both products,
+   four stat tiles (Kubernetes scan time, languages split into functions with the recognized count in the caption, matching the collapsible `#languages` table under section 2, tri-comparison function precision,
+   CICS and batch programs at L2+ from the evidence report), each with n + limit + a link to its proof, then the
+   nav row (Quickstart, Scanner or translator, Scanner, Translator, Evidence, Is/isn't,
+   Install, Docs, Visualizer). Re-verify tile numbers when their source sections change.
+2. **One scan, every language, six reports**: the sankey pipeline diagram with a caption
+   that walks it left to right. It is a product illustration, not a proof, so it sits on
+   top.
+3. **Every size, in seconds** (`#real-world-scale` anchor kept): the self-updating
+   loc_vs_time chart, the Kubernetes number and the fitted two-regime model as its rule-4
+   limitation clause.
+4. **Quickstart**: install, `galaxyscope`, `--llm-only` for agents, the other modes.
+5. **Pick your front door**: one row per audience, linking down.
+6. **The scanner** (`#one-graph-not-five-separate-tools` anchor kept): "What you ask, what
+   you get" table (each answer links to a doc), "What a scan gives you" six-outputs table,
+   and "The architecture brief" with the dated curl and cics-genapp excerpts. Refresh the
+   excerpts by rerunning `galaxyscope --llm-only` on the same repos, not by editing numbers.
+7. **CICS to Java: ported, then proven** (renamed from "COBOL to Java" 2026-10-12; keep the
+   explicit `#cobol-to-java-ported-then-proven` id above it, an inbound anchor): intro, the
+   scoped "iterably solvable" paragraph (always says *six public estates* and that no blind
+   trial has run; links discussion #4784), the five steps, then **"Every port ships with its
+   evidence"**: what an evidence record holds, the L0-L5 table (from
+   `definition_of_done.md`), and one dated "Where it stands" line of totals taken from
+   `docs/language_status/evidence_report/README.md`. Do not copy the per-estate table into the
+   README; link the generated report, which the bot refreshes on every push to main. The
+   hero's translator tile uses the same totals; update both together. Model-written ports
+   stay in `<details>` with their snapshot date. "What these levels do not show" stays
+   visible, never collapsed.
+8. **Accuracy, measured** (`#proof-not-just-claims`, `#evidence-not-just-claims` anchors
+   kept): tri-comparison ("Structural validation: GitGalaxy vs Tree-sitter vs Ctags",
+   heading text is an inbound anchor), graph validation, a short Keyword Rosetta summary,
+   a short "What the Structural Surface Profile claims" summary, and "The rest of the
+   evidence" table (regression suite count must be a real
+   `python -m pytest tests/ --collect-only -q` number). Each subsection is a few
+   sentences plus its chart. History, issue numbers and ledger detail go in
+   `docs/validation.md`.
+9. **What GitGalaxy is, and isn't**: two short paragraphs + the tool-comparison table + one
+   sentence on Git history.
+10. **Privacy and deployment**: one section, never two.
+11. **Installation** (+ zero-dependency mode, CI/CD).
+12. **Explore further**: the link table.
+13. **License.**
+
+**Moved to `docs/validation.md` on 2026-10-12 (not cut):** the full Structural Surface
+Profile section, the Temporal Crucible write-up, and the long Keyword Rosetta paragraph
+(its numbers updated in validation.md's own Rosetta section).
 
 **Sections moved to `docs/validation.md` on 2026-08-31 (not cut):** "The
 structural-extraction thesis," the full "Structural validation" section with its "what

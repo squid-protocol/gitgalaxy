@@ -131,6 +131,22 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-12T07:30:31+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "length-range": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "f3ea69b4d98c401b9f5687257eb9bd7ae2e03bc13abc8a7a89629ca0f69b8bb9",
+    "harness_commit": "d1cc9721aa4f8fe0f262a71c02b2eb8ec054ed62",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXA --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -214,6 +230,18 @@
    ],
    "removed": [
     "executeCaxa"
+   ]
+  },
+  {
+   "at": "2026-10-12T07:11:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/CaxaService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,byte[])",
+    "lastAnswerBytes()"
    ]
   }
  ],

@@ -42,7 +42,7 @@ DFHRESP: Mapping[str, int] = {
     "DISABLED": 84, "ALLOCERR": 85, "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89,
     "NODEIDERR": 90, "TASKIDERR": 91, "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95,
     "OUTDESCRERR": 96, "PARTNERIDERR": 97, "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100,
-    "RECORDBUSY": 101, "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103, "CONTAINERERR": 110,
+    "RECORDBUSY": 101, "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103, "CONTAINERERR": 110, "NOTFINISHED": 113,
     # (BUSY 128 / INCOMPLETE 126 are in IBM's SPI table)
     "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124, "CODEPAGEERR": 125, "INCOMPLETE": 126,
     "APPNOTFOUND": 127, "BUSY": 128,
@@ -73,6 +73,7 @@ CONDITION_ABEND: Mapping[str, str] = {
     "INVREQ": "AEIP",
     "CONTAINERERR": "AEZJ",  # #4270: "CONTAINERERR condition not handled"
     "CHANNELERR": "AEZV",  # "CHANNELERR condition not handled"
+    "NOTAUTH": "AEY7",  # #4648: "NOTAUTH condition not handled" -- a failed XCTL / LINK / START ... security check
 }
 ABEND_DOCS: Mapping[str, Doc] = {code: _abend_doc(code) for code in CONDITION_ABEND.values()}
 

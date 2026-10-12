@@ -25,3 +25,25 @@ updates:
       default-days: 7
     labels:
       - "python"
+
+  # #4918: the hash-pinned install sets our own workflows use (ci/requirements/*.in -> *.txt, regenerated
+  # with tests/tools/pin_ci_requirements.sh). One grouped PR so a bump of a shared dependency lands in
+  # every set at once. Pins that nothing updates rot, so this entry is part of the pin.
+  - package-ecosystem: "pip"
+    directory: "/ci/requirements"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    labels:
+      - "python"
+    groups:
+      ci-requirements:
+        patterns:
+          - "*"
+    ignore:
+      # Dependabot compiles flat lockfiles without universal resolver flags (--universal),
+      # which collapses multi-version matrix splits across Python >= 3.10.
+      # These packages are managed via tests/tools/pin_requirements.py instead.
+      - dependency-name: "numpy"
+      - dependency-name: "xgboost"

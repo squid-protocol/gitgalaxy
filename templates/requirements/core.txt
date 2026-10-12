@@ -1,0 +1,6 @@
+# Hash-pinned install set for the shipped GitGalaxy CI surface (#4918). Do not edit by hand.
+# Regenerate: tests/tools/pin_shipped_requirements.sh  (source: core.in)
+gitgalaxy==2.11.0 \
+    --hash=sha256:77fc28a47f5ed76c0a5f6a0608a2ef4199d1a44857f1cf67ae848fb68affe11d \
+    --hash=sha256:82c8eda50624966233ba8fdf9b2701eaffc29aef2950e65798847fbddc47d609
+    # via -r core.in

@@ -50,7 +50,18 @@ VERBS = {
 STORAGE = {"MOVE", "INITIALIZE", "SET", "IF", "EVALUATE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "COMPUTE"}
 LIBRARY = {"STRING", "UNSTRING", "INSPECT", "SEARCH", "SORT", "MERGE", "RELEASE", "RETURN"}
 FILE_IO = {"OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START"}
-MODELLED_CALLS = {"CEEDAYS", "CEE3ABD"}  # tests/equivalence/le, faults/ggabend.c
+MODELLED_CALLS = {
+    "CEEDAYS",
+    "CEELOCT",
+    "CEE3ABD",
+    "CEEGMT",
+    "CEEUTC",
+    "CEEDATM",
+    "CEESECS",
+    "CEEDATE",
+    "CEEISEC",
+    "CEEQCEN",
+}  # tests/equivalence/le, faults/ggabend.c
 BUCKETS = ("R", "S", "F", "L", "H")
 NAMES = {"R": "runtime-ready", "S": "storage", "F": "control flow", "L": "library", "H": "hole"}
 

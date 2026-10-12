@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_common as common
 import equivalence_java as ej
 import mutation as mu
+from maven_exe import mvn_executable
 
 JAVA = """package com.gitgalaxy.modernized.service;
 
@@ -166,6 +167,16 @@ def test_the_test_runs_without_maven_only_on_a_build_of_this_very_source(tmp_pat
     assert ej._launcher(["/x/classes", engine]) == jar
 
 
+def test_the_launcher_is_found_from_a_windows_backslash_classpath(tmp_path):
+    """#4934: surefire's classpath on Windows has backslash entries; the direct path must still find the launcher
+    (it fell back to Maven on every run there)."""
+    jar = tmp_path / "m2/junit-platform-launcher/1.10.2/junit-platform-launcher-1.10.2.jar"
+    jar.parent.mkdir(parents=True)
+    jar.write_bytes(b"")
+    engine = f"{tmp_path}/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar".replace("/", "\\")
+    assert ej._launcher([engine]) == jar
+
+
 def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpath_and_flags(tmp_path, monkeypatch):
     """#4910: the first run of a project builds it through Maven; every later run (a fault, an environment, an entry,
     the facade side) is a fresh plain JVM on the classpath surefire ran the first on, with the same flags and cwd."""
@@ -202,11 +213,8 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     ej.run_maven(project, work1, inputs, props="-Dgitgalaxy.faults.plan=a")
     ej.run_maven(project, work2, inputs, props="-Dgitgalaxy.faults.plan=b")
     (mvn, mvn_kw), (java, java_kw) = calls
-    assert mvn[0] == "mvn" and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
-    posix_args = os.name != "nt"
-    maven_flags = shlex.split(
-        next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :], posix=posix_args
-    )
+    assert mvn[0] == mvn_executable() and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
+    maven_flags = ej.split_argline(next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :])
     assert maven_flags[-1] == "-Dgitgalaxy.faults.plan=a"
     assert java[1 : 1 + len(maven_flags) - 1] == maven_flags[:-1]  # the same JVM flags and properties, but the run's
     assert java[len(maven_flags)] == "-Dgitgalaxy.faults.plan=b"

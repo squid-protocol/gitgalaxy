@@ -89,6 +89,26 @@ public class CoactvwcService {
         return task.returned(Object.class);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** #4870: handleTransaction with the raw bytes of the previous task's COMMAREA (null: none); the
+     *  bytes this task's RETURN passes on are then answered by lastAnswerBytes(). */
+    public Object handleTransaction(String transid, CoactvwcCommarea request, byte[] area) {
+        log.info("Coactvwc: handleTransaction (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request, area);
+        region.run(task, "COACTVWC", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+        return task.returned(Object.class);
+    }
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
+    }
+
     /**
      * COACTVWC's PROCEDURE DIVISION as one task (#3754): 0000-MAIN and the paragraphs it PERFORMs, each block
      * named after its paragraph. The program's own defects are kept (see DEFECT), since the port is proven by

@@ -42,13 +42,16 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
         run: |

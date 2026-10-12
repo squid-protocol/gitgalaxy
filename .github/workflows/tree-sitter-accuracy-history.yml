@@ -28,6 +28,9 @@ name: Tree-sitter Accuracy History
 # touched" push and a "numbers actually changed" push are different things; this job only ever
 # produces visible output for the latter.
 
+# #4847: the output is published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through
+# an auto-merged PR; the PR-then-merge and loop-guard paragraphs above describe the old mechanism.
+
 on:
   push:
     branches: [main]
@@ -37,6 +40,7 @@ on:
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
+  workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:
   contents: read
@@ -55,37 +59,35 @@ concurrency:
 
 jobs:
   tree-sitter-accuracy-history:
-    # Guards against the same infinite-loop shape documented in gitgalaxy.yml's
-    # full-report job: this workflow's own bot commit touches language_standards/__init__.py and
-    # the baseline-adjacent history CSV, which are both in the trigger's `paths` filter,
-    # so without this it would re-trigger itself on every merge of its own PR.
-    if: |
-      !startsWith(github.event.head_commit.message, 'docs: auto-update tree-sitter accuracy data')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           fetch-depth: 0
-          persist-credentials: false
+          # #4847: the publish step pushes to `generated` with this checkout's token. The job runs main's code on a
+          # push to main / dispatch only, never PR code (the same reasoning as evidence-pages.yml).
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
         run: |
@@ -93,62 +95,33 @@ jobs:
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
-      - name: Append accuracy history + regenerate summary table + chart
+      # The series is appended to, so it starts from what `generated` last published (the copy committed on main is
+      # only the seed and the fallback when the branch has none yet).
+      - name: Restore the published series from the generated branch
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch \
+            docs/self_scan/tree_sitter_accuracy_history.csv
+
+      - name: Append accuracy history + chart
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --history
-          python tests/tools/tree_sitter_accuracy_audit.py --summary-table
           python tests/tools/tree_sitter_accuracy_audit.py --chart
 
-      # Diffs the batch --history just appended (if it appended one -- a no-op run leaves the
-      # CSV's two most recent batches exactly as they already were) against the one before it,
-      # and captures the Markdown as a step output for the PR body below. Always safe to run
-      # unconditionally: when --history was a no-op, create-pull-request finds no file diff and
-      # never opens a PR, so this output simply goes unused rather than needing its own `if:`.
-      - name: Generate improvement/regression blurbs
-        id: blurbs
+      # What moved against the previous batch, for whoever reads the run (it used to be the PR body).
+      - name: Improvement/regression blurbs
         run: |
           cd gitgalaxy
-          {
-            echo "blurbs<<TREE_SITTER_BLURBS_EOF"
-            python tests/tools/tree_sitter_accuracy_audit.py --blurbs
-            echo "TREE_SITTER_BLURBS_EOF"
-          } >> "$GITHUB_OUTPUT"
+          python tests/tools/tree_sitter_accuracy_audit.py --blurbs >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Open PR with updated history + summary table + chart
-        id: tree-sitter-history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          path: gitgalaxy
-          commit-message: "docs: auto-update tree-sitter accuracy data"
-          title: "docs: auto-update tree-sitter accuracy data"
-          body: |
-            Automated update from the latest tree-sitter accuracy measurement on `main`.
-
-            ## Notable changes since the previous batch
-            ${{ steps.blurbs.outputs.blurbs }}
-
-            - Appends one row per language to `docs/self_scan/tree_sitter_accuracy_history.csv`.
-            - Regenerates the summary table in `gitgalaxy/standards/language_standards/__init__.py`.
-            - Re-renders `docs/self_scan/tree_sitter_accuracy_chart.svg` from that same batch.
-
-            Never touches `tests/tree_sitter_accuracy_baseline_*.json` -- those stay
-            human-reviewed via `tree_sitter_accuracy_audit.py --regenerate`.
-          branch: auto/tree-sitter-accuracy-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/tree_sitter_accuracy_history.csv
-            docs/self_scan/tree_sitter_accuracy_chart.svg
-            gitgalaxy/standards/language_standards/__init__.py
-
-      # Same rationale as gitgalaxy.yml's "Merge the LLM Brief PR" step -- nothing else
-      # gates this PR, so without an explicit merge it just sits mergeable-but-unmerged.
-      - name: Merge the tree-sitter accuracy history PR
-        if: steps.tree-sitter-history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
+      # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
+      - name: Publish to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.tree-sitter-history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          python tests/tools/generated_branch.py publish --stamp tree-sitter-accuracy-history \
+            --message "tree-sitter-accuracy-history as of main $GITHUB_SHA" \
+            docs/self_scan/tree_sitter_accuracy_history.csv \
+            docs/self_scan/tree_sitter_accuracy_chart.svg

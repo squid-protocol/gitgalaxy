@@ -72,7 +72,8 @@ INFRA_CONCLUSIONS = {"cancelled", "startup_failure", "timed_out"}
 INFRA_LOG = re.compile(r"runner has received a shutdown signal|lost communication with the server|No space left on "
                        r"device|API rate limit exceeded|Could not resolve host|The operation was canceled|"
                        r"Error: The hosted runner|503 Service Unavailable|502 Bad Gateway|429 Too Many Requests|"
-                       r"toomanyrequests|Connection reset by peer|ECONNRESET|TLS handshake timeout|"
+                       r"toomanyrequests|504 Gateway Time-out|http status: 504|Gateway Time-out|"
+                       r"DownloadError.*Failed to fetch|Connection reset by peer|ECONNRESET|TLS handshake timeout|"
                        r"Build container for action use|failed to solve: .*(registry|docker\.io)", re.I)  # fmt: skip
 ERROR = re.compile(r"##\[error\]|^(FAILED|ERROR) |Traceback \(most recent call last\)|AssertionError|\bFAIL\b|"
                    r"NOT PROVEN|error: |Error: ", re.I)  # fmt: skip

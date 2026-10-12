@@ -385,6 +385,10 @@ public final class Cobol {
      *  MOVE). */
     private static boolean nonDigitToBinary(Field from, Zoned.Raw raw, Field to, Charset cs) {
         if (!raw.dirty) return false;
+        if (from.scale < 0 || from.scale > from.digits) {  // #4692: cobc hangs on a left-P sender, no rule for a right-P
+            throw new UnsupportedOperationException("MOVE of a zoned item holding a non-digit with a P scaling "
+                    + "position (IBM documents no result, register C11) is not modelled");
+        }
         byte[] d = from.st.bytes;
         int n = from.digits;
         int sepAt = from.signSeparate ? (from.signLeading ? from.off : from.off + n) : -1;
@@ -409,7 +413,7 @@ public final class Cobol {
      *  (#4662, register C11; see {@link Zoned}). False: not one of those receivers (a binary item is
      *  nonDigitToBinary's, anything else the ordinary MOVE of the bytes). */
     private static boolean moveNonDigit(Field from, Zoned.Raw raw, Field to, Charset cs) {
-        if (from.scale < 0 || to.scale < 0) {
+        if (from.scale < 0 || from.scale > from.digits || to.scale < 0) {  // #4692: a left-P sender too (cobc hangs on MOVE to binary)
             if (to.kind == Field.Kind.NUMERIC_DISPLAY || to.kind == Field.Kind.NUMERIC_PACKED
                     || to.kind == Field.Kind.NUMERIC_EDITED) {
                 throw new UnsupportedOperationException("MOVE of a zoned item holding a non-digit with a P scaling "

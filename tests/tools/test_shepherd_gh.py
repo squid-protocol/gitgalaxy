@@ -277,6 +277,7 @@ class Gh:
         # the bot's own comments: the approval marker of the labelled head, written by the bot's account (BOT)
         self.comments = [bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->")]
         self.parents = {}  # commit sha -> parent shas
+        self.compare = {}  # (base, head) -> the compare response; an absent pair is an unreadable compare
         self.pushed_at = "2026-10-10T19:59:00Z"  # when the head became the head (its first check suite)
 
     def api(self, path):
@@ -288,6 +289,10 @@ class Gh:
             return [self.pr]
         if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
             return {"parents": [{"sha": x} for x in self.parents.get(bare.rsplit("/", 1)[1], [])]}
+        if m := re.search(r"/compare/([^/]+)\.\.\.([0-9a-f]{40})$", bare):
+            if (m[1], m[2]) not in self.compare:
+                raise SystemExit("gh api compare failed")
+            return self.compare[(m[1], m[2])]
         if bare.endswith("/pulls/7"):
             return self.pr
         if bare.endswith("/pulls/6"):
@@ -657,3 +662,97 @@ def test_a_non_writers_label_after_the_push_approves_nothing():
 def test_the_event_workflow_has_no_concurrency_group():
     wf = (Path(__file__).resolve().parents[2] / ".github/workflows/shepherd-event.yml").read_text(encoding="utf-8")
     assert not re.search(r"^concurrency:", wf, re.M)  # a group keeps one pending run and cancels the rest
+
+
+def test_reconcile_triggers_on_the_required_checks_workflows_and_the_matrix_only():
+    # #4935: 25 workflow_run triggers made 204 runs a day (63% cancelled or skipped); a pass on any other workflow
+    # changes nothing the next required check's pass (or the cron) would not do
+    yaml = pytest.importorskip("yaml")
+    wf_dir = REPO / ".github" / "workflows"
+    names = {}
+    for f in wf_dir.glob("*.yml"):
+        doc = yaml.safe_load(f.read_text(encoding="utf-8"))
+        for job_id, job in (doc.get("jobs") or {}).items():
+            for ctx in (job_id, job.get("name")):
+                if ctx in sg.REQUIRED_CHECKS:
+                    names.setdefault(ctx, set()).add(doc["name"])
+    assert set(names) == set(sg.REQUIRED_CHECKS), f"no workflow defines {set(sg.REQUIRED_CHECKS) - set(names)}"
+    matrix = yaml.safe_load((wf_dir / sg.MATRIX_WORKFLOW).read_text(encoding="utf-8"))["name"]
+    rec = yaml.safe_load((wf_dir / "shepherd-reconcile.yml").read_text(encoding="utf-8"))
+    on = rec.get("on", rec.get(True))
+    assert set(on["workflow_run"]["workflows"]) == set().union(*names.values()) | {matrix}
+    assert on["workflow_run"]["branches-ignore"] == ["main"]
+    assert "schedule" in on  # the cron still covers every other check and the rerun gap
+
+
+def test_every_reconcile_pass_covers_all_labelled_prs():
+    # a cancelled pending pass (one pending run per concurrency group) must not drop a PR until the cron
+    rec = (REPO / ".github" / "workflows" / "shepherd-reconcile.yml").read_text(encoding="utf-8")
+    assert "--head-sha" not in rec
+
+
+def _merge_of_main(gh, files_merge, files_main, files_pr=(("pr.py", "modified", "p1"),), main_status="behind"):
+    """A PR whose approved head is SHA and whose new head B is a merge of main commit M into it."""
+    b, m = "b" * 40, "e" * 40
+    gh.pr["head"]["sha"] = b
+    gh.parents = {b: [SHA, m]}
+    f = lambda rows: {"files": [{"filename": n, "status": s, "sha": h} for n, s, h in rows]}  # noqa: E731
+    gh.compare = {
+        ("main", m): {"status": main_status},
+        (SHA, b): f(files_merge),
+        (SHA, m): f(files_main),
+        (m, SHA): f(files_pr),
+    }
+
+
+def test_a_clean_merge_of_main_keeps_the_approval_and_the_label():
+    gh = Gh()
+    main_change = (("lib.py", "modified", "m1"),)
+    _merge_of_main(gh, main_change, main_change)
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert not any("unlabel" in x for x in lines)
+    assert not any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+    assert any("approval marker for bbbbbbbbbbbb" in x for x in lines)
+    assert merged_by(gh)
+
+
+def test_a_merge_of_main_with_extra_changes_goes_to_reapproval():
+    gh = Gh()
+    _merge_of_main(gh, (("lib.py", "modified", "m1"), ("evil.py", "added", "x1")), (("lib.py", "modified", "m1"),))
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+    assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+
+
+def test_a_merge_that_resolved_a_conflict_in_a_file_the_pr_changed_goes_to_reapproval():
+    gh = Gh()
+    same = (("pr.py", "modified", "m1"),)
+    _merge_of_main(gh, same, same)  # main and the PR both touch pr.py: not a plain merge we can judge
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_a_merge_whose_other_parent_is_not_on_main_goes_to_reapproval():
+    gh = Gh()
+    same = (("lib.py", "modified", "m1"),)
+    _merge_of_main(gh, same, same, main_status="diverged")
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_an_unreadable_compare_falls_back_to_reapproval():
+    gh = Gh()
+    same = (("lib.py", "modified", "m1"),)
+    _merge_of_main(gh, same, same)
+    del gh.compare[(SHA, "e" * 40)]
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+
+
+def test_an_ordinary_new_commit_goes_to_reapproval():
+    gh = Gh()
+    gh.pr["head"]["sha"] = "b" * 40
+    gh.parents = {"b" * 40: [SHA]}  # one parent: a plain commit on the approved head
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert any("unlabel" in x for x in lines) and not merged_by(gh)
+    assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)

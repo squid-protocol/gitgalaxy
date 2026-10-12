@@ -16,7 +16,7 @@ name: Mainframe Ground Truth
 # fetched, so the full-corpus refraction differential and the excerpt
 # byte-identity checks -- skipped in every other workflow -- run here too.
 #
-# On push to main it appends the scoreboard to docs/self_scan/
+# On push to main (and nightly: #4935 skips a push whose tree the PR run already proved) it appends the scoreboard to docs/self_scan/
 # ground_truth_history.jsonl (only when a number moved) through the same
 # bot-PR mechanism as call-resolution-history.yml.
 
@@ -38,11 +38,38 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
+  # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  tested-tree:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.decide.outputs.skip }}
+    steps:
+      - name: Checkout the gate script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tests/tools/skip_tested_tree.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
+
   ground-truth:
+    needs: tested-tree
     # Loop guard: the history bot commit must not re-trigger the push run.
     if: |
+      !cancelled() && needs.tested-tree.outputs.skip != 'true' && (
       github.event_name != 'push' ||
-      !startsWith(github.event.head_commit.message, 'docs: auto-update mainframe ground-truth history')
+      !startsWith(github.event.head_commit.message, 'docs: auto-update mainframe ground-truth history'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -66,13 +93,14 @@ jobs:
       - name: Install GitGalaxy
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           # #4911: the full extra too -- test_feature_inventory_cli_check (feature_inventory.py --all-burned --check) exits 1 in
           # Zero-Dependency Mode and tells the user to install gitgalaxy[full]
-          pip install -e ".[full]" pytest pytest-xdist
+          pip install --require-hashes -r ci/requirements/test.txt
+          pip install -e ".[full]"
           # #4834: the det translator's parser, so the det tests that need the corpora run here (they are skipped
           # in full-suite, which has no corpora); same pin as smoke-test.yml
-          pip install "tree-sitter-language-pack==1.20.0"
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -93,7 +121,7 @@ jobs:
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
             --summary "$GITHUB_STEP_SUMMARY" \
-            ${{ github.event_name == 'push' && '--history' || '' }}
+            ${{ (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
 
       - name: Full-corpus differential and answer-key tests
         env:
@@ -106,7 +134,7 @@ jobs:
           PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
 
       - name: Open PR with updated history
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'schedule'
         id: history-pr
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:

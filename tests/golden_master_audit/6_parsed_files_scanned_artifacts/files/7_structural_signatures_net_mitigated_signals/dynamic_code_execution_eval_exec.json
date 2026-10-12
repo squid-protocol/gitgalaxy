@@ -18,33 +18,33 @@
       "ada/SOURCES.md": 0
     },
     "ada/alire": {
-      "ada/alire/LICENSE.txt": 1,
-      "ada/alire/alire-conditional_trees.adb": 1,
+      "ada/alire/LICENSE.txt": 0,
+      "ada/alire/alire-conditional_trees.adb": 0,
       "ada/alire/alire-crate_configuration.adb": 0,
       "ada/alire/alire-dependencies-states.ads": 0,
       "ada/alire/alire-directories.adb": 0,
-      "ada/alire/alire-index_on_disk-loading.adb": 3,
-      "ada/alire/alire-origins.adb": 1,
+      "ada/alire/alire-index_on_disk-loading.adb": 0,
+      "ada/alire/alire-origins.adb": 0,
       "ada/alire/alire-properties-configurations.adb": 0,
       "ada/alire/alire-publish.adb": 0,
-      "ada/alire/alire-releases.adb": 3,
+      "ada/alire/alire-releases.adb": 0,
       "ada/alire/alire-releases.ads": 0,
       "ada/alire/alire-roots-editable.adb": 0,
-      "ada/alire/alire-roots.adb": 2,
+      "ada/alire/alire-roots.adb": 0,
       "ada/alire/alire-roots.ads": 0,
       "ada/alire/alire-solutions-diffs.adb": 0,
       "ada/alire/alire-solutions.adb": 0,
       "ada/alire/alire-solutions.ads": 0,
       "ada/alire/alire-solver.adb": 0,
       "ada/alire/alire-test-runner.adb": 0,
-      "ada/alire/alire-toml_index.adb": 6,
+      "ada/alire/alire-toml_index.adb": 0,
       "ada/alire/alire-toolchains.adb": 0,
-      "ada/alire/alire-user_pins.adb": 4,
-      "ada/alire/alire-vcss-git.adb": 5,
+      "ada/alire/alire-user_pins.adb": 0,
+      "ada/alire/alire-vcss-git.adb": 0,
       "ada/alire/alr-commands-init.adb": 0,
       "ada/alire/alr-commands-self_update.adb": 0,
       "ada/alire/alr-commands-show.adb": 0,
-      "ada/alire/alr-commands.adb": 2
+      "ada/alire/alr-commands.adb": 0
     },
     "ada/functional": {
       "ada/functional/functional-either.adb": 0,
@@ -69,7 +69,7 @@
       "ada/functional/functional_tests_config.ads": 0,
       "ada/functional/test_framework.adb": 0,
       "ada/functional/test_framework.ads": 0,
-      "ada/functional/test_try_map_to_result.adb": 18
+      "ada/functional/test_try_map_to_result.adb": 0
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": 0
@@ -188,7 +188,7 @@
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": 0,
-      "assembly/freebsd_kernel_arch/amd64_acpica_acpi_wakecode.S": 1,
+      "assembly/freebsd_kernel_arch/amd64_acpica_acpi_wakecode.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_apic_vector.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_atpic_vector.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_cpu_switch.S": 0,
@@ -417,13 +417,13 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 0,
-      "c/cpython/ceval.c": 83,
-      "c/cpython/compile.c": 39,
-      "c/cpython/dictobject.c": 232,
-      "c/cpython/frameobject.c": 58,
-      "c/cpython/gc.c": 48,
-      "c/cpython/object.c": 41,
-      "c/cpython/typeobject.c": 244
+      "c/cpython/ceval.c": 0,
+      "c/cpython/compile.c": 0,
+      "c/cpython/dictobject.c": 0,
+      "c/cpython/frameobject.c": 0,
+      "c/cpython/gc.c": 0,
+      "c/cpython/object.c": 0,
+      "c/cpython/typeobject.c": 0
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
@@ -444,24 +444,24 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 68,
+      "c/micropython/compile.c": 0,
       "c/micropython/compile.h": 0,
-      "c/micropython/emitnative.c": 45,
-      "c/micropython/gc.c": 16,
+      "c/micropython/emitnative.c": 0,
+      "c/micropython/gc.c": 0,
       "c/micropython/gc.h": 0,
       "c/micropython/modmachine.c": 0,
       "c/micropython/modmachine.h": 0,
-      "c/micropython/objtype.c": 15,
+      "c/micropython/objtype.c": 0,
       "c/micropython/objtype.h": 0,
-      "c/micropython/vfs.c": 1,
+      "c/micropython/vfs.c": 0,
       "c/micropython/vfs.h": 0,
-      "c/micropython/vm.c": 20
+      "c/micropython/vm.c": 0
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 30,
-      "c/sqlite/parse.y": 19
+      "c/sqlite/lemon.c": 0,
+      "c/sqlite/parse.y": 0
     },
     "cobol": {
       "cobol/SOURCES.md": 0
@@ -725,12 +725,12 @@
       "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": 0,
-      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": 1,
-      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": 1,
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": 0,
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": 0,
-      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": 1,
-      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": 3,
-      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": 1,
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": 0,
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": 0,
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": 0,
       "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": 0,
@@ -1048,7 +1048,7 @@
     },
     "cobol/gnucobol": {
       "cobol/gnucobol/CBL_OC_DUMP.cob": 0,
-      "cobol/gnucobol/COPYING": 1,
+      "cobol/gnucobol/COPYING": 0,
       "cobol/gnucobol/numeric-display.cob": 0,
       "cobol/gnucobol/numeric-dump.cob": 0,
       "cobol/gnucobol/sqlca.cpy": 0,
@@ -1058,7 +1058,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": 0
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/COPYING": 1,
+      "cobol/gnucobol_internals/COPYING": 0,
       "cobol/gnucobol_internals/codegen.c": 0,
       "cobol/gnucobol_internals/fileio.c": 2,
       "cobol/gnucobol_internals/numeric.c": 0,
@@ -1092,7 +1092,7 @@
       "cpp/NVDA/__init__.py": 0,
       "cpp/NVDA/braille.py": 2,
       "cpp/NVDA/contributors.txt": 0,
-      "cpp/NVDA/copying.txt": 1,
+      "cpp/NVDA/copying.txt": 0,
       "cpp/NVDA/core.py": 0,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 0,
@@ -1120,7 +1120,7 @@
       "cpp/godot/variant.h": 0
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 2,
+      "cpp/mlir/flatbuffer_export.cc": 0,
       "cpp/mlir/glob_lit_test.bzl": 0,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 0,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 0,
@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 80,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 8,
+      "csharp/roslyn/CSharpCompilation.cs": 0,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 0,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 152,
+      "csharp/roslyn/LanguageParser.cs": 0,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 72,
-      "csharp/roslyn/Workspace.cs": 22
+      "csharp/roslyn/MethodCompiler.cs": 0,
+      "csharp/roslyn/Workspace.cs": 0
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 43,
-      "dart/flutter/events.dart": 16,
-      "dart/flutter/framework.dart": 262,
-      "dart/flutter/navigator.dart": 217,
-      "dart/flutter/object.dart": 271,
-      "dart/flutter/semantics.dart": 93,
-      "dart/flutter/theme_data.dart": 12
+      "dart/flutter/editable_text.dart": 0,
+      "dart/flutter/events.dart": 0,
+      "dart/flutter/framework.dart": 0,
+      "dart/flutter/navigator.dart": 2,
+      "dart/flutter/object.dart": 0,
+      "dart/flutter/semantics.dart": 0,
+      "dart/flutter/theme_data.dart": 0
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0
@@ -1247,7 +1247,7 @@
       "db2_sql/db2unit/07-Version.sql": 0,
       "db2_sql/db2unit/98-Clean.sql": 0,
       "db2_sql/db2unit/99-CleanAdmin.sql": 0,
-      "db2_sql/db2unit/LICENSE.txt": 1,
+      "db2_sql/db2unit/LICENSE.txt": 0,
       "db2_sql/db2unit/PROVENANCE.md": 0
     },
     "dockerfile": {
@@ -1255,7 +1255,7 @@
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 0,
-      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 3,
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 0,
       "dockerfile/moby/builder/dockerfile/builder.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
@@ -1265,7 +1265,7 @@
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 7,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0,
@@ -1273,7 +1273,7 @@
       "dockerfile/moby/builder/dockerfile/evaluator.go": 0,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 0,
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 0,
-      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 2,
+      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 0,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 0,
       "dockerfile/moby/builder/dockerfile/internals.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 0,
@@ -1301,7 +1301,7 @@
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 2
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
@@ -1337,7 +1337,7 @@
       "embedded_python/meow_turtle/logging.py": 0,
       "embedded_python/meow_turtle/meowprotocol.py": 0,
       "embedded_python/meow_turtle/mpu6050.py": 0,
-      "embedded_python/meow_turtle/ota.py": 1,
+      "embedded_python/meow_turtle/ota.py": 0,
       "embedded_python/meow_turtle/pio_programs.py": 0,
       "embedded_python/meow_turtle/sensors.py": 0,
       "embedded_python/meow_turtle/tester.py": 0,
@@ -1514,7 +1514,7 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 1,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 0,
@@ -1844,7 +1844,7 @@
       "html/jquery_test_fixtures/trusted-html.html": 0
     },
     "html/odoo_mako": {
-      "html/odoo_mako/LICENSE.txt": 1,
+      "html/odoo_mako/LICENSE.txt": 0,
       "html/odoo_mako/mako_footer.html": 0,
       "html/odoo_mako/mako_header.html": 0,
       "html/odoo_mako/status_display.html": 0
@@ -1862,7 +1862,7 @@
       "html/polyglot_emscripten/pyrepl_index.html": 0
     },
     "html/polyglot_odoo": {
-      "html/polyglot_odoo/LICENSE.txt": 1,
+      "html/polyglot_odoo/LICENSE.txt": 0,
       "html/polyglot_odoo/database_manager.qweb.html": 0
     },
     "html/polyglot_vscode": {
@@ -2301,66 +2301,66 @@
       "lua/SOURCES.md": 0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 17,
-      "lua/cosmopolitan/api.lua": 277,
-      "lua/cosmopolitan/attrib.lua": 130,
-      "lua/cosmopolitan/big.lua": 13,
+      "lua/cosmopolitan/all.lua": 0,
+      "lua/cosmopolitan/api.lua": 0,
+      "lua/cosmopolitan/attrib.lua": 1,
+      "lua/cosmopolitan/big.lua": 0,
       "lua/cosmopolitan/binarytrees.lua": 0,
-      "lua/cosmopolitan/bitwise.lua": 149,
+      "lua/cosmopolitan/bitwise.lua": 6,
       "lua/cosmopolitan/bwcoercion.lua": 0,
       "lua/cosmopolitan/call-lua-module.lua": 0,
-      "lua/cosmopolitan/calls.lua": 88,
+      "lua/cosmopolitan/calls.lua": 0,
       "lua/cosmopolitan/closedsource.lua": 0,
-      "lua/cosmopolitan/closure.lua": 54,
-      "lua/cosmopolitan/code.lua": 15,
-      "lua/cosmopolitan/constructs.lua": 68,
-      "lua/cosmopolitan/coroutine.lua": 215,
+      "lua/cosmopolitan/closure.lua": 0,
+      "lua/cosmopolitan/code.lua": 0,
+      "lua/cosmopolitan/constructs.lua": 0,
+      "lua/cosmopolitan/coroutine.lua": 0,
       "lua/cosmopolitan/crashreport.lua": 0,
-      "lua/cosmopolitan/cstack.lua": 12,
-      "lua/cosmopolitan/db.lua": 201,
-      "lua/cosmopolitan/errors.lua": 63,
-      "lua/cosmopolitan/events.lua": 144,
+      "lua/cosmopolitan/cstack.lua": 0,
+      "lua/cosmopolitan/db.lua": 1,
+      "lua/cosmopolitan/errors.lua": 0,
+      "lua/cosmopolitan/events.lua": 4,
       "lua/cosmopolitan/fetch.lua": 0,
-      "lua/cosmopolitan/files.lua": 303,
+      "lua/cosmopolitan/files.lua": 0,
       "lua/cosmopolitan/finger.lua": 0,
-      "lua/cosmopolitan/gc.lua": 90,
-      "lua/cosmopolitan/gengc.lua": 26,
+      "lua/cosmopolitan/gc.lua": 0,
+      "lua/cosmopolitan/gengc.lua": 0,
       "lua/cosmopolitan/gensvg.lua": 0,
-      "lua/cosmopolitan/goto.lua": 26,
-      "lua/cosmopolitan/heavy.lua": 5,
+      "lua/cosmopolitan/goto.lua": 0,
+      "lua/cosmopolitan/heavy.lua": 0,
       "lua/cosmopolitan/hitcounter.lua": 0,
-      "lua/cosmopolitan/literals.lua": 73,
-      "lua/cosmopolitan/locals.lua": 160,
-      "lua/cosmopolitan/main.lua": 42,
-      "lua/cosmopolitan/math.lua": 432,
+      "lua/cosmopolitan/literals.lua": 17,
+      "lua/cosmopolitan/locals.lua": 0,
+      "lua/cosmopolitan/main.lua": 0,
+      "lua/cosmopolitan/math.lua": 5,
       "lua/cosmopolitan/maxmind.lua": 0,
       "lua/cosmopolitan/mymodule.lua": 0,
-      "lua/cosmopolitan/nextvar.lua": 163,
+      "lua/cosmopolitan/nextvar.lua": 0,
       "lua/cosmopolitan/opensource.lua": 0,
-      "lua/cosmopolitan/pm.lua": 167,
+      "lua/cosmopolitan/pm.lua": 1,
       "lua/cosmopolitan/printpayload.lua": 0,
       "lua/cosmopolitan/redbean-form.lua": 0,
-      "lua/cosmopolitan/sort.lua": 34,
-      "lua/cosmopolitan/strings.lua": 229,
-      "lua/cosmopolitan/tpack.lua": 94,
+      "lua/cosmopolitan/sort.lua": 0,
+      "lua/cosmopolitan/strings.lua": 15,
+      "lua/cosmopolitan/tpack.lua": 0,
       "lua/cosmopolitan/tracegc.lua": 0
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": 3,
+      "lua/darwin-xnu/benchmark.lua": 0,
       "lua/darwin-xnu/bridgetime.lua": 0,
-      "lua/darwin-xnu/fault_throughput.lua": 4,
+      "lua/darwin-xnu/fault_throughput.lua": 0,
       "lua/darwin-xnu/kqtrace.lua": 0,
       "lua/darwin-xnu/ktruss.lua": 0,
-      "lua/darwin-xnu/perf_madvise.lua": 1,
+      "lua/darwin-xnu/perf_madvise.lua": 0,
       "lua/darwin-xnu/wqtrace.lua": 0
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/COPYRIGHT": 0,
-      "lua/freebsd-src/cli.lua": 1,
+      "lua/freebsd-src/cli.lua": 0,
       "lua/freebsd-src/color.lua": 0,
       "lua/freebsd-src/config.lua": 0,
       "lua/freebsd-src/core.lua": 0,
-      "lua/freebsd-src/drawer.lua": 1,
+      "lua/freebsd-src/drawer.lua": 0,
       "lua/freebsd-src/gfx-beastie.lua": 0,
       "lua/freebsd-src/gfx-beastiebw.lua": 0,
       "lua/freebsd-src/gfx-fbsdbw.lua": 0,
@@ -2369,7 +2369,7 @@
       "lua/freebsd-src/gfx-orbbw.lua": 0,
       "lua/freebsd-src/hook.lua": 0,
       "lua/freebsd-src/loader.lua": 0,
-      "lua/freebsd-src/menu.lua": 2,
+      "lua/freebsd-src/menu.lua": 0,
       "lua/freebsd-src/password.lua": 0,
       "lua/freebsd-src/screen.lua": 0
     },
@@ -2415,7 +2415,7 @@
       "lua/redis/globals.lua": 0,
       "lua/redis/hello.lua": 0,
       "lua/redis/life.lua": 0,
-      "lua/redis/luac.lua": 5,
+      "lua/redis/luac.lua": 0,
       "lua/redis/printf.lua": 0,
       "lua/redis/readonly.lua": 0,
       "lua/redis/sieve.lua": 0,
@@ -2441,7 +2441,7 @@
       "m4/curl/m4/zz40-xc-ovr.m4": 0
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": 1,
+      "m4/gnucobol/COPYING": 0,
       "m4/gnucobol/configure.ac": 0
     },
     "makefile": {
@@ -2492,7 +2492,7 @@
       "nix/bun/shell.nix": 0
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 1,
+      "nix/ghostty/build.zig": 0,
       "nix/ghostty/default.nix": 0,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
@@ -2603,13 +2603,13 @@
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 0,
-      "php/wordpress/wp-settings.php": 1
+      "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": 1,
+      "plaintext/ansible/COPYING": 0,
       "plaintext/ansible/requirements.txt": 0
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2629,7 +2629,7 @@
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0,
-      "pli/dsf_cics_admin/PROVENANCE.md": 1,
+      "pli/dsf_cics_admin/PROVENANCE.md": 0,
       "pli/dsf_cics_admin/R0010301.pli": 0,
       "pli/dsf_cics_admin/R0010420.pli": 0,
       "pli/dsf_cics_admin/R0010421.pli": 0,
@@ -2719,7 +2719,7 @@
       "powershell/nvda/beforeTests.ps1": 0,
       "powershell/nvda/buildSymbolStore.ps1": 0,
       "powershell/nvda/checkAndCommitTranslations.ps1": 0,
-      "powershell/nvda/copying.txt": 1,
+      "powershell/nvda/copying.txt": 0,
       "powershell/nvda/createUpdatableAddons.ps1": 0,
       "powershell/nvda/ensureuv.ps1": 0,
       "powershell/nvda/installNVDA.ps1": 0,
@@ -2820,7 +2820,7 @@
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": 1
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 0
     },
     "python/cython": {
       "python/cython/COPYING.txt": 0,
@@ -2828,7 +2828,7 @@
       "python/cython/LICENSE.txt": 0,
       "python/cython/MemoryView.pxd": 0,
       "python/cython/MemoryView.pyx": 0,
-      "python/cython/Nodes.py": 1
+      "python/cython/Nodes.py": 0
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": 0,
@@ -2888,7 +2888,7 @@
       "python/fastapi/tests/test_custom_middleware_exception.py": 0,
       "python/fastapi/tests/test_custom_route_class.py": 0,
       "python/fastapi/tests/test_custom_schema_fields.py": 0,
-      "python/fastapi/tests/test_custom_swagger_ui_redirect.py": 1,
+      "python/fastapi/tests/test_custom_swagger_ui_redirect.py": 0,
       "python/fastapi/tests/test_datastructures.py": 0,
       "python/fastapi/tests/test_datetime_custom_encoder.py": 0,
       "python/fastapi/tests/test_default_response_class.py": 0,
@@ -2933,7 +2933,7 @@
       "python/fastapi/tests/test_get_request_body.py": 0,
       "python/fastapi/tests/test_http_connection_injection.py": 0,
       "python/fastapi/tests/test_include_route.py": 0,
-      "python/fastapi/tests/test_include_router_defaults_overrides.py": 2,
+      "python/fastapi/tests/test_include_router_defaults_overrides.py": 0,
       "python/fastapi/tests/test_infer_param_optionality.py": 0,
       "python/fastapi/tests/test_inherited_custom_class.py": 0,
       "python/fastapi/tests/test_invalid_path_param.py": 0,
@@ -2953,7 +2953,7 @@
       "python/fastapi/tests/test_openapi_query_parameter_extension.py": 0,
       "python/fastapi/tests/test_openapi_route_extensions.py": 0,
       "python/fastapi/tests/test_openapi_schema_type.py": 0,
-      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": 5,
+      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": 0,
       "python/fastapi/tests/test_openapi_servers.py": 0,
       "python/fastapi/tests/test_operations_signatures.py": 0,
       "python/fastapi/tests/test_optional_file_list.py": 0,
@@ -2971,8 +2971,8 @@
       "python/fastapi/tests/test_read_with_orm_mode.py": 0,
       "python/fastapi/tests/test_regex_deprecated_body.py": 0,
       "python/fastapi/tests/test_regex_deprecated_params.py": 0,
-      "python/fastapi/tests/test_repeated_cookie_headers.py": 1,
-      "python/fastapi/tests/test_repeated_dependency_schema.py": 1,
+      "python/fastapi/tests/test_repeated_cookie_headers.py": 0,
+      "python/fastapi/tests/test_repeated_dependency_schema.py": 0,
       "python/fastapi/tests/test_repeated_parameter_alias.py": 0,
       "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": 0,
       "python/fastapi/tests/test_request_body_parameters_media_type.py": 0,
@@ -3041,7 +3041,7 @@
       "python/fastapi/tests/test_skip_defaults.py": 0,
       "python/fastapi/tests/test_sse.py": 2,
       "python/fastapi/tests/test_starlette_exception.py": 0,
-      "python/fastapi/tests/test_starlette_urlconvertors.py": 1,
+      "python/fastapi/tests/test_starlette_urlconvertors.py": 0,
       "python/fastapi/tests/test_stream_bare_type.py": 0,
       "python/fastapi/tests/test_stream_cancellation.py": 0,
       "python/fastapi/tests/test_stream_json_validation_error.py": 0,
@@ -3095,7 +3095,7 @@
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
-      "python/numpy/cfuncs.py": 1,
+      "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 0,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
@@ -3107,7 +3107,7 @@
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 0,
-      "python/numpy/symbolic.py": 1,
+      "python/numpy/symbolic.py": 0,
       "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0
@@ -3138,14 +3138,14 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 3,
-      "python/twisted/http.py": 2,
+      "python/twisted/defer.py": 1,
+      "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
       "python/twisted/transport.py": 0
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,
-      "python/wtfpython/README.md": 3,
+      "python/wtfpython/README.md": 0,
       "python/wtfpython/insert_ids.py": 0,
       "python/wtfpython/mixed_tabs_and_spaces.py": 0,
       "python/wtfpython/notebook_generator.py": 0,
@@ -3215,7 +3215,7 @@
       "rust/bevy/bevy_ecs_macros.rs": 0,
       "rust/bevy/bevy_ecs_query.rs": 3,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 1,
+      "rust/bevy/bevy_ecs_world.rs": 0,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
@@ -3297,10 +3297,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
-      "scheme/racket/cpnanopass.ss": 87,
+      "scheme/racket/cpnanopass.ss": 0,
       "scheme/racket/eval.c": 0,
       "scheme/racket/fun.c": 0,
-      "scheme/racket/io.ss": 1,
+      "scheme/racket/io.ss": 0,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
     },
@@ -3308,7 +3308,7 @@
       "shell/SOURCES.md": 0
     },
     "shell/ansible": {
-      "shell/ansible/COPYING": 1,
+      "shell/ansible/COPYING": 0,
       "shell/ansible/aggregate-coverage.sh": 0,
       "shell/ansible/alpine.sh": 0,
       "shell/ansible/ansible-console__runme.sh": 0,
@@ -3380,7 +3380,7 @@
       "shell/darwin-xnu/make_symbol_aliasing.sh": 0,
       "shell/darwin-xnu/makesyscalls.sh": 0,
       "shell/darwin-xnu/persona_test_run_src.sh": 0,
-      "shell/darwin-xnu/remote_build.sh": 1,
+      "shell/darwin-xnu/remote_build.sh": 0,
       "shell/darwin-xnu/setup.sh": 0,
       "shell/darwin-xnu/test.sh": 0,
       "shell/darwin-xnu/validate_blacklist.sh": 0,
@@ -3607,13 +3607,13 @@
       "solidity/SOURCES.md": 0
     },
     "solidity/openzeppelin": {
-      "solidity/openzeppelin/AccessControl.sol": 1,
+      "solidity/openzeppelin/AccessControl.sol": 0,
       "solidity/openzeppelin/CrosschainRemoteExecutor.sol": 1,
       "solidity/openzeppelin/ERC2771Forwarder.sol": 0,
       "solidity/openzeppelin/Governor.sol": 0,
       "solidity/openzeppelin/Proxy.sol": 0,
       "solidity/openzeppelin/ReentrancyGuard.sol": 0,
-      "solidity/openzeppelin/StorageSlot.sol": 1
+      "solidity/openzeppelin/StorageSlot.sol": 0
     },
     "sql": {
       "sql/SOURCES.md": 0
@@ -3762,7 +3762,7 @@
       "tabular/baseline/control_standard.tsv": 0
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": 1,
+      "tabular/csv_erp/LICENSE.txt": 0,
       "tabular/csv_erp/ir.model.access.csv": 0,
       "tabular/csv_erp/test.translation.import.model1-translated.csv": 0
     },
@@ -3858,10 +3858,10 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 6,
-      "typescript/assemblyscript/compiler.ts": 231,
+      "typescript/assemblyscript/ast.ts": 0,
+      "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 17
+      "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -3896,14 +3896,14 @@
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 0,
-      "typescript/playwright/crConnection.ts": 1,
-      "typescript/playwright/dispatcher.ts": 5,
-      "typescript/playwright/frames.ts": 5,
+      "typescript/playwright/crConnection.ts": 0,
+      "typescript/playwright/dispatcher.ts": 0,
+      "typescript/playwright/frames.ts": 1,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 6,
+      "typescript/typescript_compiler/binder.ts": 0,
       "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {
@@ -3977,7 +3977,7 @@
       "yaml/SOURCES.md": 0
     },
     "yaml/ansible": {
-      "yaml/ansible/COPYING": 1
+      "yaml/ansible/COPYING": 0
     },
     "yaml/ansible/blocks": {
       "yaml/ansible/blocks/block_fail_tasks.yml": 0,
@@ -4035,7 +4035,7 @@
       "yaml/vscode_workflows/pr-node-modules.yml": 0,
       "yaml/vscode_workflows/pr-win32-test.yml": 0,
       "yaml/vscode_workflows/pr.yml": 0,
-      "yaml/vscode_workflows/screenshot-test.yml": 4,
+      "yaml/vscode_workflows/screenshot-test.yml": 2,
       "yaml/vscode_workflows/sessions-e2e.yml": 1,
       "yaml/vscode_workflows/telemetry.yml": 0
     },
@@ -4044,52 +4044,52 @@
     },
     "zig/bun": {
       "zig/bun/LICENSE.md": 0,
-      "zig/bun/MimallocArena.zig": 1,
-      "zig/bun/Parser.zig": 9,
-      "zig/bun/comptime_string_map.zig": 2,
-      "zig/bun/napi.zig": 5
+      "zig/bun/MimallocArena.zig": 0,
+      "zig/bun/Parser.zig": 0,
+      "zig/bun/comptime_string_map.zig": 0,
+      "zig/bun/napi.zig": 0
     },
     "zig/mach": {
       "zig/mach/Core.zig": 0,
       "zig/mach/StringTable.zig": 0,
-      "zig/mach/collision.zig": 2,
+      "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,
       "zig/mach/main.zig": 0,
       "zig/mach/module.zig": 0,
       "zig/mach/testing.zig": 0,
-      "zig/mach/win32.zig": 2
+      "zig/mach/win32.zig": 0
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 24,
-      "zig/tigerbeetle/build.zig": 13,
-      "zig/tigerbeetle/build_multiversion.zig": 20,
-      "zig/tigerbeetle/cluster.zig": 60,
-      "zig/tigerbeetle/config.zig": 3,
-      "zig/tigerbeetle/constants.zig": 76,
+      "zig/tigerbeetle/aof.zig": 0,
+      "zig/tigerbeetle/build.zig": 0,
+      "zig/tigerbeetle/build_multiversion.zig": 0,
+      "zig/tigerbeetle/cluster.zig": 0,
+      "zig/tigerbeetle/config.zig": 0,
+      "zig/tigerbeetle/constants.zig": 0,
       "zig/tigerbeetle/copyhound.zig": 0,
       "zig/tigerbeetle/counting_allocator.zig": 0,
-      "zig/tigerbeetle/direction.zig": 2,
+      "zig/tigerbeetle/direction.zig": 0,
       "zig/tigerbeetle/download.sh": 0,
       "zig/tigerbeetle/download.win.ps1": 0,
-      "zig/tigerbeetle/state_machine.zig": 458
+      "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 34,
-      "zig/zig/InternPool.zig": 186,
-      "zig/zig/Type.zig": 26,
-      "zig/zig/Zcu.zig": 28,
-      "zig/zig/main.zig": 18
+      "zig/zig/Compilation.zig": 0,
+      "zig/zig/InternPool.zig": 0,
+      "zig/zig/Type.zig": 0,
+      "zig/zig/Zcu.zig": 0,
+      "zig/zig/main.zig": 10
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 7,
-      "zig/zls/DocumentStore.zig": 15,
-      "zig/zls/Server.zig": 8,
-      "zig/zls/analysis.zig": 32,
-      "zig/zls/ast.zig": 22,
-      "zig/zls/config_gen.zig": 38,
+      "zig/zls/DocumentScope.zig": 0,
+      "zig/zls/DocumentStore.zig": 0,
+      "zig/zls/Server.zig": 0,
+      "zig/zls/analysis.zig": 0,
+      "zig/zls/ast.zig": 0,
+      "zig/zls/config_gen.zig": 0,
       "zig/zls/print_ast.zig": 0
     }
   },

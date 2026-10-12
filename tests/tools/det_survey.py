@@ -35,6 +35,7 @@ TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
+from maven_exe import mvn_executable  # noqa: E402
 
 PKG = "com.gitgalaxy.modernized"
 PKG_DIR = PKG.replace(".", "/")
@@ -69,7 +70,7 @@ def estate(corpus: Path, work: Path) -> tuple[Path, bool]:
     log = work / "mvn.log"
     with log.open("wb") as fh:
         try:
-            rc = subprocess.run(["mvn", "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,  # noqa: S607
+            rc = subprocess.run([mvn_executable(env), "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,  # noqa: S607
                                 stderr=subprocess.STDOUT, check=False,
                                 timeout=MVN_COMPILE_TIMEOUT).returncode  # fmt: skip
         except subprocess.TimeoutExpired:
@@ -94,9 +95,9 @@ def classpath(project: Path) -> str:
     if not out.is_file():
         env = dict(os.environ, JAVA_HOME=jdk())
         goal = "org.apache.maven.plugins:maven-dependency-plugin:3.6.1:build-classpath"
-        argv = ["mvn", "-q", goal, "-Dmdep.includeScope=compile", f"-Dmdep.outputFile={out}"]
+        argv = [mvn_executable(env), "-q", goal, "-Dmdep.includeScope=compile", f"-Dmdep.outputFile={out}"]
         try:
-            res = subprocess.run(["mvn", "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True,  # noqa: S603, S607
+            res = subprocess.run([argv[0], "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True,  # noqa: S603, S607
                                  check=False, timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
         except subprocess.TimeoutExpired as exc:
             raise RuntimeError(

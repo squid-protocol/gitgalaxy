@@ -23,6 +23,9 @@ name: Tri-Comparison History
 # create-pull-request finds nothing to diff and opens no PR on a push that didn't actually move
 # anything, no separate skip-detection needed.
 
+# #4847: the output is published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through
+# an auto-merged PR; the PR-then-merge and loop-guard paragraphs above describe the old mechanism.
+
 on:
   push:
     branches: [main]
@@ -35,6 +38,7 @@ on:
       - "tests/tools/tri_comparison_reconcile.py"
       - "tests/tools/tri_comparison_ledger.py"
       - "tests/tri_comparison_baseline_*.json"
+  workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:
   contents: read
@@ -53,37 +57,35 @@ concurrency:
 
 jobs:
   tri-comparison-history:
-    # Guards against the same infinite-loop shape tree-sitter-accuracy-history.yml already
-    # documents: this workflow's own bot commit touches tri_comparison_ledger.json, which is in
-    # the trigger's `paths` filter by way of docs/self_scan/ not being excluded -- without this
-    # it would re-trigger itself on every merge of its own PR.
-    if: |
-      !startsWith(github.event.head_commit.message, 'docs: auto-update tri-comparison data')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           fetch-depth: 0
-          persist-credentials: false
+          # #4847: the publish step pushes to `generated` with this checkout's token. The job runs main's code on a
+          # push to main / dispatch only, never PR code (the same reasoning as evidence-pages.yml).
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Same hard preflight as tri-comparison-audit.yml, for the same PR #2111 reason -- this
       # job WRITES the chart/ledger, so a silently-degraded ctags here would commit bad data to
@@ -110,40 +112,14 @@ jobs:
           python tests/tools/tri_comparison_chart.py --all --write
           python tests/tools/tri_comparison_report.py --write
 
-      - name: Open PR with updated chart + ledger + points-of-interest report
-        id: tri-comparison-history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          path: gitgalaxy
-          commit-message: "docs: auto-update tri-comparison data"
-          title: "docs: auto-update tri-comparison data"
-          body: |
-            Automated update from the latest tri-comparison measurement on `main`.
-
-            - Re-renders `docs/self_scan/tri_comparison_chart.svg`.
-            - Refreshes `docs/self_scan/tri_comparison_ledger.json` (last_seen_count/
-              last_seen_examples/still_reproduces on existing entries; new unvalidated entries
-              for any newly-observed discrepancy shape). Never touches a validated entry's
-              `status`/`verdict`.
-            - Regenerates `docs/self_scan/tri_comparison_points_of_interest.md`.
-
-            Never touches `tests/tri_comparison_baseline_*.json` -- those stay human-reviewed via
-            `tri_comparison_chart.py --regenerate`.
-          branch: auto/tri-comparison-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/tri_comparison_chart.svg
-            docs/self_scan/tri_comparison_ledger.json
-            docs/self_scan/tri_comparison_points_of_interest.md
-
-      # Same rationale as tree-sitter-accuracy-history.yml's own merge step -- nothing else
-      # gates this PR, so without an explicit merge it just sits mergeable-but-unmerged.
-      - name: Merge the tri-comparison history PR
-        if: steps.tri-comparison-history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
+      # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
+      - name: Publish to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.tri-comparison-history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          python tests/tools/generated_branch.py publish --stamp tri-comparison-history \
+            --message "tri-comparison-history as of main $GITHUB_SHA" \
+            docs/self_scan/tri_comparison_chart.svg \
+            docs/self_scan/tri_comparison_ledger.json \
+            docs/self_scan/tri_comparison_points_of_interest.md

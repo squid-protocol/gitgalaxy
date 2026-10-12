@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -31,6 +32,7 @@ from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
+from maven_exe import mvn_executable
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -479,7 +481,12 @@ def _launcher(classpath: list[str]) -> Path | None:
     import re
 
     for e in classpath:
+<<<<<<< HEAD
         m = re.search(r"(.*)[\\/]junit-platform-engine[\\/]([^\\/]+)[\\/]junit-platform-engine-\2\.jar$", e)
+=======
+        e = e.replace("\\", "/")  # Windows entries are backslash paths
+        m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
+>>>>>>> origin/main
         if m:
             jar = (
                 Path(m.group(1)) / "junit-platform-launcher" / m.group(2) / f"junit-platform-launcher-{m.group(2)}.jar"
@@ -513,11 +520,15 @@ def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str
     return runner
 
 
+def split_argline(argline: str, windows: bool | None = None) -> list[str]:
+    """The -D properties of `argline` as argv items (#4939). POSIX mode treats a backslash as an escape, so it strips
+    them out of a Windows path (`C:\\work\\in` -> `C:workin`); Windows takes the line as written."""
+    return shlex.split(argline, posix=not (os.name == "nt" if windows is None else windows))
+
+
 def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subprocess.CompletedProcess[str] | None:
     """--reuse: the test in a fresh JVM without Maven, when that is the same run -- the main classes compiled from
     the port, the test classes from this very test source; else None (Maven runs it)."""
-    import shlex
-
     test, snapshot, cp_file = project / TEST_FILE, project / TEST_SOURCE, project / TEST_CLASSPATH
     if not ((project / PRECOMPILED).is_file() and cp_file.is_file() and snapshot.is_file()
             and snapshot.read_bytes() == test.read_bytes()):  # fmt: skip
@@ -529,14 +540,13 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
     java_bin = Path(shell["JAVA_HOME"]) / "bin"
     runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
     full = os.pathsep.join([*classpath, str(launcher), str(runner)])
-    posix_args = os.name != "nt"
     try:
-        return subprocess.run([str(java_bin / "java"), *shlex.split(argline, posix=posix_args), "-cp", full, "EquivalenceMain"],  # noqa: S603
+        return subprocess.run([str(java_bin / "java"), *split_argline(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
                               cwd=project, env=shell, capture_output=True, text=True, check=False,
                               timeout=JAVA_DIRECT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         return subprocess.CompletedProcess(
-            args=[str(java_bin / "java"), *shlex.split(argline, posix=posix_args), "-cp", full, "EquivalenceMain"],
+            args=[str(java_bin / "java"), *split_argline(argline), "-cp", full, "EquivalenceMain"],
             returncode=124,
             stdout=exc.stdout or "",
             stderr=((exc.stderr or "") + f"\njava EquivalenceMain timed out after {JAVA_DIRECT_TIMEOUT}s").lstrip(),
@@ -614,7 +624,7 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     proc = _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
-        cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
+        cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                f"-DargLine={argline}"]  # fmt: skip
         try:
             proc = subprocess.run(  # noqa: S603

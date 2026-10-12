@@ -36,3 +36,10 @@ def test_every_path_filtered_workflow_triggers_on_what_it_reads():
     assert not gaps, "add these to the workflow's pull_request paths (or to ALLOW, with the reason): " + "; ".join(
         f"{wf}: {f}" for wf, f in gaps
     )
+
+
+def test_allow_entries_are_sound():
+    for (wf_name, input_path), reason in wi.ALLOW.items():
+        assert (wi.WORKFLOWS / wf_name).is_file(), f"{wf_name} does not exist"
+        assert (wi.REPO / input_path).is_file(), f"{input_path} does not exist"
+        assert reason.strip(), f"ALLOW entry for ({wf_name}, {input_path}) needs a non-empty reason"

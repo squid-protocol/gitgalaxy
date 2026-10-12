@@ -941,6 +941,7 @@ def test_syncpoint_resp2_alone_is_written_too():
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
 # is written (or need not be).
 _RESP_SAMPLES = {
+    "FETCH ANY": "FETCH ANY(REC) NOSUSPEND", "FETCH CHILD": "FETCH CHILD(REC) NOSUSPEND",
     "FORMATTIME": "FORMATTIME ABSTIME(REC) DDMMYYYY(KEY)", "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
     "SEND TEXT": "SEND TEXT FROM(REC)", "XCTL": "XCTL PROGRAM('P')", "ASSIGN": "ASSIGN APPLID(REC)",
     "READ": "READ FILE('KSDS') INTO(REC) RIDFLD(KEY)", "READNEXT": "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY)",
@@ -965,6 +966,14 @@ _RESP_SAMPLES = {
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
     "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
     "WEB SEND": "WEB SEND FROM(REC) FROMLENGTH(R) ACTION(R2)",
+    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
+    "WEB READ HTTPHEADER": "WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    "WEB WRITE HTTPHEADER": "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    "WEB RETRIEVE": "WEB RETRIEVE DOCTOKEN(REC)",
+    "WEB READ FORMFIELD": "WEB READ FORMFIELD(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    "WEB READ QUERYPARM": "WEB READ QUERYPARM(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    **{f"WEB {f} {k}": f"WEB {f} {k}" + ("(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)" if f == "READNEXT" else "")
+       for f in ("STARTBROWSE", "READNEXT", "ENDBROWSE") for k in ("HTTPHEADER", "FORMFIELD", "QUERYPARM")},
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -1334,14 +1343,191 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert any("OUTCOME(web" in x for x in w)
     n = c.command("WEB SEND FROM(REC) FROMLENGTH(R) NOSRVCONVERT STATUSTEXT(REC) STATUSLEN(R2) NOHANDLE", "")
     assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
-    for bad, why in (("WEB SEND FROMLENGTH(R)", "without FROM"),
+    d = c.command("WEB SEND DOCTOKEN(KEY) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) SRVCONVERT NOHANDLE", "")
+    assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
+        ", 1, CS);"
+    )  # (#4767: the document the token names)
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
+                     ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB SEND DOCTOKEN(KEY) DOCSTATUS(R)", "after it is sent"),
                      ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND DOCTOKEN(REC)", "document as the response body"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_extract_reads_the_stated_request():
+    """#4767 zECS (register X38), IBM WEB EXTRACT (server): CicsTask.webExtract takes each piece's length option (null when the
+    piece is not asked for) and its area's size; on NORMAL only the pieces' bytes, their lengths, PORTNUMBER, SCHEME's CVDA and
+    REQUESTTYPE's HTTPYES (1033) are written. The client form and what the request does not state are refused by name."""
+    c = _ChanCics()
+    w = c.command(
+        "WEB EXTRACT SCHEME(R) HOST(REC) HOSTLENGTH(R2) PATH(REC) PATHLENGTH(R) PORTNUMBER(R) REQUESTTYPE(R2) NOHANDLE",
+        "",
+    )
+    assert w[0].startswith("CicsTask.WebExtracted web") and ".webExtract(Integer.valueOf(" in w[0]
+    assert ", null, 0, null, 0, Integer.valueOf(" in w[0] and w[0].endswith(
+        ", null, 0);"
+    )  # (no METHOD / VERSION / QUERY)
+    body = " ".join(w)
+    assert ".resp() == 0) {" in body and ".host().getBytes(CS)" in body and ".path().length()" in body
+    assert ".port()" in body and ".scheme()" in body and "valueOf(1033)" in body
+    for ok in ("WEB EXTRACT HTTPMETHOD(REC) METHODLENGTH(R)", "WEB EXTRACT HTTPVERSION(REC) VERSIONLEN(R)",
+               "WEB EXTRACT QUERYSTRING(REC) QUERYSTRLEN(R) NOHANDLE"):  # fmt: skip
+        assert c.command(ok, "")[0].startswith("CicsTask.WebExtracted web")
+    for bad, why in (("WEB EXTRACT HOST(REC)", "HOST without HOSTLENGTH"),
+                     ("WEB EXTRACT HOSTLENGTH(R)", "HOST without HOSTLENGTH"),
+                     ("WEB EXTRACT HTTPMETHOD(REC)", "HTTPMETHOD without METHODLENGTH"),
+                     ("WEB EXTRACT HTTPVERSION(REC)", "HTTPVERSION without VERSIONLEN"),
+                     ("WEB EXTRACT PATH(REC)", "PATH without PATHLENGTH"),
+                     ("WEB EXTRACT QUERYSTRING(REC)", "QUERYSTRING without QUERYSTRLEN"),
+                     ("WEB EXTRACT SESSTOKEN(KEY) HOST(REC) HOSTLENGTH(R)", "client form"),
+                     ("WEB EXTRACT HOSTTYPE(R)", "address format of the host"),
+                     ("WEB EXTRACT URIMAP(REC)", "URIMAP the request matched"),
+                     ("WEB EXTRACT REALM(REC)", "client form"),
+                     ("WEB EXTRACT REALMLEN(R)", "client form")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_receive_reads_the_body_of_the_stated_request():
+    """#4767 zECS (register X38), IBM WEB RECEIVE (server): CicsTask.webReceive takes MAXLENGTH and INTO's size; the body goes
+    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane), NOTRUNCATE,
+    the containers and every code-page option are refused by name, as is INTO without MAXLENGTH (IBM: INVREQ RESP2 16)."""
+    c = _ChanCics()
+    w = c.command("WEB RECEIVE INTO(REC) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
+    assert w[0].startswith("CicsTask.WebReceived web") and ".webReceive(" in w[0]
+    body = " ".join(w)
+    assert ".body() != null) {" in body and ".body().getBytes(CS)" in body and ".body().length()" in body
+    assert '"%-56s"' in body and ".mediaType()" in body
+    assert c.command("WEB RECEIVE INTO(REC) MAXLENGTH(R2) SRVCONVERT", "")[0].startswith("CicsTask.WebReceived web")
+    for bad, why in (("WEB RECEIVE", "without INTO"),
+                     ("WEB RECEIVE INTO(REC)", "INTO without MAXLENGTH"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "pointer lane"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) NOTRUNCATE", "NOTRUNCATE"),
+                     ("WEB RECEIVE TOCONTAINER('C')", "container"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TOCHANNEL('C')", "container"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) HOSTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CLNTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SERVERCONV(R)", "SERVERCONV"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) BODYCHARSET(REC)", "character set"),
+                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TYPE(R)", "TYPE")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_web_read_and_write_httpheader_are_the_servers_headers():
+    """#4767 zECS (register X38), IBM WEB READ HTTPHEADER / WEB WRITE HTTPHEADER (server): READ takes the name area's text, its
+    NAMELENGTH, VALUELENGTH and VALUE's size, writes VALUE and VALUELENGTH on NORMAL only; WRITE takes the name and value texts
+    with both lengths and records the header (WEB-HEADER). The client form (SESSTOKEN) and a missing option are refused."""
+    c = _ChanCics()
+    r = c.command("WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+    assert r[0].startswith("CicsTask.WebHeader web") and ".webReadHeader(Cobol.text(" in r[0]
+    assert (
+        ".resp() == 0) {" in " ".join(r)
+        and ".value().getBytes(CS)" in " ".join(r)
+        and ".value().length()" in " ".join(r)
+    )
+    w = c.command("WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+    assert w[0].startswith("int[] web") and ".webWriteHeader(Cobol.text(" in w[0]
+    for form in ("READ", "WRITE"):
+        full = ["HTTPHEADER(REC)", "NAMELENGTH(R)", "VALUE(REC)", "VALUELENGTH(R2)"]
+        for i, missing in enumerate(("header name", "NAMELENGTH", "VALUE", "VALUELENGTH")):
+            # (no HTTPHEADER: the command is no longer this form, a WEB READ of no modelled kind)
+            with pytest.raises(C.CicsError, match=f"WEB {form} not modelled" if i == 0 else f"without {missing}"):
+                c.command(f"WEB {form} " + " ".join(full[:i] + full[i + 1 :]), "")
+        with pytest.raises(C.CicsError, match="client form"):
+            c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
+
+
+def test_web_read_formfield_and_queryparm_are_the_requests_pairs():
+    """#4940 (register X38), IBM WEB READ FORMFIELD / QUERYPARM (server): CicsTask.webReadParam takes the kind, the name area's
+    text, NAMELENGTH, VALUELENGTH and VALUE's size; VALUE (cut to VALUELENGTH) and VALUELENGTH (the real length) are written
+    when a value came back (NORMAL, LENGERR RESP2 5). SET, the code-page options and a missing option are refused by name."""
+    c = _ChanCics()
+    for kind in ("FORMFIELD", "QUERYPARM"):
+        r = c.command(f"WEB READ {kind}(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+        text = " ".join(r)
+        assert r[0].startswith("CicsTask.WebParam web") and f'.webReadParam("{kind}", Cobol.text(' in r[0]
+        assert ".value() != null) {" in text and ".value().getBytes(CS)" in text and ".length()" in text
+        full = [f"{kind}(REC)", "NAMELENGTH(R)", "VALUE(REC)", "VALUELENGTH(R2)"]
+        for i, missing in enumerate(("the name", "NAMELENGTH", "VALUE", "VALUELENGTH")):
+            with pytest.raises(C.CicsError, match=f"WEB READ not modelled" if i == 0 else f"without {missing}"):
+                c.command("WEB READ " + " ".join(full[:i] + full[i + 1 :]), "")
+        for bad, why in (("SET(REC)", "pointer lane"), ("HOSTCODEPAGE(R)", "code-page"), ("CHARACTERSET(R)", "code-page"),
+                         ("CLNTCODEPAGE(R)", "code-page"), ("SESSTOKEN(KEY)", "only")):  # fmt: skip
+            with pytest.raises(C.CicsError, match=why):
+                c.command(f"WEB READ {kind}(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) {bad}", "")
+
+
+def test_web_browse_forms_are_the_requests_pairs():
+    """#4940 (register X38), IBM WEB STARTBROWSE / READNEXT / ENDBROWSE HTTPHEADER, FORMFIELD, QUERYPARM (server): STARTBROWSE
+    takes the kind and, for FORMFIELD / QUERYPARM, a start name with its NAMELENGTH (null for none); READNEXT takes both
+    lengths and the areas' sizes and writes the pair's name, value and whole lengths; ENDBROWSE takes nothing. The client form
+    (SESSTOKEN), a start name on HTTPHEADER, NAMELENGTH without a name, a name without NAMELENGTH, the code-page options and a
+    missing READNEXT option are refused by name."""
+    c = _ChanCics()
+    for kind in ("HTTPHEADER", "FORMFIELD", "QUERYPARM"):
+        s = c.command(f"WEB STARTBROWSE {kind} NOHANDLE", "")
+        assert s[0].startswith("int[] web") and f'.webStartBrowse("{kind}", null, null)' in s[0]
+        e = c.command(f"WEB ENDBROWSE {kind} NOHANDLE", "")
+        assert e[0].startswith("int[] web") and f'.webEndBrowse("{kind}")' in e[0]
+        n = c.command(f"WEB READNEXT {kind}(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")
+        text = " ".join(n)
+        assert n[0].startswith("CicsTask.WebNext web") and f'.webReadNext("{kind}", ' in n[0]
+        assert ".name() != null) {" in text and ".nameLength()" in text and ".valueLength()" in text
+        full = [f"{kind}(REC)", "NAMELENGTH(R)", "VALUE(REC)", "VALUELENGTH(R2)"]
+        for i, missing in enumerate((kind, "NAMELENGTH", "VALUE", "VALUELENGTH")):
+            rest = [kind] if i == 0 else [full[0]]  # (the form word stays, bare when its own argument is missing)
+            rest += [x for j, x in enumerate(full) if j not in (0, i)]
+            with pytest.raises(C.CicsError, match=f"WEB READNEXT {kind} without {missing}"):
+                c.command("WEB READNEXT " + " ".join(rest), "")
+        with pytest.raises(C.CicsError, match="SESSTOKEN"):
+            c.command(f"WEB READNEXT {kind}(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
+        with pytest.raises(C.CicsError, match="SESSTOKEN|only|takes no option"):
+            c.command(f"WEB ENDBROWSE {kind} SESSTOKEN(KEY)", "")
+    named = c.command("WEB STARTBROWSE FORMFIELD(REC) NAMELENGTH(R) NOHANDLE", "")
+    assert '.webStartBrowse("FORMFIELD", Cobol.text(' in named[0] and "Integer.valueOf(" in named[0]
+    for bad, why in (("WEB STARTBROWSE HTTPHEADER(REC)", "not documented"),
+                     ("WEB STARTBROWSE FORMFIELD(REC)", "without NAMELENGTH"),
+                     ("WEB STARTBROWSE QUERYPARM NAMELENGTH(R)", "NAMELENGTH without a name"),
+                     ("WEB STARTBROWSE HTTPHEADER SESSTOKEN(KEY)", "client form"),
+                     ("WEB STARTBROWSE FORMFIELD HOSTCODEPAGE(R)", "code-page"),
+                     ("WEB STARTBROWSE QUERYPARM CHARACTERSET(R)", "code-page"),
+                     ("WEB STARTBROWSE QUERYPARM FORMFIELD", "option not modelled")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(bad, "")
+
+
+def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
+    """#4767 zECS (register X30), IBM GET DCOUNTER: CicsTask.getCounter(pool, name[, increment]) -- VALUE written on NORMAL
+    only, the increment read from its data area (omitted: the one-argument form, IBM's default 1); WRAP is accepted (it acts at a
+    maximum the run does not state). INCREMENT / WRAP on the fullword COUNTER form, REDUCE, COMPAREMIN / COMPAREMAX and NOSUSPEND are
+    refused by name."""
+    c = _ChanCics()
+    w = c.command("GET DCOUNTER(KEY) VALUE(REC) INCREMENT(R) WRAP NOHANDLE", "")
+    assert (
+        w[0].startswith("long[] counter") and '.getCounter("", ' in w[0] and w[0].count(",") == 2
+    )  # (pool, name, increment)
+    plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
+    assert plain[0].count(",") == 1  # (pool, name: the default increment)
+    assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)
+    for bad, why in (("GET COUNTER(KEY) VALUE(REC) INCREMENT(R)", "INCREMENT without DCOUNTER"),
+                     ("GET COUNTER(KEY) VALUE(REC) WRAP", "WRAP without DCOUNTER"),
+                     ("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
+                     ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) REDUCE", "maximum is not stated"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMIN(R)", "range check"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMAX(R)", "range check"),
+                     ("GET DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "rebuild")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 
@@ -1543,9 +1729,8 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
         ("CANCEL", "only CANCEL REQID"),
-        ("RUN TRANSID('T') CHILD(REC) CHANNEL(CH)", "copy of the channel"),
-        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "waiting for its child task"),
-        ("FETCH ANY(REC)", "waiting for its child task"),
+        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "FETCH without NOSUSPEND"),
+        ("FETCH ANY(REC)", "FETCH without NOSUSPEND"),
     ],
 )
 def test_what_interval_control_does_not_model_is_refused_by_name(text, why):
@@ -2905,3 +3090,35 @@ def test_a_program_with_zecs_shaped_document_commands_translates_with_no_hole(tm
     for call in ("task.documentCreateTemplate(", "task.documentCreateData(", "task.documentCreateEmpty(",
                  "task.documentRetrieve(", "DetCics.putDocument("):  # fmt: skip
         assert call in r.java, call
+
+
+def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
+    """#4816: an XCTL COMMAREA with no item of its own to resolve (an operand commarea_out handles) is never marked, and
+    never raises; one inside the LINKAGE DFHCOMMAREA record -- the record or a field of it -- is marked."""
+    c = _OverCics()
+    assert not any("xctlOfLinkage" in x for x in c.command("XCTL PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", ""))
+    root = type("I", (), {"name": "DFHCOMMAREA", "section": "LINKAGE", "parent": None})()
+    field = type("I", (), {"name": "CA-NUM", "section": "LINKAGE", "parent": root})()
+    ws = type("I", (), {"name": "WS-CA", "section": "WORKING-STORAGE", "parent": None})()
+    items = {"DFHCOMMAREA": root, "CA-NUM": field, "WS-CA": ws}
+    c.SIZES = {**c.SIZES, "DFHCOMMAREA": 12, "CA-NUM": 6, "WS-CA": 12}
+    c.g.resolve = lambda ref: items[ref.name]
+    for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("WS-CA", False)):
+        out = c.command(f"XCTL PROGRAM('XB') COMMAREA({operand}) LENGTH(80)", "")
+        assert any("task.xctlOfLinkage();" in x for x in out) is marked, (operand, out)
+
+
+def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
+    """#4941 zECS (register X41), IBM WEB RETRIEVE: DOCTOKEN is the only option and is required; the outcome is CicsTask's
+    (INVREQ RESP2 2 / NOTFND RESP2 1), the area is never written; every other option and the literal form are refused."""
+    c = _ChanCics()
+    r = c.command("WEB RETRIEVE DOCTOKEN(REC) NOHANDLE", "")
+    assert r[0].startswith("int[] web") and ".webRetrieve();" in r[0]
+    assert "Cobol.text(" not in r[0]
+    r2 = c.command("WEB RETRIEVE DOCTOKEN(REC) RESP(R) RESP2(R2)", "")
+    assert ".webRetrieve();" in r2[0] and len(r2) > 1
+    with pytest.raises(C.CicsError, match="without DOCTOKEN"):
+        c.command("WEB RETRIEVE NOHANDLE", "")
+    for extra in ("SESSTOKEN(KEY)", "FROM(REC)", "ACTION(R)", "DOCSTATUS(R)", "INTO(REC)", "MEDIATYPE(REC)"):
+        with pytest.raises(C.CicsError):
+            c.command(f"WEB RETRIEVE DOCTOKEN(REC) {extra}", "")

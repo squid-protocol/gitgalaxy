@@ -79,7 +79,11 @@ def ci_pins(repo: Path = REPO) -> dict[str, str | None]:
 
     ruff_yml, mypy_yml = read("ruff-audit.yml"), read("mypy-audit.yml")
     py = re.search(r"python-version:\s*[\"']?([\d.]+)", ruff_yml or mypy_yml)
-    ruff = re.search(r"\bruff==([\w.]+)", ruff_yml)
+    try:  # ruff is pinned in the shared hashed lockfile the workflow installs (#4918), not inline
+        lint = (repo / "ci" / "requirements" / "lint.in").read_text(encoding="utf-8")
+    except OSError:
+        lint = ""
+    ruff = re.search(r"^\s*ruff==([\w.]+)", lint, re.M) or re.search(r"\bruff==([\w.]+)", ruff_yml)
     try:  # mypy is pinned in ONE file that the workflow installs from
         reqs = (repo / MYPY_REQUIREMENTS).read_text(encoding="utf-8")
     except OSError:

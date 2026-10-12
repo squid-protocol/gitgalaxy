@@ -51,7 +51,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Where the logic runs
 
 - `.github/workflows/shepherd-event.yml`: a label added or removed, or new commits (`pull_request_target`).
-- `.github/workflows/shepherd-reconcile.yml`: after PR CI finishes, every 20 minutes, or by hand.
+- `.github/workflows/shepherd-reconcile.yml`: when a workflow behind a required check (or the Full Suite Gate) finishes on a PR, every 20 minutes, or by hand. Each pass reconciles every labelled PR, so a burst of finishing runs coalesces into one pass and nothing waits for the cron (#4935).
 - `tests/tools/shepherd_gh.py`: the rules (`decide()` is pure and tested in `tests/tools/test_shepherd_gh.py`).
 - Triage and the digest: `tests/tools/ci_digest.py`. Readiness: `tests/tools/pr_check.py`.
 
@@ -64,6 +64,29 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
+
+## Heavy jobs on the PR and again on the push (tested-tree, #4935)
+
+`mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges; since #4964 so do `fact-crosscheck`,
+`estate-crucible`, `ports-compile`, `java-compile`, `cics-crucible`, `unicode-gauntlet` and `tree-sitter-accuracy-audit`. Their `tested-tree` job
+(`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
+the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
+merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
+in-progress or missing PR runs, a PR that was behind main, a merge commit, a direct push, and every
+schedule / `workflow_dispatch` run all run in full; an API error runs too. In smoke-test only the `full-suite` parts are
+skipped: the 9-way OS grid is not run on PRs, so it always runs on the push.
+
+Paths filters (#4964): the proof is a `pull_request` run of the same workflow on the head, and GitHub creates that run only
+when the PR's own `paths` filter matches. A PR the filter skipped therefore has no run, and the push runs even though its
+filter (or, for tree-sitter-accuracy-audit, no filter at all) matched on main: a missing run is never a proof. The PR must
+also have targeted `main`. `tests/tools/test_tested_tree_workflows.py` pins each workflow's wiring and its PR/push filter
+pair, so a filter edit is a reviewed decision. `java-compile`'s PR run may skip its build when the generated Java equals the
+base's (`--same-as`); the skipped push is then the same tree as a base whose own push built it.
+
+Main Watch still gets a verdict: the workflow concludes `success` or `failure` (the gate job always runs), and a skip
+is a true green, because that exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs
+that conclude `skipped` or `cancelled`. Ground-truth history rows (`--history`) are written by the push run, so the
+nightly run writes them too (one row set per day, at that day's HEAD, when a number moved).
 
 ## Main is red (main-watch)
 
@@ -78,5 +101,11 @@ The full-suite jobs (`full-suite-gate.yml`, `smoke-test.yml`) run pytest with `-
 hung test fails by name after 10 minutes instead of running the job into its time limit, where it shows as a
 "cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).
 
+## Nightly blockers baseline (#4863)
+Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.
+
 ## Evidence pages publish (#4925)
 `evidence-pages.yml` writes the `generated` branch only when the run's ref is `refs/heads/main`. A `workflow_dispatch` from any other ref renders the pages into a scratch dir and uploads them as the `evidence-pages-preview` artifact; it never writes `generated` (same rule as the `publish-blockers` job in Evidence Refresh, #4924).
+
+## History bots publish to `generated` (#4847)
+`call-resolution-history.yml`, `graph-comparison-history.yml`, `tree-sitter-accuracy-history.yml`, `tri-comparison-history.yml` and `archetype-validation.yml` no longer open an auto-merged PR into main (they were about 40 of 322 main commits in a week, each queueing every open PR behind it). Each publishes its output files to the `generated` branch with `tests/tools/generated_branch.py publish`, only when the run's ref is `refs/heads/main`; an appended CSV is first restored from `generated` (`fetch`), and `show PATH` reads the published copy, else the committed one. The copies already committed on main are left as they are: frozen, and the seed and fallback. A ledger (`graph_comparison_ledger.json`, `tri_comparison_ledger.json`) keeps its verdicts on main, where people write them; the bot refreshes the counts from main's copy and publishes the result. `tests/tools/test_generated_branch.py` lists every workflow that still commits to main. A first publish needs one `workflow_dispatch` run of each from main.

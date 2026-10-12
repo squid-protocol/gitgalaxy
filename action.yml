@@ -20,7 +20,7 @@ inputs:
     required: false
     default: ''
   version:
-    description: 'The version of GitGalaxy to install from PyPI. Defaults to latest.'
+    description: "GitGalaxy version to install. 'latest' (default) installs the hash-pinned release this action ships with (templates/requirements/ in the action checkout, --require-hashes); an explicit version is exact-pinned but not hash-verified."
     required: false
     default: 'latest'
   full_precision:
@@ -45,22 +45,26 @@ runs:
         GALAXY_ACT_VERSION: ${{ inputs.version }}
         GALAXY_ACT_FULL_PRECISION: ${{ inputs.full_precision }}
       run: |
+        REQS="${GITHUB_ACTION_PATH}/templates/requirements"
+        if [ "$GALAXY_ACT_FULL_PRECISION" = "true" ]; then SET=full; else SET=yaml; fi
         if [ "$GALAXY_ACT_VERSION" = "local" ]; then
           echo "Dogfooding local GitGalaxy source..."
           pip install -e ".[yaml]"
         elif [ "$GALAXY_ACT_VERSION" = "latest" ]; then
-          echo "Installing latest GitGalaxy from PyPI..."
-          pip install "gitgalaxy[yaml]"
+          echo "Installing the hash-pinned GitGalaxy release (--require-hashes)..."
+          pip install --require-hashes -r "${REQS}/${SET}.txt"
         else
-          echo "Installing GitGalaxy version ${GALAXY_ACT_VERSION}..."
-          pip install "gitgalaxy[yaml]==${GALAXY_ACT_VERSION}"
+          # NOTE: releases from before the `full` extra existed have no such extra, so pip warns and
+          # installs gitgalaxy WITHOUT tiktoken/xgboost/pandas/numpy: an explicit old version silently
+          # runs in Zero-Dependency Mode even with full_precision=true.
+          echo "Installing GitGalaxy version ${GALAXY_ACT_VERSION} (exact pin, NOT hash-verified)..."
+          pip install "gitgalaxy[${SET}]==${GALAXY_ACT_VERSION}"
         fi
 
-        if [ "$GALAXY_ACT_FULL_PRECISION" = "true" ]; then
-          echo "Unlocking Full Precision Mode..."
-          pip install tiktoken xgboost pandas numpy
-        else
+        if [ "$SET" = "yaml" ]; then
           echo "Running in ultra-fast Zero-Dependency Mode."
+        else
+          echo "Full Precision Mode: tiktoken, xgboost, pandas, numpy installed."
         fi
 
     - name: Execute GitGalaxy Tool

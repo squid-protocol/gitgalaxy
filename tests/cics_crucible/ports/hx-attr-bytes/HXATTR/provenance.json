@@ -137,6 +137,23 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-12T07:32:08+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "clear-maponly": "1/1",
+     "echo-dataonly": "1/1",
+     "first-display": "1/1",
+     "pa-key-mapfail": "1/1"
+    },
+    "port_sha256": "7a14bc183189a6ea033591e2d642d96541c9685bcc52814803ae6b73ad5d3994",
+    "harness_commit": "d1cc9721aa4f8fe0f262a71c02b2eb8ec054ed62",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXATTR --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },
@@ -200,6 +217,18 @@
     "executeHxattr",
     "renderHxm1",
     "submitHxm1"
+   ]
+  },
+  {
+   "at": "2026-10-12T07:11:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "681faf12b",
+   "generated_from": "service/HxattrService.java",
+   "added": [
+    "lastAnswerBytes (field)",
+    "handleTransaction(String,HxattrWsCa,byte[])",
+    "lastAnswerBytes()"
    ]
   }
  ],

@@ -115,6 +115,7 @@ REPO_ROOT = HERE_TOOLS.parents[1]
 sys.path.insert(0, str(HERE_TOOLS))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 sys.path.insert(0, str(REPO_ROOT))
+from maven_exe import mvn_executable  # noqa: E402
 
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
@@ -140,7 +141,9 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
                     "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
-                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV"}  # fmt: skip
+                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
+                    # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
+                    "NOTAUTH": "AEY7"}  # fmt: skip
 SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "FRSET", "CURSOR", "WAIT", "LAST")
 
 # What each scenario side records (see cics_crucible_compare.Capabilities).
@@ -417,7 +420,7 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17) or os.environ.get("JAVA_HOME", ""))
     if env["JAVA_HOME"]:
         env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
-    cmd = ["mvn", "-q", "-B", *(["-o"] if offline else []), *args]
+    cmd = [mvn_executable(env), "-q", "-B", *(["-o"] if offline else []), *args]
     proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603
     log.write_text(proc.stdout + proc.stderr, encoding="utf-8")
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]

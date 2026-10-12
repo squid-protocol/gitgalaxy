@@ -76,7 +76,7 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
   <lang>` and commit the updated baseline file.
 * **You no longer need to manually regenerate the chart/ledger/report before pushing.** A
   push-to-main companion workflow (`tri-comparison-history.yml`) does that automatically once your
-  PR merges, opening its own auto-merged PR only if the numbers actually moved. Feel free to still
+  PR merges, publishing to the `generated` branch (no PR, no commit to main, #4847) only if the numbers actually moved. Feel free to still
   run it locally for a sanity check, but it's no longer a required pre-push step the way it used
   to be:
   `python tests/tools/tri_comparison_chart.py --all --write`

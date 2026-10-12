@@ -14,7 +14,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
 REPORTS = sorted(er.OUT.glob("*/report.json"))
-TREE = {"sha256": "tree-fp", "files": 3}  # the translator fingerprint of the tree, as these tests pin it (#4863)
+TREE = (next((s["translator"] for f in REPORTS for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
+             if s.get("translator")), None)
+        or {"sha256": "tree-fp", "files": 3})  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
 
 
 @pytest.fixture(autouse=True)

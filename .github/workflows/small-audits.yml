@@ -54,13 +54,15 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
 
       # ast-accuracy-audit imports the package (regex extraction path only);
       # the other three are stdlib-only and do not need this install.
       - name: Install GitGalaxy (for ast-accuracy-audit)
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
 
       - name: dead-key-audit -- baseline-gated regression check (#325)

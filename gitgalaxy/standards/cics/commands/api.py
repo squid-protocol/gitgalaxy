@@ -14,8 +14,8 @@ IBM's "CICS command summary" (CICS TS 6.x) lists 336 API command topics: 259 com
 variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... -- are one name. 50 of them have full
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
-NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 193 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
-WEB PARSE URL and WEB SEND moved to web.py).
+NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 176 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
+WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE, WEB READ / WRITE HTTPHEADER / FORMFIELD / QUERYPARM and the WEB browse forms moved to web.py).
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
 The reasons the translator gave before PR 2 are kept word for word (container MOVE / browse, a parent waiting for its
@@ -61,9 +61,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
-    # child tasks (#4270 slice 2: RUN TRANSID)
-    ("FETCH CHILD", None, CHILD_LATER),
-    ("FETCH ANY", None, CHILD_LATER),
+    # child tasks (#4270 slice 2: RUN TRANSID; FETCH ANY / FETCH CHILD are in interval.py, #4884)
     ("FREE CHILD", None, CHILD_LATER),
     # BTS
     ("ACQUIRE", None, _BTS),
@@ -212,22 +210,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("DOCUMENT INSERT", None, _DOCUMENT),
     ("DOCUMENT SET", None, _DOCUMENT),
     # web, web services, transformation
-    ("WEB ENDBROWSE FORMFIELD", None, _WEB),
-    ("WEB ENDBROWSE HTTPHEADER", None, _WEB),
-    ("WEB ENDBROWSE QUERYPARM", None, _WEB),
-    ("WEB EXTRACT", None, _WEB),
-    ("WEB READ FORMFIELD", None, _WEB),
-    ("WEB READ HTTPHEADER", None, _WEB),
-    ("WEB READ QUERYPARM", None, _WEB),
-    ("WEB READNEXT FORMFIELD", None, _WEB),
-    ("WEB READNEXT HTTPHEADER", None, _WEB),
-    ("WEB READNEXT QUERYPARM", None, _WEB),
-    ("WEB RECEIVE", "web-receive-server", _WEB),
-    ("WEB RETRIEVE", None, _WEB),
-    ("WEB STARTBROWSE FORMFIELD", None, _WEB),
-    ("WEB STARTBROWSE HTTPHEADER", None, _WEB),
-    ("WEB STARTBROWSE QUERYPARM", None, _WEB),
-    ("WEB WRITE HTTPHEADER", None, _WEB),
     ("EXTRACT WEB", None, _WEB),
     ("EXTRACT TCPIP", None, _WEB),
     ("INVOKE APPLICATION", None, "invoking an application by its operation (INVOKE APPLICATION) is not modelled"),

@@ -287,6 +287,58 @@ def test_a_non_digit_receiver_is_refused_by_name(kind, op, data, tmp_path):
     assert "arithmetic whose receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# #4692 / #4685: a zoned SENDER with a P position holding a non-digit. cobc 3.1.2 (measured) hangs on `MOVE` of a left-P
+# one (VPP99) to a binary item and computes a right-P one (99PP) by no explainable rule (`ADD S TO DS` of two spaces
+# is 17595-); IBM documents no result. Refused by name on every read; a digit-only P item is unchanged (PSCALE in
+# test_det_programs.py).
+# ---------------------------------------------------------------------------------------------------------------
+PICS = ["PIC 99PP", "PIC S99PP", "PIC VPP99", "PIC SVPP99"]
+PREADS = [
+    "MOVE S TO DU",
+    "MOVE S TO PK",
+    "MOVE S TO BN",
+    "MOVE S TO E1",
+    "ADD S TO DS",
+    "SUBTRACT S FROM DS",
+    "COMPUTE DS = S + 1",
+    "COMPUTE BN = S",
+    "IF S = 0 DISPLAY 'z' END-IF",
+    "IF S > 5 DISPLAY 'g' END-IF",
+]
+
+
+def _pprogram(pic: str, op: str, data: bytes) -> str:
+    lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+             "       WORKING-STORAGE SECTION.", "       01 R PIC X(2).", f"       01 S REDEFINES R {pic}.",
+             "       01 DU PIC 9(7).", "       01 DS PIC S9(7).", "       01 PK PIC S9(7) COMP-3.",
+             "       01 BN PIC S9(9) COMP.", "       01 E1 PIC Z(6)9.", "       PROCEDURE DIVISION.",
+             f"           MOVE X'{data.hex().upper()}' TO R", f"           {op}", "           GOBACK.", ""]  # fmt: skip
+    return "\n".join(lines)
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("pic", PICS)
+@pytest.mark.parametrize("op", PREADS)
+def test_a_p_scaled_non_digit_sender_is_refused_by_name(pic, op, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    data = b"1!" if pic.startswith(("PIC S", "PIC SV")) else b"1A"
+    run = _det(_pprogram(pic, op, data), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "P scaling position" in run.stderr and "is not modelled" in run.stderr, run.stderr
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("pic", PICS)
+def test_a_p_scaled_digit_only_sender_is_read_as_ever(pic, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    src = _pprogram(pic, "ADD S TO DS", b"12").replace(
+        "           GOBACK.", "           DISPLAY DS\n           GOBACK."
+    )
+    run = _det(src, tmp_path, "STD")
+    assert run.returncode == 0, run.stderr
+
+
 if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the receiver file) from cobc
     import tempfile
 

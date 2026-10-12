@@ -383,6 +383,58 @@ def test_cics_task_xctl_fails_in_place_with_lengerr_or_pgmiderr(tmp_path):
 
 
 @needs_javac
+def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_path):
+    """#4648, IBM EXEC CICS XCTL / LINK conditions (INVREQ, LENGERR, NOTAUTH, PGMIDERR): a planned failure of either
+    command is its RESP, and with no HANDLE CONDITION / RESP the program's default action abends the task with the
+    condition's code (AEIP, AEIV, AEY7, AEI0) -- NOTAUTH had none, so the runtime threw instead. An XCTL that failed
+    transfers nothing; a LINK that failed runs nothing."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("CAXA")) {
+                    for (String cmd : new String[] {"XCTL", "LINK"}) {
+                        for (String want : new String[] {"INVREQ", "LENGERR", "NOTAUTH", "PGMIDERR"}) {
+                            String r = cmd.equals("XCTL") ? task.xctl("CAXB", "V1", 80) : task.link("CAXB", "V1", 80);
+                            System.out.println(cmd + " " + r + " " + task.ended());
+                            if (!r.equals("NORMAL")) {
+                                task.abendOnCondition(r);
+                                System.out.println(task.abcode());
+                            }
+                        }
+                    }
+                } else {
+                    System.out.println("ran " + p);
+                }
+            }
+        };
+        CicsTask t = new CicsTask("CA02", "ENTER", null, null).withPrograms(programs).withFaults(java.util.List.of(
+                "XCTL CAXB 1 " + CicsSpec.resp("INVREQ") + " 1", "XCTL CAXB 2 " + CicsSpec.resp("LENGERR") + " 11",
+                "XCTL CAXB 3 " + CicsSpec.resp("NOTAUTH") + " 100", "XCTL CAXB 4 " + CicsSpec.resp("PGMIDERR") + " 3",
+                "LINK CAXB 1 " + CicsSpec.resp("INVREQ") + " 1", "LINK CAXB 2 " + CicsSpec.resp("LENGERR") + " 11",
+                "LINK CAXB 3 " + CicsSpec.resp("NOTAUTH") + " 100", "LINK CAXB 4 " + CicsSpec.resp("PGMIDERR") + " 3"),
+                null);
+        t.run("CAXA");
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (!"ABEND".equals(e.get("event"))) {
+                System.out.println(e.get("event") + " " + e.get("resp") + " " + e.get("resp2"));
+            }
+        }""",
+    )
+    lines = out.splitlines()
+    assert lines[:2] == ["XCTL INVREQ false", "AEIP"]
+    assert [ln for ln in lines if ln.startswith(("AE", "ran"))] == ["AEIP", "AEIV", "AEY7", "AEI0"] * 2
+    assert "ran CAXB" not in lines  # nothing transferred, nothing linked
+    assert lines[-8:] == [f"{c} {r} {x}" for c in ("XCTL", "LINK")
+                          for r, x in (("INVREQ", 1), ("LENGERR", 11), ("NOTAUTH", 100), ("PGMIDERR", 3))]  # fmt: skip
+
+
+@needs_javac
 def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp_path):
     out = _cics_task(
         tmp_path,
@@ -3152,7 +3204,7 @@ def _x37_stub_events(out: Path) -> list[tuple]:
                 int(kv["status"]),
                 text(kv["stext"]),
                 text(kv["media"]),
-                (out / f"{seq}.bin").read_bytes().decode("latin-1"),
+                (out / f"{seq}.bin").read_bytes().decode("latin-1") if (out / f"{seq}.bin").exists() else "",
             )
         )
     return got
@@ -3251,3 +3303,893 @@ def test_cics_task_web_send_as_the_stub_does(tmp_path):
     for got, (_steps, why) in zip(refusals, _X37_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
     assert refusals[-1] == "the HTTP request is not stated (withHttpRequest): not modelled"
+
+
+# ---- #4767 zECS (register X38): the server reading the request it serves --------------------------------------------------
+# Four fixtures, one per request shape; a step a word-line, run alike by the stub (C) and CicsTask (Java) over areas of
+# dots ('.'), so "the rest of the area is left alone" shows. Areas: EXTRACT host 20, method 10, version 15, path 30, query 20;
+# RECEIVE into 16, media 56; READ name 32, value 24; WRITE name 32, value 40.
+_X38_REQ = {
+    "full": ("HTTPS", "zecs.example", 8443, "PUT", "HTTP/1.1", "/resources/ecs/a", "x=1&y=2",
+             [("Authorization", "Basic QUJD"), ("Content-Type", "text/plain")], "text/plain", "hello world!"),
+    "bare": ("HTTP", "h", 80, "GET", "HTTP/1.0", "/", "", [], None, None),
+    "lower": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "", [("authorization", "x")], None, None),
+    "twice": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "", [("A", "1"), ("A", "2")], None, None),
+}  # fmt: skip
+_D = ".".__mul__
+_X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER events (name, value))
+    ("full", ["ext 20 10 15 30 20"], ["ext 0/0 zecs.example........|PUT.......|HTTP/1.1.......|/resources/ecs/a..............|"
+                                      "x=1&y=2.............|8443|HTTPS|12,3,8,16,7"], []),
+    ("full", ["ext 20 - - - -"], [f"ext 0/0 zecs.example........|{_D(10)}|{_D(15)}|{_D(30)}|{_D(20)}|8443|HTTPS|12,0,0,0,0"], []),
+    ("full", ["ext 12 3 8 16 7"], ["ext 0/0 zecs.example........|PUT.......|HTTP/1.1.......|/resources/ecs/a..............|"
+                                   "x=1&y=2.............|8443|HTTPS|12,3,8,16,7"], []),
+    ("bare", ["ext 20 10 15 30 20"], [f"ext 0/0 h{_D(19)}|GET{_D(7)}|HTTP/1.0{_D(7)}|/{_D(29)}|{_D(20)}|80|HTTP|1,3,8,1,0"], []),
+    ("full", ["ext 0 - - - -"], ["ext 22/21"], []),
+    ("full", ["ext - - - 0 -"], ["ext 22/5"], []),
+    ("full", ["ext - - 0 - -"], ["ext 22/7"], []),
+    ("full", ["ext - 0 - - -"], ["WEB EXTRACT METHODLENGTH or QUERYSTRLEN not above zero"], []),
+    ("full", ["ext - - - - 0"], ["WEB EXTRACT METHODLENGTH or QUERYSTRLEN not above zero"], []),
+    ("full", ["ext 0 - - 0 -"], ["WEB EXTRACT with more than one condition at once"], []),
+    ("full", ["ext 5 - - - -"], ["WEB EXTRACT piece longer than its length"], []),
+    ("full", ["ext - 2 - - -"], ["WEB EXTRACT piece longer than its length"], []),
+    ("full", ["ext - - 7 - -"], ["WEB EXTRACT piece longer than its length"], []),
+    ("full", ["ext - - - 15 -"], ["WEB EXTRACT piece longer than its length"], []),
+    ("full", ["ext - - - - 6"], ["WEB EXTRACT piece longer than its length"], []),
+    ("full", ["ext 21 - - - -"], ["WEB EXTRACT length beyond its area"], []),
+    ("full", ["ext - 11 - - -"], ["WEB EXTRACT length beyond its area"], []),
+    ("full", ["ext - - 16 - -"], ["WEB EXTRACT length beyond its area"], []),
+    ("full", ["ext - - - 31 -"], ["WEB EXTRACT length beyond its area"], []),
+    ("full", ["ext - - - - 21"], ["WEB EXTRACT length beyond its area"], []),
+    ("full", ["rcv 16 1"], ["rcv 0/0 hello world!....|12|text/plain"], []),
+    ("full", ["rcv 12 0"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcv 5 1"], ["rcv 22/57 hello...........|5|text/plain"], []),
+    ("full", ["rcv 0 0"], ["rcv 22/16"], []),
+    ("full", ["rcv -3 1"], ["rcv 22/16"], []),
+    ("full", ["rcv 17 0"], ["WEB RECEIVE length beyond its area"], []),
+    ("full", ["rcv 5 0", "rcv 5 0"], ["rcv 22/57 hello...........|5|-", "a second WEB RECEIVE"], []),
+    ("bare", ["rcv 5 0"], ["WEB RECEIVE of a request with no body"], []),
+    ("full", ["rdh Authorization 13 24"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
+    ("full", ["rdh Content-Type 12 24"], [f"rdh 0/0 text/plain{_D(14)}|10"], []),
+    ("full", ["rdh Authorization 13 10"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
+    ("full", ["rdh Authorization 13 9"], ["WEB READ HTTPHEADER value longer than VALUELENGTH"], []),
+    ("full", ["rdh X-Missing 9 24"], ["rdh 13/1"], []),
+    ("full", ["rdh Autho 5 24"], ["rdh 13/1"], []),
+    ("full", ["rdh Authorization 13 0"], ["rdh 22/1"], []),
+    ("full", ["rdh X-Missing 9 0"], ["WEB READ HTTPHEADER with more than one condition at once"], []),
+    ("full", ["rdh authorization 13 24"], ["WEB READ HTTPHEADER header name found only without case"], []),
+    ("full", ["rdh Authorization 0 24"], ["WEB READ HTTPHEADER NAMELENGTH not above zero or past its area"], []),
+    ("full", ["rdh Authorization 33 24"], ["WEB READ HTTPHEADER NAMELENGTH not above zero or past its area"], []),
+    ("full", ["rdh Authorization 13 25"], ["WEB READ HTTPHEADER length beyond its area"], []),
+    ("bare", ["rdh Authorization 13 24"], ["rdh 16/43"], []),
+    ("bare", ["rdh Authorization 13 0"], ["WEB READ HTTPHEADER with more than one condition at once"], []),
+    ("lower", ["rdh authorization 13 24"], [f"rdh 0/0 x{_D(23)}|1"], []),
+    ("lower", ["rdh Authorization 13 24"], ["WEB READ HTTPHEADER header name found only without case"], []),
+    ("twice", ["rdh A 1 24"], ["WEB READ HTTPHEADER two headers of the name"], []),
+    ("full", ["wrh X-Zecs 6 abc 3"], ["wrh 0/0"], [("X-Zecs", "abc")]),
+    ("full", ["wrh X-Zecs 6 abc 3", "wrh X-Zecs 6 abd 3"], ["wrh 0/0", "wrh 0/0"], [("X-Zecs", "abc"), ("X-Zecs", "abd")]),
+    ("full", ["wrh Access-Control-Allow-Origin 27 * 1"], ["wrh 0/0"], [("Access-Control-Allow-Origin", "*")]),
+    ("full", ["wrh X-Zecs 3 abc 3"], ["wrh 0/0"], [("X-Z", "abc")]),
+    ("full", ["wrh X-A 0 v 1"], ["wrh 22/35"], []),
+    ("full", ["wrh X-A 3 v 0"], ["wrh 22/55"], []),
+    ("full", ["wrh X-A 3 v 32001"], ["wrh 22/55"], []),
+    ("full", ["wrh X-A 0 v 0"], ["WEB WRITE HTTPHEADER with more than one condition at once"], []),
+    ("full", ["wrh X-A 4 v 1"], ["WEB WRITE HTTPHEADER name blank or holding a blank or a colon"], []),
+    ("full", ["wrh X:A 3 v 1"], ["WEB WRITE HTTPHEADER name blank or holding a blank or a colon"], []),
+    ("full", ["wrh X-A 33 v 1"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
+    ("full", ["wrh X-A 3 v 41"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
+    ("full", ["snd", "wrh X-A 3 v 1"], ["snd 0/0", "WEB WRITE HTTPHEADER after the response was sent"], []),
+    # #4941 WEB RETRIEVE (X41): INVREQ 2 before any WEB SEND, NOTFND 1 once one was issued (every accepted send is IMMEDIATE)
+    ("full", ["rtv"], ["rtv 16/2"], []),
+    ("bare", ["rtv"], ["rtv 16/2"], []),
+    ("full", ["snd", "rtv"], ["snd 0/0", "rtv 13/1"], []),
+    ("bare", ["snd", "rtv", "rtv"], ["snd 0/0", "rtv 13/1", "rtv 13/1"], []),
+    ("full", ["sndbad", "snd", "rtv"], ["snd 16/11", "snd 0/0", "rtv 13/1"], []),
+    ("full", ["sndbad", "rtv"], ["snd 16/11", "WEB RETRIEVE after a WEB SEND that ended in a condition"], []),
+    ("full", ["wrh X-A 3 v 1", "rtv"], ["wrh 0/0", "rtv 16/2"], [("X-A", "v")]),
+]  # fmt: skip
+
+_X38_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWEXT(gg_cics *c, char *host, int hostcap, char *method, int methodcap, char *version, int versioncap, char *path,
+            int pathcap, char *query, int querycap);
+int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap);
+int GGCWRDH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCWRTV(gg_cics *c);
+static gg_cics c;
+static void flags(const char *s) { memset(c.flags, ' ', 40); memcpy(c.flags, s, strlen(s)); }
+static void trimprint(const char *s, int n) { while (n > 0 && s[n - 1] == ' ') n--; printf("%.*s", n, s); }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[6], host[20], method[10], version[15], path[30], query[20], into[16], media[56], name[32], value[40];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 6; t = strtok(NULL, " ")) w[k++] = t;
+        memset(host, '.', 20); memset(method, '.', 10); memset(version, '.', 15); memset(path, '.', 30);
+        memset(query, '.', 20); memset(into, '.', 16); memset(media, ' ', 56);
+        if (strcmp(w[0], "ext") == 0) {
+            char fl[80] = "";
+            const char *names[5] = {"HOST ", "METHOD ", "VERSION ", "PATH ", "QUERY "};
+            int *len[5] = {&c.len, &c.hours, &c.mins, &c.secs, &c.item};
+            for (int j = 0; j < 5; j++) {
+                *len[j] = strcmp(w[1 + j], "-") == 0 ? 0 : atoi(w[1 + j]);
+                if (strcmp(w[1 + j], "-") != 0) strcat(fl, names[j]);
+            }
+            flags(fl);
+            GGCWEXT(&c, host, 20, method, 10, version, 15, path, 30, query, 20);
+            printf("ext %d/%d", c.resp, c.resp2);
+            if (c.resp == 0) {
+                printf(" %.20s|%.10s|%.15s|%.30s|%.20s|%d|", host, method, version, path, query, c.num);
+                trimprint(c.name1, 8);
+                printf("|%d,%d,%d,%d,%d", c.len, c.hours, c.mins, c.secs, c.item);
+            }
+            printf("\n");
+        } else if (strcmp(w[0], "rcv") == 0) {
+            c.num = atoi(w[1]);
+            flags(strcmp(w[2], "1") == 0 ? "MEDIA" : "");
+            GGCWRCV(&c, into, 16, media, 56);
+            printf("rcv %d/%d", c.resp, c.resp2);
+            if (c.resp == 0 || c.resp2 == 57) {
+                printf(" %.16s|%d|", into, c.len);
+                if (strcmp(w[2], "1") == 0) trimprint(media, 56); else printf("-");
+            }
+            printf("\n");
+        } else if (strcmp(w[0], "rdh") == 0) {
+            memset(name, ' ', 32); memcpy(name, w[1], strlen(w[1])); memset(value, '.', 24);
+            c.len = atoi(w[2]); c.num = atoi(w[3]);
+            GGCWRDH(&c, name, 32, value, 24);
+            printf("rdh %d/%d", c.resp, c.resp2);
+            if (c.resp == 0) printf(" %.24s|%d", value, c.num);
+            printf("\n");
+        } else if (strcmp(w[0], "wrh") == 0) {
+            memset(name, ' ', 32); memcpy(name, w[1], strlen(w[1])); memset(value, ' ', 40); memcpy(value, w[3], strlen(w[3]));
+            c.len = atoi(w[2]); c.num = atoi(w[4]);
+            GGCWWRH(&c, name, 32, value, 40);
+            printf("wrh %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rtv") == 0) {
+            GGCWRTV(&c);
+            printf("rtv %d/%d\n", c.resp, c.resp2);
+        } else {
+            char from[64], stext[20];
+            memset(from, ' ', 64); memset(stext, ' ', 20);
+            c.len = 1; c.item = strcmp(w[0], "sndbad") == 0 ? 99 : 2; c.num = -1; c.hours = -1; c.mins = 0; flags("");
+            GGCWSND(&c, from, 64, media, 56, stext, 20);
+            printf("snd %d/%d\n", c.resp, c.resp2);
+        }
+    }
+    return 0;
+}
+"""
+
+
+@pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK")
+def test_cics_task_web_percent_decoding_is_ascii_hex_only(tmp_path):
+    """#4940: a non-ASCII digit after '%' (fullwidth, Arabic-Indic, ...) is refused, never decoded as hex."""
+    body = (
+        "        try {\n"
+        '        var m = CicsTask.class.getDeclaredMethod("webPlain", String.class, String.class);\n'
+        "        m.setAccessible(true);\n"
+        '        for (String s : new String[] {"%41", "%4a", "%4A", "%\\uff14\\uff11", "%\\u0664\\u0661",\n'
+        '                "%4\\uff11", "%\\u0664A", "%g1"}) {\n'
+        '            try { System.out.println(m.invoke(null, "FORMFIELD", s)); }\n'
+        '            catch (java.lang.reflect.InvocationTargetException e) { System.out.println("refused"); }\n'
+        "        }\n"
+        "        } catch (Exception e) { throw new RuntimeException(e); }"
+    )
+    out = _cics_task(tmp_path, body).split()
+    assert out == ["A", "J", "J", "refused", "refused", "refused", "refused", "refused"]
+
+
+def _x38_cfg(name: str) -> str:
+    scheme, host, port, method, version, path, query, headers, media, body = _X38_REQ[name]
+    hx = lambda v: v.encode("latin-1").hex().upper() if v else "-"  # noqa: E731
+    lines = [f"R {scheme} {hx(host)} {port} {method} {hx(path)} {hx(query)}", f"V {hx(version)}"]
+    if body is not None:
+        lines.append(f"B {hx(media)} {hx(body)}")
+    lines += [f"H {hx(n)} {hx(v)}" for n, v in headers]
+    return "".join(f"{ln}\n" for ln in lines)
+
+
+def _x38_stub_events(out: Path) -> list[tuple]:
+    got = []
+    for line in (
+        (out / "events.txt").read_text(encoding="latin-1").splitlines() if (out / "events.txt").exists() else []
+    ):
+        _seq, verb, *rest = line.split()
+        if verb != "WEB-HEADER":  # (the "snd" step's WEB-SEND is X37's)
+            continue
+        kv = dict(a.split("=", 1) for a in rest[1:])
+        got.append((bytes.fromhex(kv["name"]).decode("latin-1"), bytes.fromhex(kv["value"]).decode("latin-1")))
+    return got
+
+
+@needs_cc
+def test_the_stub_serves_the_stated_request(tmp_path):
+    """#4767 zECS (register X38), IBM WEB EXTRACT / WEB RECEIVE / WEB READ HTTPHEADER / WEB WRITE HTTPHEADER (server): the
+    pieces, body and headers of the stated request, the documented conditions with their RESP2, the response header recorded
+    as WEB-HEADER; what IBM leaves open is refused by name; without a stated request every command is refused."""
+    exe = _stub(tmp_path, _X38_MAIN)
+    for n, (fixture, steps, answers, events) in enumerate(_X38_CASES):
+        req = tmp_path / f"webreq{n}.cfg"
+        req.write_text(_x38_cfg(fixture), encoding="ascii")
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        if (
+            len(answers) == 1
+            and not answers[0].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv")
+            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv"))
+        ):
+            refused = answers[-1]
+            assert run.returncode == 98 and refused + ": not modelled" in run.stdout, (steps, run.stdout)
+            assert run.stdout.splitlines()[:-1] == answers[:-1], steps
+        else:
+            assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
+        assert _x38_stub_events(out) == events, steps
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    for step in ("ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1", "rtv"):
+        unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
+
+
+def _x38_java(steps: list[str]) -> str:
+    return "\n".join(f'step(t, "{st}");' for st in steps)
+
+
+@needs_javac
+def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
+    """#4767 zECS (X38): CicsTask.webExtract / webReceive / webReadHeader / webWriteHeader answer the steps above as the stub
+    does, record the same WEB-HEADER events and refuse what the stub refuses."""
+    helpers = r"""
+    static String area(String piece, int cap) {
+        StringBuilder b = new StringBuilder(piece);
+        while (b.length() < cap) b.append('.');
+        return b.toString();
+    }
+    static String pad(String s, int n) { return String.format("%-" + n + "s", s); }
+    static void step(CicsTask t, String line) {
+        String[] w = line.split(" ");
+        switch (w[0]) {
+            case "ext" -> {
+                Integer[] l = new Integer[5];
+                for (int j = 0; j < 5; j++) l[j] = w[1 + j].equals("-") ? null : Integer.valueOf(w[1 + j]);
+                CicsTask.WebExtracted r = t.webExtract(l[0], 20, l[1], 10, l[2], 15, l[3], 30, l[4], 20);
+                if (r.resp() != 0) { System.out.println("ext " + r.resp() + "/" + r.resp2()); return; }
+                String[] p = {r.host(), r.method(), r.version(), r.path(), r.query()};
+                int[] cap = {20, 10, 15, 30, 20};
+                StringBuilder o = new StringBuilder("ext 0/0 ");
+                StringBuilder lens = new StringBuilder();
+                for (int j = 0; j < 5; j++) {
+                    o.append(l[j] == null ? area("", cap[j]) : area(p[j], cap[j])).append('|');
+                    lens.append(j > 0 ? "," : "").append(l[j] == null ? 0 : p[j].length());
+                }
+                System.out.println(o + "" + r.port() + "|" + (r.scheme() == 1029 ? "HTTPS" : "HTTP") + "|" + lens);
+            }
+            case "rcv" -> {
+                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16);
+                String o = "rcv " + r.resp() + "/" + r.resp2();
+                if (r.body() != null) o += " " + area(r.body(), 16) + "|" + r.body().length() + "|"
+                        + (w[2].equals("1") ? r.mediaType() : "-");
+                System.out.println(o);
+            }
+            case "rdh" -> {
+                CicsTask.WebHeader r = t.webReadHeader(pad(w[1], 32), Integer.parseInt(w[2]), Integer.parseInt(w[3]), 24);
+                String o = "rdh " + r.resp() + "/" + r.resp2();
+                if (r.value() != null) o += " " + area(r.value(), 24) + "|" + r.value().length();
+                System.out.println(o);
+            }
+            case "wrh" -> {
+                int[] r = t.webWriteHeader(pad(w[1], 32), Integer.parseInt(w[2]), pad(w[3], 40), Integer.parseInt(w[4]));
+                System.out.println("wrh " + r[0] + "/" + r[1]);
+            }
+            case "rtv" -> {
+                int[] r = t.webRetrieve();
+                System.out.println("rtv " + r[0] + "/" + r[1]);
+            }
+            default -> {
+                int[] r = t.webSend(pad("", 64), 1, null, w[0].equals("sndbad") ? 99 : 2, -1, null, -1, 0);
+                System.out.println("snd " + r[0] + "/" + r[1]);
+            }
+        }
+    }
+    static CicsTask task(String scheme, String host, int port, String method, String version, String path, String query,
+                         java.util.List<String[]> headers, String media, String body) {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest(scheme, host, port, method,
+                version, path, query, headers, media, body));
+    }
+    static CicsTask fixture(String name) {
+        return switch (name) {
+            case "full" -> task("HTTPS", "zecs.example", 8443, "PUT", "HTTP/1.1", "/resources/ecs/a", "x=1&y=2",
+                    java.util.List.of(new String[] {"Authorization", "Basic QUJD"}, new String[] {"Content-Type", "text/plain"}),
+                    "text/plain", "hello world!");
+            case "bare" -> task("HTTP", "h", 80, "GET", "HTTP/1.0", "/", "", java.util.List.of(), null, null);
+            case "lower" -> task("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "", java.util.List.<String[]>of(new String[] {"authorization", "x"}), null, null);
+            default -> task("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "",
+                    java.util.List.of(new String[] {"A", "1"}, new String[] {"A", "2"}), null, null);
+        };
+    }
+    static void events(CicsTask t) {
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-HEADER")) System.out.println("ev " + e.get("name") + "|" + e.get("value"));
+        }
+    }
+"""
+    parts = []
+    for fixture, steps, answers, _events in _X38_CASES:
+        parts.append(
+            f'{{ CicsTask t = fixture("{fixture}");\n try {{\n{_x38_java(steps)}\n}} catch (UnsupportedOperationException e) {{'
+            ' System.out.println("refused " + e.getMessage()); }\nevents(t); System.out.println("--"); }'
+        )
+    parts.append(
+        'for (String s : new String[] {"ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1", "rtv"}) { try { step(new CicsTask("ZC01", '
+        '"ENTER", null, null), s); } catch (UnsupportedOperationException e) { System.out.println("refused " + e.getMessage()); } }'
+    )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for fixture, steps, answers, events in _X38_CASES:
+        end = lines.index("--", pos)
+        got = lines[pos:end]
+        want = []
+        for a in answers:
+            head = a.split()[0]
+            want.append(a if head in ("ext", "rcv", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled")
+        want += [f"ev {n}|{v}" for n, v in events]
+        assert got == want, (fixture, steps, got, want)
+        pos = end + 1
+    unstated = lines[pos:]
+    assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 5
+
+
+# ---- #4767 zECS (register X30): GET DCOUNTER INCREMENT [WRAP] ---------------------------------------------------------------
+# a step a line: NAME POOL INCREMENT -- "-" for the blank pool; what both runtimes answer: "resp/resp2 value|the counter after",
+# or the refusal. Counters: ZC01_ZECS 41, BIGCNT 4294967294, TOP 4294967295.
+_X30_CASES = [
+    (["ZC01_ZECS - 1"], ["0/0 41|42"]),
+    (["ZC01_ZECS - 5"], ["0/0 41|46"]),
+    (["ZC01_ZECS - 5", "ZC01_ZECS - 1"], ["0/0 41|46", "0/0 46|47"]),
+    (["BIGCNT - 1"], ["0/0 4294967294|4294967295"]),
+    (["NOPE - 1"], ["16/201"]),
+    (["lower - 1"], ["16/404"]),
+    (["1ST - 1"], ["16/404"]),
+    (["ZC01_ZECS lowerpl 1"], ["16/403"]),
+]
+_X30_REFUSED = [
+    (["ZC01_ZECS - 0"], "GET COUNTER with an INCREMENT not above zero"),
+    (["BIGCNT - 2"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+    (["TOP - 1"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+    (["ZC01_ZECS - 4294967296"], "GET COUNTER past 4294967295: the counter's maximum is not stated"),
+]
+
+_X30_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen);
+static gg_cics c;
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[3];
+        unsigned char value[8], inc[8];
+        unsigned long long n = strtoull(argv[i] + strlen(argv[i]) - 1, NULL, 10), v = 0;
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 3; t = strtok(NULL, " ")) w[k++] = t;
+        n = strtoull(w[2], NULL, 10);
+        for (int j = 7; j >= 0; j--) { inc[j] = (unsigned char)(n & 255); n >>= 8; }
+        memset(c.qname, ' ', 16); memcpy(c.qname, w[0], strlen(w[0]));
+        memset(c.name1, ' ', 8); if (strcmp(w[1], "-") != 0) memcpy(c.name1, w[1], strlen(w[1]) > 8 ? 8 : strlen(w[1]));
+        GGCGDCN(&c, value, 8, inc, 8);
+        for (int j = 0; j < 8; j++) v = v * 256 + value[j];
+        if (c.resp == 0) printf("0/0 %llu\n", v); else printf("%d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_gets_a_doubleword_counter_with_an_increment(tmp_path):
+    """#4767 zECS (register X30), IBM EXEC CICS GET DCOUNTER: the value before the increment (an unsigned doubleword, big-endian),
+    then the counter is INCREMENT more; INVREQ RESP2 201 for a counter that is not there, 403 / 404 for a name outside IBM's
+    characters; an INCREMENT not above zero and a counter that would pass 4294967295 (the maximum the run does not state) are
+    refused."""
+    exe = _stub(tmp_path, _X30_MAIN)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    cfg = tmp_path / "counters.cfg"
+    for steps, answers in _X30_CASES:
+        cfg.write_text("- ZC01_ZECS 41\n- BIGCNT 4294967294\n- TOP 4294967295\n", encoding="ascii")
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == [a.split("|")[0] for a in answers], steps
+        if "|" in answers[-1]:
+            name = steps[-1].split()[0]
+            assert f"- {name} {answers[-1].split('|')[1]}" in cfg.read_text(encoding="ascii"), steps
+    for steps, why in _X30_REFUSED:
+        cfg.write_text("- ZC01_ZECS 41\n- BIGCNT 4294967294\n- TOP 4294967295\n", encoding="ascii")
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_gets_a_doubleword_counter_as_the_stub_does(tmp_path):
+    """#4767 zECS (X30): CicsTask.getCounter(pool, name, increment) answers the steps above as the stub does and refuses what the
+    stub refuses."""
+    parts = []
+    for steps, _answers in _X30_CASES:
+        body = "".join(
+            f'{{ long[] r = t.getCounter("{"" if st.split()[1] == "-" else st.split()[1]}", "{st.split()[0]}", {st.split()[2]}L); '
+            f'System.out.println(r[0] == 0 ? "0/0 " + r[2] : r[0] + "/" + r[1]); }}\n'
+            for st in steps
+        )
+        parts.append(
+            '{ CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withCounters(new java.util.HashMap<>('
+            'java.util.Map.of("/ZC01_ZECS", 41L, "/BIGCNT", 4294967294L, "/TOP", 4294967295L)));\n' + body + "}"
+        )
+    for steps, _why in _X30_REFUSED:
+        st = steps[0].split()
+        parts.append(
+            '{ CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withCounters(new java.util.HashMap<>('
+            'java.util.Map.of("/ZC01_ZECS", 41L, "/BIGCNT", 4294967294L, "/TOP", 4294967295L)));\n'
+            f'try {{ t.getCounter("", "{st[0]}", {st[2]}L); System.out.println("not refused"); }} '
+            "catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    out = _cics_task(tmp_path, "\n".join(parts)).splitlines()
+    want = [a.split("|")[0] for _s, answers in _X30_CASES for a in answers]
+    assert out[: len(want)] == want
+    for got, (_steps, why) in zip(out[len(want) :], _X30_REFUSED):
+        assert got == why + ": not modelled", (got, why)
+
+
+# ---- #4767 zECS (register X37): WEB SEND DOCTOKEN ------------------------------------------------------------------------------
+# a step a line: DOC MEDIATYPE|- ACTION STATUSCODE|- STATUSTEXT|- STATUSLEN|- CONV; DOC "empty" (DOCUMENT CREATE), "text" (a
+# document of "ab"), "none" (a token that names no document). What both runtimes answer and the WEB-SEND body they record.
+_X37_DOC_CASES = [  # (steps, answers, bodies of the events)
+    (["empty text/plain 2 204 No_Content 10 1"], ["send 0/0"], [""]),
+    (["empty - 2 - - - 0"], ["send 0/0"], [""]),
+    (["text text/plain 2 200 OK 2 1"], ["send 0/0"], ["ab"]),
+    (["text - 2 204 - - 0"], ["send 16/72"], []),
+    (["text - 7 - - - 0"], ["send 16/11"], []),
+]
+_X37_DOC_REFUSED = [
+    (["none - 2 - - - 0"], "WEB SEND DOCTOKEN of a document the task did not create"),
+    (["empty - 3 - - - 0"], "WEB SEND ACTION not IMMEDIATE"),
+    (["empty - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
+    (["empty - 2 99 - - 0"], "STATUSCODE outside 100-599"),
+    (["empty application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["empty - 2 - OK 21 0"], "length beyond its area"),
+    (["empty - 2 - - - 0", "empty - 2 - - - 0"], "WEB SEND after a response was sent"),
+]
+
+_X37_DOC_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen);
+int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap);
+static gg_cics c;
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[7], tok[16], media[56], stext[20], flags[40] = "";
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 7; t = strtok(NULL, " ")) w[k++] = t;
+        memset(tok, ' ', 16); memset(media, ' ', 56); memset(stext, ' ', 20);
+        if (strcmp(w[0], "none") != 0) {
+            memset(c.flags, ' ', 40); memcpy(c.flags, strcmp(w[0], "empty") == 0 ? "EMPTY" : "DATA", strcmp(w[0], "empty") == 0 ? 5 : 4);
+            c.len = 2;
+            GGCDOCC(&c, "ab", 2, tok, 16);
+        } else memcpy(tok, "GGDOC99999999999", 16);
+        if (strcmp(w[1], "-") != 0) { strcat(flags, "MEDIA "); memcpy(media, w[1], strlen(w[1])); }
+        c.item = atoi(w[2]);
+        c.num = strcmp(w[3], "-") == 0 ? -1 : atoi(w[3]);
+        if (strcmp(w[4], "-") != 0) { strcat(flags, "STEXT"); memcpy(stext, w[4], strlen(w[4])); }
+        c.hours = strcmp(w[5], "-") == 0 ? -1 : atoi(w[5]);
+        c.mins = atoi(w[6]);
+        memset(c.flags, ' ', 40); memcpy(c.flags, flags, strlen(flags));
+        GGCWSDC(&c, tok, 16, media, 56, stext, 20);
+        printf("send %d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_sends_a_document(tmp_path):
+    """#4767 zECS (register X37), IBM WEB SEND DOCTOKEN (server): the document the task created is the response body, recorded as
+    WEB-SEND; an empty document is no body (a 204 may send it: ASSUMED); the rest as FROM; a token naming no document is refused."""
+    exe = _stub(tmp_path, _X37_DOC_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    for n, (steps, answers, bodies) in enumerate(_X37_DOC_CASES):
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == answers, steps
+        got = _x37_stub_events(out)
+        assert [g[3] for g in got if g[0] in (200, 204)] == bodies, steps
+    for n, (steps, why) in enumerate(_X37_DOC_REFUSED):
+        out = tmp_path / f"refused{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_sends_a_document_as_the_stub_does(tmp_path):
+    """#4767 zECS (X37): CicsTask.webSendDocument answers the steps above as the stub does and refuses what it refuses."""
+
+    def java(steps: list[str]) -> str:
+        lines = []
+        for st in steps:
+            w = st.split(" ")
+
+            def area(v: str, width: int) -> str:
+                return "null" if v == "-" else '"' + v.ljust(width) + '"'
+
+            doc = {"empty": "t.documentCreateEmpty().doctoken()", "text": 't.documentCreateData("ab".getBytes(), 2).doctoken()',
+                   "none": '"GGDOC99999999999"'}[w[0]]  # fmt: skip
+            lines.append(
+                f"send(t, {doc}, {area(w[1], 56)}, {w[2]}, {-1 if w[3] == '-' else w[3]}, {area(w[4], 20)}, "
+                f"{-1 if w[5] == '-' else w[5]}, {w[6]});"
+            )
+        return "\n".join(lines)
+
+    helpers = """
+    static void send(CicsTask t, String tok, String media, int action, int status, String stext, int sl, int conv) {
+        int[] r = t.webSendDocument(tok, media, action, status, stext, sl, conv, java.nio.charset.StandardCharsets.ISO_8859_1);
+        System.out.println("send " + r[0] + "/" + r[1]);
+    }
+    static CicsTask task() {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTP", "zecs", 80,
+                "PUT", "HTTP/1.1", "/k", "", java.util.List.of(), null, null));
+    }
+    static void events(CicsTask t) {
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-SEND")) System.out.println("ev " + e.get("body"));
+        }
+    }
+"""
+    parts = [
+        "{ CicsTask t = task();\n" + java(steps) + '\nevents(t); System.out.println("--"); }'
+        for steps, _a, _b in _X37_DOC_CASES
+    ]
+    for steps, _why in _X37_DOC_REFUSED:
+        parts.append(
+            "{ CicsTask t = task(); try {\n" + java(steps) + '\nSystem.out.println("not refused"); }'
+            " catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, answers, bodies in _X37_DOC_CASES:
+        end = lines.index("--", pos)
+        assert lines[pos:end] == answers + [f"ev {b}" for b in bodies], (steps, lines[pos:end])
+        pos = end + 1
+    refusals = [ln for ln in lines[pos:] if not ln.startswith("send ")]
+    assert len(refusals) == len(_X37_DOC_REFUSED)
+    for got, (_steps, why) in zip(refusals, _X37_DOC_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+# ---- #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms ----------------------------------------
+# One step table, run alike by the stub (C) and CicsTask (Java): rdf / rdq NAME NAMELENGTH VALUELENGTH (areas: name 32, value
+# 24), sbr KIND [NAME NAMELENGTH], rnx KIND NAMELENGTH VALUELENGTH (areas: name 16, value 30), ebr KIND; KIND h / f / q
+# (HTTPHEADER / FORMFIELD / QUERYPARM). Areas start as dots, so "the rest of the area is left alone" shows.
+_URL = "application/x-www-form-urlencoded"
+_FORM_Q = "a=1&B=two%20words&c=&e=x%3Dy"
+_FORM_B = "user=joe&Pass=p%40ss%21&empty=&long=abcdefghijklmnopqrstuvwxy"
+_H2 = [("Host", "h"), ("X-Long", "abcdefghijklmnopqrstuvwxyz0123456789")]
+_LONGV = "0123456789" * 3 + "0123"
+_X4940_REQ = {
+    "form": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", _FORM_Q, _H2, _URL, _FORM_B),
+    "hdrs": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "", [("A", "1"), ("B", "2")], None, None),
+    "dup": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "a=1&A=2", [], _URL, "k=1&k=2"),
+    "emptybody": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], _URL, ""),
+    "multipart": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], "multipart/form-data", "a=1"),
+    "textplain": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "", [], "text/plain", "a=1"),
+    "eqval": ("HTTP", "h", 80, "GET", "HTTP/1.1", "/", "k=a=b", [], None, None),
+    "longname": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", "averyverylongfieldname=v&z=1", [], _URL,
+                 "averyverylongfieldname=v&z=1"),
+    "bothlong": ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", f"averyverylongfieldname={_LONGV}", [], _URL,
+                 f"averyverylongfieldname={_LONGV}"),
+}  # fmt: skip
+_X4940_BAD = {  # data IBM leaves open: the same string as a query string and as a form body
+    "plus": "a=b+c", "semi": "a=1;b=2", "noeq": "abc", "badesc": "a=%zz", "shortesc": "a=%4", "ctl": "a=%00",
+    "hi": "a=%FF", "escname": "%41=1", "emptypair": "a=1&&b=2", "emptyname": "=v", "trailamp": "a=1&",
+}  # fmt: skip
+for _n, _d in _X4940_BAD.items():
+    _X4940_REQ[_n] = ("HTTP", "h", 80, "POST", "HTTP/1.1", "/", _d, [], _URL, _d)
+_X38_REQ.update(_X4940_REQ)
+
+
+def _d(s: str, n: int) -> str:
+    return s + "." * (n - len(s))
+
+
+def _rd(step: str, resp: str, value: str | None = None, n: int | None = None) -> str:
+    return f"{step} {resp}" + ("" if value is None else f" {_d(value, 24)}|{n}")
+
+
+def _rn(resp: str, name: str | None = None, value: str = "", nl: int = 0, vl: int = 0) -> str:
+    return f"rnx {resp}" + ("" if name is None else f" {_d(name, 16)}|{_d(value, 30)}|{nl}|{vl}")
+
+
+_LONGFIELD = "abcdefghijklmnopqrstuvwxy"
+_FORM_ROWS = [("user", "joe"), ("Pass", "p@ss!"), ("empty", ""), ("long", _LONGFIELD)]
+_QUERY_ROWS = [("a", "1"), ("B", "two words"), ("c", ""), ("e", "x=y")]
+_MORE = "with more than one condition at once"
+_X4940_CASES: list[tuple[str, list[str], list[str]]] = [
+    # -- WEB READ FORMFIELD / QUERYPARM: the name without case, the value unescaped, cut with the real length
+    ("form", ["rdf user 4 24"], [_rd("rdf", "0/0", "joe", 3)]),
+    ("form", ["rdf USER 4 24"], [_rd("rdf", "0/0", "joe", 3)]),
+    ("form", ["rdf Pass 4 24"], [_rd("rdf", "0/0", "p@ss!", 5)]),
+    ("form", ["rdf empty 5 24"], [_rd("rdf", "0/0", "", 0)]),
+    ("form", ["rdf long 4 24"], [f"rdf 22/5 {_LONGFIELD[:24]}|25"]),
+    ("form", ["rdf long 4 10"], [_rd("rdf", "22/5", _LONGFIELD[:10], 25)]),
+    ("form", ["rdf long 4 25"], ["WEB READ FORMFIELD length beyond its area"]),
+    ("form", ["rdf nobody 6 24"], ["rdf 13/1"]),
+    ("form", ["rdf user 0 24"], ["rdf 22/1"]),
+    ("form", ["rdf user 4 0"], ["rdf 22/1"]),
+    ("form", ["rdf user 4 -1"], ["rdf 22/1"]),
+    ("form", ["rdf user -2 24"], ["rdf 22/1"]),
+    ("form", ["rdf user 33 24"], ["WEB READ FORMFIELD length beyond its area"]),
+    ("form", ["rdf nobody 6 0"], [f"WEB READ FORMFIELD {_MORE}"]),
+    ("form", ["rdq a 1 24"], [_rd("rdq", "0/0", "1", 1)]),
+    ("form", ["rdq b 1 24"], [_rd("rdq", "0/0", "two words", 9)]),
+    ("form", ["rdq B 1 24", "rdq e 1 24", "rdq c 1 24"],
+     [_rd("rdq", "0/0", "two words", 9), _rd("rdq", "0/0", "x=y", 3), _rd("rdq", "0/0", "", 0)]),
+    ("form", ["rdq e 1 2"], [_rd("rdq", "22/5", "x=", 3)]),
+    ("form", ["rdq user 4 24"], ["rdq 13/1"]),
+    ("form", ["rdq a 1 25"], ["WEB READ QUERYPARM length beyond its area"]),
+    ("form", ["rdq a 33 24"], ["WEB READ QUERYPARM length beyond its area"]),
+    ("form", ["rdq a 0 24"], ["rdq 22/1"]),
+    ("form", ["rdq zz 2 0"], [f"WEB READ QUERYPARM {_MORE}"]),
+    ("eqval", ["rdq k 1 24"], [_rd("rdq", "0/0", "a=b", 3)]),
+    ("bare", ["rdf a 1 24"], ["rdf 16/13"]),
+    ("bare", ["rdq a 1 24"], ["rdq 16/13"]),
+    ("bare", ["rdf a 0 24"], [f"WEB READ FORMFIELD {_MORE}"]),
+    ("bare", ["rdq a 1 0"], [f"WEB READ QUERYPARM {_MORE}"]),
+    ("emptybody", ["rdf a 1 24"], ["rdf 16/13"]),
+    ("dup", ["rdq a 1 24"], ["WEB READ QUERYPARM two pairs of the name"]),
+    ("dup", ["rdq A 1 24"], ["WEB READ QUERYPARM two pairs of the name"]),
+    ("dup", ["rdf k 1 24"], ["WEB READ FORMFIELD two pairs of the name"]),
+    ("dup", ["rdq zz 2 24"], ["rdq 13/1"]),
+    ("multipart", ["rdf a 1 24"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("textplain", ["rdf a 1 24"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("multipart", ["sbr f"], ["WEB FORMFIELD body not application/x-www-form-urlencoded"]),
+    ("multipart", ["rdq a 1 24"], ["rdq 16/13"]),
+    # -- the data IBM leaves open, refused on every form
+    *[
+        (n, [step], [f"WEB {kind} data outside the modelled name=value form"])
+        for n in _X4940_BAD
+        for step, kind in (("rdq a 1 24", "QUERYPARM"), ("rdf a 1 24", "FORMFIELD"), ("sbr q", "QUERYPARM"),
+                           ("sbr f", "FORMFIELD"))  # fmt: skip
+    ],
+    # -- WEB STARTBROWSE / READNEXT / ENDBROWSE FORMFIELD
+    ("form", ["sbr f", "rnx f 16 30", "rnx f 16 30", "rnx f 16 30", "rnx f 16 12", "rnx f 16 12", "rnx f 16 30",
+              "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "user", "joe", 4, 3), _rn("0/0", "Pass", "p@ss!", 4, 5), _rn("0/0", "empty", "", 5, 0),
+      _rn("22/5", "long", _LONGFIELD[:12], 4, 25), _rn("22/5", "long", _LONGFIELD[:12], 4, 25),
+      _rn("0/0", "long", _LONGFIELD, 4, 25), "rnx 20/0", "WEB READNEXT FORMFIELD after ENDFILE"]),
+    ("form", ["sbr f", "sbr f"], ["sbr 0/0", "sbr 21/5"]),
+    ("form", ["rnx f 16 30", "ebr f"], ["rnx 16/4", "ebr 16/4"]),
+    ("form", ["sbr f", "ebr f", "ebr f"], ["sbr 0/0", "ebr 0/0", "ebr 16/4"]),
+    ("form", ["sbr f", "rnx f 16 30", "ebr f", "sbr f", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "user", "joe", 4, 3), "ebr 0/0", "sbr 0/0", _rn("0/0", "user", "joe", 4, 3)]),
+    ("form", ["sbr f Pass 4", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "Pass", "p@ss!", 4, 5), _rn("0/0", "empty", "", 5, 0)]),
+    ("form", ["sbr f nobody 6", "ebr f", "rnx f 16 30"], ["sbr 13/1", "ebr 16/4", "rnx 16/4"]),
+    ("form", ["sbr f user 0"], ["sbr 22/1"]),
+    ("form", ["sbr f user -1"], ["sbr 22/1"]),
+    ("form", ["sbr f user 33"], ["WEB STARTBROWSE FORMFIELD length beyond its area"]),
+    ("form", ["sbr f PASS 4"], ["WEB STARTBROWSE FORMFIELD name found only without case"]),
+    ("form", ["sbr f", "sbr f nobody 6"], ["sbr 0/0", f"WEB STARTBROWSE FORMFIELD {_MORE}"]),
+    ("form", ["sbr f", "rnx f 0 30", "rnx f 16 0", "rnx f -1 30", "rnx f 16 30"],
+     ["sbr 0/0", "rnx 22/1", "rnx 22/1", "rnx 22/1", _rn("0/0", "user", "joe", 4, 3)]),
+    ("form", ["sbr f", "rnx f 17 30"], ["sbr 0/0", "WEB READNEXT FORMFIELD length beyond its area"]),
+    ("form", ["sbr f", "rnx f 16 31"], ["sbr 0/0", "WEB READNEXT FORMFIELD length beyond its area"]),
+    ("longname", ["sbr f", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("22/4", "averyverylongfie", "v", 22, 1), _rn("22/4", "averyverylongfie", "v", 22, 1)]),
+    ("bothlong", ["sbr f", "rnx f 16 30"], ["sbr 0/0", "WEB READNEXT FORMFIELD name and value both truncated"]),
+    ("bare", ["sbr f"], ["sbr 16/13"]),
+    ("emptybody", ["sbr f"], ["sbr 16/13"]),
+    ("bare", ["sbr f x 0"], [f"WEB STARTBROWSE FORMFIELD {_MORE}"]),
+    ("dup", ["sbr f", "rnx f 16 30", "rnx f 16 30", "rnx f 16 30"],
+     ["sbr 0/0", _rn("0/0", "k", "1", 1, 1), _rn("0/0", "k", "2", 1, 1), "rnx 20/0"]),
+    ("dup", ["sbr f k 1"], ["WEB STARTBROWSE FORMFIELD two pairs of the name"]),
+    # -- QUERYPARM
+    ("form", ["sbr q", *["rnx q 16 30"] * 5],
+     ["sbr 0/0", *[_rn("0/0", n, v, len(n), len(v)) for n, v in _QUERY_ROWS], "rnx 20/0"]),
+    ("form", ["sbr q e 1", "rnx q 16 30", "rnx q 16 30"], ["sbr 0/0", _rn("0/0", "e", "x=y", 1, 3), "rnx 20/0"]),
+    ("form", ["sbr q E 1"], ["WEB STARTBROWSE QUERYPARM name found only without case"]),
+    ("form", ["sbr q", "sbr q"], ["sbr 0/0", "sbr 21/5"]),
+    ("form", ["rnx q 16 30", "ebr q"], ["rnx 16/4", "ebr 16/4"]),
+    ("form", ["sbr q", "ebr q", "ebr q"], ["sbr 0/0", "ebr 0/0", "ebr 16/4"]),
+    ("form", ["sbr q user 4"], ["sbr 13/1"]),
+    ("bare", ["sbr q"], ["sbr 16/13"]),
+    ("longname", ["sbr q", "rnx q 16 30"], ["sbr 0/0", _rn("22/4", "averyverylongfie", "v", 22, 1)]),
+    ("bothlong", ["sbr q", "rnx q 16 30"], ["sbr 0/0", "WEB READNEXT QUERYPARM name and value both truncated"]),
+    ("dup", ["sbr q", "rnx q 16 30", "rnx q 16 30", "rnx q 16 30"],
+     ["sbr 0/0", _rn("0/0", "a", "1", 1, 1), _rn("0/0", "A", "2", 1, 1), "rnx 20/0"]),
+    ("dup", ["sbr q a 1"], ["WEB STARTBROWSE QUERYPARM two pairs of the name"]),
+    # -- HTTPHEADER
+    ("hdrs", ["sbr h", "rnx h 16 30", "rnx h 16 30", "rnx h 16 30", "ebr h"],
+     ["sbr 0/0", _rn("0/0", "A", "1", 1, 1), _rn("0/0", "B", "2", 1, 1), "rnx 20/0", "ebr 0/0"]),
+    ("hdrs", ["sbr h", "sbr h"], ["sbr 0/0", "sbr 21/10"]),
+    ("hdrs", ["rnx h 16 30", "ebr h"], ["rnx 16/4", "ebr 16/4"]),
+    ("hdrs", ["sbr h", "rnx h 16 0"], ["sbr 0/0", "rnx 22/1"]),
+    ("hdrs", ["sbr h", "rnx h 16 30", "rnx h 16 30", "rnx h 0 30"],
+     ["sbr 0/0", _rn("0/0", "A", "1", 1, 1), _rn("0/0", "B", "2", 1, 1), f"WEB READNEXT HTTPHEADER {_MORE}"]),
+    ("form", ["sbr h", "rnx h 16 30", "rnx h 16 30"],
+     ["sbr 0/0", _rn("0/0", "Host", "h", 4, 1), "WEB READNEXT HTTPHEADER truncated"]),
+    ("bare", ["sbr h"], ["sbr 16/43"]),
+    # -- the three browses are independent of each other and of a read
+    ("form", ["sbr f", "sbr q", "sbr h", "rnx q 16 30", "rnx f 16 30", "rnx h 16 30", "ebr q", "rnx q 16 30",
+              "rnx f 16 30", "rdq a 1 24"],
+     ["sbr 0/0", "sbr 0/0", "sbr 0/0", _rn("0/0", "a", "1", 1, 1), _rn("0/0", "user", "joe", 4, 3),
+      _rn("0/0", "Host", "h", 4, 1), "ebr 0/0", "rnx 16/4", _rn("0/0", "Pass", "p@ss!", 4, 5),
+      _rd("rdq", "0/0", "1", 1)]),
+]  # fmt: skip
+_X4940_HEADS = ("rdf", "rdq", "sbr", "rnx", "ebr")
+
+_X4940_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWRDP(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWSBR(gg_cics *c, char *name, int namecap);
+int GGCWRNX(gg_cics *c, char *name, int namecap, char *value, int valuecap);
+int GGCWEBR(gg_cics *c);
+static gg_cics c;
+static int kind(const char *s) { return s[0] == 'h' ? 0 : s[0] == 'f' ? 1 : 2; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[6], name[40], value[40];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 6; t = strtok(NULL, " ")) w[k++] = t;
+        memset(name, '.', 40); memset(value, '.', 40);
+        if (strcmp(w[0], "rdf") == 0 || strcmp(w[0], "rdq") == 0) {
+            memset(name, ' ', 32); memcpy(name, w[1], strlen(w[1]));
+            c.item = w[0][2] == 'f' ? 1 : 2; c.len = atoi(w[2]); c.num = atoi(w[3]);
+            GGCWRDP(&c, name, 32, value, 24);
+            printf("%s %d/%d", w[0], c.resp, c.resp2);
+            if (c.resp == 0 || c.resp2 == 5) printf(" %.24s|%d", value, c.num);
+            printf("\n");
+        } else if (strcmp(w[0], "sbr") == 0) {
+            memset(name, ' ', 32);
+            c.item = kind(w[1]);
+            if (k > 2) { memcpy(name, w[2], strlen(w[2])); c.len = atoi(w[3]); memset(c.flags, ' ', 40); memcpy(c.flags, "NAME", 4); }
+            else { c.len = 0; memset(c.flags, ' ', 40); }
+            GGCWSBR(&c, name, 32);
+            printf("sbr %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rnx") == 0) {
+            c.item = kind(w[1]); c.len = atoi(w[2]); c.num = atoi(w[3]);
+            GGCWRNX(&c, name, 16, value, 30);
+            printf("rnx %d/%d", c.resp, c.resp2);
+            if (c.resp == 0 || (c.resp == 22 && c.resp2 != 1)) printf(" %.16s|%.30s|%d|%d", name, value, c.len, c.num);
+            printf("\n");
+        } else {
+            c.item = kind(w[1]);
+            GGCWEBR(&c);
+            printf("ebr %d/%d\n", c.resp, c.resp2);
+        }
+    }
+    return 0;
+}
+"""
+
+
+def _x4940_refused(answers: list[str]) -> bool:
+    return not answers[-1].split()[0] in _X4940_HEADS
+
+
+@needs_cc
+def test_the_stub_reads_form_fields_query_parameters_and_browses(tmp_path):
+    """#4940 (register X38), IBM WEB READ FORMFIELD / QUERYPARM and WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER,
+    FORMFIELD, QUERYPARM (server): the stated request's pairs unescaped, names without case on a read, the documented
+    conditions with their RESP2 (INVREQ 13 / 43 / 4, NOTFND 1, LENGERR 1 / 4 / 5, ILLOGIC 5 / 10, ENDFILE), a cut value or
+    name returned again by the next READNEXT; what IBM leaves open is refused by name; no stated request refuses all."""
+    exe = _stub(tmp_path, _X4940_MAIN)
+    for n, (fixture, steps, answers) in enumerate(_X4940_CASES):
+        req = tmp_path / f"webreq{n}.cfg"
+        req.write_text(_x38_cfg(fixture), encoding="ascii")
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        if _x4940_refused(answers):
+            assert run.returncode == 98 and answers[-1] + ": not modelled" in run.stdout, (fixture, steps, run.stdout)
+            assert run.stdout.splitlines()[:-1] == answers[:-1], (fixture, steps, run.stdout)
+        else:
+            assert run.returncode == 0 and run.stdout.splitlines() == answers, (fixture, steps, run.stdout)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    for step in ("rdf a 1 24", "rdq a 1 24", "sbr f", "sbr h", "rnx f 16 30", "ebr q"):
+        unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
+
+
+def _jstr(v: str | None) -> str:
+    return "null" if v is None else f'"{v}"'
+
+
+def _x4940_jtask(fixture: str) -> str:
+    scheme, host, port, method, version, path, query, headers, media, body = _X38_REQ[fixture]
+    hs = ", ".join(f'new String[] {{"{n}", "{v}"}}' for n, v in headers)
+    return (
+        'new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest('
+        f'"{scheme}", "{host}", {port}, "{method}", "{version}", "{path}", "{query}", '
+        f"java.util.List.<String[]>of({hs}), {_jstr(media)}, {_jstr(body)}))"
+    )
+
+
+@needs_javac
+def test_cics_task_reads_form_fields_query_parameters_and_browses_as_the_stub_does(tmp_path):
+    """#4940 (X38): CicsTask.webReadParam / webStartBrowse / webReadNext / webEndBrowse answer the steps above as the stub does
+    and refuse what the stub refuses; without a stated request every one is refused."""
+    helpers = r"""
+    static String area(String s, int cap) { return s + ".".repeat(cap - s.length()); }
+    static String pad(String s, int n) { return String.format("%-" + n + "s", s); }
+    static String kind(String k) { return k.equals("h") ? "HTTPHEADER" : k.equals("f") ? "FORMFIELD" : "QUERYPARM"; }
+    static void step(CicsTask t, String line) {
+        String[] w = line.split(" ");
+        switch (w[0]) {
+            case "rdf", "rdq" -> {
+                CicsTask.WebParam r = t.webReadParam(w[0].equals("rdf") ? "FORMFIELD" : "QUERYPARM", pad(w[1], 32),
+                        Integer.parseInt(w[2]), Integer.parseInt(w[3]), 24);
+                String o = w[0] + " " + r.resp() + "/" + r.resp2();
+                if (r.value() != null) o += " " + area(r.value(), 24) + "|" + r.length();
+                System.out.println(o);
+            }
+            case "sbr" -> {
+                int[] r = w.length > 2 ? t.webStartBrowse(kind(w[1]), pad(w[2], 32), Integer.valueOf(w[3]))
+                        : t.webStartBrowse(kind(w[1]), null, null);
+                System.out.println("sbr " + r[0] + "/" + r[1]);
+            }
+            case "rnx" -> {
+                CicsTask.WebNext r = t.webReadNext(kind(w[1]), Integer.parseInt(w[2]), 16, Integer.parseInt(w[3]), 30);
+                String o = "rnx " + r.resp() + "/" + r.resp2();
+                if (r.name() != null) o += " " + area(r.name(), 16) + "|" + area(r.value(), 30) + "|" + r.nameLength() + "|"
+                        + r.valueLength();
+                System.out.println(o);
+            }
+            default -> {
+                int[] r = t.webEndBrowse(kind(w[1]));
+                System.out.println("ebr " + r[0] + "/" + r[1]);
+            }
+        }
+    }
+"""
+    parts = []
+    for fixture, steps, _answers in _X4940_CASES:
+        body = "\n".join(f'step(t, "{st}");' for st in steps)
+        parts.append(
+            f"{{ CicsTask t = {_x4940_jtask(fixture)};\n try {{\n{body}\n}} catch (UnsupportedOperationException e) {{"
+            ' System.out.println("refused " + e.getMessage()); }\nSystem.out.println("--"); }'
+        )
+    parts.append(
+        'for (String s : new String[] {"rdf a 1 24", "rdq a 1 24", "sbr f", "sbr h", "rnx f 16 30", "ebr q"}) { try { step(new '
+        'CicsTask("ZC01", "ENTER", null, null), s); } catch (UnsupportedOperationException e) { System.out.println("refused " '
+        "+ e.getMessage()); } }"
+    )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for fixture, steps, answers in _X4940_CASES:
+        end = lines.index("--", pos)
+        want = [a if not (i == len(answers) - 1 and _x4940_refused(answers)) else f"refused {a}: not modelled"
+                for i, a in enumerate(answers)]  # fmt: skip
+        assert lines[pos:end] == want, (fixture, steps, lines[pos:end], want)
+        pos = end + 1
+    assert lines[pos:] == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 6

@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
 
       # Pinned (unlike mypy-audit.yml's unpinned `pip install mypy`): ruff ships
       # new lint rules and rule-set changes far more frequently than mypy does,
@@ -44,8 +47,8 @@ jobs:
       # baseline regeneration, not as a side effect of a routine CI run.
       - name: Install ruff and GitGalaxy
         run: |
-          python -m pip install --upgrade pip
-          pip install ruff==0.16.0 PyYAML
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --require-hashes -r ci/requirements/lint.txt
           pip install -e .
 
       - name: Run baseline-gated lint regression check + zero-tolerance format check (#469)

@@ -117,10 +117,12 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
 - **Three reference tools, three languages.** pyan3 is a reference, not ground truth: a
   hand-checked sample of edges it has and GitGalaxy does not were pyan inferences with
   no basis in the source (a getter that only reads an attribute). TypeScript is measured
-  against the compiler's own type checker on zod: 99.9% confident precision over 1,520
-  judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
-  confident links point into the repo for a call that runs a built-in (`str.trim()`,
-  `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
+  against the compiler's own type checker on zod: 99.9% confident precision over 1,617
+  judged links, 60.7% recall, 78.1% resolution recall. The checker had shown 52
+  confident links pointing into the repo for a call that runs a built-in (`str.trim()`,
+  `map.get()`, strict precision 96.8%); an untyped non-`this` receiver's call to a name
+  of a String/Array/Map/Set/Promise/Object method is now an ambiguous `receiver` row,
+  and a global's static (`Number.isFinite`) no edge: 1 left, strict precision 99.9% (#3756). Java is measured against
   scip-java (javac-resolved SCIP) on gson: 93.2% confident precision over 3,727 judged
   links, and 44.2% recall. A call to an overloaded method links to the overload with that
   many parameters (#3835). When several overloads take that many, the call is ambiguous:

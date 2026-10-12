@@ -13,6 +13,9 @@ name: Graph Comparison History
 # add verdicts; this bot commits the count churn. "No diff" is the adaptivity: a push that moved
 # nothing opens no PR.
 
+# #4847: the output is published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through
+# an auto-merged PR; the PR-then-merge and loop-guard paragraphs above describe the old mechanism.
+
 on:
   push:
     branches: [main]
@@ -31,6 +34,7 @@ on:
       - "tests/import_graph_corpus.json"
       - "tests/call_graph_resolution*_baseline.json"
       - "tests/tools/graph_coverage_chart.py"
+  workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:
   contents: read
@@ -42,36 +46,37 @@ concurrency:
 
 jobs:
   graph-comparison-history:
-    # This job's own bot commit touches the ledger; the guard keeps its merge from re-triggering it.
-    if: |
-      !startsWith(github.event.head_commit.message, 'docs: auto-update graph comparison data')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           fetch-depth: 0
-          persist-credentials: false
+          # #4847: the publish step pushes to `generated` with this checkout's token. The job runs main's code on a
+          # push to main / dispatch only, never PR code (the same reasoning as evidence-pages.yml).
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       # The same install as call-graph-accuracy-audit.yml, so the ledger records exactly the
       # numbers the PR gate measures.
       - name: Install GitGalaxy + tree-sitter-language-pack
         run: |
           cd gitgalaxy
-          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
-          pip install tree-sitter-language-pack
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
         run: |
@@ -98,40 +103,28 @@ jobs:
 
       # The coverage chart is a pure function of the baselines and the ledger just refreshed
       # (#3796); the history only gains a snapshot when a number or n moved.
+      # The series is appended to, so it starts from what `generated` last published (the copy committed on main is
+      # only the seed and the fallback when the branch has none yet).
+      - name: Restore the published series from the generated branch
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch \
+            docs/self_scan/graph_coverage_history.csv
+
       - name: Regenerate the graph coverage chart and history
         run: |
           cd gitgalaxy
           python tests/tools/graph_coverage_chart.py --write --history docs/self_scan/graph_coverage_history.csv \
             --summary "$GITHUB_STEP_SUMMARY"
 
-      - name: Open PR with the refreshed ledger
-        id: graph-comparison-history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          path: gitgalaxy
-          commit-message: "docs: auto-update graph comparison data"
-          title: "docs: auto-update graph comparison data"
-          body: |
-            Automated refresh of `docs/self_scan/graph_comparison_ledger.json` from the latest
-            call- and import-graph measurements on `main` (#3641): last_seen_count / last_seen_examples /
-            still_reproduces on existing shapes, and new `unvalidated` entries for newly-observed
-            shapes. Never touches a validated entry's `status` / `verdict` / `credit_tools`, nor
-            the raw baselines. Also regenerates `docs/self_scan/graph_coverage_chart.svg` and, when a
-            number moved, appends to `docs/self_scan/graph_coverage_history.csv` (#3796).
-          branch: auto/graph-comparison-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/graph_comparison_ledger.json
-            docs/self_scan/graph_coverage_chart.svg
-            docs/self_scan/graph_coverage_history.csv
-
-      # Nothing else gates this PR, so merge it explicitly (same as the tri-comparison history).
-      - name: Merge the graph comparison history PR
-        if: steps.graph-comparison-history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
+      # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
+      - name: Publish to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.graph-comparison-history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          python tests/tools/generated_branch.py publish --stamp graph-comparison-history \
+            --message "graph-comparison-history as of main $GITHUB_SHA" \
+            docs/self_scan/graph_comparison_ledger.json \
+            docs/self_scan/graph_coverage_chart.svg \
+            docs/self_scan/graph_coverage_history.csv

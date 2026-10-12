@@ -11,7 +11,7 @@ import pr_gates
 
 def test_ci_pins_reads_workflows():
     pins = pr_gates.ci_pins()
-    assert pins["python"] and pins["ruff"]  # ruff is pinned in ruff-audit.yml
+    assert pins["python"] and pins["ruff"]  # ruff is pinned in ci/requirements/lint.in
     assert pins["mypy"]  # mypy is pinned in tests/requirements-mypy.txt
 
 

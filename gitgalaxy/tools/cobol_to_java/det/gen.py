@@ -69,7 +69,25 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
+    # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
+    "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
+    "CEEUTC": ("__PACKAGE__.cobolrt.le.Ceeutc.call", 3),
+    "CEEDATM": ("__PACKAGE__.cobolrt.le.Ceedatm.call", 4),
+    "CEESECS": ("__PACKAGE__.cobolrt.le.Ceesecs.call", 4),
+    "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
+    "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
+    "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
 }
+LIBRARY_CLOCK = {
+    "CEELOCT",
+    "CEEGMT",
+    "CEEUTC",
+}  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
+# The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
+# z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
+LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
 
 def jstr(s: str) -> str:
@@ -1086,6 +1104,10 @@ class Gen:
         finally:
             self.intr -= 1
 
+    def current_date_expr(self) -> str:
+        """The run's clock as FUNCTION CURRENT-DATE's text (the CICS task's, or the batch clock)."""
+        return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
+
     def _func(self, f: E.Func) -> str:
         name = f.name
         args = [a for a in f.args if not (isinstance(a, tuple) and a[0] == "REFMOD")]
@@ -1094,7 +1116,7 @@ class Gen:
         if name in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name == "CURRENT-DATE":
-            return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
+            return self.current_date_expr()
         if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.numval_arg(args[0])})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
@@ -2549,7 +2571,16 @@ class Gen:
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: {lib[1]} items BY REFERENCE expected")
-            return [f"{ind}{lib[0]}({', '.join(self.field_expr(a) for _, a in args)});"]
+            floats = LIBRARY_FLOATS.get(prog, ())
+            refs = [self.value_field(a) if i in floats else self.field_expr(a)
+                    for i, (_, a) in enumerate(args)]  # fmt: skip
+            # a COMP-2 argument (CEELOCT's output_seconds, CEEDATM's input) is a float the runtime reads and stores by
+            # value (Cobol.num / Cobol.store, as MOVE does), never by bytes: HFP on z/OS, IEEE on the oracle (C6)
+            if prog in LIBRARY_CLOCK:
+                refs = [self.current_date_expr(), *refs]
+            if prog in LIBRARY_CHARSET:
+                refs.append("CS")
+            return [f"{ind}{lib[0]}({', '.join(refs)});"]
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 
         if prog in REFUSED_BY_NAME:

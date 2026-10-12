@@ -106,7 +106,7 @@ surface shapes it doesn't cover; the mandatory occurrence-level
 [recall audit](self_scan/tri_comparison_README.md#the-recall-audit-is-gitgalaxy-missing-anything)
 is the standing process for the next one.
 
-![Tri-comparison](self_scan/tri_comparison_chart.svg)
+![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
 
 See:
 
@@ -115,7 +115,7 @@ See:
 -   [`tests/tools/tri_comparison_chart.py`](../tests/tools/tri_comparison_chart.py)
 -   [`docs/self_scan/tri_comparison_ledger.json`](self_scan/tri_comparison_ledger.json)
     — the full, per-shape validated record
--   [`docs/self_scan/tri_comparison_points_of_interest.md`](self_scan/tri_comparison_points_of_interest.md)
+-   [`docs/self_scan/tri_comparison_points_of_interest.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/tri_comparison_points_of_interest.md)
     — the same ledger, rendered and ranked by signal strength
 -   [`docs/self_scan/how_to_investigate_a_discrepancy.md`](self_scan/how_to_investigate_a_discrepancy.md)
 -   [`docs/self_scan/manual_verification.json`](self_scan/manual_verification.json)
@@ -171,15 +171,19 @@ intent is identical by construction.
 
 Current results
 ([bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)):
-across 59 gated metrics, on average **94% of languages land within ±25% of the
-cross-language median** (54 of 56 chartable metrics hold at least 80% of
-languages in band), and under the cause-based gate **the open-defect share is
-0.0% — 0 of 2,632 comparable cells** are open engine defects; every remaining
-out-of-band cell is a ledger-validated variation (a strictness stratum, a
-construct the language cannot express, an echo, or a scoring choice). The
-weakest metrics are named, not hidden: `cog_raw` holds 76% of languages in the
-±25% band, `raw_arch_api` 78%, `reflection_metaprogramming` and
-`risk_state_flux` 82%, `avg_func_args` 83%.
+on average 94% of languages sit within ±25% of the cross-language median per gated
+metric (56 chartable metrics, 54 holding ≥80%), and **the open-defect share is 0.0%
+(1 of 2,844 comparable cells across 59 gated metrics)**: a single unexplained cell,
+`classes_found` in the newly planted `bms` (CICS Basic Mapping Support) corpus. Every
+other out-of-band cell is a variation the ledger has validated (a strictness stratum, a
+construct the language cannot express, an echo of another row, or a deliberate scoring
+choice), not an open engine defect. The chart colours each deviation by *cause*, not
+size: red is an open engine defect (a rule matching the wrong construct, or a scoring
+weight sitting inside a count); grey is a documented variation the ledger has validated.
+The weakest metrics are named rather than hidden: `cog_raw` holds 74% of languages in
+band, `raw_arch_api` 78%, `avg_func_args` 80%; their sub-band cells are documented, not
+defects. The work is tracked by cause family under the
+[contract roadmap](contract_roadmap.md).
 
 The consistency claim also survives expansion on demand. When the corpus
 planted its first **security-lens probe** — one identical comment-form
@@ -274,6 +278,118 @@ event datasets.
 
 This distinction matters: a score can be internally consistent without
 necessarily being externally meaningful.
+
+------------------------------------------------------------------------
+
+## What the Structural Surface Profile claims
+
+*Moved here from the README on 2026-10-12, unchanged apart from link paths. The README keeps a
+short summary that links to this section.*
+
+GitGalaxy's 13 per-file vectors were originally named `risk_*` and described as
+**risk-exposure measurements**. The question this section used to leave open —
+"are these signatures empirically associated with meaningful classes of
+software risk?" — has since been tested, not just asked. The
+temporal-crucible validation program (epic
+[#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982), ~3,550
+scanned snapshots, two repositories, three label families, every test
+pre-registered before the data was looked at) ran that experiment to
+exhaustion, and the honest result drove a rename
+([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)): the
+vectors are now called the **Structural Surface Profile**. `risk_*` remains
+the DB column / JSON key name for compatibility (see
+[`docs/vectors.md`](vectors.md) for the full name table and the
+deprecation note).
+
+**What the record found, restated honestly:**
+
+- **Per-file standing risk, falsified.** The founding hypothesis — that a
+  file's `risk_*` level, or its change after a fix, tracks defect
+  probability — did not hold. Median structural delta after a security fix
+  was +0.000 (equivalence-confirmed near-zero on a second, independent
+  repository, not just non-significant); summed structural exposure ranked
+  *last* of six features for predicting fix-touched files; a 26-signal
+  multivariate structural vector scored at chance (AUC 0.479) under a
+  temporal split, below a plain line count (0.531). The full ledger is in
+  temporal-crucible's `docs/HYPOTHESES.md` and is linked from
+  [#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982).
+- **What the vectors actually validated for:** describing **activity and
+  content**, not defect probability. The fix-shaped composite reliably
+  tracks a security-fix → ordinary-fix → control → revert gradient; deltas
+  correspond to real code events (guard code added, threading introduced,
+  debt markers diluted). That's the x-ray this document now names
+  accurately — see [`docs/vectors.md`](vectors.md) vector-by-vector.
+- **System-level / history signal, restated as the actual predictive
+  finding.** Two features *did* survive validation: **recidivism** (the file
+  that had the last fix gets the next one — the single most replicated
+  result of the program, p<1e-4 on both repositories) and **change entropy /
+  Hassan HCM**, validated out-of-selection on fresh bug labels (AUC 0.868 vs
+  a line count's 0.830). Both are **history** metrics, not structural
+  content metrics — and both are currently zeroed in every scan
+  (`GITGALAXY_DISABLE_GIT_HISTORY`, tracked in
+  [temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29)).
+  This is the seed of a separate, honestly-named **predictive layer** — the
+  `hist_stability`/`hist_churn` vectors are named to mark that status
+  explicitly — gated on shipping history-enabled mode and then clearing
+  [#2987](https://github.com/squid-protocol/gitgalaxy/issues/2987)'s
+  defect-lift promotion contract.
+
+A high Structural Surface Profile reading means:
+
+> **This location has more of a given structural/content pattern present,
+> relative to the rest of the repository.**
+
+It does not mean:
+
+> "This code is more likely to contain a defect" — the per-file version of
+> that claim was tested and did not hold.
+
+The underlying signatures cover patterns involving areas such as:
+
+-   secrets
+-   injection surface
+-   unsafe/memory operations
+-   dynamic execution
+-   I/O
+-   concurrency
+-   state mutation
+-   reflection
+-   APIs
+-   dependencies
+-   entropy
+-   other structural/security characteristics
+
+See [`docs/vectors.md`](vectors.md) for the per-vector rename table,
+evidence, and appropriate/inappropriate uses, and
+[temporal-crucible](https://github.com/squid-protocol/temporal-crucible)'s
+`docs/HYPOTHESES.md` for the full validation ledger this section summarizes.
+
+### The Temporal Crucible record
+
+Whether the Structural Surface Profile corresponds to real security and
+maintenance events over Git history is no longer an open question — it has been
+tested. The [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible)
+program scanned ~3,550 repository snapshots across two repositories (curl, nDPI)
+and three label families (CVE fix/introduce commits, bug labels, CWE families),
+with every confirmatory test pre-registered before the data was looked at. What
+it found, stated honestly:
+
+-   **Per-file standing structural risk does not predict defects** — it reduces
+    to a line count, a null confirmed by equivalence testing on a second,
+    independent repository (not merely "not significant").
+-   **Two *history* metrics do predict**: recidivism (the file that had the last
+    fix gets the next one — p<1e-4 on both repositories, the most replicated
+    result of the program) and change entropy (Hassan HCM), validated
+    out-of-selection on fresh bug labels.
+-   **Structure describes; history predicts.** More predictions died in the
+    ledger than survived it — that is the pre-registration discipline working,
+    not a disappointment.
+
+The full record is public and reproducible: the pre-registered
+[hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)
+and a [predictor × outcome index](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/EXPERIMENTS.md)
+of everything the program has tried to correlate. Design and method:
+[the validation program](#the-next-validation-risk-over-git-history).
 
 ------------------------------------------------------------------------
 

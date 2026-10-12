@@ -147,6 +147,45 @@ def test_history_append_and_show(stubbed, capsys, tmp_path):
         cc.main(["history", "append", "--file", str(hist)])
 
 
+def test_publish_lays_the_baseline_and_a_nightly_line(stubbed, capsys, tmp_path):
+    cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)])
+    gen = tmp_path / "generated"
+    argv = ["publish", "--into", str(gen), "--root", str(stubbed["root"])]
+    assert cc.main(argv) == 0
+    out = gen / cc.GENERATED_DIR
+    assert {p.name for p in out.iterdir()} == {*cc.GENERATED_FILES, "blockers_history.jsonl"}
+    assert json.loads((out / "blockers.json").read_text())["whole"] == 2
+    rows = cc.read_history(out / "blockers_history.jsonl")
+    seeded = cc.read_history()  # the branch had none: seeded from main's per-slice series
+    assert rows[: len(seeded)] == seeded
+    assert [r["pr"] for r in rows[len(seeded) :]] == [0] and rows[-1]["nightly"] and rows[-1]["main_sha"] == SHA
+    assert cc.main(argv) == 0  # a rerun at the same SHA: still one line
+    assert len(cc.read_history(out / "blockers_history.jsonl")) == len(rows)
+    capsys.readouterr()
+    assert cc.main(["history", "show", "--file", str(out / "blockers_history.jsonl")]) == 0
+    assert "nightly" in capsys.readouterr().out
+
+
+def test_publish_refuses_a_census_baseline(stubbed, tmp_path):
+    cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)])
+    mf = stubbed["root"] / "census-cache" / SHA / "meta.json"
+    mf.write_text(json.dumps({**json.loads(mf.read_text()), "census": True}))
+    with pytest.raises(SystemExit, match="census"):
+        cc.main(["publish", "--into", str(tmp_path / "g"), "--root", str(stubbed["root"])])
+
+
+def test_generated_readers_use_the_published_files(stubbed, capsys, monkeypatch, tmp_path):
+    cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)])
+    gen = tmp_path / "g"
+    cc.main(["publish", "--into", str(gen), "--root", str(stubbed["root"])])
+    monkeypatch.setattr(cc, "_git", lambda *a: "" if a[0] == "fetch" else (gen / a[1].split(":", 1)[1]).read_text())
+    capsys.readouterr()
+    assert cc.main(["blockers", "--generated"]) == 0
+    assert "translated whole: 2 / 5" in capsys.readouterr().out
+    assert cc.main(["history", "show", "--generated"]) == 0
+    assert "nightly" in capsys.readouterr().out
+
+
 def test_the_committed_history_is_well_formed():
     rows = cc.read_history()
     assert [r["pr"] for r in rows][:3] == [4587, 4590, 4592]

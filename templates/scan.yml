@@ -13,7 +13,7 @@ spec:
       description: "Additional CLI arguments to pass to the tool."
       default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
     version:
-      description: "The version of GitGalaxy to install from PyPI. Defaults to latest."
+      description: "GitGalaxy version to install. 'latest' (default) means the hash-pinned release (fetched from an immutable ref, sha256-verified); an explicit version is exact-pinned but not hash-verified."
       default: "latest"
     full_precision:
       description: "Opt-in to install heavy physics engines for Blast Radius and ML Threat Inference."
@@ -39,26 +39,29 @@ gitgalaxy_scan:
     - export GG_FULL_PRECISION="$[[ inputs.full_precision ]]"
     - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
     
-    - pip install --upgrade pip
     - |
+      # Hash-pinned by default: the requirements file is fetched from an immutable commit of the
+      # GitGalaxy repo and its sha256 is verified before pip --require-hashes uses it. An
+      # explicit `version` is an opt-out of hash checking and is pinned to that exact release.
+      if [ "$GG_FULL_PRECISION" = "true" ]; then GG_REQS=full; else GG_REQS=yaml; fi
       if [ "$GG_VERSION" = "local" ]; then
         echo "Dogfooding local GitGalaxy source..."
         pip install -e ".[yaml]"
       elif [ "$GG_VERSION" = "latest" ]; then
-        echo "Installing latest GitGalaxy from PyPI..."
-        pip install "gitgalaxy[yaml]"
+        echo "Installing the hash-pinned GitGalaxy release..."
+        # Marker lines are stamped by tests/tools/stamp_template_pins.py (one per set).
+        if [ "$GG_REQS" = full ]; then
+          GG_REF=37e7187247b0414cf872f1694a1aca00501534d5 GG_SHA256=67c3b0554379f37f65135b23812a2a38d717303d847d96f27a915e4b260063d0 # gg-pin:full
+        else
+          GG_REF=37e7187247b0414cf872f1694a1aca00501534d5 GG_SHA256=78f86737b10dcc4af220970181f15024aee1bc9d9201eaf86d1b8eb419c41040 # gg-pin:yaml
+        fi
+        python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/${GG_REQS}.txt" /tmp/gg-requirements.txt
+        echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
+        pip install --require-hashes -r /tmp/gg-requirements.txt
       else
-        echo "Installing GitGalaxy version ${GG_VERSION}..."
-        pip install "gitgalaxy[yaml]==${GG_VERSION}"
+        echo "Installing GitGalaxy version ${GG_VERSION} (NOT hash-verified)..."
+        pip install "gitgalaxy[${GG_REQS}]==${GG_VERSION}"
       fi
-    - |
-      if [ "$GG_FULL_PRECISION" = "true" ]; then
-        echo "Unlocking Full Precision Mode..."
-        pip install tiktoken xgboost pandas numpy
-      else
-        echo "Running in ultra-fast Zero-Dependency Mode."
-      fi
-
     - 'echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"'
     - ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
   artifacts:

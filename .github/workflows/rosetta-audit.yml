@@ -57,7 +57,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout GitGalaxy PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           persist-credentials: false
@@ -65,14 +65,14 @@ jobs:
       # The baseline build: the branch this PR targets. Failing languages are re-run against
       # it so the audit can tell "this PR moved the corpus" from "the corpus is behind main".
       - name: Checkout GitGalaxy baseline (PR base branch)
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
           path: gitgalaxy-baseline
           persist-credentials: false
 
       - name: Checkout keyword-rosetta (main)
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: squid-protocol/keyword-rosetta
           ref: main
@@ -80,10 +80,13 @@ jobs:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
 
       # Full-precision deps: without all of them galaxyscope silently drops to
       # Zero-Dependency Mode and observed counts drift from what the corpus manifests
@@ -91,15 +94,15 @@ jobs:
       # editable) so the two builds cannot alias each other.
       - name: Install GitGalaxy PR build (full precision)
         run: |
-          python -m pip install --upgrade pip
-          pip install PyYAML tiktoken numpy "pandas>=2.0.0" xgboost
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
           pip install -e ./gitgalaxy
 
       - name: Install GitGalaxy baseline build (full precision, separate venv)
         run: |
           python -m venv baseline-venv
-          baseline-venv/bin/pip install --upgrade pip
-          baseline-venv/bin/pip install PyYAML tiktoken numpy pandas xgboost
+          baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
           baseline-venv/bin/pip install ./gitgalaxy-baseline
 
       - name: Run all language gates, classify against the baseline

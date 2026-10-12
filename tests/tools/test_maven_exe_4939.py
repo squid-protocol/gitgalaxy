@@ -62,7 +62,9 @@ def test_split_argline_keeps_windows_backslashes():
         r"-Dequivalence.out=C:\work\out",
         "-Dx=1",
     ]
-    assert ej.split_argline(line, windows=False)[0] == "-Dequivalence.in=C:workin"  # the POSIX-mode damage, for contrast
+    assert (
+        ej.split_argline(line, windows=False)[0] == "-Dequivalence.in=C:workin"
+    )  # the POSIX-mode damage, for contrast
 
 
 def test_split_argline_follows_os_name(monkeypatch):

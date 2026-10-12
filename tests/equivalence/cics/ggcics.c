@@ -2574,6 +2574,11 @@ static int nchildren = 0;
 int GGCRUNT(gg_cics *c, char *child) {
     char transid[9], ev[96], token[17];
     trim(c->name1, 8, transid);
+    if (strstr(c->flags, "CHANNEL")) { /* #4884: the child's copy of a channel; the child runs after this task */
+        for (int i = 0; i < 16 && c->chan[i] != ' '; i++)
+            if (!isalnum((unsigned char)c->chan[i])) refuse("RUN CHANNEL(name) with anything but letters and digits");
+        if (c->chan[0] == ' ') refuse("RUN CHANNEL() with a blank name");
+    }
     c->resp = NORMAL;
     c->resp2 = 0;
     if (!listed("transactions.cfg", transid)) {
@@ -2584,6 +2589,30 @@ int GGCRUNT(gg_cics *c, char *child) {
         memcpy(child, token, 16);
     }
     snprintf(ev, sizeof ev, "RUN transid=%s resp=%d resp2=%d", transid, c->resp, c->resp2);
+    event(ev, NULL, 0);
+    return 0;
+}
+
+/* #4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM, EXEC CICS FETCH). A child runs only once this task has ended
+ * (GGCRUNT), so none has completed: NOTFINISHED RESP2 52. FETCH ANY with no children: INVREQ 52 ("the parent has no
+ * children"); FETCH CHILD of a token this task was not given: INVREQ 50. GG-FLAGS 'CHILD' with the token in qname,
+ * else FETCH ANY. The areas it would write (ANY, CHANNEL, ABCODE, COMPSTATUS) are left alone. */
+int GGCFETCH(gg_cics *c) {
+    char ev[96], token[17];
+    int n;
+    c->resp = DFHRESP_NOTFINISHED;
+    c->resp2 = 52;
+    if (!strstr(c->flags, "CHILD")) {
+        if (nchildren == 0) c->resp = INVREQ;
+    } else {
+        memcpy(token, c->qname, 16);
+        token[16] = 0;
+        if (sscanf(token, "GGCHILD%9d", &n) != 1 || strlen(token) != 16 || n < 1 || n > nchildren) {
+            c->resp = INVREQ;
+            c->resp2 = 50;
+        }
+    }
+    snprintf(ev, sizeof ev, "FETCH resp=%d resp2=%d", c->resp, c->resp2);
     event(ev, NULL, 0);
     return 0;
 }

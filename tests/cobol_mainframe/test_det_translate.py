@@ -941,6 +941,7 @@ def test_syncpoint_resp2_alone_is_written_too():
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
 # is written (or need not be).
 _RESP_SAMPLES = {
+    "FETCH ANY": "FETCH ANY(REC) NOSUSPEND", "FETCH CHILD": "FETCH CHILD(REC) NOSUSPEND",
     "FORMATTIME": "FORMATTIME ABSTIME(REC) DDMMYYYY(KEY)", "ENQ": "ENQ RESOURCE(REC) LENGTH(10)", "DEQ": "DEQ RESOURCE(REC) LENGTH(10)", "DELAY": "DELAY FOR SECONDS(1)",
     "SEND TEXT": "SEND TEXT FROM(REC)", "XCTL": "XCTL PROGRAM('P')", "ASSIGN": "ASSIGN APPLID(REC)",
     "READ": "READ FILE('KSDS') INTO(REC) RIDFLD(KEY)", "READNEXT": "READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY)",
@@ -1727,9 +1728,8 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
         ("CANCEL", "only CANCEL REQID"),
-        ("RUN TRANSID('T') CHILD(REC) CHANNEL(CH)", "copy of the channel"),
-        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "waiting for its child task"),
-        ("FETCH ANY(REC)", "waiting for its child task"),
+        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "FETCH without NOSUSPEND"),
+        ("FETCH ANY(REC)", "FETCH without NOSUSPEND"),
     ],
 )
 def test_what_interval_control_does_not_model_is_refused_by_name(text, why):

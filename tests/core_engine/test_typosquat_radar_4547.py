@@ -116,3 +116,54 @@ def test_manifest_declared_typosquat_is_critical(tmp_path):
         scope._resolve_dependency_graph()
     assert scope.typosquat_hits == 1
     assert log.critical.called
+
+
+def test_rust_in_crate_modules_are_not_crates():
+    # `mod error; pub use error::*;` is the crate's own module; `errors::*` elsewhere is another one.
+    files = {f"src/a{i}.rs": {"errors::*"} for i in range(3)}
+    files["src/orphan.rs"] = {"error::*"}
+    scope, log = _scan(files)
+    assert scope.typosquat_hits == 0
+    assert not log.critical.called
+    assert not log.warning.called or "typosquat" not in str(log.warning.call_args_list).lower()
+
+
+def test_rust_declared_crate_is_still_tested(tmp_path):
+    (tmp_path / "Cargo.toml").write_text(
+        '[package]\nname = "x"\nversion = "0.1.0"\n\n[dependencies]\nserde_json = "1"\nserde_jsno = "1"\n'
+    )
+    scope = Orchestrator(str(tmp_path), CONFIG)
+    scope.ram_cache = {f"s{i}.rs": {"raw_imports": {"serde_json::Value"}} for i in range(3)}
+    scope.ram_cache["bad.rs"] = {"raw_imports": {"serde_jsno::Value"}}
+    scope.stem_map = {k: k for k in scope.ram_cache}
+    scope.stem_map["Cargo"] = "Cargo.toml"
+    with patch("gitgalaxy.galaxyscope.logger") as log:
+        scope._resolve_dependency_graph()
+    assert scope.typosquat_hits == 1
+    assert log.critical.called
+
+
+def test_rust_extern_crate_token_stays_eligible():
+    files = {f"src/a{i}.rs": {"lazy_static"} for i in range(3)}
+    files["src/orphan.rs"] = {"lazy_statik"}
+    scope, _ = _scan(files)
+    assert scope.typosquat_hits == 1
+
+
+@pytest.mark.parametrize(
+    ("orphan", "anchor"),
+    [("build-options", "build_options"), ("my_pkg-core", "my-pkg_core")],
+)
+def test_separator_folded_names_are_one_package(orphan, anchor):
+    files = {f"src/a{i}.zig": {anchor} for i in range(3)}
+    files["src/orphan.zig"] = {orphan}
+    scope, log = _scan(files)
+    assert scope.typosquat_hits == 0
+    assert not log.critical.called
+
+
+def test_parse_artifact_token_is_not_a_package():
+    files = {f"src/a{i}.ts": {"string"} for i in range(3)}
+    files["src/orphan.ts"] = {"string:"}
+    scope, _ = _scan(files)
+    assert scope.typosquat_hits == 0

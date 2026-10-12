@@ -2769,6 +2769,8 @@ class Orchestrator:
             if isinstance(ldef, dict) and (ldef.get("local_module_capture_group") or ldef.get("relative_import_groups"))
         }
 
+        declared_deps = self._declared_dependency_names()
+
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
             # #2988: the importing file's own extension, used to reject
@@ -2880,6 +2882,16 @@ class Orchestrator:
                         radar_name = radar_name.split("::", 1)[0]
                         if radar_name in ("std", "core", "alloc"):
                             continue
+                        # A Rust path's first segment is a crate only if one is declared:
+                        # otherwise it is an in-crate module (`use error::*;`, 2015-style
+                        # paths), which would otherwise read as a crate mimicking `errors`.
+                        # (A bare `extern crate name;` token has no `::` and stays eligible.)
+                        if importer_ext == ".rs" and radar_name.lower() not in declared_deps:
+                            continue
+                    # A token that ends in `:` or holds whitespace is a parse artifact
+                    # (an object-literal key read as an import), never a package name.
+                    if radar_name.endswith(":") or any(c.isspace() for c in radar_name):
+                        continue
                     if "@" in radar_name[1:]:
                         radar_name = radar_name[0] + radar_name[1:].split("@", 1)[0]
                     if radar_name.lower().endswith(HEADER_EXTENSIONS) or is_system_header(radar_name, importer_ext):
@@ -2937,8 +2949,6 @@ class Orchestrator:
 
         whitelist = APERTURE_CONFIG.get("TYPOSQUAT_WHITELIST", set())
 
-        declared_deps = self._declared_dependency_names()
-
         typosquat_hits = 0
         for orphan_imp, rel_path in orphans:
             # 1. The Project Override Shield & Length Shield
@@ -2958,6 +2968,11 @@ class Orchestrator:
             for anchor_imp in sorted(candidates):
                 # 3. The Casing Shield (Developer typos, not malware)
                 if orphan_imp.lower() == anchor_imp.lower():
+                    continue
+
+                # #4547: `build-options` and `build_options` are one package under -/_
+                # folding (the registries treat the separators as equivalent), not a mimic.
+                if orphan_imp.lower().replace("-", "_") == anchor_imp.lower().replace("-", "_"):
                     continue
 
                 # 4. The OOP Interface Shield (Prevents 'IEmailer' vs 'Emailer')

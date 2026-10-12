@@ -83,7 +83,7 @@
       "agc_assembly/apollo-11/INTERPRETER.agc": 0,
       "agc_assembly/apollo-11/LICENSE.md": 0,
       "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 0,
-      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 1,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 0,
       "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 0,
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 0,
       "agc_assembly/apollo-11/WAITLIST.agc": 0
@@ -198,7 +198,7 @@
       "assembly/freebsd_kernel_arch/amd64_amd64_locore.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_mpboot.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_sigtramp.S": 0,
-      "assembly/freebsd_kernel_arch/amd64_amd64_support.S": 1,
+      "assembly/freebsd_kernel_arch/amd64_amd64_support.S": 0,
       "assembly/freebsd_kernel_arch/amd64_amd64_xen-locore.S": 0,
       "assembly/freebsd_kernel_arch/amd64_ia32_ia32_exception.S": 0,
       "assembly/freebsd_kernel_arch/amd64_ia32_ia32_sigtramp.S": 0,
@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 1,
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 0,
       "dockerfile/moby/test_targets/generate-files.Dockerfile": 0,
       "dockerfile/moby/test_targets/syscall.Dockerfile": 0,
       "dockerfile/moby/test_targets/windows.Dockerfile": 0
@@ -2320,7 +2320,7 @@
       "lua/cosmopolitan/db.lua": 0,
       "lua/cosmopolitan/errors.lua": 0,
       "lua/cosmopolitan/events.lua": 0,
-      "lua/cosmopolitan/fetch.lua": 3,
+      "lua/cosmopolitan/fetch.lua": 2,
       "lua/cosmopolitan/files.lua": 0,
       "lua/cosmopolitan/finger.lua": 0,
       "lua/cosmopolitan/gc.lua": 0,
@@ -2836,26 +2836,26 @@
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
-      "python/fastapi/README.md": 16,
+      "python/fastapi/README.md": 0,
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 0,
       "python/fastapi/fastapi/__main__.py": 0,
-      "python/fastapi/fastapi/applications.py": 2,
+      "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 0,
       "python/fastapi/fastapi/cli.py": 0,
       "python/fastapi/fastapi/concurrency.py": 0,
       "python/fastapi/fastapi/datastructures.py": 0,
       "python/fastapi/fastapi/encoders.py": 0,
       "python/fastapi/fastapi/exception_handlers.py": 0,
-      "python/fastapi/fastapi/exceptions.py": 1,
+      "python/fastapi/fastapi/exceptions.py": 0,
       "python/fastapi/fastapi/logger.py": 0,
       "python/fastapi/fastapi/param_functions.py": 0,
       "python/fastapi/fastapi/params.py": 0,
       "python/fastapi/fastapi/requests.py": 0,
       "python/fastapi/fastapi/responses.py": 0,
-      "python/fastapi/fastapi/routing.py": 3,
+      "python/fastapi/fastapi/routing.py": 2,
       "python/fastapi/fastapi/sse.py": 0,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
@@ -3419,7 +3419,7 @@
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/COPYRIGHT": 0,
-      "shell/freebsd_sysbuild/sysbuild.sh": 2
+      "shell/freebsd_sysbuild/sysbuild.sh": 0
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 1,

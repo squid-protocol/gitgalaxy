@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_common as common
 import equivalence_java as ej
 import mutation as mu
+from maven_exe import mvn_executable
 
 JAVA = """package com.gitgalaxy.modernized.service;
 
@@ -212,7 +213,7 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     ej.run_maven(project, work1, inputs, props="-Dgitgalaxy.faults.plan=a")
     ej.run_maven(project, work2, inputs, props="-Dgitgalaxy.faults.plan=b")
     (mvn, mvn_kw), (java, java_kw) = calls
-    assert mvn[0] == "mvn" and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
+    assert mvn[0] == mvn_executable() and java[0] == str(java_home / "bin" / "java")  # the first run builds, the second is direct
     maven_flags = shlex.split(next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :])
     assert maven_flags[-1] == "-Dgitgalaxy.faults.plan=a"
     assert java[1 : 1 + len(maven_flags) - 1] == maven_flags[:-1]  # the same JVM flags and properties, but the run's

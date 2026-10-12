@@ -3903,7 +3903,7 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 2,
+      "typescript/typescript_compiler/binder.ts": 0,
       "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {

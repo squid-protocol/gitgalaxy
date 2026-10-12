@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
 
       # Pinned (unlike mypy-audit.yml's unpinned `pip install mypy`): ruff ships
       # new lint rules and rule-set changes far more frequently than mypy does,

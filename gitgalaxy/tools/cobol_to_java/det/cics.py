@@ -106,8 +106,12 @@ _FORM_OPTION = {
     "GET": ("COUNTER",),
     "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
-    "WEB READ": ("HTTPHEADER",),  # #4767 (X38): WEB READ / WRITE HTTPHEADER(area); FORMFIELD / QUERYPARM stay refused
+    "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
+    "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
+    "WEB READNEXT": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
+    "WEB ENDBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),
+    "FETCH": ("ANY", "CHILD"),  # #4884
     "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
 
@@ -806,7 +810,9 @@ class Cics:
             raise CicsError(f"EXEC CICS {key} not modelled ({CONTAINER_LATER})")
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
-        if words[:1] == ["FETCH"] or verb == "FREE CHILD":
+        if words[:1] == ["FETCH"]:  # #4884: FETCH ANY / FETCH CHILD, NOSUSPEND only
+            return self.fetch(key, opts, ind)
+        if verb == "FREE CHILD":
             raise CicsError(f"EXEC CICS {verb} not modelled ({CHILD_LATER})")
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
@@ -1145,7 +1151,15 @@ class Cics:
             return self.web_parse(key, opts, ind)
         if key == "WEB SEND":  # #4767 (X37): the response to the stated inbound request
             return self.web_send(key, opts, ind)
-        if key in ("WEB EXTRACT", "WEB RECEIVE", "WEB READ HTTPHEADER", "WEB WRITE HTTPHEADER"):  # #4767 (X38)
+        if key in (
+            "WEB EXTRACT",
+            "WEB RECEIVE",
+            "WEB READ HTTPHEADER",
+            "WEB WRITE HTTPHEADER",
+            "WEB RETRIEVE",
+        ) or key.startswith(
+            ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
+        ):  # #4767 / #4940 (X38), #4941 (X41)
             return self.web_request(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
@@ -1385,6 +1399,13 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
+        if key == "WEB RETRIEVE":  # #4941 (X41): DOCTOKEN is never written (the NORMAL outcome needs an EVENTUAL send)
+            req("DOCTOKEN")
+            return [f"{ind}int[] {r} = task.webRetrieve();", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if key.startswith(
+            ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
+        ):
+            return self.web_forms(key, opts, ind, text, req, store, put)
         if key == "WEB WRITE HTTPHEADER":
             call = f"task.webWriteHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {text('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
@@ -1441,6 +1462,48 @@ class Cics:
             out.append(store("REQUESTTYPE", "1033"))
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def web_forms(self, key: str, opts: dict, ind: str, text, req, store, put) -> list[str]:
+        """#4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (IBM CICS TS, EXEC CICS WEB READ
+        FORMFIELD, WEB READ QUERYPARM, WEB STARTBROWSE / READNEXT / ENDBROWSE HTTPHEADER, FORMFIELD, QUERYPARM) on the stated
+        request (CicsTask.webReadParam / webStartBrowse / webReadNext / webEndBrowse). A read: the value at VALUE's start
+        (cut to VALUELENGTH, LENGERR RESP2 5) and VALUELENGTH its whole length. READNEXT: the pair's name and value at the
+        areas' starts and their whole lengths (also when cut, LENGERR RESP2 4 / 5)."""
+        g = self.g
+        r = g.tmpname("web")
+        form, kind = key.split()[1], key.split()[2]
+        ok = f"{ind}if ({r}.value() != null) {{"
+        if form == "READ":
+            call = (f'task.webReadParam("{kind}", {text(kind)}, {self.int_(req("NAMELENGTH"))}, '
+                    f"{self.int_(req('VALUELENGTH'))}, {self.size(req('VALUE'))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebParam {r} = {call};", ok,
+                    put(req("VALUE"), f"{r}.value().getBytes(CS)", f"{key} VALUE"),
+                    store("VALUELENGTH", f"{r}.length()"), f"{ind}}}",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        if form == "READNEXT":
+            for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH"):
+                req(o)
+            call = (f'task.webReadNext("{kind}", {self.int_(req("NAMELENGTH"))}, {self.size(req(kind))}, '
+                    f"{self.int_(req('VALUELENGTH'))}, {self.size(req('VALUE'))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebNext {r} = {call};", f"{ind}if ({r}.name() != null) {{",
+                    put(req(kind), f"{r}.name().getBytes(CS)", f"{key} {kind}"), store("NAMELENGTH", f"{r}.nameLength()"),
+                    put(req("VALUE"), f"{r}.value().getBytes(CS)", f"{key} VALUE"),
+                    store("VALUELENGTH", f"{r}.valueLength()"), f"{ind}}}",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        if form == "ENDBROWSE":
+            return [f'{ind}int[] {r} = task.webEndBrowse("{kind}");', *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        named = bool(opts.get(kind))  # STARTBROWSE
+        if kind == "HTTPHEADER" and named:
+            raise CicsError("WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled")
+        if named and not opts.get("NAMELENGTH"):
+            raise CicsError(f"WEB STARTBROWSE {kind}(name) without NAMELENGTH (IBM: it is required with a name)")
+        if "NAMELENGTH" in opts and not named:
+            raise CicsError(f"WEB STARTBROWSE {kind} NAMELENGTH without a name")
+        if named:
+            call = f'task.webStartBrowse("{kind}", {text(kind)}, Integer.valueOf({self.int_(req("NAMELENGTH"))}))'
+        else:
+            call = f'task.webStartBrowse("{kind}", null, null)'
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     # -- #4270: channels and containers
     def container(self, key: str, opts: dict, ind: str) -> list[str]:
@@ -1576,8 +1639,31 @@ class Cics:
         if not transid or not child:
             raise CicsError(_msg("RUN", "required", "TRANSID"))
         r = self.g.tmpname("run")
-        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({self.name(transid)});",
+        channel = _option(opts, "CHANNEL")  # #4884: the child's copy of a channel (it runs after this task ends)
+        if "CHANNEL" in opts and not channel:
+            raise CicsError(NEEDS_ARGUMENT)
+        arg = self.name(transid) + (f", {self.name(channel)}" if channel else "")
+        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({arg});",
                 f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+
+    # the areas a FETCH writes for a completed child (the token, its reply channel, abend code, completion status):
+    # none completes while its parent runs, so they are accepted and never written
+    _FETCH_AREAS = ("CHANNEL", "ABCODE", "COMPSTATUS")
+
+    def fetch(self, key: str, opts: dict, ind: str) -> list[str]:
+        """FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH) on CicsTask.fetch: a child runs only
+        once this task has ended, so none has completed -- NOTFINISHED RESP2 52 (INVREQ 52 for FETCH ANY with no
+        children, INVREQ 50 for a token this task was not given), through RESP / HANDLE CONDITION. A FETCH that
+        waits (no NOSUSPEND) is refused, as is TIMEOUT; the output areas are never written."""
+        form = key.split()[1]
+        token = _option(opts, form)
+        if not token and form == "CHILD":
+            raise CicsError(_msg(key, "required", form))
+        if "NOSUSPEND" not in opts:
+            raise CicsError(_msg(key, "required", "NOSUSPEND"))
+        r = self.g.tmpname("fetch")
+        return [f"{ind}CicsTask.FetchResult {r} = task.fetch({self.name(token) if form == 'CHILD' and token else 'null'});",
                 *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def cancel(self, opts: dict, ind: str) -> list[str]:

@@ -189,10 +189,22 @@ def test_ci_lockfiles_are_hashed_and_have_a_source(txt):
         assert "--hash=sha256:" in b, b.splitlines()[0]
 
 
+@pytest.mark.parametrize("txt", sorted((ROOT / "ci" / "requirements").glob("*.txt")), ids=lambda p: p.stem)
+def test_ci_lockfiles_preserve_multiversion_markers(txt):
+    """Packages with version splits across Python >= 3.10 (e.g. numpy) must retain environment markers."""
+    from tests.tools.pin_requirements import verify_multiversion_markers
+
+    errors = verify_multiversion_markers(txt, txt.read_text())
+    assert not errors, "\n".join(errors)
+
+
 def test_dependabot_watches_the_ci_lockfiles():
     cfg = yaml.safe_load((ROOT / ".github" / "dependabot.yml").read_text())
-    dirs = {u["directory"] for u in cfg["updates"] if u["package-ecosystem"] == "pip"}
-    assert "/ci/requirements" in dirs
+    ci_entry = next(u for u in cfg["updates"] if u.get("directory") == "/ci/requirements")
+    assert ci_entry["package-ecosystem"] == "pip"
+    # Ensure multiversion packages that dependabot collapses are ignored
+    ignored = {ig["dependency-name"] for ig in ci_entry.get("ignore", [])}
+    assert {"numpy", "xgboost"}.issubset(ignored)
 
 
 # -- every `-r <path>/ci/requirements/x.txt` resolves from where the step runs ---------------------

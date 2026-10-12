@@ -106,6 +106,7 @@ public final class CicsSpec {
             case 102 -> "UOWNOTFOUND";
             case 103 -> "UOWLNOTFOUND";
             case 110 -> "CONTAINERERR";
+            case 113 -> "NOTFINISHED";
             case 122 -> "CHANNELERR";
             case 123 -> "CCSIDERR";
             case 124 -> "TIMEDOUT";
@@ -223,6 +224,7 @@ public final class CicsSpec {
             case "UOWNOTFOUND" -> 102;
             case "UOWLNOTFOUND" -> 103;
             case "CONTAINERERR" -> 110;
+            case "NOTFINISHED" -> 113;
             case "CHANNELERR" -> 122;
             case "CCSIDERR" -> 123;
             case "TIMEDOUT" -> 124;

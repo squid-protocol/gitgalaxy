@@ -883,7 +883,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             scan_inert_security = _worker_state["config"].get("SECURITY_SCAN_INERT_FORMATS", True)
             if not is_inert or scan_inert_security:
                 # Handle the new nested dictionary
-                sec_results = security.scan_content(content_buffer)
+                # #4548: the behaviour signals read the comment-blanked code stream, and are
+                # skipped on prose files (no executable surface); the raw text still feeds the
+                # comment-aware ones (dead_code, secrets, hidden unicode, entropy).
+                sec_results = security.scan_content(
+                    content_buffer,
+                    code_stream=refraction.get("code_stream"),
+                    prose=lang_id in ("plaintext", "markdown", "csv"),
+                )
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
@@ -896,6 +903,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
                 # Pass the snippets into the payload
                 logic_data["threat_snippets"] = sec_results["snippets"]
+                # (line, column) of each snippet, aligned with it -- SARIF's region (#4548)
+                logic_data["threat_sites"] = sec_results.get("sites", {})
 
                 # Fold security_lens.py's own line positions into the same shared,
                 # persisted ledger detector.py's rules already populate (#348).
@@ -3269,6 +3278,7 @@ class Orchestrator:
             telemetry_payload["identity_confidence"] = meta.get("intensity", 0.0)
             telemetry_payload["identity_source_proof"] = meta.get("source_proof", "Discovery")
             telemetry_payload["threat_snippets"] = meta.get("threat_snippets", {})
+            telemetry_payload["threat_sites"] = meta.get("threat_sites", {})
 
             self.parsed_files.append(
                 {

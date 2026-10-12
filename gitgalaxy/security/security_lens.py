@@ -308,7 +308,11 @@ class SecurityLens:
                 # Requires an actual call (trailing paren), not just the bare word -- "system"
                 # in particular is common English prose (e.g. "Build System") that a bare \b
                 # word-boundary match would hallucinate on (#1166).
-                r"\b(?:document\.write|location\.replace|assert|create_function|passthru|shell_exec|system)\s*\(|"
+                r"\b(?:document\.write|location\.replace|create_function|passthru|shell_exec|system)\s*\(|"
+                # #4548: `assert` is an RCE vector only in PHP, where assert() evaluates a STRING
+                # (or a variable holding one); C/C++/Python `assert(x > 0)` is a sanity check. The
+                # first argument has to be a string literal or a `$variable`.
+                r"\bassert\s*\(\s*(?:[\"']|\$)|"
                 r"child_process\.(?:exec|spawn|fork)|"
                 r'(?:window|global|this|globalThis)\[[ \t]*(?:["\'][a-zA-Z]["\'][ \t]*\+[ \t]*){1,15}["\'][a-zA-Z]["\'][ \t]*\][ \t]*\(|'
                 r"\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(\s*\$_(?:POST|GET|COOKIE|REQUEST|HEADERS)|"
@@ -336,8 +340,12 @@ class SecurityLens:
             # (including a genuine commented-out `# curl ... | bash`) still matches exactly
             # as before.
             "dead_code": re.compile(
-                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?\b(?:http|bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|"
-                r"/\*(?:(?!\*/).){0,500}?\b(?:http|bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp)\b",
+                # #4548: a bare `http` is every comment URL (`// see http://...`, the GPL notice's
+                # `<http://www.gnu.org/licenses/>`), not commented-out logic. A commented-out network
+                # CALL carries the URL as a quoted/parenthesised argument, so `http` only counts right
+                # after an opening quote or paren.
+                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|[\"'(]https?://)|"
+                r"/\*(?:(?!\*/).){0,500}?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp)\b|[\"'(]https?://)",
                 re.I,
             ),
             # 7. Low-Level Cryptographic & Bitwise Operations
@@ -367,7 +375,9 @@ class SecurityLens:
             # `CONTRASENA` field is the same leak as an English `password`.
             "hardcoded_secrets": re.compile(
                 r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
-                r"\b("
+                # #4548: a COBOL data item opens with a level number (`05 WS-PASSWORD ...`); without it
+                # the stem `KEY` matched English prose ("keyword value 'acs'" in a changelog).
+                r"\b\d{2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
                 + COBOL_CREDENTIAL_ALTERNATION
                 + r")[A-Za-z0-9_-]*\b[ \t]+(?:IS[ \t]+)?(?:PIC[ \t]+[A-Za-z0-9\-\(\)]+[ \t]+)?VALUE[ \t]+['\"][^'\"]+['\"]|"
                 r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"
@@ -535,15 +545,48 @@ class SecurityLens:
         sum_c_log_c = sum(c * math.log2(c) for c in frequencies.values())
         return math.log2(length) - (sum_c_log_c / length)
 
-    def scan_content(self, content: str) -> dict:
+    # #4548: signals that read what the program DOES. They scan the comment-blanked code stream
+    # (a comment is not an execution, an import or a sink), and are skipped on prose files (a
+    # changelog, a README, a MAPINFO data file) where nothing executes. The remaining signals
+    # (dead_code, hardcoded_secrets, hidden unicode, entropy) deliberately read the raw text:
+    # a commented-out `curl | bash` and a credential left in a comment are real findings.
+    CODE_STREAM_SIGNALS = frozenset(
+        {
+            "high_risk_execution",
+            "shadow_imports",
+            "state_mutation",
+            "db_hooks",
+            "io",
+            "bitwise_ops",
+            "self_propagation",
+        }
+    )
+    PROSE_SKIPPED_SIGNALS = CODE_STREAM_SIGNALS | {"dead_code", "safety_bypasses"}
+
+    @staticmethod
+    def _armor(text: str) -> tuple[str, list[int]]:
+        """The ReDoS-armored haystack: stripped lines, lines of 250+ chars emptied (not removed, so a
+        match's line number stays the ORIGINAL file's), and each line's stripped-off indent (so a
+        match's column does too)."""
+        lines = text.splitlines()
+        indents = [len(line) - len(line.lstrip()) if len(line) < 250 else 0 for line in lines]
+        return "\n".join(line.strip() if len(line) < 250 else "" for line in lines), indents
+
+    def scan_content(self, content: str, code_stream: str | None = None, prose: bool = False) -> dict:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
+
+        `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
+        read it; omitted -> they read `content`). `prose=True` marks a file with no executable
+        surface (plaintext / markdown / csv): the code-behaviour signals are skipped.
         """
         counts: dict[str, int] = {}
         snippets: dict[str, list[str]] = {}
+        # (line, column), both 1-indexed in the ORIGINAL file, aligned one-to-one with `snippets`
+        # (None where a hit has no location) -- SARIF needs the site of the snippet it prints.
+        sites: dict[str, list[list[int] | None]] = {}
 
-        safe_lines = [line.strip() for line in content.splitlines() if len(line) < 250]
-        safe_content = "\n".join(safe_lines)
+        safe_content, indents = self._armor(content)
 
         # ---> MINIFICATION & OBFUSCATION FALLBACK SCREEN <---
         # If the 250-character anti-ReDoS shield stripped out more than 90% of the file,
@@ -570,8 +613,12 @@ class SecurityLens:
         # numbers]) -- exposed via scan_content()'s return so galaxyscope.py can
         # fold them into the shared, persisted ledger (#348).
         positions: dict[str, list[int]] = defaultdict(list)
-        if not is_auto_gen:
-            line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
+
+        def _line_starts(text: str) -> list[int]:
+            return [0] + [m.end() for m in re.finditer(r"\n", text)]
+
+        line_starts = _line_starts(safe_content)
+        code_hay: tuple[str, list[int], list[int]] | None = None
 
         # Case-folded copy of the ReDoS-armored haystack, computed once and shared by
         # every case-insensitive literal gate below (#3173). Lazily populated on the
@@ -585,6 +632,20 @@ class SecurityLens:
                 continue
 
             snippets.setdefault(key, [])
+            sites.setdefault(key, [])
+            # The fast-screen literal hits seeded above carry no location.
+            sites[key].extend([None] * (len(snippets[key]) - len(sites[key])))
+
+            if prose and key in self.PROSE_SKIPPED_SIGNALS:
+                counts.setdefault(key, 0)
+                continue
+
+            hay, hay_indents, hay_starts = safe_content, indents, line_starts
+            if key in self.CODE_STREAM_SIGNALS and code_stream is not None:
+                if code_hay is None:
+                    code_safe, code_indents = self._armor(code_stream)
+                    code_hay = (code_safe, code_indents, _line_starts(code_safe))
+                hay, hay_indents, hay_starts = code_hay
 
             # ---> LITERAL PREFILTER (#3173) <---
             # Skip the regex sweep entirely when the signature's required-literal gate
@@ -596,11 +657,15 @@ class SecurityLens:
             if gate is not None:
                 gate_literals, gate_needs_fold = gate
                 if gate_needs_fold:
-                    if folded_safe is None:
-                        folded_safe = fold_haystack(safe_content)
-                    gate_hay = folded_safe
+                    # Cached for the raw haystack only; a code-stream haystack folds per use.
+                    if hay is not safe_content:
+                        gate_hay = fold_haystack(hay)
+                    else:
+                        if folded_safe is None:
+                            folded_safe = fold_haystack(safe_content)
+                        gate_hay = folded_safe
                 else:
-                    gate_hay = safe_content
+                    gate_hay = hay
                 if not any(lit in gate_hay for lit in gate_literals):
                     counts.setdefault(key, 0)
                     continue
@@ -612,17 +677,21 @@ class SecurityLens:
             # screen hits rather than overwriting them, and the safe_content haystack
             # keeps the 250-char ReDoS armor intact.
             new_hits = 0
-            for match in regex.finditer(safe_content):
+            for match in regex.finditer(hay):
                 if key == "homoglyphs":
                     # #3885: the signature only finds candidates; a script is not a spoof
-                    line_start = safe_content.rfind("\n", 0, match.start()) + 1
-                    line_end = safe_content.find("\n", match.end())
-                    if not carries_homoglyph(safe_content[line_start : line_end if line_end >= 0 else None]):
+                    line_start = hay.rfind("\n", 0, match.start()) + 1
+                    line_end = hay.find("\n", match.end())
+                    if not carries_homoglyph(hay[line_start : line_end if line_end >= 0 else None]):
                         continue
                 new_hits += 1
                 snip = match.group(0).strip()
+                line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
                 if len(snippets[key]) < 3 and snip not in snippets[key]:
                     snippets[key].append(snip)
+                    # The match starts inside the stripped line; add the indent back for the column.
+                    col = match.start() - hay_starts[line_idx] + hay_indents[line_idx] + 1
+                    sites[key].append(None if is_auto_gen else [line_idx + 1, col])
 
                 # Map the exact line indexes of critical threats for the persisted ledger (#348)
                 if not is_auto_gen and key in {
@@ -631,7 +700,6 @@ class SecurityLens:
                     "db_hooks",
                     "hardcoded_secrets",
                 }:
-                    line_idx = bisect.bisect_right(line_starts, match.start()) - 1
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
@@ -660,7 +728,8 @@ class SecurityLens:
         # Data-flow taint tracking removed (#3101): the tainted_injection signal was
         # score-dead since #1020 and measured ~0% precision / ~0% recall on the corpus.
 
-        return {"counts": counts, "snippets": snippets, "positions": dict(positions)}
+        sites["entropy"] = [None] * len(snippets["entropy"])
+        return {"counts": counts, "snippets": snippets, "positions": dict(positions), "sites": sites}
 
     def scan_binary(self, raw_bytes: bytes, ext: str) -> dict:
         """

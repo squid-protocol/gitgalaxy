@@ -199,6 +199,24 @@ _PROSE_CHARS_PER_SPACE = 30
 DENIED_EXTENSION = "denied_extension"
 
 
+# #4548: armor headers of material that is public by construction. A file is exempt from the
+# extension-based secrets shunt only when its content carries one of these AND no PRIVATE marker.
+_PUBLIC_ARMOR = re.compile(
+    rb"-----BEGIN (?:PGP PUBLIC KEY BLOCK|PUBLIC KEY|RSA PUBLIC KEY|(?:TRUSTED |X509 )?CERTIFICATE|CERTIFICATE REQUEST|PGP SIGNATURE)-----"
+)
+
+
+def _is_public_key_material(path_obj: Path) -> bool:
+    """True when a key/cert-named file holds only public material (one bounded read, 64 KB cap; a larger
+    file stays a candidate, since a private block could sit past the read)."""
+    try:
+        with open(path_obj, "rb") as fh:
+            head = fh.read(65537)
+    except OSError:
+        return False
+    return len(head) <= 65536 and bool(_PUBLIC_ARMOR.search(head)) and b"PRIVATE" not in head.upper()
+
+
 class ApertureReason(str):
     """A block reason (a str) that also names the gate that produced it."""
 
@@ -384,8 +402,12 @@ class ApertureFilter:
         if path_obj.name in self.config.get("SECRETS_EXACT", set()) or ext.lower() in self.config.get(
             "SECRETS_EXTENSIONS", set()
         ):
-            reason = f"CRITICAL LEAK (Exposed Secret: '{path_obj.name}')"
-            return False, size_bytes, reason
+            # #4548: the extension only nominates a candidate (as the model gate below does). A
+            # key/cert file whose head proves it is PUBLIC material -- a PGP public key block, a
+            # certificate, a public key -- is published on purpose, not a leaked credential.
+            if path_obj.name in self.config.get("SECRETS_EXACT", set()) or not _is_public_key_material(path_obj):
+                reason = f"CRITICAL LEAK (Exposed Secret: '{path_obj.name}')"
+                return False, size_bytes, reason
 
         # --- Gate 1.2: Model Weight Shunt ---
         # #4138: the extension only nominates a candidate; the header has to prove

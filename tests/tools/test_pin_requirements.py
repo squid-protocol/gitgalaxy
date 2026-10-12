@@ -1,9 +1,9 @@
+# ruff: noqa: S101
 """Tests for tests/tools/pin_requirements.py."""
 
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pytest
 
@@ -14,10 +14,29 @@ from tests.tools.pin_requirements import (
 )
 
 
+def _check_has_uv() -> bool:
+    try:
+        find_uv()
+        return True
+    except FileNotFoundError:
+        return False
+
+
+HAVE_UV = _check_has_uv()
+
+
+@pytest.mark.skipif(not HAVE_UV, reason="uv executable not installed in this environment")
 def test_find_uv():
     uv_bin = find_uv()
     assert os.path.isfile(uv_bin)
     assert os.access(uv_bin, os.X_OK)
+
+
+def test_find_uv_not_found(monkeypatch):
+    monkeypatch.setattr("shutil.which", lambda _cmd: None)
+    monkeypatch.setattr("pathlib.Path.is_file", lambda _self: False)
+    with pytest.raises(FileNotFoundError, match="uv executable not found"):
+        find_uv()
 
 
 def test_verify_multiversion_markers_valid():
@@ -72,6 +91,7 @@ urllib3==2.2.3 \\
     assert errors == []
 
 
+@pytest.mark.skipif(not HAVE_UV, reason="uv executable not installed in this environment")
 def test_pin_requirements_check_all():
     rc = main(["--check", "--target", "all"])
     assert rc == 0

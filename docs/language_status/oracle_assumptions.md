@@ -103,6 +103,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
+| F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -140,9 +141,10 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X35 | CICS | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X36 | CICS | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: the command writes no event) |
 | X37 | CICS | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike and record the same event; no cics-crucible case yet) |
-| X38 | CICS | The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
+| X38 | CICS | #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike, now also for FORMFIELD / QUERYPARM and the browse forms; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
 | X39 | CICS | EXEC CICS LINK passes the caller's COMMAREA by address; EXEC CICS XCTL says only that the contents of the data area are passed. When a LINKed program XCTLs with (part of) its own DFHCOMMAREA, whether the target's writes reach the LINK caller is not documented, so a successful XCTL of the caller's area is refused by name in both runtimes | REFUSED (IBM is silent) | no (unit-proven on CicsTask and the det emission; a cobc regression refuses on the oracle's side) |
 | X40 | CICS | EXEC CICS XCTL / LINK conditions INVREQ, LENGERR, NOTAUTH, PGMIDERR: with no RESP and no HANDLE CONDITION for the condition the task abends with the condition's abend code (AEIP, AEIV, AEY7, AEI0). NOTAUTH had no code in the shared table, so the det runtime threw 'no abend code known' and the stub printed '????'; LINK also takes a planned fault, as XCTL does. EIBRESP2 of a planned fault is not the plan's RESP2 (see the sibling note) | ASSUMED | no (unit-proven on CicsTask and the stub's table; the CardDemo scenarios wait for their model ports) |
+| X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -588,8 +590,7 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   IBM has no result for any of these (a zoned item with a digit nibble above 9 or a zone that is no sign is not NUMERIC;
   its use in arithmetic or a MOVE is undefined), and on z/OS a space is X'40', whose digit nibble 0 most likely reads as
   0: the proofs say the port computes what GnuCOBOL computes for these bytes, not what z/OS would. Not modelled, so
-  still different or untested: a zoned item with a P position (the digit position count differs, refused by name on
-  the MOVE paths), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
+  still different or untested: a zoned item with a P position (refused by name, below), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
   byte), a hex literal naming a line-end character in a MOVE (`X'0A'`, `X'0D'`: the generated Java string breaks).
 - **Same-shape zoned MOVE: what IBM does (#4875).** IBM documents no result for non-digit data in a numeric item, but its
   APAR PH21007 ("COBOL V6.2 was inadvertently generating code to fix up bad signnibbles in zoned to zoned moves",
@@ -618,8 +619,18 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   Reach (static scan, 2026-10-11, heuristic upper bound): of 88 ADD / SUBTRACT / MULTIPLY / DIVIDE statements with a
   zoned receiver in the six burned estates, 17 in CardDemo (8 programs; page / screen counters of a commarea cleared by
   `MOVE SPACES`, CBEXPORT's sequence counter, COTRN02C's `MOVE TRAN-ID TO WS-TRAN-ID-N` after `MOVE HIGH-VALUES TO
-  TRAN-ID`) can see a non-digit; CBSA 4, GenApp 23, the others 0 cannot. Still open: a zoned sender with a P position
-  (#4685), refused by name on the MOVE paths.
+  TRAN-ID`) can see a non-digit; CBSA 4, GenApp 23, the others 0 cannot. Per verb (#4692): ADD / SUBTRACT / MULTIPLY / DIVIDE
+  refuse a dirty receiver (above); MOVE and GIVING overwrite it, so the receiver is not read (modelled, measured);
+  COMPUTE reads it as an operand (modelled).
+- **A zoned item with a P position holding a non-digit, as a sender (#4685, #4692) -- REFUSED by name.** Measured against
+  cobc 3.1.2 (`-std=ibm -fsign=EBCDIC`, TRUNC STD and BIN): a left-P item (`PIC VPP99`) MOVEd to a binary item makes
+  the program hang (the 14-operation probe never finished; `timeout` killed it), and a right-P one (`PIC 99PP`) is
+  computed by no explainable rule (`ADD S TO DS` of two spaces gives 17595-, not the -1595 its bytes' `-16 * 100 + 5`
+  would be). IBM documents no result for non-digit data. So the port refuses, at run time, a MOVE, an ADD / SUBTRACT /
+  COMPUTE operand or a comparison that reads such an item (`Zoned.refuseP`, `Cobol.nonDigitToBinary`,
+  `Cobol.moveNonDigit`: "... a zoned item with a P scaling position ... is not modelled"); a digit-only P item is read
+  as ever (PSCALE, `test_det_programs.py`). Tested over `99PP`, `S99PP`, `VPP99`, `SVPP99` x MOVE to zoned / packed /
+  binary / edited, ADD, SUBTRACT, COMPUTE, comparison (`test_det_nondigit_zoned.py`).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,
@@ -946,6 +957,21 @@ instrument). Rows for the other options of #4706 follow in its later slices.
     GIVING file whose records are not the SD record's length, SORT-RETURN set by the program (16 ends a sort), an
     alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
+
+### F5. RECORD KEY / ALTERNATE RECORD KEY outside the file's record
+- IBM Enterprise COBOL Language Reference, RECORD KEY clause (ALTERNATE RECORD KEY likewise): the key data item is
+  defined in a record description entry of the file the SELECT names. A key defined elsewhere (a WORKING-STORAGE
+  item such as a `COPY`'d work record) is not a valid program.
+- The instrument agrees: GnuCOBOL 3, `-std=ibm`, stops with `'EXPORT-SEQUENCE-NUM' is not defined` (measured
+  2026-10-09 on CardDemo CBEXPORT; the key is in WORKING-STORAGE, the FD record is one `PIC X(500)`). So no
+  equivalence case can build the COBOL side.
+- The det translator reads each SELECT's RECORD KEY and every ALTERNATE RECORD KEY, resolves it, and refuses the file
+  by name (`<key> is not defined in a record of file <select>`) when its 01 record is not one of the FD's records
+  (any of several 01 records under the FD counts; a key reached through `COPY` inside the FD counts). A statement
+  that uses the file is refused with that reason, so the program does not count as translated whole.
+  Never translated: the port does not guess which bytes of the record the author meant.
+- RELATIVE KEY has the opposite placement rule in IBM's reference (not in the file's own record); `ORGANIZATION
+  IS RELATIVE` is refused by name as a whole, so that rule is not reached.
 
 ## CICS (`ggcics.c`)
 
@@ -1906,7 +1932,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   sides and compares the response. No cics-crucible case yet (its SPEC has no WEB-SEND event: a crucible SPEC change). zECS:
   ZECS003's one WEB SEND (FROM / FROMLENGTH / MEDIATYPE / ACTION IMMEDIATE / STATUSCODE / STATUSTEXT / SRVCONVERT) is modelled.
 
-### X38. WEB EXTRACT, WEB RECEIVE, WEB READ / WRITE HTTPHEADER (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
+### X38. WEB EXTRACT, WEB RECEIVE, WEB READ / WRITE HTTPHEADER, WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, #4940, zECS)
 - **WEB EXTRACT** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-extract), server form. HOST "host component of the URL, from the
   Host header or an absolute URI", HOSTLENGTH "buffer length supplied, set to the length of the data returned"; HTTPMETHOD /
   METHODLENGTH, HTTPVERSION / VERSIONLEN ("1.1" indicates HTTP/1.1, "1.0" HTTP/1.0 or lower), PATH / PATHLENGTH, QUERYSTRING /
@@ -1951,6 +1977,39 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   cics-crucible case (its SPEC has no WEB event). zECS: ZECS001's WEB EXTRACT, its first WEB RECEIVE form's MEDIATYPE / LENGTH /
   MAXLENGTH, WEB READ HTTPHEADER(Authorization) and WEB WRITE HTTPHEADER are modelled; its WEB RECEIVE SET is refused.
 
+## #4940: WEB READ FORMFIELD / QUERYPARM and the WEB browse forms
+
+Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfield, `-web-read-queryparm`, `-web-startbrowse-formfield` /
+`-queryparm` / `-httpheader`, `-web-readnext-formfield` / `-queryparm` / `-httpheader`, `-web-endbrowse-formfield` / `-queryparm` / `-httpheader`.
+
+- **What IBM says (modelled).** READ FORMFIELD / QUERYPARM: the name "is not case sensitive"; "CICS unescapes any escaped characters before
+  placing them in the buffer"; VALUELENGTH is the buffer's size in and "the actual length of the value" out, a longer value "is truncated"
+  (LENGERR RESP2 5), a shorter one "placed in the leftmost bytes"; INVREQ RESP2 13 "the HTTP request contains no forms data" / "no keyword
+  parameters were supplied", NOTFND RESP2 1, LENGERR RESP2 1 "NAMELENGTH or VALUELENGTH is zero or negative". The browse: a start with a name
+  begins "at the named field", without one "at the first name and value pair"; ILLOGIC RESP2 5 (FORMFIELD, QUERYPARM) / 10 (HTTPHEADER) "a browse is
+  already in progress", INVREQ RESP2 43 "no HTTP headers", NOTFND RESP2 1, LENGERR RESP2 1. READNEXT: FORMFIELD / HTTPHEADER receives the name "as it is
+  stored", each length option "holds the actual length", a name or value that does not fit is LENGERR RESP2 4 / 5 and (FORMFIELD, QUERYPARM) "the next
+  execution returns the same field", ENDFILE "all name-value pairs have been read" (no RESP2 listed), INVREQ RESP2 4 "before WEB STARTBROWSE". ENDBROWSE:
+  INVREQ RESP2 4 before a start. Form data lives in the request body ("an HTML form that is part of the current task's HTTP request body"), query
+  parameters in the query string.
+- **ASSUMED (IBM silent).** The data is the stated request's body (a form: media type application/x-www-form-urlencoded) or query string, read as
+  name=value pairs joined by '&', split at the first '=' (a value may hold '='), unescaped by %XX only; the browse returns each pair, duplicates
+  included, in the order stated, and after a start name runs to the end; a start that raises a condition starts no browse; ENDFILE's RESP2 is 0;
+  a LENGERR RESP2 1 READNEXT reads nothing and the browse stays; the three browses and a READ are independent of each other; a start name is
+  matched exactly (READ is the only form IBM words as without case). An empty body / query string is "no forms data" (INVREQ RESP2 13).
+- **REFUSED (IBM silent), by name.** Two pairs of a name on a READ or a named start (IBM's READ QUERYPARM page names the case open, and the browse is its
+  answer); a start name that matches only without case; a body whose media type is not application/x-www-form-urlencoded (IBM's LENGERR RESP2 153 /
+  154 do not say how a form type is told; a multipart form, charset parameter or text/plain body); data outside the plain form -- a pair without
+  '=' or with an empty name or an empty pair, ';' (a separator IBM does not mention), '+' (IBM does not say it is a blank), an escape that is not %XX
+  or that unescapes to a byte outside printable ASCII (code-page conversion is not modelled), an escaped name (IBM does not say whether names are
+  unescaped before they are compared), a raw byte outside printable ASCII -- where IBM's INVREQ RESP2 17 / 6 would fire is not stated; a header
+  that does not fit on READNEXT (what the lengths hold and whether the browse moves on is not stated for HTTPHEADER); a name and a value both too
+  long (which RESP2); a READNEXT after ENDFILE; SET (the pointer lane), CHARACTERSET / CLNTCODEPAGE / HOSTCODEPAGE, the client form (SESSTOKEN),
+  a length past its area, two conditions at once (as X35).
+- **Status:** unit-proven, `CicsTask` and the stub C answering one step table line for line (tests/cics_crucible/test_cics_runtimes.py,
+  `_X4940_CASES`: 21 request fixtures, every condition and refusal above); both translators (tests/cobol_mainframe/test_det_translate.py,
+  test_equivalence_cics.py). No cics-crucible case (its SPEC has no event for these reads).
+
 ### X39. A LINKed program XCTLs with the COMMAREA its caller passed — REFUSED, IBM is silent on copy vs caller's storage (#4816)
 - **What.** A program LINKed with a COMMAREA addresses its caller's storage (EXEC CICS LINK, COMMAREA: the area is passed by
   address; the linked program's writes are the caller's, #4806). If that program XCTLs passing its DFHCOMMAREA (or a part of it),
@@ -1984,6 +2043,29 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   the scenario's to state; the runtimes carry whatever the plan names in the event. LINK's ROLLEDBACK / SYSIDERR / TERMERR are
   not raised by the region and have no entry in `CONDITION_ABEND` (abend codes not sourced here).
 - **Status:** ASSUMED; the abend code is the documented one, the planned fault is the harness's.
+
+### X41. WEB RETRIEVE (CICS web support, the document of the last WEB SEND) — ASSUMED, REFUSED where IBM is silent (#4941, sibling of #4767)
+- **WEB RETRIEVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-retrieve). "Retrieves the DOCTOKEN for a CICS document
+  that was sent with a WEB SEND command"; DOCTOKEN(data-area) "a buffer for the 16-byte binary token", the only option. The previous
+  WEB SEND must use ACTION(EVENTUAL) (the Web domain then keeps a copy of the sent document's information); the document is the one
+  sent, changes after the send are not in it; with two EVENTUAL sends the token is the second's. Conditions: INVREQ RESP2 1 "issued in a
+  non-CICS Web support application", INVREQ RESP2 2 "no WEB SEND command has been issued", NOTFND RESP2 1 "the document is not
+  available: the last WEB SEND specified DOCSTATUS(DOCDELETE), or was not a send of a document with ACTION(EVENTUAL)". WEB RETRIEVE
+  is not valid after a client WEB SEND. The command is threadsafe.
+- **What the runtimes do.** `CicsTask.webRetrieve` and the stub C `GGCWRTV` answer alike: no WEB SEND issued, INVREQ 2; a WEB SEND
+  issued, NOTFND 1 (every send accepted is ACTION(IMMEDIATE), X37, which IBM lists as a case of NOTFND 1). The area is never written.
+- **What IBM leaves open, and what we do (REFUSED by name).** (1) INVREQ RESP2 1 (a task that is not CICS web support) cannot be told
+  from a task whose request the run did not state, so an unstated request is refused (`the HTTP request is not stated`), as every
+  X37 / X38 command. (2) Whether a WEB SEND that ended in a condition (INVREQ 11 / 72) "has been issued" is not stated: a WEB RETRIEVE after
+  one (and before an accepted send) is refused. (3) The NORMAL outcome needs an ACTION(EVENTUAL) document send; WEB SEND refuses
+  EVENTUAL (X37: it sends at the end of the task, a later send replaces it) and DOCSTATUS, so the token a retrieve would return, and
+  whether it equals the DOCUMENT CREATE token or names a copy, is not modelled and never produced. (4) The client form (a WEB SEND
+  with SESSTOKEN) is not modelled at all (X35). (5) Every other option (IBM lists none) and a literal DOCTOKEN are refused when
+  translating, in both translators.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps line
+  for line over two request fixtures (tests/cics_crucible/test_cics_runtimes.py), both translators refuse every unmodelled option
+  (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). No estate program uses WEB RETRIEVE (det survey, the burned
+  estates), so no port moves.
 
 ## Language Environment
 

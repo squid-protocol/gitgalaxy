@@ -20,9 +20,9 @@
   },
   {
    "area": "CICS",
-   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
    "id": "X18",
-   "status": "ASSUMED (REFUSED where IBM is silent)"
+   "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
   },
   {
    "area": "CICS",
@@ -192,7 +192,12 @@
     146,
     149
    ],
-   "carddemo-cardupdate": null,
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
    "carddemo-cardview": [
     30,
     30,
@@ -1069,10 +1074,18 @@
     },
     "program": "app/cbl/CBEXPORT.cbl",
     "row": {
-     "holes": [],
+     "holes": [
+      "line 235: OPEN EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 301: WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 364: WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 419: WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 484: WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 542: WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+      "line 561: CLOSE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)"
+     ],
      "kind": "batch",
      "statements": 224,
-     "translated": 224
+     "translated": 217
     },
     "source_read": true
    },
@@ -1086,10 +1099,14 @@
     },
     "program": "app/cbl/CBIMPORT.cbl",
     "row": {
-     "holes": [],
+     "holes": [
+      "line 198: OPEN EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)",
+      "line 261: READ EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)",
+      "line 457: CLOSE EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)"
+     ],
      "kind": "batch",
      "statements": 175,
-     "translated": 175
+     "translated": 172
     },
     "source_read": true
    },
@@ -1783,7 +1800,11 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
   "sweeps": {}
  },
@@ -2250,6 +2271,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -2796,6 +2818,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3332,6 +3355,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3978,6 +4002,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -3986,6 +4011,685 @@
     "source_defects": [],
     "statements": 263,
     "translated": 263,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 92.6,
+    "branches": {
+     "covered": 175,
+     "total": 189
+    },
+    "branches_net": {
+     "covered": 175,
+     "total": 175
+    },
+    "current": true,
+    "infeasible_netted": [
+     "1210-EDIT-ACCOUNT:730:false",
+     "1210-EDIT-ACCOUNT:743:false",
+     "1230-EDIT-NAME:816:false",
+     "1230-EDIT-NAME:833:false",
+     "2000-DECIDE-ACTION:972:false",
+     "2000-DECIDE-ACTION:949:WHEN@1011",
+     "2000-DECIDE-ACTION:1013:true",
+     "2000-DECIDE-ACTION:1013:false",
+     "3200-SETUP-SCREEN-VARS:1099:OTHER",
+     "3250-SETUP-INFOMSG:1140:WHEN@1157",
+     "3250-SETUP-INFOMSG:1140:none",
+     "3300-SETUP-SCREEN-ATTRS:1309:true",
+     "9200-WRITE-PROCESSING:1455:true",
+     "ABEND-ROUTINE:1533:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "1210-EDIT-ACCOUNT:730:false",
+      "kind": "IF",
+      "line": 730,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is INITIALIZEd (374-375) and SET to SPACES at 384; 1210-EDIT-ACCOUNT is the first edit, PERFORMed only at 647 (0000-MAIN WHEN OTHER -> 1000-PROCESS-INPUTS -> 1100-RECEIVE-MAP -> 1200-EDIT-MAP-INPUTS), and nothing on that path (YYYY-STORE-PFKEY in CSSTRPFY writes only CCARD-AID-*, 1100 writes CC-ACCT-ID/CC-CARD-NUM/CCUP-NEW-*) writes WS-RETURN-MSG before it, so the message is always still off.",
+      "unit": "1210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "1210-EDIT-ACCOUNT:743:false",
+      "kind": "IF",
+      "line": 743,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF` at 743 is reached only when the blank test at 725-727 failed (that branch GOes TO the exit at 735), so this paragraph set no message either; as for line 730, WS-RETURN-MSG is still the SPACES set at 384.",
+      "unit": "1210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "1230-EDIT-NAME:816:false",
+      "kind": "IF",
+      "line": 816,
+      "outcome": "false",
+      "reason": "1230-EDIT-NAME is PERFORMed only at 698, after the fetched-details branch of 1200-EDIT-MAP-INPUTS (1210/1220 run only in the not-fetched branch, which GOes TO the exit at 661). On that path the only write of WS-RETURN-MSG after 384 is `SET NO-CHANGES-DETECTED` at 682, and that is followed by the GO TO exit at 692 (685-692), so on reaching 698 WS-RETURN-MSG is SPACES and `IF WS-RETURN-MSG-OFF` is always true.",
+      "unit": "1230-EDIT-NAME"
+     },
+     {
+      "family": "G",
+      "key": "1230-EDIT-NAME:833:false",
+      "kind": "IF",
+      "line": 833,
+      "outcome": "false",
+      "reason": "Reached only when the blank test at 811-813 failed (that branch GOes TO the exit at 819); as for line 816, WS-RETURN-MSG is still SPACES on entry to 1230 and the paragraph has set no message before 833.",
+      "unit": "1230-EDIT-NAME"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:972:false",
+      "kind": "IF",
+      "line": 972,
+      "outcome": "false",
+      "reason": "WHEN CCUP-SHOW-DETAILS ('S'): an action of 'S' survives 1200-EDIT-MAP-INPUTS only through the GO TO at 692 -- 685-687 let 'S' through only when NO-CHANGES-DETECTED was SET at 682; otherwise 696 SETs CCUP-CHANGES-NOT-OK ('E'). Nothing between 692 and 972 (1000's MOVEs at 569-572 read WS-RETURN-MSG) writes WS-RETURN-MSG, so `IF INPUT-ERROR OR NO-CHANGES-DETECTED` is always true. (The 'S' SET at 964 is inside the WHEN 954/958 body, not this one.)",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:949:WHEN@1011",
+      "kind": "EVALUATE",
+      "line": 949,
+      "outcome": "WHEN@1011",
+      "reason": "WHEN CCUP-CHANGES-OKAYED-AND-DONE ('C'): 2000-DECIDE-ACTION is PERFORMed only at 538, in 0000-MAIN's WHEN OTHER, which a 'C' action never reaches (WHEN CCUP-CHANGES-OKAYED-AND-DONE at 517 comes first, after 435-439 which GO on to XCTL); 1100/1200 write the action only as 'E' (696) or 'N' (713), and the 'C' SET at 1000 is inside this same EVALUATE's WHEN at 988.",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:1013:true",
+      "kind": "IF",
+      "line": 1013,
+      "outcome": "true",
+      "reason": "Inside WHEN CCUP-CHANGES-OKAYED-AND-DONE (1011), which 2000-DECIDE-ACTION never takes: see the WHEN@1011 entry (517 catches a 'C' action before 0000-MAIN's WHEN OTHER PERFORMs 2000 at 538).",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:1013:false",
+      "kind": "IF",
+      "line": 1013,
+      "outcome": "false",
+      "reason": "Inside WHEN CCUP-CHANGES-OKAYED-AND-DONE (1011), which 2000-DECIDE-ACTION never takes: see the WHEN@1011 entry (517 catches a 'C' action before 0000-MAIN's WHEN OTHER PERFORMs 2000 at 538).",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "3200-SETUP-SCREEN-VARS:1099:OTHER",
+      "kind": "EVALUATE",
+      "line": 1099,
+      "outcome": "OTHER",
+      "reason": "The EVALUATE runs only when not CDEMO-PGM-ENTER (1084), and its WHENs cover LOW-VALUES/SPACES (1100), 'S' (1107) and 'E','N','C','L','F' (1113). CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F', so WHEN OTHER is never taken.",
+      "unit": "3200-SETUP-SCREEN-VARS"
+     },
+     {
+      "family": "G",
+      "key": "3250-SETUP-INFOMSG:1140:WHEN@1157",
+      "kind": "EVALUATE",
+      "line": 1140,
+      "outcome": "WHEN@1157",
+      "reason": "WHEN WS-NO-INFO-MESSAGE is tested only when not CDEMO-PGM-ENTER (1141) and the action matches none of 1143-1156 (LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'). 3250 runs in 3000-SEND-MAP right after 3200 with the same state: CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'.",
+      "unit": "3250-SETUP-INFOMSG"
+     },
+     {
+      "family": "G",
+      "key": "3250-SETUP-INFOMSG:1140:none",
+      "kind": "EVALUATE",
+      "line": 1140,
+      "outcome": "none",
+      "reason": "No WHEN matches only when the program is not CDEMO-PGM-ENTER (1141), the action is none of the 88 values tested at 1143-1156, and WS-INFO-MSG is non-blank (1157). CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'.",
+      "unit": "3250-SETUP-INFOMSG"
+     },
+     {
+      "family": "G",
+      "key": "3300-SETUP-SCREEN-ATTRS:1309:true",
+      "kind": "IF",
+      "line": 1309,
+      "outcome": "true",
+      "reason": "3300 is PERFORMed only by 3000-SEND-MAP (1042), right after 3250-SETUP-INFOMSG (1040), whose EVALUATE leaves WS-INFO-MSG non-blank: every WHEN (1141-1158) SETs a non-blank 88 value, and if none matches, WHEN WS-NO-INFO-MESSAGE (1157) failed, so it was already non-blank. Nothing at 1161-1308 writes WS-INFO-MSG, so `IF WS-NO-INFO-MESSAGE` at 1309 is never true.",
+      "unit": "3300-SETUP-SCREEN-ATTRS"
+     },
+     {
+      "family": "G",
+      "key": "9200-WRITE-PROCESSING:1455:true",
+      "kind": "IF",
+      "line": 1455,
+      "outcome": "true",
+      "reason": "DATA-WAS-CHANGED-BEFORE-UPDATE (an 88 of WS-RETURN-MSG) is SET only at 1511, and that branch GOes TO 9200-WRITE-PROCESSING-EXIT at 1518, leaving 9300 without returning to 1455. When 9300 returns normally its IF at 1503-1508 was true (CONTINUE), and on entry to 9200 (only from 990, with action 'N' so 1200 ran only 668-692) WS-RETURN-MSG is SPACES (384) or NO-CHANGES-DETECTED (682); 1446 is followed by its own GO TO at 1448. So `IF DATA-WAS-CHANGED-BEFORE-UPDATE` at 1455 is never true.",
+      "unit": "9200-WRITE-PROCESSING"
+     },
+     {
+      "family": "C",
+      "key": "ABEND-ROUTINE:1533:true",
+      "kind": "IF",
+      "line": 1533,
+      "outcome": "true",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 374-376, and the program writes it only at line 1023 (a non-blank literal) and 1534. It is never LOW-VALUES.",
+      "unit": "ABEND-ROUTINE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 45,
+     "live": 45
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cardupdate",
+      "case_scenarios": 43,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cardupdate",
+     "case_scenarios": 43,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/cbl/COCRDUPC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X31"
+    ],
+    "branch_outcomes_unrun": 14,
+    "commands": 10,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "READ",
+     "REWRITE",
+     "SYNCPOINT"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 488,
+    "translated": 488,
     "whole": true
    }
   },
@@ -4558,6 +5262,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5077,6 +5782,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -5538,6 +6244,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6059,6 +6766,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -6578,6 +7286,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7022,6 +7731,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7504,6 +8214,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -7988,6 +8699,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -8565,6 +9277,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9044,6 +9757,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -9562,6 +10276,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10063,6 +10778,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10203,6 +10919,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10401,6 +11118,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10599,6 +11317,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -10808,6 +11527,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11006,6 +11726,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11204,6 +11925,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11413,6 +12135,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -11611,6 +12334,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -12158,6 +12882,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -12763,6 +13488,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -12971,6 +13697,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -13115,6 +13842,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [],
     "hole_count": 0,
@@ -13123,773 +13851,6 @@
     "source_defects": [],
     "statements": 58,
     "translated": 58,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "an equivalence case that runs it"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "app/cbl/CBEXPORT.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 224,
-    "translated": 224,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "an equivalence case that runs it"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "app/cbl/CBIMPORT.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 175,
-    "translated": 175,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cardupdate",
-      "case_scenarios": 33,
-      "db2": false,
-      "det": {
-       "state": "not equal",
-       "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4875): COCRDUPC writes spaces into a PIC 9(3) CVV (its BMS map has no CVV field, so MOVE CCUP-NEW-CVV-CD carries blanks); the COMMAREA now agrees (cobc moves same-shape zoned items as a memcpy, Cobol.move follows), but the REWRITE goes through the typed CardRecord entity, which holds 000 where the COBOL file holds spaces; 30 branches are also uncovered"
-       ]
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cardupdate",
-     "case_scenarios": 33,
-     "db2": false,
-     "det": {
-      "state": "not equal",
-      "why": [
-       "ledgered as differing in det_sweep_baseline.json (#4875): COCRDUPC writes spaces into a PIC 9(3) CVV (its BMS map has no CVV field, so MOVE CCUP-NEW-CVV-CD carries blanks); the COMMAREA now agrees (cobc moves same-shape zoned items as a memcpy, Cobol.move follows), but the REWRITE goes through the typed CardRecord entity, which holds 000 where the COBOL file holds spaces; 30 branches are also uncovered"
-      ]
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L1",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "its det port equal on every scenario of carddemo-cardupdate: ledgered as differing in det_sweep_baseline.json (#4875): COCRDUPC writes spaces into a PIC 9(3) CVV (its BMS map has no CVV field, so MOVE CCUP-NEW-CVV-CD carries blanks); the COMMAREA now agrees (cobc moves same-shape zoned items as a memcpy, Cobol.move follows), but the REWRITE goes through the typed CardRecord entity, which holds 000 where the COBOL file holds spaces; 30 branches are also uncovered"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "REWRITE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/cbl/COCRDUPC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X22",
-     "X27",
-     "X31"
-    ],
-    "branch_outcomes_unrun": null,
-    "commands": 10,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "READ",
-     "REWRITE",
-     "SYNCPOINT"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 488,
-    "translated": 488,
     "whole": true
    }
   },
@@ -14000,6 +13961,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -14039,9 +14001,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -14342,6 +14304,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "missing copybook CMQODV"
@@ -14715,6 +14678,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -15105,6 +15069,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "<name>: no such item",
@@ -15231,6 +15196,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -15355,6 +15321,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -15479,6 +15446,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "CALL CBLTDLI",
@@ -15953,6 +15921,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "DSNTIAC: Db2's message text is not modelled"
@@ -15987,9 +15956,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -16263,6 +16232,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "missing copybook CMQGMOV"
@@ -16289,9 +16259,9 @@
      },
      {
       "area": "CICS",
-      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused",
       "id": "X18",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
+      "status": "ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS"
      },
      {
       "area": "CICS",
@@ -16563,6 +16533,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "missing copybook CMQGMOV"
@@ -16573,6 +16544,256 @@
     "source_defects": [],
     "statements": null,
     "translated": null,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (7 holes left)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "app/cbl/CBEXPORT.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 7,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [
+     "<name>: <name> is not defined in a record of file <name>"
+    ],
+    "hole_count": 7,
+    "holes": [
+     "CLOSE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+     "OPEN EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)",
+     "WRITE EXPORT-OUTPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-OUTPUT (IBM: a key item is in the file's own record)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 224,
+    "translated": 217,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (3 holes left)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "app/cbl/CBIMPORT.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 3,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [
+     "<name>: <name> is not defined in a record of file <name>"
+    ],
+    "hole_count": 3,
+    "holes": [
+     "CLOSE EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)",
+     "OPEN EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)",
+     "READ EXPORT-INPUT: EXPORT-SEQUENCE-NUM is not defined in a record of file EXPORT-INPUT (IBM: a key item is in the file's own record)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 175,
+    "translated": 172,
     "whole": false
    }
   },
@@ -16683,6 +16904,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "ALTER not modelled",
@@ -16807,6 +17029,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "<name>: no repository for this file in the generated project"
@@ -16931,6 +17154,7 @@
    },
    "stale_inputs": [],
    "stale_since": null,
+   "survey_stale": false,
    "translation": {
     "gap_classes": [
      "ACCEPT FROM SYSIN",
@@ -16951,8 +17175,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0",
+   "python tests/tools/cics_census.py survey --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0d74a182b6d6636912be3db10d7a63d03b722885",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -16976,19 +17200,24 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+   "sha": "0d74a182b6d6636912be3db10d7a63d03b722885",
+   "translator": {
+    "files": 98,
+    "sha256": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
+   }
   },
-  "translator_commit": "d3ec2bdb4f2a14e0e231686f4f4f7ce7d05e0cf0"
+  "translator_commit": "0d74a182b6d6636912be3db10d7a63d03b722885",
+  "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 25,
-  "det_equal": 28,
+  "det_equal": 29,
   "histogram": {
-   "L0": 13,
-   "L1": 4,
+   "L0": 15,
+   "L1": 1,
    "L2": 12,
    "L3": 3,
-   "L4": 12,
+   "L4": 13,
    "L5": 0
   },
   "histogram_stale": {
@@ -16999,14 +17228,27 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 67,
+  "histogram_stale_survey": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 77,
   "levels_stale": 0,
+  "levels_stale_survey": 0,
   "programs": 44,
   "records_current": 23,
   "refused_whole": 3,
   "source_unread": 0,
-  "translated_whole": 31,
+  "translated_whole": 29,
   "with_case": 30,
   "with_record": 23
+ },
+ "survey_translator": {
+  "current": true,
+  "fingerprint": "29c013634396208e8a51a50c963a95d12cbfc681d379f2389a2057a82d9f3e33"
  }
 }

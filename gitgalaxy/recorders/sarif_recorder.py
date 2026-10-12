@@ -93,6 +93,10 @@ class SarifRecorder:
             # B. Extract Passive Security Lens Snippets (SAST)
             threat_snippets = telemetry.get("threat_snippets", {})
             threat_locations = telemetry.get("threat_locations", {})
+            # #4548: (line, column) of each snippet, aligned with it. The old `locs[idx]` fallback
+            # paired the idx-th SNIPPET with the idx-th HIT, which are different lists whenever a
+            # duplicate snippet was skipped.
+            threat_sites = telemetry.get("threat_sites", {})
 
             for threat_type, snippets in threat_snippets.items():
                 # Attempt to retrieve exact line locations, matching by raw or sec_ prefixed key
@@ -106,15 +110,21 @@ class SarifRecorder:
                         else "warning"
                     )
 
-                    # Fallback to file's start_line if specific LOC isn't captured
-                    exact_line = locs[idx] if idx < len(locs) else start_line
+                    # Exact site of this snippet; else the legacy hit-line list; else the file's start_line
+                    site_list = threat_sites.get(threat_type) or threat_sites.get(f"sec_{threat_type}") or []
+                    site = site_list[idx] if idx < len(site_list) else None
+                    if site:
+                        exact_line, exact_col = site
+                    else:
+                        exact_line = locs[idx] if idx < len(locs) else start_line
+                        exact_col = None
 
                     results_list.append(
                         {
                             "ruleId": f"GG-SAST-{threat_type.upper()}",
                             "level": severity,
                             "message": {"text": f"Vulnerability signature triggered: {snippet}"},
-                            "locations": [self._build_location(rel_path, exact_line)],
+                            "locations": [self._build_location(rel_path, exact_line, exact_col)],
                             "properties": {"category": "Structural SAST"},
                         }
                     )
@@ -153,18 +163,18 @@ class SarifRecorder:
         except Exception as e:
             self.logger.error(f"SARIF: Export failed - {e!s}", exc_info=True)
 
-    def _build_location(self, uri: str, line: int) -> dict[str, Any]:
-        """Constructs the standard SARIF physical location object."""
-        return {
-            "physicalLocation": {
-                "artifactLocation": {"uri": uri},
-                "region": {
-                    "startLine": line,
-                    # Enterprise pipelines default to highlighting the whole line if columns are omitted
-                    "startColumn": 1,
-                },
-            }
-        }
+    def _build_location(self, uri: str, line: int, column: int | None = None) -> dict[str, Any]:
+        """Constructs the standard SARIF physical location object.
+
+        `column` is the 1-indexed column of the match. When a finding has no recorded column (a
+        file-level finding), the region carries only `startLine`: SARIF consumers then highlight
+        the whole line, which is honest, where a hardcoded `startColumn: 1` claimed a column nobody
+        measured (#4548).
+        """
+        region: dict[str, Any] = {"startLine": line}
+        if column is not None:
+            region["startColumn"] = column
+        return {"physicalLocation": {"artifactLocation": {"uri": uri}, "region": region}}
 
     def _build_dependency_notifications(self, is_zero_dep: bool, missing_deps: dict[str, bool]) -> list[dict[str, Any]]:
         """Injects explicit telemetry into the SARIF runner so auditors know if engines degraded."""

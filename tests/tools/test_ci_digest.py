@@ -64,6 +64,8 @@ def test_triage_infra_flake_dirty(monkeypatch):
     # muninn on #4821: a third-party action's Docker image hit Docker Hub's rate limit
     hub = "ERROR: failed to solve: unexpected status from HEAD request to https://registry-1.docker.io/v2/library/alpine/manifests/3.24.2: 429 Too Many Requests"
     assert cd.triage("failure", hub, []) == "infra"
+    dl_504 = "tree_sitter_language_pack.DownloadError: Download error: Failed to fetch manifest from https://github.com/xberg-io/tree-sitter-language-pack/releases/download/v1.21.0/parsers.json: http status: 504"
+    assert cd.triage("failure", dl_504, []) == "infra"
     assert cd.triage("failure", "", ["tests/x.py::test_regex_redos[big]"]) == "flake"
     assert cd.triage("failure", "", ["tests/x.py::test_regex_redos", "tests/x.py::test_other"]) == "real"
     assert cd.triage("action_required", "", [], "dirty") == "dirty"

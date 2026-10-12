@@ -5,12 +5,6 @@
 # /ci/requirements) proposes bumps. Needs `uv`. --universal --python-version 3.10: one lockfile valid on
 # every OS and every Python >= 3.10 in our matrices (pytest needs colorama on Windows only).
 set -euo pipefail
-cd "$(dirname "$0")/../../ci/requirements"
-for f in *.in; do
-  v="${f%.in}"
-  { echo "# Hash-pinned install set for GitGalaxy's own CI (#4918). Do not edit by hand."
-    echo "# Regenerate: tests/tools/pin_ci_requirements.sh  (source: $v.in)"
-    uv pip compile "$v.in" --generate-hashes --universal --python-version 3.10 --no-header -q
-  } > "$v.txt.tmp"
-  mv "$v.txt.tmp" "$v.txt"
-done
+HERE="$(cd "$(dirname "$0")" && pwd)"
+PYTHON="${PYTHON:-python3}"
+exec "$PYTHON" "$HERE/pin_requirements.py" --target ci "$@"

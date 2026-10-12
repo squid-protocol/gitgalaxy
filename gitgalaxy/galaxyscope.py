@@ -74,6 +74,7 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
@@ -883,7 +884,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             scan_inert_security = _worker_state["config"].get("SECURITY_SCAN_INERT_FORMATS", True)
             if not is_inert or scan_inert_security:
                 # Handle the new nested dictionary
-                sec_results = security.scan_content(content_buffer)
+                # #4548: the behaviour signals read the comment-blanked code stream, and are
+                # skipped on prose files (no executable surface); the raw text still feeds the
+                # comment-aware ones (dead_code, secrets, hidden unicode, entropy).
+                sec_results = security.scan_content(
+                    content_buffer,
+                    code_stream=refraction.get("code_stream"),
+                    prose=lang_id in ("plaintext", "markdown", "csv"),
+                )
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
@@ -896,6 +904,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
                 # Pass the snippets into the payload
                 logic_data["threat_snippets"] = sec_results["snippets"]
+                # (line, column) of each snippet, aligned with it -- SARIF's region (#4548)
+                logic_data["threat_sites"] = sec_results.get("sites", {})
 
                 # Fold security_lens.py's own line positions into the same shared,
                 # persisted ledger detector.py's rules already populate (#348).
@@ -984,11 +994,11 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                         )
 
             # #4918: unpinned dependency installs in pipeline files. Pipeline config is YAML, so this runs on
-            # the yaml language only; it rides the same ledger (equations / threat_snippets / threat_locations)
-            # and surfaces in SARIF as GG-SAST-UNPINNED_INSTALL. Skipped under the same
+            # the yaml language, plus (#4944) Dockerfiles and shell scripts; it rides the same ledger
+            # (equations / threat_snippets / threat_locations) and surfaces in SARIF as GG-SAST-UNPINNED_INSTALL. Skipped under the same
             # SECURITY_SCAN_INERT_FORMATS opt-out as the lens above.
-            if lang_id == "yaml" and scan_inert_security:
-                pin_results = scan_pipeline(content_buffer)
+            if lang_id in ("yaml", "dockerfile", "shell") and scan_inert_security:
+                pin_results = scan_pipeline(content_buffer, lang_id, rel_path)
                 if pin_results["counts"][UNPINNED_INSTALL]:
                     logic_data["equations"][f"sec_{UNPINNED_INSTALL}"] = pin_results["counts"][UNPINNED_INSTALL]
                     logic_data.setdefault("threat_snippets", {}).update(pin_results["snippets"])
@@ -2600,6 +2610,36 @@ class Orchestrator:
         attach_function_metrics(self.parsed_files, function_metrics(self.parsed_files, self.fcall_sites))
         logger.debug(f"⏱️ EXECUTION_TIME [Function Graph Metrics]: {time.time() - t_graph:.2f}s")
 
+    def _declared_dependency_names(self) -> set[str]:
+        """Lower-cased dependency names declared by the scan's manifests (#4547).
+
+        The typosquat radar's CRITICAL level requires the suspect to be one of these.
+        A manifest that cannot be read contributes nothing (the radar degrades to
+        WARNING, never to a false CRITICAL).
+        """
+        from gitgalaxy.security.manifest_parser import (
+            SUPPORTED_MANIFEST_FILENAMES,
+            SUPPORTED_MANIFEST_SUFFIXES,
+            UniversalManifestSlicer,
+        )
+
+        names: set[str] = set()
+        disk_paths = getattr(self, "disk_paths", {}) or {}
+        for rel_path in getattr(self, "stem_map", {}).values():
+            path = Path(rel_path)
+            if path.name not in SUPPORTED_MANIFEST_FILENAMES and path.suffix not in SUPPORTED_MANIFEST_SUFFIXES:
+                continue
+            try:
+                _, deps = UniversalManifestSlicer.slice_manifest(self.root / disk_paths.get(rel_path, rel_path))
+            except Exception as exc:
+                # An unreadable manifest only lowers the alert level.
+                logger.debug(f"typosquat radar: could not read manifest {rel_path}: {exc}")
+                continue
+            for dep in deps:
+                low = str(dep).lower()
+                names.update({low, low.replace("_", "-"), low.replace("-", "_")})
+        return names
+
     def _resolve_dependency_graph(self):
         """
         Pass 1.5: Optimized relational token aggregation & Fuzzy Suffix Matching.
@@ -2738,6 +2778,8 @@ class Orchestrator:
             if isinstance(ldef, dict) and (ldef.get("local_module_capture_group") or ldef.get("relative_import_groups"))
         }
 
+        declared_deps = self._declared_dependency_names()
+
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
             # #2988: the importing file's own extension, used to reject
@@ -2838,9 +2880,34 @@ class Orchestrator:
                     and not (raw_import.startswith(".") and str(meta.get("lang_id", "")).lower() in local_module_langs)
                     and not raw_import.startswith(local_path_prefixes.get(str(meta.get("lang_id", "")).lower(), ()))
                 ):
-                    if clean_path not in external_imports_tally:
-                        external_imports_tally[clean_path] = []
-                    external_imports_tally[clean_path].append(rel_path)
+                    # #4547: the radar tests PACKAGE names. A system / standard header
+                    # (`strings.h`~`string.h`, `<cstring>`~`<string>`) is a file path the
+                    # toolchain supplies, and a Rust `a::b::item` path names an item inside
+                    # a crate -- only its leading segment is the crate. A `name@version` ref
+                    # (`actions/checkout@v3`) is the one package at two pins, so the pin is
+                    # dropped before comparing.
+                    radar_name = clean_path
+                    if "::" in radar_name:
+                        radar_name = radar_name.split("::", 1)[0]
+                        if radar_name in ("std", "core", "alloc"):
+                            continue
+                        # A Rust path's first segment is a crate only if one is declared:
+                        # otherwise it is an in-crate module (`use error::*;`, 2015-style
+                        # paths), which would otherwise read as a crate mimicking `errors`.
+                        # (A bare `extern crate name;` token has no `::` and stays eligible.)
+                        if importer_ext == ".rs" and radar_name.lower() not in declared_deps:
+                            continue
+                    # A token that ends in `:` or holds whitespace is a parse artifact
+                    # (an object-literal key read as an import), never a package name.
+                    if radar_name.endswith(":") or any(c.isspace() for c in radar_name):
+                        continue
+                    if "@" in radar_name[1:]:
+                        radar_name = radar_name[0] + radar_name[1:].split("@", 1)[0]
+                    if radar_name.lower().endswith(HEADER_EXTENSIONS) or is_system_header(radar_name, importer_ext):
+                        continue
+                    if radar_name not in external_imports_tally:
+                        external_imports_tally[radar_name] = []
+                    external_imports_tally[radar_name].append(rel_path)
 
         # =========================================================================
         # ---> NEW: THE AIR-GAPPED TYPOSQUATTING RADAR <---
@@ -2912,6 +2979,11 @@ class Orchestrator:
                 if orphan_imp.lower() == anchor_imp.lower():
                     continue
 
+                # #4547: `build-options` and `build_options` are one package under -/_
+                # folding (the registries treat the separators as equivalent), not a mimic.
+                if orphan_imp.lower().replace("-", "_") == anchor_imp.lower().replace("-", "_"):
+                    continue
+
                 # 4. The OOP Interface Shield (Prevents 'IEmailer' vs 'Emailer')
                 orphan_base = orphan_imp.split("/")[-1]
                 anchor_base = anchor_imp.split("/")[-1]
@@ -2928,9 +3000,18 @@ class Orchestrator:
                 max_dist = 1 if min(len(orphan_imp), len(anchor_imp)) < 10 else 2
 
                 if 0 < dist <= max_dist:
-                    logger.critical(
-                        f"🚨 TYPOSQUATTING DETECTED: '{orphan_imp}' in {rel_path} closely matches anchor '{anchor_imp}'!"
-                    )
+                    # #4547: CRITICAL needs a manifest-level match -- the suspect name is a
+                    # declared dependency. An import-only near-match is a lead, not a verdict.
+                    if orphan_imp.lower() in declared_deps:
+                        logger.critical(
+                            f"🚨 TYPOSQUATTING DETECTED: '{orphan_imp}' in {rel_path} closely matches anchor "
+                            f"'{anchor_imp}' and is a declared dependency!"
+                        )
+                    else:
+                        logger.warning(
+                            f"Possible typosquat (import only, not in any manifest): '{orphan_imp}' in {rel_path} "
+                            f"closely matches anchor '{anchor_imp}'."
+                        )
 
                     # Inject the threat directly into the file's equations before Phase 2
                     if "equations" not in self.ram_cache[rel_path]:
@@ -3269,6 +3350,7 @@ class Orchestrator:
             telemetry_payload["identity_confidence"] = meta.get("intensity", 0.0)
             telemetry_payload["identity_source_proof"] = meta.get("source_proof", "Discovery")
             telemetry_payload["threat_snippets"] = meta.get("threat_snippets", {})
+            telemetry_payload["threat_sites"] = meta.get("threat_sites", {})
 
             self.parsed_files.append(
                 {

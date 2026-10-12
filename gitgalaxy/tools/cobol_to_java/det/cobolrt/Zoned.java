@@ -127,6 +127,21 @@ final class Zoned {
                 + "(IBM documents no result, register C11)");
     }
 
+    /** A P scaling position (`99PP`, `VPP99`): the item's scale lies outside its digits. */
+    private static boolean pScaled(Field f) {
+        return f.scale < 0 || f.scale > f.digits;
+    }
+
+    /** A P-scaled item holding a non-digit, read as an operand or comparand (#4692, #4685): cobc 3.1.2 adds the P
+     *  positions' weight to the byte arithmetic in ways no rule explains (a right-P `  ` plus 5 is 17595-) and hangs
+     *  on a left-P item's MOVE to a binary item; IBM documents no result. Refused, as the MOVE paths are. */
+    private static void refuseP(Field f) {
+        if (pScaled(f)) {
+            throw new UnsupportedOperationException("arithmetic or a comparison on a zoned item with a P scaling "
+                    + "position holding a non-digit is not modelled (IBM documents no result, register C11)");
+        }
+    }
+
     /** The refusal of a non-digit in the receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE (#4692). */
     static UnsupportedOperationException refuseReceiver() {
         return refuse("arithmetic whose receiver is");
@@ -145,6 +160,7 @@ final class Zoned {
             putSign(f, r, cs);
             return v;
         }
+        refuseP(f);
         if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int n = f.digits;
         int first = f.st.bytes[f.off] & 0xFF;
@@ -171,6 +187,7 @@ final class Zoned {
             putSign(f, r, cs);
             return v;
         }
+        refuseP(f);
         if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int v = 0;
         for (int c : r.ch) v = v * 10 + (c - '0');

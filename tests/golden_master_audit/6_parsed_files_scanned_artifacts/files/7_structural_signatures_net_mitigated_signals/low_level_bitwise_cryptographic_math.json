@@ -1929,7 +1929,7 @@
       "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
-      "javascript/javascript_algorithms_bits/fullAdder.js": 2
+      "javascript/javascript_algorithms_bits/fullAdder.js": 0
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
@@ -3207,7 +3207,7 @@
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 0
     },
     "rust": {
-      "rust/SOURCES.md": 1
+      "rust/SOURCES.md": 0
     },
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,

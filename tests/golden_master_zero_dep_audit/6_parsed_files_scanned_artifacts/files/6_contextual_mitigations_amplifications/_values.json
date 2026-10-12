@@ -1908,6 +1908,9 @@
       "python/cython/LICENSE.txt": "None Detected",
       "python/cython/MemoryView.pxd": "None Detected"
     },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "None Detected"
+    },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "None Detected",
       "python/fastapi/README.md": "None Detected",

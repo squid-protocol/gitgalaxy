@@ -48,7 +48,7 @@ zod (269 edges) split into:
 | `unmapped_dst` on `x;`-terminated lines | links to bodyless signatures (interface / abstract / overload) | detector `def_shape` = `signature`, resolver skips it | #3757 (fixed) |
 | `wrong`: bare call lands on an object-literal method | member treated as bare-callable | `def_shape` = `member` kept out of `bucket.free` | #3758 (fixed) |
 | `wrong` among same-name defs in one file | block scopes (`const Node` per callback) | TS/JS nearest-preceding binding | #3759 (fixed) |
-| `external` | untyped receiver's built-in (`str.trim()`, `map.get()`) hits a repo method | resolver untyped-receiver fallback | #3756 |
+| `external` | untyped receiver's built-in (`str.trim()`, `map.get()`) hits a repo method | resolver untyped-receiver fallback: JS/TS `_BUILTIN_INSTANCE_METHODS` -> `receiver`, `_BUILTIN_NAMESPACES` -> `none` | #3756 (fixed, ts/js; other languages unmeasured) |
 | `caller_unmapped` for `async "key"()` | modifier captured as the name | detector quoted-key naming | #3760 (fixed) |
 | `resolved_outside`, site `...f()` | spread recorded as qualifier `<expr>` | TS/JS qualifier capture | #3787 |
 | `resolved_outside`, `ns.f()` with an alias ≠ file stem | namespace-import alias not mapped | import graph / resolver | #3788 |

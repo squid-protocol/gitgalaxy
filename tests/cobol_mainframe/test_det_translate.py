@@ -969,6 +969,7 @@ _RESP_SAMPLES = {
     "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
     "WEB READ HTTPHEADER": "WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
     "WEB WRITE HTTPHEADER": "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
+    "WEB RETRIEVE": "WEB RETRIEVE DOCTOKEN(REC)",
 }  # fmt: skip
 _RESP_ELSEWHERE = {
     "RETURN": "control never comes back from a RETURN (OPTIONS)",
@@ -3044,3 +3045,19 @@ def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
     for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("WS-CA", False)):
         out = c.command(f"XCTL PROGRAM('XB') COMMAREA({operand}) LENGTH(80)", "")
         assert any("task.xctlOfLinkage();" in x for x in out) is marked, (operand, out)
+
+
+def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
+    """#4941 zECS (register X41), IBM WEB RETRIEVE: DOCTOKEN is the only option and is required; the outcome is CicsTask's
+    (INVREQ RESP2 2 / NOTFND RESP2 1), the area is never written; every other option and the literal form are refused."""
+    c = _ChanCics()
+    r = c.command("WEB RETRIEVE DOCTOKEN(REC) NOHANDLE", "")
+    assert r[0].startswith("int[] web") and ".webRetrieve();" in r[0]
+    assert "Cobol.text(" not in r[0]
+    r2 = c.command("WEB RETRIEVE DOCTOKEN(REC) RESP(R) RESP2(R2)", "")
+    assert ".webRetrieve();" in r2[0] and len(r2) > 1
+    with pytest.raises(C.CicsError, match="without DOCTOKEN"):
+        c.command("WEB RETRIEVE NOHANDLE", "")
+    for extra in ("SESSTOKEN(KEY)", "FROM(REC)", "ACTION(R)", "DOCSTATUS(R)", "INTO(REC)", "MEDIATYPE(REC)"):
+        with pytest.raises(C.CicsError):
+            c.command(f"WEB RETRIEVE DOCTOKEN(REC) {extra}", "")

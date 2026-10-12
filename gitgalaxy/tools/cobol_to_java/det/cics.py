@@ -1148,7 +1148,13 @@ class Cics:
             return self.web_parse(key, opts, ind)
         if key == "WEB SEND":  # #4767 (X37): the response to the stated inbound request
             return self.web_send(key, opts, ind)
-        if key in ("WEB EXTRACT", "WEB RECEIVE", "WEB READ HTTPHEADER", "WEB WRITE HTTPHEADER"):  # #4767 (X38)
+        if key in (
+            "WEB EXTRACT",
+            "WEB RECEIVE",
+            "WEB READ HTTPHEADER",
+            "WEB WRITE HTTPHEADER",
+            "WEB RETRIEVE",
+        ):  # #4767 (X38), #4941 (X41)
             return self.web_request(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
@@ -1388,6 +1394,9 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
+        if key == "WEB RETRIEVE":  # #4941 (X41): DOCTOKEN is never written (the NORMAL outcome needs an EVENTUAL send)
+            req("DOCTOKEN")
+            return [f"{ind}int[] {r} = task.webRetrieve();", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB WRITE HTTPHEADER":
             call = f"task.webWriteHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {text('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]

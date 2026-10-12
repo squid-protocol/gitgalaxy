@@ -242,10 +242,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 66 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 67 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
     # IBM's CICS TS 6.x command summary: 259 API command names, 56 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER), 9 forms of a modelled command (api.py's docstring), the other 187 name-only
-    assert len(by_status["refused"]) == 187
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER, #4941: RETRIEVE), 9 forms of a modelled command (api.py's docstring), the other 186 name-only
+    assert len(by_status["refused"]) == 186
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.refused and not c.outcomes, key

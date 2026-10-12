@@ -1910,3 +1910,17 @@ def test_send_and_receive_map_leave_the_program_on_the_abm0_abend_x31():
         text = "\n".join(got)
         assert "DEPENDING ON GG-GOTO" in text and "IF GG-GOTO < 0" in text
         assert text.index("IF GG-GOTO < 0") < text.index("MOVE GG-RESP TO R"), (call, got)
+
+
+def test_web_retrieve_becomes_a_stub_call_and_refuses_every_other_option():
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV with no argument (the stub writes no DOCTOKEN); DOCTOKEN is
+    required, a literal is refused, and every other option is refused by name."""
+    r = ec.translate_command("WEB RETRIEVE DOCTOKEN(WS-T) NOHANDLE")
+    assert r[0] == "CALL 'GGCWRTV' USING GG-CICS" and "WS-T" not in "".join(r)
+    with pytest.raises(ec.Unsupported, match="DOCTOKEN"):
+        ec.translate_command("WEB RETRIEVE NOHANDLE")
+    with pytest.raises(ec.Unsupported, match="literal"):
+        ec.translate_command("WEB RETRIEVE DOCTOKEN('X')")
+    for extra in ("SESSTOKEN(WS-S)", "FROM(WS-F)", "ACTION(WS-A)", "DOCSTATUS(WS-D)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(f"WEB RETRIEVE DOCTOKEN(WS-T) {extra}")

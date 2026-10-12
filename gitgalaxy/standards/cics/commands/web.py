@@ -698,6 +698,45 @@ WEB_WRITE_HTTPHEADER = Command(
     event="WEB-HEADER",
 )
 
+WEB_RETRIEVE = Command(
+    key="WEB RETRIEVE",
+    ibm=ibm("EXEC CICS WEB RETRIEVE", "summary-web-retrieve"),
+    status="modelled",
+    register="X41",
+    options={"DOCTOKEN": Arg("area_out", width=16), **RESP_OPTIONS},
+    default_refusal=Refusal("DOCTOKEN is the only option IBM lists", "X41"),
+    groups=(required("DOCTOKEN", msg="WEB RETRIEVE without DOCTOKEN"),),
+    outcomes=(
+        # (IBM's NORMAL, DOCTOKEN written: never produced here, see the second runtime refusal)
+        Outcome("NORMAL", 0, "", writes=("DOCTOKEN",)),
+        Outcome("INVREQ", 2, "No WEB SEND command has been issued"),
+        Outcome(
+            "NOTFND",
+            1,
+            "The document is not available: the last WEB SEND was not a document send with ACTION(EVENTUAL)",
+        ),
+    ),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("DOCTOKEN",)),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the inbound HTTP request the task serves is not stated for the task (IBM's INVREQ RESP2 1, a task that is not "
+            "CICS web support, cannot be told from an unstated request)",
+            "X41",
+            java="the HTTP request is not stated (withHttpRequest)",
+            c="the HTTP request is not stated for this task",
+        ),
+        RuntimeRefusal(
+            "a WEB RETRIEVE after a WEB SEND that ended in a condition (IBM does not say whether that send was issued); the "
+            "NORMAL outcome needs an ACTION(EVENTUAL) document send, which WEB SEND refuses",
+            "X41",
+            java="WEB RETRIEVE after a WEB SEND that ended in a condition",
+            c="WEB RETRIEVE after a WEB SEND that ended in a condition",
+        ),
+    ),
+)
+
 COMMANDS = (
     WEB_OPEN,
     WEB_CONVERSE,
@@ -708,4 +747,5 @@ COMMANDS = (
     WEB_RECEIVE,
     WEB_READ_HTTPHEADER,
     WEB_WRITE_HTTPHEADER,
+    WEB_RETRIEVE,
 )

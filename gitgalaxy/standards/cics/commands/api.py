@@ -218,7 +218,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("WEB READNEXT FORMFIELD", None, _WEB),
     ("WEB READNEXT HTTPHEADER", None, _WEB),
     ("WEB READNEXT QUERYPARM", None, _WEB),
-    ("WEB RETRIEVE", None, _WEB),
     ("WEB STARTBROWSE FORMFIELD", None, _WEB),
     ("WEB STARTBROWSE HTTPHEADER", None, _WEB),
     ("WEB STARTBROWSE QUERYPARM", None, _WEB),

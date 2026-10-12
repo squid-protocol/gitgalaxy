@@ -841,6 +841,18 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     return lines + _call("GGCWRCV", args) + after + _resp(opts, True, labels)
 
 
+def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes no DOCTOKEN (the NORMAL outcome needs an
+    ACTION(EVENTUAL) document send, which WEB SEND refuses). The option rules as the det translator's."""
+    key = "WEB RETRIEVE"
+    _check_spec(key, opts, ("WEB", "RETRIEVE"), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("DOCTOKEN"):
+        raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
+    if _literal(opts["DOCTOKEN"]):
+        raise Unsupported(f"{key} DOCTOKEN as a literal: a data area is the COBOL form", [key])
+    return _call("GGCWRTV", []) + _resp(opts, True, labels)
+
+
 def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X38): WEB READ HTTPHEADER -> GGCWRDH, WEB WRITE HTTPHEADER -> GGCWWRH (NAMELENGTH in GG-LEN,
     VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
@@ -1164,6 +1176,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _web_extract(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
         return _web_receive(opts, labels)
+    if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
+        return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
         return _web_header("READ" if "READ" in opts else "WRITE", opts, labels)
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client

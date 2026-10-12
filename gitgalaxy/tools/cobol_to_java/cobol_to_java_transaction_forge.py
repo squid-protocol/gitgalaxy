@@ -951,6 +951,7 @@ public class CicsTask {
 
     private HttpRequest httpRequest;
     private boolean webSent;
+    private boolean webSendFailed;  // #4941: a WEB SEND ended in a condition (IBM: whether it was issued is not stated)
     private boolean webReceived;
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -1208,6 +1209,7 @@ public class CicsTask {
             throw refused("WEB SEND with more than one condition at once");
         }
         if (c.size() == 1) {
+            r.webSendFailed = true;
             return c.get(0);
         }
         if (action != 2) {
@@ -1390,6 +1392,23 @@ public class CicsTask {
         }
         event("WEB-HEADER", "name", n, "value", value.substring(0, valueLength), "resp", 0, "resp2", 0);
         return new int[] {0, 0};
+    }
+
+    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND,
+     *  available only for a document sent with ACTION(EVENTUAL). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1:
+     *  the last WEB SEND was not an EVENTUAL document send (every send this runtime accepts is IMMEDIATE, so a send that
+     *  happened is always NOTFND 1). DOCTOKEN is never written: the NORMAL outcome needs an EVENTUAL send, which WEB SEND
+     *  refuses. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web task, cannot be told from it), a retrieve
+     *  after a WEB SEND that ended in a condition (IBM does not say whether it was issued). */
+    public int[] webRetrieve() {
+        CicsTask r = statedRequest();
+        if (r.webSent) {
+            return new int[] {13, 1};
+        }
+        if (r.webSendFailed) {
+            throw refused("WEB RETRIEVE after a WEB SEND that ended in a condition");
+        }
+        return new int[] {16, 2};
     }
 
     // #4767 zECS (register X36): WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL) -- pure: no peer is involved.

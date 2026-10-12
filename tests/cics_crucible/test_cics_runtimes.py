@@ -3326,6 +3326,14 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["wrh X-A 33 v 1"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
     ("full", ["wrh X-A 3 v 41"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
     ("full", ["snd", "wrh X-A 3 v 1"], ["snd 0/0", "WEB WRITE HTTPHEADER after the response was sent"], []),
+    # #4941 WEB RETRIEVE (X41): INVREQ 2 before any WEB SEND, NOTFND 1 once one was issued (every accepted send is IMMEDIATE)
+    ("full", ["rtv"], ["rtv 16/2"], []),
+    ("bare", ["rtv"], ["rtv 16/2"], []),
+    ("full", ["snd", "rtv"], ["snd 0/0", "rtv 13/1"], []),
+    ("bare", ["snd", "rtv", "rtv"], ["snd 0/0", "rtv 13/1", "rtv 13/1"], []),
+    ("full", ["sndbad", "snd", "rtv"], ["snd 16/11", "snd 0/0", "rtv 13/1"], []),
+    ("full", ["sndbad", "rtv"], ["snd 16/11", "WEB RETRIEVE after a WEB SEND that ended in a condition"], []),
+    ("full", ["wrh X-A 3 v 1", "rtv"], ["wrh 0/0", "rtv 16/2"], [("X-A", "v")]),
 ]  # fmt: skip
 
 _X38_MAIN = r"""
@@ -3340,6 +3348,7 @@ int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap);
 int GGCWRDH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
 int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
 int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCWRTV(gg_cics *c);
 static gg_cics c;
 static void flags(const char *s) { memset(c.flags, ' ', 40); memcpy(c.flags, s, strlen(s)); }
 static void trimprint(const char *s, int n) { while (n > 0 && s[n - 1] == ' ') n--; printf("%.*s", n, s); }
@@ -3389,10 +3398,13 @@ int main(int argc, char **argv) {
             c.len = atoi(w[2]); c.num = atoi(w[4]);
             GGCWWRH(&c, name, 32, value, 40);
             printf("wrh %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rtv") == 0) {
+            GGCWRTV(&c);
+            printf("rtv %d/%d\n", c.resp, c.resp2);
         } else {
             char from[64], stext[20];
             memset(from, ' ', 64); memset(stext, ' ', 20);
-            c.len = 1; c.item = 2; c.num = -1; c.hours = -1; c.mins = 0; flags("");
+            c.len = 1; c.item = strcmp(w[0], "sndbad") == 0 ? 99 : 2; c.num = -1; c.hours = -1; c.mins = 0; flags("");
             GGCWSND(&c, from, 64, media, 56, stext, 20);
             printf("snd %d/%d\n", c.resp, c.resp2);
         }
@@ -3440,8 +3452,8 @@ def test_the_stub_serves_the_stated_request(tmp_path):
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if (
             len(answers) == 1
-            and not answers[0].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd")
-            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd"))
+            and not answers[0].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv")
+            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv"))
         ):
             refused = answers[-1]
             assert run.returncode == 98 and refused + ": not modelled" in run.stdout, (steps, run.stdout)
@@ -3450,7 +3462,7 @@ def test_the_stub_serves_the_stated_request(tmp_path):
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
         assert _x38_stub_events(out) == events, steps
     env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
-    for step in ("ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1"):
+    for step in ("ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1", "rtv"):
         unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
 
@@ -3505,8 +3517,12 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
                 int[] r = t.webWriteHeader(pad(w[1], 32), Integer.parseInt(w[2]), pad(w[3], 40), Integer.parseInt(w[4]));
                 System.out.println("wrh " + r[0] + "/" + r[1]);
             }
+            case "rtv" -> {
+                int[] r = t.webRetrieve();
+                System.out.println("rtv " + r[0] + "/" + r[1]);
+            }
             default -> {
-                int[] r = t.webSend(pad("", 64), 1, null, 2, -1, null, -1, 0);
+                int[] r = t.webSend(pad("", 64), 1, null, w[0].equals("sndbad") ? 99 : 2, -1, null, -1, 0);
                 System.out.println("snd " + r[0] + "/" + r[1]);
             }
         }
@@ -3540,7 +3556,7 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
             ' System.out.println("refused " + e.getMessage()); }\nevents(t); System.out.println("--"); }'
         )
     parts.append(
-        'for (String s : new String[] {"ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1"}) { try { step(new CicsTask("ZC01", '
+        'for (String s : new String[] {"ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1", "rtv"}) { try { step(new CicsTask("ZC01", '
         '"ENTER", null, null), s); } catch (UnsupportedOperationException e) { System.out.println("refused " + e.getMessage()); } }'
     )
     out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
@@ -3552,12 +3568,12 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
         want = []
         for a in answers:
             head = a.split()[0]
-            want.append(a if head in ("ext", "rcv", "rdh", "wrh", "snd") else f"refused {a}: not modelled")
+            want.append(a if head in ("ext", "rcv", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled")
         want += [f"ev {n}|{v}" for n, v in events]
         assert got == want, (fixture, steps, got, want)
         pos = end + 1
     unstated = lines[pos:]
-    assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 4
+    assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 5
 
 
 # ---- #4767 zECS (register X30): GET DCOUNTER INCREMENT [WRAP] ---------------------------------------------------------------

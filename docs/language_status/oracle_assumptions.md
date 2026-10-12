@@ -120,7 +120,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
-| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
+| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
@@ -145,7 +145,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
-| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: it still holds CEELOCT, FETCH and RUN CHANNEL holes) |
+| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: its Db2 estate and its credit-agency children are not a case yet; see X18, L5) |
+| L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | no (CBSA CRECUST, the only caller, has no equivalence case) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
@@ -1238,10 +1239,20 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   INTERVAL / AFTER / AT only); several values out of range on one START report the first of hours, minutes, seconds;
   the RTRANSID / RTERMID / QUEUE values come back on LENGERR too; a RUN child runs once its parent has ended (a parent
   that never FETCHes it cannot tell, SPEC 4); the child token's bytes are the harness's own, the same on both sides.
+  **#4884:** FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM: NOTFINISHED RESP 113, RESP2 52 "NOSUSPEND was specified, but
+  there were no completed children to fetch"; INVREQ RESP2 52 "the parent has no children"; INVREQ RESP2 50 for a token
+  that is not a child's) follow from the same assumption: no child has completed while its parent runs, so a FETCH
+  always answers NOTFINISHED 52 (INVREQ 52 for FETCH ANY with no RUN before it, INVREQ 50 for a token this task was not
+  given); the ANY / CHANNEL / ABCODE / COMPSTATUS areas are never written. **DIFFERS from IBM** (status of the FETCH part): where a child
+  finishes while the parent DELAYs: a program whose FETCH finds a completed child (CBSA CRECUST's credit-agency fan-out
+  after its 3-second DELAY) takes its NOTFINISHED path here, so such a program is translated, not proven. Enforced: `equivalence_cics.compare_events` records every FETCH event as a difference on both sides (`FETCH_DIFFERS`), so a case that executes a FETCH can never come out equal. RUN TRANSID
+  CHANNEL(name): IBM creates a missing channel and gives the child "a copy of the channel's containers" when RUN is
+  issued; the child never runs here, so the copy is never read and the parent's channels are unchanged.
   A START's FROM bytes travel in the region's page, as a TS item's (#4528).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
-  time): FETCH CHILD / ANY and FREE CHILD (a parent waiting for its child: a later #4270 slice); RUN / START CHANNEL
-  (the child's copy of a channel); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
+  time): a FETCH that waits (no NOSUSPEND, or TIMEOUT) and FREE CHILD; START CHANNEL
+  (the child's copy of a channel); RUN CHANNEL with a name of anything but letters and digits (IBM does not give the
+  symbols a name allows in the text read); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
   and WAIT; CANCEL of anything but a REQID. At run time: a START LENGTH past FROM's end (X6); a REQID that exists
   other than this task's own with FROM, reused with FROM; RETRIEVE INTO for a record whose START gave no FROM
   (whether that is ENVDEFERR); any RETRIEVE after ENVDEFERR (whether the record was used up); a RETRIEVE in a RUN
@@ -1996,8 +2007,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   token and CEE000 as severity 0 / message 0; the all-zero value is our reading, and it agrees with the 12 zero bytes
   our CEEDAYS model writes on success (L1). A COBOL group compared with a longer or shorter token would pad with
   spaces; CRECUST's `FC` is exactly 8 bytes before its facility ID.
-- **Not modelled.** CEELOCT (CRECUST's second LE call) has no runtime model; a program is not proven while a service
-  it calls is not covered. CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
+- **Not modelled.** CEELOCT is modelled since #4884 (L5). CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
   possible overrun in the program itself, not examined here (no case).
 - **IBM references.**
   - Using symbolic feedback codes: https://www.ibm.com/docs/SSLTBW_2.4.0/com.ibm.zos.v2r4.ceeam00/symfd.htm
@@ -2005,6 +2015,23 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
     https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea200/clcdt5.htm
   - Language Environment runtime messages (CEE0000I, symbolic feedback code CEE000):
     https://www.ibm.com/docs/SSLTBW_3.2.0/com.ibm.zos.v3r2.ceea900/lemes.htm
+
+### L5. CEELOCT — the run's pinned clock as local time; seconds and the Gregorian tail assumed
+- **What IBM documents** (Language Environment Programming Reference, "CEELOCT -- Get current local time"; the
+  COBOL example). `CALL "CEELOCT" USING output_Lilian, output_seconds, output_Gregorian, fc` returns the local time as
+  a Lilian date (days since 14 October 1582, a fullword binary), a Lilian timestamp (seconds since 00:00:00 on
+  14 October 1582, a COMP-2) and a Gregorian string of the form YYYYMMDDHHMISS999.
+- **Modelled.** `tests/equivalence/le/ceeloct.c` (COBOL side, linked into every case like CEEDAYS) and
+  `cobolrt/le/Ceeloct.java` (the port) read the case's pinned clock (`COB_CURRENT_DATE` / the run's
+  `FUNCTION CURRENT-DATE` text) and write the same values; the feedback code is 12 zero bytes (CRECUST's 8-byte `FC`
+  is overrun by 4, as under CEEDAYS, L4). Without a pinned clock the C model refuses (exit 98).
+- **Assumed.** (1) The local time is the pinned clock itself: the case's zone is the mainframe's. (2) output_seconds is
+  `days x 86400 + time of day`, with the hundredths as a fraction. The Java side stores it by value in the item's own
+  usage (HFP, C6), the C side as a native IEEE double; the byte patterns differ, which is why the translator passes
+  the item by value and any other use of its bytes stays refused (C6). (3) IBM's Gregorian field is longer than the
+  17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
+  (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
+- **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
 
 ## Assembler routines
 

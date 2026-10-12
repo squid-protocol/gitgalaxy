@@ -5,6 +5,8 @@ never taken -- there is none), the prompt carrying the gaps and the oracle's lim
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import strengthen as st  # noqa: E402
 
@@ -110,8 +112,35 @@ def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fau
           "faults": [{"cmd": "XCTL", "program": "PROG1", "resp": "PGMIDERR", "resp2": 3}]}  # fmt: skip
     assert st.validate(CICS, ok, set(), names) is None
     assert "COMMAREA layout" in st.validate(CICS, {"name": "x", "commarea": {"CA-SECRET": "1"}}, set(), names)
-    bad = {"name": "x", "faults": [{"cmd": "LINK", "program": "P", "resp": "PGMIDERR"}]}
+    bad = {"name": "x", "faults": [{"cmd": "SEND", "program": "P", "resp": "PGMIDERR"}]}  # not a fault command
     assert "fault" in st.validate(CICS, bad, set(), names)
+
+
+_FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid"}
+
+
+def _fault_member_scenario(cmd):
+    plan = {"cmd": cmd, "resp": "NOTAUTH", "resp2": 101}
+    if cmd != "RETRIEVE":
+        plan[_FAULT_KEY.get(cmd, "file")] = "TARGET1"
+    return {"name": "x", "faults": [plan]}
+
+
+@pytest.mark.parametrize("cmd", st.eq_cics().FAULT_COMMANDS)
+def test_the_strengthen_loop_plans_a_fault_for_every_fault_command(cmd):
+    """Every FAULT_COMMANDS member the equivalence harness takes, the loop's validator accepts (#4648 added LINK)."""
+    sc = _fault_member_scenario(cmd)
+    ec = st.eq_cics()
+    assert st.validate(CICS, sc, set(), set()) is None
+    name = "-" if cmd == "RETRIEVE" else "TARGET1"
+    assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP['NOTAUTH']} 101"]
+
+
+@pytest.mark.parametrize("cmd", st.eq_cics().FAULT_COMMANDS)
+def test_a_fault_plan_for_a_fault_command_still_needs_a_known_condition(cmd):
+    sc = _fault_member_scenario(cmd)
+    sc["faults"][0]["resp"] = "NOSUCHCOND"
+    assert "fault" in st.validate(CICS, sc, set(), set())
 
 
 def test_the_prompt_names_the_survivors_to_kill_by_id():

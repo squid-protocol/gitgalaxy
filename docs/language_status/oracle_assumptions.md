@@ -588,8 +588,7 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   IBM has no result for any of these (a zoned item with a digit nibble above 9 or a zone that is no sign is not NUMERIC;
   its use in arithmetic or a MOVE is undefined), and on z/OS a space is X'40', whose digit nibble 0 most likely reads as
   0: the proofs say the port computes what GnuCOBOL computes for these bytes, not what z/OS would. Not modelled, so
-  still different or untested: a zoned item with a P position (the digit position count differs, refused by name on
-  the MOVE paths), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
+  still different or untested: a zoned item with a P position (refused by name, below), DISPLAY of a byte above X'7F' (the port writes UTF-8, the oracle the
   byte), a hex literal naming a line-end character in a MOVE (`X'0A'`, `X'0D'`: the generated Java string breaks).
 - **Same-shape zoned MOVE: what IBM does (#4875).** IBM documents no result for non-digit data in a numeric item, but its
   APAR PH21007 ("COBOL V6.2 was inadvertently generating code to fix up bad signnibbles in zoned to zoned moves",
@@ -618,8 +617,18 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   Reach (static scan, 2026-10-11, heuristic upper bound): of 88 ADD / SUBTRACT / MULTIPLY / DIVIDE statements with a
   zoned receiver in the six burned estates, 17 in CardDemo (8 programs; page / screen counters of a commarea cleared by
   `MOVE SPACES`, CBEXPORT's sequence counter, COTRN02C's `MOVE TRAN-ID TO WS-TRAN-ID-N` after `MOVE HIGH-VALUES TO
-  TRAN-ID`) can see a non-digit; CBSA 4, GenApp 23, the others 0 cannot. Still open: a zoned sender with a P position
-  (#4685), refused by name on the MOVE paths.
+  TRAN-ID`) can see a non-digit; CBSA 4, GenApp 23, the others 0 cannot. Per verb (#4692): ADD / SUBTRACT / MULTIPLY / DIVIDE
+  refuse a dirty receiver (above); MOVE and GIVING overwrite it, so the receiver is not read (modelled, measured);
+  COMPUTE reads it as an operand (modelled).
+- **A zoned item with a P position holding a non-digit, as a sender (#4685, #4692) -- REFUSED by name.** Measured against
+  cobc 3.1.2 (`-std=ibm -fsign=EBCDIC`, TRUNC STD and BIN): a left-P item (`PIC VPP99`) MOVEd to a binary item makes
+  the program hang (the 14-operation probe never finished; `timeout` killed it), and a right-P one (`PIC 99PP`) is
+  computed by no explainable rule (`ADD S TO DS` of two spaces gives 17595-, not the -1595 its bytes' `-16 * 100 + 5`
+  would be). IBM documents no result for non-digit data. So the port refuses, at run time, a MOVE, an ADD / SUBTRACT /
+  COMPUTE operand or a comparison that reads such an item (`Zoned.refuseP`, `Cobol.nonDigitToBinary`,
+  `Cobol.moveNonDigit`: "... a zoned item with a P scaling position ... is not modelled"); a digit-only P item is read
+  as ever (PSCALE, `test_det_programs.py`). Tested over `99PP`, `S99PP`, `VPP99`, `SVPP99` x MOVE to zoned / packed /
+  binary / edited, ADD, SUBTRACT, COMPUTE, comparison (`test_det_nondigit_zoned.py`).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,

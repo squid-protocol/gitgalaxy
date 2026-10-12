@@ -3213,7 +3213,7 @@
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
       "rust/bevy/bevy_ecs_macros.rs": 0,
-      "rust/bevy/bevy_ecs_query.rs": 1,
+      "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
       "rust/bevy/bevy_ecs_world.rs": 0,
       "rust/bevy/bevy_reflect_path.rs": 0,
@@ -3912,7 +3912,7 @@
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 1,
+      "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
@@ -4050,7 +4050,7 @@
       "zig/bun/napi.zig": 0
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 1,
+      "zig/mach/Core.zig": 0,
       "zig/mach/StringTable.zig": 0,
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,

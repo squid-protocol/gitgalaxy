@@ -14,13 +14,13 @@ a named, ranked fix.
 <table>
 <tr>
 <td align="center" width="190"><h2>51 s</h2></td>
-<td align="center" width="190"><h2>50+</h2></td>
+<td align="center" width="190"><h2>53</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
 <td align="center" width="190"><h2>96 / 127</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
-<td align="center" valign="top"><sub><strong>languages in one scan</strong><br />no build, no per-language toolchain<br /><em>broken and half-migrated code too</em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />66 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS and batch programs proven equal</strong><br />no model; 6 public estates<br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
@@ -56,6 +56,26 @@ GitGalaxy does not run a separate parser per language. It pulls a common set of
 **structural signatures** from the source text: functions, classes, arguments, control flow,
 state mutation, I/O, APIs and dependencies. So a Perl test helper and a C header rank in the
 same list, and a repository that doesn't build can still be read.
+
+<a id="languages"></a>
+
+<details>
+<summary><strong>Languages: 66 recognized, 53 read down to the function</strong></summary>
+
+From the engine's language definitions
+([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
+2026-10-12:
+
+| level | count | languages |
+|---|---|---|
+| **Split into functions**: full structural extraction, functions with their own signals | 53 | `abap`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `embedded_python`, `fortran`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig` |
+| **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
+| **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
+
+How well each language is *measured* is a separate question, answered in
+[Accuracy, measured](#accuracy-measured).
+
+</details>
 
 <a id="real-world-scale"></a>
 
@@ -391,7 +411,7 @@ The plan to close these gaps is
 This program asks the opposite question: **does GitGalaxy measure identical intent
 identically in every language?** The
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus plants the same
-12-probe program in all 50 supported languages with exact known signal counts, so any
+12-probe program in all 50 languages in the corpus, with exact known signal counts, so any
 divergence is measured language bias, by construction.
 
 Current answer: on average 94% of languages sit within ±25% of the cross-language median per

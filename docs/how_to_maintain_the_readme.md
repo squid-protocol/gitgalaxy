@@ -62,7 +62,7 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
 
 1. **Hero** (centered): name, the benefit tagline ("Know any codebase deeply, and give your
    AI agents the same knowledge."), a three-sentence description covering both products,
-   four stat tiles (Kubernetes scan time, languages, tri-comparison function precision,
+   four stat tiles (Kubernetes scan time, languages split into functions with the recognized count in the caption, matching the collapsible `#languages` table under section 2, tri-comparison function precision,
    CICS and batch programs at L2+ from the evidence report), each with n + limit + a link to its proof, then the
    nav row (Quickstart, Scanner or translator, Scanner, Translator, Evidence, Is/isn't,
    Install, Docs, Visualizer). Re-verify tile numbers when their source sections change.

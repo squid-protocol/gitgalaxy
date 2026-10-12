@@ -6,13 +6,14 @@ repository's source and secrets. This is a line-bounded structural scan, like ev
 no YAML parse, no shell parse. It reads one logical shell line at a time (backslash continuations joined,
 comment lines dropped), so every pattern is anchored to the invoking verb and has nothing to backtrack over.
 
-The same rule runs on four surfaces (#4944): pipeline YAML, Dockerfiles (`RUN` lines), shell scripts, and GitLab CI
-(`image:` without a digest, `include: project:` without a `ref:`, `include: component:` without a version). System
-package installs (`apt-get` / `apt` / `apk add` / `brew install`) are checked on all three command surfaces. A
-`$VAR` / `$(...)` / `${{ expr }}` package name is not flagged for those: its value is unknowable from the text.
+The same rule runs on four surfaces (#4944, #4998): pipeline YAML, Dockerfiles (`RUN` lines), shell scripts, and GitLab CI
+(`image:` / `services:` without a digest, `include: project:` without a `ref:`, `include: component:` without a version,
+`include: remote:` without an integrity pin). GitHub Actions workflows check `container:` and `services:` images without a
+digest. System package installs (`apt-get` / `apt` / `apk add` / `brew install` / `yum install` / `dnf install`) are checked
+on all three command surfaces. A `$VAR` / `$(...)` / `${{ expr }}` package name is not flagged for those: its value is unknowable from the text.
 
 Pinned means an exact version (`==1.2`, `@1.2.3`, `-v 1.2`), a commit SHA, a hash-checked requirements file
-(`--require-hashes`), `pkg=1.2.3` (apt, apk), `formula@3.12` (brew), `image@sha256:...`, or a local path / lockfile-driven install (`npm ci`, bare `npm install`, `pip install -e .`).
+(`--require-hashes`), `pkg=1.2.3` (apt, apk), `pkg-1.2.3` (yum, dnf), `formula@3.12` (brew), `image@sha256:...`, or a local path / lockfile-driven install (`npm ci`, bare `npm install`, `pip install -e .`).
 `pip install -r file` / `-c file` is trusted: the file is the pin and is checked on its own.
 
 `scan_pipeline(content)` returns the same {"counts", "snippets", "positions"} shape SecurityLens.scan_content
@@ -44,9 +45,13 @@ _PIPE_SHELL = re.compile(
 _APT = re.compile(r"\bapt(?:-get)?\b.{0,100}?[ \t]install\b")
 _APK = re.compile(r"\bapk[ \t]+(?:-\S+[ \t]+)*add\b")
 _BREW = re.compile(r"\bbrew[ \t]+install\b")
+_YUM_DNF = re.compile(r"\b(?:yum|dnf)\b.{0,100}?[ \t]install\b")
 _SEMVER = re.compile(r"@(?:\d[\w.\-+]*|\$\{?\w+\}?)$")  # `@1.2.3`, or `@${PIN}` set by the script
 _PIP_PINNED = re.compile(r"^[A-Za-z0-9_.\-]+(?:\[[^\]]+\])?==[^=<>!~]+$")
 _VALUE_OPTS = {"-r", "--requirement", "-c", "--constraint", "-e", "--editable", "-i", "--index-url", "-t", "--target"}
+_RPM_OPTS = frozenset(
+    {"-c", "--config", "--disablerepo", "--enablerepo", "--repoid", "--installroot", "--releasever", "--setopt"}
+)
 
 
 def _logical_lines(content: str):
@@ -189,7 +194,7 @@ def _system_specs(command: str, verb: re.Pattern, value_opts: frozenset[str]) ->
         if not t.startswith("-") and "$" not in t and "`" not in t:
             specs.append(t)
         i += 1
-    return [s for s in specs if not _is_local(s) and not s.endswith(".deb")]
+    return [s for s in specs if not _is_local(s) and not s.endswith((".deb", ".rpm"))]
 
 
 def _unpinned_apt(command: str) -> str | None:
@@ -214,6 +219,13 @@ def _unpinned_brew(command: str) -> str | None:
     return None
 
 
+def _unpinned_yum_dnf(command: str) -> str | None:
+    for spec in _system_specs(command, _YUM_DNF, _RPM_OPTS):
+        if not re.search(r"(?:=|-(?:\d+:)?\d)[\w.+~-]*$", spec):  # `pkg-1.2.3`, `pkg-1.2.3-1.el9`, `pkg-1:1.2.3`
+            return spec
+    return None
+
+
 def _unpinned_uses(line: str) -> str | None:
     m = _USES.match(line)
     if not m:
@@ -229,8 +241,14 @@ def _unpinned_uses(line: str) -> str | None:
 
 _GL_IMAGE = re.compile(r"^\s*image:[ \t]*(?:['\"]?([^\s'\"#]+))?")
 _GL_NAME = re.compile(r"^\s*name:[ \t]*['\"]?([^\s'\"#]+)")
+_GL_SERVICES = re.compile(r"^(\s*)services:[ \t]*$")
+_GL_SRV_LINE = re.compile(r"^\s*-\s+(?:name:[ \t]*)?['\"]?([^\s'\"#]+)?")
 _GL_ITEM = re.compile(r"^(\s*)-\s+(\w+):[ \t]*(.*)")
 _GL_KEY = re.compile(r"^(\s*)(\w+):[ \t]*['\"]?([^\s'\"#]*)")
+
+_GHA_CONTAINER = re.compile(r"^(\s*)container:[ \t]*(?:['\"]?([^\s'\"#]+))?")
+_GHA_IMAGE = re.compile(r"^\s*image:[ \t]*['\"]?([^\s'\"#]+)")
+_GHA_SERVICES = re.compile(r"^(\s*)services:[ \t]*$")
 
 
 def is_gitlab_ci(rel_path: str) -> bool:
@@ -243,6 +261,15 @@ def is_gitlab_ci(rel_path: str) -> bool:
     )
 
 
+def is_github_workflow(rel_path: str) -> bool:
+    """`.github/workflows/*.yml`, `.github/workflows/*.yaml`, `action.yml`, `action.yaml`."""
+    parts = rel_path.replace("\\", "/").lower().split("/")
+    return (any(p == ".github" for p in parts[:-1]) and any(p == "workflows" for p in parts[:-1])) or parts[-1] in (
+        "action.yml",
+        "action.yaml",
+    )
+
+
 def _indent(line: str) -> int:
     return len(line) - len(line.lstrip())
 
@@ -252,7 +279,8 @@ def _unpinned_image(ref: str) -> bool:
 
 
 def find_unpinned_gitlab(content: str) -> list[tuple[int, str, str]]:
-    """GitLab CI: `image:` without a digest, `include: project:` without `ref:`, `include: component:` unversioned."""
+    """GitLab CI: `image:` / `services:` without digest, `include: project:` without `ref:`,
+    `include: component:` unversioned, `include: remote:` without integrity pin."""
     lines = [ln if len(ln) <= 2000 else "" for ln in content.splitlines()]
     found: list[tuple[int, str, str]] = []
     for i, raw in enumerate(lines):
@@ -274,6 +302,33 @@ def find_unpinned_gitlab(content: str) -> list[tuple[int, str, str]]:
             if ref and _unpinned_image(ref):
                 found.append((i + 1, "gitlab-image", f"image: {ref} (no @sha256 digest)"))
             continue
+        sm = _GL_SERVICES.match(raw)
+        if sm:
+            base_ind = len(sm.group(1))
+            for j in range(i + 1, len(lines)):
+                ln = lines[j]
+                if not ln.strip():
+                    continue
+                if _indent(ln) <= base_ind:
+                    break
+                if ln.lstrip().startswith("#"):
+                    continue
+                lm = _GL_SRV_LINE.match(ln)
+                if lm:
+                    sref = lm.group(1)
+                    if not sref:
+                        for k in range(j + 1, min(j + 6, len(lines))):
+                            if lines[k].strip() and _indent(lines[k]) <= _indent(ln):
+                                break
+                            nm = _GL_NAME.match(lines[k])
+                            if nm:
+                                sref = nm.group(1)
+                                break
+                    if sref:
+                        sref = sref.strip("'\"")
+                        if _unpinned_image(sref):
+                            found.append((j + 1, "gitlab-service", f"service: {sref} (no @sha256 digest)"))
+            continue
         item = _GL_ITEM.match(raw)
         if not item or item.group(2) not in ("project", "component", "file", "ref", "remote", "local", "template"):
             continue
@@ -294,14 +349,67 @@ def find_unpinned_gitlab(content: str) -> list[tuple[int, str, str]]:
         comp = keys.get("component")
         if comp and "$" not in comp and not re.search(r"@(?!~?latest\b)[^\s@]+$", comp):
             found.append((i + 1, "gitlab-include", f"include component: {comp} (no version)"))
+        if "remote" in keys:
+            url = keys["remote"].strip("'\" \t")
+            found.append((i + 1, "gitlab-include", f"include remote: {url} (no integrity pin)"))
     return found
 
 
-def find_unpinned(content: str, kind: str = "yaml", gitlab: bool = False) -> list[tuple[int, str, str]]:
+def find_unpinned_github(content: str) -> list[tuple[int, str, str]]:
+    """GitHub Actions: `container:` image without digest, `services:` image without digest."""
+    lines = [ln if len(ln) <= 2000 else "" for ln in content.splitlines()]
+    found: list[tuple[int, str, str]] = []
+    for i, raw in enumerate(lines):
+        if len(found) >= MAX_FINDINGS:
+            break
+        if raw.lstrip().startswith("#"):
+            continue
+        cm = _GHA_CONTAINER.match(raw)
+        if cm:
+            ref = cm.group(2)
+            if not ref:
+                base_ind = len(cm.group(1))
+                for j in range(i + 1, min(i + 8, len(lines))):
+                    nxt = lines[j]
+                    if nxt.strip() and _indent(nxt) <= base_ind:
+                        break
+                    im = _GHA_IMAGE.match(nxt)
+                    if im:
+                        iref = im.group(1).strip("'\"")
+                        if _unpinned_image(iref) and not iref.startswith("${{"):
+                            found.append((j + 1, "github-container", f"container: {iref} (no @sha256 digest)"))
+                        break
+            else:
+                ref = ref.strip("'\"")
+                if _unpinned_image(ref) and not ref.startswith("${{"):
+                    found.append((i + 1, "github-container", f"container: {ref} (no @sha256 digest)"))
+            continue
+        sm = _GHA_SERVICES.match(raw)
+        if sm:
+            base_ind = len(sm.group(1))
+            for j in range(i + 1, len(lines)):
+                nxt = lines[j]
+                if not nxt.strip():
+                    continue
+                if _indent(nxt) <= base_ind:
+                    break
+                im = _GHA_IMAGE.match(nxt)
+                if im:
+                    sref = im.group(1).strip("'\"")
+                    if _unpinned_image(sref) and not sref.startswith("${{"):
+                        found.append((j + 1, "github-service", f"service image: {sref} (no @sha256 digest)"))
+            continue
+    return found
+
+
+def find_unpinned(
+    content: str, kind: str = "yaml", gitlab: bool = False, github: bool = False
+) -> list[tuple[int, str, str]]:
     """(1-indexed line, kind, snippet) for every unpinned dependency install in a pipeline-ish file.
 
     `kind` is the surface: "yaml" (pipeline YAML, which also carries `uses:`), "dockerfile" or "shell"
-    (command lines only). `gitlab` adds the GitLab CI image / include checks to a YAML surface.
+    (command lines only). `gitlab` adds the GitLab CI image / service / include checks to a YAML surface.
+    `github` adds GitHub Actions `container:` / `services:` checks to a YAML surface.
     """
     found: list[tuple[int, str, str]] = []
     for lineno, line in _logical_lines(content):
@@ -326,19 +434,25 @@ def find_unpinned(content: str, kind: str = "yaml", gitlab: bool = False) -> lis
                 ("apt", _APT, _unpinned_apt),
                 ("apk", _APK, _unpinned_apk),
                 ("brew", _BREW, _unpinned_brew),
+                ("yum", _YUM_DNF, _unpinned_yum_dnf),
             ):
                 if verb.search(cmd):
                     spec = check(cmd)
                     if spec is not None:
-                        found.append((lineno, ckind, f"{ckind} install {spec} (no pinned version)"))
+                        actual_kind = "dnf" if (ckind == "yum" and re.search(r"\bdnf\b", cmd)) else ckind
+                        found.append((lineno, actual_kind, f"{actual_kind} install {spec} (no pinned version)"))
     if gitlab and kind == "yaml":
         found = sorted(found + find_unpinned_gitlab(content))[:MAX_FINDINGS]
+    if github and kind == "yaml":
+        found = sorted(found + find_unpinned_github(content))[:MAX_FINDINGS]
     return found
 
 
 def scan_pipeline(content: str, lang_id: str = "yaml", rel_path: str = "") -> dict[str, Any]:
     """Same shape as SecurityLens.scan_content()'s return, for the single `unpinned_install` key."""
-    hits = find_unpinned(content, lang_id, lang_id == "yaml" and is_gitlab_ci(rel_path))
+    is_gl = lang_id == "yaml" and is_gitlab_ci(rel_path)
+    is_gh = lang_id == "yaml" and is_github_workflow(rel_path)
+    hits = find_unpinned(content, lang_id, gitlab=is_gl, github=is_gh)
     return {
         "counts": {KEY: len(hits)},
         "snippets": {KEY: [snip for _, _, snip in hits]},

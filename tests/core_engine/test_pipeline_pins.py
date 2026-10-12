@@ -8,7 +8,14 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.security.pipeline_pins import find_unpinned, find_unpinned_gitlab, is_gitlab_ci, scan_pipeline
+from gitgalaxy.security.pipeline_pins import (
+    find_unpinned,
+    find_unpinned_github,
+    find_unpinned_gitlab,
+    is_github_workflow,
+    is_gitlab_ci,
+    scan_pipeline,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -91,6 +98,8 @@ def _surface_kinds(text, kind, gitlab=False):
         ("RUN pip install --no-cache-dir requests \\\n    flask\n", "pip"),
         ("RUN apt-get update && apt-get install -y curl\n", "apt"),
         ("RUN curl -sSL https://example.com/i.sh | sh\n", "curl-pipe-shell"),
+        ("RUN yum install -y git\n", "yum"),
+        ("RUN dnf install -y wget\n", "dnf"),
     ],
 )
 def test_dockerfile_flags_unpinned_run(text, kind):
@@ -109,6 +118,8 @@ def test_dockerfile_flags_unpinned_run(text, kind):
         "RUN npm ci\n",
         "RUN apt-get install -y --no-install-recommends curl=7.88.1-10 jq=1.6-2.1\n",
         "RUN apk add --no-cache --virtual .deps gcc=13.2.1_git20231014-r0\n",
+        "RUN yum install -y git-2.43.0-1.el9\n",
+        "RUN dnf install -y wget-1.21.3-1.el9\n",
         "COPY . /app\n# RUN pip install requests\n",
         'RUN ["pip", "install", "requests"]\n',  # exec form: not parsed, never a false positive
     ],
@@ -128,6 +139,8 @@ def test_dockerfile_allows_pinned_forms(text):
         ('if [ -z "$X" ]; then pip install requests; fi', "pip"),
         ("sudo apt-get install -y jq", "apt"),
         ("brew install jq", "brew"),
+        ("yum install -y jq", "yum"),
+        ("dnf install -y nginx", "dnf"),
     ],
 )
 def test_shell_script_flags_unpinned(line, kind):
@@ -147,6 +160,8 @@ def test_shell_script_flags_unpinned(line, kind):
         "# curl https://example.com/i.sh | bash",
         'sudo apt-get install -y "$PKG"',
         "apt-get install -y $(cat packages.txt)",
+        "yum install -y jq-1.6-2.el9",
+        "dnf install -y nginx-1:1.24.0-1.el9",
     ],
 )
 def test_shell_script_allows_pinned_forms(line):
@@ -163,9 +178,12 @@ def test_shell_script_allows_pinned_forms(line):
         ("- run: brew install jq", "brew"),
         ("- run: brew install --cask firefox", "brew"),
         ("- run: apk add curl", "apk"),
+        ("- run: sudo yum install -y jq", "yum"),
+        ("- run: yum install -y python3-pip gcc-c++", "yum"),
+        ("- run: sudo dnf install -y nginx", "dnf"),
     ],
 )
-def test_yaml_flags_apt_brew(line, kind):
+def test_yaml_flags_apt_brew_yum(line, kind):
     assert _kinds(line) == [kind], line
 
 
@@ -181,9 +199,16 @@ def test_yaml_flags_apt_brew(line, kind):
         "- run: brew install ./Formula/tool.rb",
         "- run: brew bundle",
         "- run: apk add --no-cache curl=8.5.0-r0",
+        "- run: sudo yum install -y jq-1.6-2.el9 curl-7.88.1-1.el9",
+        "- run: sudo dnf install -y nginx-1:1.24.0-1.el9",
+        "- run: yum install -y gcc-c++-11.4.1-2.el9",
+        "- run: yum install -y ./local.rpm",
+        "- run: yum install -y pkg.rpm",
+        "- run: yum install -y $PKG",
+        "- run: dnf install -y ${{ matrix.pkg }}",
     ],
 )
-def test_yaml_allows_pinned_apt_brew(line):
+def test_yaml_allows_pinned_apt_brew_yum(line):
     assert not find_unpinned(line), line
 
 
@@ -194,13 +219,16 @@ def test_apt_and_brew_install_are_not_flagged_by_name_only_words():
 GITLAB_PINNED = (
     "default:\n  image: python:3.12-slim@sha256:" + "a" * 64 + "\n"
     "build:\n  image:\n    name: node:22@sha256:" + "b" * 64 + "\n    entrypoint: ['']\n"
+    "  services:\n"
+    "    - postgres:16@sha256:" + "c" * 64 + "\n"
+    "    - name: redis:7@sha256:" + "d" * 64 + "\n      alias: redis\n"
+    "    - $SERVICE_IMAGE\n"
     "include:\n"
-    "  - project: group/shared\n    ref: " + "c" * 40 + "\n    file: /ci.yml\n"
+    "  - project: group/shared\n    ref: " + "e" * 40 + "\n    file: /ci.yml\n"
     "  - ref: v1.2.0\n    project: group/other\n    file: /ci.yml\n"
     "  - local: /ci/local.yml\n"
     "  - template: Security/SAST.gitlab-ci.yml\n"
     "  - component: gitlab.com/group/comp/build@1.4.0\n"
-    "  - remote: https://example.com/ci.yml\n"
     "deploy:\n  image: $CI_REGISTRY_IMAGE:latest\n  trigger:\n    project: other/repo\n    branch: main\n"
 )
 
@@ -212,6 +240,19 @@ def test_gitlab_image_without_digest_is_flagged():
     assert [(n, k) for n, k, _ in find_unpinned_gitlab(block)] == [(2, "gitlab-image")]
 
 
+def test_gitlab_services_without_digest_is_flagged():
+    assert [(n, k) for n, k, _ in find_unpinned_gitlab("services:\n  - postgres:16\n")] == [(2, "gitlab-service")]
+    assert [(n, k) for n, k, _ in find_unpinned_gitlab("job:\n  services:\n    - name: redis:7\n")] == [
+        (3, "gitlab-service")
+    ]
+    mixed = (
+        "services:\n"
+        "  - postgres:16@sha256:" + "a" * 64 + "\n"
+        "  - redis:7\n"
+    )
+    assert [(n, k) for n, k, _ in find_unpinned_gitlab(mixed)] == [(3, "gitlab-service")]
+
+
 def test_gitlab_include_without_ref_is_flagged():
     text = "include:\n  - project: group/shared\n    file: /ci.yml\n  - file: /ci.yml\n    project: g/o\n"
     assert [(n, k) for n, k, _ in find_unpinned_gitlab(text)] == [(2, "gitlab-include"), (4, "gitlab-include")]
@@ -219,21 +260,60 @@ def test_gitlab_include_without_ref_is_flagged():
     assert [n for n, _, _ in find_unpinned_gitlab("include:\n  - component: gitlab.com/g/c/b@~latest\n")] == [2]
 
 
+def test_gitlab_include_remote_is_flagged():
+    text = "include:\n  - remote: https://example.com/ci.yml\n"
+    assert [(n, k) for n, k, _ in find_unpinned_gitlab(text)] == [(2, "gitlab-include")]
+    quoted = "include:\n  - remote: 'https://cdn.example.com/pipe.yml'\n"
+    assert [(n, k) for n, k, _ in find_unpinned_gitlab(quoted)] == [(2, "gitlab-include")]
+
+
 def test_gitlab_pinned_and_unrelated_forms_are_clean():
     assert not find_unpinned_gitlab(GITLAB_PINNED), find_unpinned_gitlab(GITLAB_PINNED)
 
 
-def test_gitlab_checks_only_run_on_gitlab_files():
+def test_github_actions_container_and_services_flagged():
+    assert [(n, k) for n, k, _ in find_unpinned_github("job:\n  container: node:20\n")] == [(2, "github-container")]
+    block = "job:\n  container:\n    image: node:20\n    options: --cpus 1\n"
+    assert [(n, k) for n, k, _ in find_unpinned_github(block)] == [(3, "github-container")]
+    srv = "job:\n  services:\n    redis:\n      image: redis:6\n"
+    assert [(n, k) for n, k, _ in find_unpinned_github(srv)] == [(4, "github-service")]
+
+
+def test_github_actions_container_and_services_pinned_forms_clean():
+    text = (
+        "job:\n"
+        "  container: node:20@sha256:" + "a" * 64 + "\n"
+        "  services:\n"
+        "    redis:\n"
+        "      image: redis:6@sha256:" + "b" * 64 + "\n"
+        "    db:\n"
+        "      image: ${{ matrix.db_image }}\n"
+    )
+    assert not find_unpinned_github(text), find_unpinned_github(text)
+    mapping = "job:\n  container:\n    image: node:20@sha256:" + "c" * 64 + "\n"
+    assert not find_unpinned_github(mapping), find_unpinned_github(mapping)
+
+
+def test_declined_sibling_forms_remain_unflagged():
+    # 1. Dockerfile FROM without digest (declined: base image tags are standard practice, high false-positive noise)
+    assert not find_unpinned("FROM python:3.12\nFROM alpine:latest\n", "dockerfile")
+    # 2. docker-compose image without digest (declined: local dev orchestration, not CI pipeline)
+    compose = "services:\n  web:\n    image: nginx:alpine\n  db:\n    image: postgres:16\n"
+    assert scan_pipeline(compose, "yaml", "docker-compose.yml")["counts"] == {"unpinned_install": 0}
+    # 3. Kubernetes manifest image without digest (declined: deployment manifest, governed by cluster admission control)
+    k8s = "apiVersion: apps/v1\nkind: Deployment\nspec:\n  template:\n    spec:\n      containers:\n      - image: myapp:v1\n"
+    assert scan_pipeline(k8s, "yaml", "k8s/deployment.yml")["counts"] == {"unpinned_install": 0}
+
+
+def test_gitlab_and_github_checks_scoped_by_file_path():
     text = "services:\n  db:\n    image: postgres:16\n"
     assert _surface_kinds(text, "yaml", gitlab=False) == []
     assert _surface_kinds(text, "yaml", gitlab=True) == ["gitlab-image"]
-    assert (
-        is_gitlab_ci(".gitlab-ci.yml")
-        and is_gitlab_ci("ci/.gitlab-ci.yaml")
-        and is_gitlab_ci("templates/gitlab/scan.yml")
-    )
-    assert not is_gitlab_ci("docker-compose.yml") and not is_gitlab_ci(".github/workflows/gitlab-sync.yml")
+    assert is_gitlab_ci(".gitlab-ci.yml") and is_gitlab_ci("ci/.gitlab-ci.yaml") and is_gitlab_ci("templates/gitlab/scan.yml")
+    assert is_github_workflow(".github/workflows/ci.yml") and is_github_workflow("action.yml")
+    assert not is_gitlab_ci("docker-compose.yml") and not is_github_workflow("docker-compose.yml")
     assert scan_pipeline(text, "yaml", ".gitlab-ci.yml")["counts"] == {"unpinned_install": 1}
+    assert scan_pipeline(text, "yaml", ".github/workflows/ci.yml")["counts"] == {"unpinned_install": 1}
     assert scan_pipeline(text, "yaml", "docker-compose.yml")["counts"] == {"unpinned_install": 0}
 
 

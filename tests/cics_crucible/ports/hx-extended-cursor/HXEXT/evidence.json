@@ -207,37 +207,37 @@
   "port_sha256": "1b33ac06f1a89b8a64d1bdcd355c5719a96f2f0dfc8d02d4f228ad430c101ade"
  },
  "mutation": {
-  "commit": "4e63ca8c5f2ea80fd3ff2bf73164fd9f8b5f80bd",
+  "commit": "5f4648f470687fbe85cdd7befcc99a4c4c256f15",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 105,
+  "mutants": 108,
   "chosen": 24,
-  "killed": 14,
-  "survived": 8,
-  "stillborn": 2,
+  "killed": 16,
+  "survived": 7,
+  "stillborn": 1,
   "survivors": {
-   "case_gap": 5,
+   "case_gap": 3,
    "harness_gap": 0,
    "equivalent": 1,
-   "unreachable": 2,
+   "unreachable": 3,
    "untriaged": 0
   },
-  "score_raw": "14/22",
-  "score_adjusted": "14/19",
+  "score_raw": "16/23",
+  "score_adjusted": "16/19",
   "source": "docs/language_status/mutation_scores.json#crucible:hx-extended-cursor/HXEXT",
   "inputs": {
    "port": {
-    "sha256": "708ebfaa0395957af56892c3dd2cf061da1ccd05c10e45a2d89109f38e0afc5c"
+    "sha256": "1b33ac06f1a89b8a64d1bdcd355c5719a96f2f0dfc8d02d4f228ad430c101ade"
    },
    "case": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
    },
    "corpus": {
-    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+    "sha256": "8d63af71c999878b857eb6741fdcabac6d264b5384707d64fed1c3e8603053e3"
    },
    "harness": {
-    "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
+    "sha256": "7689ba747b7f4348f09539420d89682a7fd25935d68f1b2d7bc4804a9c255f83"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

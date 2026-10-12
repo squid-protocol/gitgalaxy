@@ -225,11 +225,11 @@
   "port_sha256": "a2f951738a0d88ad11ffad6658dfbc2a75fa33f3ecd73bdf3c97d64f0afd978d"
  },
  "mutation": {
-  "commit": "4e63ca8c5f2ea80fd3ff2bf73164fd9f8b5f80bd",
+  "commit": "5f4648f470687fbe85cdd7befcc99a4c4c256f15",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 88,
+  "mutants": 91,
   "chosen": 24,
   "killed": 15,
   "survived": 7,
@@ -237,8 +237,8 @@
   "survivors": {
    "case_gap": 4,
    "harness_gap": 0,
-   "equivalent": 3,
-   "unreachable": 0,
+   "equivalent": 2,
+   "unreachable": 1,
    "untriaged": 0
   },
   "score_raw": "15/22",
@@ -246,16 +246,16 @@
   "source": "docs/language_status/mutation_scores.json#crucible:gt-start-retrieve/GTSTART",
   "inputs": {
    "port": {
-    "sha256": "3b64f63beb9eaf81cb469e51c05fa9ad9fdbbd153bc25ec0941f306a52ac3cc8"
+    "sha256": "65a8a9d0db4e78dc5005c609f2f079dcb6f98df4348e983b3d39ecc7c1a3699d"
    },
    "case": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
    },
    "corpus": {
-    "sha256": "085be5a9f372ecb979d4f8dda1d8c749e85d01abb85e227fca4127844db9c5b6"
+    "sha256": "8d63af71c999878b857eb6741fdcabac6d264b5384707d64fed1c3e8603053e3"
    },
    "harness": {
-    "sha256": "a3ae3d6d7e938e36cd15639224926bf86762c0f436c35667909f895cbe77382c"
+    "sha256": "7689ba747b7f4348f09539420d89682a7fd25935d68f1b2d7bc4804a9c255f83"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

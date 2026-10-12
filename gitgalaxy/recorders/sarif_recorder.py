@@ -211,6 +211,14 @@ class SarifRecorder:
                 "properties": {"tags": ["CWE-94", "security"]},
             },
             {
+                "id": "GG-SAST-UNPINNED_INSTALL",
+                "shortDescription": {"text": "Unpinned Dependency Install in a Pipeline"},
+                "fullDescription": {
+                    "text": "A CI/pipeline step installs code without a pinned version or hash (pip/npm/gem/go/cargo install with no version, curl | bash, or a uses: that is not a commit SHA). Whatever the registry serves at run time executes in the job that holds the source and secrets."
+                },
+                "properties": {"tags": ["CWE-829", "CWE-494", "security", "supply-chain"]},
+            },
+            {
                 "id": "GG-SAST-IO",
                 "shortDescription": {"text": "Unfiltered Network or Disk I/O"},
                 "properties": {"tags": ["CWE-400", "security"]},

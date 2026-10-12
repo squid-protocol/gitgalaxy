@@ -141,6 +141,7 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
                     "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
+                    "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
                     # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
                     # #4951: container browse -- GETNEXT / ENDBROWSE CONTAINER's TOKENERR, ILLOGIC and END
                     "NOTAUTH": "AEY7", "TOKENERR": "AEZL", "ILLOGIC": "AEIU", "END": "AEXK"}  # fmt: skip

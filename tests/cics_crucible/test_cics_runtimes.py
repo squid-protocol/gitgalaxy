@@ -3402,6 +3402,24 @@ int main(int argc, char **argv) {
 """
 
 
+@pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK")
+def test_cics_task_web_percent_decoding_is_ascii_hex_only(tmp_path):
+    """#4940: a non-ASCII digit after '%' (fullwidth, Arabic-Indic, ...) is refused, never decoded as hex."""
+    body = (
+        "        try {\n"
+        '        var m = CicsTask.class.getDeclaredMethod("webPlain", String.class, String.class);\n'
+        "        m.setAccessible(true);\n"
+        '        for (String s : new String[] {"%41", "%4a", "%4A", "%\\uff14\\uff11", "%\\u0664\\u0661",\n'
+        '                "%4\\uff11", "%\\u0664A", "%g1"}) {\n'
+        '            try { System.out.println(m.invoke(null, "FORMFIELD", s)); }\n'
+        '            catch (java.lang.reflect.InvocationTargetException e) { System.out.println("refused"); }\n'
+        "        }\n"
+        "        } catch (Exception e) { throw new RuntimeException(e); }"
+    )
+    out = _cics_task(tmp_path, body).split()
+    assert out == ["A", "J", "J", "refused", "refused", "refused", "refused", "refused"]
+
+
 def _x38_cfg(name: str) -> str:
     scheme, host, port, method, version, path, query, headers, media, body = _X38_REQ[name]
     hx = lambda v: v.encode("latin-1").hex().upper() if v else "-"  # noqa: E731

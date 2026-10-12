@@ -1406,9 +1406,12 @@ public class CicsTask {
                 throw refused("WEB " + kind + " data outside the modelled name=value form");
             }
             if (ch == '%') {
-                int hi = i + 2 < s.length() ? Character.digit(s.charAt(i + 1), 16) : -1;
-                int lo = i + 2 < s.length() ? Character.digit(s.charAt(i + 2), 16) : -1;
-                if (hi < 0 || lo < 0 || hi * 16 + lo < 32 || hi * 16 + lo > 126) {
+                if (i + 2 >= s.length() || !webHexAny(s.charAt(i + 1)) || !webHexAny(s.charAt(i + 2))) {
+                    throw refused("WEB " + kind + " data outside the modelled name=value form");
+                }
+                int hi = webHexValue(s.charAt(i + 1));
+                int lo = webHexValue(s.charAt(i + 2));
+                if (hi * 16 + lo < 32 || hi * 16 + lo > 126) {
                     throw refused("WEB " + kind + " data outside the modelled name=value form");
                 }
                 b.append((char) (hi * 16 + lo));
@@ -1616,6 +1619,11 @@ public class CicsTask {
     /** An ASCII hex digit of either case (never another script's digits). */
     private static boolean webHexAny(char c) {
         return webHex(c) || (c >= 'a' && c <= 'f');
+    }
+
+    /** The value of an ASCII hex digit of either case (callers check webHexAny first). */
+    private static int webHexValue(char c) {
+        return c <= '9' ? c - '0' : (c & 0x5f) - 'A' + 10;
     }
 
     private static boolean webHex(char c) {

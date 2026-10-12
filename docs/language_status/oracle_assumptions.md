@@ -150,6 +150,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
 | L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: its Db2 estate and its credit-agency children are not a case yet; see X18, L5) |
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | no (CBSA CRECUST, the only caller, has no equivalence case) |
+| L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
@@ -2155,6 +2156,64 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfiel
   17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
   (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
 - **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
+
+### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
+- **What IBM documents** (Language Environment Programming Reference, the callable services; the message lists below are
+  those IBM publishes for the same services as the ILE CEE APIs, which share their definitions and message numbers:
+  https://www.ibm.com/docs/en/ssw_ibm_i_73/apis/CEEDATM.htm, `CEESECS.htm`, `CEEDATE.htm`, `CEEISEC.htm`, `CEEUTC.htm`
+  (CEEGMT is its alias), `CEEQCEN.htm`). A Lilian date is the days since 14 October 1582 (15 October 1582 is day 1,
+  16 May 1988 is day 148 138); a Lilian second counts from 00:00:00 on 14 October 1582 (second 86 401 is 00:00:01 on
+  15 October 1582; 19:00:01 on 16 May 1988 is 12 799 191 601), a COMP-2, the valid range 86 400 to
+  265 621 679 999.999 (31 December 9999). Every service ends with a 12-byte feedback token.
+  - **CEEGMT / CEEUTC** `(output_Lilian, output_seconds, fc)`: the current UTC as a Lilian date and Lilian seconds.
+  - **CEEDATM** `(input_seconds, picture_string, output_timestamp, fc)`: CEE2505 the seconds are out of range
+    (output_timestamp then all blanks); CEE2518 the picture is not valid; CEE2527 the timestamp is truncated.
+  - **CEESECS** `(input_timestamp, picture_string, output_seconds, fc)`: a full date is required, a time omitted is
+    zeros, the rest of the string past the picture is ignored, a delimiter lets leading zeros go; on an invalid value
+    output_seconds is 0 and the code is CEE2508 day, CEE2510 hour, CEE2513 Lilian date (before 15 October 1582),
+    CEE2515 millisecond, CEE2516 minute, CEE2517 month, CEE2519 second, CEE2521 year, CEE2525 timestamp picture
+    mismatch.
+  - **CEEDATE** `(input_Lilian_date, picture_string, output_char_date, fc)`: valid 1 to 3 074 324; CEE2512 otherwise,
+    output blanks; a picture with time characters outputs zeros for the time (IBM's sample: day 148 142,
+    `YY/MM/DD HH:MI:SS.99`, `88/05/20 00:00:00.00`).
+  - **CEEISEC** `(year, month, day, hours, minutes, seconds, milliseconds, output_seconds, fc)`: fullword inputs,
+    year 1582-9999, month 1-12, day 1-31, hours 0-23, minutes 0-59, seconds 0-59, milliseconds 0-999; output 0 and
+    CEE2510 hour, CEE2511 day, CEE2513 Lilian date, CEE2514 Lilian year, CEE2515 millisecond, CEE2516 minute,
+    CEE2517 month, CEE2519 second.
+  - **CEEQCEN** `(century_start, fc)`: the ILE default window starts 80 years before the system date and the value
+    is 80.
+- **Modelled.** `tests/equivalence/le/le_time.c` (COBOL side, linked into every case like CEEDAYS) and
+  `cobolrt/le/LeTime.java` with the thin classes `Ceegmt`, `Ceeutc`, `Ceedatm`, `Ceesecs`, `Ceedate`, `Ceeisec`, `Ceeqcen`
+  (the port): the same Lilian arithmetic, the same codes, the same refusals. The token is the CEEDAYS one (L1):
+  severity 3, the message number, `0x59`, `CEE` in EBCDIC, zero on success. Pictures modelled: `YYYY YY MM DD DDD HH
+  MI SS 99 999` and punctuation. An output is cut to hundredths / milliseconds, never rounded (IBM's sample: 661.986
+  with `99` is `.98`). The translator reads and stores every COMP-2 argument by value (`gen.LIBRARY_FLOATS`: the
+  HFP / IEEE bytes differ, C6) and passes the run's clock to CEEGMT / CEEUTC as it does to CEELOCT (L5).
+  `tests/cobol_mainframe/test_det_le_time.py` runs one table of IBM's own samples and every documented condition,
+  one invalid field at a time, through both sides.
+- **Assumed.** (1) CEEGMT's GMT is the pinned clock: the det runtime's CURRENT-DATE carries offset +0000 and the
+  oracle's case clock is read as GMT; a zone is not modelled (no CEEGMTO / CEEUTCO, below). (2) Output_timestamp and
+  output_char_date (CEEDATM, CEEDATE) are halfword-prefixed VSTRINGs in COBOL: the model writes the length then the
+  text and touches nothing past it; a failing call writes a zero length and leaves the text. IBM says the output is
+  blanks on error and cut to the output's length (CEE2526 / CEE2527) but states no COBOL layout for an output declared
+  `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). The Java side refuses an
+  output item shorter than the result (the C model cannot see the item's size), so 2526 / 2527 are never produced.
+  (3) The milliseconds of a Lilian second are the fraction floored to a thousandth, so a value in `.9995` is `.999`;
+  a seconds value is valid below 265 621 680 000. (4) CEESECS answers CEE2525 (picture mismatch) for a non-digit in
+  a numeric position or a delimiter that differs from the picture's: IBM names the code, not its trigger. (5) A
+  value that is not exact in both HFP and IEEE (`.12`) can differ in the last bits; only the millisecond is compared.
+- **Refused (exit 98, "NAME: ... is not modelled"), because IBM leaves it open or the model has no rule for it.**
+  A picture with names (`Mmm`, `Www`), `AP`, Z-suppression, eras (`<JJJJ>`, `<CCCC>`), `RRRR`, a lone `Y` / `M` /
+  `D` / `H` / `S` / `9`, a repeated token, or none (IBM: the country default). CEEISEC and CEESECS with **more than
+  one** invalid field (IBM lists the codes, not their order). CEESECS: a timestamp shorter than its picture (IBM
+  lists no insufficient-data code for it), with a leading blank, with leading zeros omitted after a delimiter
+  (`1988-5-16`: IBM accepts it; the model has no rule), `YY` (the century window, which depends on the system date;
+  CEEQCEN's 80 is the default, no CEESCEN is modelled) or `DDD` in the input, or a picture without a full date.
+  CEEGMT without a pinned clock.
+- **Not modelled: sibling services** of the same set: CEEUTCO / CEEGMTO (the offset from UTC, zone), CEESECI,
+  CEEDYWK, CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
+  country-default pictures.
+- **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
 
 ## Assembler routines
 

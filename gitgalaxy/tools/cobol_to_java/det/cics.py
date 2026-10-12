@@ -973,7 +973,9 @@ class Cics:
                     raise CicsError(_msg("XCTL", "at_most_one", "CHANNEL"))
                 call = f"task.xctlChannel({prog}, {self.name(_arg(opts['CHANNEL']))})"
             elif "COMMAREA" in opts:
-                if self.in_dfhcommarea(opts["COMMAREA"]):  # #4816: a LINKed program's is its caller's storage (X39)
+                if self.in_dfhcommarea(
+                    str(opts["COMMAREA"])
+                ):  # #4816: a LINKed program's is its caller's storage (X39)
                     pre.append(f"{ind}task.xctlOfLinkage();")
                 dto, length = self.commarea_out(opts, prog_lit)
                 if not dto.startswith("DetCics.commareaOut("):

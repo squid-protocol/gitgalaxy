@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 66 full, 2 engine-only, 187 name-only.
+**255 entries:** 77 full, 2 engine-only, 176 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -92,6 +92,17 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB RECEIVE | full | yes (9 options, 10 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
+| WEB READ FORMFIELD | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READ QUERYPARM | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB STARTBROWSE HTTPHEADER | full | yes (4 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READNEXT HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB ENDBROWSE HTTPHEADER | full | yes (4 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB STARTBROWSE FORMFIELD | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READNEXT FORMFIELD | full | yes (7 options) | yes | X38 | http_request | 0 | — |
+| WEB ENDBROWSE FORMFIELD | full | yes (4 options) | yes | X38 | http_request | 0 | — |
+| WEB STARTBROWSE QUERYPARM | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READNEXT QUERYPARM | full | yes (7 options) | yes | X38 | http_request | 0 | — |
+| WEB ENDBROWSE QUERYPARM | full | yes (4 options) | yes | X38 | http_request | 0 | — |
 | LOAD | engine-only | refused whole | refused whole | — | — | 0 | — |
 | RELEASE | engine-only | refused whole | refused whole | — | — | 0 | — |
 
@@ -107,7 +118,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 | GETNEXT CONTAINER | 1 (1 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-182 more name-only entries no census program uses.
+171 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

@@ -17,7 +17,6 @@
       "python/airflow/scheduler_job_runner.py": "1 instances"
     },
     "python/django_db_tests": {
-      "python/django_db_tests/test_iterator.py": "1 instances",
       "python/django_db_tests/test_utils.py": "1 instances"
     }
   },

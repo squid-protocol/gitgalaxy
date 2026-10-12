@@ -1539,8 +1539,8 @@ def facades(stub: str) -> list[str]:
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
-        for m in re.finditer(rf"public (\S+) {meth}\(([^)]*)\)", stub):
-            ret, params = m.group(1), m.group(2)
+        for fm in re.finditer(rf"public (\S+) {meth}\(([^)]*)\)", stub):
+            ret, params = fm.group(1), fm.group(2)
             req = re.search(r"(\w+) request\b", params)
             arg = "request" if req else "null"
             area = re.search(r"byte\[\] (\w+)", params)

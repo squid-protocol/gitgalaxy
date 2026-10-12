@@ -1,0 +1,53 @@
+name: Cache Prune
+
+# #4847: the Actions cache was 10.6 GB / 208 caches against a 10 GB limit, and GitHub evicts oldest-first -- which can
+# take main's pip/gradle/m2 caches (every PR restores them) while stale PR caches survive. Nightly, delete the stale
+# branch/PR caches on purpose, down to ~6.5 GB; main's newest cache of every key family is never deleted
+# (tests/tools/cache_prune.py has the order). Manual runs default to a dry run.
+
+on:
+  schedule:
+    - cron: "41 3 * * *"  # nightly, before smoke-test (04:23) and gitgalaxy.yml (05:17) refill them
+  workflow_dispatch:
+    inputs:
+      delete:
+        description: "Delete for real (false = print the plan only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: write  # delete caches
+
+concurrency:
+  group: cache-prune
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: tests/tools/cache_prune.py
+          sparse-checkout-cone-mode: false
+
+      - name: Cache usage before
+        run: gh api "repos/$GH_REPO/actions/cache/usage"
+
+      - name: Prune
+        env:
+          DELETE: ${{ github.event_name == 'schedule' || inputs.delete }}
+        run: |
+          flag=""
+          if [ "$DELETE" = "true" ]; then flag="--delete"; fi
+          python3 tests/tools/cache_prune.py --repo "$GH_REPO" $flag | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Cache usage after
+        run: gh api "repos/$GH_REPO/actions/cache/usage"

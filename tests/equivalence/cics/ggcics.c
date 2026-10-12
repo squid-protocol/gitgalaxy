@@ -1821,7 +1821,7 @@ int GGCNOPG(gg_cics *c) {
  * area's bytes as the command is issued. */
 int GGCLINK(gg_cics *c, char *area) {
     char program[9], ev[128], flags[41], name[17];
-    int has = c->item != 0, len = has ? c->len : 0, chan = 0;
+    int has = c->item != 0, len = has ? c->len : 0, chan = 0, fresp, fresp2;
     trim(c->name1, 8, program);
     trim(c->flags, 40, flags);
     if (strstr(flags, "CHANNEL")) { /* #4270: LINK CHANNEL -- made empty if absent ("a new empty channel is created") */
@@ -1833,6 +1833,7 @@ int GGCLINK(gg_cics *c, char *area) {
     if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
     else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
     else if (lvl + 1 >= MAX_LEVELS) { c->resp = INVREQ; }
+    else if (injected("LINK", program, &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; }  /* #4648: as XCTL's */
     snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
     event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
     if (c->resp != NORMAL) return 0;

@@ -76,6 +76,7 @@ CONDITION_ABEND: Mapping[str, str] = {
     "TOKENERR": "AEZL",  # #4951: GETNEXT / ENDBROWSE CONTAINER (IBM APAR PK43600 shows GETNEXT CONTAINER's TOKENERR abending AEZL)
     "ILLOGIC": "AEIU",  # #4951: GETNEXT / ENDBROWSE CONTAINER's token of another kind of browse
     "END": "AEXK",  # #4951: GETNEXT CONTAINER past the last container
+    "NOTAUTH": "AEY7",  # #4648: "NOTAUTH condition not handled" -- a failed XCTL / LINK / START ... security check
 }
 ABEND_DOCS: Mapping[str, Doc] = {code: _abend_doc(code) for code in CONDITION_ABEND.values()}
 

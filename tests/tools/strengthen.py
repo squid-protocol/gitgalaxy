@@ -113,8 +113,8 @@ INPUT_FORMAT = {
         'DFH AID, "commarea": {COBOL field name: value} or null (no COMMAREA), "receive": {map name: {input '
         'field name: typed text}} (optional), "targets": ["UNIT:LINE:OUTCOME", ...], "why": "one sentence"}. '
         "Use only COMMAREA fields of the case's COMMAREA layout and screen field names the existing scenarios "
-        'use. A scenario may also plan CICS conditions: "faults": [{"cmd": COMMAND, "file" or "program" or "queue": '
-        'NAME, "nth": 1, "resp": CONDITION}] (see the notes on the test environment), and add records to the '
+        'use. A scenario may also plan CICS conditions: "faults": [{"cmd": COMMAND, "file" or "program" or "queue" or '
+        '"transid" or "reqid": NAME, "nth": 1, "resp": CONDITION}] (see the notes on the test environment), and add records to the '
         'files every scenario reads: "records": [{"dataset": DSN, "based_on": the number of an existing record '
         'to copy, "set": {FIELD: value}}] -- a record keyed like no other, of a dataset with a layout.'
     ),

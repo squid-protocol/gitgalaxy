@@ -1120,7 +1120,7 @@
       "cpp/godot/variant.h": 0
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 2,
+      "cpp/mlir/flatbuffer_export.cc": 0,
       "cpp/mlir/glob_lit_test.bzl": 0,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 0,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 0,
@@ -3212,7 +3212,7 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 1,
+      "rust/bevy/bevy_ecs_macros.rs": 0,
       "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
       "rust/bevy/bevy_ecs_world.rs": 0,
@@ -3912,7 +3912,7 @@
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 1,
+      "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
@@ -4016,7 +4016,7 @@
       "yaml/moby_workflows/windows-2025.yml": 0
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": 1,
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 0,
       "yaml/serenity_composite_actions/cache-save_action.yml": 0,
       "yaml/serenity_composite_actions/setup_action.yml": 0
     },
@@ -4050,7 +4050,7 @@
       "zig/bun/napi.zig": 0
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 1,
+      "zig/mach/Core.zig": 0,
       "zig/mach/StringTable.zig": 0,
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,

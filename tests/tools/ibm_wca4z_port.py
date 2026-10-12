@@ -36,6 +36,7 @@ TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 from gitgalaxy.core.source_text import read_source  # noqa: E402
+from maven_exe import mvn_executable  # noqa: E402
 
 ADAPTER = TOOLS / "ibm_wca4z"
 
@@ -193,7 +194,7 @@ def junit(work: Path, src: Path) -> dict[str, object]:
     shutil.copytree(src / "generated_code" / "test", project / "src/test/java")
     (project / "pom.xml").write_text(JUNIT_POM, encoding="utf-8")
     log = work / "ibm-junit.log"
-    rc = run(["mvn", "-q", "-B", "test"], cwd=project, log=log)
+    rc = run([mvn_executable(), "-q", "-B", "test"], cwd=project, log=log)
     text = read_source(log).text
     errors = [ln.strip() for ln in text.splitlines() if "ERROR" in ln and ".java" in ln][:10]
     return {"rc": rc, "compile_errors": errors, "log": str(log)}

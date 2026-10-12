@@ -103,6 +103,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run; the COBOL SORT / MERGE verbs are translated (#4268) | REFUSED (utility steps) | — |
+| F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -120,7 +121,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
 | X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and browse refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
-| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD; TIME RESP2 and the order of out-of-range checks assumed; FETCH, RUN / START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
+| X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD NOSUSPEND (#4884); TIME RESP2 and the order of out-of-range checks assumed; a FETCH that waits, FREE CHILD, START CHANNEL, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent); FETCH DIFFERS | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
@@ -140,12 +141,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X35 | CICS | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X36 | CICS | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: the command writes no event) |
 | X37 | CICS | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike and record the same event; no cics-crucible case yet) |
-| X38 | CICS | The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
+| X38 | CICS | #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike, now also for FORMFIELD / QUERYPARM and the browse forms; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
 | X39 | CICS | EXEC CICS LINK passes the caller's COMMAREA by address; EXEC CICS XCTL says only that the contents of the data area are passed. When a LINKed program XCTLs with (part of) its own DFHCOMMAREA, whether the target's writes reach the LINK caller is not documented, so a successful XCTL of the caller's area is refused by name in both runtimes | REFUSED (IBM is silent) | no (unit-proven on CicsTask and the det emission; a cobc regression refuses on the oracle's side) |
+| X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
-| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: it still holds CEELOCT, FETCH and RUN CHANNEL holes) |
+| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: its Db2 estate and its credit-agency children are not a case yet; see X18, L5) |
+| L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | no (CBSA CRECUST, the only caller, has no equivalence case) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
@@ -945,6 +948,21 @@ instrument). Rows for the other options of #4706 follow in its later slices.
     alphabet ordinal (a numeric literal names a native code: EBCDIC on z/OS), HIGH-VALUE / LOW-VALUE in an
     alphabet, and a group key holding numeric items under an alphabet.
 
+### F5. RECORD KEY / ALTERNATE RECORD KEY outside the file's record
+- IBM Enterprise COBOL Language Reference, RECORD KEY clause (ALTERNATE RECORD KEY likewise): the key data item is
+  defined in a record description entry of the file the SELECT names. A key defined elsewhere (a WORKING-STORAGE
+  item such as a `COPY`'d work record) is not a valid program.
+- The instrument agrees: GnuCOBOL 3, `-std=ibm`, stops with `'EXPORT-SEQUENCE-NUM' is not defined` (measured
+  2026-10-09 on CardDemo CBEXPORT; the key is in WORKING-STORAGE, the FD record is one `PIC X(500)`). So no
+  equivalence case can build the COBOL side.
+- The det translator reads each SELECT's RECORD KEY and every ALTERNATE RECORD KEY, resolves it, and refuses the file
+  by name (`<key> is not defined in a record of file <select>`) when its 01 record is not one of the FD's records
+  (any of several 01 records under the FD counts; a key reached through `COPY` inside the FD counts). A statement
+  that uses the file is refused with that reason, so the program does not count as translated whole.
+  Never translated: the port does not guess which bytes of the record the author meant.
+- RELATIVE KEY has the opposite placement rule in IBM's reference (not in the file's own record); `ORGANIZATION
+  IS RELATIVE` is refused by name as a whole, so that rule is not reached.
+
 ## CICS (`ggcics.c`)
 
 ### X1. Commands from IBM's documentation — ASSUMED
@@ -1238,10 +1256,20 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   INTERVAL / AFTER / AT only); several values out of range on one START report the first of hours, minutes, seconds;
   the RTRANSID / RTERMID / QUEUE values come back on LENGERR too; a RUN child runs once its parent has ended (a parent
   that never FETCHes it cannot tell, SPEC 4); the child token's bytes are the harness's own, the same on both sides.
+  **#4884:** FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM: NOTFINISHED RESP 113, RESP2 52 "NOSUSPEND was specified, but
+  there were no completed children to fetch"; INVREQ RESP2 52 "the parent has no children"; INVREQ RESP2 50 for a token
+  that is not a child's) follow from the same assumption: no child has completed while its parent runs, so a FETCH
+  always answers NOTFINISHED 52 (INVREQ 52 for FETCH ANY with no RUN before it, INVREQ 50 for a token this task was not
+  given); the ANY / CHANNEL / ABCODE / COMPSTATUS areas are never written. **DIFFERS from IBM** (status of the FETCH part): where a child
+  finishes while the parent DELAYs: a program whose FETCH finds a completed child (CBSA CRECUST's credit-agency fan-out
+  after its 3-second DELAY) takes its NOTFINISHED path here, so such a program is translated, not proven. Enforced: `equivalence_cics.compare_events` records every FETCH event as a difference on both sides (`FETCH_DIFFERS`), so a case that executes a FETCH can never come out equal. RUN TRANSID
+  CHANNEL(name): IBM creates a missing channel and gives the child "a copy of the channel's containers" when RUN is
+  issued; the child never runs here, so the copy is never read and the parent's channels are unchanged.
   A START's FROM bytes travel in the region's page, as a TS item's (#4528).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
-  time): FETCH CHILD / ANY and FREE CHILD (a parent waiting for its child: a later #4270 slice); RUN / START CHANNEL
-  (the child's copy of a channel); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
+  time): a FETCH that waits (no NOSUSPEND, or TIMEOUT) and FREE CHILD; START CHANNEL
+  (the child's copy of a channel); RUN CHANNEL with a name of anything but letters and digits (IBM does not give the
+  symbols a name allows in the text read); START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)
   and WAIT; CANCEL of anything but a REQID. At run time: a START LENGTH past FROM's end (X6); a REQID that exists
   other than this task's own with FROM, reused with FROM; RETRIEVE INTO for a record whose START gave no FROM
   (whether that is ENVDEFERR); any RETRIEVE after ENVDEFERR (whether the record was used up); a RETRIEVE in a RUN
@@ -1894,7 +1922,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   sides and compares the response. No cics-crucible case yet (its SPEC has no WEB-SEND event: a crucible SPEC change). zECS:
   ZECS003's one WEB SEND (FROM / FROMLENGTH / MEDIATYPE / ACTION IMMEDIATE / STATUSCODE / STATUSTEXT / SRVCONVERT) is modelled.
 
-### X38. WEB EXTRACT, WEB RECEIVE, WEB READ / WRITE HTTPHEADER (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
+### X38. WEB EXTRACT, WEB RECEIVE, WEB READ / WRITE HTTPHEADER, WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, #4940, zECS)
 - **WEB EXTRACT** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-extract), server form. HOST "host component of the URL, from the
   Host header or an absolute URI", HOSTLENGTH "buffer length supplied, set to the length of the data returned"; HTTPMETHOD /
   METHODLENGTH, HTTPVERSION / VERSIONLEN ("1.1" indicates HTTP/1.1, "1.0" HTTP/1.0 or lower), PATH / PATHLENGTH, QUERYSTRING /
@@ -1939,6 +1967,39 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   cics-crucible case (its SPEC has no WEB event). zECS: ZECS001's WEB EXTRACT, its first WEB RECEIVE form's MEDIATYPE / LENGTH /
   MAXLENGTH, WEB READ HTTPHEADER(Authorization) and WEB WRITE HTTPHEADER are modelled; its WEB RECEIVE SET is refused.
 
+## #4940: WEB READ FORMFIELD / QUERYPARM and the WEB browse forms
+
+Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfield, `-web-read-queryparm`, `-web-startbrowse-formfield` /
+`-queryparm` / `-httpheader`, `-web-readnext-formfield` / `-queryparm` / `-httpheader`, `-web-endbrowse-formfield` / `-queryparm` / `-httpheader`.
+
+- **What IBM says (modelled).** READ FORMFIELD / QUERYPARM: the name "is not case sensitive"; "CICS unescapes any escaped characters before
+  placing them in the buffer"; VALUELENGTH is the buffer's size in and "the actual length of the value" out, a longer value "is truncated"
+  (LENGERR RESP2 5), a shorter one "placed in the leftmost bytes"; INVREQ RESP2 13 "the HTTP request contains no forms data" / "no keyword
+  parameters were supplied", NOTFND RESP2 1, LENGERR RESP2 1 "NAMELENGTH or VALUELENGTH is zero or negative". The browse: a start with a name
+  begins "at the named field", without one "at the first name and value pair"; ILLOGIC RESP2 5 (FORMFIELD, QUERYPARM) / 10 (HTTPHEADER) "a browse is
+  already in progress", INVREQ RESP2 43 "no HTTP headers", NOTFND RESP2 1, LENGERR RESP2 1. READNEXT: FORMFIELD / HTTPHEADER receives the name "as it is
+  stored", each length option "holds the actual length", a name or value that does not fit is LENGERR RESP2 4 / 5 and (FORMFIELD, QUERYPARM) "the next
+  execution returns the same field", ENDFILE "all name-value pairs have been read" (no RESP2 listed), INVREQ RESP2 4 "before WEB STARTBROWSE". ENDBROWSE:
+  INVREQ RESP2 4 before a start. Form data lives in the request body ("an HTML form that is part of the current task's HTTP request body"), query
+  parameters in the query string.
+- **ASSUMED (IBM silent).** The data is the stated request's body (a form: media type application/x-www-form-urlencoded) or query string, read as
+  name=value pairs joined by '&', split at the first '=' (a value may hold '='), unescaped by %XX only; the browse returns each pair, duplicates
+  included, in the order stated, and after a start name runs to the end; a start that raises a condition starts no browse; ENDFILE's RESP2 is 0;
+  a LENGERR RESP2 1 READNEXT reads nothing and the browse stays; the three browses and a READ are independent of each other; a start name is
+  matched exactly (READ is the only form IBM words as without case). An empty body / query string is "no forms data" (INVREQ RESP2 13).
+- **REFUSED (IBM silent), by name.** Two pairs of a name on a READ or a named start (IBM's READ QUERYPARM page names the case open, and the browse is its
+  answer); a start name that matches only without case; a body whose media type is not application/x-www-form-urlencoded (IBM's LENGERR RESP2 153 /
+  154 do not say how a form type is told; a multipart form, charset parameter or text/plain body); data outside the plain form -- a pair without
+  '=' or with an empty name or an empty pair, ';' (a separator IBM does not mention), '+' (IBM does not say it is a blank), an escape that is not %XX
+  or that unescapes to a byte outside printable ASCII (code-page conversion is not modelled), an escaped name (IBM does not say whether names are
+  unescaped before they are compared), a raw byte outside printable ASCII -- where IBM's INVREQ RESP2 17 / 6 would fire is not stated; a header
+  that does not fit on READNEXT (what the lengths hold and whether the browse moves on is not stated for HTTPHEADER); a name and a value both too
+  long (which RESP2); a READNEXT after ENDFILE; SET (the pointer lane), CHARACTERSET / CLNTCODEPAGE / HOSTCODEPAGE, the client form (SESSTOKEN),
+  a length past its area, two conditions at once (as X35).
+- **Status:** unit-proven, `CicsTask` and the stub C answering one step table line for line (tests/cics_crucible/test_cics_runtimes.py,
+  `_X4940_CASES`: 21 request fixtures, every condition and refusal above); both translators (tests/cobol_mainframe/test_det_translate.py,
+  test_equivalence_cics.py). No cics-crucible case (its SPEC has no event for these reads).
+
 ### X39. A LINKed program XCTLs with the COMMAREA its caller passed — REFUSED, IBM is silent on copy vs caller's storage (#4816)
 - **What.** A program LINKed with a COMMAREA addresses its caller's storage (EXEC CICS LINK, COMMAREA: the area is passed by
   address; the linked program's writes are the caller's, #4806). If that program XCTLs passing its DFHCOMMAREA (or a part of it),
@@ -1958,6 +2019,29 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   task's own start COMMAREA (nobody else addresses it), and the target of an XCTL passing its own DFHCOMMAREA again (a copy of a
   copy: no LINK caller's storage).
 - **Status:** REFUSED. When IBM's reference or a system run settles it, replace the refusal with the model.
+
+### X41. WEB RETRIEVE (CICS web support, the document of the last WEB SEND) — ASSUMED, REFUSED where IBM is silent (#4941, sibling of #4767)
+- **WEB RETRIEVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-retrieve). "Retrieves the DOCTOKEN for a CICS document
+  that was sent with a WEB SEND command"; DOCTOKEN(data-area) "a buffer for the 16-byte binary token", the only option. The previous
+  WEB SEND must use ACTION(EVENTUAL) (the Web domain then keeps a copy of the sent document's information); the document is the one
+  sent, changes after the send are not in it; with two EVENTUAL sends the token is the second's. Conditions: INVREQ RESP2 1 "issued in a
+  non-CICS Web support application", INVREQ RESP2 2 "no WEB SEND command has been issued", NOTFND RESP2 1 "the document is not
+  available: the last WEB SEND specified DOCSTATUS(DOCDELETE), or was not a send of a document with ACTION(EVENTUAL)". WEB RETRIEVE
+  is not valid after a client WEB SEND. The command is threadsafe.
+- **What the runtimes do.** `CicsTask.webRetrieve` and the stub C `GGCWRTV` answer alike: no WEB SEND issued, INVREQ 2; a WEB SEND
+  issued, NOTFND 1 (every send accepted is ACTION(IMMEDIATE), X37, which IBM lists as a case of NOTFND 1). The area is never written.
+- **What IBM leaves open, and what we do (REFUSED by name).** (1) INVREQ RESP2 1 (a task that is not CICS web support) cannot be told
+  from a task whose request the run did not state, so an unstated request is refused (`the HTTP request is not stated`), as every
+  X37 / X38 command. (2) Whether a WEB SEND that ended in a condition (INVREQ 11 / 72) "has been issued" is not stated: a WEB RETRIEVE after
+  one (and before an accepted send) is refused. (3) The NORMAL outcome needs an ACTION(EVENTUAL) document send; WEB SEND refuses
+  EVENTUAL (X37: it sends at the end of the task, a later send replaces it) and DOCSTATUS, so the token a retrieve would return, and
+  whether it equals the DOCUMENT CREATE token or names a copy, is not modelled and never produced. (4) The client form (a WEB SEND
+  with SESSTOKEN) is not modelled at all (X35). (5) Every other option (IBM lists none) and a literal DOCTOKEN are refused when
+  translating, in both translators.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps line
+  for line over two request fixtures (tests/cics_crucible/test_cics_runtimes.py), both translators refuse every unmodelled option
+  (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). No estate program uses WEB RETRIEVE (det survey, the burned
+  estates), so no port moves.
 
 ## Language Environment
 
@@ -1996,8 +2080,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   token and CEE000 as severity 0 / message 0; the all-zero value is our reading, and it agrees with the 12 zero bytes
   our CEEDAYS model writes on success (L1). A COBOL group compared with a longer or shorter token would pad with
   spaces; CRECUST's `FC` is exactly 8 bytes before its facility ID.
-- **Not modelled.** CEELOCT (CRECUST's second LE call) has no runtime model; a program is not proven while a service
-  it calls is not covered. CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
+- **Not modelled.** CEELOCT is modelled since #4884 (L5). CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
   possible overrun in the program itself, not examined here (no case).
 - **IBM references.**
   - Using symbolic feedback codes: https://www.ibm.com/docs/SSLTBW_2.4.0/com.ibm.zos.v2r4.ceeam00/symfd.htm
@@ -2005,6 +2088,23 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
     https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea200/clcdt5.htm
   - Language Environment runtime messages (CEE0000I, symbolic feedback code CEE000):
     https://www.ibm.com/docs/SSLTBW_3.2.0/com.ibm.zos.v3r2.ceea900/lemes.htm
+
+### L5. CEELOCT — the run's pinned clock as local time; seconds and the Gregorian tail assumed
+- **What IBM documents** (Language Environment Programming Reference, "CEELOCT -- Get current local time"; the
+  COBOL example). `CALL "CEELOCT" USING output_Lilian, output_seconds, output_Gregorian, fc` returns the local time as
+  a Lilian date (days since 14 October 1582, a fullword binary), a Lilian timestamp (seconds since 00:00:00 on
+  14 October 1582, a COMP-2) and a Gregorian string of the form YYYYMMDDHHMISS999.
+- **Modelled.** `tests/equivalence/le/ceeloct.c` (COBOL side, linked into every case like CEEDAYS) and
+  `cobolrt/le/Ceeloct.java` (the port) read the case's pinned clock (`COB_CURRENT_DATE` / the run's
+  `FUNCTION CURRENT-DATE` text) and write the same values; the feedback code is 12 zero bytes (CRECUST's 8-byte `FC`
+  is overrun by 4, as under CEEDAYS, L4). Without a pinned clock the C model refuses (exit 98).
+- **Assumed.** (1) The local time is the pinned clock itself: the case's zone is the mainframe's. (2) output_seconds is
+  `days x 86400 + time of day`, with the hundredths as a fraction. The Java side stores it by value in the item's own
+  usage (HFP, C6), the C side as a native IEEE double; the byte patterns differ, which is why the translator passes
+  the item by value and any other use of its bytes stays refused (C6). (3) IBM's Gregorian field is longer than the
+  17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
+  (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
+- **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
 
 ## Assembler routines
 

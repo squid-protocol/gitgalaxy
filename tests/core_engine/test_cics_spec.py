@@ -156,7 +156,7 @@ def test_every_entry_is_consistent():
 
 
 def test_resp_tables():
-    assert len(DFHRESP) == 104 and DFHRESP["CONTAINERERR"] == 110 and DFHRESP["CHANNELERR"] == 122
+    assert len(DFHRESP) == 105 and DFHRESP["CONTAINERERR"] == 110 and DFHRESP["CHANNELERR"] == 122
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
 
@@ -242,10 +242,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 64 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 78 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
     # IBM's CICS TS 6.x command summary: 259 API command names, 56 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER), 9 forms of a modelled command (api.py's docstring), the other 189 name-only
-    assert len(by_status["refused"]) == 189
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE), 9 forms of a modelled command (api.py's docstring), the other 176 name-only
+    assert len(by_status["refused"]) == 175
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.refused and not c.outcomes, key

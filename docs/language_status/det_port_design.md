@@ -839,9 +839,10 @@ The combined method runs in the porting loop like any other backend, and every e
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
 - **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
-  Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by IBM's CEEIGZCT copybook (CRECUST), by its
+  Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
-  Java caller (ACCTCTRL).
+  Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
+  X18) but is not proven: no case.
 - **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`

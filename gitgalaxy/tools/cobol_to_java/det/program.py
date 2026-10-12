@@ -72,7 +72,7 @@ def file_control(lines: list[Line]) -> list[dict]:
         e = " " + entry.strip().rstrip(".") + " "
         words = e.split()
         d: dict[str, Any] = {"select": words[0].upper().rstrip("."), "organization": "SEQUENTIAL", "access": "SEQUENTIAL",
-             "status": None, "record_key": None}  # fmt: skip
+             "status": None, "record_key": None, "alt_keys": []}  # fmt: skip
         a = re.search(r"\bASSIGN\s+(?:TO\s+)?(\S+)", e, re.I)
         d["assign"] = a.group(1).upper().strip("'\"").rstrip(".") if a else d["select"]
         d["assign"] = d["assign"].split("-")[-1] if d["assign"].startswith(("UT-S-", "S-")) else d["assign"]
@@ -87,11 +87,31 @@ def file_control(lines: list[Line]) -> list[dict]:
         k = re.search(r"(?<!ALTERNATE )\bRECORD\s+KEY\s+(?:IS\s+)?(\S+(?:\s+(?:OF|IN)\s+\S+)*)", e, re.I)
         if k:
             d["record_key"] = k.group(1).upper().split()
+        for ak in re.finditer(r"\bALTERNATE\s+RECORD\s+KEY\s+(?:IS\s+)?(\S+(?:\s+(?:OF|IN)\s+\S+)*)", e, re.I):
+            d["alt_keys"].append([w for w in ak.group(1).upper().rstrip(".").split() if w not in ("OF", "IN")])
         st = re.search(r"\bFILE\s+STATUS\s+(?:IS\s+)?(\S+(?:\s+(?:OF|IN)\s+\S+)*)", e, re.I)
         if st:
             d["status"] = [w for w in st.group(1).upper().split() if w not in ("OF", "IN")]
         out.append(d)
     return out
+
+
+def _keys_outside_record(gen: Any, fd: Any, fc: dict, records: list) -> str | None:
+    """The first RECORD KEY / ALTERNATE RECORD KEY name of this SELECT that resolves to an item outside every record
+    of its FD (a WORKING-STORAGE item, another file's record), else None."""
+    own = {id(r) for r in records if r.section == "FILE" and r.fd == fd.fd}
+    keys = ([fc["record_key"]] if fc["record_key"] else []) + fc["alt_keys"]
+    for key in keys:
+        try:
+            item = gen.resolve(E.Ref(key[0], [q for q in key[1:] if q not in ("OF", "IN")]))
+        except G.Untranslatable:
+            continue
+        root = item
+        while root.parent is not None:
+            root = root.parent
+        if id(root) not in own:
+            return key[0]
+    return None
 
 
 def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
@@ -683,6 +703,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 )
             except G.Untranslatable:
                 fd.key_item = None
+        # #4804: IBM (Enterprise COBOL Language Reference, RECORD KEY clause) requires a RECORD KEY / ALTERNATE RECORD
+        # KEY item to be defined in a record description entry of that file; refused by name, never translated
+        outside = _keys_outside_record(gen, fd, fc, records)
+        if outside:
+            fd.why = f"{outside} is not defined in a record of file {fd.select} (IBM: a key item is in the file's own record)"
+            fd.key_item = None
+            continue
         if not batch:
             fd.why = "the generated project has no batch package (CobolFiles) to run files through"
             continue

@@ -204,14 +204,13 @@ RUN = Command(
     status="modelled",
     register="X18",
     event="RUN",
-    options={"TRANSID": _TRANSID, "CHILD": Arg("area_out", width=16), **RESP_OPTIONS},
-    refused={
-        "CHANNEL": Refusal(
-            "RUN CHANNEL: the child task's copy of the channel is not modelled (#4270: a later slice)",
-            "X18",
-            whole=True,
-        ),
+    options={
+        "TRANSID": _TRANSID,
+        "CHILD": Arg("area_out", width=16),
+        "CHANNEL": Arg("name", width=16),  # #4884: the child's copy is never read here: it runs after this task ends
+        **RESP_OPTIONS,
     },
+    refused={},
     groups=(
         required("TRANSID", msg="RUN without TRANSID / CHILD"),
         required("CHILD", msg="RUN without TRANSID / CHILD"),
@@ -219,10 +218,85 @@ RUN = Command(
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("CHILD",)),
         Outcome("TRANSIDERR", 1, "the transaction is not defined"),
+        Outcome(
+            "CHANNELERR", 1, "the channel name contains an invalid character or combination", raised_by=("CHANNEL",)
+        ),
     ),
-    state=("child_tasks", "handle_table"),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "RUN CHANNEL with a name of anything but letters and digits: IBM does not list the symbols it allows here",
+            "X18",
+            java="RUN CHANNEL(",
+            c="RUN CHANNEL(",
+        ),
+    ),
+    state=("child_tasks", "handle_table", "channel_scope"),
     engine=EngineFacts(task_verb="RUN", target_option="TRANSID", handle_option="CHILD", channel_option="TRANSID"),
     impl=Impl(translator="Cics.run_transid", java="runTransid", c="GGCRUNT", harness="_run_transid"),
 )
 
-COMMANDS = (START, RETRIEVE, CANCEL, RUN)
+_FETCH_OPTIONS = {
+    "CHANNEL": Arg("area_out", width=16),
+    "ABCODE": Arg("area_out", width=4),
+    "COMPSTATUS": Arg("cvda"),
+    "NOSUSPEND": Arg("flag"),
+}
+# a FETCH that waits needs a child that completes while this task runs; the child runs once this task has ended (X18)
+_FETCH_WAITS = Refusal(
+    "FETCH without NOSUSPEND, or with TIMEOUT: it waits for a child, and a child runs only once its parent has ended",
+    "X18",
+    whole=True,
+)
+_FETCH_NOT_FINISHED = (
+    "NOSUSPEND was specified, but no child had completed when the command was run (the region runs a child only "
+    "after its parent has ended)"
+)
+FETCH_ANY = Command(
+    key="FETCH ANY",
+    ibm=ibm("EXEC CICS FETCH ANY", "summary-fetch-any"),
+    status="modelled",
+    register="X18",
+    event="FETCH",
+    options={"ANY": Arg("area_out", width=16), **_FETCH_OPTIONS, **RESP_OPTIONS},
+    refused={"TIMEOUT": _FETCH_WAITS},
+    default_refusal=_FETCH_WAITS,
+    groups=(
+        required("ANY", msg="FETCH ANY without ANY"),
+        required(
+            "NOSUSPEND", msg="FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "a child has completed: never reached here, a child runs only once its parent has ended"),
+        Outcome("NOTFINISHED", 52, _FETCH_NOT_FINISHED),
+        Outcome("INVREQ", 52, "the parent has no children"),
+    ),
+    state=("child_tasks", "handle_table"),
+    impl=Impl(translator="Cics.fetch", java="fetch", c="GGCFETCH", harness="_fetch_child"),
+)
+
+FETCH_CHILD = Command(
+    key="FETCH CHILD",
+    ibm=ibm("EXEC CICS FETCH CHILD", "summary-fetch-child"),
+    status="modelled",
+    register="X18",
+    event="FETCH",
+    options={"CHILD": Arg("area_in", width=16), **_FETCH_OPTIONS, **RESP_OPTIONS},
+    refused={"TIMEOUT": _FETCH_WAITS},
+    default_refusal=_FETCH_WAITS,
+    groups=(
+        required("CHILD", msg="FETCH CHILD without CHILD"),
+        required(
+            "NOSUSPEND", msg="FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "a child has completed: never reached here, a child runs only once its parent has ended"),
+        Outcome("NOTFINISHED", 52, _FETCH_NOT_FINISHED),
+        Outcome("INVREQ", 50, "CHILD is not a child token of this task"),
+    ),
+    state=("child_tasks", "handle_table"),
+    impl=Impl(translator="Cics.fetch", java="fetch", c="GGCFETCH", harness="_fetch_child"),
+)
+
+COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD)

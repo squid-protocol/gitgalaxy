@@ -74,6 +74,16 @@ tree-sitter vs. ctags), a separate, standalone tool suite —
 files it produces, and — the part this section used to promise and not deliver — a durable,
 evidence-backed catalog of the confirmed differences between all three tools.
 
+## Where bot output lives (#4847)
+
+The five history bots (`call-resolution-history`, `graph-comparison-history`,
+`tree-sitter-accuracy-history`, `tri-comparison-history`, `archetype-validation`) no longer commit
+to `main`: they publish to the `generated` branch with `tests/tools/generated_branch.py`. The
+copies of those files committed on `main` are frozen at the last bot PR; they are the seed (a
+history CSV is restored from `generated` before it is appended to) and the fallback.
+`python tests/tools/generated_branch.py show <path>` prints the published copy, else the committed
+one.
+
 ## Files
 
 - **`tree_sitter_accuracy_chart.svg`** — the current snapshot: a small-multiples bar chart, five

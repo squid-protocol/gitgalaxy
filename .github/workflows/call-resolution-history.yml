@@ -10,6 +10,9 @@ name: Call Resolution History
 # The numbers are the resolver's CONFIDENCE (scoped/unique/ambiguous/external shares),
 # not its accuracy -- that is #3332's benchmark. Nothing here gates a PR.
 
+# #4847: the output is published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through
+# an auto-merged PR; the PR-then-merge and loop-guard paragraphs above describe the old mechanism.
+
 on:
   push:
     branches: [main]
@@ -19,6 +22,7 @@ on:
       - "gitgalaxy/core/network_risk_sensor.py"
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/call_resolution_rates.py"
+  workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:
   contents: read
@@ -29,21 +33,19 @@ concurrency:
 
 jobs:
   call-resolution-history:
-    # Loop guard: this job's own bot commit must not re-trigger it.
-    if: |
-      !startsWith(github.event.head_commit.message, 'docs: auto-update call resolution data')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           fetch-depth: 0
-          persist-credentials: false
+          # #4847: the publish step pushes to `generated` with this checkout's token. The job runs main's code on a
+          # push to main / dispatch only, never PR code (the same reasoning as evidence-pages.yml).
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -63,6 +65,14 @@ jobs:
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
+      # The series is appended to, so it starts from what `generated` last published (the copy committed on main is
+      # only the seed and the fallback when the branch has none yet).
+      - name: Restore the published series from the generated branch
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch \
+            docs/self_scan/call_resolution_history.csv
+
       - name: Append call-resolution history
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -70,29 +80,12 @@ jobs:
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/call_resolution_rates.py --history
 
-      - name: Open PR with updated history
-        id: call-resolution-history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          path: gitgalaxy
-          commit-message: "docs: auto-update call resolution data"
-          title: "docs: auto-update call resolution data"
-          body: |
-            Automated update from the latest call-resolution measurement on `main` (#3331).
-
-            Appends one row per language to `docs/self_scan/call_resolution_history.csv`.
-            The shares are the resolver's confidence, not its accuracy (#3332).
-          branch: auto/call-resolution-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/call_resolution_history.csv
-
-      - name: Merge the call resolution history PR
-        if: steps.call-resolution-history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
+      # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
+      - name: Publish to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.call-resolution-history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          python tests/tools/generated_branch.py publish --stamp call-resolution-history \
+            --message "call-resolution-history as of main $GITHUB_SHA" \
+            docs/self_scan/call_resolution_history.csv

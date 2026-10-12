@@ -237,7 +237,7 @@ recomputing with corrected counts.
 
 See [`docs/self_scan/tri_comparison_ledger.json`](../self_scan/tri_comparison_ledger.json)
 (filtered to `java/`) and
-[`docs/self_scan/tri_comparison_points_of_interest.md`](../self_scan/tri_comparison_points_of_interest.md)
+[`docs/self_scan/tri_comparison_points_of_interest.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/tri_comparison_points_of_interest.md)
 for the full record.
 
 ## 10. JCICS: Java on CICS (added 2026-09-25)

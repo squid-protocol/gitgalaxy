@@ -146,7 +146,7 @@ languages, and it is never the tool found wrong in a validated class or
 argument disagreement. The limit: three structural targets, one fixed corpus —
 not "parses as accurately as an AST" in general.
 
-![Tri-comparison](docs/self_scan/tri_comparison_chart.svg)
+![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
 
 ### Graph validation: imports and calls (in progress)
 
@@ -181,7 +181,7 @@ The limits:
 The plan to close these gaps is
 [epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
 
-![Graph accuracy coverage](docs/self_scan/graph_coverage_chart.svg)
+![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
 
 ### Cross-language consistency: the Keyword Rosetta control corpus
 

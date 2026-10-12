@@ -1157,12 +1157,144 @@ def test_web_send_becomes_a_stub_call():
     d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
     assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "without FROM"),
+    dd = ec.translate_command("WEB SEND DOCTOKEN(WS-D) MEDIATYPE(WS-M) ACTION(WS-A) STATUSCODE(WS-S) NOHANDLE")
+    at = dd.index("CALL 'GGCWSDC' USING GG-CICS")  # (#4767: the response is the document the token names)
+    assert dd[0] == "MOVE 0 TO GG-LEN" and dd[at + 1 : at + 3] == [
+        "    BY REFERENCE WS-D",
+        "    BY VALUE LENGTH OF WS-D",
+    ]
+    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
+                     ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
+                     ("WEB SEND DOCTOKEN(WS-D) DOCSTATUS(WS-X)", "after it is sent"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND DOCTOKEN(WS-D)", "document as the response body"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_web_extract_becomes_a_stub_call():
+    """#4767 zECS (register X38): WEB EXTRACT -> GGCWEXT (each length option in GG-LEN / GG-HOURS / GG-MINS / GG-SECS /
+    GG-ITEM, GG-FLAGS the pieces asked for, every piece's area by reference with its length), then on NORMAL the lengths,
+    PORTNUMBER, SCHEME (1096 / 1029) and REQUESTTYPE (1033) moved back. The option rules as the det translator's."""
+    t = ec.translate_command("WEB EXTRACT SCHEME(WS-S) HOST(WS-H) HOSTLENGTH(WS-HL) PATH(WS-P) PATHLENGTH(WS-PL) "
+                             "PORTNUMBER(WS-N) REQUESTTYPE(WS-R) NOHANDLE")  # fmt: skip
+    assert t[:6] == ["MOVE WS-HL TO GG-LEN", "MOVE 0 TO GG-HOURS", "MOVE 0 TO GG-MINS", "MOVE WS-PL TO GG-SECS",
+                     "MOVE 0 TO GG-ITEM", "MOVE 'HOST PATH' TO GG-FLAGS"]  # fmt: skip
+    assert t[6] == "CALL 'GGCWEXT' USING GG-CICS" and t[7:9] == ["    BY REFERENCE WS-H", "    BY VALUE LENGTH OF WS-H"]
+    tail = "\n".join(t)
+    for back in ("MOVE GG-LEN TO WS-HL", "MOVE GG-SECS TO WS-PL", "MOVE GG-NUM TO WS-N", "MOVE 1096 TO WS-S",
+                 "IF GG-NAME1(1:5) = 'HTTPS'", "MOVE 1029 TO WS-S", "MOVE 1033 TO WS-R"):  # fmt: skip
+        assert back in tail, back
+    for bad, why in (("WEB EXTRACT HOST(WS-H)", "HOST without HOSTLENGTH"),
+                     ("WEB EXTRACT HTTPMETHOD(WS-M)", "HTTPMETHOD without METHODLENGTH"),
+                     ("WEB EXTRACT HTTPVERSION(WS-V)", "HTTPVERSION without VERSIONLEN"),
+                     ("WEB EXTRACT QUERYSTRLEN(WS-Q)", "QUERYSTRING without QUERYSTRLEN"),
+                     ("WEB EXTRACT SESSTOKEN(WS-T)", "client form"),
+                     ("WEB EXTRACT HOSTTYPE(WS-T)", "address format"),
+                     ("WEB EXTRACT URIMAP(WS-U)", "URIMAP the request matched")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_web_receive_becomes_a_stub_call():
+    """#4767 zECS (register X38): WEB RECEIVE INTO -> GGCWRCV (MAXLENGTH in GG-NUM, GG-FLAGS MEDIA when MEDIATYPE is given),
+    then LENGTH moved from GG-LEN on NORMAL and on LENGERR 57. SET, NOTRUNCATE, the containers and the code-page options are
+    refused by name."""
+    t = ec.translate_command(
+        "WEB RECEIVE INTO(WS-B) LENGTH(WS-L) MAXLENGTH(WS-M) MEDIATYPE(WS-T) NOSRVCONVERT NOHANDLE"
+    )
+    assert t[:3] == ["MOVE WS-M TO GG-NUM", "MOVE 'MEDIA' TO GG-FLAGS", "CALL 'GGCWRCV' USING GG-CICS"]
+    assert t[3:7] == [
+        "    BY REFERENCE WS-B",
+        "    BY VALUE LENGTH OF WS-B",
+        "    BY REFERENCE WS-T",
+        "    BY VALUE LENGTH OF WS-T",
+    ]
+    assert t[7:10] == ["IF GG-RESP = 0 OR GG-RESP2 = 57", "    MOVE GG-LEN TO WS-L", "END-IF"]
+    assert ec.translate_command("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT")[1] == "MOVE SPACES TO GG-FLAGS"
+    for bad, why in (("WEB RECEIVE", "without INTO"),
+                     ("WEB RECEIVE INTO(WS-B)", "INTO without MAXLENGTH"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
+                     ("WEB RECEIVE SET(WS-P) MAXLENGTH(WS-M)", "pointer lane"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) NOTRUNCATE", "NOTRUNCATE"),
+                     ("WEB RECEIVE TOCONTAINER('C')", "container"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) CHARACTERSET(WS-C)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) HOSTCODEPAGE(WS-C)", "code-page conversion"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SERVERCONV(WS-C)", "SERVERCONV"),
+                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) TYPE(WS-C)", "TYPE")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_web_read_and_write_httpheader_become_stub_calls():
+    """#4767 zECS (register X38): WEB READ HTTPHEADER -> GGCWRDH (NAMELENGTH in GG-LEN, VALUELENGTH in GG-NUM, moved back on
+    NORMAL), WEB WRITE HTTPHEADER -> GGCWWRH (the header recorded as WEB-HEADER); the client form is refused."""
+    r = ec.translate_command("WEB READ HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) NOHANDLE")
+    assert r[:3] == ["MOVE WS-NL TO GG-LEN", "MOVE WS-VL TO GG-NUM", "CALL 'GGCWRDH' USING GG-CICS"]
+    assert r[3:7] == [
+        "    BY REFERENCE WS-N",
+        "    BY VALUE LENGTH OF WS-N",
+        "    BY REFERENCE WS-V",
+        "    BY VALUE LENGTH OF WS-V",
+    ]
+    assert r[7:10] == ["IF GG-RESP = 0", "    MOVE GG-NUM TO WS-VL", "END-IF"]
+    w = ec.translate_command("WEB WRITE HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) NOHANDLE")
+    assert w[:3] == ["MOVE WS-NL TO GG-LEN", "MOVE WS-VL TO GG-NUM", "CALL 'GGCWWRH' USING GG-CICS"]
+    assert "GGCWRDH" not in "".join(w) and not any(ln.startswith("IF GG-RESP = 0") for ln in w)
+    for form in ("READ", "WRITE"):
+        for missing, why in (
+            ("NAMELENGTH(WS-NL)", "NAMELENGTH"),
+            ("VALUE(WS-V)", "VALUE"),
+            ("VALUELENGTH(WS-VL)", "VALUELENGTH"),
+        ):
+            parts = [
+                x
+                for x in ("HTTPHEADER(WS-N)", "NAMELENGTH(WS-NL)", "VALUE(WS-V)", "VALUELENGTH(WS-VL)")
+                if x != missing
+            ]
+            with pytest.raises(ec.Unsupported, match=why):
+                ec.translate_command(f"WEB {form} " + " ".join(parts))
+        with pytest.raises(ec.Unsupported, match="client form"):
+            ec.translate_command(
+                f"WEB {form} HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) SESSTOKEN(WS-T)"
+            )
+
+
+def test_a_web_header_event_reads_back_and_is_compared():
+    """#4767 zECS (X38): a WEB-HEADER line of the stub's events reads back as CicsTask records it; the headers each side wrote
+    are compared exactly (name, value, RESP2)."""
+    kv = {"name": b"X-Zecs".hex().upper(), "value": b"abc ".hex().upper(), "resp": "0", "resp2": "0"}
+    got = ec._cobol_web_header(kv, "latin-1")
+    assert got == {"name": "X-Zecs", "value": "abc ", "resp": 0, "resp2": 0}
+    java = {"event": "WEB-HEADER", **got}
+    assert ec.compare_events([java], [dict(java)])["equal"] == 1
+    differs = ec.compare_events([java], [{**java, "value": "abc"}])
+    assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "value"
+    res = {"screens": [], "text": [], "events": ["WEB-HEADER name=.. value=.. resp=0 resp2=0"], "webheader": [got]}
+    assert ec.cobol_events(res) == [java]
+
+
+def test_get_dcounter_becomes_a_doubleword_stub_call():
+    """#4767 zECS (register X30): GET DCOUNTER -> GGCGDCN (the name in GG-QNAME, the pool in GG-NAME1, VALUE and INCREMENT by
+    reference with their lengths; INCREMENT omitted: GG-NAME2 holding 1). The fullword COUNTER form keeps GGCGCNT, and its
+    INCREMENT / WRAP are refused."""
+    t = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I) WRAP NOHANDLE")
+    assert "CALL 'GGCGDCN' USING GG-CICS" in t and "GGCGCNT" not in "".join(t)
+    at = t.index("CALL 'GGCGDCN' USING GG-CICS")
+    assert t[at + 1 : at + 5] == ["    BY REFERENCE WS-V", "    BY VALUE LENGTH OF WS-V", "    BY REFERENCE WS-I",
+                                  "    BY VALUE LENGTH OF WS-I"]  # fmt: skip
+    d = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) NOHANDLE")
+    assert "MOVE X'0000000000000001' TO GG-NAME2" in d and "    BY REFERENCE GG-NAME2" in d
+    assert "CALL 'GGCGCNT' USING GG-CICS" in ec.translate_command("GET COUNTER(WS-N) VALUE(WS-V) NOHANDLE")
+    for bad, why in (("GET COUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I)", "INCREMENT without DCOUNTER"),
+                     ("GET COUNTER(WS-N) VALUE(WS-V) WRAP", "WRAP without DCOUNTER"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) REDUCE", "maximum is not stated"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) COMPAREMIN(WS-I)", "range check"),
+                     ("GET DCOUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "rebuild"),
+                     ("GET DCOUNTER(WS-N) VALUE('5')", "literal")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
@@ -1187,7 +1319,11 @@ def test_the_http_request_is_stated_alike_on_both_sides_and_the_response_compare
             ec.http_request({"http_request": broken}, {"name": "s"})
     cfg = ec.http_request_cfg(req, "latin-1").splitlines()
     assert cfg[0] == "R HTTP " + b"zecs.example".hex().upper() + " 80 PUT " + b"/k".hex().upper() + " -"
-    assert cfg[1] == "H " + b"Content-Type".hex().upper() + " " + b"text/plain".hex().upper()
+    assert cfg[1] == "V " + b"HTTP/1.1".hex().upper()  # (#4767 X38: WEB EXTRACT reads the version)
+    assert cfg[2] == "B " + b"text/plain".hex().upper() + " " + b"v".hex().upper()  # (WEB RECEIVE reads the body)
+    assert cfg[3] == "H " + b"Content-Type".hex().upper() + " " + b"text/plain".hex().upper()
+    bare = ec.http_request_cfg({**req, "mediatype": None, "body": None, "headers": []}, "latin-1").splitlines()
+    assert [ln[0] for ln in bare] == ["R", "V"]  # (no body: no B line; a request with none is refused by WEB RECEIVE)
     kv = dict(a.split("=", 1) for a in ("WEB-SEND status=404 stext=" + b"NF".hex().upper() + " media=- action=IMMEDIATE "
                                        "resp=0 resp2=0").split()[1:])  # fmt: skip
     got = ec._cobol_web_send(kv, b"gone ", "latin-1")

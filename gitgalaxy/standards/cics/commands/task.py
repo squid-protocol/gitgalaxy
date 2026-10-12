@@ -23,7 +23,9 @@ from gitgalaxy.standards.cics.model import (
     Refusal,
     RuntimeRefusal,
     at_most_one,
+    one_of,
     required,
+    requires,
 )
 
 _NORMAL = Outcome("NORMAL", 0, "")
@@ -81,13 +83,43 @@ GET_COUNTER = Command(
     register="X30",
     options={
         "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),
         "POOL": Arg("name", width=8),
-        "VALUE": Arg("area_out", width=4),
+        "VALUE": Arg("area_out"),
+        "INCREMENT": Arg("area_in", binary=True),
+        "WRAP": Arg("flag"),
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
-    groups=(required("VALUE", msg="GET COUNTER without VALUE"),),
+    refused={
+        "REDUCE": Refusal("the increment shrunk at the counter's maximum: the maximum is not stated", "X30"),
+        "COMPAREMIN": Refusal("a range check on the counter's value (SUPPRESSED RESP2 103) is not modelled", "X30"),
+        "COMPAREMAX": Refusal("a range check on the counter's value (SUPPRESSED RESP2 103) is not modelled", "X30"),
+        "NOSUSPEND": Refusal("a coupling-facility structure rebuild (BUSY RESP2 500) is not modelled", "X30"),
+    },
+    groups=(
+        required("VALUE", msg="GET COUNTER without VALUE"),
+        one_of("COUNTER", "DCOUNTER", msg="GET COUNTER needs one of COUNTER and DCOUNTER"),
+        requires(
+            ("INCREMENT",), ("DCOUNTER",), msg="GET COUNTER INCREMENT without DCOUNTER: only the doubleword form has it"
+        ),
+        requires(("WRAP",), ("DCOUNTER",), msg="GET COUNTER WRAP without DCOUNTER: only the doubleword form has it"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "an INCREMENT not above zero (IBM gives it no meaning)",
+            "X30",
+            java="GET COUNTER with an INCREMENT not above zero",
+            c="GET COUNTER with an INCREMENT not above zero",
+        ),
+        RuntimeRefusal(
+            "a counter that would pass 4294967295: the maximum, where WRAP acts, is not stated by the run",
+            "X30",
+            java="GET COUNTER past 4294967295",
+            c="GET COUNTER past 4294967295",
+        ),
+    ),
     # X30: IBM's GET COUNTER page lists no NOTFND; "Named counter not found" is INVREQ RESP2 201
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE",)),

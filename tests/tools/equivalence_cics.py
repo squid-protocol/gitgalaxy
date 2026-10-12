@@ -628,8 +628,8 @@ def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | N
     """#4767 zECS (X37): the inbound HTTP request the task serves -- the scenario's "http_request", else the case's: {"scheme":
     "HTTP" | "HTTPS", "host", "port", "method", "version" ("HTTP/1.1"), "path", "query" ("" for none), "headers": [[name,
     value], ...], "mediatype" and "body" (both null: no body)}. Stated on both sides (the stub's $GGCICS_WEBREQ,
-    CicsTask.withHttpRequest); WEB SEND needs it, and the commands that read it (WEB RECEIVE, EXTRACT, READ HTTPHEADER) are
-    not modelled yet. Unstated, None: both runtimes refuse WEB SEND by name."""
+    CicsTask.withHttpRequest); WEB SEND, WEB RECEIVE, WEB EXTRACT and WEB READ / WRITE HTTPHEADER need it (X37, X38).
+    Unstated, None: both runtimes refuse them by name."""
     req = sc.get("http_request", case.get("http_request"))
     if req is None:
         return None
@@ -652,13 +652,17 @@ def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | N
 
 
 def http_request_cfg(req: dict[str, Any], enc: str) -> str:
-    """#4767 (X37): the stub's $GGCICS_WEBREQ file (ggcics.c GGCWSND reads only that it is stated): `R SCHEME HOSTHEX PORT METHOD
-    PATHHEX QUERYHEX|-` and a `H NAMEHEX VALUEHEX|-` line per header, hex in the data's page."""
+    """#4767 (X37, X38): the stub's $GGCICS_WEBREQ file (ggcics.c webreq_load): `R SCHEME HOSTHEX PORT METHOD PATHHEX
+    QUERYHEX|-`, `V VERSIONHEX`, `B MEDIAHEX BODYHEX|-` (a request with a body) and a `H NAMEHEX VALUEHEX|-` line per header,
+    hex in the data's page."""
 
     def hx(v: str | None) -> str:
         return v.encode(enc).hex().upper() if v else "-"
 
-    lines = [f"R {req['scheme']} {hx(req['host'])} {req['port']} {req['method']} {hx(req['path'])} {hx(req['query'])}"]
+    lines = [f"R {req['scheme']} {hx(req['host'])} {req['port']} {req['method']} {hx(req['path'])} {hx(req['query'])}",
+             f"V {hx(req['version'])}"]  # fmt: skip
+    if req["body"] is not None:  # (#4767 X38: WEB RECEIVE reads the body and its media type)
+        lines.append(f"B {hx(req['mediatype'])} {hx(req['body'])}")
     lines += [f"H {hx(n)} {hx(v)}" for n, v in req["headers"]]
     return "".join(f"{ln}\n" for ln in lines)
 
@@ -715,30 +719,127 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
     key = "WEB SEND"
     _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("FROM"):
-        raise Unsupported(_rule(key, "required", "FROM"), [key])
-    if "FROMLENGTH" not in opts:
+    if ("FROM" in opts) == ("DOCTOKEN" in opts):
+        raise Unsupported(_rule(key, "one_of", "FROM"), [key])
+    if "FROM" in opts and "FROMLENGTH" not in opts:
         raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
+    if "FROMLENGTH" in opts and "FROM" not in opts:
+        raise Unsupported(_web_requires(key, "FROMLENGTH", "FROM"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    for o in ("FROMLENGTH", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
-    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+    for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
         if opts.get(o) and _literal(opts[o]):
             raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
     given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
-    lines = [f"MOVE {opts['FROMLENGTH']} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
+    lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
     args = []
-    for o in ("FROM", "MEDIATYPE", "STATUSTEXT"):
+    for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
         args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    return lines + _call("GGCWSND", args) + _resp(opts, True, labels)
+    # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
+    return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
+
+
+def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4767 zECS (register X38): WEB EXTRACT (server) -> GGCWEXT (HOSTLENGTH / METHODLENGTH / VERSIONLEN / PATHLENGTH /
+    QUERYSTRLEN in GG-LEN / GG-HOURS / GG-MINS / GG-SECS / GG-ITEM, each moved back as the piece's length; GG-FLAGS names HOST
+    METHOD VERSION PATH QUERY given; the stub writes the pieces, the port in GG-NUM and the scheme in GG-NAME1), then on NORMAL
+    the lengths, PORTNUMBER, SCHEME (a CVDA: 1096 HTTP, 1029 HTTPS) and REQUESTTYPE (1033 HTTPYES) moved to the program's
+    fields. The option rules as the det translator's."""
+    key = "WEB EXTRACT"
+    _check_spec(key, opts, ("WEB", "EXTRACT"), lambda bad: [f"{key} {o}" for o in bad])
+    pieces = (("HOST", "HOSTLENGTH", "GG-LEN"), ("HTTPMETHOD", "METHODLENGTH", "GG-HOURS"),
+              ("HTTPVERSION", "VERSIONLEN", "GG-MINS"), ("PATH", "PATHLENGTH", "GG-SECS"),
+              ("QUERYSTRING", "QUERYSTRLEN", "GG-ITEM"))  # fmt: skip
+    for a, n, _ in pieces:
+        if (a in opts) != (n in opts):
+            raise Unsupported(_web_requires(key, a, n), [key])
+        if a in opts and not (opts[a] and opts[n]):
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+        if opts.get(a) and _literal(opts[a]):
+            raise Unsupported(f"{key} {a} as a literal: a data area is the COBOL form", [key])
+    for o in ("SCHEME", "PORTNUMBER", "REQUESTTYPE"):
+        if o in opts and not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    words = {"HOST": "HOST", "HTTPMETHOD": "METHOD", "HTTPVERSION": "VERSION", "PATH": "PATH", "QUERYSTRING": "QUERY"}
+    given = [words[a] for a, _, _ in pieces if a in opts]
+    lines = [f"MOVE {opts[n]} TO {gg}" if n in opts else f"MOVE 0 TO {gg}" for _, n, gg in pieces]
+    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
+    args = []
+    for a, _, _ in pieces:
+        area = opts.get(a) or "GG-QNAME"  # (a piece not asked for: a placeholder the stub does not read)
+        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    back = [f"    MOVE {gg} TO {opts[n]}" for _, n, gg in pieces if n in opts]
+    if opts.get("PORTNUMBER"):
+        back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
+    if opts.get("SCHEME"):
+        back += [f"    MOVE 1096 TO {opts['SCHEME']}", f"    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
+                 "    END-IF"]  # fmt: skip
+    if opts.get("REQUESTTYPE"):
+        back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
+    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
+    return lines + _call("GGCWEXT", args) + after + _resp(opts, True, labels)
+
+
+def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4767 zECS (register X38): WEB RECEIVE INTO (server) -> GGCWRCV (MAXLENGTH in GG-NUM; GG-FLAGS MEDIA when MEDIATYPE is
+    given; the stub writes INTO and MEDIATYPE and sets GG-LEN to the bytes returned), then on NORMAL / LENGERR 57 LENGTH moved
+    from GG-LEN. The option rules as the det translator's."""
+    key = "WEB RECEIVE"
+    _check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("INTO"):
+        raise Unsupported(_rule(key, "required", "INTO"), [key])
+    if not opts.get("MAXLENGTH"):
+        raise Unsupported(_web_requires(key, "INTO", "MAXLENGTH"), [key])
+    if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
+    for o in ("INTO", "MEDIATYPE"):
+        if o in opts and (not opts[o] or _literal(opts[o])):
+            raise Unsupported(
+                NEEDS_ARGUMENT if not opts[o] else f"{key} {o} as a literal: a data area is the COBOL form", [key]
+            )
+    if "LENGTH" in opts and not opts["LENGTH"]:
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    lines = [
+        f"MOVE {opts['MAXLENGTH']} TO GG-NUM",
+        "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
+    ]
+    media = opts.get("MEDIATYPE") or "GG-QNAME"
+    args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
+            f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+    after = (
+        ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
+        if opts.get("LENGTH")
+        else []
+    )
+    return lines + _call("GGCWRCV", args) + after + _resp(opts, True, labels)
+
+
+def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4767 zECS (register X38): WEB READ HTTPHEADER -> GGCWRDH, WEB WRITE HTTPHEADER -> GGCWWRH (NAMELENGTH in GG-LEN,
+    VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
+    key = f"WEB {form} HTTPHEADER"
+    _check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
+    for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
+        if not opts.get(o):
+            raise Unsupported(_rule(key, "required", o), [key])
+    for o in ("HTTPHEADER", "VALUE"):
+        if _literal(opts[o]):
+            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
+    lines = [f"MOVE {opts['NAMELENGTH']} TO GG-LEN", f"MOVE {opts['VALUELENGTH']} TO GG-NUM"]
+    args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
+            f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
+    entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
+    after = ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"] if form == "READ" else []
+    return lines + _call(entry, args) + after + _resp(opts, True, labels)
 
 
 def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -945,12 +1046,29 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
-    if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
+    if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
         if not opts.get("VALUE"):
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
-        return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
+        if "COUNTER" in opts:  # the fullword form: its value, then +1
+            for o in ("INCREMENT", "WRAP"):
+                if o in opts:
+                    raise Unsupported(_rule("GET COUNTER", "requires", o), ["GET COUNTER"])
+            return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                    + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                    + _resp(opts, True, labels))  # fmt: skip
+        # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
+        # not given, through GG-NAME2's 8 bytes)
+        for o in ("VALUE", "INCREMENT"):
+            if opts.get(o) and _literal(opts[o]):
+                raise Unsupported(f"GET DCOUNTER {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
+        inc = opts.get("INCREMENT") or "GG-NAME2"
+        return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
+                + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
         _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
@@ -1024,6 +1142,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _web_parse(opts, labels)
     if verb == "WEB SEND" or (verb == "WEB" and "SEND" in opts):  # #4767 (X37): the server's response
         return _web_send(opts, labels)
+    if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
+        return _web_extract(opts, labels)
+    if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
+        return _web_receive(opts, labels)
+    if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
+        return _web_header("READ" if "READ" in opts else "WRITE", opts, labels)
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
         return _web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
@@ -2555,6 +2679,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("web", []).append(_cobol_web(kv, data, enc))
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
+        elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
+            res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -3836,6 +3962,12 @@ def _cobol_web_send(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]
             "body": data.decode(enc), "action": kv["action"], "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
+    """#4767 (X38): a WEB-HEADER line of the stub's events (hex fields in the data's page) as CicsTask records it."""
+    return {"name": bytes.fromhex(kv["name"]).decode(enc), "value": bytes.fromhex(kv["value"]).decode(enc),
+            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -3846,6 +3978,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     starts = iter(res.get("starts", []))  # #4270: START
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
+    webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -3870,6 +4003,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-CONVERSE", **next(webs)})
         elif verb == "WEB-SEND":  # #4767 (X37): CicsTask.webSend records the response sent
             out.append({"event": "WEB-SEND", **next(websends)})
+        elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
+            out.append({"event": "WEB-HEADER", **next(webheaders)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
@@ -3984,6 +4119,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
             for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
+            for key in ("name", "value", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways

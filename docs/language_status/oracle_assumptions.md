@@ -139,7 +139,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X34 | CICS | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C; no cics-crucible case yet) |
 | X35 | CICS | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X36 | CICS | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: the command writes no event) |
-| X37 | CICS | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and DOCTOKEN, CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS, LENGTH | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike and record the same event; no cics-crucible case yet) |
+| X37 | CICS | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike and record the same event; no cics-crucible case yet) |
+| X38 | CICS | The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet; ZECS001 still holds on SET, GETMAIN, SET ADDRESS, CALL ZUIDSTCK, GET COUNTER and its DOCTOKEN sends) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1634,7 +1635,21 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `GGCGCNT`), and INVREQ 403 / 404 for a pool / counter name outside IBM's characters, as DEFINE does; QUERY COUNTER likewise.
   **No proven case moved**: no cics-crucible case, equivalence case or committed port used GET COUNTER (only a translator unit
   sample), so no verdict changed; hc-named-counters is the first that does, and it proves INVREQ RESP2 201. GET COUNTER's
-  other options (INCREMENT, WRAP, REDUCE, COMPAREMIN / COMPAREMAX, NOSUSPEND) stay refused by name (X9).
+  other options (REDUCE, COMPAREMIN / COMPAREMAX, NOSUSPEND) stay refused by name.
+- **GET DCOUNTER INCREMENT [WRAP]** (#4767, zECS ZECS001; same page, "summary-get-counter-get-dcounter"). "VALUE returns the current
+  number ... the counter is incremented after the current number has been assigned"; INCREMENT "the amount to add; the default is 1";
+  DCOUNTER's value is "a doubleword unsigned binary"; WRAP: "if the counter is at its limit, the server resets it to its minimum
+  value"; without REDUCE or WRAP a counter at its maximum is SUPPRESSED RESP2 101 and "the current number is not changed". Modelled
+  (`CicsTask.getCounter(pool, name, increment)`, the stub's `GGCGDCN`, writing VALUE big-endian into 8 bytes): the value before the
+  increment, then the counter is INCREMENT more (default 1); INVREQ 201 / 403 / 404 as GET COUNTER. **What IBM leaves open, and
+  what we do.** (1) The counter's maximum and minimum are not stated by the run (DEFINE refuses MINIMUM / MAXIMUM, above), so WRAP
+  and SUPPRESSED RESP2 101 cannot be decided: WRAP is accepted and changes nothing; a counter that would pass 4294967295 (the smallest
+  maximum the page leaves open) and an INCREMENT not above zero (the page gives it no meaning; the doubleword is unsigned) are
+  REFUSED at run time. (2) A stated counter is one number whichever form names it (ASSUMED: IBM does not say whether a COUNTER and a
+  DCOUNTER of one name are the same counter). (3) The INCREMENT is a data area (an 8-byte unsigned binary in zECS); a literal is
+  refused by the stub translator, and INCREMENT / WRAP on the fullword form COUNTER are refused. REFUSED by name: REDUCE, COMPAREMIN,
+  COMPAREMAX, NOSUSPEND. Unit-proven on both runtimes line for line (tests/cics_crucible/test_cics_runtimes.py) and both translators;
+  no case runs it yet (zECS ZECS001's 4000-GET-COUNTER does, after its CALL ZUIDSTCK, which the corpus does not ship).
 - **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
   command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
   check the pool first); the value area of a failed GET / QUERY (not written).
@@ -1866,13 +1881,62 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   not defined), SRVCONVERT on a media type that is not `text/*` (IBM's IANA list is not stated: INVREQ 46 is not modelled), a
   length past its area (as X6: GnuCOBOL lays out the storage that follows unlike IBM's compiler), two conditions at once (IBM
   does not order them, as X35).
-- **Refused by name** (the translators): DOCTOKEN, CONTAINER, CHANNEL, DOCSTATUS (a document or container body), CHUNKING,
+- **WEB SEND DOCTOKEN** (#4767, ZECS001's 9700-STATUS-204; `CicsTask.webSendDocument`, the stub's `GGCWSDC`): the response body is the document the
+  task created, as it is when sent (the program's characters), FROM / FROMLENGTH not given; an empty document is no message body (ASSUMED: IBM lists
+  INVREQ RESP2 72 for 204 / 205 / 304 "with a body" and does not say what an empty document is), so a 204 may send it and records an empty body. A token
+  that names no document of the task is refused (IBM's condition is not stated); what happens to the document after the send (DOCSTATUS) is refused.
+- **Refused by name** (the translators): CONTAINER, CHANNEL, DOCSTATUS (what becomes of a sent document), CHUNKING,
   CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH; a WEB SEND without FROM or FROMLENGTH.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
   line for line, record the same event and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators
   (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py); the equivalence harness states the request on both
   sides and compares the response. No cics-crucible case yet (its SPEC has no WEB-SEND event: a crucible SPEC change). zECS:
   ZECS003's one WEB SEND (FROM / FROMLENGTH / MEDIATYPE / ACTION IMMEDIATE / STATUSCODE / STATUSTEXT / SRVCONVERT) is modelled.
+
+### X38. WEB EXTRACT, WEB RECEIVE, WEB READ / WRITE HTTPHEADER (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
+- **WEB EXTRACT** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-extract), server form. HOST "host component of the URL, from the
+  Host header or an absolute URI", HOSTLENGTH "buffer length supplied, set to the length of the data returned"; HTTPMETHOD /
+  METHODLENGTH, HTTPVERSION / VERSIONLEN ("1.1" indicates HTTP/1.1, "1.0" HTTP/1.0 or lower), PATH / PATHLENGTH, QUERYSTRING /
+  QUERYSTRLEN ("returned in escaped form"), PORTNUMBER ("if absent, CICS derives it from the scheme: 80 HTTP, 443 HTTPS"),
+  SCHEME (CVDA HTTP / HTTPS), REQUESTTYPE (HTTPYES "an HTTP request"). Conditions modelled: LENGERR RESP2 5 / 7 / 21 (PATHLENGTH /
+  VERSIONLEN / HOSTLENGTH not greater than zero). Listed and REFUSED when they occur: LENGERR RESP2 4 / 6 / 8 / 29 / 30 (a
+  piece longer than its length: IBM truncates but not what the length option then holds, as X36).
+- **WEB RECEIVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-receive-server), buffer form. "If the INTO option is
+  specified, MAXLENGTH must also be specified, with a value greater than zero" (INVREQ RESP2 16 otherwise: REFUSED when
+  translating, the spec's `requires`); LENGTH "the amount of data returned"; MAXLENGTH "maximum amount of data passed to the
+  application"; "if the NOTRUNCATE option is not specified, any further data present in the message has now been discarded"
+  (LENGERR RESP2 57 "body exceeds the length specified and the remainder was discarded"; LENGERR RESP2 16 "MAXLENGTH less than or equal
+  to zero"); MEDIATYPE "a 56-byte area". SRVCONVERT converts a text body from the client's character set, NOSRVCONVERT does not.
+- **WEB READ HTTPHEADER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-httpheader). "VALUELENGTH: you supply the
+  buffer length, and CICS sets it to the actual length of the data returned"; conditions (server): INVREQ RESP2 43 "no HTTP headers
+  found", NOTFND RESP2 1 "no header with the given name was found", LENGERR RESP2 1 "VALUELENGTH not greater than zero", LENGERR
+  RESP2 2 "value truncated because the receiving buffer is too small".
+- **WEB WRITE HTTPHEADER** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-write-httpheader). "Each command adds a single
+  header"; a header written twice: "CICS adds the new header ... in addition to the existing header"; LENGERR RESP2 35 "NAMELENGTH
+  not greater than zero", RESP2 55 "VALUELENGTH not greater than zero or greater than 32000". A header CICS would also generate is
+  not overwritten (the response CICS builds is not modelled: X37 records only what the program sent).
+- **What IBM leaves open, and what we do.** (1) The request is a fact STATED, never guessed (X37's `http_request`, now read by every
+  command; an unstated one is refused). The stated `version` is exactly what HTTPVERSION returns (ASSUMED: IBM's text says "1.1"
+  indicates HTTP/1.1 without saying which characters CICS returns); the stated `port` is what PORTNUMBER returns (the scheme's
+  default when the request has none is the run's to state). (2) A request with no query string: QUERYSTRLEN 0 and the area left
+  alone, NORMAL (ASSUMED: IBM lists NOTFND RESP2 155 for "request line information not found" and no other case). (3) Areas are
+  written on NORMAL only, a piece's bytes only (the rest of the area is left alone), as X36; MEDIATYPE is blank-padded to its
+  56 bytes. (4) The body is in the program's characters whatever the conversion option (ASSUMED, as X37); code-page options, TYPE
+  and SERVERCONV (its values are not documented) are refused. (5) REFUSED: SET (a body in CICS storage needs the pointer lane,
+  GETMAIN / SET ADDRESS OF, not modelled), NOTRUNCATE, TOCONTAINER / TOCHANNEL, the client forms (SESSTOKEN, REALM / REALMLEN),
+  HOSTTYPE, URIMAP; a WEB RECEIVE of a request with no body (IBM does not say what INTO, LENGTH and MEDIATYPE then hold) and a
+  second WEB RECEIVE (IBM does not say what a body already received returns again); a header read whose name matches a stated one
+  only without case (IBM does not say whether names compare with case) and two stated headers of the name; a value longer than
+  VALUELENGTH (LENGERR RESP2 2: what VALUELENGTH then holds is not stated); a NAMELENGTH not above zero on READ (listed for a client
+  only), METHODLENGTH / QUERYSTRLEN not above zero (no condition is listed); a header written after WEB SEND (IBM does not say what
+  a header after an IMMEDIATE response means), a header name that is blank or holds a blank or a colon (IBM does not define the
+  check); every length past its area (as X6: GnuCOBOL lays out the storage that follows unlike IBM's compiler); two conditions at
+  once (IBM does not order them, as X35).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps line
+  for line, record the same WEB-HEADER events and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py, four request
+  fixtures x every option class); both translators (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). No
+  cics-crucible case (its SPEC has no WEB event). zECS: ZECS001's WEB EXTRACT, its first WEB RECEIVE form's MEDIATYPE / LENGTH /
+  MAXLENGTH, WEB READ HTTPHEADER(Authorization) and WEB WRITE HTTPHEADER are modelled; its WEB RECEIVE SET is refused.
 
 ## Language Environment
 

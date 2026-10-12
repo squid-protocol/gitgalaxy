@@ -87,6 +87,8 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if verb == "GET" and "DCOUNTER" in opts:  # #4767 (X30): GET DCOUNTER is the doubleword form of GET COUNTER's entry
+        return "GET COUNTER"
     if verb != "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
         return f"{verb} COUNTER"  # (not modelled: refused whole by Cics.command)
     if first == "SEND":
@@ -104,6 +106,8 @@ _FORM_OPTION = {
     "GET": ("COUNTER",),
     "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
     "SET": ("TERMINAL",),
+    "WEB READ": ("HTTPHEADER",),  # #4767 (X38): WEB READ / WRITE HTTPHEADER(area); FORMFIELD / QUERYPARM stay refused
+    "WEB WRITE": ("HTTPHEADER",),
     "WEB PARSE": ("URL",),  # #4767 (X36): WEB PARSE URL(area): the form word is an option with an argument
 }
 
@@ -798,14 +802,22 @@ class Cics:
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
-        if (
-            verb == "GET" and "COUNTER" in opts
-        ):  # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30)
+        if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # GET COUNTER: its value, then +1; INVREQ RESP2 201 for a counter not defined (X30). #4767 (X30) GET DCOUNTER
+            # INCREMENT(n) [WRAP]: the value, then +n (the doubleword form; WRAP acts at a maximum the run does not state)
             if not opts.get("VALUE"):
                 raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg("GET COUNTER", "one_of", "COUNTER"))
+            if "COUNTER" in opts:
+                for o in ("INCREMENT", "WRAP"):
+                    if o in opts:
+                        raise CicsError(_msg("GET COUNTER", "requires", o))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            return [f"{ind}long[] {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
+            inc = f", {self.int_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
                     f"{ind}if ({v}[0] == 0) {{",
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
                     f"{ind}}}",
@@ -1119,6 +1131,8 @@ class Cics:
             return self.web_parse(key, opts, ind)
         if key == "WEB SEND":  # #4767 (X37): the response to the stated inbound request
             return self.web_send(key, opts, ind)
+        if key in ("WEB EXTRACT", "WEB RECEIVE", "WEB READ HTTPHEADER", "WEB WRITE HTTPHEADER"):  # #4767 (X38)
+            return self.web_request(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
@@ -1261,10 +1275,12 @@ class Cics:
         FROMLENGTH, MEDIATYPE's text, ACTION's value (0 when absent), STATUSCODE (-1), STATUSTEXT's text with STATUSLEN
         (-1: the whole area, ASSUMED) and the conversion flag; the response is recorded as WEB-SEND. Every option the
         spec entry does not model is refused by name (check_options)."""
-        if not opts.get("FROM"):
-            raise CicsError(_msg(key, "required", "FROM"))
-        if "FROMLENGTH" not in opts:
+        if ("FROM" in opts) == ("DOCTOKEN" in opts):
+            raise CicsError(_msg(key, "one_of", "FROM"))
+        if "FROM" in opts and "FROMLENGTH" not in opts:
             raise CicsError(_requires(key, "FROM", "FROMLENGTH"))
+        if "FROMLENGTH" in opts and "FROM" not in opts:
+            raise CicsError(_requires(key, "FROMLENGTH", "FROM"))
         if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
             raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
         if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
@@ -1278,6 +1294,10 @@ class Cics:
 
         conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
         r = self.g.tmpname("web")
+        if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
+            call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
+                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, CS)")  # fmt: skip
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
@@ -1321,6 +1341,90 @@ class Cics:
                 f"{ind}    "
                 + g.store_into(self.ref(_arg(opts["PORTNUMBER"])), f"BigDecimal.valueOf({r}.port())", False)
             )
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def web_request(self, key: str, opts: dict, ind: str) -> list[str]:
+        """The server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ HTTPHEADER,
+        WEB WRITE HTTPHEADER; register X38) on the request the run states (CicsTask.withHttpRequest). EXTRACT: each piece
+        asked for, its length option read before it is written (the area's size is the cap); on NORMAL the pieces' bytes,
+        their lengths, the port, SCHEME's CVDA and REQUESTTYPE's HTTPYES. RECEIVE INTO: the body (at most MAXLENGTH) at
+        INTO's start, LENGTH, MEDIATYPE blank-padded to 56. READ HTTPHEADER: the value at VALUE's start, VALUELENGTH.
+        WRITE HTTPHEADER: the header recorded as WEB-HEADER. Every other option is refused by name (check_options)."""
+        g = self.g
+        r = g.tmpname("web")
+
+        def req(o: str) -> str:
+            if not opts.get(o):
+                raise CicsError(_msg(key, "required", o))
+            return _arg(opts[o])
+
+        def text(o: str) -> str:
+            return f"Cobol.text({self.read_field(req(o))}, CS)"
+
+        def store(o: str, value: str) -> str:
+            return f"{ind}    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({value})", False)
+
+        def put(area: str, data: str, what: str) -> str:
+            """A piece at the area's start (the rest left alone); more bytes than the area holds refused (PastFrom)."""
+            f = self.field(area)
+            return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
+                    f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
+
+        if key == "WEB WRITE HTTPHEADER":
+            call = f"task.webWriteHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {text('VALUE')}, {self.int_(req('VALUELENGTH'))})"
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if key == "WEB READ HTTPHEADER":
+            vl = req("VALUELENGTH")
+            call = (f"task.webReadHeader({text('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {self.int_(vl)}, "
+                    f"{self.size(req('VALUE'))})")  # fmt: skip
+            return [f"{ind}CicsTask.WebHeader {r} = {call};", f"{ind}if ({r}.resp() == 0) {{",
+                    put(req("VALUE"), f"{r}.value().getBytes(CS)", "WEB READ HTTPHEADER VALUE"),
+                    store("VALUELENGTH", f"{r}.value().length()"), f"{ind}}}",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+        if key == "WEB RECEIVE":
+            if not opts.get("INTO"):
+                raise CicsError(_msg(key, "required", "INTO"))
+            if not opts.get("MAXLENGTH"):
+                raise CicsError(_requires(key, "INTO", "MAXLENGTH"))
+            if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
+                raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
+            into = req("INTO")
+            call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
+            out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
+                   put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
+            if "LENGTH" in opts:
+                out.append(store("LENGTH", f"{r}.body().length()"))
+            if "MEDIATYPE" in opts:
+                out.append(f"{ind}    DetCics.putText({self.field(req('MEDIATYPE'))}, "
+                           f'String.format("%-56s", {r}.mediaType()), CS);')  # fmt: skip
+            out.append(f"{ind}}}")
+            return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+        pieces = (("HOST", "HOSTLENGTH", "host"), ("HTTPMETHOD", "METHODLENGTH", "method"),
+                  ("HTTPVERSION", "VERSIONLEN", "version"), ("PATH", "PATHLENGTH", "path"),
+                  ("QUERYSTRING", "QUERYSTRLEN", "query"))  # fmt: skip
+        for a, n, _ in pieces:
+            if (a in opts) != (n in opts):
+                raise CicsError(_requires(key, a, n))
+
+        def length(n: str) -> str:
+            return f"Integer.valueOf({self.int_(_arg(opts[n]))})" if n in opts else "null"
+
+        def cap(a: str) -> str:
+            return str(self.size(_arg(opts[a]))) if a in opts else "0"
+
+        call = "task.webExtract(" + ", ".join(f"{length(n)}, {cap(a)}" for a, n, _ in pieces) + ")"
+        out = [f"{ind}CicsTask.WebExtracted {r} = {call};", f"{ind}if ({r}.resp() == 0) {{"]
+        for a, n, piece in pieces:
+            if a in opts:
+                out.append(put(_arg(opts[a]), f"{r}.{piece}().getBytes(CS)", f"WEB EXTRACT {a}"))
+                out.append(store(n, f"{r}.{piece}().length()"))
+        if "PORTNUMBER" in opts:
+            out.append(store("PORTNUMBER", f"{r}.port()"))
+        if "SCHEME" in opts:
+            out.append(store("SCHEME", f"{r}.scheme()"))
+        if "REQUESTTYPE" in opts:
+            out.append(store("REQUESTTYPE", "1033"))
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 

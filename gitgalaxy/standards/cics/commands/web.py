@@ -337,7 +337,7 @@ _REQUEST = Fact(
     java="withHttpRequest",
     env="GGCICS_WEBREQ",
     region_default=None,
-    options=("FROM",),
+    options=("FROM", "DOCTOKEN"),
 )
 _NO_REQUEST = RuntimeRefusal(
     "the inbound HTTP request the task serves is not stated for the task",
@@ -354,6 +354,7 @@ WEB_SEND = Command(
     options={
         "FROM": Arg("area_in"),
         "FROMLENGTH": Arg("value"),
+        "DOCTOKEN": Arg("area_in", width=16),
         "MEDIATYPE": Arg("area_in", width=56),
         "ACTION": Arg("cvda"),
         "STATUSCODE": Arg("value"),
@@ -364,7 +365,6 @@ WEB_SEND = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "DOCTOKEN": Refusal("a document as the response body is not modelled", "X37"),
         "CONTAINER": Refusal("a container as the response body is not modelled", "X37"),
         "CHANNEL": Refusal("a container as the response body is not modelled", "X37"),
         "CHUNKING": Refusal("a chunked response is not modelled", "X37"),
@@ -378,17 +378,24 @@ WEB_SEND = Command(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
         "CLOSESTATUS": Refusal("closing the connection after the response is not modelled", "X37"),
-        "DOCSTATUS": Refusal("a document as the response body is not modelled", "X37"),
+        "DOCSTATUS": Refusal(
+            "what becomes of the document after it is sent (DOCDELETE / DOCRETAIN) is not modelled", "X37"
+        ),
         "LENGTH": Refusal("LENGTH is kept for upgrade only (STATUSLEN replaces it): not modelled", "X37"),
     },
     default_refusal=Refusal(
-        "only FROM / FROMLENGTH, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / NOSRVCONVERT are "
-        "modelled",
+        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / "
+        "NOSRVCONVERT are modelled",
         "X37",
     ),
     groups=(
-        required("FROM", msg="WEB SEND without FROM: only a response body from the program's area is modelled"),
-        requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH", both_ways=True),
+        one_of(
+            "FROM",
+            "DOCTOKEN",
+            msg="WEB SEND needs one of FROM and DOCTOKEN: only a response body from the program's area or a document is modelled",
+        ),
+        requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH"),
+        requires(("FROMLENGTH",), ("FROM",), msg="WEB SEND FROMLENGTH without FROM"),
         requires(("STATUSLEN",), ("STATUSTEXT",), msg="WEB SEND STATUSLEN without STATUSTEXT"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB SEND with both SRVCONVERT and NOSRVCONVERT"),
     ),
@@ -416,6 +423,12 @@ WEB_SEND = Command(
             c="WEB SEND",
         ),
         RuntimeRefusal(
+            "a DOCTOKEN that names no document the task created",
+            "X37",
+            java="WEB SEND DOCTOKEN of a document the task did not create",
+            c="WEB SEND DOCTOKEN of a document the task did not create",
+        ),
+        RuntimeRefusal(
             "a length past its area (FROMLENGTH, STATUSLEN): CICS reads the storage that follows it, which GnuCOBOL lays out "
             "unlike IBM's compiler",
             "X37",
@@ -426,4 +439,273 @@ WEB_SEND = Command(
     event="WEB-SEND",
 )
 
-COMMANDS = (WEB_OPEN, WEB_CONVERSE, WEB_CLOSE, WEB_PARSE_URL, WEB_SEND)
+# ---- the server reading the request it serves (register X38) ---------------------------------------------------------
+_NO_REQUEST_READ = RuntimeRefusal(
+    "the inbound HTTP request the task serves is not stated for the task",
+    "X38",
+    java="the HTTP request is not stated (withHttpRequest)",
+    c="the HTTP request is not stated for this task",
+)
+_NOT_BYTES = "a length past its area: CICS reads or writes the storage that follows it, which GnuCOBOL lays out unlike IBM's compiler"
+
+WEB_EXTRACT = Command(
+    key="WEB EXTRACT",
+    ibm=ibm("EXEC CICS WEB EXTRACT", "summary-web-extract"),
+    status="modelled",
+    register="X38",
+    options={
+        "SCHEME": Arg("area_out", width=4, binary=True),
+        "HOST": Arg("area_out"),
+        "HOSTLENGTH": Arg("area_inout", binary=True),
+        "HTTPMETHOD": Arg("area_out"),
+        "METHODLENGTH": Arg("area_inout", binary=True),
+        "HTTPVERSION": Arg("area_out"),
+        "VERSIONLEN": Arg("area_inout", binary=True),
+        "PATH": Arg("area_out"),
+        "PATHLENGTH": Arg("area_inout", binary=True),
+        "PORTNUMBER": Arg("area_out", width=4, binary=True),
+        "QUERYSTRING": Arg("area_out"),
+        "QUERYSTRLEN": Arg("area_inout", binary=True),
+        "REQUESTTYPE": Arg("area_out", width=4, binary=True),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "SESSTOKEN": Refusal("the client form (a connection's host, version and default path) is not modelled", "X38"),
+        "REALM": Refusal("the client form (a 401's realm) is not modelled", "X38"),
+        "REALMLEN": Refusal("the client form (a 401's realm) is not modelled", "X38"),
+        "HOSTTYPE": Refusal("the address format of the host is not stated by the request", "X38"),
+        "URIMAP": Refusal("the URIMAP the request matched is not stated by the request", "X38"),
+    },
+    default_refusal=Refusal(
+        "only SCHEME, HOST / HOSTLENGTH, HTTPMETHOD / METHODLENGTH, HTTPVERSION / VERSIONLEN, PATH / PATHLENGTH, "
+        "PORTNUMBER, QUERYSTRING / QUERYSTRLEN and REQUESTTYPE are modelled",
+        "X38",
+    ),
+    groups=(
+        requires(("HOST",), ("HOSTLENGTH",), msg="WEB EXTRACT HOST without HOSTLENGTH", both_ways=True),
+        requires(("HTTPMETHOD",), ("METHODLENGTH",), msg="WEB EXTRACT HTTPMETHOD without METHODLENGTH", both_ways=True),
+        requires(("HTTPVERSION",), ("VERSIONLEN",), msg="WEB EXTRACT HTTPVERSION without VERSIONLEN", both_ways=True),
+        requires(("PATH",), ("PATHLENGTH",), msg="WEB EXTRACT PATH without PATHLENGTH", both_ways=True),
+        requires(("QUERYSTRING",), ("QUERYSTRLEN",), msg="WEB EXTRACT QUERYSTRING without QUERYSTRLEN", both_ways=True),
+    ),
+    outcomes=(
+        Outcome(
+            "NORMAL",
+            0,
+            "",
+            writes=(
+                "SCHEME",
+                "HOST",
+                "HOSTLENGTH",
+                "HTTPMETHOD",
+                "METHODLENGTH",
+                "HTTPVERSION",
+                "VERSIONLEN",
+                "PATH",
+                "PATHLENGTH",
+                "PORTNUMBER",
+                "QUERYSTRING",
+                "QUERYSTRLEN",
+                "REQUESTTYPE",
+            ),
+        ),
+        Outcome("LENGERR", 4, "The method is longer than METHODLENGTH", raised_by=("METHODLENGTH",)),
+        Outcome("LENGERR", 5, "PATHLENGTH not greater than zero", raised_by=("PATHLENGTH",)),
+        Outcome("LENGERR", 6, "The HTTP version is longer than VERSIONLEN", raised_by=("VERSIONLEN",)),
+        Outcome("LENGERR", 7, "VERSIONLEN not greater than zero", raised_by=("VERSIONLEN",)),
+        Outcome("LENGERR", 8, "The query string is longer than QUERYSTRLEN", raised_by=("QUERYSTRLEN",)),
+        Outcome("LENGERR", 21, "HOSTLENGTH not greater than zero", raised_by=("HOSTLENGTH",)),
+        Outcome("LENGERR", 29, "The host name is longer than HOSTLENGTH", raised_by=("HOSTLENGTH",)),
+        Outcome("LENGERR", 30, "The path is longer than PATHLENGTH", raised_by=("PATHLENGTH",)),
+    ),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("SCHEME",)),
+    ),
+    runtime_refusals=(
+        _NO_REQUEST_READ,
+        RuntimeRefusal(
+            "a LENGERR on a piece longer than its length (IBM truncates but does not say what the length option then "
+            "holds), a METHODLENGTH or QUERYSTRLEN not above zero (IBM lists no condition), more than one condition at once",
+            "X38",
+            java="WEB EXTRACT",
+            c="WEB EXTRACT",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES, "X38", java="WEB EXTRACT length beyond its area", c="WEB EXTRACT length beyond its area"
+        ),
+    ),
+)
+
+WEB_RECEIVE = Command(
+    key="WEB RECEIVE",
+    ibm=ibm("EXEC CICS WEB RECEIVE (server)", "summary-web-receive-server"),
+    status="modelled",
+    register="X38",
+    options={
+        "INTO": Arg("area_out"),
+        "LENGTH": Arg("area_out", width=4, binary=True),
+        "MAXLENGTH": Arg("value"),
+        "MEDIATYPE": Arg("area_out", width=56),
+        "SRVCONVERT": Arg("flag"),
+        "NOSRVCONVERT": Arg("flag"),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "SET": Refusal(
+            "a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled",
+            "X38",
+        ),
+        "NOTRUNCATE": Refusal("a body kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X38"),
+        "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
+        "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
+        "CHARACTERSET": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
+        "HOSTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
+        "CLNTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
+        "SERVERCONV": Refusal("the values of SERVERCONV are not documented", "X38"),
+        "BODYCHARSET": Refusal("the body's character set is not stated", "X38"),
+        "TYPE": Refusal("TYPE (HTTPYES / HTTPNO) is not modelled: a stated request is always an HTTP request", "X38"),
+    },
+    default_refusal=Refusal(
+        "only INTO / LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
+    ),
+    groups=(
+        required("INTO", msg="WEB RECEIVE without INTO: only a body into the program's area is modelled"),
+        requires(("INTO",), ("MAXLENGTH",), msg="WEB RECEIVE INTO without MAXLENGTH (IBM: INVREQ RESP2 16)"),
+        at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB RECEIVE with both SRVCONVERT and NOSRVCONVERT"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "MEDIATYPE")),
+        Outcome("LENGERR", 16, "MAXLENGTH less than or equal to zero", raised_by=("MAXLENGTH",)),
+        Outcome(
+            "LENGERR",
+            57,
+            "The body exceeds the length specified and the remainder was discarded",
+            writes=("INTO", "LENGTH", "MEDIATYPE"),
+        ),
+    ),
+    facts=(Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO",)),),
+    runtime_refusals=(
+        _NO_REQUEST_READ,
+        RuntimeRefusal(
+            "a request with no body, a second WEB RECEIVE (IBM does not say what a body already received returns again)",
+            "X38",
+            java="WEB RECEIVE",
+            c="WEB RECEIVE",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES, "X38", java="WEB RECEIVE length beyond its area", c="WEB RECEIVE length beyond its area"
+        ),
+    ),
+)
+
+WEB_READ_HTTPHEADER = Command(
+    key="WEB READ HTTPHEADER",
+    ibm=ibm("EXEC CICS WEB READ HTTPHEADER", "summary-web-read-httpheader"),
+    status="modelled",
+    register="X38",
+    options={
+        "HTTPHEADER": Arg("area_in"),
+        "NAMELENGTH": Arg("value"),
+        "VALUE": Arg("area_out"),
+        "VALUELENGTH": Arg("area_inout", binary=True),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "SESSTOKEN": Refusal("the client form (a response's headers) is not modelled", "X38"),
+    },
+    default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
+    groups=(
+        required("HTTPHEADER", msg="WEB READ HTTPHEADER without the header name"),
+        required("NAMELENGTH", msg="WEB READ HTTPHEADER without NAMELENGTH"),
+        required("VALUE", msg="WEB READ HTTPHEADER without VALUE"),
+        required("VALUELENGTH", msg="WEB READ HTTPHEADER without VALUELENGTH"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("VALUE", "VALUELENGTH")),
+        Outcome("INVREQ", 43, "No HTTP headers found"),
+        Outcome("LENGERR", 1, "VALUELENGTH not greater than zero", raised_by=("VALUELENGTH",)),
+        Outcome("LENGERR", 2, "The value is longer than VALUELENGTH", raised_by=("VALUELENGTH",)),
+        Outcome("NOTFND", 1, "No header with the given name was found"),
+    ),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("HTTPHEADER",)),
+    ),
+    runtime_refusals=(
+        _NO_REQUEST_READ,
+        RuntimeRefusal(
+            "a header found only when the names are compared without case, two headers of the same name, a NAMELENGTH "
+            "not above zero (IBM lists the condition for a client only), a value longer than VALUELENGTH (LENGERR 2: "
+            "what VALUELENGTH then holds is not stated), more than one condition at once",
+            "X38",
+            java="WEB READ HTTPHEADER",
+            c="WEB READ HTTPHEADER",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES,
+            "X38",
+            java="WEB READ HTTPHEADER length beyond its area",
+            c="WEB READ HTTPHEADER length beyond its area",
+        ),
+    ),
+)
+
+WEB_WRITE_HTTPHEADER = Command(
+    key="WEB WRITE HTTPHEADER",
+    ibm=ibm("EXEC CICS WEB WRITE HTTPHEADER", "summary-web-write-httpheader"),
+    status="modelled",
+    register="X38",
+    options={
+        "HTTPHEADER": Arg("area_in"),
+        "NAMELENGTH": Arg("value"),
+        "VALUE": Arg("area_in"),
+        "VALUELENGTH": Arg("value"),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "SESSTOKEN": Refusal("the client form (a request's headers) is not modelled", "X38"),
+    },
+    default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
+    groups=(
+        required("HTTPHEADER", msg="WEB WRITE HTTPHEADER without the header name"),
+        required("NAMELENGTH", msg="WEB WRITE HTTPHEADER without NAMELENGTH"),
+        required("VALUE", msg="WEB WRITE HTTPHEADER without VALUE"),
+        required("VALUELENGTH", msg="WEB WRITE HTTPHEADER without VALUELENGTH"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("LENGERR", 35, "NAMELENGTH not greater than zero", raised_by=("NAMELENGTH",)),
+        Outcome("LENGERR", 55, "VALUELENGTH not greater than zero or greater than 32000", raised_by=("VALUELENGTH",)),
+    ),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("HTTPHEADER",)),
+    ),
+    runtime_refusals=(
+        _NO_REQUEST_READ,
+        RuntimeRefusal(
+            "a header written after the response was sent, a name that is blank or holds a blank or a colon, more than one "
+            "condition at once",
+            "X38",
+            java="WEB WRITE HTTPHEADER",
+            c="WEB WRITE HTTPHEADER",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES,
+            "X38",
+            java="WEB WRITE HTTPHEADER length beyond its area",
+            c="WEB WRITE HTTPHEADER length beyond its area",
+        ),
+    ),
+    event="WEB-HEADER",
+)
+
+COMMANDS = (
+    WEB_OPEN,
+    WEB_CONVERSE,
+    WEB_CLOSE,
+    WEB_PARSE_URL,
+    WEB_SEND,
+    WEB_EXTRACT,
+    WEB_RECEIVE,
+    WEB_READ_HTTPHEADER,
+    WEB_WRITE_HTTPHEADER,
+)

@@ -2707,6 +2707,40 @@ int GGCGCNT(gg_cics *c) {
     return 0;
 }
 
+/* GET DCOUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER and GET DCOUNTER; X30): the
+ * value before the increment is written big-endian (unsigned doubleword) into `value`, after which the counter is the
+ * increment more. WRAP changes nothing here (it acts at the counter's maximum, which the run does not state): a counter that
+ * would pass 4294967295 is refused, as an increment not above zero. As CicsTask.getCounter(pool, name, increment). */
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    unsigned long long incr = 0;
+    int i;
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    if (inclen > 8 || valuelen != 8) refuse("GET DCOUNTER with a VALUE or INCREMENT that is not a doubleword");
+    for (i = 0; i < inclen; i++) incr = incr * 256 + inc[i];
+    if (incr == 0 || incr > 4294967295ULL) refuse(incr == 0 ? "GET COUNTER with an INCREMENT not above zero"
+                                                  : "GET COUNTER past 4294967295: the counter's maximum is not stated");
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        unsigned long long v = (unsigned long long)rows[at].value;
+        if (v + incr > 4294967295ULL) refuse("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        for (i = 7; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
+        rows[at].value += (long long)incr;
+        counters_write(rows, n);
+    }
+    return 0;
+}
+
 /* QUERY COUNTER(qname) POOL(name1) VALUE (#4415 slice 2, register X29; IBM, EXEC CICS QUERY COUNTER): the named counter's
  * current value in GG-NUM, unchanged; a counter not there is INVREQ RESP2 201 "Named counter not found". A value beyond
  * a fullword (IBM's LENGERR) is refused. */
@@ -3363,19 +3397,12 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
  * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
 static int web_sent = 0;
 
-int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap) {
+static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
-    int fl = c->len, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
-    const char *env = getenv("GGCICS_WEBREQ");
-    FILE *f;
-    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
-    fclose(f);
-    if (web_sent) refuse("WEB SEND after a response was sent");
+    int action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
     hasm = strstr(flags, "MEDIA") != NULL;
     hast = strstr(flags, "STEXT") != NULL;
-    if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
-    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
     if (status != -1 && (status < 100 || status > 599)) refuse("WEB SEND STATUSCODE outside 100-599");
     if (hasm) {
         mtl = mediacap < 56 ? mediacap : 56;
@@ -3394,7 +3421,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     c->resp = NORMAL;
     c->resp2 = 0;
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
-    if (status == 204 || status == 205 || status == 304) { c->resp = INVREQ; c->resp2 = 72; conds++; }
+    if ((status == 204 || status == 205 || status == 304) && fl > 0) { c->resp = INVREQ; c->resp2 = 72; conds++; }
     if (conds > 1) refuse("WEB SEND with more than one condition at once");
     if (conds == 1) return 0;
     if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
@@ -3404,5 +3431,215 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=IMMEDIATE resp=0 resp2=0",
              status == -1 ? 200 : status, hx[1], hx[0]);
     event(ev, from, fl);
+    return 0;
+}
+
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41];
+    int fl = c->len, sl = c->hours, hast;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap);
+}
+
+/* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
+ * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. As
+ * CicsTask.webSendDocument. */
+int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], want[100];
+    int sl = c->hours, hast, i;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    trim(tok, toklen < 99 ? toklen : 99, want);
+    for (i = 0; i < ndocs; i++) {
+        char t[17];
+        snprintf(t, sizeof t, "GGDOC%011d", i + 1);
+        if (strcmp(t, want) == 0) break;
+    }
+    if (i == ndocs) refuse("WEB SEND DOCTOKEN of a document the task did not create");
+    if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
+    return web_send_body(c, (const char *)docs[i], doc_len[i], media, mediacap, stext, stextcap);
+}
+
+/* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ
+ * HTTPHEADER, WEB WRITE HTTPHEADER; register X38) ----
+ * The request is the file $GGCICS_WEBREQ names (unstated, each command is refused): `R SCHEME HOSTHEX PORT METHOD PATHHEX
+ * QUERYHEX|-`, `V VERSIONHEX`, `B MEDIAHEX BODYHEX|-` (none: no body) and a `H NAMEHEX VALUEHEX|-` line per header. As
+ * CicsTask.webExtract / webReceive / webReadHeader / webWriteHeader answer. */
+#define WEB_MAXH 64
+static struct { int loaded, hasbody, nh; char scheme[8], host[WEB_TXT], method[16], path[WEB_TXT], query[WEB_TXT],
+                version[64], media[WEB_TXT], *body; int port, bodylen; char hname[WEB_MAXH][256];
+                char *hval[WEB_MAXH]; } webreq;
+static int web_received = 0;
+
+static void webreq_load(void) {
+    const char *env = getenv("GGCICS_WEBREQ");
+    static char line[70000], a[8][33000];
+    FILE *f;
+    if (webreq.loaded) return;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    while (fgets(line, sizeof line, f)) {
+        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s", a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+        if (k == 7 && strcmp(a[0], "R") == 0) {
+            snprintf(webreq.scheme, sizeof webreq.scheme, "%s", a[1]);
+            web_unhex(a[2], webreq.host, WEB_TXT);
+            webreq.port = atoi(a[3]);
+            snprintf(webreq.method, sizeof webreq.method, "%s", a[4]);
+            web_unhex(a[5], webreq.path, WEB_TXT);
+            web_unhex(a[6], webreq.query, WEB_TXT);
+        } else if (k == 2 && strcmp(a[0], "V") == 0) {
+            web_unhex(a[1], webreq.version, (int)sizeof webreq.version);
+        } else if (k == 3 && strcmp(a[0], "B") == 0) {
+            webreq.hasbody = 1;
+            web_unhex(a[1], webreq.media, WEB_TXT);
+            webreq.body = malloc(strlen(a[2]) / 2 + 2);
+            if (!webreq.body) refuse("out of memory");
+            webreq.bodylen = web_unhex(a[2], webreq.body, (int)strlen(a[2]) / 2 + 2);
+        } else if (k == 3 && strcmp(a[0], "H") == 0 && webreq.nh < WEB_MAXH) {
+            int n = web_unhex(a[1], webreq.hname[webreq.nh], 256);
+            webreq.hname[webreq.nh][n] = '\0';
+            webreq.hval[webreq.nh] = malloc(strlen(a[2]) / 2 + 2);
+            if (!webreq.hval[webreq.nh]) refuse("out of memory");
+            web_unhex(a[2], webreq.hval[webreq.nh], (int)strlen(a[2]) / 2 + 2);
+            webreq.nh++;
+        }
+    }
+    fclose(f);
+    webreq.loaded = 1;
+}
+
+/* GG-LEN HOSTLENGTH, GG-HOURS METHODLENGTH, GG-MINS VERSIONLEN, GG-SECS PATHLENGTH, GG-ITEM QUERYSTRLEN (each in; out: the
+ * piece's length); GG-FLAGS names HOST METHOD VERSION PATH QUERY given; out: GG-NUM the port, GG-NAME1 the scheme. */
+int GGCWEXT(gg_cics *c, char *host, int hostcap, char *method, int methodcap, char *version, int versioncap, char *path,
+            int pathcap, char *query, int querycap) {
+    char flags[41];
+    int hs, hm, hv, hp, hq, hl = c->len, ml = c->hours, vl = c->mins, pl = c->secs, ql = c->item, conds = 0;
+    webreq_load();
+    trim(c->flags, 40, flags);
+    hs = strstr(flags, "HOST") != NULL;
+    hm = strstr(flags, "METHOD") != NULL;
+    hv = strstr(flags, "VERSION") != NULL;
+    hp = strstr(flags, "PATH") != NULL;
+    hq = strstr(flags, "QUERY") != NULL;
+    if ((hs && hl > hostcap) || (hm && ml > methodcap) || (hv && vl > versioncap) || (hp && pl > pathcap)
+        || (hq && ql > querycap)) refuse("WEB EXTRACT length beyond its area");
+    if ((hm && ml <= 0) || (hq && ql <= 0)) refuse("WEB EXTRACT METHODLENGTH or QUERYSTRLEN not above zero");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (hs && hl <= 0) { c->resp = LENGERR; c->resp2 = 21; conds++; }
+    if (hp && pl <= 0) { c->resp = LENGERR; c->resp2 = 5; conds++; }
+    if (hv && vl <= 0) { c->resp = LENGERR; c->resp2 = 7; conds++; }
+    if (conds > 1) refuse("WEB EXTRACT with more than one condition at once");
+    if (conds == 1) return 0;
+    if ((hs && (int)strlen(webreq.host) > hl) || (hm && (int)strlen(webreq.method) > ml)
+        || (hv && (int)strlen(webreq.version) > vl) || (hp && (int)strlen(webreq.path) > pl)
+        || (hq && (int)strlen(webreq.query) > ql)) refuse("WEB EXTRACT piece longer than its length");
+    if (hs) { memcpy(host, webreq.host, strlen(webreq.host)); c->len = (int)strlen(webreq.host); }
+    if (hm) { memcpy(method, webreq.method, strlen(webreq.method)); c->hours = (int)strlen(webreq.method); }
+    if (hv) { memcpy(version, webreq.version, strlen(webreq.version)); c->mins = (int)strlen(webreq.version); }
+    if (hp) { memcpy(path, webreq.path, strlen(webreq.path)); c->secs = (int)strlen(webreq.path); }
+    if (hq) { memcpy(query, webreq.query, strlen(webreq.query)); c->item = (int)strlen(webreq.query); }
+    c->num = webreq.port;
+    memset(c->name1, ' ', sizeof c->name1);
+    memcpy(c->name1, webreq.scheme, strlen(webreq.scheme));
+    return 0;
+}
+
+/* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
+int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
+    char flags[41];
+    int hm, maxl = c->num, n;
+    webreq_load();
+    trim(c->flags, 40, flags);
+    hm = strstr(flags, "MEDIA") != NULL;
+    if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
+    if (web_received) refuse("a second WEB RECEIVE");
+    if (maxl > intocap) refuse("WEB RECEIVE length beyond its area");
+    if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    web_received = 1;
+    n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
+    if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
+    memcpy(into, webreq.body, (size_t)n);
+    c->len = n;
+    if (hm) {
+        if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
+        memset(media, ' ', 56);
+        memcpy(media, webreq.media, strlen(webreq.media));
+    }
+    return 0;
+}
+
+/* GG-LEN NAMELENGTH, GG-NUM VALUELENGTH (in; out: the value's length); the value into `value`. */
+int GGCWRDH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
+    int nl = c->len, vl = c->num, i, found = -1, nfound = 0, ci = 0, conds = 0;
+    char n[257];
+    webreq_load();
+    if (nl <= 0 || nl > namecap || nl > 256) refuse("WEB READ HTTPHEADER NAMELENGTH not above zero or past its area");
+    if (vl > valuecap) refuse("WEB READ HTTPHEADER length beyond its area");
+    memcpy(n, name, (size_t)nl);
+    n[nl] = '\0';
+    for (i = 0; i < webreq.nh; i++) {
+        if (strcmp(webreq.hname[i], n) == 0) { found = i; nfound++; }
+        else if (strlen(webreq.hname[i]) == strlen(n)) {
+            size_t j;
+            int same = 1;
+            for (j = 0; j < strlen(n); j++) if (tolower((unsigned char)webreq.hname[i][j]) != tolower((unsigned char)n[j])) same = 0;
+            if (same) ci = 1;
+        }
+    }
+    if (nfound == 0 && ci) refuse("WEB READ HTTPHEADER header name found only without case");
+    if (nfound > 1) refuse("WEB READ HTTPHEADER two headers of the name");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (webreq.nh == 0) { c->resp = INVREQ; c->resp2 = 43; conds++; }
+    else if (nfound == 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
+    if (vl <= 0) { c->resp = LENGERR; c->resp2 = 1; conds++; }
+    if (conds > 1) refuse("WEB READ HTTPHEADER with more than one condition at once");
+    if (conds == 1) return 0;
+    if ((int)strlen(webreq.hval[found]) > vl) refuse("WEB READ HTTPHEADER value longer than VALUELENGTH");
+    memcpy(value, webreq.hval[found], strlen(webreq.hval[found]));
+    c->num = (int)strlen(webreq.hval[found]);
+    return 0;
+}
+
+/* GG-LEN NAMELENGTH, GG-NUM VALUELENGTH. Recorded as WEB-HEADER. */
+int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
+    int nl = c->len, vl = c->num, conds = 0, i;
+    char hx[2][WEB_TXT * 2 + 2];
+    webreq_load();
+    if (web_sent) refuse("WEB WRITE HTTPHEADER after the response was sent");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (nl <= 0) { c->resp = LENGERR; c->resp2 = 35; conds++; }
+    if (vl <= 0 || vl > 32000) { c->resp = LENGERR; c->resp2 = 55; conds++; }
+    if (conds > 1) refuse("WEB WRITE HTTPHEADER with more than one condition at once");
+    if (conds == 1) return 0;
+    if (nl > namecap || vl > valuecap) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    if (nl >= WEB_TXT || vl >= WEB_TXT) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    for (i = 0; i < nl; i++)
+        if (name[i] == ' ' || name[i] == ':') refuse("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
+    web_hex(name, nl, hx[0]);
+    web_hex(value, vl, hx[1]);
+    {
+        char ev[WEB_TXT * 4 + 100];
+        snprintf(ev, sizeof ev, "WEB-HEADER name=%s value=%s resp=0 resp2=0", hx[0], hx[1]);
+        event(ev, NULL, 0);
+    }
     return 0;
 }

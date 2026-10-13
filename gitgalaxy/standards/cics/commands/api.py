@@ -75,8 +75,15 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("GETNEXT PROCESS", None, _BTS),
     ("GETNEXT TIMER", None, _BTS),
     ("INQUIRE ACTIVITYID", None, _BTS),
-    # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE): no channel form (#5005)
-    ("INQUIRE CONTAINER", None, _BTS),
+    # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE / DATALENGTH / SET): no
+    # channel or browse form (the channel browse is STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER, X42) (#5005, X44)
+    (
+        "INQUIRE CONTAINER",
+        None,
+        "IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE); BTS is not "
+        "modelled and there is no channel form (a channel's container names come from STARTBROWSE CONTAINER, its length "
+        "from GET CONTAINER NODATA FLENGTH)",
+    ),
     ("INQUIRE EVENT", None, _BTS),
     ("INQUIRE PROCESS", None, _BTS),
     ("INQUIRE TIMER", None, _BTS),

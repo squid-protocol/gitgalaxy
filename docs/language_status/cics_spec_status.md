@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 87 full, 2 engine-only, 166 name-only.
+**255 entries:** 89 full, 2 engine-only, 164 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 

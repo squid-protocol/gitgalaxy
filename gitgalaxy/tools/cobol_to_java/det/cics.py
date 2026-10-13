@@ -1160,6 +1160,7 @@ class Cics:
             return self.web_send(key, opts, ind)
         if key in (
             "WEB EXTRACT",
+            "EXTRACT WEB",
             "WEB RECEIVE",
             "WEB READ HTTPHEADER",
             "WEB WRITE HTTPHEADER",
@@ -1168,6 +1169,8 @@ class Cics:
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):  # #4767 / #4940 (X38), #4941 (X41)
             return self.web_request(key, opts, ind)
+        if key == "EXTRACT TCPIP":  # #4972 (X38): the connection the run states
+            return self.extract_tcpip(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
         known = whole_refusal(key, verb, next(iter(opts), None))
@@ -1467,6 +1470,53 @@ class Cics:
             out.append(store("SCHEME", f"{r}.scheme()"))
         if "REQUESTTYPE" in opts:
             out.append(store("REQUESTTYPE", "1033"))
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def extract_tcpip(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#4972 (register X38): EXTRACT TCPIP (IBM CICS TS, EXEC CICS EXTRACT TCPIP) over the connection the run states
+        (CicsTask.withTcpip). CicsTask.extractTcpip takes each address / name area's length option (an area asked for whose
+        length option is missing: 0, LENGERR RESP2 1) and its size; on NORMAL the bytes at each area's start (the rest left
+        alone), the lengths, the address numbers, the IPv4 CVDA (300), the port and the SSL type's CVDA."""
+        g = self.g
+        r = g.tmpname("tcp")
+        pieces = (("CLIENTADDR", "CADDRLENGTH", "clientAddr"), ("CLIENTNAME", "CNAMELENGTH", "clientName"),
+                  ("SERVERADDR", "SADDRLENGTH", "serverAddr"), ("SERVERNAME", "SNAMELENGTH", "serverName"))  # fmt: skip
+        for a, n, _ in pieces:
+            if n in opts and a not in opts:
+                raise CicsError(_requires(key, n, a))
+
+        def length(a: str, n: str) -> str:
+            if a not in opts:
+                return "null"
+            return f"Integer.valueOf({self.int_(_arg(opts[n]))})" if n in opts else "Integer.valueOf(0)"
+
+        def cap(a: str) -> str:
+            return str(self.size(_arg(opts[a]))) if a in opts else "0"
+
+        def store(o: str, value: str) -> str:
+            return f"{ind}    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({value})", False)
+
+        args = ", ".join(f"{length(a, n)}, {cap(a)}" for a, n, _ in pieces)
+        flags = ", ".join(
+            str(o in opts).lower() for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY")
+        )
+        out = [
+            f"{ind}CicsTask.TcpipExtracted {r} = task.extractTcpip({args}, {flags});",
+            f"{ind}if ({r}.resp() == 0) {{",
+        ]
+        for a, n, piece in pieces:
+            if a in opts:
+                f = self.field(_arg(opts[a]))
+                data = f"{r}.{piece}().getBytes(CS)"
+                out.append(f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("EXTRACT TCPIP {a} beyond '
+                           f'its area: not modelled"); DetCics.put({f}, {data});')  # fmt: skip
+                if n in opts:
+                    out.append(store(n, f"{r}.{piece}().length()"))
+        for o, value in (("CLIENTADDRNU", f"{r}.clientNu()"), ("SERVERADDRNU", f"{r}.serverNu()"), ("CLNTIPFAMILY", "300"),
+                         ("SRVRIPFAMILY", "300"), ("PORTNUMNU", f"{r}.port()"), ("SSLTYPE", f"{r}.ssl()")):  # fmt: skip
+            if o in opts:
+                out.append(store(o, value))
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 

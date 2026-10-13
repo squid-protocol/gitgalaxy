@@ -1308,6 +1308,107 @@ public class CicsTask {
                 q.version(), q.path(), q.query());
     }
 
+    // #4972 (register X38): EXTRACT TCPIP, the connection the task was started on, which whoever runs the task STATES.
+    /** The TCP/IP connection the task serves: the client's and the server's IPv4 address (dotted decimal), the client's and
+     *  the server's name as the DNS knows it (null: the DNS knows none), the port that received the request and the SSL
+     *  type (SSL, NOSSL, CLIENTAUTH or ATTLSAWARE). EXTRACT TCPIP needs it stated (X38). */
+    public record Tcpip(String clientAddr, String clientName, String serverAddr, String serverName, int port,
+                        String sslType) {
+    }
+
+    private Tcpip tcpip;
+
+    /** The TCP/IP connection this task serves. Not stated (never called), EXTRACT TCPIP is refused. */
+    public CicsTask withTcpip(Tcpip connection) {
+        this.tcpip = connection;
+        return this;
+    }
+
+    /** EXTRACT TCPIP's outcome: RESP, RESP2 and, on NORMAL, what the stated connection holds (names null when the DNS
+     *  knows none); the address numbers are the IPv4 address as a signed fullword. */
+    public record TcpipExtracted(int resp, int resp2, String clientAddr, String clientName, String serverAddr,
+                                 String serverName, int clientNu, int serverNu, int port, int ssl) {
+    }
+
+    /** An IPv4 address in dotted decimal as a number (-1: it is not one; four decimal parts 0-255 without a leading zero). */
+    private static long ipv4Value(String addr) {
+        String[] part = addr == null ? new String[0] : addr.split("[.]", -1);
+        long value = 0;
+        if (part.length != 4) {
+            return -1;
+        }
+        for (String p : part) {
+            if (p.isEmpty() || p.length() > 3 || (p.length() > 1 && p.charAt(0) == '0')) {
+                return -1;
+            }
+            int n = 0;
+            for (int i = 0; i < p.length(); i++) {
+                int d = p.charAt(i) - '0';
+                if (d < 0 || d > 9) {
+                    return -1;
+                }
+                n = n * 10 + d;
+            }
+            if (n > 255) {
+                return -1;
+            }
+            value = value * 256 + n;
+        }
+        return value;
+    }
+
+    /** EXTRACT TCPIP (IBM CICS TS, EXEC CICS EXTRACT TCPIP; register X38) over the stated connection. Each *Length is the
+     *  option's value (null: the area is not asked for; 0 for an area asked for whose length option is missing) and each cap
+     *  its area's size. LENGERR RESP2 1 when an area asked for has a length not above zero. The client name: the DNS knows
+     *  none, length 0 and the area left alone (IBM: "zero if the DNS does not know the client"). Refused: no connection
+     *  stated, an address that is not IPv4 dotted decimal, an address number past a signed fullword, a server name the
+     *  connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7: IBM does not say what
+     *  the length or the area then holds), a length past its area, two conditions at once. */
+    public TcpipExtracted extractTcpip(Integer cAddrLength, int cAddrCap, Integer cNameLength, int cNameCap,
+                                       Integer sAddrLength, int sAddrCap, Integer sNameLength, int sNameCap,
+                                       boolean clientNu, boolean serverNu, boolean clientFamily, boolean serverFamily) {
+        CicsTask r = root();
+        if (r.tcpip == null) {
+            throw refused("the TCP/IP connection is not stated (withTcpip)");
+        }
+        Tcpip t = r.tcpip;
+        if ((cAddrLength != null && cAddrLength > cAddrCap) || (cNameLength != null && cNameLength > cNameCap)
+                || (sAddrLength != null && sAddrLength > sAddrCap) || (sNameLength != null && sNameLength > sNameCap)) {
+            throw refused("EXTRACT TCPIP length beyond its area");
+        }
+        long cNum = ipv4Value(t.clientAddr());
+        long sNum = ipv4Value(t.serverAddr());
+        if (((cAddrLength != null || clientNu || clientFamily) && cNum < 0)
+                || ((sAddrLength != null || serverNu || serverFamily) && sNum < 0)
+                || (clientNu && cNum > Integer.MAX_VALUE) || (serverNu && sNum > Integer.MAX_VALUE)) {
+            throw refused("EXTRACT TCPIP address");
+        }
+        if (sNameLength != null && t.serverName() == null) {
+            throw refused("EXTRACT TCPIP");
+        }
+        boolean badLength = (cAddrLength != null && cAddrLength <= 0) || (cNameLength != null && cNameLength <= 0)
+                || (sAddrLength != null && sAddrLength <= 0) || (sNameLength != null && sNameLength <= 0);
+        String clientName = t.clientName() == null ? "" : t.clientName();
+        String serverName = t.serverName() == null ? "" : t.serverName();
+        boolean tooSmall = (cAddrLength != null && cAddrLength > 0 && t.clientAddr().length() > cAddrLength)
+                || (cNameLength != null && cNameLength > 0 && clientName.length() > cNameLength)
+                || (sAddrLength != null && sAddrLength > 0 && t.serverAddr().length() > sAddrLength)
+                || (sNameLength != null && sNameLength > 0 && serverName.length() > sNameLength);
+        if (badLength && tooSmall) {
+            throw refused("EXTRACT TCPIP with more than one condition at once");
+        }
+        if (badLength) {
+            return new TcpipExtracted(22, 1, null, null, null, null, 0, 0, 0, 0);
+        }
+        if (tooSmall) {
+            throw refused("EXTRACT TCPIP");
+        }
+        int ssl = "SSL".equals(t.sslType()) ? 1030 : "NOSSL".equals(t.sslType()) ? 1031
+                : "CLIENTAUTH".equals(t.sslType()) ? 1032 : 1205;  // (ATTLSAWARE)
+        return new TcpipExtracted(0, 0, t.clientAddr(), clientName, t.serverAddr(), serverName, (int) cNum, (int) sNum,
+                t.port(), ssl);
+    }
+
     /** WEB RECEIVE's outcome: RESP, RESP2 and, on NORMAL / LENGERR 57, the body returned (at most MAXLENGTH) and its media
      *  type, else null. */
     public record WebReceived(int resp, int resp2, String body, String mediaType) {

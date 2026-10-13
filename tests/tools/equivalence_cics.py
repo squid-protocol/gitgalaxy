@@ -738,6 +738,43 @@ def http_request_cfg(req: dict[str, Any], enc: str) -> str:
     return "".join(f"{ln}\n" for ln in lines)
 
 
+_TCPIP_KEYS = {"client_addr", "client_name", "server_addr", "server_name", "port", "ssl_type"}
+
+
+def tcpip(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
+    """#4972 (X38): the TCP/IP connection the task was started on -- the scenario's "tcpip", else the case's: {"client_addr",
+    "server_addr" (IPv4 dotted decimal: any other text is refused by both runtimes), "client_name", "server_name" (null: the
+    DNS knows none), "port", "ssl_type" ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE")}. Stated on both sides (the stub's
+    $GGCICS_TCPIP, CicsTask.withTcpip); EXTRACT TCPIP needs it. Unstated, None: both runtimes refuse it by name."""
+    conn = sc.get("tcpip", case.get("tcpip"))
+    if conn is None:
+        return None
+
+    def text(v: Any) -> bool:
+        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
+
+    ok = (isinstance(conn, dict) and set(conn) == _TCPIP_KEYS and text(conn["client_addr"]) and text(conn["server_addr"])
+          and (conn["client_name"] is None or text(conn["client_name"]))
+          and (conn["server_name"] is None or text(conn["server_name"]))
+          and isinstance(conn["port"], int) and 0 < conn["port"] <= 65535
+          and conn["ssl_type"] in ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE"))  # fmt: skip
+    if not ok:
+        raise Unsupported(f'scenario {sc.get("name")}: "tcpip" is {{client_addr, client_name, server_addr, server_name, '
+                          "port, ssl_type}", ["EXTRACT TCPIP"])  # fmt: skip
+    return conn
+
+
+def tcpip_cfg(conn: dict[str, Any], enc: str) -> str:
+    """#4972 (X38): the stub's $GGCICS_TCPIP file (ggcics.c tcpip_load): `T CLIENTADDR CLIENTNAMEHEX|- SERVERADDR
+    SERVERNAMEHEX|- PORT SSLTYPE`, the names in hex in the data's page."""
+
+    def hx(v: str | None) -> str:
+        return v.encode(enc).hex().upper() if v else "-"
+
+    return (f"T {conn['client_addr']} {hx(conn['client_name'])} {conn['server_addr']} {hx(conn['server_name'])} "
+            f"{conn['port']} {conn['ssl_type']}\n")  # fmt: skip
+
+
 def _web_requires(key: str, option: str, needed: str) -> str:
     """#4767: the message of the command's `requires` rule from `option` to `needed`, as the translator words it."""
     return next(
@@ -819,14 +856,13 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 
 
-def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str = "WEB EXTRACT") -> list[str]:
     """#4767 zECS (register X38): WEB EXTRACT (server) -> GGCWEXT (HOSTLENGTH / METHODLENGTH / VERSIONLEN / PATHLENGTH /
     QUERYSTRLEN in GG-LEN / GG-HOURS / GG-MINS / GG-SECS / GG-ITEM, each moved back as the piece's length; GG-FLAGS names HOST
     METHOD VERSION PATH QUERY given; the stub writes the pieces, the port in GG-NUM and the scheme in GG-NAME1), then on NORMAL
     the lengths, PORTNUMBER, SCHEME (a CVDA: 1096 HTTP, 1029 HTTPS) and REQUESTTYPE (1033 HTTPYES) moved to the program's
-    fields. The option rules as the det translator's."""
-    key = "WEB EXTRACT"
-    _check_spec(key, opts, ("WEB", "EXTRACT"), lambda bad: [f"{key} {o}" for o in bad])
+    fields. The option rules as the det translator's. #4972: EXTRACT WEB (`key`) is the same command, IBM's synonym."""
+    _check_spec(key, opts, tuple(key.split()), lambda bad: [f"{key} {o}" for o in bad])
     pieces = (("HOST", "HOSTLENGTH", "GG-LEN"), ("HTTPMETHOD", "METHODLENGTH", "GG-HOURS"),
               ("HTTPVERSION", "VERSIONLEN", "GG-MINS"), ("PATH", "PATHLENGTH", "GG-SECS"),
               ("QUERYSTRING", "QUERYSTRLEN", "GG-ITEM"))  # fmt: skip
@@ -858,6 +894,51 @@ def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[
         back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
     after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
     return lines + _call("GGCWEXT", args) + after + _resp(opts, True, labels)
+
+
+def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4972 zECS (register X38): EXTRACT TCPIP -> GGCTCPX (CADDRLENGTH / CNAMELENGTH / SADDRLENGTH / SNAMELENGTH in GG-LEN /
+    GG-HOURS / GG-MINS / GG-SECS, 0 for an area asked for whose length option is missing, each moved back as the piece's
+    length; GG-FLAGS names A1 N1 A2 N2 the areas given and U1 U2 F1 F2 the client / server address number and address
+    family asked for), then on NORMAL each number from GGCTCPN (CLIENTADDRNU, SERVERADDRNU, PORTNUMNU, SSLTYPE's CVDA)
+    and the families (IPV4, 300) moved to the program's fields. The option rules as the det translator's."""
+    key = "EXTRACT TCPIP"
+    _check_spec(key, opts, ("EXTRACT", "TCPIP"), lambda bad: [f"{key} {o}" for o in bad])
+    pieces = (("CLIENTADDR", "CADDRLENGTH", "GG-LEN", "A1"), ("CLIENTNAME", "CNAMELENGTH", "GG-HOURS", "N1"),
+              ("SERVERADDR", "SADDRLENGTH", "GG-MINS", "A2"), ("SERVERNAME", "SNAMELENGTH", "GG-SECS", "N2"))  # fmt: skip
+    for a, n, _, _ in pieces:
+        if n in opts and a not in opts:
+            raise Unsupported(_web_requires(key, n, a), [key])
+        if a in opts and (not opts[a] or _literal(opts[a])):
+            raise Unsupported(
+                NEEDS_ARGUMENT if not opts[a] else f"{key} {a} as a literal: a data area is the COBOL form", [key]
+            )
+        if n in opts and not opts[n]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    numbers = (("CLIENTADDRNU", "U1"), ("SERVERADDRNU", "U2"), ("CLNTIPFAMILY", "F1"), ("SRVRIPFAMILY", "F2"))
+    for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY", "PORTNUMNU", "SSLTYPE"):
+        if o in opts and not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    given = [w for a, _, _, w in pieces if a in opts] + [w for o, w in numbers if o in opts]
+    lines = [f"MOVE {(opts.get(n) or '0') if a in opts else '0'} TO {gg}" for a, n, gg, _ in pieces]
+    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
+    args = []
+    for a, _, _, _ in pieces:
+        area = opts.get(a) or "GG-QNAME"  # (an area not asked for: a placeholder the stub does not read)
+        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    back = [f"    MOVE {gg} TO {opts[n]}" for a, n, gg, _ in pieces if n in opts and a in opts]
+    for o, token in (("CLIENTADDRNU", "CNU"), ("SERVERADDRNU", "SNU"), ("PORTNUMNU", "PORT"), ("SSLTYPE", "SSL")):
+        if opts.get(o):
+            back += [
+                f"    MOVE '{token}' TO GG-FLAGS",
+                "    CALL 'GGCTCPN' USING GG-CICS",
+                f"    MOVE GG-NUM TO {opts[o]}",
+            ]
+    back += [
+        f"    MOVE 300 TO {opts[o]}" for o in ("CLNTIPFAMILY", "SRVRIPFAMILY") if opts.get(o)
+    ]  # (IPV4: IPv6 is refused)
+    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
+    return lines + _call("GGCTCPX", args) + after + _resp(opts, True, labels)
 
 
 def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -1282,6 +1363,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _web_send(opts, labels)
     if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
         return _web_extract(opts, labels)
+    if verb == "EXTRACT" and "WEB" in opts:  # #4972 (X38): the same, IBM's synonym
+        return _web_extract(opts, labels, "EXTRACT WEB")
+    if verb == "EXTRACT" and "TCPIP" in opts:  # #4972 (X38): the connection the task was started on
+        return _extract_tcpip(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
         return _web_receive(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
@@ -2551,6 +2636,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "http.cfg").write_text(http_peers_cfg(http_peers(case, sc), enc), encoding="ascii")
         if http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
             (d / "webreq.cfg").write_text(http_request_cfg(http_request(case, sc), enc), encoding="ascii")
+        if tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
+            (d / "tcpip.cfg").write_text(tcpip_cfg(tcpip(case, sc), enc), encoding="ascii")
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
@@ -2607,6 +2694,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
+                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -3731,6 +3819,13 @@ class EquivalenceRunTest {{
                         q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
                         q.hasNonNull("body") ? q.get("body").asText() : null));
             }}
+            if (sc.hasNonNull("tcpip")) {{  // #4972 (X38): the connection the task was started on
+                JsonNode q = sc.get("tcpip");
+                task.withTcpip(new CicsTask.Tcpip(q.get("client_addr").asText(),
+                        q.hasNonNull("client_name") ? q.get("client_name").asText() : null, q.get("server_addr").asText(),
+                        q.hasNonNull("server_name") ? q.get("server_name").asText() : null, q.get("port").asInt(),
+                        q.get("ssl_type").asText()));
+            }}
             if (sc.hasNonNull("http_peers")) {{  // #4767 zECS (X35): the HTTP servers the task can reach
                 java.util.List<CicsTask.HttpPeer> peers = new java.util.ArrayList<>();
                 for (JsonNode p : sc.get("http_peers")) {{
@@ -3998,7 +4093,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **terminal_facts(case, sc),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc)})  # fmt: skip
+                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2

@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 83 full, 2 engine-only, 170 name-only.
+**255 entries:** 85 full, 2 engine-only, 168 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -94,6 +94,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB PARSE URL | full | yes (13 options, 1 refused by name) | yes | X36 | — | 3 (3 / 0) | — |
 | WEB SEND | full | yes (13 options, 9 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
 | WEB EXTRACT | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 1 (1 / 0) | — |
+| EXTRACT WEB | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 0 | — |
+| EXTRACT TCPIP | full | yes (17 options, 7 refused by name) | yes | X38 | tcpip | 0 | — |
 | WEB RECEIVE | full | yes (9 options, 10 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
@@ -122,7 +124,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 | GETMAIN | 2 (2 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-167 more name-only entries no census program uses.
+165 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

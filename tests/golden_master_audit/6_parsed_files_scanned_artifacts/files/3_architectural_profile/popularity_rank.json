@@ -1912,11 +1912,11 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 3,
-      "java/springboot/Binder.java": 5,
+      "java/springboot/AutoConfigurationImportSelector.java": 2,
+      "java/springboot/Binder.java": 4,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
-      "java/springboot/OnClassCondition.java": 2,
+      "java/springboot/OnClassCondition.java": 1,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
       "java/springboot/SpringApplication.java": 4,
       "java/springboot/WebMvcAutoConfiguration.java": 0

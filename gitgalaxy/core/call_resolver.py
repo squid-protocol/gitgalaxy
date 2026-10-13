@@ -333,9 +333,127 @@ _BUILTIN_INSTANCE_METHODS_JS = frozenset(
         "call",
     }
 )
+# #4991: methods of the java.lang / java.util built-ins (Object, String/CharSequence,
+# the Collection / List / Set / Map / Queue / Deque / Iterator families, Optional,
+# StringBuilder, Stream, boxed numbers, Class). `list.add(x)` / `map.get(k)` /
+# `s.equals(o)` on a receiver the scan cannot type is the JDK method far more often
+# than a repo class's method of the same name (scip-java resolves them to the JDK only).
+_BUILTIN_INSTANCE_METHODS_JAVA = frozenset(
+    {
+        # Object / Class / Comparable / boxed numbers
+        "equals",
+        "hashCode",
+        "toString",
+        "getClass",
+        "compareTo",
+        "compare",
+        "getName",
+        "getSimpleName",
+        "isInstance",
+        "cast",
+        "intValue",
+        "longValue",
+        "doubleValue",
+        "floatValue",
+        "shortValue",
+        "byteValue",
+        "booleanValue",
+        # String / CharSequence / StringBuilder
+        "length",
+        "isEmpty",
+        "charAt",
+        "substring",
+        "indexOf",
+        "lastIndexOf",
+        "contains",
+        "startsWith",
+        "endsWith",
+        "equalsIgnoreCase",
+        "toLowerCase",
+        "toUpperCase",
+        "trim",
+        "strip",
+        "split",
+        "replace",
+        "replaceAll",
+        "matches",
+        "concat",
+        "append",
+        "insert",
+        "reverse",
+        "toCharArray",
+        "getBytes",
+        "isBlank",
+        "format",
+        # Collection / List / Set / Queue / Deque
+        "add",
+        "addAll",
+        "remove",
+        "removeAll",
+        "removeIf",
+        "retainAll",
+        "containsAll",
+        "clear",
+        "size",
+        "get",
+        "set",
+        "iterator",
+        "listIterator",
+        "stream",
+        "forEach",
+        "toArray",
+        "subList",
+        "sort",
+        "offer",
+        "poll",
+        "peek",
+        "push",
+        "pop",
+        "addFirst",
+        "addLast",
+        "removeFirst",
+        "removeLast",
+        "getFirst",
+        "getLast",
+        # Map
+        "put",
+        "putAll",
+        "putIfAbsent",
+        "containsKey",
+        "containsValue",
+        "keySet",
+        "values",
+        "entrySet",
+        "getOrDefault",
+        "computeIfAbsent",
+        "computeIfPresent",
+        "compute",
+        "merge",
+        "getKey",
+        "getValue",
+        # Iterator / Optional / Stream
+        "hasNext",
+        "next",
+        "isPresent",
+        "ifPresent",
+        "orElse",
+        "orElseGet",
+        "orElseThrow",
+        "map",
+        "flatMap",
+        "filter",
+        "collect",
+        "anyMatch",
+        "allMatch",
+        "noneMatch",
+        "findFirst",
+        "findAny",
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
+    "java": _BUILTIN_INSTANCE_METHODS_JAVA,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,
@@ -374,6 +492,34 @@ _BUILTIN_NAMESPACES: dict[str, frozenset[str]] = {
     )
     for lang in ("typescript", "javascript")
 }
+_BUILTIN_NAMESPACES["java"] = frozenset(
+    {
+        # #4991: java.lang / java.util classes whose static members (`Arrays.asList`,
+        # `Math.max`, `Objects.equals`) are the JDK's unless the repo defines a class of that name.
+        "Arrays",
+        "Collections",
+        "Objects",
+        "Math",
+        "String",
+        "Integer",
+        "Long",
+        "Double",
+        "Float",
+        "Boolean",
+        "Character",
+        "Byte",
+        "Short",
+        "System",
+        "Optional",
+        "List",
+        "Set",
+        "Map",
+        "Collectors",
+        "Thread",
+        "Files",
+        "Paths",
+    }
+)
 
 # Languages where a directory is a namespace: a class in a sibling file is
 # visible without an import (a Java/Kotlin/Scala/Groovy package, a Go package,
@@ -1036,7 +1182,18 @@ def _resolve_one(
         via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
-    if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
+    # #4991: `util.propertyKeyTypes.has(k)`: the receiver is a PROPERTY of the imported module (a
+    # Set), not the module, so a built-in method name is the built-in, not `util.has`.
+    member_builtin = (
+        head != last
+        and last not in caller.imported_stems
+        and last not in caller.imported_dirs
+        and bool(bucket.defs)
+        and _leaf(bucket.defs[0].name)[0] in _BUILTIN_INSTANCE_METHODS.get(caller.lang, ())
+    )
+    if not member_builtin and (
+        head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs
+    ):
         via = [
             d
             for p, d in bucket.all.by_path.items()

@@ -1912,13 +1912,13 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.943
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.824,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.799,
       "java/springboot/Binder.java": 1.122,
       "java/springboot/JarLauncher.java": 3.032,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.18,
+      "java/springboot/OnClassCondition.java": 0.098,
       "java/springboot/ServletWebServerApplicationContext.java": 0.941,
-      "java/springboot/SpringApplication.java": 0.898,
+      "java/springboot/SpringApplication.java": 0.922,
       "java/springboot/WebMvcAutoConfiguration.java": 1.572
     },
     "javascript": {

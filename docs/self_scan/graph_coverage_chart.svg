@@ -181,11 +181,11 @@
 <text class="n" x="630" y="325">n=1,946 calls</text>
 <text class="n" x="630" y="337">functions 735</text>
 </g>
-<g><title>java call resolution: precision 99.7% of 5,117, recall 64.9% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.8% of 5,108, recall 64.9% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
-<rect x="778" y="317" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="325">99.7%</text>
+<rect x="778" y="317" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="325">99.8%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
 <rect x="778" y="329" width="71.4" height="8" rx="2" fill="#eda100"/>
@@ -470,15 +470,15 @@
 <text class="n" x="630" y="767">n=6,356 calls</text>
 <text class="n" x="630" y="779">functions 2,918</text>
 </g>
-<g><title>typescript call resolution: precision 99.9% of 1,617, recall 60.7% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<g><title>typescript call resolution: precision 99.9% of 1,613, recall 60.6% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="766.5">Precision</text>
 <rect class="track" x="778" y="759" width="110" height="8" rx="2"/>
 <rect x="778" y="759" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="767">99.9%</text>
 <text class="pr" x="732" y="778.5">Recall</text>
 <rect class="track" x="778" y="771" width="110" height="8" rx="2"/>
-<rect x="778" y="771" width="66.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="779">60.7%</text>
+<rect x="778" y="771" width="66.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="779">60.6%</text>
 <text class="n" x="936" y="767">n=2,661 edges</text>
 <text class="n" x="936" y="779">vs tsc 6.0.2</text>
 </g>

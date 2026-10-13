@@ -24,7 +24,7 @@ You land one PR. The orchestrator gave you issue(s), acceptance criteria and coo
 ## Class sweep (before you code)
 Fix the gap, not just the example (owner, 2026-10-11). The issue should carry a class table (issue-triage.md, "Class
 sweep"); if it does not, build one: name the class, list its members from the authoritative source (CICS spec
-`gitgalaxy/standards/cics/commands/`, `docs/language_status/cics_spec_status.md`, `det_survey.md`,
+`gitgalaxy/standards/cics/commands/`, `docs/language_status/cics_spec_status.md` (not committed: `python tests/tools/generated_docs.py render`, or the `generated` branch), `det_survey.md`,
 `construct_correspondence.md`, the register, the language's status page), and mark each handled / partial / missing /
 out of scope with evidence.
 - Members that share your mechanism (same handler, table or rule, and small: a few lines plus a test each) go in THIS

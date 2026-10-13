@@ -72,7 +72,7 @@ Results:
 | **runtime** | a `cobolrt` call is wrong for a value | DIVIDE's intermediate; TRIM of all spaces |
 | **harness** | the input or the comparison differs between the sides, not the logic | LOW-VALUES dropped on the way to the DTO; PROGRAM-ID read from the sequence columns |
 | **case** | a scenario is not what its name says | — |
-| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry file in `docs/language_status/register/`, then `register.py render` |
+| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry file in `docs/language_status/register/` (the page is rendered, not committed: #5057) |
 
 A translator fix is never a hand edit of a port.
 

@@ -90,8 +90,7 @@ pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count
   agents append to (`tests/cobol_mainframe/test_det_translate.py`, `test_equivalence_cics.py`,
   `tests/cics_crucible/test_cics_runtimes.py`): two PRs appending at the same anchor conflict; the second to merge keeps
   both blocks.
-- **Generated / ratchet files:** never hand-merge `docs/language_status/oracle_assumptions.md` (`register.py render`),
-  golden masters (`golden-lock.sh crucible_check.py --update --yes`), the ruff/mypy baselines (regenerate),
+- **Generated / ratchet files:** golden masters (`golden-lock.sh crucible_check.py --update --yes`), the ruff/mypy baselines (regenerate),
   `tests/equivalence/det_sweep_baseline.json` and the coverage ledger (their tools). Take main's side, regenerate.
 - **Shared runtime changes** (`cobolrt/`, `DetCics`, the forge) move every port: one such PR in flight at a time, and its
   `det_port.py check` list goes in the PR.

@@ -4,6 +4,7 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
 
     python tests/tools/pr_gates.py                  # all gates (~15 min)
     python tests/tools/pr_gates.py --fast           # skip the golden masters and the full suite
+                                                    # (gen-docs: the uncommitted aggregate pages render, #5057)
     python tests/tools/pr_gates.py --only lint audits gauntlet
     python tests/tools/pr_gates.py --lower-baseline # also rewrite the gauntlet baseline when cells now pass
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
@@ -400,6 +401,8 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
         "audits": [[PY, "tests/mypy_audit.py", "--ci"]],
         "secrets": [_tool("gitgalaxy.tools.supply_chain_security.vault_sentinel")],
         "xray": [_tool("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector")],
+        # #5057: the aggregate pages are not committed; they must render, deterministically (generated-docs.yml)
+        "gen-docs": [[PY, "tests/tools/generated_docs.py", "check"]],
         "gauntlet": [gauntlet] + ([[*gauntlet[:2], "--update-baseline", *gauntlet[3:]]] if args.lower_baseline else []),
         "golden": [[PY, "tests/tools/crucible_check.py"]],
         "suite": [suite],

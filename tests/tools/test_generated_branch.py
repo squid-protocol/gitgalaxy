@@ -115,6 +115,8 @@ MOVED = {
     "tri-comparison-history.yml": ["docs/self_scan/tri_comparison_ledger.json"],
     "mainframe-ground-truth.yml": ["docs/self_scan/ground_truth_history.jsonl"],  # #4963
     "archetype-validation.yml": ["gitgalaxy/standards/archetype_brains/archetype_validation.json"],
+    # #5057: rendered from committed sources, never committed (tests/tools/generated_docs.py PAGES)
+    "generated-docs.yml": ["docs/language_status/oracle_assumptions.md", "docs/language_status/cics_spec_status.md"],
 }
 
 
@@ -166,10 +168,12 @@ def test_an_appending_writer_starts_from_the_published_series(name):
 
 
 def test_the_evidence_report_is_published_not_committed_by_the_refresh_bot():
-    """#4963: the bot PR carries the records and the ledger (approval inputs), never the rendered report."""
+    """#4963: the bot PR carries the records and the ledger (approval inputs), never the rendered report; #5057: nor
+    the CICS spec status page (generated-docs.yml publishes it), which the job no longer renders at all."""
     code = _code("evidence-refresh.yml")
     add_paths = code.split("add-paths: |", 1)[1].split("- name:", 1)[0]
     assert "evidence_report" not in add_paths
+    assert "cics_spec_status" not in code
     publish = code.split("publish-report:", 1)[1].split("\n  publish-blockers:", 1)[0]
     assert "generated_branch.py publish" in publish
     assert "docs/language_status/evidence_report" in publish
@@ -184,3 +188,18 @@ def test_the_ground_truth_pr_job_holds_no_write_token():
     assert "contents: write" not in job and "persist-credentials: true" not in job
     publish = code.split("publish-history:", 1)[1]
     assert "refs/heads/main" in publish and "pull_request" not in publish.split("steps:", 1)[0]
+
+
+def test_the_generated_docs_render_job_holds_no_write_token_and_publish_runs_on_main_only():
+    """#5057: the job that runs PR code only reads; the publish to generated is a separate, main-only job that
+    publishes exactly the pages generated_docs.py renders."""
+    import generated_docs
+
+    code = _code("generated-docs.yml")
+    render = code.split("\n  render:", 1)[1].split("\n  publish:", 1)[0]
+    assert "contents: write" not in render and "persist-credentials: true" not in render
+    assert "generated_docs.py check" in render
+    publish = code.split("\n  publish:", 1)[1]
+    head = publish.split("steps:", 1)[0]
+    assert "refs/heads/main" in head and "github.event_name != 'pull_request'" in head
+    assert set(MOVED["generated-docs.yml"]) == set(generated_docs.PAGES)

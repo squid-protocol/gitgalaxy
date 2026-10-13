@@ -75,12 +75,13 @@ runtime, and the generated Java. It also lists the harness work each unsupported
 
 **Definition of done (#4722): [`definition_of_done.md`](definition_of_done.md).** What "done" means for a COBOL / CICS / Db2 migration: scope, the acceptable outcomes per program (a stated evidence level, or a refusal by name), what an estate needs to be done, and what "supported" means for the readiness scanner.
 
-**COBOL-to-Java proofs: [`oracle_assumptions.md`](oracle_assumptions.md)** (added 2026-10-02). A proof compares the
+**COBOL-to-Java proofs: [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)** (added 2026-10-02). A proof compares the
 Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists
 every known or suspected difference between the two, its status (matched, refused, differs, assumed), whether a
 proven program reaches it, and what would settle it. It is generated from one file per entry in
 [`register/`](register/): add or edit an entry there, take a new ID with `python tests/tools/register.py next X`, and run
-`register.py render` (CI fails on a stale page).
+commit the entry file only: the page is not committed (#5057); CI renders it and shows the diff, and it is published
+to the `generated` branch after merge (`register.py render` writes a local copy to read).
 
 **A third-party translation through the same harness: [`ibm_wca4z_lgacdb01.md`](ibm_wca4z_lgacdb01.md)** (added
 2026-10-02). IBM's published watsonx Code Assistant for Z translation of GenApp's LGACDB01 (INSERT-CUSTOMER), run

@@ -944,22 +944,22 @@ def test_a_declaring_interface_counts_as_a_receiver_candidate_3836():
 
 # ----------------------------------------------------------------------------- #3837 explicit receivers
 def _json_object_files(lang="java", with_import=True):
-    # gson's JsonObject: `members.entrySet()` inside JsonObject, which has its own
-    # entrySet; LinkedTreeMap (imported) also defines entrySet.
+    # gson-shaped JsonObject (the real `entrySet` is a Map built-in, #4991): `members.visitMembers()` inside JsonObject, which has its own
+    # visitMembers; LinkedTreeMap (imported) also defines visitMembers.
     files = [
         _file(
             "gson/JsonObject.java",
             lang,
             [
-                _fn("entrySet", 136, owner="JsonObject"),
-                _fn("deepCopy", 40, owner="JsonObject", calls=["entrySet"], quals={"entrySet": ["members"]}),
+                _fn("visitMembers", 136, owner="JsonObject"),
+                _fn("deepCopy", 40, owner="JsonObject", calls=["visitMembers"], quals={"visitMembers": ["members"]}),
             ],
             [{"name": "JsonObject", "inheritance": []}],
         ),
         _file(
             "gson/internal/LinkedTreeMap.java",
             lang,
-            [_fn("entrySet", 600, owner="LinkedTreeMap")],
+            [_fn("visitMembers", 600, owner="LinkedTreeMap")],
             [{"name": "LinkedTreeMap", "inheritance": []}],
         ),
     ]
@@ -972,19 +972,19 @@ def _json_object_files(lang="java", with_import=True):
 
 
 def test_explicit_receiver_does_not_default_to_the_callers_own_class():
-    # #3837: `members.entrySet()` is a call on ANOTHER object; with an imported class
-    # also defining entrySet, the caller's own class is one candidate, not the answer.
+    # #3837: `members.visitMembers()` is a call on ANOTHER object; with an imported class
+    # also defining visitMembers, the caller's own class is one candidate, not the answer.
     files, edges = _json_object_files()
-    row = _site(resolve_calls(files, edges)[0], "entrySet")
+    row = _site(resolve_calls(files, edges)[0], "visitMembers")
     assert row["step"] == "receiver"
     assert row["resolution"] not in CONFIDENT_RESOLUTIONS
 
 
 def test_explicit_receiver_keeps_the_file_step_when_no_other_class_is_visible():
-    # Nothing else visible defines entrySet: the caller's own class stays the confident answer.
+    # Nothing else visible defines visitMembers: the caller's own class stays the confident answer.
     files, _ = _json_object_files(with_import=False)
     files[1]["path"] = "other/LinkedTreeMap.java"  # not imported, not in the caller's package
-    row = _site(resolve_calls(files)[0], "entrySet")
+    row = _site(resolve_calls(files)[0], "visitMembers")
     assert (row["step"], row["dst_path"]) == ("file", "gson/JsonObject.java")
 
 
@@ -992,15 +992,15 @@ def test_same_package_class_counts_as_visible_for_the_receiver_rule():
     # Java sees its package directory without an import.
     files, _ = _json_object_files(with_import=False)
     files[1]["path"] = "gson/LinkedTreeMap.java"
-    row = _site(resolve_calls(files)[0], "entrySet")
+    row = _site(resolve_calls(files)[0], "visitMembers")
     assert row["step"] == "receiver"
 
 
 def test_this_receiver_still_resolves_to_the_own_class():
-    # `this.entrySet()` names the caller's own object: the rule leaves it alone.
+    # `this.visitMembers()` names the caller's own object: the rule leaves it alone.
     files, edges = _json_object_files()
-    files[0]["functions"][1]["calls_out_qualifiers"] = {"entrySet": ["this"]}
-    row = _site(resolve_calls(files, edges)[0], "entrySet")
+    files[0]["functions"][1]["calls_out_qualifiers"] = {"visitMembers": ["this"]}
+    row = _site(resolve_calls(files, edges)[0], "visitMembers")
     assert row["dst_path"] == "gson/JsonObject.java"
     assert row["resolution"] in CONFIDENT_RESOLUTIONS
 
@@ -1034,6 +1034,70 @@ def test_builtin_method_on_untyped_receiver_is_ambiguous_not_file_3756():
             row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
             assert row["step"] == "receiver", (lang, callee)
             assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_java_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    # `list.add(x)`, `map.get(k)`, `s.equals(o)`: one case per JDK family
+    for callee in (
+        "add",
+        "get",
+        "put",
+        "equals",
+        "toString",
+        "size",
+        "append",
+        "stream",
+        "orElse",
+        "next",
+        "floatValue",
+    ):
+        files = _builtin_universe("java", callee, "items", "java")
+        row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+        assert row["step"] == "receiver", callee
+        assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_java_non_builtin_method_and_known_receivers_stay_confident_4991():
+    files = _builtin_universe("java", "visitNode", "items", "java")
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file"
+    files = _builtin_universe("java", "add", "this", "java", run_owner="Box")
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "class"
+    files = _builtin_universe("java", "add", "Box", "java")  # `Box.add()`: a repo class
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "qualified"
+
+
+def test_java_global_namespace_static_is_no_repo_edge_4991():
+    for callee, ns in (("asList", "Arrays"), ("max", "Math"), ("equals", "Objects"), ("valueOf", "String")):
+        files = [
+            _file("A.java", "java", [_fn(callee, 5, owner="Box"), _fn("run", 20, calls=[callee], quals={callee: [ns]})])
+        ]
+        assert _site(resolve_calls(files)[0], callee)["step"] == "none", callee
+    files = [  # a repo class named like the global wins
+        _file(
+            "A.java",
+            "java",
+            [_fn("max", 5, owner="Math"), _fn("run", 20, calls=["max"], quals={"max": ["Math"]})],
+            [{"name": "Math", "inheritance": []}],
+        )
+    ]
+    assert _site(resolve_calls(files)[0], "max")["step"] == "qualified"
+
+
+def test_builtin_method_on_a_property_of_an_imported_module_is_ambiguous_4991():
+    # zod: `util.propertyKeyTypes.has(k)` -- a Set held by module `util`, not `util.has`
+    files = [
+        _file("app.ts", "typescript", [_fn("run", 1, calls=["has"], quals={"has": ["util.propertyKeyTypes"]})]),
+        _file("util.ts", "typescript", [_fn("has", 696)]),
+        _file("reg.ts", "typescript", [_fn("has", 74, owner="Registry")], [{"name": "Registry", "inheritance": []}]),
+    ]
+    edges = [{"src": "app.ts", "dst": "util.ts", "edge_kind": "import"}]
+    assert _site(resolve_calls(files, edges)[0], "has")["resolution"] not in CONFIDENT_RESOLUTIONS
+    # ... but `util.has(x)` on the module itself, and a non-built-in name, still link
+    files[0] = _file("app.ts", "typescript", [_fn("run", 1, calls=["has"], quals={"has": ["util"]})])
+    assert _site(resolve_calls(files, edges)[0], "has")["step"] == "import"
+    files[0] = _file("app.ts", "typescript", [_fn("run", 1, calls=["pick"], quals={"pick": ["util.keys"]})])
+    files[1] = _file("util.ts", "typescript", [_fn("pick", 5)])
+    assert _site(resolve_calls(files, edges)[0], "pick")["step"] == "import"
 
 
 def test_builtin_method_through_an_import_is_ambiguous_3756():
@@ -1087,7 +1151,7 @@ def test_global_namespace_static_is_no_repo_edge_3756():
 
 
 def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS only (Python/Java/... unmeasured): `get` on a python file stays `file`
-    files = _builtin_universe("python", "get", "d", "py")
+    # the built-in list is JS/TS/Java only (Python/Ruby/... unmeasured): `get` on a ruby file stays `file`
+    files = _builtin_universe("ruby", "get", "d", "rb")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"

@@ -359,6 +359,7 @@ WEB_SEND = Command(
         "DOCTOKEN": Arg("area_in", width=16),
         "MEDIATYPE": Arg("area_in", width=56),
         "ACTION": Arg("cvda"),
+        "DOCSTATUS": Arg("cvda"),
         "STATUSCODE": Arg("value"),
         "STATUSTEXT": Arg("area_in"),
         "STATUSLEN": Arg("value"),
@@ -380,14 +381,11 @@ WEB_SEND = Command(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
         "CLOSESTATUS": Refusal("closing the connection after the response is not modelled", "X37"),
-        "DOCSTATUS": Refusal(
-            "what becomes of the document after it is sent (DOCDELETE / DOCRETAIN) is not modelled", "X37"
-        ),
         "LENGTH": Refusal("LENGTH is kept for upgrade only (STATUSLEN replaces it): not modelled", "X37"),
     },
     default_refusal=Refusal(
-        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / "
-        "NOSRVCONVERT are modelled",
+        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, DOCSTATUS, STATUSCODE, STATUSTEXT / STATUSLEN and "
+        "SRVCONVERT / NOSRVCONVERT are modelled",
         "X37",
     ),
     groups=(
@@ -399,22 +397,42 @@ WEB_SEND = Command(
         requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH"),
         requires(("FROMLENGTH",), ("FROM",), msg="WEB SEND FROMLENGTH without FROM"),
         requires(("STATUSLEN",), ("STATUSTEXT",), msg="WEB SEND STATUSLEN without STATUSTEXT"),
+        requires(("DOCSTATUS",), ("DOCTOKEN",), msg="WEB SEND DOCSTATUS without DOCTOKEN"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB SEND with both SRVCONVERT and NOSRVCONVERT"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
+        Outcome(
+            "NOTFND",
+            1,
+            "The document has not been created, or has been deleted, or the name is incorrectly specified",
+            raised_by=("DOCTOKEN",),
+        ),
         Outcome("INVREQ", 11, "Action code invalid", raised_by=("ACTION",)),
+        Outcome("INVREQ", 143, "The DOCSTATUS value specified is invalid", raised_by=("DOCSTATUS",)),
         Outcome("INVREQ", 72, "Status code does not support a message body", raised_by=("STATUSCODE",)),
     ),
     facts=(_REQUEST,),
     runtime_refusals=(
         _NO_REQUEST,
         RuntimeRefusal(
-            "an ACTION other than IMMEDIATE (EVENTUAL, and the default, send at the end of the task and a later send "
-            "replaces them), a second send after IMMEDIATE (IBM gives no RESP2)",
+            "a second send after an IMMEDIATE one (IBM gives no RESP2)",
             "X37",
-            java="WEB SEND ACTION not IMMEDIATE",
-            c="WEB SEND ACTION not IMMEDIATE",
+            java="WEB SEND after a response was sent",
+            c="WEB SEND after a response was sent",
+        ),
+        RuntimeRefusal(
+            "an IMMEDIATE send after an EVENTUAL one (IBM allows one response per task and says only that a second EVENTUAL "
+            "send replaces the first)",
+            "X37",
+            java="WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send",
+            c="WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send",
+        ),
+        RuntimeRefusal(
+            "a task that ended in an abend while an EVENTUAL response was held (IBM does not say whether it is sent)",
+            "X37",
+            java="WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend",
+            c="WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend",
         ),
         RuntimeRefusal(
             "a FROMLENGTH or STATUSLEN not above zero (IBM lists LENGERR 50 and INVREQ 131 for zero), a STATUSCODE outside "
@@ -423,12 +441,6 @@ WEB_SEND = Command(
             "X37",
             java="WEB SEND",
             c="WEB SEND",
-        ),
-        RuntimeRefusal(
-            "a DOCTOKEN that names no document the task created",
-            "X37",
-            java="WEB SEND DOCTOKEN of a document the task did not create",
-            c="WEB SEND DOCTOKEN of a document the task did not create",
         ),
         RuntimeRefusal(
             "a length past its area (FROMLENGTH, STATUSLEN): CICS reads the storage that follows it, which GnuCOBOL lays out "
@@ -833,13 +845,13 @@ WEB_RETRIEVE = Command(
     default_refusal=Refusal("DOCTOKEN is the only option IBM lists", "X41"),
     groups=(required("DOCTOKEN", msg="WEB RETRIEVE without DOCTOKEN"),),
     outcomes=(
-        # (IBM's NORMAL, DOCTOKEN written: never produced here, see the second runtime refusal)
+        # (IBM's NORMAL: the last WEB SEND was an ACTION(EVENTUAL) document send that was not DOCDELETE, X37)
         Outcome("NORMAL", 0, "", writes=("DOCTOKEN",)),
         Outcome("INVREQ", 2, "No WEB SEND command has been issued"),
         Outcome(
             "NOTFND",
             1,
-            "The document is not available: the last WEB SEND was not a document send with ACTION(EVENTUAL)",
+            "The document is not available: the last WEB SEND was DOCDELETE, or not a document send with ACTION(EVENTUAL)",
         ),
     ),
     facts=(
@@ -854,8 +866,7 @@ WEB_RETRIEVE = Command(
             c="the HTTP request is not stated for this task",
         ),
         RuntimeRefusal(
-            "a WEB RETRIEVE after a WEB SEND that ended in a condition (IBM does not say whether that send was issued); the "
-            "NORMAL outcome needs an ACTION(EVENTUAL) document send, which WEB SEND refuses",
+            "a WEB RETRIEVE after a WEB SEND that ended in a condition (IBM does not say whether that send was issued)",
             "X41",
             java="WEB RETRIEVE after a WEB SEND that ended in a condition",
             c="WEB RETRIEVE after a WEB SEND that ended in a condition",

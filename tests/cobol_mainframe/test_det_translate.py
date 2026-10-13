@@ -1388,13 +1388,15 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
     d = c.command("WEB SEND DOCTOKEN(KEY) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) SRVCONVERT NOHANDLE", "")
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
-        ", 1, CS);"
-    )  # (#4767: the document the token names)
+        ", 1, 0, CS);"
+    )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
+    assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
     for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
-                     ("WEB SEND DOCTOKEN(KEY) DOCSTATUS(R)", "after it is sent"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
@@ -3193,11 +3195,12 @@ def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
 
 def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
     """#4941 zECS (register X41), IBM WEB RETRIEVE: DOCTOKEN is the only option and is required; the outcome is CicsTask's
-    (INVREQ RESP2 2 / NOTFND RESP2 1), the area is never written; every other option and the literal form are refused."""
+    (INVREQ RESP2 2 / NOTFND RESP2 1), the area written with the token on NORMAL only; every other option and the literal
+    form are refused."""
     c = _ChanCics()
     r = c.command("WEB RETRIEVE DOCTOKEN(REC) NOHANDLE", "")
-    assert r[0].startswith("int[] web") and ".webRetrieve();" in r[0]
-    assert "Cobol.text(" not in r[0]
+    assert r[0].startswith("CicsTask.DocumentCreated web") and ".webRetrieve();" in r[0]
+    assert "if (web" in r[1] and ".resp() == 0) DetCics.putText(" in r[1] and ".doctoken(), CS);" in r[1]
     r2 = c.command("WEB RETRIEVE DOCTOKEN(REC) RESP(R) RESP2(R2)", "")
     assert ".webRetrieve();" in r2[0] and len(r2) > 1
     with pytest.raises(C.CicsError, match="without DOCTOKEN"):

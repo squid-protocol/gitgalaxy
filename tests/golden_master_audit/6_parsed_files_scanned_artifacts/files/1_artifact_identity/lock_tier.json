@@ -2551,59 +2551,59 @@
       "php/SOURCES.md": 1
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 2,
-      "php/guzzle/CurlFactory.php": 2,
-      "php/guzzle/CurlMultiHandler.php": 2,
-      "php/guzzle/Middleware.php": 2,
-      "php/guzzle/Pool.php": 2,
-      "php/guzzle/RequestException.php": 2,
-      "php/guzzle/StreamHandler.php": 2
+      "php/guzzle/Client.php": 0,
+      "php/guzzle/CurlFactory.php": 0,
+      "php/guzzle/CurlMultiHandler.php": 0,
+      "php/guzzle/Middleware.php": 0,
+      "php/guzzle/Pool.php": 0,
+      "php/guzzle/RequestException.php": 0,
+      "php/guzzle/StreamHandler.php": 0
     },
     "php/laravel_core": {
-      "php/laravel_core/Application.php": 2,
-      "php/laravel_core/BladeCompiler.php": 2,
-      "php/laravel_core/Collection.php": 2,
-      "php/laravel_core/Container.php": 2,
-      "php/laravel_core/Facade.php": 2,
+      "php/laravel_core/Application.php": 0,
+      "php/laravel_core/BladeCompiler.php": 0,
+      "php/laravel_core/Collection.php": 0,
+      "php/laravel_core/Container.php": 0,
+      "php/laravel_core/Facade.php": 0,
       "php/laravel_core/LICENSE.md": 1,
-      "php/laravel_core/Model.php": 2,
-      "php/laravel_core/Router.php": 2
+      "php/laravel_core/Model.php": 0,
+      "php/laravel_core/Router.php": 0
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": 2,
+      "php/laravel_validation_rules/Can.php": 0,
       "php/laravel_validation_rules/LICENSE.md": 1
     },
     "php/magento2": {
-      "php/magento2/AbstractBlock.php": 2,
-      "php/magento2/AbstractModel.php": 2,
-      "php/magento2/Application.php": 2,
-      "php/magento2/Http.php": 2,
-      "php/magento2/Interceptor.php": 2,
+      "php/magento2/AbstractBlock.php": 0,
+      "php/magento2/AbstractModel.php": 0,
+      "php/magento2/Application.php": 0,
+      "php/magento2/Http.php": 0,
+      "php/magento2/Interceptor.php": 0,
       "php/magento2/LICENSE.txt": 1,
-      "php/magento2/Mysql.php": 2,
-      "php/magento2/ObjectManager.php": 2
+      "php/magento2/Mysql.php": 0,
+      "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
-      "php/symfony/Application.php": 2,
-      "php/symfony/ContainerBuilder.php": 2,
-      "php/symfony/EventDispatcher.php": 2,
-      "php/symfony/HttpKernel.php": 2,
-      "php/symfony/Parser.php": 2,
-      "php/symfony/Request.php": 2,
-      "php/symfony/Router.php": 2
+      "php/symfony/Application.php": 0,
+      "php/symfony/ContainerBuilder.php": 0,
+      "php/symfony/EventDispatcher.php": 0,
+      "php/symfony/HttpKernel.php": 0,
+      "php/symfony/Parser.php": 0,
+      "php/symfony/Request.php": 0,
+      "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": 2
+      "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 2,
-      "php/wordpress/class-wp-query.php": 2,
-      "php/wordpress/formatting.php": 2,
-      "php/wordpress/functions.php": 2,
+      "php/wordpress/admin-ajax.php": 0,
+      "php/wordpress/class-wp-query.php": 0,
+      "php/wordpress/formatting.php": 0,
+      "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 1,
-      "php/wordpress/plugin.php": 2,
-      "php/wordpress/wp-login.php": 2,
-      "php/wordpress/wp-settings.php": 2
+      "php/wordpress/plugin.php": 0,
+      "php/wordpress/wp-login.php": 0,
+      "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
       "plaintext/SOURCES.md": 1
@@ -3619,7 +3619,7 @@
       "sql/SOURCES.md": 1
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 2
+      "sql/baseline/schema.php": 0
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 1,

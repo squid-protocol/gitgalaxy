@@ -902,7 +902,7 @@
     "  * `Imports (Out-Degree: 1):` builtins, copy, datetime, functools, inspect, numpy, numpy._core, numpy._core.numeric...",
     "  * `Imported By (In-Degree: 1):` (Excluded from Brief to save tokens)",
     "",
-    "### `php/wordpress/functions.php` (PHP | Tier 2 | AI Safe: 0.0%)",
+    "### `php/wordpress/functions.php` (PHP | Tier 0 | AI Safe: 0.0%)",
     "- **Global Archetype:** `file_cluster_4` (Centroid distance: 5.227)",
     "- **Top Global Matches:** file_cluster_4: 5.227, file_cluster_6: 10.011, file_cluster_15: 11.285",
     "- **Magnitude:** 5333.06 | **LOC:** 9285 | **CtrlFlow:** 24.2% | **Authorship Centralization:** 0.0%",

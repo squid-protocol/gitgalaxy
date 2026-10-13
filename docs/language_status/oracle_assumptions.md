@@ -156,6 +156,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
 | X47 | CICS | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven: CicsTask and the stub C answer one list of steps alike, tests/cics_crucible/test_cics_runtimes.py _X47_CASES; DetCics's aliasing compiled and run, tests/cobol_mainframe/test_pointer_lane_4771.py; no estate program translates whole through it yet: ZECS001 also needs pointer arithmetic, ADDRESS OF a subordinate item, CALL ZUIDSTCK and the ZC##FILE templates) |
 | X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
+| X50 | CICS | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1761,6 +1762,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   check the pool first); the value area of a failed GET / QUERY (not written).
 - **Superseded in part by X45** (#4770): DEFINE / QUERY / DELETE DCOUNTER, MINIMUM / MAXIMUM on the doubleword form and WRAP at a
   counter's limits are modelled there; the limits (1) of GET DCOUNTER above hold only for a counter with no limits entry.
+- **Superseded in part by X50** (#5039): DEFINE / QUERY COUNTER MINIMUM / MAXIMUM, GET COUNTER INCREMENT and WRAP at a fullword
+  counter's limits are modelled there; the limits (1) of GET COUNTER above hold only for a counter with no limits entry.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).
@@ -2401,6 +2404,35 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   but WRITE / REWRITE, and an explicit RESP2 that is not IBM's. **DUPKEY on DELETE:** the DELETE page lists it (RESP2 140) but
   does not say whether the record is deleted, so the outcome is not modelled and the fault is refused.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent.
+
+### X50. DEFINE / QUERY COUNTER with MINIMUM and MAXIMUM; GET COUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#5039)
+- **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,
+  ...summary-query-counter-query-dcounter, ...summary-delete-counter-delete-dcounter). DEFINE COUNTER: VALUE, MINIMUM and MAXIMUM are
+  "a fullword binary value for COUNTER"; "If you omit the MINIMUM parameter, the named counter is defined with a default minimum
+  of low-values", MAXIMUM "a fullword of high-values (X'7FFFFFFF') for COUNTER"; "If you specify the MINIMUM parameter, you must also specify a VALUE";
+  VALUE "equal to, or greater than, the minimum value, up to the maximum value plus 1"; INVREQ RESP2 406 "VALUE is invalid", 407 "MINIMUM
+  or MAXIMUM is invalid" (MAXIMUM below MINIMUM, or outside the range for the counter type). "The named counter server stores all values as doubleword unsigned values."
+  GET: VALUE "the current number"; the counter is incremented after the number is assigned; at its limit, with neither REDUCE
+  nor WRAP, SUPPRESSED (72) RESP2 101 and "the current number is not changed"; WRAP "resets the current value of the named counter
+  equal to the minimum value defined for the counter"; INVREQ 406 "INCREMENT exceeds the counter's total range". QUERY COUNTER:
+  VALUE, MINIMUM and MAXIMUM data areas, fullword binary values.
+- **Modelled** (`CicsTask.defineCounter` / `queryCounter` / `getCounter(pool, name, increment, wrap)`, the stub's `GGCDCNT` /
+  `GGCQCNT` / `GGCGCNT` on `counters.cfg`, whose rows hold `MINIMUM MAXIMUM` after the value; the det translator and
+  `equivalence_cics.py`): a counter DEFINE COUNTER made holds its limits as fullwords (stored alongside doubleword counters in one store, as X30 / X45).
+  A GET hands out the value and adds INCREMENT; a counter at MAXIMUM + 1 (the value past MAXIMUM, where an earlier GET left it) is
+  SUPPRESSED 101 and unchanged, or with WRAP the GET returns MINIMUM and the counter is MINIMUM + INCREMENT. 407 is checked before 406,
+  then 202 (403 / 404 first: the page gives no order).
+- **What IBM leaves open, and what we do.** (1) What WRAP does when the increment overshoots (a counter below MAXIMUM whose INCREMENT
+  carries it past MAXIMUM + 1) and where REDUCE's boundary lies: REFUSED ("GET COUNTER with an INCREMENT past MAXIMUM + 1"); WRAP acts
+  only at a counter already at MAXIMUM + 1. (2) The 406 boundary of INCREMENT ("exceeds the counter's total range"): an INCREMENT
+  beyond MAXIMUM - MINIMUM is REFUSED, one within it is not an error. (3) The signed reading of low-values and negative values (the open point X30 left):
+  a VALUE or MINIMUM below zero is REFUSED ("DEFINE COUNTER with a VALUE below zero"). (4) A counter a scenario states has no limits entry:
+  QUERY COUNTER MINIMUM / MAXIMUM of it is REFUSED ("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state").
+  (5) A COUNTER and a DCOUNTER of one name are one counter (ASSUMED, X30 / X45). (6) The order of 407 / 406 / 202 (above).
+  (7) VALUE / MINIMUM / MAXIMUM are data areas in the stub translator (a literal is refused); the det translator takes literals too.
+- **Refused by name, unchanged:** REWIND, UPDATE, GET's REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND on DEFINE / GET / QUERY / UPDATE / REWIND / DELETE.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
+  (tests/cics_crucible/test_cics_runtimes.py `_X50_CASES`) and both translators.
 
 ## Language Environment
 

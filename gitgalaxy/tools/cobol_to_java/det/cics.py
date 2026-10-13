@@ -846,10 +846,6 @@ class Cics:
                 raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
             if ("COUNTER" in opts) == ("DCOUNTER" in opts):
                 raise CicsError(_msg("GET COUNTER", "one_of", "COUNTER"))
-            if "COUNTER" in opts:
-                for o in ("INCREMENT", "WRAP"):
-                    if o in opts:
-                        raise CicsError(_msg("GET COUNTER", "requires", o))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
@@ -869,12 +865,9 @@ class Cics:
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
         if verb in ("DEFINE", "DELETE", "QUERY") and ("COUNTER" in opts or "DCOUNTER" in opts):
-            # #4770 (X45): the spec's groups, for the commands that now take both forms
+            # #4770 (X45), #5039 (X50): the spec's groups, for the commands that take both forms
             if ("COUNTER" in opts) == ("DCOUNTER" in opts):
                 raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
-            for o in ("MINIMUM", "MAXIMUM"):
-                if o in opts and "DCOUNTER" not in opts:
-                    raise CicsError(_msg(f"{verb} COUNTER", "requires", o))
             if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
                 raise CicsError(_requires("DEFINE COUNTER", "MINIMUM", "VALUE"))
         if verb in ("DEFINE", "DELETE") and (
@@ -892,10 +885,11 @@ class Cics:
                 lo = self.long_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
                 hi = self.long_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
                 call = f"task.defineDcounter({pool}, {nm}, {val}, {lo}, {hi})"
-            else:  # (VALUE omitted: IBM's initial value of zero)
-                call = (
-                    f"task.defineCounter({pool}, {nm}, {self.int_(_arg(opts['VALUE'])) if opts.get('VALUE') else '0'})"
-                )
+            else:  # #5039 (X50): fullword limits; IBM's defaults MINIMUM zero, MAXIMUM X'7FFFFFFF' (2147483647)
+                val = self.int_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0"
+                lo = self.int_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0"
+                hi = self.int_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "2147483647"
+                call = f"task.defineCounter({pool}, {nm}, {val}, {lo}, {hi})"
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if verb == "QUERY" and "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords
             v = self.g.tmpname("counter")
@@ -913,14 +907,20 @@ class Cics:
                         )
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
-        if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
+        if verb == "QUERY" and "COUNTER" in opts:  # #5039 (X50): value and limits, fullwords
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            return [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
-                    f"{ind}if ({v}[0] == 0) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
-                    f"{ind}}}",
-                    *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
+            limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
+            lines = [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
+                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
+                if opts.get(o):
+                    lines.append(
+                        ind
+                        + "    "
+                        + self.g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({v}[{i}])", False)
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")

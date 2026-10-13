@@ -1348,8 +1348,7 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
-    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(KEY)", "MINIMUM without DCOUNTER"),
-                     ("QUERY COUNTER(KEY) VALUE(REC) MAXIMUM(KEY)", "MAXIMUM without DCOUNTER"),
+    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value"),
                      ("QUERY DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
@@ -1359,12 +1358,13 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]
     assert any(x.startswith("OUTCOME(counter") for x in d)
-    assert ", 0);" in c.command("DEFINE COUNTER(KEY) RESP(R)", "")[0]  # VALUE omitted: IBM's initial zero
+    assert (
+        ", 0, 0, 2147483647);" in c.command("DEFINE COUNTER(KEY) RESP(R)", "")[0]
+    )  # VALUE omitted: IBM's initial zero
     x = c.command("DELETE COUNTER(KEY) POOL('GENAPOOL') RESP(R)", "")
     assert x[0].startswith("int[] counter") and ".deleteCounter(" in x[0]
-    for bad, why in (("DEFINE COUNTER(KEY) VALUE(0) MINIMUM(0)", "MINIMUM without DCOUNTER"),
-                     ("DEFINE COUNTER(KEY) VALUE(0) MAXIMUM(5)", "MAXIMUM without DCOUNTER"),
-                     ("DEFINE COUNTER(KEY) NOSUSPEND", "only a fullword counter"),
+    for bad, why in (("DEFINE COUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
+                     ("DEFINE COUNTER(KEY) NOSUSPEND", "NOSUSPEND"),
                      ("DEFINE DCOUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
                      ("DEFINE DCOUNTER(KEY) COUNTER(KEY)", "one of COUNTER and DCOUNTER"),
                      ("DELETE COUNTER(KEY) NOSUSPEND", "only the counter's name and pool")):  # fmt: skip
@@ -1674,11 +1674,30 @@ def test_define_query_delete_dcounter_pass_the_doubleword_limits():
     assert ".deleteCounter(" in c.command("DELETE DCOUNTER(KEY) NOHANDLE", "")[0]
 
 
+def test_define_query_counter_pass_the_fullword_limits():
+    """#5039 (register X50), IBM DEFINE / QUERY COUNTER: CicsTask.defineCounter(pool, name, value, min, max) --
+    the signed fullwords, IBM's defaults for what the command omits (VALUE 0, MINIMUM 0, MAXIMUM X'7FFFFFFF', which
+    is 2147483647); queryCounter writes VALUE / MINIMUM / MAXIMUM on NORMAL only; GET COUNTER takes INCREMENT and WRAP."""
+    c = _ChanCics()
+    assert c.command("DEFINE COUNTER(KEY) POOL('P') VALUE(R) MINIMUM(R) MAXIMUM(R) NOHANDLE", "")[0].endswith(
+        "task.defineCounter('P'.strip(), KEY.strip(), INT(R), INT(R), INT(R));"
+    )
+    assert c.command("DEFINE COUNTER(KEY) NOHANDLE", "")[0].endswith(
+        'defineCounter("", KEY.strip(), 0, 0, 2147483647);'
+    )
+    assert c.command("DEFINE COUNTER(KEY) VALUE(R) NOHANDLE", "")[0].endswith("KEY.strip(), INT(R), 0, 2147483647);")
+    q = c.command("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(REC) MAXIMUM(REC) NOHANDLE", "")
+    assert q[0].startswith("int[] counter") and q[0].endswith('queryCounter("", KEY.strip(), true);')
+    assert sum("BigDecimal.valueOf(counter" in x for x in q) == 3 and q[-1].startswith("OUTCOME(counter")
+    assert c.command("QUERY COUNTER(KEY) VALUE(REC) NOHANDLE", "")[0].endswith(", false);")  # (no limits asked for)
+    w = c.command("GET COUNTER(KEY) VALUE(REC) INCREMENT(R) WRAP NOHANDLE", "")
+    assert w[0].startswith("long[] counter") and w[0].endswith("LONG(R), true);")
+
+
 def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     """#4767 zECS (register X30), IBM GET DCOUNTER: CicsTask.getCounter(pool, name[, increment]) -- VALUE written on NORMAL
     only, the increment read from its data area (omitted: the one-argument form, IBM's default 1); WRAP is accepted (it acts at a
-    maximum the run does not state). INCREMENT / WRAP on the fullword COUNTER form, REDUCE, COMPAREMIN / COMPAREMAX and NOSUSPEND are
-    refused by name."""
+    maximum the run does not state). REDUCE, COMPAREMIN / COMPAREMAX and NOSUSPEND are refused by name."""
     c = _ChanCics()
     w = c.command("GET DCOUNTER(KEY) VALUE(REC) INCREMENT(R) WRAP NOHANDLE", "")
     assert (w[0].startswith("long[] counter") and '.getCounter("", ' in w[0] and w[0].count(",") == 3) and w[
@@ -1696,9 +1715,7 @@ def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
     assert plain[0].count(",") == 1  # (pool, name: the default increment)
     assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)
-    for bad, why in (("GET COUNTER(KEY) VALUE(REC) INCREMENT(R)", "INCREMENT without DCOUNTER"),
-                     ("GET COUNTER(KEY) VALUE(REC) WRAP", "WRAP without DCOUNTER"),
-                     ("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
+    for bad, why in (("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
                      ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
                      ("GET DCOUNTER(KEY) VALUE(REC) REDUCE", "maximum is not stated"),
                      ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMIN(R)", "range check"),

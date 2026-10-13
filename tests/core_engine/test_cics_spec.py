@@ -247,10 +247,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 87 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 89 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
     # IBM's CICS TS 6.x command summary: 259 API command names, 56 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL), 9 forms of a modelled command (api.py's docstring), the other 166 name-only
-    assert len(by_status["refused"]) == 166
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL; #4771: GETMAIN / FREEMAIN), 9 forms of a modelled command (api.py's docstring), the other 164 name-only
+    assert len(by_status["refused"]) == 164
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.refused and not c.outcomes, key
@@ -259,9 +259,9 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
 def test_a_whole_command_refusal_names_its_reason():
     from gitgalaxy.standards.cics.commands import whole_refusal
 
-    getmain = whole_refusal("GETMAIN", "GETMAIN", "SET")
-    assert getmain is not None and getmain.whole_message("GETMAIN") == (
-        "EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)"
+    getmain = whole_refusal("GETMAIN64", "GETMAIN64", "SET")
+    assert getmain is not None and getmain.whole_message("GETMAIN64") == (
+        "EXEC CICS GETMAIN64 not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)"
     )
     # a verb and its first option: IBM's WAIT JOURNALNAME, ADDRESS SET (the most specific form wins)
     assert whole_refusal("WAIT", "WAIT", "JOURNALNAME").key == "WAIT JOURNALNAME"  # type: ignore[union-attr]

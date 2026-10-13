@@ -259,6 +259,24 @@ def _dto_size(gp, cls: str) -> int:
         return 0
 
 
+def overlaid_pointers(records: list) -> set[str]:
+    """#4771 (X47): the POINTER items a REDEFINES overlays (or that sit in a group one overlays, or redefine something):
+    their bytes can be read or changed as a number, which a handle does not model."""
+    items = [x for r in records for x in r.walk()]
+    redefined = {x.redefines.upper() for x in items if x.redefines}
+    out = set()
+    for x in items:
+        if x.usage != "POINTER":
+            continue
+        chain, p = [x], x.parent
+        while p is not None:
+            chain.append(p)
+            p = p.parent
+        if {c.name.upper() for c in chain} & redefined or any(c.redefines for c in chain):
+            out.add(x.name.upper())
+    return out
+
+
 def write_only_pointers(records: list, proc) -> set[str]:
     """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
     named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
@@ -598,6 +616,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
+    gen.overlaid_pointers = overlaid_pointers(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
@@ -788,7 +807,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             longest = max([_dto_size(gen.cics.gp, c) for c in classes], default=0)
             sizes[id(roots[id(dfh)])] = max(sizes.get(id(roots[id(dfh)]), 0), longest)
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
-    storages = []
+    storages: list[tuple[str, str]] = []
     seen = set()
     for rec in records:
         r = roots[id(rec)]
@@ -797,7 +816,15 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         seen.add(id(r))
         img = L.image(r) if r.section != "FILE" else b" " * sizes[id(r)]
         img = img.ljust(sizes[id(r)], b"\x00" if r.section != "FILE" else b" ")
-        storages.append((_storage_name(r), base64.b64encode(img).decode("ascii")))
+        name = _storage_name(r)
+        if any(n == name for n, _ in storages):
+            # #4952: a second 01 of the same name (CBSA CRECUST declares HIGHEST-CUST-NUMBER twice). An unqualified
+            # reference to it is ambiguous, so a program that compiles never names it: an elementary one is not
+            # emitted (it would redeclare the Java field); a group's children would bind to the wrong storage.
+            if r.children:
+                raise ValueError(f"line {r.line}: a second 01 group named {r.name}: its items cannot be told apart")
+            continue
+        storages.append((name, base64.b64encode(img).decode("ascii")))
     field_lines, inits = [], []
     lifted_decls: list[str] = []
     sync_methods = sync_code(gen, records, roots)

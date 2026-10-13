@@ -3,7 +3,8 @@
 A LINKed program addresses its caller's COMMAREA; a CALLed subprogram's LINKAGE 01 record (CALL ... USING DFHCOMMAREA)
 is that same storage, so an XCTL of it is the XCTL of the caller's area (IBM is silent on copy vs address, register X39).
 `in_dfhcommarea` therefore marks any LINKAGE 01 record, not only DFHCOMMAREA; the runtime refuses only when the program
-was LINKed with a COMMAREA. The SET ADDRESS OF forms (direct, through a pointer) stay translation holes.
+was LINKed with a COMMAREA. #4771 (X47): the SET ADDRESS OF forms (direct, through a pointer) now translate -- the record
+really is the caller's storage -- and the same mark makes the XCTL of that record refused at run time.
 """
 
 from __future__ import annotations
@@ -118,7 +119,11 @@ def test_a_called_subprograms_linkage_record_is_marked_like_dfhcommarea(tmp_path
 
 
 @pytest.mark.parametrize("mid", ["set-address", "pointer"])
-def test_the_set_address_alias_forms_stay_translation_holes(tmp_path, mid):
-    """SET ADDRESS OF (direct or through a pointer) is not translated, so an alias made that way is never run."""
+def test_the_set_address_alias_forms_translate_and_their_xctl_is_marked(tmp_path, mid):
+    """#4771 (X47): SET ADDRESS OF (direct or through a pointer) is translated, the record an alias of the caller's area.
+    The XCTL of it carries the mark every LINKAGE 01 record does, so the runtime refuses it when the program was LINKed
+    with a COMMAREA (X39): the alias is run, never guessed."""
     r = _translate(tmp_path, mid, "copy")
-    assert any("SET ADDRESS OF" in str(h) for h in r["XCTLMID"].stats["holes"]), r["XCTLMID"].stats["holes"]
+    assert r["XCTLMID"].stats["holes"] == [], r["XCTLMID"].stats["holes"]
+    assert "task.xctlOfLinkage();" in r["XCTLMID"].java
+    assert "DetCics.setAddress" in r["XCTLMID"].java

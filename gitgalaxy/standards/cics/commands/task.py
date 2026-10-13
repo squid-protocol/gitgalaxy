@@ -138,15 +138,36 @@ GET_COUNTER = Command(
             c="GET COUNTER with an INCREMENT not above zero",
         ),
         RuntimeRefusal(
-            "a counter that would pass 4294967295: the maximum, where WRAP acts, is not stated by the run",
+            "a counter with no limits entry (DEFINE COUNTER's, or a scenario's) that would pass 4294967295: its maximum, where "
+            "WRAP acts, is not stated by the run",
             "X30",
             java="GET COUNTER past 4294967295",
             c="GET COUNTER past 4294967295",
+        ),
+        RuntimeRefusal(
+            "an INCREMENT beyond MAXIMUM - MINIMUM of a DEFINE DCOUNTER counter: IBM's INVREQ 406 boundary is not stated",
+            "X45",
+            java="GET COUNTER with an INCREMENT beyond the counter's range",
+            c="GET COUNTER with an INCREMENT beyond the counter's range",
+        ),
+        RuntimeRefusal(
+            "an INCREMENT that carries a DEFINE DCOUNTER counter past MAXIMUM + 1: IBM's REDUCE / WRAP overshoot is not stated",
+            "X45",
+            java="GET COUNTER with an INCREMENT past MAXIMUM + 1",
+            c="GET COUNTER with an INCREMENT past MAXIMUM + 1",
+        ),
+        RuntimeRefusal(
+            "a counter that would pass a doubleword",
+            "X45",
+            java="GET COUNTER past a doubleword",
+            c="GET COUNTER past a doubleword",
         ),
     ),
     # X30: IBM's GET COUNTER page lists no NOTFND; "Named counter not found" is INVREQ RESP2 201
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        # X45: a DEFINE DCOUNTER counter at its limit without WRAP: "the current number is not changed"
+        Outcome("SUPPRESSED", 101, "Counter at its limit: no numbers are available until a REWIND or WRAP"),
         Outcome("INVREQ", 201, "Named counter not found"),
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
         Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
@@ -165,16 +186,32 @@ QUERY_COUNTER = Command(
     register="X29",
     options={
         "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),
         "POOL": Arg("name", width=8),
-        "VALUE": Arg("area_out", width=4),
+        "VALUE": Arg("area_out"),
+        "MINIMUM": Arg("area_out"),  # X45: a DEFINE DCOUNTER counter's limits, doubleword unsigned
+        "MAXIMUM": Arg("area_out"),
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
     default_refusal=Refusal("only the counter's value is modelled (the region states no limits)", "X29"),
-    groups=(required("VALUE", msg="QUERY COUNTER without VALUE"),),
+    groups=(
+        required("VALUE", msg="QUERY COUNTER without VALUE"),
+        one_of("COUNTER", "DCOUNTER", msg="QUERY COUNTER needs one of COUNTER and DCOUNTER"),
+        requires(
+            ("MINIMUM",),
+            ("DCOUNTER",),
+            msg="QUERY COUNTER MINIMUM without DCOUNTER: the fullword form's limits are not stated",
+        ),
+        requires(
+            ("MAXIMUM",),
+            ("DCOUNTER",),
+            msg="QUERY COUNTER MAXIMUM without DCOUNTER: the fullword form's limits are not stated",
+        ),
+    ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("VALUE",)),
+        Outcome("NORMAL", 0, "", writes=("VALUE", "MINIMUM", "MAXIMUM")),
         Outcome("INVREQ", 201, "Named counter not found"),
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
         Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
@@ -185,6 +222,12 @@ QUERY_COUNTER = Command(
             "X29",
             java="QUERY COUNTER of a value beyond a fullword",
             c="QUERY COUNTER of a value beyond a fullword",
+        ),
+        RuntimeRefusal(
+            "QUERY DCOUNTER MINIMUM / MAXIMUM of a counter with no limits entry (DEFINE COUNTER's, or a scenario's)",
+            "X45",
+            java="QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
+            c="QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
         ),
     ),
     state=("handle_table",),
@@ -202,20 +245,40 @@ DEFINE_COUNTER = Command(
     register="X30",
     options={
         "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),
         "POOL": Arg("name", width=8),
         "VALUE": Arg("value"),
+        "MINIMUM": Arg("value"),  # X45: DCOUNTER only (doubleword unsigned); IBM: MINIMUM needs VALUE
+        "MAXIMUM": Arg("value"),
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
     default_refusal=Refusal(
-        "only a fullword counter with the default limits is modelled (the region states none)", "X30"
+        "only a fullword counter with the default limits, or a doubleword counter, is modelled (the region states no others)",
+        "X30",
+    ),
+    groups=(
+        one_of("COUNTER", "DCOUNTER", msg="DEFINE COUNTER needs one of COUNTER and DCOUNTER"),
+        requires(
+            ("MINIMUM",),
+            ("DCOUNTER",),
+            msg="DEFINE COUNTER MINIMUM without DCOUNTER: the fullword form's limits are not stated",
+        ),
+        requires(
+            ("MAXIMUM",),
+            ("DCOUNTER",),
+            msg="DEFINE COUNTER MAXIMUM without DCOUNTER: the fullword form's limits are not stated",
+        ),
+        requires(("MINIMUM",), ("VALUE",), msg="DEFINE COUNTER MINIMUM without VALUE"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("INVREQ", 202, "Duplicate counter name. A named counter of this name already exists"),
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
         Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 406, "VALUE is invalid (below the minimum, or above the maximum plus 1)"),
+        Outcome("INVREQ", 407, "MINIMUM or MAXIMUM is invalid (MAXIMUM below MINIMUM)"),
     ),
     runtime_refusals=(
         RuntimeRefusal(
@@ -241,12 +304,14 @@ DELETE_COUNTER = Command(
     register="X30",
     options={
         "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),  # X45: the one store holds both forms
         "POOL": Arg("name", width=8),
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
-    default_refusal=Refusal("only a fullword counter is modelled", "X30"),
+    default_refusal=Refusal("only the counter's name and pool are modelled", "X30"),
+    groups=(one_of("COUNTER", "DCOUNTER", msg="DELETE COUNTER needs one of COUNTER and DCOUNTER"),),
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("INVREQ", 201, "Named counter not found"),

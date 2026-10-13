@@ -225,7 +225,7 @@
     "| mutation | 210654 | 2343 | 138 | `fortran/wrf/module_initialize_real.F` |",
     "| dead_code | 17759 | 1585 | 12 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 123 | 65 | 0 | `powershell/core/packaging.psm1` |",
-    "| threat | 8502 | 801 | 7 | `go/core/value.go` |",
+    "| threat | 8496 | 799 | 7 | `go/core/value.go` |",
     "| ml_ai | 2873 | 307 | 0 | `lua/cosmopolitan/math.lua` |",
     "| ui | 3034 | 193 | 0 | `css/bootstrap_dist/bootstrap.rtl.css` |",
     "",

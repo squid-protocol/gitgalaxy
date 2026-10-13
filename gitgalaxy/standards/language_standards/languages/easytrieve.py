@@ -37,10 +37,10 @@ DEFINITION: dict[str, Any] = {
     # PROC, SORT, macro definitions/calls, and hyphenated control boundaries.
     "internal_discriminator": re.compile(
         r"^[ \t]*(?:"
-        rf"FILE[ \t]+(?!{_HLASM_OPS}\b)[A-Za-z0-9&_-]+|"
-        rf"JOB[ \t]+(?:INPUT\b|(?!{_HLASM_OPS}\b)[A-Za-z0-9_-]+)|"
-        rf"PRINT(?:[ \t]*$|[ \t]+(?!{_HLASM_PRINT_OPS}\b)[A-Za-z0-9_-]+)|"
-        rf"(?:REPORT|PROC|SORT)[ \t]+(?!{_HLASM_OPS}\b)[A-Za-z0-9_-]+|"
+        rf"FILE[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9&_-]+|"
+        rf"JOB[ \t]+(?:INPUT\b|(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9_-]+)|"
+        rf"PRINT(?:[ \t]*$|[ \t]+(?!(?:{_HLASM_PRINT_OPS})\b)[A-Za-z0-9_-]+)|"
+        rf"(?:REPORT|PROC|SORT)[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9_-]+|"
         r"MACRO[ \t]+(?:&|[0-9]+\b|[A-Za-z0-9_-]+)|"
         r"(?:END-PROC|END-MACRO|END-JOB|END-REPORT|END-IF|END-DO|END-CASE)\b|"
         r"%[A-Za-z0-9_-]+"

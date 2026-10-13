@@ -160,6 +160,14 @@ def test_easytrieve_internal_discriminator_strict():
     assert disc.search("END-JOB")
     assert disc.search("END-REPORT")
     assert disc.search("%MSTFILE CUSTOMER 100")
+    # Names that merely START with an HLASM opcode spelling (the opcode guard is word-bounded)
+    assert disc.search("FILE DSNIN FB(80 800)")
+    assert disc.search("FILE STUDENT FB(80 800)")
+    assert disc.search("FILE LAYOUT")
+    assert disc.search("JOB JOBS")
+    assert disc.search("PRINT ONELINE")
+    assert disc.search("REPORT STATS")
+    assert disc.search("SORT STFILE")
 
     # Negative matches: HLASM labels followed by HLASM opcodes
     assert not disc.search("FILE     DC    CL80' '")

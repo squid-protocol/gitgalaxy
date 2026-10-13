@@ -1121,6 +1121,7 @@ class EquivalenceRunTest {
                 entry(program, "handleTransaction");
                 if ((bytesOne || bytesTwo) && (viaBytes || !(dtoOne || dtoTwo))) {
                     used = bytesOne ? oneB : twoB;
+                    usedBytes = true;  // even when it throws: the run is the byte overload's, and is compared
                     if (bytesOne) {
                         invoke(oneB, service, t.transid(), in);
                     } else {
@@ -1150,7 +1151,6 @@ class EquivalenceRunTest {
                                 + " has no lastAnswerBytes()");
                     }
                     answered = (byte[]) invoke(a0, service);
-                    usedBytes = true;
                 }
             }
 

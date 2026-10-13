@@ -8,8 +8,8 @@ between them and the program's own bytes -- nothing is taken from a test case.""
 from __future__ import annotations
 
 import re
-from decimal import Decimal
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
@@ -895,18 +895,18 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            out = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+            lines = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
                    f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
-                    out.append(
+                    lines.append(
                         ind
                         + "    "
                         + self.g.store_into(
                             self.ref(_arg(opts[o])), f"new BigDecimal(Long.toUnsignedString({v}[{i}]))", False
                         )
                     )
-            return out + [f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
         if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'

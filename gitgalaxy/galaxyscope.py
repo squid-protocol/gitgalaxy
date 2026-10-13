@@ -2632,7 +2632,7 @@ class Orchestrator:
             if str(meta.get("lang_id", "")).lower() != "dockerfile":
                 continue
             try:
-                text = (self.root / path).read_text(encoding="utf-8", errors="replace")
+                text = read_source(self.root / path).text
             except OSError:
                 continue
             for m in stage_re.finditer(text):

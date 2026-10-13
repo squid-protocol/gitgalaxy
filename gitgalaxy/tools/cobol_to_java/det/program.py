@@ -788,7 +788,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             longest = max([_dto_size(gen.cics.gp, c) for c in classes], default=0)
             sizes[id(roots[id(dfh)])] = max(sizes.get(id(roots[id(dfh)]), 0), longest)
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
-    storages = []
+    storages: list[tuple[str, str]] = []
     seen = set()
     for rec in records:
         r = roots[id(rec)]

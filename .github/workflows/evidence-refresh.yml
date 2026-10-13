@@ -18,6 +18,8 @@ name: Evidence Refresh
 # files stay content-deterministic (so --check compares content), so the commit it was refreshed at ("as of commit
 # <sha>") is stamped on the bot's commit and PR, not inside the files.
 #
+# #4963: the rendered report is no longer in that PR: it is published to the `generated` branch (publish-report job).
+#
 # Earlier bot PRs failed twice: #4640 was opened against a feature branch (the base is now pinned to main) and #4649
 # went dirty while parallel PRs kept conflicting on the report (those PRs no longer commit it).
 #
@@ -737,6 +739,7 @@ jobs:
     outputs:
       surveyed: ${{ steps.survey.outcome == 'success' }}  # the publish-blockers job runs only on a survey that ran (#4863)
       sha: ${{ steps.asof.outputs.sha }}
+      report: ${{ steps.report.outcome == 'success' }}  # the publish-report job runs only on a report that was rebuilt (#4963)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -930,6 +933,7 @@ jobs:
           python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
+        id: report
         if: always()
         env:
           GG_SCRATCH: ${{ runner.temp }}/scratch
@@ -948,6 +952,15 @@ jobs:
             echo "::warning title=Evidence refresh::the translation survey failed; the reports keep their last measured translation (#4863)"
             python tests/tools/evidence_report.py --refresh --live
           fi
+
+      # #4963: the rendered report is published to the `generated` branch by the publish-report job, not committed on main.
+      - name: Keep the rendered evidence reports for the publish job
+        if: always() && steps.report.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: evidence-report
+          path: gitgalaxy/docs/language_status/evidence_report
+          retention-days: 1
 
       - name: Re-render the CICS spec status page (#4789)
         # Derived output like the report above: PRs no longer commit docs/language_status/cics_spec_status.md (parallel
@@ -1005,7 +1018,7 @@ jobs:
             Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
             Each record's proof was run again on the committed port and case; the records and
             the records are rewritten from those runs (their pages are published from main to the `generated` branch by evidence-pages.yml, #4825). A proof that now fails is recorded as
-            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703),
+            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703) and published to the `generated` branch, not committed (#4963),
             the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/, one file per case: #4789) from the
             sweep, and the CICS spec status page (docs/language_status/cics_spec_status.md, #4789) from main.
             Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
@@ -1016,7 +1029,6 @@ jobs:
             docs/language_status/cics_spec_status.md
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
-            docs/language_status/evidence_report/**
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
@@ -1047,6 +1059,41 @@ jobs:
   # blockers_history.jsonl -- to the `generated` branch under docs/language_status/blockers/, like evidence-pages.yml does
   # for the pages (never a commit on main; blocker-baseline.yml, which surveyed the same corpora a second time and kept an
   # artifact nobody read, no longer runs on a schedule). Burned / pinned corpora only: the census counts stay a local run.
+  # #4963: the rendered evidence report (derived output) goes to the `generated` branch with the other bot output, not into the
+  # bot PR: main then moves only for the records and the ledger, which are inputs of human approval. Main's code only.
+  publish-report:
+    needs: [refresh]
+    if: ${{ !cancelled() && needs.refresh.outputs.report == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write  # push to the `generated` branch only
+    concurrency:
+      group: evidence-pages  # the one writer of the branch, as publish-blockers below and evidence-pages.yml
+      cancel-in-progress: false
+    steps:
+      - name: Checkout the refreshed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: main
+          ref: ${{ needs.refresh.outputs.sha }}
+          persist-credentials: true  # the publish step pushes to `generated` with this token; no PR code runs here
+
+      - name: Download the rendered reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: evidence-report
+          path: main/docs/language_status/evidence_report
+
+      - name: Publish the evidence reports to the generated branch
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp evidence-report \
+            --message "evidence report as of main $SHA" \
+            docs/language_status/evidence_report
+
   publish-blockers:
     needs: [refresh]
     if: ${{ !cancelled() && needs.refresh.outputs.surveyed == 'true' }}

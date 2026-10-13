@@ -1232,7 +1232,7 @@
       "dart/flutter/framework.dart": 2,
       "dart/flutter/navigator.dart": 2,
       "dart/flutter/object.dart": 0,
-      "dart/flutter/semantics.dart": 2,
+      "dart/flutter/semantics.dart": 0,
       "dart/flutter/theme_data.dart": 0
     },
     "db2_sql": {
@@ -2342,7 +2342,7 @@
       "lua/cosmopolitan/redbean-form.lua": 0,
       "lua/cosmopolitan/sort.lua": 0,
       "lua/cosmopolitan/strings.lua": 10,
-      "lua/cosmopolitan/tpack.lua": 19,
+      "lua/cosmopolitan/tpack.lua": 17,
       "lua/cosmopolitan/tracegc.lua": 0
     },
     "lua/darwin-xnu": {
@@ -2540,11 +2540,11 @@
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 2,
       "perl/spamassassin/Bayes.pm": 0,
-      "perl/spamassassin/HTML.pm": 43,
+      "perl/spamassassin/HTML.pm": 40,
       "perl/spamassassin/Makefile.PL": 0,
-      "perl/spamassassin/Message.pm": 5,
+      "perl/spamassassin/Message.pm": 2,
       "perl/spamassassin/Parser.pm": 0,
-      "perl/spamassassin/PerMsgStatus.pm": 32,
+      "perl/spamassassin/PerMsgStatus.pm": 28,
       "perl/spamassassin/SpamAssassin.pm": 2
     },
     "php": {
@@ -2598,8 +2598,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 95,
-      "php/wordpress/functions.php": 187,
+      "php/wordpress/formatting.php": 94,
+      "php/wordpress/functions.php": 183,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 0,
@@ -2613,7 +2613,7 @@
       "plaintext/ansible/requirements.txt": 0
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
-      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 3
+      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 0
     },
     "plaintext/cpython/Tools/unittestgui": {
       "plaintext/cpython/Tools/unittestgui/README.txt": 0
@@ -3096,7 +3096,7 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 28,
+      "python/numpy/core.py": 0,
       "python/numpy/crackfortran.py": 1,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
@@ -3109,7 +3109,7 @@
       "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 0,
       "python/numpy/testutils.py": 0,
-      "python/numpy/ufunc_docstrings.py": 11,
+      "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0
     },
     "python/opencv_dnn_conversion": {
@@ -3872,7 +3872,7 @@
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 19
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 16
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,
@@ -3917,7 +3917,7 @@
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 12
+      "typescript/vscode/vscode.d.ts": 9
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

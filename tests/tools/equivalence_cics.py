@@ -2335,6 +2335,9 @@ FAULT_COMMANDS = (
     "CANCEL",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
+# #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
+LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
+
 _FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
 
 
@@ -2353,6 +2356,11 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     out = []
     for f in sc.get("faults") or []:
         cmd = f.get("cmd", "READ")
+        if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
+                "and no abend code is sourced for it (register X43, refused)"
+            )
         if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
@@ -3304,21 +3312,37 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 }
                 return;
             }
-            Method one = method(service, "handleTransaction", 1);
-            Method two = method(service, "handleTransaction", 2);
-            if (one == null && two == null) {
+            Method one = facade(service, "handleTransaction", 1, false);
+            Method two = facade(service, "handleTransaction", 2, false);
+            Method oneB = facade(service, "handleTransaction", 2, true);
+            Method twoB = facade(service, "handleTransaction", 3, true);
+            if (one == null && two == null && oneB == null && twoB == null) {
                 runTask(service);
                 return;
             }
             top = scenario;
-            entry(program, "handleTransaction");
             Method used;
             Object got;
-            if (commarea == null && one != null) {
+            boolean carriesBytes = false;
+            // #4965: the byte-carrying overload when the service has one (no bytes of a previous task in: the
+            // scenario's COMMAREA is the DTO), else the DTO one
+            if (commarea == null && oneB != null) {
+                used = oneB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(oneB, service, scenario.transid(), null);
+            } else if (twoB != null && (commarea == null || twoB.getParameterTypes()[1].isInstance(commarea))) {
+                used = twoB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(twoB, service, scenario.transid(), commarea, null);
+            } else if (commarea == null && one != null) {
                 used = one;
+                entry(program, "handleTransaction");
                 got = call(one, service, scenario.transid());
             } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
                 used = two;
+                entry(program, "handleTransaction");
                 got = call(two, service, scenario.transid(), commarea);
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
@@ -3330,6 +3354,22 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
+            }
+            if (carriesBytes) {
+                Method accessor = null;
+                for (Method m : service.getClass().getMethods()) {
+                    if (m.getName().equals("lastAnswerBytes") && m.getParameterCount() == 0) {
+                        accessor = m;
+                    }
+                }
+                if (accessor == null) {
+                    throw new FacadeRefused("handleTransaction (bytes) of " + program + " has no lastAnswerBytes()");
+                }
+                // #4965: the bytes the byte-carrying overload answers are the ones its task's RETURN passed on
+                if (!java.util.Arrays.equals((byte[]) call(accessor, service), scenario.returnedBytes())) {
+                    throw new FacadeRefused("lastAnswerBytes() of " + program
+                            + " is not the bytes its RETURN passes on");
+                }
             }
         }
 
@@ -3432,6 +3472,18 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
 
     static Object area(CicsTask task) {
         return task.hasCommarea() ? task.commarea(Object.class) : null;
+    }
+
+    /** #4965: the overload of `name` with `params` parameters that does (bytes) or does not end in the raw
+     *  COMMAREA bytes (byte[]): `handleTransaction(String, byte[])` is not the DTO-less `(String, T)`. */
+    static Method facade(Object service, String name, int params, boolean bytes) {
+        for (Method m : service.getClass().getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == params
+                    && (m.getParameterTypes()[params - 1] == byte[].class) == bytes) {
+                return m;
+            }
+        }
+        return null;
     }
 
     /** The service's public method `name` taking `params` parameters (the deployed bean: a proxy's too), or null. */

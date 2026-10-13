@@ -258,21 +258,6 @@ public final class DetCics {
         return new String(out, cs).getBytes(EBCDIC);
     }
 
-    /** #4501: EIBRESP2 / RESP2 after a failed XCTL, which CicsTask.xctl gives as its condition only: LENGERR is
-     *  RESP2 11 (LENGTH outside 0-32763), PGMIDERR RESP2 1 (IBM, EXEC CICS XCTL conditions). */
-    public static int xctlResp2(String resp) {
-        return "LENGERR".equals(resp) ? 11 : "PGMIDERR".equals(resp) ? 1 : 0;
-    }
-
-    /** #4679: EIBRESP2 / RESP2 after a failed LINK, which CicsTask.link gives as its condition only. IBM (EXEC CICS
-     *  LINK conditions): LENGERR RESP2 11 -- the COMMAREA length is below 0 or above 32763 -- and PGMIDERR RESP2 1 --
-     *  the program has no installed definition and autoinstall is off -- the only two CicsTask.link raises (and the
-     *  cics stub's GGCLINK, which gives the same RESP2). Its other conditions (PGMIDERR 2/3 disabled / not loadable,
-     *  NOTAUTH 101, INVREQ, ROLLEDBACK, SYSIDERR, TERMERR) are not raised by the region, so not mapped here. */
-    public static int linkResp2(String resp) {
-        return xctlResp2(resp);
-    }
-
     /** #4679: a COMMAREA's bytes (in `cs`, the program's storage page) as one travels when no DTO types it: the
      *  region's EBCDIC, as commareaOut gives them (commareaIn undoes it). */
     public static byte[] commareaBytes(byte[] area, Charset cs) {

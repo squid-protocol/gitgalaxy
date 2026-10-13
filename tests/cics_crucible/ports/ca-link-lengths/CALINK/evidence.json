@@ -218,7 +218,7 @@
   "port_sha256": "d6cc86a8d4e09b6b1cc3e7a30ad5fcff23dae5d8e85c5d113fbd8d4cb2dfee54"
  },
  "mutation": {
-  "commit": "5f4648f470687fbe85cdd7befcc99a4c4c256f15",
+  "commit": "979076a30",
   "rejudged": null,
   "seed": 0,
   "mode": null,
@@ -230,8 +230,8 @@
   "survivors": {
    "case_gap": 3,
    "harness_gap": 0,
-   "equivalent": 4,
-   "unreachable": 1,
+   "equivalent": 5,
+   "unreachable": 0,
    "untriaged": 0
   },
   "score_raw": "14/22",
@@ -248,7 +248,7 @@
     "sha256": "8d63af71c999878b857eb6741fdcabac6d264b5384707d64fed1c3e8603053e3"
    },
    "harness": {
-    "sha256": "7689ba747b7f4348f09539420d89682a7fd25935d68f1b2d7bc4804a9c255f83"
+    "sha256": "f49a2cc954114a38adedaccdd71de8ae14296af224e2c496d6399f93081882ea"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

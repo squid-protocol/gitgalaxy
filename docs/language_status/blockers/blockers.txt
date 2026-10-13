@@ -1,11 +1,10 @@
-# blockers in baseline 0d74a182b6d6 (burned + local corpora (no census)): programs with an EXEC CICS command
-translated whole: 94 / 104 (non-burned 0 / 0); refused whole (no statements translated): 3
-distinct gap classes per program: 0: 94, 1: 5, 2: 1, 3: 2, 5: 1, 16: 1
+# blockers in baseline 5eb4d68e305d (burned + local corpora (no census)): programs with an EXEC CICS command
+translated whole: 95 / 104 (non-burned 0 / 0); refused whole (no statements translated): 3
+distinct gap classes per program: 0: 95, 1: 4, 2: 1, 3: 2, 5: 1, 14: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      2 ( 2/ 0)      0 ( 0/ 0)        2  *missing copybook CMQGMOV
      1 ( 1/ 0)      0 ( 0/ 0)        1   DSNTIAC: Db2's message text is not modelled
-     1 ( 1/ 0)      0 ( 0/ 0)        1   EXEC CICS FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended
      1 ( 1/ 0)      0 ( 0/ 0)        1  *missing copybook CMQODV
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS DELETE TOKEN
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS READ TOKEN
@@ -23,10 +22,8 @@ distinct gap classes per program: 0: 94, 1: 5, 2: 1, 3: 2, 5: 1, 16: 1
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS FREEMAIN
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS GET CONTAINER SET
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS GET CONTAINER SET INTOCCSID
-     0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS GETNEXT
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS PUT CONTAINER FROMCCSID
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS SOAPFAULT CREATE
-     0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS STARTBROWSE CONTAINER
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS WEB RECEIVE SET
      0 ( 0/ 0)      0 ( 0/ 0)        1   IF condition: NULL: pointers are not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   SET TO ENTRY: procedure / function pointers are not modelled

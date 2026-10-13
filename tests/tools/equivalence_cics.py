@@ -1630,6 +1630,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _container_command(verb, opts, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
         return _container_browse_command(verb, opts, labels)
+    if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
+        return _channel_command(verb, opts, labels)
     raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
@@ -1747,6 +1749,21 @@ def _in_literal(code: str, pos: int) -> bool:
         elif ch == quote:
             quote = None  # (a doubled quote closes and reopens: the same state at the next character)
     return quote is not None
+
+
+def _channel_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#5005: DELETE CHANNEL -> GGCDELH and QUERY CHANNEL -> GGCQCHN (CHANNEL in GG-CHAN; the count comes back in GG-NUM and
+    is moved to CONTAINERCNT on NORMAL)."""
+    key = f"{verb} CHANNEL"
+    _check_spec(key, opts, (verb,))
+    for need in SPEC[key].groups:
+        if need.kind == "required" and not opts.get(need.options[0]):
+            raise Unsupported(need.msg, [key])
+    lines = [f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
+    if verb == "DELETE":
+        return lines + _call("GGCDELH", []) + _resp(opts, True, labels)
+    return (lines + _call("GGCQCHN", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['CONTAINERCNT']}", "END-IF"]
+            + _resp(opts, True, labels))  # fmt: skip
 
 
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:

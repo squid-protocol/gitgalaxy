@@ -25,7 +25,11 @@ pipeline and compares, cell by cell:
                          a program a LINK / XCTL reaches -- with the scenario's region joined
                          (CicsTask.join), so the facade's task is the scenario's own task. A program
                          with no facade runs through runTask; the proof report lists, per program, the
-                         entry points its passing scenarios ran (`entries`).
+                         entry points its passing scenarios ran (`entries`). #4965: each scenario runs a
+                         second time through the byte-carrying overload handleTransaction(String, [T,] byte[])
+                         where a service has one -- the previous task's RETURN bytes in -- and the bytes
+                         lastAnswerBytes() answers are what the RETURN's COMMAREA is compared by (a port
+                         that passes none answers null: the DTO is compared as before).
 
 Proving one program's port for the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py):
 

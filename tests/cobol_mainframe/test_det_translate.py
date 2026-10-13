@@ -3175,16 +3175,17 @@ def test_a_program_with_zecs_shaped_document_commands_translates_with_no_hole(tm
 
 def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
     """#4816: an XCTL COMMAREA with no item of its own to resolve (an operand commarea_out handles) is never marked, and
-    never raises; one inside the LINKAGE DFHCOMMAREA record -- the record or a field of it -- is marked."""
+    never raises; one inside a LINKAGE 01 record -- the record or a field of it -- is marked."""
     c = _OverCics()
     assert not any("xctlOfLinkage" in x for x in c.command("XCTL PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", ""))
     root = type("I", (), {"name": "DFHCOMMAREA", "section": "LINKAGE", "parent": None})()
     field = type("I", (), {"name": "CA-NUM", "section": "LINKAGE", "parent": root})()
     ws = type("I", (), {"name": "WS-CA", "section": "WORKING-STORAGE", "parent": None})()
-    items = {"DFHCOMMAREA": root, "CA-NUM": field, "WS-CA": ws}
-    c.SIZES = {**c.SIZES, "DFHCOMMAREA": 12, "CA-NUM": 6, "WS-CA": 12}
+    other = type("I", (), {"name": "SUB-AREA", "section": "LINKAGE", "parent": None})()  # #4957: any LINKAGE 01 record
+    items = {"DFHCOMMAREA": root, "CA-NUM": field, "WS-CA": ws, "SUB-AREA": other}
+    c.SIZES = {**c.SIZES, "DFHCOMMAREA": 12, "CA-NUM": 6, "WS-CA": 12, "SUB-AREA": 12}
     c.g.resolve = lambda ref: items[ref.name]
-    for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("WS-CA", False)):
+    for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("SUB-AREA", True), ("WS-CA", False)):
         out = c.command(f"XCTL PROGRAM('XB') COMMAREA({operand}) LENGTH(80)", "")
         assert any("task.xctlOfLinkage();" in x for x in out) is marked, (operand, out)
 

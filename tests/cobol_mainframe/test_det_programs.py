@@ -1901,3 +1901,24 @@ MULTI = """\
 def test_each_program_of_a_multi_program_source_translates_and_runs_on_its_own(unit, want, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     assert _java_run("MULTI", MULTI, tmp_path, unit=unit) == want
+
+
+def test_a_second_01_of_the_same_name_declares_one_storage_or_is_refused(tmp_path):
+    """#4952: CBSA CRECUST declares `01 HIGHEST-CUST-NUMBER` twice (never named in the PROCEDURE DIVISION: a reference
+    would be ambiguous). The port declared its storage twice (javac: variable already defined); an elementary
+    duplicate is now emitted once, whatever its PICTURE or VALUE, and a duplicate group is refused by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    def translate(data: list[str]) -> str:
+        (tmp_path / "DUPX.cbl").write_text(program("DUPX", data, ["DISPLAY X"]))
+        (tmp_path / "project").mkdir(exist_ok=True)
+        return P.translate(tmp_path / "DUPX.cbl", [], "public class DupxService {\n}\n", PKG, None,
+                           tmp_path / "project").java  # fmt: skip
+
+    for dup in ("01 D PIC 9(10) VALUE 0.", "01 D PIC X(3) VALUE 'abc'.", "01 D PIC 9 VALUE 7."):
+        java = translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9(10) VALUE 0.", dup])
+        assert java.count("IMAGE_s_D =") == 1, java
+        assert java.count("Storage s_D ") == 1, java
+    with pytest.raises(ValueError, match="second 01 group named D"):
+        translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9.", "01 D.", "   05 D1 PIC 9."])

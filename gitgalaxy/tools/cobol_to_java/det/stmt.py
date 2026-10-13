@@ -807,6 +807,15 @@ def _set(p: E.Parser, text: str, line: int) -> Stmt:
     m = re.fullmatch(r"(?is)\s*SET\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
     if m:  # a pointer set to an item's address: translated only where the pointer is never read (write_only_pointers)
         return Stmt("SET-POINTER", line, text, {"target": m.group(1).upper(), "of": m.group(2).upper()})
+    m = re.fullmatch(
+        r"(?is)\s*SET\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+(ADDRESS\s+OF\s+)?([A-Z0-9][A-Z0-9-]*)\s*\.?\s*",
+        text,
+    )
+    if m and (
+        m.group(2) or m.group(3).upper() != "NULL"
+    ):  # #4771 (X47): a record set onto a pointer's / a record's storage
+        return Stmt("SET-ADDRESS", line, text, {"record": m.group(1).upper(), "of": m.group(3).upper() if m.group(2) else None,
+                                                "pointer": None if m.group(2) else m.group(3).upper()})  # fmt: skip
     if p.up() == "ADDRESS" or "ADDRESS" in [x.upper() for x in p.t]:
         return Stmt("HOLE", line, text, {"why": "SET ADDRESS OF (pointers)"})
     targets = []

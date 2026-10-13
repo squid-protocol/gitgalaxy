@@ -522,6 +522,80 @@ def test_failed_gh_call_is_reported_not_raised():
     assert lines == ["#7 ready for review: FAILED: boom"]
 
 
+def test_rerun_refused_already_running_is_logged_as_skipped():
+    s = snap()
+
+    def run_already_running(argv):
+        return subprocess.CompletedProcess(argv, 1, "", "The workflow run is already running.")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_already_running)
+    assert lines == ["#7 rerun muninn (run 55): skipped (already running)"]
+
+
+def test_rerun_refused_already_running_in_stdout_is_logged_as_skipped():
+    s = snap()
+
+    def run_already_running(argv):
+        return subprocess.CompletedProcess(argv, 1, "HTTP 409: already running\n", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_already_running)
+    assert lines == ["#7 rerun muninn (run 55): skipped (already running)"]
+
+
+def test_rerun_failure_other_error_is_logged_as_failed():
+    s = snap()
+
+    def run_failed(argv):
+        return subprocess.CompletedProcess(argv, 1, "", "HTTP 500: Internal Server Error")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_failed)
+    assert lines == ["#7 rerun muninn (run 55): FAILED: HTTP 500: Internal Server Error"]
+
+
+def test_rerun_det_refused_already_running_is_logged_as_skipped():
+    s = snap()
+
+    def run_dispatch(argv):
+        if argv[:3] == ["gh", "run", "list"]:
+            return subprocess.CompletedProcess(argv, 0, "42\n", "")
+        if argv[:3] == ["gh", "run", "rerun"]:
+            return subprocess.CompletedProcess(argv, 1, "", "workflow run is already running")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun_det", "sha": SHA}], run=run_dispatch)
+    assert lines == [f"#7 rerun {sg.DET_WORKFLOW} (run 42) for {sg.FULL}: skipped (already running)"]
+
+
+def test_rerun_det_failure_other_error_is_logged_as_failed():
+    s = snap()
+
+    def run_dispatch(argv):
+        if argv[:3] == ["gh", "run", "list"]:
+            return subprocess.CompletedProcess(argv, 0, "42\n", "")
+        if argv[:3] == ["gh", "run", "rerun"]:
+            return subprocess.CompletedProcess(argv, 1, "", "HTTP 404: Not Found")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun_det", "sha": SHA}], run=run_dispatch)
+    assert lines == [f"#7 rerun {sg.DET_WORKFLOW} (run 42) for {sg.FULL}: FAILED: HTTP 404: Not Found"]
+
+
+def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): skipped (already running)"]
+    )
+    assert sg.main(["reconcile"]) == 0
+
+
+def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): FAILED: server error"]
+    )
+    assert sg.main(["reconcile"]) == 1
+
+
 # --- labels and the det planner -------------------------------------------------------------------------------------
 
 

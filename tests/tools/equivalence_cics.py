@@ -948,13 +948,16 @@ def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> lis
 def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X38): WEB RECEIVE INTO (server) -> GGCWRCV (MAXLENGTH in GG-NUM; GG-FLAGS MEDIA when MEDIATYPE is
     given; the stub writes INTO and MEDIATYPE and sets GG-LEN to the bytes returned), then on NORMAL / LENGERR 57 LENGTH moved
-    from GG-LEN. The option rules as the det translator's."""
+    from GG-LEN. #4771 (X47): SET(pointer) -> GGCWRCS, the body in a new block the pointer addresses (MAXLENGTH optional: all
+    the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     _check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("INTO"):
-        raise Unsupported(_rule(key, "required", "INTO"), [key])
-    if not opts.get("MAXLENGTH"):
+    if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
+        raise Unsupported(_rule(key, "one_of", "INTO"), [key])
+    if "INTO" in opts and not opts.get("MAXLENGTH"):
         raise Unsupported(_web_requires(key, "INTO", "MAXLENGTH"), [key])
+    if "SET" in opts and not opts.get("LENGTH"):
+        raise Unsupported(_web_requires(key, "SET", "LENGTH"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     for o in ("INTO", "MEDIATYPE"):
@@ -965,18 +968,67 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     if "LENGTH" in opts and not opts["LENGTH"]:
         raise Unsupported(NEEDS_ARGUMENT, [key])
     lines = [
-        f"MOVE {opts['MAXLENGTH']} TO GG-NUM",
+        f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
         "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
     ]
     media = opts.get("MEDIATYPE") or "GG-QNAME"
-    args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
-            f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+    if "SET" in opts:
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {media}", f"BY VALUE LENGTH OF {media}"]
+        entry = "GGCWRCS"
+    else:
+        args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
+                f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+        entry = "GGCWRCV"
     after = (
         ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
         if opts.get("LENGTH")
         else []
     )
-    return lines + _call("GGCWRCV", args) + after + _resp(opts, True, labels)
+    return lines + _call(entry, args) + after + _resp(opts, True, labels)
+
+
+def _pointer(key: str, text: str | None) -> str:
+    """#4771 (X47): the USAGE POINTER item an option names: a plain data name (GnuCOBOL's own compile refuses a name that is no
+    pointer; a subscripted or qualified one is refused here, as the translator refuses it)."""
+    if not text or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", text) is None:
+        raise Unsupported(f"{key}: a pointer is a plain data name: not modelled", [key])
+    return text.strip()
+
+
+def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
+    LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
+    key = "GETMAIN"
+    _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("SET"):
+        raise Unsupported(_rule(key, "required", "SET"), [key])
+    if ("FLENGTH" in opts) == ("LENGTH" in opts):
+        raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
+    if not opts.get("INITIMG"):
+        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
+    if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
+    form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
+    if not opts.get(form):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
+        raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
+    img = opts["INITIMG"].strip()
+    lines = [
+        f"MOVE {opts[form]} TO GG-NUM",
+        "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
+    ]
+    args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
+    return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
+
+
+def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
+    key = "FREEMAIN"
+    _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("DATAPOINTER"):
+        raise Unsupported(_rule(key, "required", "DATAPOINTER"), [key])
+    return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 
 def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -1292,12 +1344,24 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
                 + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}"])
+                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
+                                    f"BY VALUE {1 if 'WRAP' in opts else 0}"])  # #4770 (X45): WRAP acts at DEFINE DCOUNTER's limits
                 + _resp(opts, True, labels))  # fmt: skip
-    if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
+    if verb == "QUERY" and (
+        "COUNTER" in opts or "DCOUNTER" in opts
+    ):  # #4415 slice 2 (X29): a named counter's value, unchanged
         _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
         if not opts.get("VALUE"):
             raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule("QUERY COUNTER", "one_of", "COUNTER"), ["QUERY COUNTER"])
+        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated
+            if o in opts and "DCOUNTER" not in opts:
+                raise Unsupported(_rule("QUERY COUNTER", "requires", o), ["QUERY COUNTER"])
+        if "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords in 8-byte areas
+            return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                    + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                    + _resp(opts, True, labels))  # fmt: skip
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
@@ -1305,9 +1369,25 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         {"COUNTER", "DCOUNTER"} & set(opts)
     ):  # #4270 (X30): DEFINE / DELETE COUNTER -> GGCDCNT / GGCXCNT
         _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
-        head = [name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated; IBM: MINIMUM needs VALUE
+            if o in opts and "DCOUNTER" not in opts:
+                raise Unsupported(_rule(f"{verb} COUNTER", "requires", o), [f"{verb} COUNTER"])
+        if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
+            why = next(
+                g.msg for g in SPEC["DEFINE COUNTER"].groups if g.kind == "requires" and "VALUE" in (g.any_of or ())
+            )
+            raise Unsupported(why, ["DEFINE COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
         if verb == "DELETE":
             return head + _call("GGCXCNT", []) + _resp(opts, True, labels)
+        if "DCOUNTER" in opts:  # #4770 (X45): VALUE / MINIMUM / MAXIMUM, each an 8-byte area (length 0: omitted)
+            return (
+                head
+                + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                + _resp(opts, True, labels)
+            )
         return (head + [f"MOVE {opts.get('VALUE') or '0'} TO GG-NUM"] + _call("GGCDCNT", [])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
@@ -1374,6 +1454,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _extract_tcpip(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
         return _web_receive(opts, labels)
+    if verb == "GETMAIN":  # #4771 (X47): task storage addressed by a pointer
+        return _getmain(opts, labels)
+    if verb == "FREEMAIN":
+        return _freemain(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
         return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
@@ -1649,6 +1733,18 @@ def _whole_message(pairs: list[tuple[str, str | None]]) -> str:
     key = f"{verb} COUNTER" if verb != "GET" and {"COUNTER", "DCOUNTER"} & set(rest) else verb
     known = whole_refusal(key, verb, rest[0] if rest else None)
     return known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled"
+
+
+def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list[str]:
+    """#4770 (X45): the doubleword areas of a DCOUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits;
+    a literal is refused (the stub reads and writes the area's bytes: a data area is the COBOL form)."""
+    out: list[str] = []
+    for o in names:
+        v = opts.get(o)
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(f"DCOUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+    return out
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:

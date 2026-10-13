@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
@@ -455,6 +456,13 @@ class Cics:
     def int_(self, text: str) -> str:
         return self.g.int_expr(self.operand(text))
 
+    def long_(self, text: str) -> str:
+        """#4770 (X45): a doubleword operand's 64 bits (an unsigned one past 2**63 keeps its low 64 bits, as the counters hold it)."""
+        e = self.operand(text)
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            return f"{int(e.value) if int(e.value) < 2**63 else int(e.value) - 2**64}L"
+        return f"{self.g.num(e)}.longValue()"
+
     def field(self, text: str) -> str:
         return self.g.field_expr(self.ref(text))
 
@@ -845,23 +853,66 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
-            inc = f", {self.int_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            # #4770 (X45): INCREMENT is an unsigned doubleword and WRAP acts at a DEFINE DCOUNTER counter's maximum; the VALUE
+            # of a doubleword counter is unsigned too (a 64-bit value past 2**63 is not a negative number)
+            inc = f", {self.long_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            if "WRAP" in opts:
+                inc = f"{inc or ', 1L'}, true"
+            val = (
+                f"new BigDecimal(Long.toUnsignedString({v}[2]))"
+                if "DCOUNTER" in opts
+                else f"BigDecimal.valueOf({v}[2])"
+            )
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
                     f"{ind}if ({v}[0] == 0) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
-        if verb in ("DEFINE", "DELETE") and "COUNTER" in opts:  # #4270 (X30): the region's named counters
+        if verb in ("DEFINE", "DELETE", "QUERY") and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # #4770 (X45): the spec's groups, for the commands that now take both forms
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
+            for o in ("MINIMUM", "MAXIMUM"):
+                if o in opts and "DCOUNTER" not in opts:
+                    raise CicsError(_msg(f"{verb} COUNTER", "requires", o))
+            if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
+                raise CicsError(_requires("DEFINE COUNTER", "MINIMUM", "VALUE"))
+        if verb in ("DEFINE", "DELETE") and (
+            "COUNTER" in opts or "DCOUNTER" in opts
+        ):  # #4270 (X30): the region's named counters
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            nm = self.name(_arg(opts["COUNTER"]))
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
             if verb == "DELETE":
                 call = f"task.deleteCounter({pool}, {nm})"
+            elif (
+                "DCOUNTER" in opts
+            ):  # #4770 (X45): doubleword limits; IBM's defaults MINIMUM zero, MAXIMUM a doubleword of X'FF'
+                val = self.long_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0L"
+                lo = self.long_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
+                hi = self.long_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
+                call = f"task.defineDcounter({pool}, {nm}, {val}, {lo}, {hi})"
             else:  # (VALUE omitted: IBM's initial value of zero)
                 call = (
                     f"task.defineCounter({pool}, {nm}, {self.int_(_arg(opts['VALUE'])) if opts.get('VALUE') else '0'})"
                 )
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
+        if verb == "QUERY" and "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
+            lines = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
+                if opts.get(o):
+                    lines.append(
+                        ind
+                        + "    "
+                        + self.g.store_into(
+                            self.ref(_arg(opts[o])), f"new BigDecimal(Long.toUnsignedString({v}[{i}]))", False
+                        )
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
         if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
@@ -871,7 +922,7 @@ class Cics:
                     f"{ind}}}",
                     *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
-            # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
+            # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
@@ -1160,6 +1211,8 @@ class Cics:
             return self.send_control(opts, ind)
         if verb == "RECEIVE":
             return self.receive(opts, ind)
+        if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
+            return self.storage(key, opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)
         if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
@@ -1451,16 +1504,25 @@ class Cics:
                     store("VALUELENGTH", f"{r}.value().length()"), f"{ind}}}",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key == "WEB RECEIVE":
-            if not opts.get("INTO"):
-                raise CicsError(_msg(key, "required", "INTO"))
-            if not opts.get("MAXLENGTH"):
+            if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
+                raise CicsError(_msg(key, "one_of", "INTO"))
+            if "INTO" in opts and not opts.get("MAXLENGTH"):
                 raise CicsError(_requires(key, "INTO", "MAXLENGTH"))
+            if "SET" in opts and not opts.get("LENGTH"):
+                raise CicsError(_requires(key, "SET", "LENGTH"))
             if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
                 raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
-            into = req("INTO")
-            call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
-            out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
-                   put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
+            if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
+                ptr = self.pointer(opts["SET"])
+                most = self.int_(req("MAXLENGTH")) if opts.get("MAXLENGTH") else "Integer.MAX_VALUE"
+                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE);",
+                       f"{ind}if ({r}.body() != null) {{",
+                       f"{ind}    DetCics.receivedBlock(task, {ptr}, {r}.body(), CS);"]  # fmt: skip
+            else:
+                into = req("INTO")
+                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
+                out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
+                       put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
             if "LENGTH" in opts:
                 out.append(store("LENGTH", f"{r}.body().length()"))
             if "MEDIATYPE" in opts:
@@ -1871,6 +1933,46 @@ class Cics:
         flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
         return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
                 *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+
+    def pointer(self, text: str | None) -> str:
+        """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        try:
+            return self.g.pointer_item(_arg(text).strip())
+        except Untranslatable as e:
+            raise CicsError(str(e)) from None
+
+    def storage(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) and FREEMAIN DATAPOINTER(ptr) on CicsTask's blocks
+        of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
+        sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value")."""
+        r = self.g.tmpname("storage")
+        if key == "FREEMAIN":
+            if not opts.get("DATAPOINTER"):
+                raise CicsError(_msg(key, "required", "DATAPOINTER"))
+            ptr = self.pointer(opts["DATAPOINTER"])
+            return [f"{ind}int[] {r} = task.freemain(DetCics.pointerValue({ptr}));",
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if not opts.get("SET"):
+            raise CicsError(_msg(key, "required", "SET"))
+        if ("FLENGTH" in opts) == ("LENGTH" in opts):
+            raise CicsError(_msg(key, "one_of", "FLENGTH"))
+        if not opts.get("INITIMG"):
+            raise CicsError(_msg(key, "required", "INITIMG"))
+        if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
+            raise CicsError(_msg(key, "at_most_one", "USERDATAKEY"))
+        if _literal(opts["INITIMG"]) is not None or not re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]):
+            raise CicsError("GETMAIN INITIMG as a literal: a data area is the COBOL form")
+        if self.size(opts["INITIMG"]) != 1:
+            raise CicsError("GETMAIN INITIMG is not one byte")
+        ptr = self.pointer(opts["SET"])
+        form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
+        if not opts.get(form):
+            raise CicsError(f"{form} needs an argument")
+        halfword = str(form == "LENGTH").lower()
+        call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     def receive(self, opts: dict, ind: str) -> list[str]:
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.

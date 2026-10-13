@@ -1464,6 +1464,93 @@ public class CicsTask {
         return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
     }
 
+    // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
+    /** One block of task storage: GETMAIN (kind 0), a WEB RECEIVE SET body (1), the bytes of a LINKAGE record whose
+     *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
+    private static final class Block {
+        byte[] bytes;
+        int kind;
+        boolean bound;
+        Block(byte[] bytes, int kind) {
+            this.bytes = bytes;
+            this.kind = kind;
+        }
+    }
+
+    private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
+    private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
+    private long nextBlock = 1;
+
+    private long newBlock(byte[] bytes, int kind) {
+        long h = nextBlock++;
+        blocks.put(h, new Block(bytes, kind));
+        return h;
+    }
+
+    /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
+     *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+    public long[] getmain(long length, boolean halfword, int initimg) {
+        if (length < 1) {
+            return new long[] {22, 1, 0};
+        }
+        if (length > 268435456L || (halfword && length > 65520)) {
+            throw refused("GETMAIN length beyond the limit");
+        }
+        byte[] b = new byte[(int) length];
+        java.util.Arrays.fill(b, (byte) initimg);
+        return new long[] {0, 0, newBlock(b, 0)};
+    }
+
+    /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
+     *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
+    public int[] freemain(long handle) {
+        Block b = blocks.get(handle);
+        if (b == null || b.kind == 2) {
+            return new int[] {16, 1};
+        }
+        if (b.kind != 0) {
+            throw refused("FREEMAIN of storage already freed or received");
+        }
+        b.kind = 3;
+        return new int[] {0, 0};
+    }
+
+    /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
+    public long acquireReceived(byte[] body) {
+        if (body.length > 268435456L) {
+            throw refused("WEB RECEIVE SET body beyond the limit");
+        }
+        return newBlock(body.clone(), 1);
+    }
+
+    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
+    public long addressOf(byte[] record) {
+        return addressed.computeIfAbsent(record, r -> newBlock(r, 2));
+    }
+
+    /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
+     *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
+     *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
+     *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
+    public byte[] storageAt(long handle, int need) {
+        Block b = blocks.get(handle);
+        if (b == null) {
+            throw refused("SET ADDRESS OF a null or unknown pointer");
+        }
+        if (b.kind == 3) {
+            throw refused("SET ADDRESS OF storage already freed");
+        }
+        if (b.bytes.length < need) {
+            if (b.kind == 2 || b.bound) {
+                throw refused("SET ADDRESS OF a record longer than its storage");
+            }
+            b.bytes = java.util.Arrays.copyOf(b.bytes, need);
+        }
+        b.bound = true;
+        return b.bytes;
+    }
+
     /** WEB READ HTTPHEADER's outcome: RESP, RESP2 and, on NORMAL, the header's value, else null. */
     public record WebHeader(int resp, int resp2, String value) {
     }
@@ -3192,6 +3279,9 @@ public class CicsTask {
     }
 
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
+    /** #4770 (X45): the {minimum, maximum} (unsigned doublewords) of a counter DEFINE DCOUNTER made; a counter with no entry
+     *  (DEFINE COUNTER's, or one a scenario states) has limits the run does not state. */
+    private java.util.Map<String, long[]> counterLimits = new java.util.HashMap<>();
 
     /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
     public CicsTask withCounters(java.util.Map<String, Long> counters) {
@@ -3241,24 +3331,104 @@ public class CicsTask {
      *  counter that would pass 4294967295 -- the smallest maximum IBM's page leaves open -- is refused, as is an INCREMENT
      *  not above zero (IBM gives it no meaning). */
     public long[] getCounter(String pool, String name, long increment) {
+        return getCounter(pool, name, increment, false);
+    }
+
+    /** GET DCOUNTER ... INCREMENT(n) [WRAP] (X30; #4770, X45): {RESP, RESP2, value}, the INCREMENT an unsigned doubleword.
+     *  A counter DEFINE DCOUNTER made has the limits it was given (unsigned): at its limit (the value past MAXIMUM, which a
+     *  GET leaves it at when it reaches it) WRAP "resets the current value ... equal to the minimum value" and the GET
+     *  returns that, and without WRAP the GET is SUPPRESSED (72) RESP2 101 and "the current number is not changed". An
+     *  INCREMENT beyond MAXIMUM - MINIMUM, or one that carries the counter past MAXIMUM + 1 (IBM's REDUCE / 406 boundaries
+     *  are not stated), is refused; so is a counter that would pass a doubleword. A counter with no limits entry is as
+     *  before: WRAP changes nothing and one that would pass 4294967295 is refused. */
+    public long[] getCounter(String pool, String name, long increment, boolean wrap) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new long[] {16, bad, 0};
         }
-        if (increment <= 0) {
+        if (increment == 0) {
             throw refused("GET COUNTER with an INCREMENT not above zero");
         }
-        java.util.Map<String, Long> all = root().counters;
+        CicsTask r = root();
         String key = counterKey(pool, name);
-        Long v = all.get(key);
+        Long v = r.counters.get(key);
         if (v == null) {
             return new long[] {16, 201, 0};
         }
-        if (v + increment > 4294967295L) {
-            throw refused("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null) {
+            if (increment < 0 || v + increment > 4294967295L) {
+                throw refused(increment < 0 ? "GET COUNTER past a doubleword" : "GET COUNTER past 4294967295: the counter's maximum is not stated");
+            }
+            r.counters.put(key, v + increment);
+            return new long[] {0, 0, v};
         }
-        all.put(key, v + increment);
+        long min = lim[0], max = lim[1];
+        if (Long.compareUnsigned(increment, max - min) > 0) {
+            throw refused("GET COUNTER with an INCREMENT beyond the counter's range");
+        }
+        if (max != -1L && Long.compareUnsigned(v, max) > 0) {  // at its limit: the counter is MAXIMUM + 1
+            if (!wrap) {
+                return new long[] {72, 101, 0};
+            }
+            r.counters.put(key, min + increment);
+            return new long[] {0, 0, min};
+        }
+        long next = v + increment;
+        if (Long.compareUnsigned(next, v) < 0) {
+            throw refused("GET COUNTER past a doubleword");
+        }
+        if (Long.compareUnsigned(next, max) > 0 && Long.compareUnsigned(next - max, 1) > 0) {
+            throw refused("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+        }
+        r.counters.put(key, next);
         return new long[] {0, 0, v};
+    }
+
+    /** DEFINE DCOUNTER (IBM CICS TS, DEFINE COUNTER and DEFINE DCOUNTER; #4770, X45): {RESP, RESP2} -- unsigned doublewords:
+     *  the caller passes MINIMUM 0, MAXIMUM -1 (a doubleword of X'FF', IBM's defaults) and VALUE 0 for what the command
+     *  omits. INVREQ 407 when MAXIMUM is below MINIMUM, 406 when VALUE is below MINIMUM or above MAXIMUM + 1, 202 for a
+     *  duplicate, 403 / 404 for a name outside IBM's rules (407 / 406 are checked first: the page gives no order). */
+    public int[] defineDcounter(String pool, String name, long value, long min, long max) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (Long.compareUnsigned(max, min) < 0) {
+            return new int[] {16, 407};
+        }
+        if (Long.compareUnsigned(value, min) < 0 || (max != -1L && Long.compareUnsigned(value, max + 1) > 0)) {
+            return new int[] {16, 406};
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        if (r.counters.containsKey(key)) {
+            return new int[] {16, 202};
+        }
+        r.counters.put(key, value);
+        r.counterLimits.put(key, new long[] {min, max});
+        return new int[] {0, 0};
+    }
+
+    /** QUERY DCOUNTER (#4770, X45): {RESP, RESP2, value, minimum, maximum} -- the counter's value, which stays, and its
+     *  limits (unsigned doublewords). `limits`: the command asks for MINIMUM or MAXIMUM, which a counter with no limits entry
+     *  (DEFINE COUNTER's, or a scenario's) has none the run states for: refused. */
+    public long[] queryDcounter(String pool, String name, boolean limits) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new long[] {16, bad, 0, 0, 0};
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
+        if (v == null) {
+            return new long[] {16, 201, 0, 0, 0};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null && limits) {
+            throw refused("QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        }
+        return new long[] {0, 0, v, lim == null ? 0 : lim[0], lim == null ? 0 : lim[1]};
     }
 
     /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30): {RESP, RESP2} -- the counter created with VALUE (the caller
@@ -3288,6 +3458,7 @@ public class CicsTask {
         if (bad == 403) {
             return new int[] {16, bad};
         }
+        root().counterLimits.remove(counterKey(pool, name));
         java.util.Map<String, Long> all = root().counters;
         return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
     }

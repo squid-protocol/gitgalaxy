@@ -46,6 +46,12 @@ _PARTITION = "partitions / logical device codes: the region's terminal is one un
 _OTEL = "OpenTelemetry spans are not modelled"
 _TRACE = "user trace and monitoring points are not modelled"
 
+_INQUIRE_CONTAINER = (
+    "IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE); BTS is not "
+    "modelled and there is no channel form (a channel's container names come from STARTBROWSE CONTAINER, its length "
+    "from GET CONTAINER NODATA FLENGTH)"
+)
+
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # channels and containers beyond the container commands (#4270 slice 1, #4951)
@@ -77,13 +83,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("INQUIRE ACTIVITYID", None, _BTS),
     # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE / DATALENGTH / SET): no
     # channel or browse form (the channel browse is STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER, X42) (#5005, X44)
-    (
-        "INQUIRE CONTAINER",
-        None,
-        "IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE); BTS is not "
-        "modelled and there is no channel form (a channel's container names come from STARTBROWSE CONTAINER, its length "
-        "from GET CONTAINER NODATA FLENGTH)",
-    ),
+    ("INQUIRE CONTAINER", None, _INQUIRE_CONTAINER),
     ("INQUIRE EVENT", None, _BTS),
     ("INQUIRE PROCESS", None, _BTS),
     ("INQUIRE TIMER", None, _BTS),

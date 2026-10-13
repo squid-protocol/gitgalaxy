@@ -2039,6 +2039,7 @@ public class CicsTask {
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
         String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
         String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
+        String doy = String.format(java.util.Locale.ROOT, "%03d", t.getDayOfYear());
         List<String> parts = switch (form) {
             case "YYYYMMDD" -> List.of(y4, m, d);
             case "MMDDYYYY" -> List.of(m, d, y4);
@@ -2046,9 +2047,30 @@ public class CicsTask {
             case "YYMMDD" -> List.of(y2, m, d);
             case "MMDDYY" -> List.of(m, d, y2);
             case "DDMMYY" -> List.of(d, m, y2);
+            case "YYDDD" -> List.of(y2, doy);
+            case "YYYYDDD" -> List.of(y4, doy);
+            case "YYDDMM" -> List.of(y2, d, m);
+            case "YYYYDDMM" -> List.of(y4, d, m);
             default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
         };
         return String.join(datesep, parts);
+    }
+
+    /** FORMATTIME ABSTIME(t) DAYCOUNT / DAYOFMONTH / DAYOFWEEK / MONTHOFYEAR / YEAR / MILLISECONDS: the binary integer IBM
+     *  describes. DAYCOUNT "the number of days since 1 January 1900 (day 1)": 1 January 1900 is day 1. DAYOFWEEK: Sunday=0,
+     *  Saturday=6. MILLISECONDS: the milliseconds in the current second, 0 - 999. */
+    public static long formatNumber(long abstime, String form) {
+        refuseNegativeAbstime(abstime);
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        return switch (form) {
+            case "DAYCOUNT" -> abstime / 86_400_000L + 1;
+            case "DAYOFMONTH" -> t.getDayOfMonth();
+            case "DAYOFWEEK" -> t.getDayOfWeek().getValue() % 7;
+            case "MONTHOFYEAR" -> t.getMonthValue();
+            case "YEAR" -> t.getYear();
+            case "MILLISECONDS" -> abstime % 1000;
+            default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
+        };
     }
 
     /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */

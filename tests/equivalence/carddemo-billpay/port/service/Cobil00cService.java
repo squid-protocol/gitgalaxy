@@ -630,8 +630,11 @@ public class Cobil00cService {
             CicsTask.FileRead<CardXrefRecord> r = task.read("CXACAIX", () -> lookupXref(acctKey));
             resp = r.resp();
             reas = r.resp2();
-            if (resp == 0) {
+            if (resp == 0 || resp == 15) {  // DUPKEY: IBM retrieves the record, so CARD-XREF-RECORD is filled
                 xref = CardXrefRecord.fromRecord(r.record().toRecord(cs), cs);
+            }
+            if (resp == 0) {
+                return;
             } else if (resp == 13) {
                 fail("Account ID NOT found...", "ACTIDIN");
             } else {

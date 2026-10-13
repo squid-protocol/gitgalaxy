@@ -102,7 +102,7 @@ typedef struct {
 /* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
 enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
-       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
+       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, DUPKEY = DFHRESP_DUPKEY, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
        END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
 
 static int seq = 0;
@@ -214,6 +214,10 @@ int GGCAREA(char **area, int len) {
  * command counts (per task: a task is one process), whether or not it faults. */
 static int fault_counts[32];
 static char fault_keys[32][40];
+/* #4623: a planned DUPKEY is not a failure of the read. IBM retrieves the record through the non-unique alternate
+ * index and answers DUPKEY (RESP2 140) because another record with the same key follows. So injected() holds it
+ * back (the read runs) and dupkey_apply() turns the NORMAL of a read that found its record into it. */
+static struct { int on, n, resp, resp2; char cmd[16], file[32]; } dupkey;
 static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     char path[3000], line[256], pcmd[16], pfile[32], nth[16];
     int presp, presp2, n = 0, slot = -1, hit = 0;
@@ -225,6 +229,7 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     if (slot < 0) return 0;
     if (fault_keys[slot][0] == 0) snprintf(fault_keys[slot], sizeof fault_keys[slot], "%s", key);
     n = ++fault_counts[slot];
+    dupkey.on = 0;
     snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
     FILE *f = fopen(path, "r");
     while (f && !hit && fgets(line, sizeof line, f)) {
@@ -237,12 +242,30 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
         hit = 1;
     }
     if (f) fclose(f);
+    if (hit && *resp == DFHRESP_DUPKEY) {
+        dupkey.on = 1; dupkey.n = n; dupkey.resp = *resp; dupkey.resp2 = *resp2;
+        snprintf(dupkey.cmd, sizeof dupkey.cmd, "%s", cmd);
+        snprintf(dupkey.file, sizeof dupkey.file, "%s", file);
+        return 0;
+    }
     if (hit) {
         snprintf(path, sizeof path, "%s/faults.txt", dir_out());
         FILE *log = fopen(path, "a");
         if (log) { fprintf(log, "%s %s %d %d %d\n", cmd, file, n, *resp, *resp2); fclose(log); }
     }
     return hit;
+}
+
+static void dupkey_apply(gg_cics *c) {
+    if (!dupkey.on) return;
+    dupkey.on = 0;
+    if (c->resp != NORMAL) return;  /* no record was retrieved: nothing for DUPKEY to qualify */
+    c->resp = dupkey.resp;
+    c->resp2 = dupkey.resp2;
+    char path[3000];
+    snprintf(path, sizeof path, "%s/faults.txt", dir_out());
+    FILE *log = fopen(path, "a");
+    if (log) { fprintf(log, "%s %s %d %d %d\n", dupkey.cmd, dupkey.file, dupkey.n, c->resp, c->resp2); fclose(log); }
 }
 
 /* ---- file updates (CardDemo's update programs) --------------------------------------------------------------
@@ -589,6 +612,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     int shown = keylen < 200 ? keylen : 200;
     memcpy(key, ridfld, (size_t)shown);
     key[shown] = '\0';
+    dupkey_apply(c);
     snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
     event(ev, NULL, 0);
     return 0;
@@ -775,6 +799,7 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
         if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
     }
     free(all);
+    dupkey_apply(c);
     rba_event(verb, want, rba, c->resp);
     return 0;
 }
@@ -890,6 +915,7 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
         }
         free(all);
     }
+    dupkey_apply(c);
     file_event(verb, want, ridfld, keylen, c->resp);
     return 0;
 }
@@ -2070,6 +2096,49 @@ int GGCDELC(gg_cics *c) {
     return 0;
 }
 
+/* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
+ * CicsTask (register X44). The channel's name is GG-CHAN. */
+
+/* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
+ * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */
+int GGCDELH(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (chans[ch - 1].c[i].used) free(chans[ch - 1].c[i].data);
+        memset(&chans[ch - 1].c[i], 0, sizeof chans[ch - 1].c[i]);
+    }
+    chans[ch - 1].shape++;
+    level *L = &levels[lvl];
+    for (int i = 0; i < L->nscope; i++) {
+        if (L->scope[i] == ch) {
+            for (int j = i; j + 1 < L->nscope; j++) L->scope[j] = L->scope[j + 1];
+            L->nscope--;
+            break;
+        }
+    }
+    return 0;
+}
+
+/* QUERY CHANNEL: the number of containers into GG-NUM; CHANNELERR RESP2 2 for a channel not in scope. */
+int GGCQCHN(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    int n = 0;
+    for (int i = 0; i < MAX_CONTAINERS; i++) if (chans[ch - 1].c[i].used) n++;
+    c->num = n;
+    return 0;
+}
+
 /* ---- #4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL), STARTBROWSE /
  * GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); the same semantics as CicsTask (register X42). */
 
@@ -2919,7 +2988,7 @@ static void dispatch_children(void) {
             setenv("GGCICS_CHILDPROG", program, 1);
             if (getenv("COB_TRACE_FILE")) setenv("COB_TRACE_FILE", trace, 1); /* (its own: the parent's stays open) */
             const char *gone[] = {"GGCICS_FACILITY", "GGCICS_STARTCODE", "GGCICS_ORIGIN", "GGCICS_UCTRANST",
-                                  "GGCICS_WEBREQ", "GGCICS_HTTP", "GGCICS_LU2", "GGCICS_URIMAPS", "GGCICS_DOCTEMPLATES"};
+                                  "GGCICS_WEBREQ", "GGCICS_TCPIP", "GGCICS_HTTP", "GGCICS_LU2", "GGCICS_URIMAPS", "GGCICS_DOCTEMPLATES"};
             for (size_t j = 0; j < sizeof gone / sizeof gone[0]; j++) unsetenv(gone[j]);
             execl("/proc/self/exe", "task", (char *)NULL);
             _exit(97);
@@ -3458,6 +3527,7 @@ int GGCWTO(gg_cics *c, char *from) {
 #define GG_MAXDOCS 64
 static unsigned char *docs[GG_MAXDOCS];
 static int doc_len[GG_MAXDOCS];
+static int doc_dead[GG_MAXDOCS]; /* #4941: deleted by a WEB SEND DOCSTATUS(DOCDELETE) */
 static int ndocs = 0;
 
 static int doc_new(const unsigned char *data, int len, char *tok, int toklen) {
@@ -3565,7 +3635,7 @@ int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen) {
         snprintf(t, sizeof t, "GGDOC%011d", i + 1);
         if (strcmp(t, want) == 0) break;
     }
-    if (i == ndocs) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (i == ndocs || doc_dead[i]) { c->resp = NOTFND; c->resp2 = 1; return 0; }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     n = doc_len[i];
     copied = n < c->len ? n : c->len;
@@ -3576,12 +3646,15 @@ int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen) {
     return 0;
 }
 
+static void web_flush(void); /* #4941 */
+
 /* The program returned to the driver without a RETURN / XCTL / ABEND. */
 int GGCEND(gg_cics *c) {
     (void)c;
     /* the task's program GOBACKed with no RETURN / XCTL / ABEND: at the highest level that GOBACK is the
      * RETURN (no TRANSID, no COMMAREA), as GGCPEND has it for a task run through GGCRUN */
     if (!ended) return_event("", NULL, 0);
+    web_flush(); /* #4941: an ACTION(EVENTUAL) WEB SEND goes out at the end of the task */
     containers_out();
     child_end(); /* #4950 */
     return 0;
@@ -3929,12 +4002,28 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
  * a request is stated is read here: WEB RECEIVE / EXTRACT / READ HTTPHEADER are not modelled yet). GG-LEN FROMLENGTH, GG-ITEM
  * ACTION (0: not given), GG-NUM STATUSCODE (-1: not given), GG-HOURS STATUSLEN (-1: not given), GG-MINS the conversion (0, 1
  * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
-static int web_sent = 0;
-static int web_send_failed = 0; /* #4941: a WEB SEND ended in a condition */
+static int web_sent = 0;        /* an ACTION(IMMEDIATE) response was sent */
+static int web_send_failed = 0; /* #4941: the last WEB SEND ended in a condition */
+static int web_issued = 0;      /* a WEB SEND was accepted (IMMEDIATE or EVENTUAL) */
+/* #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (its WEB-SEND event line and body), the document an
+ * EVENTUAL DOCTOKEN send (not DOCDELETE) sent as it was sent, and the DOCTOKEN WEB RETRIEVE gave for it (a new document). */
+static int web_held = 0, web_held_len = 0, web_held_doclen = 0, web_held_tok = 0;
+static char web_held_ev[WEB_TXT * 4 + 200];
+static unsigned char *web_held_body = NULL, *web_held_doc = NULL;
 
-static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap) {
+/* The task ended: an ACTION(EVENTUAL) response is sent now (recorded after the task's other events); a task that ended in an
+ * abend with one held is refused (IBM does not say whether the response is sent). As CicsTask.events. */
+static void web_flush(void) {
+    if (!web_held) return;
+    if (terminated) refuse("WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend");
+    web_held = 0;
+    event(web_held_ev, (const char *)web_held_body, web_held_len);
+}
+
+static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap,
+                         int ofdoc, int doc_i, int docstatus) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
-    int action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
+    int eventual, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
     hasm = strstr(flags, "MEDIA") != NULL;
     hast = strstr(flags, "STEXT") != NULL;
@@ -3955,17 +4044,40 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (ofdoc && doc_i < 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
+    if (ofdoc && docstatus != 0 && docstatus != 295 && docstatus != 296) { c->resp = INVREQ; c->resp2 = 143; conds++; }
     if ((status == 204 || status == 205 || status == 304) && fl > 0) { c->resp = INVREQ; c->resp2 = 72; conds++; }
     if (conds > 1) refuse("WEB SEND with more than one condition at once");
     if (conds == 1) { web_send_failed = 1; return 0; }
-    if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
-    web_sent = 1;
+    eventual = action != 2; /* (an omitted ACTION is EVENTUAL for a send that is not chunked: IBM) */
+    if (!eventual && web_held) refuse("WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send");
+    web_send_failed = 0;
+    web_issued = 1;
     web_hex(mt, hasm ? mtl : 0, hx[0]);
     if (hast) { int n = sl < 0 ? stextcap : sl; web_hex(stext, n, hx[1]); } else strcpy(hx[1], "-");
-    snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=IMMEDIATE resp=0 resp2=0",
-             status == -1 ? 200 : status, hx[1], hx[0]);
-    event(ev, from, fl);
+    snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=%s resp=0 resp2=0",
+             status == -1 ? 200 : status, hx[1], hx[0], eventual ? "EVENTUAL" : "IMMEDIATE");
+    free(web_held_doc);
+    web_held_doc = NULL;
+    web_held_tok = 0;
+    if (eventual) {
+        free(web_held_body);
+        web_held_body = malloc(fl > 0 ? (size_t)fl : 1);
+        memcpy(web_held_body, from, (size_t)(fl > 0 ? fl : 0));
+        web_held_len = fl;
+        strcpy(web_held_ev, ev);
+        web_held = 1; /* sent at the end of the task; a second send replaces it */
+        if (ofdoc && docstatus != 295) {
+            web_held_doc = malloc(fl > 0 ? (size_t)fl : 1);
+            memcpy(web_held_doc, from, (size_t)(fl > 0 ? fl : 0));
+            web_held_doclen = fl;
+        }
+    } else {
+        web_sent = 1;
+        event(ev, from, fl);
+    }
+    if (ofdoc && docstatus == 295) doc_dead[doc_i] = 1; /* DOCDELETE: deleted once its contents are saved for sending */
     return 0;
 }
 
@@ -3981,12 +4093,12 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, from, fl, media, mediacap, stext, stextcap);
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0);
 }
 
 /* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
- * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. As
- * CicsTask.webSendDocument. */
+ * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. GG-SECS is
+ * DOCSTATUS's CVDA (0: not given; 295 DOCDELETE, 296 NODOCDELETE). As CicsTask.webSendDocument. */
 int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap) {
     char flags[41], want[100];
     int sl = c->hours, hast, i;
@@ -4003,10 +4115,11 @@ int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *
         snprintf(t, sizeof t, "GGDOC%011d", i + 1);
         if (strcmp(t, want) == 0) break;
     }
-    if (i == ndocs) refuse("WEB SEND DOCTOKEN of a document the task did not create");
     if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, (const char *)docs[i], doc_len[i], media, mediacap, stext, stextcap);
+    if (i == ndocs || doc_dead[i]) i = -1; /* NOTFND 1: not created, deleted or wrongly named (IBM lists one RESP2) */
+    return web_send_body(c, i < 0 ? "" : (const char *)docs[i], i < 0 ? 0 : doc_len[i], media, mediacap, stext, stextcap, 1,
+                         i, c->secs);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ
@@ -4093,6 +4206,109 @@ int GGCWEXT(gg_cics *c, char *host, int hostcap, char *method, int methodcap, ch
     return 0;
 }
 
+/* ---- #4972: EXTRACT TCPIP, the connection the task was started on (IBM CICS TS, EXEC CICS EXTRACT TCPIP; register X38) ----
+ * The connection is the file $GGCICS_TCPIP names (unstated, EXTRACT TCPIP is refused): `T CLIENTADDR CLIENTNAMEHEX|-
+ * SERVERADDR SERVERNAMEHEX|- PORT SSLTYPE`, the names in hex ("-": the DNS knows none). As CicsTask.extractTcpip answers. */
+static struct { int loaded, port, hascname, hassname; char caddr[64], saddr[64], ssl[16], cname[WEB_TXT],
+                sname[WEB_TXT]; } tcpipc;
+
+static void tcpip_load(void) {
+    const char *env = getenv("GGCICS_TCPIP");
+    static char line[70000], a[8][33000];
+    FILE *f;
+    if (tcpipc.loaded) return;
+    if (!env || !(f = fopen(env, "r"))) refuse("the TCP/IP connection is not stated for this task");
+    while (fgets(line, sizeof line, f)) {
+        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s", a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+        if (k == 7 && strcmp(a[0], "T") == 0) {
+            snprintf(tcpipc.caddr, sizeof tcpipc.caddr, "%s", a[1]);
+            tcpipc.hascname = strcmp(a[2], "-") != 0;
+            web_unhex(a[2], tcpipc.cname, WEB_TXT);
+            snprintf(tcpipc.saddr, sizeof tcpipc.saddr, "%s", a[3]);
+            tcpipc.hassname = strcmp(a[4], "-") != 0;
+            web_unhex(a[4], tcpipc.sname, WEB_TXT);
+            tcpipc.port = atoi(a[5]);
+            snprintf(tcpipc.ssl, sizeof tcpipc.ssl, "%s", a[6]);
+        }
+    }
+    fclose(f);
+    tcpipc.loaded = 1;
+}
+
+/* An IPv4 address in dotted decimal as a number (-1: it is not one: four decimal parts 0-255, no leading zero). */
+static long long ipv4_value(const char *s) { /* long long: `long` is 32 bits on Windows, and 192.x is above 2^31 */
+    long long value = 0;
+    int parts = 0;
+    while (1) {
+        int n = 0, digits = 0;
+        if (*s == '0' && s[1] >= '0' && s[1] <= '9') return -1;
+        while (*s >= '0' && *s <= '9') {
+            n = n * 10 + (*s++ - '0');
+            if (++digits > 3) return -1;
+        }
+        if (digits == 0 || n > 255) return -1;
+        value = value * 256 + n;
+        parts++;
+        if (*s == '\0') break;
+        if (*s++ != '.') return -1;
+    }
+    return parts == 4 ? value : -1;
+}
+
+/* GG-LEN CADDRLENGTH, GG-HOURS CNAMELENGTH, GG-MINS SADDRLENGTH, GG-SECS SNAMELENGTH (each in, 0 when the option is missing;
+ * out: the piece's length); GG-FLAGS names A1 N1 A2 N2 (client address, client name, server address, server name given) and U1 U2 F1 F2 (a number asked
+ * for). The numbers come from GGCTCPN. */
+int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, char *saddr, int saddrcap, char *sname,
+            int snamecap) {
+    char flags[81];
+    int ca, cn, sa, sn, cnu, snu, cf, sf, cl = c->len, nl = c->hours, sl = c->mins, ml = c->secs;
+    int badlength, toosmall;
+    long long cnum, snum;
+    tcpip_load();
+    trim(c->flags, 40, flags);
+    ca = strstr(flags, "A1") != NULL;
+    cn = strstr(flags, "N1") != NULL;
+    sa = strstr(flags, "A2") != NULL;
+    sn = strstr(flags, "N2") != NULL;
+    cnu = strstr(flags, "U1") != NULL;
+    snu = strstr(flags, "U2") != NULL;
+    cf = strstr(flags, "F1") != NULL;
+    sf = strstr(flags, "F2") != NULL;
+    if ((ca && cl > caddrcap) || (cn && nl > cnamecap) || (sa && sl > saddrcap) || (sn && ml > snamecap))
+        refuse("EXTRACT TCPIP length beyond its area");
+    cnum = ipv4_value(tcpipc.caddr);
+    snum = ipv4_value(tcpipc.saddr);
+    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647LL)
+        || (snu && snum > 2147483647LL)) refuse("EXTRACT TCPIP address");
+    if (sn && !tcpipc.hassname) refuse("EXTRACT TCPIP");
+    badlength = (ca && cl <= 0) || (cn && nl <= 0) || (sa && sl <= 0) || (sn && ml <= 0);
+    toosmall = (ca && cl > 0 && (int)strlen(tcpipc.caddr) > cl) || (cn && nl > 0 && (int)strlen(tcpipc.cname) > nl)
+               || (sa && sl > 0 && (int)strlen(tcpipc.saddr) > sl) || (sn && ml > 0 && (int)strlen(tcpipc.sname) > ml);
+    if (badlength && toosmall) refuse("EXTRACT TCPIP with more than one condition at once");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (badlength) { c->resp = LENGERR; c->resp2 = 1; return 0; }
+    if (toosmall) refuse("EXTRACT TCPIP");
+    if (ca) { memcpy(caddr, tcpipc.caddr, strlen(tcpipc.caddr)); c->len = (int)strlen(tcpipc.caddr); }
+    if (cn) { memcpy(cname, tcpipc.cname, strlen(tcpipc.cname)); c->hours = (int)strlen(tcpipc.cname); }
+    if (sa) { memcpy(saddr, tcpipc.saddr, strlen(tcpipc.saddr)); c->mins = (int)strlen(tcpipc.saddr); }
+    if (sn) { memcpy(sname, tcpipc.sname, strlen(tcpipc.sname)); c->secs = (int)strlen(tcpipc.sname); }
+    return 0;
+}
+
+/* GG-FLAGS names one of CNU SNU PORT SSL; out: GG-NUM (the SSL type as its CVDA). Only after a NORMAL GGCTCPX. */
+int GGCTCPN(gg_cics *c) {
+    char flags[41];
+    tcpip_load();
+    trim(c->flags, 40, flags);
+    if (strcmp(flags, "CNU") == 0) c->num = (int)ipv4_value(tcpipc.caddr);
+    else if (strcmp(flags, "SNU") == 0) c->num = (int)ipv4_value(tcpipc.saddr);
+    else if (strcmp(flags, "PORT") == 0) c->num = tcpipc.port;
+    else c->num = strcmp(tcpipc.ssl, "SSL") == 0 ? 1030 : strcmp(tcpipc.ssl, "NOSSL") == 0 ? 1031
+                  : strcmp(tcpipc.ssl, "CLIENTAUTH") == 0 ? 1032 : 1205;
+    return 0;
+}
+
 /* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
 int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     char flags[41];
@@ -4158,7 +4374,7 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     int nl = c->len, vl = c->num, conds = 0, i;
     char hx[2][WEB_TXT * 2 + 2];
     webreq_load();
-    if (web_sent) refuse("WEB WRITE HTTPHEADER after the response was sent");
+    if (web_sent || web_held) refuse("WEB WRITE HTTPHEADER after the response was sent");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (nl <= 0) { c->resp = LENGERR; c->resp2 = 35; conds++; }
@@ -4179,15 +4395,26 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     return 0;
 }
 
-/* WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): INVREQ RESP2 2 no WEB SEND issued, NOTFND
- * RESP2 1 the last WEB SEND was not an EVENTUAL document send (every send accepted here is IMMEDIATE, so a send that happened
- * is NOTFND 1). DOCTOKEN is never written: NORMAL needs an EVENTUAL send, which WEB SEND refuses. As CicsTask.webRetrieve. */
-int GGCWRTV(gg_cics *c) {
+/* WEB RETRIEVE DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): NORMAL (the DOCTOKEN written to `tok`) for a
+ * last WEB SEND that was a document send with ACTION(EVENTUAL) and no DOCDELETE -- the token names a copy of the document as it
+ * was sent (ASSUMED: a new document of the task, the same token for every retrieve of that send); INVREQ RESP2 2 no WEB SEND
+ * issued; NOTFND RESP2 1 the last WEB SEND was DOCDELETE or not an EVENTUAL document send. As CicsTask.webRetrieve. */
+int GGCWRTV(gg_cics *c, char *tok, int toklen) {
+    char t[17];
+    int i;
     webreq_load();
-    if (web_sent) { c->resp = NOTFND; c->resp2 = 1; return 0; }
     if (web_send_failed) refuse("WEB RETRIEVE after a WEB SEND that ended in a condition");
-    c->resp = INVREQ;
-    c->resp2 = 2;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!web_issued) { c->resp = INVREQ; c->resp2 = 2; return 0; }
+    if (!web_held_doc) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (!web_held_tok) {
+        doc_new(web_held_doc, web_held_doclen, t, 16);
+        web_held_tok = ndocs;
+    }
+    snprintf(t, sizeof t, "GGDOC%011d", web_held_tok);
+    for (i = 0; i < toklen && i < 16; i++) tok[i] = t[i];
+    for (; i < toklen; i++) tok[i] = ' ';
     return 0;
 }
 

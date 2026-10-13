@@ -279,6 +279,21 @@ def test_move_container_and_the_container_browse_call_the_stub():
     assert end[:2] == ["MOVE WS-TOK TO GG-NUM", "CALL 'GGCEBRC' USING GG-CICS"]
 
 
+def test_delete_and_query_channel_call_the_stub():
+    """#5005: DELETE CHANNEL -> GGCDELH (CHANNEL in GG-CHAN) and QUERY CHANNEL -> GGCQCHN (the count out of GG-NUM into
+    CONTAINERCNT on NORMAL only); CHANNEL (and CONTAINERCNT) required, an option IBM's command does not list refused."""
+    got = ec.translate_command("DELETE CHANNEL(WS-CH) RESP(WS-R)")
+    assert got[:2] == ["MOVE WS-CH TO GG-CHAN", "CALL 'GGCDELH' USING GG-CICS"] and "MOVE GG-RESP TO WS-R" in got
+    assert ec.translate_command("DELETE CHANNEL('C')")[0] == "MOVE 'C' TO GG-CHAN"
+    got = ec.translate_command("QUERY CHANNEL(WS-CH) CONTAINERCNT(WS-N) RESP(WS-R)")
+    assert got[:5] == ["MOVE WS-CH TO GG-CHAN", "CALL 'GGCQCHN' USING GG-CICS", "IF GG-RESP = 0",
+                       "    MOVE GG-NUM TO WS-N", "END-IF"]  # fmt: skip
+    for bad in ("DELETE CHANNEL", "DELETE CHANNEL(C) CONTAINERTYPE(X)", "QUERY CHANNEL(C)",
+                "QUERY CHANNEL CONTAINERCNT(N)", "QUERY CHANNEL(C) CONTAINERCNT(N) BOGUS(X)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
 def test_send_map_records_its_options_and_area():
     got = ec.translate_command("SEND MAP(M) MAPSET(S) FROM(MO) CURSOR ERASE FREEKB")
     assert "MOVE 'CURSOR ERASE FREEKB' TO GG-FLAGS" in got and "    BY REFERENCE MO" in got
@@ -781,7 +796,8 @@ def test_browse_delete_and_time_commands_translate():
     for bad in (
         "STARTBR FILE(F) RIDFLD(K) GENERIC KEYLENGTH(2)",
         "READNEXT FILE(F) INTO(R) RIDFLD(K) REQID(1)",
-        "FORMATTIME ABSTIME(T) DAYOFWEEK(D)",
+        "FORMATTIME ABSTIME(T) DATE(D)",  # #4415 slice 3 (X46): the installation's DATFORM, not stated
+        "FORMATTIME ABSTIME(T) DATESTRING(D) STRINGFORMAT(DFHVALUE(RFC1123))",
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
@@ -1182,6 +1198,9 @@ def test_web_send_becomes_a_stub_call():
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
     dd = ec.translate_command("WEB SEND DOCTOKEN(WS-D) MEDIATYPE(WS-M) ACTION(WS-A) STATUSCODE(WS-S) NOHANDLE")
     at = dd.index("CALL 'GGCWSDC' USING GG-CICS")  # (#4767: the response is the document the token names)
+    assert "MOVE 0 TO GG-SECS" in dd[:at]  # (#4941 X37: DOCSTATUS not given)
+    ds = ec.translate_command("WEB SEND DOCTOKEN(WS-D) ACTION(WS-A) DOCSTATUS(WS-X) NOHANDLE")
+    assert "MOVE WS-X TO GG-SECS" in ds[: ds.index("CALL 'GGCWSDC' USING GG-CICS")]
     assert dd[0] == "MOVE 0 TO GG-LEN" and dd[at + 1 : at + 3] == [
         "    BY REFERENCE WS-D",
         "    BY VALUE LENGTH OF WS-D",
@@ -1189,7 +1208,7 @@ def test_web_send_becomes_a_stub_call():
     for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
-                     ("WEB SEND DOCTOKEN(WS-D) DOCSTATUS(WS-X)", "after it is sent"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCSTATUS(WS-X)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
@@ -1994,10 +2013,10 @@ def test_send_and_receive_map_leave_the_program_on_the_abm0_abend_x31():
 
 
 def test_web_retrieve_becomes_a_stub_call_and_refuses_every_other_option():
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV with no argument (the stub writes no DOCTOKEN); DOCTOKEN is
-    required, a literal is refused, and every other option is refused by name."""
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV with the area and its length (the stub writes the DOCTOKEN
+    on NORMAL only); DOCTOKEN is required, a literal is refused, and every other option is refused by name."""
     r = ec.translate_command("WEB RETRIEVE DOCTOKEN(WS-T) NOHANDLE")
-    assert r[0] == "CALL 'GGCWRTV' USING GG-CICS" and "WS-T" not in "".join(r)
+    assert r[:3] == ["CALL 'GGCWRTV' USING GG-CICS", "    BY REFERENCE WS-T", "    BY VALUE LENGTH OF WS-T"]
     with pytest.raises(ec.Unsupported, match="DOCTOKEN"):
         ec.translate_command("WEB RETRIEVE NOHANDLE")
     with pytest.raises(ec.Unsupported, match="literal"):
@@ -2089,3 +2108,125 @@ def test_exec_in_a_literal_or_a_debugging_line_is_not_a_command():
     with pytest.raises(ec.Unsupported, match="WITH DEBUGGING MODE"):
         ec.translate("       SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.\n" + src)
     assert (ec.DET_COPY / "CEEIGZCT.cpy").is_file()
+
+
+def test_extract_web_is_web_extract_for_the_stub():
+    """#4972 (register X38): EXTRACT WEB (IBM: "a synonym of WEB EXTRACT") is the same GGCWEXT call and moves, with the same
+    refusals."""
+    opts = ("SCHEME(WS-S) HOST(WS-H) HOSTLENGTH(WS-HL) HTTPMETHOD(WS-M) METHODLENGTH(WS-ML) PATH(WS-P) PATHLENGTH(WS-PL) "
+            "PORTNUMBER(WS-N) REQUESTTYPE(WS-R) NOHANDLE")  # fmt: skip
+    assert ec.translate_command(f"EXTRACT WEB {opts}") == ec.translate_command(f"WEB EXTRACT {opts}")
+    for form in ("HOST(WS-H)", "HTTPMETHOD(WS-M)", "HTTPVERSION(WS-V)", "QUERYSTRLEN(WS-Q)", "SESSTOKEN(WS-T)",
+                 "HOSTTYPE(WS-T)", "URIMAP(WS-U)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported) as want:
+            ec.translate_command(f"WEB EXTRACT {form}")
+        with pytest.raises(ec.Unsupported) as got:
+            ec.translate_command(f"EXTRACT WEB {form}")
+        assert str(got.value).replace("EXTRACT WEB", "WEB EXTRACT") == str(want.value), form
+
+
+def test_extract_tcpip_becomes_a_stub_call():
+    """#4972 (register X38): EXTRACT TCPIP -> GGCTCPX (CADDRLENGTH / CNAMELENGTH / SADDRLENGTH / SNAMELENGTH in GG-LEN /
+    GG-HOURS / GG-MINS / GG-SECS, 0 for an area given without its length option; GG-FLAGS A1 N1 A2 N2 the areas given and U1
+    U2 F1 F2 the numbers asked for; every area by reference with its size), then on NORMAL the lengths, each number from
+    GGCTCPN and the IPv4 family (300) moved back. The option rules as the det translator's."""
+    t = ec.translate_command("EXTRACT TCPIP CLIENTADDR(WS-A) CADDRLENGTH(WS-AL) SERVERNAME(WS-SN) CLIENTADDRNU(WS-CN) "
+                             "SERVERADDRNU(WS-SNU) CLNTIPFAMILY(WS-CF) SRVRIPFAMILY(WS-SF) PORTNUMNU(WS-P) SSLTYPE(WS-T) "
+                             "NOHANDLE")  # fmt: skip
+    assert t[:5] == ["MOVE WS-AL TO GG-LEN", "MOVE 0 TO GG-HOURS", "MOVE 0 TO GG-MINS", "MOVE 0 TO GG-SECS",
+                     "MOVE 'A1 N2 U1 U2 F1 F2' TO GG-FLAGS"]  # fmt: skip
+    assert t[5] == "CALL 'GGCTCPX' USING GG-CICS" and t[6:8] == ["    BY REFERENCE WS-A", "    BY VALUE LENGTH OF WS-A"]
+    assert t[12:14] == ["    BY REFERENCE WS-SN", "    BY VALUE LENGTH OF WS-SN"]
+    tail = "\n".join(t)
+    for back in ("MOVE GG-LEN TO WS-AL", "MOVE 'CNU' TO GG-FLAGS", "MOVE 'SNU' TO GG-FLAGS", "MOVE 'PORT' TO GG-FLAGS",
+                 "MOVE 'SSL' TO GG-FLAGS", "CALL 'GGCTCPN' USING GG-CICS", "MOVE GG-NUM TO WS-CN", "MOVE GG-NUM TO WS-SNU",
+                 "MOVE GG-NUM TO WS-P", "MOVE GG-NUM TO WS-T", "MOVE 300 TO WS-CF", "MOVE 300 TO WS-SF"):  # fmt: skip
+        assert back in tail, back
+    # the stub reads exactly the flag words this emits (ggcics.c GGCTCPX / GGCTCPN)
+    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    for word in ("A1", "N1", "A2", "N2", "U1", "U2", "F1", "F2"):
+        assert f'strstr(flags, "{word}")' in stub, word
+    for word in ("CNU", "SNU", "PORT"):
+        assert f'strcmp(flags, "{word}")' in stub, word
+    for bad, why in (("EXTRACT TCPIP CADDRLENGTH(WS-L)", "CADDRLENGTH without CLIENTADDR"),
+                     ("EXTRACT TCPIP SNAMELENGTH(WS-L)", "SNAMELENGTH without SERVERNAME"),
+                     ("EXTRACT TCPIP PORTNUMBER(WS-P)", "5 characters are padded"),
+                     ("EXTRACT TCPIP CLNTADDR6NU(WS-P)", "IPv6"),
+                     ("EXTRACT TCPIP AUTHENTICATE(WS-P)", "authentication"),
+                     ("EXTRACT TCPIP TCPIPSERVICE(WS-P)", "TCPIPSERVICE definition"),
+                     ("EXTRACT TCPIP CLIENTADDR('1.2.3.4') CADDRLENGTH(WS-L)", "as a literal")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_the_tcpip_connection_is_stated_alike_on_both_sides():
+    """#4972 (register X38): a case's "tcpip" (the scenario's first) is checked and written for the stub, the names as hex in the
+    data's page ('-' for a name the DNS does not know), and handed to CicsTask.withTcpip."""
+    conn = {"client_addr": "10.1.2.3", "client_name": "client.example", "server_addr": "10.9.8.7", "server_name": None,
+            "port": 8080, "ssl_type": "SSL"}  # fmt: skip
+    assert ec.tcpip({"tcpip": conn}, {"name": "s"}) == conn
+    assert ec.tcpip({}, {"name": "s"}) is None
+    assert ec.tcpip({"tcpip": conn}, {"name": "s", "tcpip": {**conn, "ssl_type": "NOSSL"}})["ssl_type"] == "NOSSL"
+    for broken in ({**conn, "port": 0}, {**conn, "ssl_type": "TLS"}, {**conn, "client_addr": ""}, {**conn, "extra": 1},
+                   {**conn, "server_name": "a b"}, {**conn, "port": "80"}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="tcpip"):
+            ec.tcpip({"tcpip": broken}, {"name": "s"})
+    assert ec.tcpip_cfg(conn, "latin-1") == f"T 10.1.2.3 {b'client.example'.hex().upper()} 10.9.8.7 - 8080 SSL\n"
+    assert 'task.withTcpip(new CicsTask.Tcpip(q.get("client_addr")' in Path(ec.__file__).read_text(encoding="utf-8")
+
+
+def test_formattime_day_of_year_and_binary_forms_translate_to_cobol_of_ibms_values():
+    """#4415 slice 3 (X46): YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and the six binary forms, in COBOL from the task's clock."""
+    out = ec.translate_command("FORMATTIME ABSTIME(T) YYDDD(A) YYYYDDD(B) YYDDMM(C) YYYYDDMM(E) DATESEP RESP(R)")
+    text = "\n".join(out)
+    assert "FUNCTION INTEGER-OF-DATE(GG-Y * 10000 + 101) + 1" in text  # the day of the year
+    for target, parts in (("A", "GG-Y(3:2) '/' GG-DOY"), ("B", "GG-Y '/' GG-DOY"), ("C", "GG-Y(3:2) '/' GG-D '/' GG-M"),
+                          ("E", "GG-Y '/' GG-D '/' GG-M")):  # fmt: skip
+        assert f"STRING {parts}" in text
+    for width, target in ((6, "A"), (8, "B"), (8, "C"), (10, "E")):
+        assert f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})" in text
+    nums = ec.translate_command("FORMATTIME ABSTIME(T) DAYCOUNT(A) DAYOFMONTH(B) DAYOFWEEK(C) MONTHOFYEAR(E) YEAR(F) "
+                                "MILLISECONDS(G) NOHANDLE")  # fmt: skip
+    for line in ("COMPUTE A = GG-DAYS + 1", "COMPUTE B = GG-D", "COMPUTE C = FUNCTION MOD(GG-DAYS + 1, 7)",
+                 "COMPUTE E = GG-M", "COMPUTE F = GG-Y", "COMPUTE G = FUNCTION MOD(T, 1000)"):  # fmt: skip
+        assert line in nums
+    assert all(len(s) <= 61 for s in out + nums)  # each statement fits area B
+
+
+@pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL)")
+def test_formattime_day_of_year_and_binary_forms_under_gnucobol_equal_the_java_runtime(tmp_path):
+    """#4415 slice 3 (X46): the translated COBOL, run under GnuCOBOL at the six instants test_cics_runtimes.py gives
+    CicsTask.formatDate / formatNumber (1900-01-01, a leap day, both year ends, a century leap year): the same text."""
+    import subprocess
+
+    cpy = (Path(eq.__file__).parent.parent / "equivalence" / "cics" / "DFHEIBLK.cpy").read_text()
+    gg_time = cpy[cpy.index("       01  GG-TIME.") : cpy.index("      * #4413: the address")]
+    cmds = ("FORMATTIME ABSTIME(T) YYDDD(A) YYYYDDD(B) YYDDMM(C) YYYYDDMM(E) DATESEP RESP(R)",
+            "FORMATTIME ABSTIME(T) DAYCOUNT(N1) DAYOFMONTH(N2) DAYOFWEEK(N3) MONTHOFYEAR(N4) YEAR(N5) MILLISECONDS(N6)")  # fmt: skip
+    abs_values = (0, 3867129015123, 3918239999999, 3912969600000, 3944635200007, 3160857600000)
+    src = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. FT.", "       DATA DIVISION.",
+           "       WORKING-STORAGE SECTION.", gg_time, "       01 T PIC S9(18) COMP-3.", "       01 A PIC X(6).",
+           "       01 B PIC X(8).", "       01 C PIC X(8).", "       01 E PIC X(10).", "       01 R PIC S9(8) COMP.",
+           "       01 EIBRESP PIC S9(8) COMP.", "       01 EIBRESP2 PIC S9(8) COMP.",
+           "       01 GG-RESP PIC S9(8) COMP.", "       01 GG-RESP2 PIC S9(8) COMP.",
+           *[f"       01 N{k} PIC 9(9) COMP-5." for k in range(1, 7)], "       PROCEDURE DIVISION."]  # fmt: skip
+    for v in abs_values:
+        src.append(f"           MOVE {v} TO T")
+        src += ["           " + ln for c in cmds for ln in ec.translate_command(c)]
+        src.append("           DISPLAY A '|' B '|' C '|' E '|' N1 '|' N2 '|' N3 '|' N4 '|' N5 '|' N6")
+    src.append("           STOP RUN.")
+    (tmp_path / "ft.cob").write_text("\n".join(src) + "\n")
+    eq.build_image()
+    run = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", eq.IMAGE, "sh", "-c",  # noqa: S603, S607
+                          "cobc -x -free -o ft ft.cob && ./ft"], capture_output=True, text=True, check=False)  # fmt: skip
+    assert run.returncode == 0, run.stdout + run.stderr
+    got = [[int(p) if p.lstrip("+").isdigit() and i > 3 else p for i, p in enumerate(ln.split("|"))]
+           for ln in run.stdout.splitlines()]  # fmt: skip
+    assert got == [
+        ["00/001", "1900/001", "00/01/01", "1900/01/01", 1, 1, 1, 1, 1900, 0],
+        ["22/199", "2022/199", "22/18/07", "2022/18/07", 44759, 18, 1, 7, 2022, 123],
+        ["24/060", "2024/060", "24/29/02", "2024/29/02", 45350, 29, 4, 2, 2024, 999],
+        ["23/365", "2023/365", "23/31/12", "2023/31/12", 45290, 31, 0, 12, 2023, 0],
+        ["24/366", "2024/366", "24/31/12", "2024/31/12", 45656, 31, 2, 12, 2024, 7],
+        ["00/061", "2000/061", "00/01/03", "2000/01/03", 36585, 1, 3, 3, 2000, 0],
+    ]

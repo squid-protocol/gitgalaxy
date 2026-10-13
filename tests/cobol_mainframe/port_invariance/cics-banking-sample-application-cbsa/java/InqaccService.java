@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class InqaccService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D99999999 = new BigDecimal("99999999");
     private static final BigDecimal D0 = new BigDecimal("0");
@@ -56,6 +56,8 @@ public class InqaccService {
             "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="));
     private static final byte[] IMAGE_s_RETURNED_DATA = Base64.getDecoder().decode(String.join("",
             "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="));
+    private static final byte[] IMAGE_s_DESIRED_KEY = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAA="));
     private static final byte[] IMAGE_s_DB2_DATE_REFORMAT = Base64.getDecoder().decode(String.join("",
             "MDAwMCAwMCAwMA=="));
     private static final byte[] IMAGE_s_ACCOUNT_KY = Base64.getDecoder().decode(String.join("",
@@ -85,7 +87,11 @@ public class InqaccService {
     private static final byte[] IMAGE_s_DFHCOMMAREA = Base64.getDecoder().decode(String.join("",
             "ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
     private static final byte[] IMAGE_s_DFHEIBLK = Base64.getDecoder().decode(String.join("",
             "AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA=="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
@@ -96,6 +102,7 @@ public class InqaccService {
     private final Storage s_WS_CICS_WORK_AREA = new Storage(IMAGE_s_WS_CICS_WORK_AREA.length);
     private final Storage s_OUTPUT_DATA = new Storage(IMAGE_s_OUTPUT_DATA.length);
     private final Storage s_RETURNED_DATA = new Storage(IMAGE_s_RETURNED_DATA.length);
+    private final Storage s_DESIRED_KEY = new Storage(IMAGE_s_DESIRED_KEY.length);
     private final Storage s_DB2_DATE_REFORMAT = new Storage(IMAGE_s_DB2_DATE_REFORMAT.length);
     private final Storage s_ACCOUNT_KY = new Storage(IMAGE_s_ACCOUNT_KY.length);
     private final Storage s_MY_ABEND_CODE = new Storage(IMAGE_s_MY_ABEND_CODE.length);
@@ -218,7 +225,6 @@ public class InqaccService {
     private BigDecimal f79_RETURNED_NEXT_STMT_DATE;  // RETURNED-NEXT-STMT-DATE PIC 9(8) DISPLAY
     private BigDecimal f80_RETURNED_AVAILABLE_BALANCE;  // RETURNED-AVAILABLE-BALANCE PIC S9(10)V99 DISPLAY
     private BigDecimal f81_RETURNED_ACTUAL_BALANCE;  // RETURNED-ACTUAL-BALANCE PIC S9(10)V99 DISPLAY
-    private long f82_DESIRED_KEY;  // DESIRED-KEY PIC 9(10) BINARY
     private String f89_DATA_STORE_TYPE;  // DATA-STORE-TYPE PIC X
     private String f90_DB2_EXIT_LOOP;  // DB2-EXIT-LOOP PIC X
     private long f91_FETCH_DATA_CNT;  // FETCH-DATA-CNT PIC 9(4) BINARY
@@ -226,7 +232,6 @@ public class InqaccService {
     private BigDecimal f95_REQUIRED_ACC_NUM;  // REQUIRED-ACC-NUM PIC 9(8) DISPLAY
     private String f97_WS_STORM_DRAIN;  // WS-STORM-DRAIN PIC X
     private String f98_STORM_DRAIN_CONDITION;  // STORM-DRAIN-CONDITION PIC X(20)
-    private long f105_NCS_ACC_NO_INC;  // NCS-ACC-NO-INC PIC 9(16) BINARY
     private String f107_NCS_ACC_NO_RESP;  // NCS-ACC-NO-RESP PIC XX
     private BigDecimal f108_WS_DISP_ACC_NO_VAL;  // WS-DISP-ACC-NO-VAL PIC S9(18) DISPLAY
     private BigDecimal f110_REQUIRED_SORT_CODE2;  // REQUIRED-SORT-CODE2 PIC 9(6) DISPLAY
@@ -433,6 +438,7 @@ public class InqaccService {
         System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);
         System.arraycopy(IMAGE_s_OUTPUT_DATA, 0, s_OUTPUT_DATA.bytes, 0, IMAGE_s_OUTPUT_DATA.length);
         System.arraycopy(IMAGE_s_RETURNED_DATA, 0, s_RETURNED_DATA.bytes, 0, IMAGE_s_RETURNED_DATA.length);
+        System.arraycopy(IMAGE_s_DESIRED_KEY, 0, s_DESIRED_KEY.bytes, 0, IMAGE_s_DESIRED_KEY.length);
         System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);
         System.arraycopy(IMAGE_s_ACCOUNT_KY, 0, s_ACCOUNT_KY.bytes, 0, IMAGE_s_ACCOUNT_KY.length);
         System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);
@@ -461,7 +467,6 @@ public class InqaccService {
         f79_RETURNED_NEXT_STMT_DATE = new BigDecimal("0");
         f80_RETURNED_AVAILABLE_BALANCE = new BigDecimal("0");
         f81_RETURNED_ACTUAL_BALANCE = new BigDecimal("0");
-        f82_DESIRED_KEY = 0L;
         f89_DATA_STORE_TYPE = " ";
         f90_DB2_EXIT_LOOP = " ";
         f91_FETCH_DATA_CNT = 0L;
@@ -469,7 +474,6 @@ public class InqaccService {
         f95_REQUIRED_ACC_NUM = new BigDecimal("0");
         f97_WS_STORM_DRAIN = "N";
         f98_STORM_DRAIN_CONDITION = "                    ";
-        f105_NCS_ACC_NO_INC = 0L;
         f107_NCS_ACC_NO_RESP = "00";
         f108_WS_DISP_ACC_NO_VAL = new BigDecimal("0");
         f110_REQUIRED_SORT_CODE2 = new BigDecimal("0");
@@ -495,7 +499,8 @@ public class InqaccService {
 
     /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */
     public void runTask(CicsTask task) {
-        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(OPT)
+        boolean optBefore = Cobol.swapTruncOpt(true);  // TRUNC(OPT): a value past the PICTURE stops
         boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             this.task = task;
@@ -518,7 +523,7 @@ public class InqaccService {
             if (ca instanceof InqaccDfhcommarea x) {
                 in_InqaccDfhcommarea(x, s_DFHCOMMAREA, 0);
                 caBack = () -> fill_InqaccDfhcommarea(x, s_DFHCOMMAREA, 0);
-                calen = cx(task, 103);
+                calen = cx(task, 107);
             } else if (ca instanceof AbndprocDfhcommarea x) {
                 in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
                 caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);
@@ -571,6 +576,7 @@ public class InqaccService {
                 task.returnTransid(null, null);  // a GOBACK is a RETURN
             }
         } finally {
+            Cobol.swapTruncOpt(optBefore);
             Cobol.swapTruncBinary(truncBefore);
             Cobol.swapNumprocPfd(pfdBefore);
         }
@@ -599,7 +605,8 @@ public class InqaccService {
 
     /** The batch entry. */
     public int runBatch(List<Dd> dds, String parm) {
-        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
+        boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(OPT)
+        boolean optBefore = Cobol.swapTruncOpt(true);  // TRUNC(OPT): a value past the PICTURE stops
         boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
             DetSql.closeAll();  // a step's cursors are its own
@@ -615,6 +622,7 @@ public class InqaccService {
             }
             return Cobol.num(f210_GG_RETURN_CODE, CS).intValue();
         } finally {
+            Cobol.swapTruncOpt(optBefore);
             Cobol.swapTruncBinary(truncBefore);
             Cobol.swapNumprocPfd(pfdBefore);
         }
@@ -733,7 +741,7 @@ public class InqaccService {
         // MOVE SORTCODE TO REQUIRED-SORT-CODE OF ACCOUNT-KY
         Cobol.move(f1_SORTCODE, f94_REQUIRED_SORT_CODE, CS);
         // IF INQACC-ACCNO = 99999999
-        if (Cobol.num(f155_INQACC_ACCNO, CS).compareTo(D99999999) == 0) {
+        if (Cobol.cmpNum(f155_INQACC_ACCNO, CS).compareTo(D99999999) == 0) {
             // PERFORM READ-ACCOUNT-LAST
             perform(18, 20);
         } else {
@@ -847,12 +855,15 @@ public class InqaccService {
             Storage cw4 = Cobol.commarea(f137_ABNDINFO_REC, 681);
             AbndprocDfhcommarea ca3 = out_AbndprocDfhcommarea(cw4, 0);
             String lr2 = task.link(f136_WS_ABEND_PGM.strip(), ca3, 681, cw4.bytes);
-            if ("NORMAL".equals(lr2)) { in_AbndprocDfhcommarea(ca3, cw4, 0); Cobol.commareaBack(cw4, f137_ABNDINFO_REC); }
+            if ("NORMAL".equals(lr2)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca3, cw4, 0); }
+                Cobol.commareaBack(cw4, f137_ABNDINFO_REC);
+            }
             String exit5 = task.abendExit();
             if (exit5 != null) return GOTO | paragraph(exit5);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr2)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr2)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
             if (DetCics.resp(lr2) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr2)));
                 if (to >= 0) return GOTO | to;
@@ -917,12 +928,15 @@ public class InqaccService {
             Storage cw10 = Cobol.commarea(f137_ABNDINFO_REC, 681);
             AbndprocDfhcommarea ca9 = out_AbndprocDfhcommarea(cw10, 0);
             String lr8 = task.link(f136_WS_ABEND_PGM.strip(), ca9, 681, cw10.bytes);
-            if ("NORMAL".equals(lr8)) { in_AbndprocDfhcommarea(ca9, cw10, 0); Cobol.commareaBack(cw10, f137_ABNDINFO_REC); }
+            if ("NORMAL".equals(lr8)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca9, cw10, 0); }
+                Cobol.commareaBack(cw10, f137_ABNDINFO_REC);
+            }
             String exit11 = task.abendExit();
             if (exit11 != null) return GOTO | paragraph(exit11);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr8)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
             if (DetCics.resp(lr8) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr8)));
                 if (to >= 0) return GOTO | to;
@@ -1029,12 +1043,15 @@ public class InqaccService {
             Storage cw17 = Cobol.commarea(f137_ABNDINFO_REC, 681);
             AbndprocDfhcommarea ca16 = out_AbndprocDfhcommarea(cw17, 0);
             String lr15 = task.link(f136_WS_ABEND_PGM.strip(), ca16, 681, cw17.bytes);
-            if ("NORMAL".equals(lr15)) { in_AbndprocDfhcommarea(ca16, cw17, 0); Cobol.commareaBack(cw17, f137_ABNDINFO_REC); }
+            if ("NORMAL".equals(lr15)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca16, cw17, 0); }
+                Cobol.commareaBack(cw17, f137_ABNDINFO_REC);
+            }
             String exit18 = task.abendExit();
             if (exit18 != null) return GOTO | paragraph(exit18);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr15)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr15)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
             if (DetCics.resp(lr15) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr15)));
                 if (to >= 0) return GOTO | to;
@@ -1230,12 +1247,15 @@ public class InqaccService {
                 Storage cw22 = Cobol.commarea(f137_ABNDINFO_REC, 681);
                 AbndprocDfhcommarea ca21 = out_AbndprocDfhcommarea(cw22, 0);
                 String lr20 = task.link(f136_WS_ABEND_PGM.strip(), ca21, 681, cw22.bytes);
-                if ("NORMAL".equals(lr20)) { in_AbndprocDfhcommarea(ca21, cw22, 0); Cobol.commareaBack(cw22, f137_ABNDINFO_REC); }
+                if ("NORMAL".equals(lr20)) {
+                    if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca21, cw22, 0); }
+                    Cobol.commareaBack(cw22, f137_ABNDINFO_REC);
+                }
                 String exit23 = task.abendExit();
                 if (exit23 != null) return GOTO | paragraph(exit23);
                 if (task.ended()) throw abended();
                 Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr20)), false, CS);
-                Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr20)), false, CS);
+                Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
                 if (DetCics.resp(lr20) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr20)));
                     if (to >= 0) return GOTO | to;
@@ -1299,12 +1319,15 @@ public class InqaccService {
             Storage cw27 = Cobol.commarea(f137_ABNDINFO_REC, 681);
             AbndprocDfhcommarea ca26 = out_AbndprocDfhcommarea(cw27, 0);
             String lr25 = task.link(f136_WS_ABEND_PGM.strip(), ca26, 681, cw27.bytes);
-            if ("NORMAL".equals(lr25)) { in_AbndprocDfhcommarea(ca26, cw27, 0); Cobol.commareaBack(cw27, f137_ABNDINFO_REC); }
+            if ("NORMAL".equals(lr25)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca26, cw27, 0); }
+                Cobol.commareaBack(cw27, f137_ABNDINFO_REC);
+            }
             String exit28 = task.abendExit();
             if (exit28 != null) return GOTO | paragraph(exit28);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr25)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr25)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
             if (DetCics.resp(lr25) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr25)));
                 if (to >= 0) return GOTO | to;
@@ -1425,12 +1448,15 @@ public class InqaccService {
             Storage cw34 = Cobol.commarea(f137_ABNDINFO_REC, 681);
             AbndprocDfhcommarea ca33 = out_AbndprocDfhcommarea(cw34, 0);
             String lr32 = task.link(f136_WS_ABEND_PGM.strip(), ca33, 681, cw34.bytes);
-            if ("NORMAL".equals(lr32)) { in_AbndprocDfhcommarea(ca33, cw34, 0); Cobol.commareaBack(cw34, f137_ABNDINFO_REC); }
+            if ("NORMAL".equals(lr32)) {
+                if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca33, cw34, 0); }
+                Cobol.commareaBack(cw34, f137_ABNDINFO_REC);
+            }
             String exit35 = task.abendExit();
             if (exit35 != null) return GOTO | paragraph(exit35);
             if (task.ended()) throw abended();
             Cobol.store(f207_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr32)), false, CS);
-            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr32)), false, CS);
+            Cobol.store(f208_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
             if (DetCics.resp(lr32) != 0) {
                 int to = condition(DetCics.condition(DetCics.resp(lr32)));
                 if (to >= 0) return GOTO | to;

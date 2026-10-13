@@ -398,6 +398,14 @@ public class CicsTask {
         return level;
     }
 
+    private int transferResp2;  // #4986: the RESP2 of this program's last LINK / XCTL, as its event carries it
+
+    /** #4986: EIBRESP2 / RESP2 after this program's last LINK or XCTL: the event's, so a planned fault's (PGMIDERR
+     *  RESP2 3, NOTAUTH 101 ...) as well as the natural LENGERR 11 / PGMIDERR 1. */
+    public int transferResp2() {
+        return transferResp2;
+    }
+
     /** LINK PROGRAM(program) COMMAREA(commarea) LENGTH(length) (#4004, IBM EXEC CICS LINK): LENGERR (RESP2
      *  11) for a length outside 0-32763, PGMIDERR (RESP2 1) for a program the CSD does not define; else the
      *  program runs at the next level on `commarea` itself -- what it changes, the caller sees -- then any
@@ -431,6 +439,7 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
         event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
                 "resp2", resp2);
         if (area != null) {
@@ -445,6 +454,7 @@ public class CicsTask {
         callee.linkLength = len;
         callee.linkArea = area;
         callee.callerArea = area != null;  // #4816: that area is the caller's own storage, not a copy
+        callee.linkedDto = commarea != null;  // #4956: its DTO is the caller's own object, not a copy
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
@@ -966,8 +976,12 @@ public class CicsTask {
     }
 
     private HttpRequest httpRequest;
-    private boolean webSent;
-    private boolean webSendFailed;  // #4941: a WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webSent;  // an ACTION(IMMEDIATE) response was sent
+    private boolean webSendFailed;  // #4941: the last WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webIssued;  // a WEB SEND was accepted (IMMEDIATE or EVENTUAL)
+    private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
+    private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
+    private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
     private boolean webReceived;
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -1166,7 +1180,8 @@ public class CicsTask {
         if (fromLength > from.length() || (statusText != null && statusLength > statusText.length())) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv);
+        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv, false,
+                null, 0);
     }
 
     /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
@@ -1175,7 +1190,7 @@ public class CicsTask {
      *  document is no message body (ASSUMED: IBM does not say, and lists INVREQ RESP2 72 for 204 / 205 / 304 "with a body"), so
      *  a 204 may send one; `cs` is the program's character set. Refused as webSend does, and a token that names no document of the task. */
     public int[] webSendDocument(String doctoken, String mediaType, int action, int status, String statusText,
-                                 int statusLength, int conv, java.nio.charset.Charset cs) {
+                                 int statusLength, int conv, int docStatus, java.nio.charset.Charset cs) {
         CicsTask r = root();
         if (r.httpRequest == null) {
             throw refused("the HTTP request is not stated (withHttpRequest)");
@@ -1184,21 +1199,21 @@ public class CicsTask {
             throw refused("WEB SEND after a response was sent");
         }
         byte[] doc = r.documents.get(doctoken.stripTrailing());
-        if (doc == null) {
-            throw refused("WEB SEND DOCTOKEN of a document the task did not create");
-        }
         if ((statusText != null && statusLength == 0) || statusLength < -1) {
             throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
         }
         if (statusText != null && statusLength > statusText.length()) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(new String(doc, cs), mediaType, action, status,
-                statusText, statusLength, conv);
+        r.webDocToken = doctoken.stripTrailing();
+        return webSendBody(doc == null ? "" : new String(doc, cs), mediaType, action, status,
+                statusText, statusLength, conv, true, doc, docStatus);
     }
 
+    private String webDocToken;  // (the token webSendDocument is sending: webSendBody deletes its document on DOCDELETE)
+
     private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
-                              int statusLength, int conv) {
+                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus) {
         CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
@@ -1215,8 +1230,14 @@ public class CicsTask {
             throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (ofDocument && doc == null) {
+            c.add(new int[] {13, 1});  // the document has not been created, or has been deleted, or the name is wrong
+        }
         if (action != 0 && action != 2 && action != 3) {
             c.add(new int[] {16, 11});
+        }
+        if (ofDocument && docStatus != 0 && docStatus != 295 && docStatus != 296) {
+            c.add(new int[] {16, 143});
         }
         if ((status == 204 || status == 205 || status == 304) && !body.isEmpty()) {
             c.add(new int[] {16, 72});
@@ -1228,13 +1249,27 @@ public class CicsTask {
             r.webSendFailed = true;
             return c.get(0);
         }
-        if (action != 2) {
-            throw refused("WEB SEND ACTION not IMMEDIATE");
+        boolean eventual = action != 2;  // (an omitted ACTION is EVENTUAL for a send that is not chunked: IBM)
+        if (!eventual && r.webHeld != null) {
+            throw refused("WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send");
         }
         String st = statusText == null ? null : statusText.substring(0, statusLength < 0 ? statusText.length() : statusLength);
+        Object[] fields = {"status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt, "body", body,
+                "action", eventual ? "EVENTUAL" : "IMMEDIATE", "resp", 0, "resp2", 0};
+        r.webSendFailed = false;
+        r.webIssued = true;
+        if (ofDocument && docStatus == 295) {
+            r.documents.remove(r.webDocToken);  // DOCDELETE: deleted once its contents are saved for sending
+        }
+        if (eventual) {
+            r.webHeld = fields;  // sent at the end of the task; a second send replaces it
+            r.webHeldDoc = ofDocument && docStatus != 295 ? doc.clone() : null;
+            r.webHeldToken = null;
+            return new int[] {0, 0};
+        }
         r.webSent = true;
-        event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
-                "body", body, "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+        r.webHeldDoc = null;
+        event("WEB-SEND", fields);
         return new int[] {0, 0};
     }
 
@@ -1296,6 +1331,107 @@ public class CicsTask {
         }
         return new WebExtracted(0, 0, "HTTPS".equals(q.scheme()) ? 1029 : 1096, q.host(), q.port(), q.method(),
                 q.version(), q.path(), q.query());
+    }
+
+    // #4972 (register X38): EXTRACT TCPIP, the connection the task was started on, which whoever runs the task STATES.
+    /** The TCP/IP connection the task serves: the client's and the server's IPv4 address (dotted decimal), the client's and
+     *  the server's name as the DNS knows it (null: the DNS knows none), the port that received the request and the SSL
+     *  type (SSL, NOSSL, CLIENTAUTH or ATTLSAWARE). EXTRACT TCPIP needs it stated (X38). */
+    public record Tcpip(String clientAddr, String clientName, String serverAddr, String serverName, int port,
+                        String sslType) {
+    }
+
+    private Tcpip tcpip;
+
+    /** The TCP/IP connection this task serves. Not stated (never called), EXTRACT TCPIP is refused. */
+    public CicsTask withTcpip(Tcpip connection) {
+        this.tcpip = connection;
+        return this;
+    }
+
+    /** EXTRACT TCPIP's outcome: RESP, RESP2 and, on NORMAL, what the stated connection holds (names null when the DNS
+     *  knows none); the address numbers are the IPv4 address as a signed fullword. */
+    public record TcpipExtracted(int resp, int resp2, String clientAddr, String clientName, String serverAddr,
+                                 String serverName, int clientNu, int serverNu, int port, int ssl) {
+    }
+
+    /** An IPv4 address in dotted decimal as a number (-1: it is not one; four decimal parts 0-255 without a leading zero). */
+    private static long ipv4Value(String addr) {
+        String[] part = addr == null ? new String[0] : addr.split("[.]", -1);
+        long value = 0;
+        if (part.length != 4) {
+            return -1;
+        }
+        for (String p : part) {
+            if (p.isEmpty() || p.length() > 3 || (p.length() > 1 && p.charAt(0) == '0')) {
+                return -1;
+            }
+            int n = 0;
+            for (int i = 0; i < p.length(); i++) {
+                int d = p.charAt(i) - '0';
+                if (d < 0 || d > 9) {
+                    return -1;
+                }
+                n = n * 10 + d;
+            }
+            if (n > 255) {
+                return -1;
+            }
+            value = value * 256 + n;
+        }
+        return value;
+    }
+
+    /** EXTRACT TCPIP (IBM CICS TS, EXEC CICS EXTRACT TCPIP; register X38) over the stated connection. Each *Length is the
+     *  option's value (null: the area is not asked for; 0 for an area asked for whose length option is missing) and each cap
+     *  its area's size. LENGERR RESP2 1 when an area asked for has a length not above zero. The client name: the DNS knows
+     *  none, length 0 and the area left alone (IBM: "zero if the DNS does not know the client"). Refused: no connection
+     *  stated, an address that is not IPv4 dotted decimal, an address number past a signed fullword, a server name the
+     *  connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7: IBM does not say what
+     *  the length or the area then holds), a length past its area, two conditions at once. */
+    public TcpipExtracted extractTcpip(Integer cAddrLength, int cAddrCap, Integer cNameLength, int cNameCap,
+                                       Integer sAddrLength, int sAddrCap, Integer sNameLength, int sNameCap,
+                                       boolean clientNu, boolean serverNu, boolean clientFamily, boolean serverFamily) {
+        CicsTask r = root();
+        if (r.tcpip == null) {
+            throw refused("the TCP/IP connection is not stated (withTcpip)");
+        }
+        Tcpip t = r.tcpip;
+        if ((cAddrLength != null && cAddrLength > cAddrCap) || (cNameLength != null && cNameLength > cNameCap)
+                || (sAddrLength != null && sAddrLength > sAddrCap) || (sNameLength != null && sNameLength > sNameCap)) {
+            throw refused("EXTRACT TCPIP length beyond its area");
+        }
+        long cNum = ipv4Value(t.clientAddr());
+        long sNum = ipv4Value(t.serverAddr());
+        if (((cAddrLength != null || clientNu || clientFamily) && cNum < 0)
+                || ((sAddrLength != null || serverNu || serverFamily) && sNum < 0)
+                || (clientNu && cNum > Integer.MAX_VALUE) || (serverNu && sNum > Integer.MAX_VALUE)) {
+            throw refused("EXTRACT TCPIP address");
+        }
+        if (sNameLength != null && t.serverName() == null) {
+            throw refused("EXTRACT TCPIP");
+        }
+        boolean badLength = (cAddrLength != null && cAddrLength <= 0) || (cNameLength != null && cNameLength <= 0)
+                || (sAddrLength != null && sAddrLength <= 0) || (sNameLength != null && sNameLength <= 0);
+        String clientName = t.clientName() == null ? "" : t.clientName();
+        String serverName = t.serverName() == null ? "" : t.serverName();
+        boolean tooSmall = (cAddrLength != null && cAddrLength > 0 && t.clientAddr().length() > cAddrLength)
+                || (cNameLength != null && cNameLength > 0 && clientName.length() > cNameLength)
+                || (sAddrLength != null && sAddrLength > 0 && t.serverAddr().length() > sAddrLength)
+                || (sNameLength != null && sNameLength > 0 && serverName.length() > sNameLength);
+        if (badLength && tooSmall) {
+            throw refused("EXTRACT TCPIP with more than one condition at once");
+        }
+        if (badLength) {
+            return new TcpipExtracted(22, 1, null, null, null, null, 0, 0, 0, 0);
+        }
+        if (tooSmall) {
+            throw refused("EXTRACT TCPIP");
+        }
+        int ssl = "SSL".equals(t.sslType()) ? 1030 : "NOSSL".equals(t.sslType()) ? 1031
+                : "CLIENTAUTH".equals(t.sslType()) ? 1032 : 1205;  // (ATTLSAWARE)
+        return new TcpipExtracted(0, 0, t.clientAddr(), clientName, t.serverAddr(), serverName, (int) cNum, (int) sNum,
+                t.port(), ssl);
     }
 
     /** WEB RECEIVE's outcome: RESP, RESP2 and, on NORMAL / LENGERR 57, the body returned (at most MAXLENGTH) and its media
@@ -1383,7 +1519,7 @@ public class CicsTask {
      *  conditions at once. */
     public int[] webWriteHeader(String name, int nameLength, String value, int valueLength) {
         CicsTask r = statedRequest();
-        if (r.webSent) {
+        if (r.webSent || r.webHeld != null) {
             throw refused("WEB WRITE HTTPHEADER after the response was sent");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
@@ -1410,21 +1546,28 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
-    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND,
-     *  available only for a document sent with ACTION(EVENTUAL). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1:
-     *  the last WEB SEND was not an EVENTUAL document send (every send this runtime accepts is IMMEDIATE, so a send that
-     *  happened is always NOTFND 1). DOCTOKEN is never written: the NORMAL outcome needs an EVENTUAL send, which WEB SEND
-     *  refuses. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web task, cannot be told from it), a retrieve
-     *  after a WEB SEND that ended in a condition (IBM does not say whether it was issued). */
-    public int[] webRetrieve() {
+    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND.
+     *  NORMAL (resp 0, the DOCTOKEN): the last WEB SEND was a document send with ACTION(EVENTUAL) and no DOCDELETE; the token
+     *  names a copy of the document as it was sent (IBM: later changes are not in it; ASSUMED: a new document of the task,
+     *  the same token for every retrieve of that send). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1: the last
+     *  WEB SEND was DOCDELETE or not an EVENTUAL document send. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web
+     *  task, cannot be told from it), a retrieve after a WEB SEND that ended in a condition (IBM does not say whether it was
+     *  issued). The outcome is a DocumentCreated (resp, resp2, the token: null unless NORMAL). */
+    public DocumentCreated webRetrieve() {
         CicsTask r = statedRequest();
-        if (r.webSent) {
-            return new int[] {13, 1};
-        }
         if (r.webSendFailed) {
             throw refused("WEB RETRIEVE after a WEB SEND that ended in a condition");
         }
-        return new int[] {16, 2};
+        if (!r.webIssued) {
+            return new DocumentCreated(16, 2, null);
+        }
+        if (r.webHeldDoc == null) {
+            return new DocumentCreated(13, 1, null);
+        }
+        if (r.webHeldToken == null) {
+            r.webHeldToken = newDocument(r.webHeldDoc).doctoken();
+        }
+        return new DocumentCreated(0, 0, r.webHeldToken);
     }
 
     // #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (STARTBROWSE / READNEXT / ENDBROWSE of
@@ -1809,6 +1952,7 @@ public class CicsTask {
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
         String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
         String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
+        String doy = String.format(java.util.Locale.ROOT, "%03d", t.getDayOfYear());
         List<String> parts = switch (form) {
             case "YYYYMMDD" -> List.of(y4, m, d);
             case "MMDDYYYY" -> List.of(m, d, y4);
@@ -1816,9 +1960,30 @@ public class CicsTask {
             case "YYMMDD" -> List.of(y2, m, d);
             case "MMDDYY" -> List.of(m, d, y2);
             case "DDMMYY" -> List.of(d, m, y2);
+            case "YYDDD" -> List.of(y2, doy);
+            case "YYYYDDD" -> List.of(y4, doy);
+            case "YYDDMM" -> List.of(y2, d, m);
+            case "YYYYDDMM" -> List.of(y4, d, m);
             default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
         };
         return String.join(datesep, parts);
+    }
+
+    /** FORMATTIME ABSTIME(t) DAYCOUNT / DAYOFMONTH / DAYOFWEEK / MONTHOFYEAR / YEAR / MILLISECONDS: the binary integer IBM
+     *  describes. DAYCOUNT "the number of days since 1 January 1900 (day 1)": 1 January 1900 is day 1. DAYOFWEEK: Sunday=0,
+     *  Saturday=6. MILLISECONDS: the milliseconds in the current second, 0 - 999. */
+    public static long formatNumber(long abstime, String form) {
+        refuseNegativeAbstime(abstime);
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        return switch (form) {
+            case "DAYCOUNT" -> abstime / 86_400_000L + 1;
+            case "DAYOFMONTH" -> t.getDayOfMonth();
+            case "DAYOFWEEK" -> t.getDayOfWeek().getValue() % 7;
+            case "MONTHOFYEAR" -> t.getMonthValue();
+            case "YEAR" -> t.getYear();
+            case "MILLISECONDS" -> abstime % 1000;
+            default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
+        };
     }
 
     /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
@@ -2831,6 +2996,37 @@ public class CicsTask {
         return new ContainerResult("NORMAL", 0, -1, null);
     }
 
+    /** DELETE CHANNEL(channel) (IBM, EXEC CICS DELETE CHANNEL): the channel and every container it holds go; a later
+     *  command naming it finds no channel (CHANNELERR RESP2 2), a PUT CONTAINER makes a new empty one. CHANNELERR
+     *  RESP2 2: not in the program's scope. IBM's other RESP2 values name the current channel (4), the transaction
+     *  channel (5), a channel not owned by the calling program (6) and a read-only channel (3); a channel the program
+     *  is passed is the current one, and is also not its own, so IBM's order among 4 / 5 / 6 decides and it gives none:
+     *  the current channel is refused (ASSUMED: no read-only channel exists). A browse of the deleted channel is
+     *  refused at its next GETNEXT, as for any change to the channel (X42). */
+    public ContainerResult deleteChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        if (ch == currentChannel) {
+            throw refused("DELETE CHANNEL of the current channel");
+        }
+        ch.containers.clear();
+        ch.shape++;
+        channels.remove(ch.name);
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** QUERY CHANNEL(channel) CONTAINERCNT(count) (IBM, EXEC CICS QUERY CHANNEL): the number of containers the channel
+     *  holds, as the result's length. CHANNELERR RESP2 2: not in the program's scope (the count is then not set). */
+    public ContainerResult queryChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        return new ContainerResult("NORMAL", 0, ch.containers.size(), null);
+    }
+
     /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
      *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
      *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the
@@ -3267,7 +3463,11 @@ public class CicsTask {
             return new FileRead<>(planned[0], planned[1], null);
         }
         T record = lookup.get().orElse(null);
-        return new FileRead<>(record != null ? 0 : 13, 0, record);
+        if (record == null) {
+            return new FileRead<>(13, 0, null);
+        }
+        int[] o = root().dupkeyOr();  // #4623: a planned DUPKEY follows the read that found the record
+        return new FileRead<>(o[0], o[1], record);
     }
 
     /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
@@ -3295,7 +3495,8 @@ public class CicsTask {
         if (update) {
             root().held.add(file);
         }
-        return new FileRead<>(0, 0, record);
+        int[] o = root().dupkeyOr();
+        return new FileRead<>(o[0], o[1], record);
     }
 
     /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
@@ -3371,7 +3572,7 @@ public class CicsTask {
     /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
     public record Browsed(int resp, int resp2, String key) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
     }
 
@@ -3452,7 +3653,8 @@ public class CicsTask {
         }
         b.last = at;
         b.dir = 1;
-        return new Browsed(0, 0, at);
+        int[] o = root().dupkeyOr();
+        return new Browsed(o[0], o[1], at);
     }
 
     /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
@@ -3490,7 +3692,8 @@ public class CicsTask {
         }
         b.last = at;
         b.dir = -1;
-        return new Browsed(0, 0, at);
+        int[] o = root().dupkeyOr();
+        return new Browsed(o[0], o[1], at);
     }
 
     // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
@@ -3558,7 +3761,7 @@ public class CicsTask {
      *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
     public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
     }
 
@@ -3644,7 +3847,11 @@ public class CicsTask {
         long rba = at * e.reclen();
         b.rbaLast = rba;
         b.dir = dir;
-        return rec.length > intoLength ? new BrowsedRba(22, 11, rba, rec) : new BrowsedRba(0, 0, rba, rec);
+        if (rec.length > intoLength) {
+            return new BrowsedRba(22, 11, rba, rec);
+        }
+        int[] o = root().dupkeyOr();
+        return new BrowsedRba(o[0], o[1], rba, rec);
     }
 
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
@@ -3745,7 +3952,35 @@ public class CicsTask {
     /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
     public record FileRead<T>(int resp, int resp2, T record) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+        }
+    }
+
+    /** #4623: a planned DUPKEY (15) is not a failure of the read: IBM retrieves the record through the non-unique
+     *  alternate index and answers DUPKEY (RESP2 140) because another with the same key follows. So `injected`
+     *  holds it back (the read runs), and a read that did find a record asks here for its outcome. */
+    private int[] deferredDupkey;  // {n, resp, resp2} of the plan line, and its command and file
+    private String deferredWhat;
+
+    private int[] dupkeyOr() {
+        if (deferredDupkey == null) {
+            return new int[] {0, 0};
+        }
+        int[] d = deferredDupkey;
+        deferredDupkey = null;
+        logFault(deferredWhat, d[0], d[1], d[2]);
+        return new int[] {d[1], d[2]};
+    }
+
+    private void logFault(String what, int n, int resp, int resp2) {
+        if (faultLog != null) {
+            try {
+                java.nio.file.Files.writeString(faultLog, what + " " + n + " " + resp + " " + resp2
+                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
         }
     }
 
@@ -3754,19 +3989,17 @@ public class CicsTask {
             return null;
         }
         int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
+        deferredDupkey = null;
         for (String[] f : faultPlan) {
             if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
-                if (faultLog != null) {
-                    try {
-                        java.nio.file.Files.writeString(faultLog, cmd + " " + file + " " + n + " " + resp + " " + resp2
-                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
-                                java.nio.file.StandardOpenOption.APPEND);
-                    } catch (java.io.IOException e) {
-                        throw new java.io.UncheckedIOException(e);
-                    }
+                if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
+                    deferredDupkey = new int[] {n, resp, resp2};
+                    deferredWhat = cmd + " " + file;
+                    return null;
                 }
+                logFault(cmd + " " + file, n, resp, resp2);
                 return new int[] {resp, resp2};
             }
         }
@@ -4223,6 +4456,60 @@ public class CicsTask {
 
     private boolean callerArea;      // #4816: linkArea is the LINK caller's storage (not a copy, not a task's own area)
     private boolean xctlOfLinkage;   // #4816: the next XCTL's COMMAREA is inside this program's DFHCOMMAREA
+    private boolean linkedDto;       // #4956: the DTO this program was LINKed with is its LINK caller's own object
+
+    /** #4956: whether `o` can be an alias of another object: a value (String, number, enum) is passed as it is. */
+    private static boolean aliasable(Object o) {
+        return o != null && !(o instanceof Enum || o instanceof String || o instanceof Boolean
+                || o instanceof Character || o instanceof java.math.BigDecimal || o instanceof java.math.BigInteger
+                || o instanceof Integer || o instanceof Long || o instanceof Short || o instanceof Byte
+                || o instanceof Double || o instanceof Float);
+    }
+
+    /** #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+     *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
+    private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
+        if (whole == part) {
+            return true;
+        }
+        if (!aliasable(whole) || seen.put(whole, Boolean.TRUE) != null) {
+            return false;
+        }
+        Class<?> type = whole.getClass();
+        java.util.List<Object> held = new ArrayList<>();
+        if (type.isArray()) {
+            if (type.getComponentType().isPrimitive()) {
+                return false;
+            }
+            held.addAll(Arrays.asList((Object[]) whole));
+        } else if (whole instanceof Iterable) {
+            for (Object e : (Iterable<?>) whole) {
+                held.add(e);
+            }
+        } else if (whole instanceof Map) {
+            held.addAll(((Map<?, ?>) whole).values());
+        } else if (!type.getName().startsWith("java.")) {
+            for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
+                for (java.lang.reflect.Field f : k.getDeclaredFields()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) {
+                        continue;
+                    }
+                    try {
+                        f.setAccessible(true);
+                        held.add(f.get(whole));
+                    } catch (RuntimeException | IllegalAccessException e) {
+                        // an unreadable field is not an alias this walk can see
+                    }
+                }
+            }
+        }
+        for (Object h : held) {
+            if (within(h, part, seen)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /** #4816: the XCTL about to be issued passes (part of) this program's own DFHCOMMAREA. A LINKed program's is its
      *  caller's storage; IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether
@@ -4248,11 +4535,13 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: as LINK's
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        if ("NORMAL".equals(resp) && ofLinkage && callerArea) {
+        boolean ofDto = linkedDto && aliasable(commarea) && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");
         }
@@ -4427,7 +4716,20 @@ public class CicsTask {
         return ended;
     }
 
+    /** The events so far. An ACTION(EVENTUAL) WEB SEND (X37) is sent at the end of the task: its WEB-SEND event is recorded
+     *  here, once, after the task's other events (read the events when the task has ended); a task that ended in an abend
+     *  with one held is refused (IBM does not say whether the response is sent). */
     public List<Map<String, Object>> events() {
+        if (webHeld != null) {
+            for (Map<String, Object> e : events) {
+                if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
+                    throw refused("WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend");
+                }
+            }
+            Object[] fields = webHeld;
+            webHeld = null;
+            event("WEB-SEND", fields);
+        }
         return Collections.unmodifiableList(events);
     }
 

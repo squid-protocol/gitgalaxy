@@ -18,7 +18,7 @@ from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
-from gitgalaxy.standards.cics.commands.task import DATE_FORMS
+from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP
@@ -62,7 +62,7 @@ def region_page(declared: str | None) -> str:
 OPTIONS: dict[str, frozenset | None] = {
     k: None if c.open_options else frozenset(c.options) for k, c in SPEC.items() if c.status == "modelled"
 }
-_FORMS = DATE_FORMS
+_FORMS = (*DATE_FORMS, *NUMBER_FORMS)
 _SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
 
 
@@ -87,6 +87,10 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if (
+        first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts
+    ):  # #5005 (DELETE CONTAINER is above)
+        return f"{first} CHANNEL"
     if first == "GETNEXT" and "CONTAINER" in opts:  # #4951: GETNEXT CONTAINER(area) BROWSETOKEN(token)
         return "GETNEXT CONTAINER"
     if verb == "GET" and "DCOUNTER" in opts:  # #4767 (X30): GET DCOUNTER is the doubleword form of GET COUNTER's entry
@@ -757,14 +761,17 @@ class Cics:
         return dto, length
 
     def in_dfhcommarea(self, text: str) -> bool:
-        """#4816: whether a COMMAREA operand lies inside the program's LINKAGE DFHCOMMAREA record."""
+        """#4816: whether a COMMAREA operand lies inside a LINKAGE 01 record. DFHCOMMAREA is the LINK caller's area; any
+        other LINKAGE record can be the same storage under another name (#4957: a CALLed subprogram's USING record --
+        SET ADDRESS OF forms never reach here, they are holes), so it is marked too and the runtime refuses it only
+        when the program was LINKed with a COMMAREA (X39)."""
         try:
             it = self.g.resolve(self.ref(text))
         except LookupError:  # an operand commarea_out handled without an item of its own: no caller's record
             return False
         while it.parent is not None:
             it = it.parent
-        return it.section == "LINKAGE" and it.name == "DFHCOMMAREA"
+        return it.section == "LINKAGE"
 
     def commarea_bytes(self, opts: dict, program: str | None = None) -> str:
         """#4806: the COMMAREA's bytes as its DTO spans them (a byte[] expression): passed beside the DTO, they are
@@ -810,6 +817,8 @@ class Cics:
             return self.container(key, opts, ind)
         if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
             return self.container_browse(key, opts, ind)  # #4951
+        if key in ("DELETE CHANNEL", "QUERY CHANNEL"):
+            return self.channel_command(key, opts, ind)  # #5005
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
         if words[:1] == ["FETCH"]:  # #4884, #4950: FETCH ANY / FETCH CHILD
@@ -952,7 +961,7 @@ class Cics:
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
-            return out + self.outcome(opts, f"DetCics.resp({r})", f"DetCics.linkResp2({r})", ind)  # #4679
+            return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
@@ -1007,7 +1016,7 @@ class Cics:
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
-                    *self.outcome(opts, f"DetCics.resp({r})", f"DetCics.xctlResp2({r})", ind)])  # fmt: skip
+                    *self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):
@@ -1064,6 +1073,10 @@ class Cics:
                            else '"/"' if "DATESEP" in opts else '""')  # fmt: skip
                     body.append(f"Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
                                 f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
+            # #4415 slice 3 (X46): a binary integer, stored by the area's declared usage
+            body += [self.g.store_into(self.ref(_arg(opts[form])),
+                                       f"BigDecimal.valueOf(CicsTask.formatNumber({t}, {G_jstr(form)}))", False)
+                     for form in NUMBER_FORMS if form in opts]  # fmt: skip
             if "TIME" in opts:
                 sep = (self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP")
                        else '":"' if "TIMESEP" in opts else '""')  # TIMESEP alone: IBM's ':'  # fmt: skip
@@ -1157,6 +1170,7 @@ class Cics:
             return self.web_send(key, opts, ind)
         if key in (
             "WEB EXTRACT",
+            "EXTRACT WEB",
             "WEB RECEIVE",
             "WEB READ HTTPHEADER",
             "WEB WRITE HTTPHEADER",
@@ -1165,8 +1179,16 @@ class Cics:
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):  # #4767 / #4940 (X38), #4941 (X41)
             return self.web_request(key, opts, ind)
+        if key == "EXTRACT TCPIP":  # #4972 (X38): the connection the run states
+            return self.extract_tcpip(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
+        if (
+            key == "DUMP"
+        ):  # #4415 slice 3 (X46): the old bare form; IBM's page is DUMP TRANSACTION and does not equate them
+            raise CicsError(
+                "EXEC CICS DUMP: the bare DUMP form is read as DUMP TRANSACTION, which is not modelled (X46)"
+            )
         known = whole_refusal(key, verb, next(iter(opts), None))
         raise CicsError(known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled")
 
@@ -1317,6 +1339,8 @@ class Cics:
             raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
         if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
             raise CicsError(_requires(key, "STATUSLEN", "STATUSTEXT"))
+        if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+            raise CicsError(_requires(key, "DOCSTATUS", "DOCTOKEN"))
 
         def text(o: str) -> str:
             return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
@@ -1328,7 +1352,8 @@ class Cics:
         r = self.g.tmpname("web")
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
-                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, CS)")  # fmt: skip
+                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
+                    f"{num('DOCSTATUS', '0')}, CS)")  # fmt: skip
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
@@ -1403,9 +1428,13 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
-        if key == "WEB RETRIEVE":  # #4941 (X41): DOCTOKEN is never written (the NORMAL outcome needs an EVENTUAL send)
-            req("DOCTOKEN")
-            return [f"{ind}int[] {r} = task.webRetrieve();", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if (
+            key == "WEB RETRIEVE"
+        ):  # #4941 (X41): the DOCTOKEN of the last EVENTUAL document send, written on NORMAL only
+            area = self.field(req("DOCTOKEN"))
+            return [f"{ind}CicsTask.DocumentCreated {r} = task.webRetrieve();",
+                    f"{ind}if ({r}.resp() == 0) DetCics.putText({area}, {r}.doctoken(), CS);",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key.startswith(
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):
@@ -1464,6 +1493,53 @@ class Cics:
             out.append(store("SCHEME", f"{r}.scheme()"))
         if "REQUESTTYPE" in opts:
             out.append(store("REQUESTTYPE", "1033"))
+        out.append(f"{ind}}}")
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def extract_tcpip(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#4972 (register X38): EXTRACT TCPIP (IBM CICS TS, EXEC CICS EXTRACT TCPIP) over the connection the run states
+        (CicsTask.withTcpip). CicsTask.extractTcpip takes each address / name area's length option (an area asked for whose
+        length option is missing: 0, LENGERR RESP2 1) and its size; on NORMAL the bytes at each area's start (the rest left
+        alone), the lengths, the address numbers, the IPv4 CVDA (300), the port and the SSL type's CVDA."""
+        g = self.g
+        r = g.tmpname("tcp")
+        pieces = (("CLIENTADDR", "CADDRLENGTH", "clientAddr"), ("CLIENTNAME", "CNAMELENGTH", "clientName"),
+                  ("SERVERADDR", "SADDRLENGTH", "serverAddr"), ("SERVERNAME", "SNAMELENGTH", "serverName"))  # fmt: skip
+        for a, n, _ in pieces:
+            if n in opts and a not in opts:
+                raise CicsError(_requires(key, n, a))
+
+        def length(a: str, n: str) -> str:
+            if a not in opts:
+                return "null"
+            return f"Integer.valueOf({self.int_(_arg(opts[n]))})" if n in opts else "Integer.valueOf(0)"
+
+        def cap(a: str) -> str:
+            return str(self.size(_arg(opts[a]))) if a in opts else "0"
+
+        def store(o: str, value: str) -> str:
+            return f"{ind}    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({value})", False)
+
+        args = ", ".join(f"{length(a, n)}, {cap(a)}" for a, n, _ in pieces)
+        flags = ", ".join(
+            str(o in opts).lower() for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY")
+        )
+        out = [
+            f"{ind}CicsTask.TcpipExtracted {r} = task.extractTcpip({args}, {flags});",
+            f"{ind}if ({r}.resp() == 0) {{",
+        ]
+        for a, n, piece in pieces:
+            if a in opts:
+                f = self.field(_arg(opts[a]))
+                data = f"{r}.{piece}().getBytes(CS)"
+                out.append(f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("EXTRACT TCPIP {a} beyond '
+                           f'its area: not modelled"); DetCics.put({f}, {data});')  # fmt: skip
+                if n in opts:
+                    out.append(store(n, f"{r}.{piece}().length()"))
+        for o, value in (("CLIENTADDRNU", f"{r}.clientNu()"), ("SERVERADDRNU", f"{r}.serverNu()"), ("CLNTIPFAMILY", "300"),
+                         ("SRVRIPFAMILY", "300"), ("PORTNUMNU", f"{r}.port()"), ("SSLTYPE", f"{r}.ssl()")):  # fmt: skip
+            if o in opts:
+                out.append(store(o, value))
         out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
@@ -1558,6 +1634,22 @@ class Cics:
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
+        channels. DELETE: the channel and its containers go. QUERY: CONTAINERCNT, a fullword, is set to the number of
+        containers on NORMAL (not on a condition: IBM does not say). CHANNELERR RESP2 2 comes back through RESP / HANDLE
+        CONDITION (AEZV by default); what IBM leaves open is refused at run time (register X44)."""
+        r = self.g.tmpname("chan")
+        chan = self.name(_arg(opts.get("CHANNEL")))
+        if key == "DELETE CHANNEL":
+            call = f"task.deleteChannel({chan})"
+            return [f"{ind}CicsTask.ContainerResult {r} = {call};",
+                    *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+        count = _arg(opts.get("CONTAINERCNT"))
+        return [f"{ind}CicsTask.ContainerResult {r} = task.queryChannel({chan});",
+                f"{ind}if ({r}.length() >= 0) " + self.g.store_into(self.ref(count), f"BigDecimal.valueOf({r}.length())", False),
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def container_browse(self, key: str, opts: dict, ind: str) -> list[str]:
         """#4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL),

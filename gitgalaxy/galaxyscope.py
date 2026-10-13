@@ -74,6 +74,7 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.stdlib_modules import is_stdlib_module
 from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
@@ -149,6 +150,13 @@ _EXTENSION_LANGUAGES: dict[str, frozenset[str]] = _build_extension_languages()
 # a .ts file is imported -- the one ecosystem where a cross-language extension
 # pair is the documented norm rather than a stem collision.
 _INTERCHANGEABLE_LANGUAGES: frozenset[frozenset[str]] = frozenset({frozenset({"javascript", "typescript"})})
+
+
+# #4982: Ada source extensions, the roots the language itself supplies, and the stage declaration shape
+# the radar falls back on when a config carries no dockerfile `class_start`.
+ADA_EXTENSIONS = (".ads", ".adb", ".ada")
+ADA_STANDARD_ROOTS = frozenset({"ada", "system", "interfaces", "gnat"})
+_DOCKERFILE_STAGE_RE = re.compile(r"^[ \t]*FROM\b[^\n]*?\bAS[ \t]+([\w.-]+)", re.I | re.M)
 
 
 def _extensions_can_name_the_same_file(token_ext: str, candidate_ext: str) -> bool:
@@ -2610,6 +2618,28 @@ class Orchestrator:
         attach_function_metrics(self.parsed_files, function_metrics(self.parsed_files, self.fcall_sites))
         logger.debug(f"⏱️ EXECUTION_TIME [Function Graph Metrics]: {time.time() - t_graph:.2f}s")
 
+    def _dockerfile_stage_names(self) -> set[str]:
+        """Lowercased `FROM <image> AS <stage>` names across every Dockerfile in the scan (#4982).
+
+        Read from disk on demand (only when a Dockerfile token reaches the radar), so the answer is the same
+        for a fresh and an incrementally rehydrated scan and no per-file field has to be persisted.
+        """
+        stage_re = self.config.get("LANGUAGE_DEFINITIONS", {}).get("dockerfile", {}).get("rules", {}).get("class_start")
+        if not hasattr(stage_re, "finditer"):
+            stage_re = _DOCKERFILE_STAGE_RE
+        names: set[str] = set()
+        for path, meta in self.ram_cache.items():
+            if str(meta.get("lang_id", "")).lower() != "dockerfile":
+                continue
+            try:
+                text = read_source(self.root / path).text
+            except OSError:
+                continue
+            for m in stage_re.finditer(text):
+                if m.lastindex and m.group(1):
+                    names.add(m.group(1).lower())
+        return names
+
     def _declared_dependency_names(self) -> set[str]:
         """Lower-cased dependency names declared by the scan's manifests (#4547).
 
@@ -2780,6 +2810,27 @@ class Orchestrator:
 
         declared_deps = self._declared_dependency_names()
 
+        # #4982: the project's own namespaces, built lazily. Ada child units hang off a root unit the
+        # project's own files define (`alire-roots.ads` -> `alire`); a Dockerfile `--from=` token naming
+        # an `AS` stage of any Dockerfile in the project is a stage, not an image.
+        project_units: dict[str, Any] = {}
+
+        def _names_project_unit(token: str, ext: str, path: str) -> bool:
+            ext = ext.lower()
+            if ext in ADA_EXTENSIONS:
+                if "ada_roots" not in project_units:
+                    project_units["ada_roots"] = ADA_STANDARD_ROOTS | {
+                        Path(p).stem.lower().split("-", 1)[0]
+                        for p in self.ram_cache
+                        if Path(p).suffix.lower() in ADA_EXTENSIONS
+                    }
+                return token.replace(".", "/").split("/", 1)[0].lower() in project_units["ada_roots"]
+            if str(self.ram_cache[path].get("lang_id", "")).lower() == "dockerfile":
+                if "stages" not in project_units:
+                    project_units["stages"] = self._dockerfile_stage_names()
+                return token.lower() in project_units["stages"] or token.isdigit()
+            return False
+
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
             # #2988: the importing file's own extension, used to reject
@@ -2801,6 +2852,9 @@ class Orchestrator:
                     if ext_guess not in self.ext_tally:
                         clean_path = clean_path.replace(".", "/")
 
+                # #4982: a `./x` / `../x` token is a filesystem path inside the project, whatever
+                # the prefix-stripped remainder looks like (`math/Vector2.js`): never a package.
+                is_relative_path = clean_path.startswith(("./", "../"))
                 clean_path = clean_path.lstrip("./")
                 if not clean_path:
                     continue
@@ -2905,6 +2959,9 @@ class Orchestrator:
                         radar_name = radar_name[0] + radar_name[1:].split("@", 1)[0]
                     if radar_name.lower().endswith(HEADER_EXTENSIONS) or is_system_header(radar_name, importer_ext):
                         continue
+                    # #4982: tokens that resolve to the project itself, not to a registry package.
+                    if is_relative_path or _names_project_unit(radar_name, importer_ext, rel_path):
+                        continue
                     if radar_name not in external_imports_tally:
                         external_imports_tally[radar_name] = []
                     external_imports_tally[radar_name].append(rel_path)
@@ -2962,6 +3019,11 @@ class Orchestrator:
         for orphan_imp, rel_path in orphans:
             # 1. The Project Override Shield & Length Shield
             if orphan_imp in whitelist or len(orphan_imp) < 5:
+                continue
+
+            # #4982: a stdlib module is supplied by the interpreter, so as the SUSPECT it is no squat
+            # (`builtins`~`builtin`, MicroPython `ubinascii`~`binascii`). As an anchor it still counts.
+            if is_stdlib_module(orphan_imp, Path(rel_path).suffix):
                 continue
 
             # 2. O(1) Candidate Lookup (Only test strings in the exact same neighborhood)

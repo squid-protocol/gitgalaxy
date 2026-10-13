@@ -125,26 +125,26 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
-| CALINK (ca-link-lengths) | crucible | 24/168 | 14/22 (64%) | 14/17 (82%) | 3 / 0 / 4 / 1 / 0 |
+| CALINK (ca-link-lengths) | crucible | 24/168 | 14/22 (64%) | 14/17 (82%) | 3 / 0 / 5 / 0 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 15/24 (62%) | 15/16 (94%) | 1 / 0 / 7 / 1 / 0 |
-| CAXA (ca-xctl-versions) | crucible | 24/78 | 13/21 (62%) | 13/16 (81%) | 3 / 0 / 2 / 3 / 0 |
+| CAXA (ca-xctl-versions) | crucible | 24/78 | 14/21 (67%) | 14/17 (82%) | 3 / 0 / 3 / 1 / 0 |
 | CAXB (ca-xctl-versions) | crucible | 24/142 | 17/23 (74%) | 17/21 (81%) | 4 / 0 / 1 / 1 / 0 |
-| GTSTART (gt-start-retrieve) | crucible | 24/91 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 2 / 1 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/91 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 3 / 0 / 0 |
 | GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/21 (81%) | 4 / 0 / 0 / 0 / 0 |
 | GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/18 (94%) | 1 / 0 / 5 / 0 / 0 |
 | GTTERM (gt-terminal-coalesce) | crucible | 24/88 | 10/21 (48%) | 10/17 (59%) | 7 / 0 / 3 / 1 / 0 |
 | HCMAIN (hc-abend-link) | crucible | 24/176 | 12/23 (52%) | 12/14 (86%) | 2 / 0 / 4 / 5 / 0 |
 | HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/19 (95%) | 1 / 0 / 3 / 2 / 0 |
-| HCQREAD (hc-perform-range) | crucible | 24/204 | 13/21 (62%) | 13/13 (100%) | 0 / 0 / 4 / 4 / 0 |
+| HCQREAD (hc-perform-range) | crucible | 24/204 | 14/21 (67%) | 14/14 (100%) | 0 / 0 / 4 / 3 / 0 |
 | HXATTR (hx-attr-bytes) | crucible | 24/143 | 17/22 (77%) | 17/17 (100%) | 0 / 0 / 5 / 0 / 0 |
 | HXEXT (hx-extended-cursor) | crucible | 24/108 | 16/23 (70%) | 16/19 (84%) | 3 / 0 / 1 / 3 / 0 |
 | PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 408 run | **247/380 (65%)** | **247/289 (85%)** | 42 / 0 / 64 / 27 / 0 |
+| **all crucible** | | 408 run | **249/380 (66%)** | **249/291 (86%)** | 42 / 0 / 67 / 22 / 0 |
 | **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
-| **all estate** | | 919 run | **583/840 (69%)** | **583/640 (91%)** | 57 / 0 / 126 / 74 / 0 |
+| **all estate** | | 919 run | **585/840 (70%)** | **585/642 (91%)** | 57 / 0 / 129 / 69 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -153,10 +153,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CON | 88/162 (54%) | 88/95 (93%) |
 | COR | 28/51 (55%) | 28/39 (72%) |
 | DEL | 75/115 (65%) | 75/95 (79%) |
-| LIT | 110/140 (79%) | 110/111 (99%) |
+| LIT | 111/140 (79%) | 111/112 (99%) |
 | NEG | 117/135 (87%) | 117/119 (98%) |
 | RET | 7/17 (41%) | 7/12 (58%) |
-| ROR | 103/146 (71%) | 103/109 (94%) |
+| ROR | 104/146 (71%) | 104/110 (95%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -199,6 +199,31 @@ java-ported alone, which never runs a facade body (`handleTransaction`, `handleL
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
+
+## The byte overload's mutants (#4965)
+
+Every region facade has `handleTransaction(.., byte[])`: `lastAnswerBytes = task.returnedBytes();` after the task ran,
+and a `lastAnswerBytes()` accessor. The harness and the CICS crucible compare the accessor with the bytes the task's
+RETURN passed on. Those bytes exist only for a port that RETURNs through `returnTransid(.., byte[])` (the
+deterministic port, #4817). A model-written port RETURNs through the DTO-only form, so `returnedBytes()` is null on
+every path: the deleted assignment is an **equivalent** mutant there, whatever the program does with a COMMAREA (PCWIZ,
+PCCONF, PCMENU, PCDETL and COMEN01C all RETURN one and none of them carries bytes). The accessor's inverted test dies
+on any port that RETURNs with a COMMAREA.
+
+`python tests/tools/mutation_bytes.py run CASE --work DIR [--det-work DETDIR]` proves exactly those two mutants on the
+committed port and on the deterministic port. COMEN01C (`carddemo-menu`, RETURN TRANSID with a COMMAREA, 91/91
+statements translated), measured 2026-10-13:
+
+| port | deleted assignment | inverted accessor |
+|---|---|---|
+| committed (model, DTO-only RETURN) | survives: equivalent | killed |
+| deterministic (byte-carrying RETURN) | killed | killed |
+
+The crucible's java-facade side now checks the same thing the equivalence harness does: the bytes the accessor answers
+are the bytes the task's RETURN passed on (`Arrays.equals(answered, task.returnedBytes())`); before, a null answer fell
+back to the DTO's bytes and was never seen. The crucible cannot yet take a deterministic port's bytes: they are in the
+runtime's ASCII page and the crucible's expected logs are EBCDIC (a `PC-STEP` of `X'31'` against `X'F1'`), so the
+crucible ports stay model-written and the byte path is proven on the equivalence side.
 
 ## The test-strengthening loop (#4049)
 

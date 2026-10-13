@@ -267,7 +267,7 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
                     task.returnTransid(null, null);
                 } else if (p.equals("SUB")) {
                     ca.append("-SUB");
-                    task.xctl("SUB2", ca, 50);
+                    task.xctl("SUB2", new StringBuilder(ca), 50);  // a copy: its own DTO is X39's refusal (#4956)
                 } else if (p.equals("SUB2")) {
                     ca.append("-SUB2");
                     task.receiveText(10);
@@ -291,15 +291,15 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "MAIN level=1 calen=0",
         "SUB level=2 calen=100",
         "SUB2 level=2 calen=50",
-        "NORMAL PING-SUB-SUB2",
+        "NORMAL PING-SUB",
         "PGMIDERR LENGERR",
         "NOCA level=2 calen=0",
         "{commarea=PING, event=LINK, issuer=MAIN, length=100, resp=NORMAL, resp2=null, target=SUB}",
         "{commarea=PING-SUB, event=XCTL, issuer=SUB, length=50, program=SUB2, resp=NORMAL, resp2=null}",
         "{data=T1 X, event=RECEIVE, issuer=SUB2, length=4, resp=NORMAL}",
-        "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, length=100, level=2}",  # #3989: the LINK's LENGTH
-        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
-        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
+        "{caller_commarea=PING-SUB, event=RETURN, issuer=SUB2, length=100, level=2}",  # #3989: the LINK's LENGTH
+        "{commarea=PING-SUB, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
+        "{commarea=PING-SUB, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
         "{commarea=null, event=LINK, issuer=MAIN, length=0, resp=NORMAL, resp2=null, target=NOCA}",
         "{caller_commarea=null, event=RETURN, issuer=NOCA, length=0, level=2}",
         "{commarea=null, event=RETURN, issuer=MAIN, length=null, transid=null}",
@@ -401,7 +401,7 @@ def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_pa
                     for (String cmd : new String[] {"XCTL", "LINK"}) {
                         for (String want : new String[] {"INVREQ", "LENGERR", "NOTAUTH", "PGMIDERR"}) {
                             String r = cmd.equals("XCTL") ? task.xctl("CAXB", "V1", 80) : task.link("CAXB", "V1", 80);
-                            System.out.println(cmd + " " + r + " " + task.ended());
+                            System.out.println(cmd + " " + r + " " + task.ended() + " " + task.transferResp2());  // #4986
                             if (!r.equals("NORMAL")) {
                                 task.abendOnCondition(r);
                                 System.out.println(task.abcode());
@@ -427,7 +427,11 @@ def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_pa
         }""",
     )
     lines = out.splitlines()
-    assert lines[:2] == ["XCTL INVREQ false", "AEIP"]
+    assert lines[:2] == ["XCTL INVREQ false 1", "AEIP"]
+    # #4986: EIBRESP2 (task.transferResp2) is the plan's, not the condition name's: PGMIDERR 3 was 1, NOTAUTH 100 was 0
+    shown = [ln.split() for ln in lines if ln.startswith(("XCTL ", "LINK ")) and ln.count(" ") == 3]
+    assert [(c, r, x) for c, r, _, x in shown] == [(c, r, str(x)) for c in ("XCTL", "LINK")
+                     for r, x in (("INVREQ", 1), ("LENGERR", 11), ("NOTAUTH", 100), ("PGMIDERR", 3))]  # fmt: skip
     assert [ln for ln in lines if ln.startswith(("AE", "ran"))] == ["AEIP", "AEIV", "AEY7", "AEI0"] * 2
     assert "ran CAXB" not in lines  # nothing transferred, nothing linked
     assert lines[-8:] == [f"{c} {r} {x}" for c in ("XCTL", "LINK")
@@ -1156,6 +1160,35 @@ def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
     assert out.split() == ["3867129015000", "2022-07-18", "10:30:15", "07/18/22", "18072022"]
 
 
+@needs_javac
+def test_cics_task_formattime_day_of_year_forms_and_binary_numbers(tmp_path):
+    """#4415 slice 3 (X46): YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and DAYCOUNT / DAYOFMONTH / DAYOFWEEK (Sunday=0) /
+    MONTHOFYEAR / YEAR / MILLISECONDS, over the whole input class: the first instant (1900-01-01, day 1), a leap day, a
+    non-leap and a leap year end (day 365 / 366), a century leap year; expected values from Python's datetime."""
+    out = _cics_task(
+        tmp_path,
+        """
+        long[] abs = {0L, 3867129015123L, 3918239999999L, 3912969600000L, 3944635200007L, 3160857600000L};
+        for (long ab : abs) {
+            System.out.println(CicsTask.formatDate(ab, "YYDDD", "/") + " " + CicsTask.formatDate(ab, "YYYYDDD", "/") + " "
+                + CicsTask.formatDate(ab, "YYDDMM", "/") + " " + CicsTask.formatDate(ab, "YYYYDDMM", "") + " "
+                + CicsTask.formatNumber(ab, "DAYCOUNT") + " " + CicsTask.formatNumber(ab, "DAYOFMONTH") + " "
+                + CicsTask.formatNumber(ab, "DAYOFWEEK") + " " + CicsTask.formatNumber(ab, "MONTHOFYEAR") + " "
+                + CicsTask.formatNumber(ab, "YEAR") + " " + CicsTask.formatNumber(ab, "MILLISECONDS"));
+        }
+        try { CicsTask.formatNumber(-1, "YEAR"); } catch (UnsupportedOperationException e) { System.out.println("refused"); }""",
+    )
+    assert out.splitlines() == [
+        "00/001 1900/001 00/01/01 19000101 1 1 1 1 1900 0",
+        "22/199 2022/199 22/18/07 20221807 44759 18 1 7 2022 123",
+        "24/060 2024/060 24/29/02 20242902 45350 29 4 2 2024 999",
+        "23/365 2023/365 23/31/12 20233112 45290 31 0 12 2023 0",
+        "24/366 2024/366 24/31/12 20243112 45656 31 2 12 2024 7",
+        "00/061 2000/061 00/01/03 20000103 36585 1 3 3 2000 0",
+        "refused",
+    ]
+
+
 # ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------------
 _RBA_MAIN = r"""
 #include <stdio.h>
@@ -1813,6 +1846,193 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
     out = _cics_task(
         tmp_path,
         'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\n'
+        "try {\n" + steps + '\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and why in out, out
+
+
+# ---- #5005: DELETE CHANNEL and QUERY CHANNEL -------------------------------------------------------------
+# One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS DELETE CHANNEL, QUERY
+# CHANNEL: CHANNELERR RESP2 2 for a channel not in scope); what IBM leaves open is refused (register X44).
+_CHAN_EXTERNS = "int GGCDELH(gg_cics *c); int GGCQCHN(gg_cics *c); int GGCDELC(gg_cics *c);\nint GGCSYNC(gg_cics *c);"
+_CHAN_HELPERS = r"""
+static void delch(const char *what, const char *chan) { blank(c.chan, 16, chan); GGCDELH(&c); say(what); }
+static void query(const char *what, const char *chan) {
+    blank(c.chan, 16, chan); c.num = -7; GGCQCHN(&c);
+    printf("%s=%s/%d", what, nm(c.resp), c.resp2);
+    if (c.resp == 0) printf("/count %d", c.num); else if (c.num != -7) printf("/count written");
+    printf("\n");
+}
+static void delc(const char *what, const char *chan, const char *cont) {
+    blank(c.qname, 16, cont); blank(c.chan, 16, chan); blank(c.flags, 40, "CHANNEL"); GGCDELC(&c); say(what);
+}
+static void link_sub(const char *chan) {
+    char *area = NULL;
+    blank(c.name1, 8, "SUB"); c.item = 0; c.len = 0; blank(c.flags, 40, "CHANNEL"); blank(c.chan, 16, chan);
+    GGCLINK(&c, NULL); GGCNEXT(&c, &area);
+}
+"""
+
+
+def _chan_stub_main(body: str) -> str:
+    head = _MOVE_STUB_MAIN.replace("int GGCSYNC(gg_cics *c);", _CHAN_EXTERNS).split("int main(void) {")[0]
+    return (
+        head + _CHAN_HELPERS + "int main(void) {\n    char *area = NULL;\n"
+        '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n' + body + "\n    return 0;\n}\n"
+    )
+
+
+_CHAN_STUB_SCENARIO = r"""
+    query("q-none", "CH1"); delch("d-none", "CH1");
+    put("CH1", "A", "aa", "CHANNEL CHAR"); put("CH1", "B", "bb", "CHANNEL"); put("CH2", "X", "xx", "CHANNEL");
+    query("q-ch1", "CH1"); query("q-ch2", "CH2");
+    delc("delc", "CH1", "A"); query("q-after-delc", "CH1");
+    delch("d-ch1", "CH1");
+    get("get-gone", "CH1", "B"); query("q-gone", "CH1"); delch("d-again", "CH1");
+    put("CH1", "N", "n", "CHANNEL"); query("q-recreated", "CH1"); get("old-b", "CH1", "B");
+    put("CH3", "Z", "z", "CHANNEL"); delc("delc-z", "CH3", "Z"); query("q-empty", "CH3"); delch("d-empty", "CH3");
+    query("q-empty-gone", "CH3");
+    link_sub("CH2");
+    query("sub-query", "CH2"); query("sub-other", "CH1"); delch("sub-del-other", "CH1");
+    put("CH2", "S", "s", "CHANNEL"); query("sub-query2", "CH2");
+    GGCLRET(&c);
+    query("q-after", "CH2"); delch("d-ch2", "CH2"); query("q-ch2-gone", "CH2"); get("x-gone", "CH2", "X");
+"""
+
+_CHAN_EXPECTED = [
+    "q-none=CHANNELERR/2",
+    "d-none=CHANNELERR/2",
+    "q-ch1=NORMAL/0/count 2",
+    "q-ch2=NORMAL/0/count 1",
+    "delc=NORMAL/0",
+    "q-after-delc=NORMAL/0/count 1",
+    "d-ch1=NORMAL/0",
+    "get-gone=CHANNELERR/2",
+    "q-gone=CHANNELERR/2",
+    "d-again=CHANNELERR/2",
+    "q-recreated=NORMAL/0/count 1",
+    "old-b=CONTAINERERR/10",
+    "delc-z=NORMAL/0",
+    "q-empty=NORMAL/0/count 0",
+    "d-empty=NORMAL/0",
+    "q-empty-gone=CHANNELERR/2",
+    "sub-query=NORMAL/0/count 1",
+    "sub-other=CHANNELERR/2",
+    "sub-del-other=CHANNELERR/2",
+    "sub-query2=NORMAL/0/count 2",
+    "q-after=NORMAL/0/count 2",
+    "d-ch2=NORMAL/0",
+    "q-ch2-gone=CHANNELERR/2",
+    "x-gone=CHANNELERR/2",
+]
+
+
+@needs_cc
+def test_the_stub_deletes_and_queries_channels_as_ibm_documents(tmp_path):
+    """#5005, IBM DELETE CHANNEL / QUERY CHANNEL: the count of containers (0 for an emptied channel, then the channel still
+    exists), a deleted channel and its containers gone (CHANNELERR RESP2 2 for it afterwards; a PUT makes a new, empty one),
+    a channel outside the program's scope CHANNELERR RESP2 2 (a LINKed program sees only the channel it was passed)."""
+    out = _run_stub(_stub(tmp_path, _chan_stub_main(_CHAN_STUB_SCENARIO)), tmp_path)
+    assert out == _CHAN_EXPECTED
+
+
+@needs_javac
+def test_cics_task_deletes_and_queries_channels_as_the_stub_does(tmp_path):
+    """#5005: CicsTask answers the scenario above line for line."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> say = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2());
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> count = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2()
+                + (r.normal() ? "/count " + r.length() : (r.length() != -1 ? "/count written" : "")));
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                count.accept("sub-query", s.queryChannel("CH2"));
+                count.accept("sub-other", s.queryChannel("CH1"));
+                say.accept("sub-del-other", s.deleteChannel("CH1"));
+                s.putContainer("CH2", "S", "s".getBytes(), 1, null, false);
+                count.accept("sub-query2", s.queryChannel("CH2"));
+            }
+        });
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> got = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2()
+                + (r.normal() ? "/" + r.length() + "/" + new String(r.data()) : ""));
+        count.accept("q-none", t.queryChannel("CH1")); say.accept("d-none", t.deleteChannel("CH1"));
+        t.putContainer("CH1", "A", "aa".getBytes(), 2, "CHAR", false); t.putContainer("CH1", "B", "bb".getBytes(), 2, null, false);
+        t.putContainer("CH2", "X", "xx".getBytes(), 2, null, false);
+        count.accept("q-ch1", t.queryChannel("CH1")); count.accept("q-ch2", t.queryChannel("CH2"));
+        say.accept("delc", t.deleteContainer("CH1", "A")); count.accept("q-after-delc", t.queryChannel("CH1"));
+        say.accept("d-ch1", t.deleteChannel("CH1"));
+        got.accept("get-gone", t.getContainer("CH1", "B", 16)); count.accept("q-gone", t.queryChannel("CH1"));
+        say.accept("d-again", t.deleteChannel("CH1"));
+        t.putContainer("CH1", "N", "n".getBytes(), 1, null, false); count.accept("q-recreated", t.queryChannel("CH1"));
+        got.accept("old-b", t.getContainer("CH1", "B", 16));
+        t.putContainer("CH3", "Z", "z".getBytes(), 1, null, false); say.accept("delc-z", t.deleteContainer("CH3", "Z"));
+        count.accept("q-empty", t.queryChannel("CH3")); say.accept("d-empty", t.deleteChannel("CH3"));
+        count.accept("q-empty-gone", t.queryChannel("CH3"));
+        t.linkChannel("SUB", "CH2");
+        count.accept("q-after", t.queryChannel("CH2")); say.accept("d-ch2", t.deleteChannel("CH2"));
+        count.accept("q-ch2-gone", t.queryChannel("CH2")); got.accept("x-gone", t.getContainer("CH2", "X", 16));""",
+    )
+    assert out.splitlines() == _CHAN_EXPECTED
+
+
+@needs_cc
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        (
+            'put("CH1", "A", "a", "CHANNEL"); int t = start("s", "CH1"); delch("d", "CH1"); next("n", t);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            'put("CH2", "A", "a", "CHANNEL"); link_sub("CH2"); delch("d", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
+        ('delch("d", " A");', "channel name"),
+        ('query("q", " A");', "channel name"),
+        ('delch("d", "");', "channel name"),
+    ],
+)
+def test_the_stub_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
+    """#5005 (X44): the current channel (IBM's RESP2 4 / 5 / 6 all fit it, unranked), a browse of a channel that was deleted
+    and a blank or embedded-blank name are refused, never guessed."""
+    exe = _stub(tmp_path, _chan_stub_main(steps))
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode != 0 and why in proc.stderr + proc.stdout
+
+
+@needs_javac
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); int k = t.startBrowseContainer("CH1").length();'
+            ' t.deleteChannel("CH1"); t.getNextContainer(k);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            't.putContainer("CH2", "A", "a".getBytes(), 1, null, false); t.linkChannel("SUB", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
+        ('t.deleteChannel(" A");', "channel name"),
+        ('t.queryChannel(" A");', "channel name"),
+        ('t.deleteChannel("");', "channel name"),
+    ],
+)
+def test_cics_task_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
+    """#5005 (X44): the same refusals as the stub's."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {\n'
+        "    public boolean defined(String p) { return true; }\n"
+        '    public void run(String p, CicsTask s) { s.deleteChannel("CH2"); }\n});\n'
         "try {\n" + steps + '\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
         'System.out.println("refused: " + e.getMessage());\n}',
     )
@@ -3410,18 +3630,27 @@ def test_cics_task_web_parse_url_as_the_stub_does(tmp_path):
 # one step a line: FROM FROMLENGTH|= MEDIATYPE|-|_ ACTION STATUSCODE|- STATUSTEXT|- STATUSLEN|- CONV (0 neither, 1 SRVCONVERT,
 # 2 NOSRVCONVERT); "-": the option not given, "_": a blank MEDIATYPE. Areas: FROM 64, MEDIATYPE 56, STATUSTEXT 20 bytes.
 _X37_CASES = [  # (steps, what both runtimes answer, the events they record: status, statustext, mediatype, body)
-    (["OK-body = text/plain 2 200 OK 2 1"], ["send 0/0"], [(200, "OK", "text/plain", "OK-body")]),
-    (["x 1 - 2 - - - 0"], ["send 0/0"], [(200, None, None, "x")]),
-    (["abc 3 application/json 2 404 Not_Found 9 2"], ["send 0/0"], [(404, "Not_Found", "application/json", "abc")]),
-    (["abc 3 text/xml 2 201 Created 3 0"], ["send 0/0"], [(201, "Cre", "text/xml", "abc")]),
-    (["abc 3 TEXT/Plain 2 200 OK - 1"], ["send 0/0"], [(200, "OK" + " " * 18, "TEXT/Plain", "abc")]),
+    (["OK-body = text/plain 2 200 OK 2 1"], ["send 0/0"], [(200, "OK", "text/plain", "OK-body", "IMMEDIATE")]),
+    (["x 1 - 2 - - - 0"], ["send 0/0"], [(200, None, None, "x", "IMMEDIATE")]),
+    (
+        ["abc 3 application/json 2 404 Not_Found 9 2"],
+        ["send 0/0"],
+        [(404, "Not_Found", "application/json", "abc", "IMMEDIATE")],
+    ),
+    (["abc 3 text/xml 2 201 Created 3 0"], ["send 0/0"], [(201, "Cre", "text/xml", "abc", "IMMEDIATE")]),
+    (["abc 3 TEXT/Plain 2 200 OK - 1"], ["send 0/0"], [(200, "OK" + " " * 18, "TEXT/Plain", "abc", "IMMEDIATE")]),
     (["x 1 - 7 - - - 0"], ["send 16/11"], []),
     (["x 1 - 2 204 - - 0"], ["send 16/72"], []),
     (["x 1 - 0 304 - - 0"], ["send 16/72"], []),
+    # #4941 (X37): ACTION(EVENTUAL), and an omitted ACTION (EVENTUAL for a send that is not chunked), is held for the end of
+    # the task; a second send replaces it; a send that ended in a condition leaves it as it was
+    (["x 1 - 3 - - - 0"], ["send 0/0"], [(200, None, None, "x", "EVENTUAL")]),
+    (["x 1 - 0 - - - 0"], ["send 0/0"], [(200, None, None, "x", "EVENTUAL")]),
+    (["a 1 - 3 - - - 0", "b 1 - 0 201 - - 0"], ["send 0/0", "send 0/0"], [(201, None, None, "b", "EVENTUAL")]),
+    (["a 1 - 3 - - - 0", "x 1 - 7 - - - 0"], ["send 0/0", "send 16/11"], [(200, None, None, "a", "EVENTUAL")]),
+    (["a 1 - 3 - - - 0", "b 1 - 3 204 - - 0"], ["send 0/0", "send 16/72"], [(200, None, None, "a", "EVENTUAL")]),
 ]
 _X37_REFUSED = [  # (steps, what both runtimes stop with)
-    (["x 1 - 3 - - - 0"], "ACTION not IMMEDIATE"),
-    (["x 1 - 0 - - - 0"], "ACTION not IMMEDIATE"),
     (["x 1 - 9 204 - - 0"], "more than one condition at once"),
     (["x 0 - 2 - - - 0"], "FROMLENGTH or STATUSLEN not above zero"),
     (["x 1 - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
@@ -3434,6 +3663,8 @@ _X37_REFUSED = [  # (steps, what both runtimes stop with)
     (["x 99 - 2 - - - 0"], "length beyond its area"),
     (["x 1 - 2 - OK 21 0"], "length beyond its area"),
     (["x 1 - 2 - - - 0", "y 1 - 2 - - - 0"], "WEB SEND after a response was sent"),
+    (["x 1 - 2 - - - 0", "y 1 - 3 - - - 0"], "WEB SEND after a response was sent"),
+    (["x 1 - 3 - - - 0", "y 1 - 2 - - - 0"], "WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send"),
 ]
 
 _X37_MAIN = r"""
@@ -3443,6 +3674,7 @@ typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[4
                  char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
                  char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCEND(gg_cics *c);
 static gg_cics c;
 static int given(const char *a) { return strcmp(a, "-") != 0; }
 int main(int argc, char **argv) {
@@ -3463,6 +3695,7 @@ int main(int argc, char **argv) {
         GGCWSND(&c, from, 64, media, 56, stext, 20);
         printf("send %d/%d\n", c.resp, c.resp2);
     }
+    GGCEND(&c); /* the task ends: an ACTION(EVENTUAL) response is sent (#4941) */
     return 0;
 }
 """
@@ -3474,6 +3707,8 @@ def _x37_stub_events(out: Path) -> list[tuple]:
         (out / "events.txt").read_text(encoding="latin-1").splitlines() if (out / "events.txt").exists() else []
     ):
         seq, verb, *rest = line.split()
+        if verb == "RETURN":  # (GGCEND's: the task's end, which sends an ACTION(EVENTUAL) response after it)
+            continue
         assert verb == "WEB-SEND"
         kv = dict(a.split("=", 1) for a in rest[1:])
 
@@ -3486,6 +3721,7 @@ def _x37_stub_events(out: Path) -> list[tuple]:
                 text(kv["stext"]),
                 text(kv["media"]),
                 (out / f"{seq}.bin").read_bytes().decode("latin-1") if (out / f"{seq}.bin").exists() else "",
+                kv["action"],
             )
         )
     return got
@@ -3573,9 +3809,9 @@ def test_cics_task_web_send_as_the_stub_does(tmp_path):
         end = lines.index("--", pos)
         got = lines[pos:end]
         want = list(answers)
-        for status, stext, media, body in events:
+        for status, stext, media, body, action in events:
             want.append(
-                f"ev {status}|{'null' if stext is None else stext}|{'null' if media is None else media}|{body}|IMMEDIATE|0/0"
+                f"ev {status}|{'null' if stext is None else stext}|{'null' if media is None else media}|{body}|{action}|0/0"
             )
         assert got == want, (steps, got, want)
         pos = end + 1
@@ -3659,6 +3895,8 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["wrh X-A 33 v 1"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
     ("full", ["wrh X-A 3 v 41"], ["WEB WRITE HTTPHEADER length beyond its area"], []),
     ("full", ["snd", "wrh X-A 3 v 1"], ["snd 0/0", "WEB WRITE HTTPHEADER after the response was sent"], []),
+    ("full", ["snde", "wrh X-A 3 v 1"], ["snd 0/0", "WEB WRITE HTTPHEADER after the response was sent"], []),  # (#4941: held)
+    ("full", ["wrh X-A 3 v 1", "snde"], ["wrh 0/0", "snd 0/0"], [("X-A", "v")]),
     # #4941 WEB RETRIEVE (X41): INVREQ 2 before any WEB SEND, NOTFND 1 once one was issued (every accepted send is IMMEDIATE)
     ("full", ["rtv"], ["rtv 16/2"], []),
     ("bare", ["rtv"], ["rtv 16/2"], []),
@@ -3667,6 +3905,9 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["sndbad", "snd", "rtv"], ["snd 16/11", "snd 0/0", "rtv 13/1"], []),
     ("full", ["sndbad", "rtv"], ["snd 16/11", "WEB RETRIEVE after a WEB SEND that ended in a condition"], []),
     ("full", ["wrh X-A 3 v 1", "rtv"], ["wrh 0/0", "rtv 16/2"], [("X-A", "v")]),
+    ("full", ["snde", "rtv"], ["snd 0/0", "rtv 13/1"], []),  # (#4941: an EVENTUAL send of a FROM body is not a document)
+    ("full", ["sndbad", "snde", "rtv"], ["snd 16/11", "snd 0/0", "rtv 13/1"], []),
+    ("full", ["snd", "sndbad", "rtv"], ["snd 0/0", "WEB SEND after a response was sent"], []),
 ]  # fmt: skip
 
 _X38_MAIN = r"""
@@ -3681,7 +3922,7 @@ int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap);
 int GGCWRDH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
 int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap);
 int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
-int GGCWRTV(gg_cics *c);
+int GGCWRTV(gg_cics *c, char *tok, int toklen);
 static gg_cics c;
 static void flags(const char *s) { memset(c.flags, ' ', 40); memcpy(c.flags, s, strlen(s)); }
 static void trimprint(const char *s, int n) { while (n > 0 && s[n - 1] == ' ') n--; printf("%.*s", n, s); }
@@ -3732,12 +3973,14 @@ int main(int argc, char **argv) {
             GGCWWRH(&c, name, 32, value, 40);
             printf("wrh %d/%d\n", c.resp, c.resp2);
         } else if (strcmp(w[0], "rtv") == 0) {
-            GGCWRTV(&c);
+            char tok[16];
+            memset(tok, ' ', 16);
+            GGCWRTV(&c, tok, 16);
             printf("rtv %d/%d\n", c.resp, c.resp2);
         } else {
             char from[64], stext[20];
             memset(from, ' ', 64); memset(stext, ' ', 20);
-            c.len = 1; c.item = strcmp(w[0], "sndbad") == 0 ? 99 : 2; c.num = -1; c.hours = -1; c.mins = 0; flags("");
+            c.len = 1; c.item = strcmp(w[0], "sndbad") == 0 ? 99 : strcmp(w[0], "snde") == 0 ? 3 : 2; c.num = -1; c.hours = -1; c.mins = 0; flags("");
             GGCWSND(&c, from, 64, media, 56, stext, 20);
             printf("snd %d/%d\n", c.resp, c.resp2);
         }
@@ -3869,11 +4112,11 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
                 System.out.println("wrh " + r[0] + "/" + r[1]);
             }
             case "rtv" -> {
-                int[] r = t.webRetrieve();
-                System.out.println("rtv " + r[0] + "/" + r[1]);
+                var r = t.webRetrieve();
+                System.out.println("rtv " + r.resp() + "/" + r.resp2());
             }
             default -> {
-                int[] r = t.webSend(pad("", 64), 1, null, w[0].equals("sndbad") ? 99 : 2, -1, null, -1, 0);
+                int[] r = t.webSend(pad("", 64), 1, null, w[0].equals("sndbad") ? 99 : w[0].equals("snde") ? 3 : 2, -1, null, -1, 0);
                 System.out.println("snd " + r[0] + "/" + r[1]);
             }
         }
@@ -4036,10 +4279,13 @@ _X37_DOC_CASES = [  # (steps, answers, bodies of the events)
     (["text text/plain 2 200 OK 2 1"], ["send 0/0"], ["ab"]),
     (["text - 2 204 - - 0"], ["send 16/72"], []),
     (["text - 7 - - - 0"], ["send 16/11"], []),
+    # #4941 (X37): a token that names no document (not created, or deleted) is NOTFND RESP2 1; EVENTUAL sends at the task's end
+    (["none - 2 - - - 0"], ["send 13/1"], []),
+    (["empty - 3 - - - 0"], ["send 0/0"], [""]),
+    (["text - 0 - - - 0"], ["send 0/0"], ["ab"]),
 ]
 _X37_DOC_REFUSED = [
-    (["none - 2 - - - 0"], "WEB SEND DOCTOKEN of a document the task did not create"),
-    (["empty - 3 - - - 0"], "WEB SEND ACTION not IMMEDIATE"),
+    (["none - 7 - - - 0"], "WEB SEND with more than one condition at once"),
     (["empty - 2 - OK 0 0"], "FROMLENGTH or STATUSLEN not above zero"),
     (["empty - 2 99 - - 0"], "STATUSCODE outside 100-599"),
     (["empty application/json 2 - - - 1"], "SRVCONVERT on a media type that is not text/*"),
@@ -4055,6 +4301,7 @@ typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[4
                  char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen);
 int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap);
+int GGCEND(gg_cics *c);
 static gg_cics c;
 int main(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
@@ -4077,6 +4324,7 @@ int main(int argc, char **argv) {
         GGCWSDC(&c, tok, 16, media, 56, stext, 20);
         printf("send %d/%d\n", c.resp, c.resp2);
     }
+    GGCEND(&c);
     return 0;
 }
 """
@@ -4127,7 +4375,7 @@ def test_cics_task_sends_a_document_as_the_stub_does(tmp_path):
 
     helpers = """
     static void send(CicsTask t, String tok, String media, int action, int status, String stext, int sl, int conv) {
-        int[] r = t.webSendDocument(tok, media, action, status, stext, sl, conv, java.nio.charset.StandardCharsets.ISO_8859_1);
+        int[] r = t.webSendDocument(tok, media, action, status, stext, sl, conv, 0, java.nio.charset.StandardCharsets.ISO_8859_1);
         System.out.println("send " + r[0] + "/" + r[1]);
     }
     static CicsTask task() {
@@ -4160,6 +4408,224 @@ def test_cics_task_sends_a_document_as_the_stub_does(tmp_path):
     assert len(refusals) == len(_X37_DOC_REFUSED)
     for got, (_steps, why) in zip(refusals, _X37_DOC_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
+
+
+# ---- #4941 (registers X37, X41): WEB SEND ACTION(EVENTUAL) / DOCSTATUS and the WEB RETRIEVE that follows -------------------
+# a step a line: mk (DOCUMENT CREATE of "ab", token slot n in order), sd SLOT ACTION DOCSTATUS (WEB SEND DOCTOKEN; ACTION 0 not
+# given, 2 IMMEDIATE, 3 EVENTUAL; DOCSTATUS 0 not given, 295 DOCDELETE, 296 NODOCDELETE), sf ACTION (WEB SEND FROM "x"), rtv
+# (WEB RETRIEVE, then DOCUMENT RETRIEVE of the token it gave), rd SLOT (DOCUMENT RETRIEVE), abend. Then the task ends.
+_X41_CASES = [  # (steps, what both runtimes answer, the events they record: RETURN, then the WEB-SEND sent at the task's end)
+    (["mk", "sd 0 3 0", "rtv"], ["sd 0/0", "rtv 0/0 GGDOC00000000002 ab"], ["RETURN", "WEB-SEND EVENTUAL 200 ab"]),
+    (["mk", "sd 0 0 0", "rtv"], ["sd 0/0", "rtv 0/0 GGDOC00000000002 ab"], ["RETURN", "WEB-SEND EVENTUAL 200 ab"]),
+    (
+        ["mk", "sd 0 3 296", "rtv", "rd 0"],
+        ["sd 0/0", "rtv 0/0 GGDOC00000000002 ab", "rd 0/0 ab"],
+        ["RETURN", "WEB-SEND EVENTUAL 200 ab"],
+    ),
+    (["mk", "sd 0 3 295", "rtv", "rd 0"], ["sd 0/0", "rtv 13/1", "rd 13/1"], ["RETURN", "WEB-SEND EVENTUAL 200 ab"]),
+    (["mk", "sd 0 2 295", "rd 0"], ["sd 0/0", "rd 13/1"], ["WEB-SEND IMMEDIATE 200 ab", "RETURN"]),
+    (["mk", "sd 0 2 0", "rtv"], ["sd 0/0", "rtv 13/1"], ["WEB-SEND IMMEDIATE 200 ab", "RETURN"]),
+    (
+        ["mk", "sd 0 3 0", "rtv", "rtv"],
+        ["sd 0/0", "rtv 0/0 GGDOC00000000002 ab", "rtv 0/0 GGDOC00000000002 ab"],
+        ["RETURN", "WEB-SEND EVENTUAL 200 ab"],
+    ),
+    (["rtv"], ["rtv 16/2"], ["RETURN"]),
+    (["sf 3", "rtv"], ["sf 0/0", "rtv 13/1"], ["RETURN", "WEB-SEND EVENTUAL 200 x"]),
+    (["mk", "sd 0 3 0", "sf 3", "rtv"], ["sd 0/0", "sf 0/0", "rtv 13/1"], ["RETURN", "WEB-SEND EVENTUAL 200 x"]),
+    (
+        ["mk", "mk", "sd 0 3 0", "sd 1 3 0", "rtv"],
+        ["sd 0/0", "sd 0/0", "rtv 0/0 GGDOC00000000003 ab"],
+        ["RETURN", "WEB-SEND EVENTUAL 200 ab"],
+    ),
+    (["mk", "sd 0 3 0", "sd 0 3 295", "rtv"], ["sd 0/0", "sd 0/0", "rtv 13/1"], ["RETURN", "WEB-SEND EVENTUAL 200 ab"]),
+    (["mk", "sd 0 3 295", "sd 0 3 0"], ["sd 0/0", "sd 13/1"], ["RETURN", "WEB-SEND EVENTUAL 200 ab"]),
+    (["mk", "sd 0 3 7"], ["sd 16/143"], ["RETURN"]),
+    (["mk", "sd 0 3 7", "rtv"], ["sd 16/143", "WEB RETRIEVE after a WEB SEND that ended in a condition"], []),
+    (
+        ["mk", "sd 0 3 0", "abend"],
+        ["sd 0/0", "WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend"],
+        [],
+    ),
+    (["mk", "sd 0 3 0", "sd 0 2 0"], ["sd 0/0", "WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send"], []),
+]
+
+_X41_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCDOCC(gg_cics *c, char *src, int srclen, char *tok, int toklen);
+int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen);
+int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap);
+int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char *stext, int stextcap);
+int GGCWRTV(gg_cics *c, char *tok, int toklen);
+int GGCABND(gg_cics *c);
+int GGCEND(gg_cics *c);
+static gg_cics c;
+int main(int argc, char **argv) {
+    char toks[8][16];
+    int nt = 0;
+    for (int i = 1; i < argc; i++) {
+        char *w[4] = {"", "", "", ""}, media[56], stext[20], from[64], tok[16], into[16];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 4; t = strtok(NULL, " ")) w[k++] = t;
+        memset(media, ' ', 56); memset(stext, ' ', 20); memset(from, ' ', 64); memset(tok, ' ', 16); memset(into, ' ', 16);
+        memset(c.flags, ' ', 40);
+        c.num = -1; c.hours = -1; c.mins = 0; c.secs = 0;
+        if (strcmp(w[0], "mk") == 0) {
+            memcpy(c.flags, "DATA", 4);
+            c.len = 2;
+            GGCDOCC(&c, "ab", 2, toks[nt++], 16);
+        } else if (strcmp(w[0], "sd") == 0) {
+            c.item = atoi(w[2]);
+            c.secs = atoi(w[3]);
+            GGCWSDC(&c, toks[atoi(w[1])], 16, media, 56, stext, 20);
+            printf("sd %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "sf") == 0) {
+            c.item = atoi(w[1]);
+            c.len = 1;
+            from[0] = 'x';
+            GGCWSND(&c, from, 64, media, 56, stext, 20);
+            printf("sf %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rtv") == 0) {
+            GGCWRTV(&c, tok, 16);
+            printf("rtv %d/%d", c.resp, c.resp2);
+            if (c.resp == 0) {
+                c.len = 16;
+                GGCDOCR(&c, tok, 16, into, 16);
+                printf(" %.16s %.*s", tok, c.len, into);
+            }
+            printf("\n");
+        } else if (strcmp(w[0], "rd") == 0) {
+            c.len = 16;
+            GGCDOCR(&c, toks[atoi(w[1])], 16, into, 16);
+            printf("rd %d/%d", c.resp, c.resp2);
+            if (c.resp == 0) printf(" %.*s", c.len, into);
+            printf("\n");
+        } else {
+            memcpy(c.name1, "ABCD    ", 8);
+            GGCABND(&c);
+        }
+    }
+    GGCEND(&c);
+    return 0;
+}
+"""
+
+
+def _x41_stub_events(out: Path) -> list[str]:
+    got = []
+    path = out / "events.txt"
+    for line in path.read_text(encoding="latin-1").splitlines() if path.exists() else []:
+        seq, verb, *rest = line.split()
+        if verb == "WEB-SEND":
+            kv = dict(a.split("=", 1) for a in rest[1:])
+            body = (out / f"{seq}.bin").read_bytes().decode("latin-1") if (out / f"{seq}.bin").exists() else ""
+            got.append(f"WEB-SEND {kv['action']} {kv['status']} {body}")
+        else:
+            got.append(verb)
+    return got
+
+
+@needs_cc
+def test_the_stub_defers_a_web_send_and_retrieves_its_document(tmp_path):
+    """#4941 (registers X37, X41), IBM WEB SEND ACTION(EVENTUAL) / DOCSTATUS and WEB RETRIEVE: an EVENTUAL (or omitted) action holds
+    the response until the task ends and a second send replaces it; a WEB RETRIEVE after an EVENTUAL document send that did not
+    DOCDELETE writes the DOCTOKEN of a copy of the document, else NOTFND 1 (INVREQ 2 before any send); DOCDELETE deletes the
+    document (a later request for it is NOTFND 1); what IBM leaves open is refused."""
+    exe = _stub(tmp_path, _X41_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    for n, (steps, answers, events) in enumerate(_X41_CASES):
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        if events:
+            assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
+            assert _x41_stub_events(out) == events, (steps, _x41_stub_events(out))
+        else:
+            assert run.returncode == 98 and answers[-1] in run.stdout, (steps, run.stdout)
+            assert run.stdout.splitlines()[:-1] == answers[:-1] or answers[-1] in run.stdout, (steps, run.stdout)
+
+
+@needs_javac
+def test_cics_task_defers_a_web_send_as_the_stub_does(tmp_path):
+    """#4941 (X37, X41): CicsTask answers the steps above as the stub does, records the same events in the same order (the
+    deferred WEB-SEND after the task's RETURN), and refuses what the stub refuses."""
+    helpers = """
+    static String pad(String s, int n) { return (s + " ".repeat(n)).substring(0, n); }
+    static void run(String... steps) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTP", "zecs", 80,
+                "PUT", "HTTP/1.1", "/k", "", java.util.List.of(), null, null));
+        String[] toks = new String[8];
+        int nt = 0;
+        boolean abended = false;
+        for (String s : steps) {
+            String[] w = s.split(" ");
+            switch (w[0]) {
+                case "mk" -> toks[nt++] = t.documentCreateData("ab".getBytes(), 2).doctoken();
+                case "sd" -> {
+                    int[] r = t.webSendDocument(toks[Integer.parseInt(w[1])], null, Integer.parseInt(w[2]), -1, null, -1, 0,
+                            Integer.parseInt(w[3]), java.nio.charset.StandardCharsets.ISO_8859_1);
+                    System.out.println("sd " + r[0] + "/" + r[1]);
+                }
+                case "sf" -> {
+                    int[] r = t.webSend(pad("x", 64), 1, null, Integer.parseInt(w[1]), -1, null, -1, 0);
+                    System.out.println("sf " + r[0] + "/" + r[1]);
+                }
+                case "rtv" -> {
+                    var r = t.webRetrieve();
+                    String more = "";
+                    if (r.resp() == 0) {
+                        more = " " + r.doctoken() + " " + new String(t.documentRetrieve(r.doctoken(), 16).data());
+                    }
+                    System.out.println("rtv " + r.resp() + "/" + r.resp2() + more);
+                }
+                case "rd" -> {
+                    var r = t.documentRetrieve(toks[Integer.parseInt(w[1])], 16);
+                    System.out.println("rd " + r.resp() + "/" + r.resp2() + (r.resp() == 0 ? " " + new String(r.data()) : ""));
+                }
+                default -> {
+                    t.abend("ABCD");
+                    abended = true;
+                }
+            }
+        }
+        if (!abended) {
+            t.returnTransid(null, null);
+        }
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-SEND")) {
+                System.out.println("ev WEB-SEND " + e.get("action") + " " + e.get("status") + " " + e.get("body"));
+            } else if (e.get("event").equals("RETURN")) {
+                System.out.println("ev RETURN");
+            }
+        }
+        System.out.println("--");
+    }
+"""
+    parts = []
+    for steps, _answers, _events in _X41_CASES:
+        args = ", ".join('"' + st + '"' for st in steps)
+        parts.append(
+            "try { run(" + args + "); } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); "
+            'System.out.println("--"); }'
+        )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, answers, events in _X41_CASES:
+        end = lines.index("--", pos)
+        got = lines[pos:end]
+        if events:
+            assert got == answers + [f"ev {e}" for e in events], (steps, got)
+        else:
+            assert got[:-1] == answers[:-1] and answers[-1] in got[-1], (steps, got)
+        pos = end + 1
 
 
 # ---- #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms ----------------------------------------
@@ -4853,3 +5319,31 @@ def test_cics_task_start_channel_as_the_stubs(tmp_path):
     )
     assert out.splitlines() == ["NORMAL CHANNELERR", "{name=CH.1, containers={IN=6162}} 1",
                                 "START CHANNEL(OTHER) of a channel not in the program's scope: not modelled"]  # fmt: skip
+
+
+def test_cics_task_transfer_resp2_for_natural_faults_and_success(tmp_path):
+    """#4986, IBM EXEC CICS XCTL / LINK conditions: with no planned fault EIBRESP2 is the natural one (LENGERR 11 for a
+    COMMAREA length outside 0-32763, PGMIDERR 1 for a program with no definition) and 0 after a success; a later
+    transfer replaces an earlier one's RESP2 (the plan's included), on both commands and the CHANNEL forms."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return !p.equals("GONE");
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("CAXA")) {
+                    System.out.println(task.link("CAXB", "V1", 40000) + " " + task.transferResp2());
+                    System.out.println(task.link("GONE", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.link("CAXB", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.xctl("CAXB", "V1", 40000) + " " + task.transferResp2());
+                    System.out.println(task.xctl("GONE", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.xctl("CAXB", "V1", 80) + " " + task.transferResp2());
+                }
+            }
+        };
+        new CicsTask("CA02", "ENTER", null, null).withPrograms(programs).run("CAXA");""",
+    )
+    assert out.splitlines() == ["LENGERR 11", "PGMIDERR 1", "NORMAL 0", "LENGERR 11", "PGMIDERR 1", "NORMAL 0"]

@@ -1176,6 +1176,42 @@
    ]
   },
   {
+   "name": "xref-aix-dupkey",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "DUPKEY",
+     "why": "15 (RESP2 140) on the account's xref READ through the CXACAIX alternate index (line 588 WHEN OTHER): the record is read, and the program answers 'Unable to lookup Acct in XREF AIX file...'"
+    }
+   ]
+  },
+  {
    "name": "startbr-not-found",
    "aid": "DFHENTER",
    "commarea": {
@@ -1315,7 +1351,7 @@
      "cmd": "WRITE",
      "file": "TRANSACT",
      "resp": "DUPREC",
-     "why": "14 on the WRITE (line 735): 'Tran ID already exist...'"
+     "why": "14 (RESP2 150, IBM's WRITE condition for a key already in the file; DUPKEY is a read condition: see xref-aix-dupkey) on the WRITE (line 735): 'Tran ID already exist...'"
     }
    ]
   }

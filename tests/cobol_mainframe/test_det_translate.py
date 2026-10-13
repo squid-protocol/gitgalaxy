@@ -363,7 +363,7 @@ class _KeyCics(_RbaCics):
         "LINK PROGRAM('P') COMMAREA(REC) DATALENGTH(KEY)",
         "ASSIGN OPID(REC)",
         "ASSIGN NETNAME(REC) APPLID(REC)",
-        "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DAYOFMONTH(KEY)",
+        "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DATE(KEY)",  # #4415 slice 3 (X46): the DATFORM order is the installation's
         "ASKTIME ABSTIME(REC) RESP(R)",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
         "READQ TS QUEUE('Q') SET(PTR)",
@@ -582,6 +582,9 @@ _IBM_OPTIONS = {
     "STARTBROWSE CONTAINER": "CHANNEL BROWSETOKEN",
     "GETNEXT CONTAINER": "CONTAINER BROWSETOKEN",
     "ENDBROWSE CONTAINER": "BROWSETOKEN",
+    # #5005: DELETE CHANNEL and QUERY CHANNEL
+    "DELETE CHANNEL": "CHANNEL",
+    "QUERY CHANNEL": "CHANNEL CONTAINERCNT",
     # #4270 slice 2: interval control (START, RETRIEVE, CANCEL)
     "START": "TRANSID INTERVAL TIME AFTER AT HOURS MINUTES SECONDS FROM LENGTH FLENGTH FMH TERMID USERID SYSID "
     "RTRANSID RTERMID QUEUE REQID NOCHECK PROTECT ATTACH BREXIT CHANNEL",
@@ -963,6 +966,7 @@ _RESP_SAMPLES = {
     "MOVE CONTAINER": "MOVE CONTAINER('C') AS('D')", "STARTBROWSE CONTAINER": "STARTBROWSE CONTAINER BROWSETOKEN(REC)",
     "GETNEXT CONTAINER": "GETNEXT CONTAINER(REC) BROWSETOKEN(REC)",
     "ENDBROWSE CONTAINER": "ENDBROWSE CONTAINER BROWSETOKEN(REC)",
+    "DELETE CHANNEL": "DELETE CHANNEL('C')", "QUERY CHANNEL": "QUERY CHANNEL('C') CONTAINERCNT(REC)",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
@@ -974,7 +978,8 @@ _RESP_SAMPLES = {
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
     "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
     "WEB SEND": "WEB SEND FROM(REC) FROMLENGTH(R) ACTION(R2)",
-    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
+    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "EXTRACT WEB": "EXTRACT WEB HOST(REC) HOSTLENGTH(R)",
+    "EXTRACT TCPIP": "EXTRACT TCPIP CLIENTADDR(REC) CADDRLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
     "WEB READ HTTPHEADER": "WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
     "WEB WRITE HTTPHEADER": "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
     "WEB RETRIEVE": "WEB RETRIEVE DOCTOKEN(REC)",
@@ -1207,6 +1212,26 @@ def test_the_container_browse_stores_the_token_and_the_name():
             _ChanCics().command(bad, "")
 
 
+def test_delete_and_query_channel_answer_with_channelerr_and_the_count():
+    """IBM, DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, a fullword, the number of
+    containers): CHANNEL is required, CHANNELERR RESP2 2 comes back through RESP / HANDLE CONDITION, and the count is
+    stored on NORMAL only."""
+    out = _ChanCics().command("DELETE CHANNEL(CH) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult chan1 = task.deleteChannel(CH.strip());",
+                   "OUTCOME(DetCics.resp(chan1.resp()), chan1.resp2());"]  # fmt: skip
+    assert "task.deleteChannel('X'.strip());" in _ChanCics().command("DELETE CHANNEL('X') NOHANDLE", "")[0]
+    out = _ChanCics().command("QUERY CHANNEL(CH) CONTAINERCNT(REC) RESP(R)", "")
+    assert out[0] == "CicsTask.ContainerResult chan1 = task.queryChannel(CH.strip());"
+    assert out[1].startswith("if (chan1.length() >= 0) STORE(REC, BigDecimal.valueOf(chan1.length()))")
+    assert out[-1] == "OUTCOME(DetCics.resp(chan1.resp()), chan1.resp2());"
+    for bad in ("DELETE CHANNEL", "DELETE CHANNEL(CH) CONTAINER(CN) CHANNELX(Q)", "QUERY CHANNEL(CH)",
+                "QUERY CHANNEL CONTAINERCNT(REC)", "QUERY CHANNEL(CH) CONTAINERCNT"):  # fmt: skip
+        with pytest.raises(C.CicsError):
+            _ChanCics().command(bad, "")
+    with pytest.raises(C.CicsError, match="CONTAINERTYPE"):
+        _ChanCics().command("DELETE CHANNEL(CH) CONTAINERTYPE(X)", "")
+
+
 def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
     """IBM, LINK / XCTL CHANNEL: the channel is "made available to the called program" as its current channel;
     ASSIGN CHANNEL returns its name (blanks without one). CHANNEL beside COMMAREA is refused."""
@@ -1387,13 +1412,15 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
     d = c.command("WEB SEND DOCTOKEN(KEY) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) SRVCONVERT NOHANDLE", "")
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
-        ", 1, CS);"
-    )  # (#4767: the document the token names)
+        ", 1, 0, CS);"
+    )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
+    assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
     for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
-                     ("WEB SEND DOCTOKEN(KEY) DOCSTATUS(R)", "after it is sent"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
@@ -2857,7 +2884,7 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
         "String xr1 = task.xctl('XB'.strip(), DetCics.commareaOut(out_Dto(f_WS-BIG.storage(), "
         "f_WS-BIG.offset()), f_WS-BIG, INT(WS-BIGLEN), 80, CS), INT(WS-BIGLEN));"
     )
-    assert any("DetCics.xctlResp2(xr1)" in x for x in out)
+    assert any("task.transferResp2()" in x for x in out)
     within = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(80)", "")
     # #4806: a DTO's XCTL passes the bytes it spans too: a det target's DFHCOMMAREA is them, not the DTO's reading
     assert "commareaOut" not in within[0] and within[0].endswith(", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);")
@@ -2888,12 +2915,12 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
 def test_link_resp2_follows_its_condition():
     """IBM, EXEC CICS LINK conditions: LENGERR RESP2 11 (COMMAREA length below 0 or above 32763), PGMIDERR RESP2 1 (no
     installed definition, autoinstall off) -- what CicsTask.link and the stub's GGCLINK raise. A failed LINK stored
-    RESP2 0; it is DetCics.linkResp2 of the condition now, as XCTL's (#4501)."""
+    RESP2 0; it is task.transferResp2() now (#4986: the event's RESP2, a planned fault's too), as XCTL's."""
     c = _OverCics()
     out = c.command("LINK PROGRAM('XB') COMMAREA(WS-V1) RESP(R) RESP2(R2)", "")
-    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), task.transferResp2());"
     out = c.command("LINK PROGRAM('XB')", "")
-    assert out[-1].endswith(", DetCics.linkResp2(lr5));")
+    assert out[-1].endswith(", task.transferResp2());")
 
 
 def test_return_and_link_commarea_length_past_the_dto():
@@ -2948,7 +2975,6 @@ public class Main {
         w.bytes[0] = 'y';
         Cobol.commareaBack(w, tail);
         System.out.println(new String(ca.bytes, l1) + "|" + new String(ca.beyond, l1));
-        System.out.println(DetCics.linkResp2("LENGERR") + " " + DetCics.linkResp2("PGMIDERR") + " " + DetCics.linkResp2("NORMAL"));
     }
 }
 """
@@ -2963,7 +2989,7 @@ public class Main {
     assert built.returncode == 0, built.stderr
     out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
                          text=True, check=True).stdout.splitlines()  # fmt: skip
-    assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG", "11 1 0"]
+    assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 
 def test_link_to_a_target_no_dto_types_passes_the_bytes():
@@ -2980,7 +3006,7 @@ def test_link_to_a_target_no_dto_types_passes_the_bytes():
     assert out[:3] == ["Storage cw3 = Cobol.commarea(f_WS-V1, Math.max(0, Math.min(INT(100), 32763)));",
                        "String lr1 = task.link('CAGONE'.strip(), DetCics.commareaBytes(cw3.bytes, CS), INT(100), cw3.bytes);",
                        'if ("NORMAL".equals(lr1)) Cobol.commareaBack(cw3, f_WS-V1);']  # fmt: skip
-    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), task.transferResp2());"
 
 
 def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):
@@ -3042,6 +3068,54 @@ def test_asktime_nohandle_formattime_resp_and_readq_length_of():
     assert any("readqTsNext" in x for x in out)
     stored = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(KEY) RESP(R)", "")
     assert any("Cobol.store" in x and "length()" in x for x in stored)
+
+
+_FMT_TEXT = ("YYDDD", "YYYYDDD", "YYDDMM", "YYYYDDMM", "YYYYMMDD", "DDMMYY")
+_FMT_BIN = ("DAYCOUNT", "DAYOFMONTH", "DAYOFWEEK", "MONTHOFYEAR", "YEAR", "MILLISECONDS")
+_FMT_REFUSED = ("DATE", "DATEFORM", "FULLDATE", "DATESTRING", "STRINGFORMAT", "STRINGZONE")
+
+
+@pytest.mark.parametrize("form", _FMT_TEXT)
+def test_formattime_each_text_date_form_is_formatted_with_its_separator(form):
+    """#4415 slice 3 (X46): every date form (the day-of-year ones included) is CicsTask.formatDate of the form, with
+    '/' for a DATESEP with no value, or no separator at all (a DATESEP value is a literal, tested in the runtime)."""
+    c = _LenCics()
+    for sep_opt, sep in (("", '""'), (" DATESEP", '"/"')):
+        out = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY){sep_opt} NOHANDLE", "")
+        assert len(out) == 1 and f"CicsTask.formatDate(" in out[0] and f'"{form}", {sep})' in out[0]
+
+
+@pytest.mark.parametrize("form", _FMT_BIN)
+def test_formattime_each_binary_form_is_stored_by_the_areas_declared_usage(form):
+    c = _LenCics()
+    out = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY) NOHANDLE", "")
+    assert len(out) == 1 and out[0].startswith("STORE(KEY, BigDecimal.valueOf(CicsTask.formatNumber(")
+    assert f'"{form}"))' in out[0]
+    with_resp = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY) RESP(R)", "")  # INVREQ RESP2 1 guards every form
+    assert (
+        with_resp[0].startswith("int[] fmt") and with_resp[1].endswith("[0] == 0) {") and "formatNumber" in with_resp[2]
+    )
+
+
+@pytest.mark.parametrize("form", _FMT_REFUSED)
+def test_formattime_options_ibm_leaves_to_the_installation_or_the_zone_are_refused_by_name(form):
+    with pytest.raises(C.CicsError, match=form):
+        _LenCics().command(f"FORMATTIME ABSTIME(REC) {form}(KEY) NOHANDLE", "")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "DUMP TRANSACTION DUMPCODE('ABCD')",
+        "DUMP DUMPCODE('ABCD')",
+        "DUMP TRANSACTION DUMPCODE('ABCD') FROM(REC) LENGTH(10) NOHANDLE",
+        "DUMP TRANSACTION COMPLETE",
+    ],
+)
+def test_dump_is_refused_by_name_in_both_forms(text):
+    """#4415 slice 3 (X46): IBM's DUMP TRANSACTION outcome is the region's dump setup, which the run does not state."""
+    with pytest.raises(C.CicsError, match=r"DUMP.*(not modelled|X46)"):
+        _LenCics().command(text, "")
 
 
 def test_document_create_each_source_and_retrieve_as_cicstask_answers():
@@ -3176,27 +3250,29 @@ def test_a_program_with_zecs_shaped_document_commands_translates_with_no_hole(tm
 
 def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
     """#4816: an XCTL COMMAREA with no item of its own to resolve (an operand commarea_out handles) is never marked, and
-    never raises; one inside the LINKAGE DFHCOMMAREA record -- the record or a field of it -- is marked."""
+    never raises; one inside a LINKAGE 01 record -- the record or a field of it -- is marked."""
     c = _OverCics()
     assert not any("xctlOfLinkage" in x for x in c.command("XCTL PROGRAM('XB') COMMAREA(WS-BIG) LENGTH(WS-BIGLEN)", ""))
     root = type("I", (), {"name": "DFHCOMMAREA", "section": "LINKAGE", "parent": None})()
     field = type("I", (), {"name": "CA-NUM", "section": "LINKAGE", "parent": root})()
     ws = type("I", (), {"name": "WS-CA", "section": "WORKING-STORAGE", "parent": None})()
-    items = {"DFHCOMMAREA": root, "CA-NUM": field, "WS-CA": ws}
-    c.SIZES = {**c.SIZES, "DFHCOMMAREA": 12, "CA-NUM": 6, "WS-CA": 12}
+    other = type("I", (), {"name": "SUB-AREA", "section": "LINKAGE", "parent": None})()  # #4957: any LINKAGE 01 record
+    items = {"DFHCOMMAREA": root, "CA-NUM": field, "WS-CA": ws, "SUB-AREA": other}
+    c.SIZES = {**c.SIZES, "DFHCOMMAREA": 12, "CA-NUM": 6, "WS-CA": 12, "SUB-AREA": 12}
     c.g.resolve = lambda ref: items[ref.name]
-    for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("WS-CA", False)):
+    for operand, marked in (("DFHCOMMAREA", True), ("CA-NUM", True), ("SUB-AREA", True), ("WS-CA", False)):
         out = c.command(f"XCTL PROGRAM('XB') COMMAREA({operand}) LENGTH(80)", "")
         assert any("task.xctlOfLinkage();" in x for x in out) is marked, (operand, out)
 
 
 def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
     """#4941 zECS (register X41), IBM WEB RETRIEVE: DOCTOKEN is the only option and is required; the outcome is CicsTask's
-    (INVREQ RESP2 2 / NOTFND RESP2 1), the area is never written; every other option and the literal form are refused."""
+    (INVREQ RESP2 2 / NOTFND RESP2 1), the area written with the token on NORMAL only; every other option and the literal
+    form are refused."""
     c = _ChanCics()
     r = c.command("WEB RETRIEVE DOCTOKEN(REC) NOHANDLE", "")
-    assert r[0].startswith("int[] web") and ".webRetrieve();" in r[0]
-    assert "Cobol.text(" not in r[0]
+    assert r[0].startswith("CicsTask.DocumentCreated web") and ".webRetrieve();" in r[0]
+    assert "if (web" in r[1] and ".resp() == 0) DetCics.putText(" in r[1] and ".doctoken(), CS);" in r[1]
     r2 = c.command("WEB RETRIEVE DOCTOKEN(REC) RESP(R) RESP2(R2)", "")
     assert ".webRetrieve();" in r2[0] and len(r2) > 1
     with pytest.raises(C.CicsError, match="without DOCTOKEN"):
@@ -3204,3 +3280,59 @@ def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
     for extra in ("SESSTOKEN(KEY)", "FROM(REC)", "ACTION(R)", "DOCSTATUS(R)", "INTO(REC)", "MEDIATYPE(REC)"):
         with pytest.raises(C.CicsError):
             c.command(f"WEB RETRIEVE DOCTOKEN(REC) {extra}", "")
+
+
+def test_extract_web_is_web_extract():
+    """#4972 (register X38): IBM's EXTRACT WEB is "a synonym of WEB EXTRACT" -- the same options, the same CicsTask.webExtract
+    call and writes, the same refusals (the messages name the form the program wrote)."""
+    c = _ChanCics()
+    opts = ("SCHEME(R) HOST(REC) HOSTLENGTH(R2) HTTPMETHOD(REC) METHODLENGTH(R) HTTPVERSION(REC) VERSIONLEN(R) PATH(REC) "
+            "PATHLENGTH(R) PORTNUMBER(R) QUERYSTRING(REC) QUERYSTRLEN(R) REQUESTTYPE(R2) NOHANDLE")  # fmt: skip
+    old = c.command(f"WEB EXTRACT {opts}", "")
+    new = c.command(f"EXTRACT WEB {opts}", "")
+    assert [re.sub(r"web\d+", "web", ln) for ln in new] == [re.sub(r"web\d+", "web", ln) for ln in old]
+    for form in ("HOST(REC)", "HTTPMETHOD(REC)", "HTTPVERSION(REC)", "PATH(REC)", "QUERYSTRING(REC)", "HOSTLENGTH(R)",
+                 "SESSTOKEN(KEY)", "HOSTTYPE(R)", "URIMAP(REC)", "REALM(REC)", "REALMLEN(R)"):  # fmt: skip
+        with pytest.raises(C.CicsError) as want:
+            c.command(f"WEB EXTRACT {form}", "")
+        with pytest.raises(C.CicsError) as got:
+            c.command(f"EXTRACT WEB {form}", "")
+        assert str(got.value).replace("EXTRACT WEB", "WEB EXTRACT") == str(want.value), form
+
+
+def test_extract_tcpip_reads_the_stated_connection():
+    """#4972 (register X38), IBM EXTRACT TCPIP: CicsTask.extractTcpip takes each address / name area's length option (0 when the
+    area is given without its length option: LENGERR RESP2 1) and its area's size, then which numbers are asked for; on NORMAL
+    only the bytes, the lengths, the address numbers, the IPv4 family (300), the port and the SSL type's CVDA are written. The
+    character port, the IPv6 forms and the TCPIPSERVICE's own settings are refused by name."""
+    c = _ChanCics()
+    w = c.command(
+        "EXTRACT TCPIP CLIENTADDR(REC) CADDRLENGTH(R) CLIENTADDRNU(R2) PORTNUMNU(R2) SSLTYPE(R2) CLNTIPFAMILY(R) NOHANDLE",
+        "",
+    )
+    assert w[0].startswith("CicsTask.TcpipExtracted tcp") and ".extractTcpip(Integer.valueOf(" in w[0]
+    assert (
+        ", 56, null, 0, null, 0, null, 0, true, false, true, false);" in w[0]
+    )  # (the client address number and family)
+    body = " ".join(w)
+    assert ".resp() == 0) {" in body and ".clientAddr().getBytes(CS)" in body and ".clientAddr().length()" in body
+    assert ".clientNu()" in body and ".port()" in body and ".ssl()" in body and "valueOf(300)" in body
+    missing = c.command("EXTRACT TCPIP SERVERNAME(REC) NOHANDLE", "")
+    assert ".extractTcpip(null, 0, null, 0, null, 0, Integer.valueOf(0), 56, false, false, false, false);" in missing[0]
+    for ok in ("CLIENTNAME(REC) CNAMELENGTH(R)", "SERVERADDR(REC) SADDRLENGTH(R) SERVERADDRNU(R2) SRVRIPFAMILY(R2)",
+               "SERVERNAME(REC) SNAMELENGTH(R)", "PORTNUMNU(R)", "SSLTYPE(R)", "NOHANDLE"):  # fmt: skip
+        assert c.command(f"EXTRACT TCPIP {ok}", "")[0].startswith("CicsTask.TcpipExtracted tcp")
+    for bad, why in (("CADDRLENGTH(R)", "CADDRLENGTH without CLIENTADDR"),
+                     ("CNAMELENGTH(R)", "CNAMELENGTH without CLIENTNAME"),
+                     ("SADDRLENGTH(R)", "SADDRLENGTH without SERVERADDR"),
+                     ("SNAMELENGTH(R)", "SNAMELENGTH without SERVERNAME"),
+                     ("PORTNUMBER(REC)", "5 characters are padded"),
+                     ("CLNTADDR6NU(REC)", "IPv6"),
+                     ("SRVRADDR6NU(REC)", "IPv6"),
+                     ("AUTHENTICATE(R)", "authentication"),
+                     ("TCPIPSERVICE(REC)", "TCPIPSERVICE definition"),
+                     ("PRIVACY(R)", "TCPIPSERVICE definition"),
+                     ("MAXDATALEN(R)", "TCPIPSERVICE definition"),
+                     ("TERMINAL(REC)", "only CLIENTADDR")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(f"EXTRACT TCPIP {bad}", "")

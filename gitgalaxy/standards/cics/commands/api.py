@@ -15,7 +15,7 @@ variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... --
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
 NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 176 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
-WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE, WEB READ / WRITE HTTPHEADER / FORMFIELD / QUERYPARM and the WEB browse forms moved to web.py).
+WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE, EXTRACT WEB / TCPIP, WEB READ / WRITE HTTPHEADER / FORMFIELD / QUERYPARM and the WEB browse forms moved to web.py).
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
 The reasons the translator gave before PR 2 are kept word for word (container MOVE / browse, a parent waiting for its
@@ -49,8 +49,6 @@ _TRACE = "user trace and monitoring points are not modelled"
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # channels and containers beyond the container commands (#4270 slice 1, #4951)
-    ("DELETE CHANNEL", None, "deleting a channel is not modelled"),
-    ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
     # BTS
@@ -77,6 +75,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("GETNEXT PROCESS", None, _BTS),
     ("GETNEXT TIMER", None, _BTS),
     ("INQUIRE ACTIVITYID", None, _BTS),
+    # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE): no channel form (#5005)
     ("INQUIRE CONTAINER", None, _BTS),
     ("INQUIRE EVENT", None, _BTS),
     ("INQUIRE PROCESS", None, _BTS),
@@ -200,8 +199,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("DOCUMENT INSERT", None, _DOCUMENT),
     ("DOCUMENT SET", None, _DOCUMENT),
     # web, web services, transformation
-    ("EXTRACT WEB", None, _WEB),
-    ("EXTRACT TCPIP", None, _WEB),
     ("INVOKE APPLICATION", None, "invoking an application by its operation (INVOKE APPLICATION) is not modelled"),
     ("INVOKE SERVICE", None, _WEB_SERVICE),
     ("INVOKE WEBSERVICE", None, _WEB_SERVICE),
@@ -229,7 +226,13 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("WAITCICS", None, _EVENT_WAIT),
     ("ENTER TRACENUM", None, _TRACE),
     ("MONITOR", None, _TRACE),
-    ("DUMP TRANSACTION", None, "a transaction dump is not modelled"),
+    # #4415 slice 3 (X46): the dump's outcome (SUPPRESSED by the dump table or a user exit, IOERR, NOTOPEN, a DUMPID's run
+    # number) is the region's dump setup, which the run does not state; the page does not say the task continues after one
+    (
+        "DUMP TRANSACTION",
+        None,
+        "a transaction dump is not modelled: its outcome is the region's dump setup, not stated (X46)",
+    ),
     ("OTEL ENDSPAN", None, _OTEL),
     ("OTEL EXTRACT", None, _OTEL),
     ("OTEL STARTSPAN", None, _OTEL),

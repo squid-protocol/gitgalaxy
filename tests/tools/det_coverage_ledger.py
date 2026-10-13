@@ -7,7 +7,8 @@
     python tests/tools/det_coverage_ledger.py split --all | --base REV   # #4789: the retired single file -> per-case files
 
 SWEEP is a `proof_sweep.py --det-only` work directory (or its sweep.json): per case the proof's coverage line,
-"proven on N scenarios, covering P/L paragraphs and B/T branches". The ledger keeps those numbers for each PROVEN
+"proven on N scenarios, covering P/L paragraphs and B/T branches" -- or "N runs" for a batch case and "N calls" for a
+CALL case (#5008: their harnesses count their own proof units; the ledger's `scenarios` is that count). The ledger keeps those numbers for each PROVEN
 case, keyed to the fingerprints of the inputs the COBOL-side coverage depends on (tests/tools/evidence.py's: the case
 directory, the corpus pin, the harness, the oracle -- not the Java generator, which cannot change what the COBOL runs):
 
@@ -34,7 +35,8 @@ The check (run by `proof_sweep.py --aggregate` in CI's det-sweep, after the verd
 in the sweep, the ledger must hold its numbers. It FAILS on a missing entry, on numbers the sweep disagrees with, and on
 a stale case / corpus fingerprint (the change that moved them re-proves the case: refresh); a stale harness / oracle
 fingerprint only warns (a scheduled refresh), as evidence records do. It also fails on an entry for a case that does
-not exist. A case the sweep proved with no coverage line cannot be checked and is reported.
+not exist. A case the sweep proved with no coverage line cannot be checked and is reported; one whose coverage line this
+module cannot read FAILS (#5008: a wording it did not know kept every batch and CALL case out of the ledger, warned only).
 """
 
 from __future__ import annotations
@@ -58,7 +60,8 @@ FORMAT = "det-sweep-coverage/2"
 INPUTS = ("case", "corpus", "harness", "oracle")
 COMPONENT_INPUTS = ("harness", "oracle")  # #4731: also fingerprinted per component (evidence.py COMPONENTS)
 BLOCKING = ("case", "corpus")  # stale here: the change re-proves the case, so the ledger is refreshed in the same PR
-_LINE = re.compile(r"proven on (\d+) scenarios?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
+# #5008: the unit is the harness's (cobol_coverage.claim's `what`): scenario (CICS), run (batch), call (CALL).
+_LINE = re.compile(r"proven on (\d+) (?:scenario|run|call)s?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 
 
 def parse_line(line: str) -> dict[str, Any] | None:
@@ -195,7 +198,12 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
     for case, row in sorted(det.items()):
         if not row.get("proved"):
             continue
-        nums = parse_line(row.get("coverage", ""))
+        line = row.get("coverage", "")
+        nums = parse_line(line)
+        if nums is None and line:
+            problems.append(f"coverage ledger: {case}: proven, but its coverage line is not understood ({line!r}): "
+                            f"det_coverage_ledger.parse_line must read it, or the case never gets an entry")  # fmt: skip
+            continue
         if nums is None:
             warnings.append(f"coverage ledger: {case}: proven with no coverage line; cannot be checked")
             continue

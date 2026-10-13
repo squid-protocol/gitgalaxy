@@ -545,17 +545,60 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
 
 
 def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND -> GGCFETCH (no child has completed while its parent runs; the
-    runner's scheduler runs a child once the parent has ended). A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused."""
+    """#4884, #4950: FETCH ANY / FETCH CHILD(token) -> GGCFETCH: GG-FLAGS names CHILD (the token in GG-QNAME), NOSUSPEND,
+    TIMEOUT (GG-NUM) and CHANNEL; on NORMAL the stub's answers go to the program's areas -- the token (ANY), the reply
+    channel's name (CHANNEL), the abend code (ABCODE, only for a child that abended) and COMPSTATUS's CVDA."""
     form = key.split()[1]
     _check_spec(key, opts, ("FETCH",))
     if not opts.get(form):
         raise Unsupported(_rule(key, "required", form), [key])
-    if "NOSUSPEND" not in opts:
-        raise Unsupported(_rule(key, "required", "NOSUSPEND"), [key])
-    token = [f"MOVE {opts['CHILD']} TO GG-QNAME", "MOVE 'CHILD' TO GG-FLAGS"] if form == "CHILD" else [
-        "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    return token + _call("GGCFETCH", []) + _resp(opts, True, labels)
+    if "NOSUSPEND" in opts and "TIMEOUT" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"), [key])
+    if any(o in opts and not opts[o] for o in ("TIMEOUT", "CHANNEL", "ABCODE", "COMPSTATUS")):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    flags = " ".join(
+        o for o in ("CHILD", "NOSUSPEND", "TIMEOUT", "CHANNEL") if o in opts or (o == "CHILD" and form == "CHILD")
+    )
+    lines = [f"MOVE {opts['CHILD']} TO GG-QNAME" if form == "CHILD" else "MOVE SPACES TO GG-QNAME",
+             f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
+             f"MOVE {opts['TIMEOUT']} TO GG-NUM" if "TIMEOUT" in opts else "MOVE 0 TO GG-NUM"]  # fmt: skip
+    after = [f"    MOVE GG-QNAME TO {opts['ANY']}"] if form == "ANY" else []
+    if "CHANNEL" in opts:
+        after.append(f"    MOVE GG-CHAN TO {opts['CHANNEL']}")
+    if "ABCODE" in opts:
+        after += ["    IF GG-ITEM = 1", f"        MOVE GG-NAME1(1:4) TO {opts['ABCODE']}", "    END-IF"]
+    if "COMPSTATUS" in opts:
+        after.append(f"    MOVE GG-NUM TO {opts['COMPSTATUS']}")
+    after = ["IF GG-RESP = 0", *after, "END-IF"] if after else []
+    return lines + _call("GGCFETCH", []) + after + _resp(opts, True, labels)
+
+
+def _free_child(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4950: FREE CHILD(token) -> GGCFREE (the token in GG-QNAME)."""
+    _check_spec("FREE CHILD", opts, ("FREE", "CHILD"))
+    if not opts.get("CHILD"):
+        raise Unsupported(_rule("FREE CHILD", "required", "CHILD"), ["FREE CHILD"])
+    return [f"MOVE {opts['CHILD']} TO GG-QNAME"] + _call("GGCFREE", []) + _resp(opts, True, labels)
+
+
+def _delay(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4950: DELAY -> GGCDLAY: GG-FLAGS INTERVAL (GG-NUM), TIME, or FOR (HOURS / MINUTES / SECONDS / MILLISECS in GG-HOURS
+    / GG-MINS / GG-SECS / GG-LEN, -999999999 when not given); none: INTERVAL(0). The stub dispatches the RUN children
+    at it (a task takes no time, X4: NORMAL at once)."""
+    _check_spec("DELAY", opts, ("DELAY",), lambda bad: [f"DELAY {bad[0]}"])
+    given = [o for o in ("INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS") if o in opts]
+    if any(not opts[o] for o in given):
+        raise Unsupported(NEEDS_ARGUMENT, ["DELAY"])
+    if "TIME" in opts:
+        lines = ["MOVE 'TIME' TO GG-FLAGS"]
+    elif "INTERVAL" in opts:
+        lines = ["MOVE 'INTERVAL' TO GG-FLAGS", f"MOVE {opts['INTERVAL']} TO GG-NUM"]
+    elif given:
+        lines = ["MOVE 'FOR' TO GG-FLAGS"] + [f"MOVE {opts.get(o) or -999999999} TO {f}" for o, f in (
+            ("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"), ("MILLISECS", "GG-LEN"))]  # fmt: skip
+    else:
+        lines = ["MOVE SPACES TO GG-FLAGS"]
+    return lines + _call("GGCDLAY", []) + _resp(opts, False, labels)
 
 
 def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
@@ -603,7 +646,15 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
         given_length = _one_of("START", opts, "LENGTH", "FLENGTH")
         if given_length is not None and not area:  # (a deny-list until spec PR 3: the length was moved, no area)
             raise Unsupported(_rule("START", "requires", "LENGTH"), ["START"])
-        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []) + named)
+        if "CHANNEL" in opts:  # #4950: START CHANNEL's form -- no expiry, no data options, no REQID
+            if not opts["CHANNEL"]:
+                raise Unsupported(NEEDS_ARGUMENT, ["START CHANNEL"])
+            for g in SPEC["START"].groups:
+                if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
+                    raise Unsupported(g.msg.format(g.options[1]), ["START CHANNEL"])
+        flags = " ".join(
+            [when] + (["PROTECT"] if "PROTECT" in opts else []) + named + (["CHANNEL"] if "CHANNEL" in opts else [])
+        )
         length = given_length or (f"LENGTH OF {area}" if area else "0")
         lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
                  f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
@@ -615,6 +666,8 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
             lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
                       for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"))]  # fmt: skip
         lines += [f"MOVE {opts[o]} TO {data_in[o]}" for o in named]
+        if "CHANNEL" in opts:
+            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
         lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
@@ -1124,9 +1177,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
-    if verb in ("ENQ", "DEQ", "DELAY"):
-        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time, a
-        # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
+    if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
+        return _delay(opts, labels)
+    if verb in ("ENQ", "DEQ"):
+        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
+        # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
@@ -1442,8 +1497,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
         return _run_transid(opts, labels)
-    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884: NOSUSPEND only
+    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884, #4950
         return _fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
+    if verb == "FREE" and "CHILD" in opts:  # #4950
+        return _free_child(opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
@@ -1587,6 +1644,21 @@ def _container_browse_command(verb: str, opts: dict[str, str | None], labels: li
     return lines + _call("GGCEBRC", []) + _resp(opts, True, labels)
 
 
+# the det translator's system members (register L4: CEEIGZCT, a GitGalaxy-written stand-in)
+DET_COPY = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "copy"
+
+
+def _in_literal(code: str, pos: int) -> bool:
+    """Whether `pos` of a source line's code area falls inside a quoted literal (' or ", doubled to escape)."""
+    quote = None
+    for ch in code[:pos]:
+        if quote is None and ch in "'\"":
+            quote = ch
+        elif ch == quote:
+            quote = None  # (a doubled quote closes and reopens: the same state at the next character)
+    return quote is not None
+
+
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
     """Each EXEC CICS block of a fixed-format program: (first line, last line, the code before
     it, its body, the code after END-EXEC)."""
@@ -1594,8 +1666,11 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
     while i < len(lines):
         line = lines[i]
         code = line[7:72] if len(line) > 7 else ""
-        start = _EXEC.search(code)
-        if (len(line) > 6 and line[6] in "*/") or not start:
+        # (#4950: not inside a literal -- CBSA CRECUST DISPLAYs 'EXEC CICS FETCH ANY failed. RESP=')
+        start = next((m for m in _EXEC.finditer(code) if not _in_literal(code, m.start())), None)
+        if (
+            len(line) > 6 and line[6] in "*/dD"
+        ) or not start:  # (#4950: a debugging line is a comment, as cobc reads it)
             i += 1
             continue
         prefix, body, j = code[: start.start()], code[start.end() :], i
@@ -1604,7 +1679,7 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
             if j >= len(lines):
                 raise Unsupported(f"EXEC CICS at line {i + 1} has no END-EXEC")
             nxt = lines[j]
-            if len(nxt) > 6 and nxt[6] in "*/":
+            if len(nxt) > 6 and nxt[6] in "*/dD":
                 continue
             if len(nxt) > 6 and nxt[6] == "-":
                 raise Unsupported(f"continuation line inside EXEC CICS at line {j + 1}")
@@ -1619,6 +1694,10 @@ def translate(source: str) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
     lines = source.splitlines()
+    if any(
+        len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines
+    ):
+        raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
@@ -1694,10 +1773,11 @@ def translate(source: str) -> tuple[str, bool]:
     return text, has_commarea
 
 
-def cics_driver(program: str, has_commarea: bool) -> str:
+def cics_driver(program: str, has_commarea: bool, children: bool = False) -> str:
     """Runs one task: the EIB from $EIBIN (TRANSID, AID name, date, time) and EIBTASKN from the stub
     ($GGCICS_TASKN, #4270), the COMMAREA
-    from the stub (its length is EIBCALEN), then the program, then GGCEND."""
+    from the stub (its length is EIBCALEN), then the program, then GGCEND. #4950 `children`: the case runs RUN
+    TRANSID children, each this task re-run by the stub (GGCCHLD names the child's program, which GGCRUN runs)."""
     aid_names = [ln.split()[1] for ln in (STUB / "DFHAID.cpy").read_text().splitlines() if " PIC " in ln]
     lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. EQCICSDR.", "ENVIRONMENT DIVISION.",
              "INPUT-OUTPUT SECTION.", "FILE-CONTROL.",
@@ -1723,13 +1803,20 @@ def cics_driver(program: str, has_commarea: bool) -> str:
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
-              "    CALL 'GGCCHIN' USING GG-CICS",
-              "    SET WS-PTR TO ADDRESS OF WS-CA",
-              "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
-              "    SET ADDRESS OF LK-CA TO WS-PTR",
-              f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
-              "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN",
-              "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
+              ]  # fmt: skip
+    task = ["    CALL 'GGCCHIN' USING GG-CICS", "    SET WS-PTR TO ADDRESS OF WS-CA",
+            "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
+            "    SET ADDRESS OF LK-CA TO WS-PTR",
+            f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
+            "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN"]  # fmt: skip
+    if children:  # #4950: a RUN TRANSID child runs its own program, through the dispatcher
+        lines += ["    CALL 'GGCCHLD' USING GG-CICS", "    IF GG-ITEM = 1", "        MOVE 0 TO GG-LEN",
+                  "        CALL 'GGCTASK' USING GG-CICS", "        CALL 'GGCCHIN' USING GG-CICS",
+                  "        CALL 'GGCRUN' USING WS-CA", "    ELSE",
+                  *("    " + ln for ln in task), "    END-IF"]  # fmt: skip
+    else:
+        lines += task
+    lines += ["    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
 
@@ -2152,6 +2239,30 @@ def _channel_json(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | 
                                                  for k in chan["containers"]]}  # fmt: skip
 
 
+def case_child_programs(case: dict[str, Any]) -> dict[str, str]:
+    """#4950: the program each transaction a RUN TRANSID child may run runs (`"child_programs": {TRANSID: PROGRAM}`, a
+    deployment fact the case states, as the CSD's TRANSACTION definitions give it); each program one of the case's
+    "programs". Absent, none: a child the parent's wait would dispatch is refused (both runtimes)."""
+    kids = case.get("child_programs")
+    if kids is None:
+        return {}
+    programs = {x["program"].upper() for x in case.get("programs", [])}
+    if not isinstance(kids, dict) or not all(
+        isinstance(t, str) and re.fullmatch(r"[A-Z0-9@#$]{1,4}", t) and isinstance(p, str) and p.upper() in programs
+        for t, p in kids.items()
+    ):
+        raise Unsupported('"child_programs": {TRANSID: PROGRAM}, each program one of the case\'s "programs"',
+                          ["RUN TRANSID"])  # fmt: skip
+    return {t: p.upper() for t, p in kids.items()}
+
+
+# #4950 (X18, R1): what a RUN TRANSID child may not do -- a region resource the stub keeps no event of; the rest
+# (files, queues, START, a terminal) both runtimes refuse at the command
+_CHILD_STATIC = re.compile(
+    r"(?is)\bEXEC\s+(?:SQL\b|CICS\s+(?:ENQ|DEQ|(?:GET|UPDATE|DELETE|DEFINE|QUERY|REWIND)\s+D?COUNTER)\b)"
+)
+
+
 def case_transactions(case: dict[str, Any]) -> list[str]:
     """#4270: the transactions the case's region defines (`"transactions": [...]`, a deployment fact the case states:
     RUN TRANSID / START of any other is TRANSIDERR); absent, every transaction is defined, as before."""
@@ -2273,6 +2384,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
+    if not (src / "CEEIGZCT.cpy").exists():  # #4950: the det translator's LE stand-in, where the estate has none (L4)
+        shutil.copy(DET_COPY / "CEEIGZCT.cpy", src / "CEEIGZCT.cpy")
     shutil.copy(common.CASES / "faults" / "ggdisplay.c", src / "ggdisplay.c")  # #4635: DISPLAY as IBM writes it
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
     common.require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
@@ -2324,7 +2437,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
-    for model in sorted(LE_MODELS.glob("*.c")) if subs else []:
+    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT)
+    for model in sorted(LE_MODELS.glob("*.c")) if subs or re.search(r"(?i)\bCALL\s+['\"]CEE", source) else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
@@ -2352,11 +2466,17 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if ours & theirs:
                 raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
             stmts_file.write_text(have + x_table, encoding="latin-1")
+        if extra["program"].upper() in case_child_programs(case).values() and _CHILD_STATIC.search(x_source):
+            what = " ".join(_CHILD_STATIC.search(x_source).group(0).split()[1:]).upper()
+            raise Unsupported(f"{extra['program']}: a RUN TRANSID child's {what} (a region resource): its order "
+                              "against its parent's and its siblings' commands is not modelled", ["RUN TRANSID"])  # fmt: skip
         x_translated, x_ca = translate(x_source)
         name = extra["program"].upper()
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")
         linked[name] = x_ca
+    if case_child_programs(case):  # #4950: a RUN TRANSID child runs its program through the dispatcher
+        (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea, True), encoding="ascii")
     if "CALL 'GGCRUN'" in text or linked:  # a LINK: the level's dispatcher, running the case's other programs
         (src / "GGCRUN.cbl").write_text(task_dispatcher(linked), encoding="ascii")
         subs.append("src/GGCRUN.cbl")
@@ -2413,6 +2533,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 for k in chan["containers"]), encoding="ascii")  # fmt: skip
         if case.get("transactions") is not None:  # #4270: the CSD's transactions (RUN TRANSID / START's TRANSIDERR)
             (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in case_transactions(case)), encoding="ascii")
+        if case_child_programs(case):  # #4950: the program a RUN TRANSID child runs
+            (d / "childprogs.cfg").write_text("".join(f"{t} {p}\n" for t, p in case_child_programs(case).items()),
+                                              encoding="ascii")  # fmt: skip
         if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
             (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
                                            encoding="ascii")  # fmt: skip
@@ -2645,7 +2768,7 @@ def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
                            "expires": kv.get("expires") or None}  # fmt: skip
     if kv.get("reqid"):
         out["reqid"] = kv["reqid"]
-    if resp == "INVREQ":
+    if resp in ("INVREQ", "CHANNELERR"):  # (#4950: CHANNELERR RESP2 1, an incorrect CHANNEL name)
         out["resp2"] = int(kv.get("resp2", "0"))
     for key in ("rtransid", "rtermid", "queue"):  # the data options the program named (hex of the trimmed name)
         if key in kv:
@@ -2748,6 +2871,14 @@ def java_read_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
 
 
+def channel_copy(path: Path) -> dict[str, Any]:
+    """#4950: a channel the stub saved in channel.cfg's format (save_channel) as CicsTask records a copy: {name,
+    containers: {NAME: HEX}}."""
+    lines = path.read_text(encoding="ascii").splitlines()
+    return {"name": lines[0].strip(),
+            "containers": {w[0]: "" if w[2] == "-" else w[2].upper() for w in (ln.split() for ln in lines[1:])}}  # fmt: skip
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2811,6 +2942,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
             res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
+            if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
+                res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
+        elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
+            res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
@@ -3364,6 +3499,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         tx_java = ("" if transactions is None else "                public boolean transaction(String transid) { "
                    f"return java.util.Set.of({', '.join(f'{chr(34)}{t}{chr(34)}' for t in transactions)})"
                    ".contains(transid); }\n")  # fmt: skip
+        kids = case_child_programs(case)  # #4950: the program a RUN TRANSID child runs
+        tx_java += ("" if not kids else "                public String program(String transid) { return "
+                    f"java.util.Map.ofEntries({', '.join(f'java.util.Map.entry({chr(34)}{t}{chr(34)}, {chr(34)}{p}{chr(34)})' for t, p in kids.items())})"
+                    ".get(transid); }\n")  # fmt: skip
         csd_java += (f"            task.withPrograms(new CicsTask.Programs() {{\n"
                      f"                public boolean defined(String program) {{ return {defined}; }}\n"
                      f"{tx_java}"
@@ -3881,11 +4020,20 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
 
     enc = common.data_encoding(case)
 
+    def child(e: dict[str, Any]) -> None:  # #4950: a RUN TRANSID child's events, as a task's (no COMMAREA)
+        for x in e.get("events") or []:
+            if x.get("event") == "CHILD":
+                child(x)
+            elif "commarea" in x:
+                x["commarea"] = None
+
     result = {}
     for sc in case["scenarios"]:
         f = out / f"{sc['name']}.json"
         events = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
         for e in events:
+            if e.get("event") == "CHILD":
+                child(e)
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
@@ -4103,6 +4251,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
+    children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -4168,11 +4317,22 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
             out.append({"event": "RUN", "transid": kv.get("transid", ""), "resp": resp})
-        elif verb == "FETCH":  # #4884: as CicsTask.fetch records it
+        elif verb == "FETCH":  # #4884, #4950: as CicsTask.fetch records it (on NORMAL: the child and what it left)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append(
-                {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
-            )
+            e = {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
+            if "child" in kv:
+                e.update({"child": kv["child"], "compstatus": kv["compstatus"],
+                          "abcode": None if kv["abcode"] == "-" else kv["abcode"],
+                          "channel": None if kv["channel"] == "-" else kv["channel"]})  # fmt: skip
+            out.append(e)
+        elif verb == "FREE-CHILD":  # #4950: as CicsTask.freeChild records it
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "FREE-CHILD", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
+                        "resp2": int(kv["resp2"])})  # fmt: skip
+        elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched, its events as a whole
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "CHILD", "child": kv["child"], "transid": kv["transid"],
+                        "events": cobol_events(next(children))})  # fmt: skip
     if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
         out.append({"event": "CONTAINERS", **res["containers"]})
     if res.get("linked_commarea") is not None:
@@ -4243,7 +4403,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
             for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
-                        "rtransid", "rtermid", "queue"):  # fmt: skip
+                        "rtransid", "rtermid", "queue", "channel"):  # fmt: skip
                 if (key in c or key in j) and not _same(c.get(key), j.get(key)):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
@@ -4288,8 +4448,17 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
             if c.get("cursor") != j.get("cursor"):
                 bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
-        if c["event"] == "FETCH":  # #4884 (X18, DIFFERS): both sides answer NOTFINISHED, IBM's child may have finished
-            bad.append({"field": "FETCH", "cobol": FETCH_DIFFERS, "java": FETCH_DIFFERS})  # never counted equal
+        if c["event"] in ("FETCH", "FREE-CHILD"):  # #4950: the child fetched and what it left, both ways
+            for key in ("resp2", "child", "compstatus", "abcode", "channel"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "CHILD":  # #4950: a RUN TRANSID child's own events, compared as a task's
+            for key in ("child", "transid"):
+                if c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+            sub = compare_events(c.get("events") or [], j.get("events") or [])
+            if sub["diffs"]:
+                bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
         if bad:
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:
@@ -4300,9 +4469,6 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
     return out
 
 
-FETCH_DIFFERS = ("FETCH ANY / CHILD NOSUSPEND: both runtimes answer NOTFINISHED because a child runs only after its "
-                 "parent ends; on IBM a child can finish during the parent's DELAY, so a program that executes a FETCH "
-                 "is not proven (oracle_assumptions.md X18, DIFFERS)")  # fmt: skip
 UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
                     "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
                     "compared)")  # fmt: skip

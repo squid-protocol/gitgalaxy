@@ -78,6 +78,7 @@ static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
 #define RMDIR(p) rmdir(p)
 #include <signal.h>   /* #4270 (X23): GGCAREA's guard page */
 #include <sys/mman.h>
+#include <sys/wait.h> /* #4950: a RUN TRANSID child, run as a process of its own */
 #include <unistd.h>
 #endif
 
@@ -117,12 +118,28 @@ static const char *dir_in(void) { const char *d = getenv("GGCICS_DIR"); return d
 static const char *dir_out(void) { const char *d = getenv("GGCICS_OUT"); return d ? d : "."; }
 
 static const char *current_program(void);
+static void refuse(const char *what);
+
+/* #4950 (X18, R1): a RUN TRANSID child its parent's wait dispatched ($GGCICS_CHILDOF) records only the end of its
+ * task and the programs it runs; any other event is a region resource's or a terminal's, whose order against its
+ * parent's and its siblings' commands is not modelled. */
+static void child_may(const char *line, int verb) {
+    static const char *const ok[] = {"RETURN", "ABEND", "LINK", "XCTL"};
+    char msg[160];
+    if (!getenv("GGCICS_CHILDOF")) return;
+    for (size_t i = 0; i < sizeof ok / sizeof ok[0]; i++)
+        if ((int)strlen(ok[i]) == verb && strncmp(line, ok[i], (size_t)verb) == 0) return;
+    snprintf(msg, sizeof msg, "a RUN TRANSID child's %.*s (a region resource or a terminal): its order against its "
+             "parent's and its siblings' commands", verb, line);
+    refuse(msg);
+}
 
 /* One line of events.txt (the verb, then the issuing program); with `data`, its bytes as NNN.bin. */
 static void event(const char *line, const char *data, int len) {
     char path[4096];
     const char *rest = strchr(line, ' ');
     int verb = rest ? (int)(rest - line) : (int)strlen(line);
+    child_may(line, verb);
     seq++;
     snprintf(path, sizeof path, "%s/events.txt", dir_out());
     FILE *f = fopen(path, "a");
@@ -2195,19 +2212,17 @@ static int hexval(int ch) {
 
 static int channel_in; /* a channel.cfg was read: the task's containers are written at its end */
 
-int GGCCHIN(gg_cics *c) {
-    char path[4096], name[17], word[32], type[8];
+/* A channel.cfg-format file (its name line, then `NAME BIT|CHAR HEX` per container, '-' for no bytes) as a channel in
+ * the current level's scope, named `as` (NULL: the file's own name); its index + 1, 0 when there is no file. */
+static int load_channel(const char *path, const char *as) {
+    char name[17], word[32], type[8];
     size_t size = 1 << 20;
-    (void)c;
-    snprintf(path, sizeof path, "%s/channel.cfg", dir_in());
     FILE *f = fopen(path, "r");
     if (!f) return 0;
     char *line = malloc(size);
     if (!line) refuse("out of memory");
     if (!fgets(line, (int)size, f) || sscanf(line, "%16s", name) != 1) refuse("channel.cfg: no channel name");
-    int ch = channel_named(name, 1);
-    levels[0].cur = ch;
-    channel_in = 1;
+    int ch = channel_named(as ? as : name, 1);
     while (fgets(line, (int)size, f)) {
         char *hex = malloc(size);
         if (!hex) refuse("out of memory");
@@ -2223,6 +2238,32 @@ int GGCCHIN(gg_cics *c) {
     }
     free(line);
     fclose(f);
+    return ch;
+}
+
+/* A channel's containers to `path` in channel.cfg's format (#4950: a RUN / START CHANNEL's copy, a child's reply). */
+static void save_channel(const gg_channel *ch, const char *path) {
+    FILE *f = fopen(path, "w");
+    if (!f) refuse("cannot write a channel's copy");
+    fprintf(f, "%s\n", ch->name);
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (!ch->c[i].used) continue;
+        fprintf(f, "%s %s ", ch->c[i].name, ch->c[i].bit ? "BIT" : "CHAR");
+        if (!ch->c[i].len) fprintf(f, "-");
+        for (int j = 0; j < ch->c[i].len; j++) fprintf(f, "%02X", (unsigned char)ch->c[i].data[j]);
+        fprintf(f, "\n");
+    }
+    fclose(f);
+}
+
+int GGCCHIN(gg_cics *c) {
+    char path[4096];
+    (void)c;
+    snprintf(path, sizeof path, "%s/channel.cfg", dir_in());
+    int ch = load_channel(path, NULL);
+    if (!ch) return 0;
+    levels[0].cur = ch;
+    channel_in = 1;
     return 0;
 }
 
@@ -2491,6 +2532,8 @@ static void hexarg(char *out, size_t size, const char *key, const char *v, int n
  * the CSD does not define, TERMIDERR for a terminal other than the region's, IOERR for a REQID this task already
  * used with FROM, used again with FROM ("A START operation uses a REQID name that exists. This condition occurs only
  * when the FROM option is also used"); any other REQID that exists is refused. */
+static int handed_channel(const gg_cics *c, char *name);
+
 int GGCSTRT(gg_cics *c, char *from) {
     char transid[9], termid[9], reqid[17], flags[41], ev[512], expires[32] = "", hhmm[16] = "", named[128] = "";
     int has = c->item != 0, len = has ? c->len : 0, hhmmss = c->num, resp2 = 0;
@@ -2514,6 +2557,14 @@ int GGCSTRT(gg_cics *c, char *from) {
         resp2 = 6;
     }
     int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+    char chname[17] = "", chpath[4200];
+    int chan_bad = 0, chan_ix = 0;
+    if (flag_word(flags, "CHANNEL")) { /* #4950: START CHANNEL -- the started task's copy of the channel, made now */
+        chan_bad = !handed_channel(c, chname);
+        if (chan_bad && !listed("transactions.cfg", transid))
+            refuse("START TRANSID of a transaction not defined, with an incorrect CHANNEL name");
+        if (!chan_bad && !(chan_ix = channel_named(chname, 0))) refuse("START CHANNEL of a channel not in the program's scope");
+    }
     if (reqid[0]) {
         char rq[256];
         for (int i = 0; i < nown && reused < 0; i++) {
@@ -2537,7 +2588,10 @@ int GGCSTRT(gg_cics *c, char *from) {
     }
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (resp2) {
+    if (chan_bad) {
+        c->resp = CHANNELERR;
+        c->resp2 = 1;
+    } else if (resp2) {
         c->resp = INVREQ;
         c->resp2 = resp2;
     } else if (has && (len < 1 || len > 32763)) {
@@ -2578,9 +2632,14 @@ int GGCSTRT(gg_cics *c, char *from) {
     if (flag_word(flags, "RTRANSID")) hexarg(named, sizeof named, "rtransid", c->rtran, 4);
     if (flag_word(flags, "RTERMID")) hexarg(named + strlen(named), sizeof named - strlen(named), "rtermid", c->rterm, 4);
     if (flag_word(flags, "QUEUE")) hexarg(named + strlen(named), sizeof named - strlen(named), "queue", c->rqueue, 8);
+    if (chan_ix && c->resp == NORMAL) { /* #4950: the copy, beside the event (NNN.channel), its name in `channel=` */
+        snprintf(chpath, sizeof chpath, "%s/%03d.channel", dir_out(), seq + 1);
+        save_channel(&chans[chan_ix - 1], chpath);
+        snprintf(named + strlen(named), sizeof named - strlen(named), " channel=%s", chname);
+    }
     snprintf(ev, sizeof ev, "START transid=%s termid=%s %s=%s reqid=%s protect=%d resp=%d resp2=%d expires=%s len=%d "
              "area=%d%s", transid, termid, is_time ? "time" : "interval", hhmm, reqid, protect, c->resp,
-             c->resp == INVREQ ? resp2 : 0, expires, len, has, named);
+             c->resp == INVREQ || c->resp == CHANNELERR ? c->resp2 : 0, expires, len, has, named);
     event(ev, has ? from : NULL, has && len > 0 && len <= 32763 ? len : 0);  /* FROM as given, whatever the outcome */
     return 0;
 }
@@ -2700,52 +2759,359 @@ int GGCRTRV(gg_cics *c, char *into) {
 /* #4270 slice 2: RUN TRANSID(name1) CHILD(child) (IBM, EXEC CICS RUN TRANSID): it "starts a task on the local
  * system ... The started task (child task) runs asynchronously with the starting task", and CICS places "the child
  * token that represents the child task" in CHILD's 16-character area. TRANSIDERR RESP2 1 for a transaction the CSD
- * does not define. The event is the runner's: its scheduler runs the child as a non-terminal task once this task has
- * ended. The token's bytes are the harness's own (IBM does not document them), as CicsTask.runTransid makes them. */
-static int nchildren = 0;
+ * does not define. #4950 (X18): the child runs at this task's next wait (GGCDLAY, a GGCFETCH that waits) -- a task that
+ * never waits ends with it not run -- as CicsTask.runTransid has it. The token's bytes are the harness's own (IBM does
+ * not document them), the same on both sides. */
+#define MAX_KIDS 64
+typedef struct {
+    char token[17], transid[9], abcode[5];
+    int number, dispatched, fetched, freed, abended;
+    long long completes;
+} gg_kid;
+static gg_kid kids[MAX_KIDS];
+static int nchildren = 0, replies = 0;
+static long long waited = 0; /* #4950 (X18): the scheduler's clock, milliseconds of waits */
+
+/* #4950: the characters IBM allows in the name of a channel RUN TRANSID / START hands on (EXEC CICS RUN TRANSID,
+ * CHANNEL: "The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = \xac , ; < >. Leading and embedded
+ * blank characters are not permitted"), as the spec's CHANNEL_NAME_CHARS and CicsTask.handedChannel */
+static const char channel_chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#./-_%&?!:|\"=\xac,;<>";
+
+/* GG-CHAN's name without its trailing blanks into `name`; 0 when it holds a character IBM does not allow (CHANNELERR
+ * RESP2 1). An all-blank name is refused, as one starting DFH. */
+static int handed_channel(const gg_cics *c, char *name) {
+    char msg[64];
+    trim(c->chan, 16, name);
+    if (!name[0]) refuse("a CHANNEL() with a blank name");
+    if (strncmp(name, "DFH", 3) == 0) {
+        snprintf(msg, sizeof msg, "CHANNEL(%s), a channel named DFH", name);
+        refuse(msg);
+    }
+    for (const char *p = name; *p; p++)
+        if (!strchr(channel_chars, *p)) return 0;
+    return 1;
+}
+
+static void kid_dir(int n, char *path, size_t size) { snprintf(path, size, "%s/child_%03d", dir_out(), n); }
+
+/* Copies a configuration file of this task's into a child's directory, when there is one. */
+static void copy_cfg(const char *file, const char *to) {
+    char from[4096], dst[4200], buf[4096];
+    size_t n;
+    snprintf(from, sizeof from, "%s/%s", dir_in(), file);
+    FILE *f = fopen(from, "rb");
+    if (!f) return;
+    snprintf(dst, sizeof dst, "%s/%s", to, file);
+    FILE *g = fopen(dst, "wb");
+    if (!g) refuse("cannot write a child's configuration");
+    while ((n = fread(buf, 1, sizeof buf, f)) > 0) fwrite(buf, 1, n, g);
+    fclose(f);
+    fclose(g);
+}
 
 int GGCRUNT(gg_cics *c, char *child) {
-    char transid[9], ev[96], token[17];
+    char transid[9], ev[96], token[17], name[17], dir[4096], path[4200];
+    int bad = 0;
     trim(c->name1, 8, transid);
-    if (strstr(c->flags, "CHANNEL")) { /* #4884: the child's copy of a channel; the child runs after this task */
-        for (int i = 0; i < 16 && c->chan[i] != ' '; i++)
-            if (!isalnum((unsigned char)c->chan[i])) refuse("RUN CHANNEL(name) with anything but letters and digits");
-        if (c->chan[0] == ' ') refuse("RUN CHANNEL() with a blank name");
-    }
+    if (getenv("GGCICS_CHILDOF")) refuse("RUN TRANSID in a RUN TRANSID child task (a grandchild)");
+    if (strstr(c->flags, "CHANNEL")) bad = !handed_channel(c, name);
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (!listed("transactions.cfg", transid)) {
+    int undefined = !listed("transactions.cfg", transid);
+    if (bad && undefined) refuse("RUN TRANSID of a transaction not defined, with an incorrect CHANNEL name");
+    if (bad) {
+        c->resp = CHANNELERR;
+        c->resp2 = 1;
+    } else if (undefined) {
         c->resp = TRANSIDERR;
         c->resp2 = 1;
     } else {
-        snprintf(token, sizeof token, "GGCHILD%09d", ++nchildren);
+        if (nchildren >= MAX_KIDS) refuse("more RUN TRANSID children than the stub holds");
+        gg_kid *k = &kids[nchildren++];
+        memset(k, 0, sizeof *k);
+        snprintf(token, sizeof token, "GGCHILD%09d", nchildren);
         memcpy(child, token, 16);
+        memcpy(k->token, token, 17);
+        snprintf(k->transid, sizeof k->transid, "%s", transid);
+        k->number = nchildren;
+        kid_dir(nchildren, dir, sizeof dir);
+        MKDIR(dir);
+        if (strstr(c->flags, "CHANNEL")) { /* the child's copy, made now ("if the channel does not exist, it is created") */
+            snprintf(path, sizeof path, "%s/channel.cfg", dir);
+            save_channel(&chans[channel_named(name, 1) - 1], path);
+        }
     }
     snprintf(ev, sizeof ev, "RUN transid=%s resp=%d resp2=%d", transid, c->resp, c->resp2);
     event(ev, NULL, 0);
     return 0;
 }
 
-/* #4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM, EXEC CICS FETCH). A child runs only once this task has ended
- * (GGCRUNT), so none has completed: NOTFINISHED RESP2 52. FETCH ANY with no children: INVREQ 52 ("the parent has no
- * children"); FETCH CHILD of a token this task was not given: INVREQ 50. GG-FLAGS 'CHILD' with the token in qname,
- * else FETCH ANY. The areas it would write (ANY, CHANNEL, ABCODE, COMPSTATUS) are left alone. */
-int GGCFETCH(gg_cics *c) {
-    char ev[96], token[17];
-    int n;
-    c->resp = DFHRESP_NOTFINISHED;
-    c->resp2 = 52;
-    if (!strstr(c->flags, "CHILD")) {
-        if (nchildren == 0) c->resp = INVREQ;
-    } else {
-        memcpy(token, c->qname, 16);
-        token[16] = 0;
-        if (sscanf(token, "GGCHILD%9d", &n) != 1 || strlen(token) != 16 || n < 1 || n > nchildren) {
-            c->resp = INVREQ;
-            c->resp2 = 50;
+/* #4950: the child's program, from childprogs.cfg (`TRANSID PROGRAM` per line: the case's statement of what each
+ * transaction a RUN may name runs); NULL when the case does not run it. */
+static int child_program(const char *transid, char *program) {
+    char path[4096], line[64], t[16], p[16];
+    snprintf(path, sizeof path, "%s/childprogs.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+    while (fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%15s %15s", t, p) == 2 && strcmp(t, transid) == 0) {
+            snprintf(program, 9, "%s", p);
+            fclose(f);
+            return 1;
         }
     }
+    fclose(f);
+    return 0;
+}
+
+/* #4950 (X18, ASSUMED): this task waits (a DELAY, or a FETCH that waits): the RUN children not yet dispatched run now,
+ * in RUN order, each to its end before this task resumes (one quasi-reentrant TCB: a task keeps control until it
+ * waits; a task takes no processor time, X4). A child is this program re-run as a non-terminal task in a directory of
+ * its own: EIBTASKN this task's plus its RUN number, no COMMAREA, its current channel the copy RUN made. It completes at
+ * its dispatch plus its own DELAYs. What it did is one CHILD event (its directory), compared as a whole. */
+static void dispatch_children(void) {
+#ifdef _WIN32
+    for (int i = 0; i < nchildren; i++)
+        if (!kids[i].dispatched && !kids[i].freed) refuse("a RUN TRANSID child on Windows (the stub runs it as a process)");
+#else
+    char dir[4096], path[4300], program[9], msg[96], line[128], status[16], code[8];
+    for (int i = 0; i < nchildren; i++) {
+        gg_kid *k = &kids[i];
+        if (k->dispatched || k->freed) continue;
+        k->dispatched = 1;
+        if (!child_program(k->transid, program)) {
+            snprintf(msg, sizeof msg, "child transaction %s: its program is not one the case runs", k->transid);
+            refuse(msg);
+        }
+        kid_dir(k->number, dir, sizeof dir);
+        snprintf(path, sizeof path, "%s/out", dir);
+        MKDIR(path);
+        copy_cfg("region.cfg", dir);
+        copy_cfg("programs.cfg", dir);
+        copy_cfg("transactions.cfg", dir);
+        snprintf(path, sizeof path, "%s/eib.in", dir);
+        FILE *f = fopen(path, "w");
+        FILE *e = NULL;
+        char eib[128] = "";
+        if (getenv("EIBIN")) e = fopen(getenv("EIBIN"), "r");
+        if (!f || !e || !fgets(eib, sizeof eib, e) || strlen(eib) < 30) refuse("a RUN TRANSID child: no EIB to start it from");
+        fclose(e);
+        /* TRANSID AID DATE TIME TERMID: the child's transaction, no AID (DFHNULL), its parent's date and time (X4) */
+        fprintf(f, "%-4s %-8s %.15s     \n", k->transid, "DFHNULL", eib + 14);
+        fclose(f);
+        fflush(NULL);
+        pid_t pid = fork();
+        if (pid < 0) refuse("a RUN TRANSID child: fork failed");
+        if (pid == 0) {
+            char num[24], out[4300], eibin[4300], trace[4300];
+            const char *taskn = getenv("GGCICS_TASKN");
+            snprintf(num, sizeof num, "%ld", (taskn ? strtol(taskn, NULL, 10) : 0) + k->number);
+            snprintf(out, sizeof out, "%s/out", dir);
+            snprintf(eibin, sizeof eibin, "%s/eib.in", dir);
+            snprintf(trace, sizeof trace, "%s/trace.txt", dir);
+            setenv("GGCICS_DIR", dir, 1);
+            setenv("GGCICS_OUT", out, 1);
+            setenv("EIBIN", eibin, 1);
+            setenv("GGCICS_TASKN", num, 1);
+            setenv("GGCICS_RUNCHILD", "1", 1);
+            setenv("GGCICS_CHILDOF", "1", 1);
+            setenv("GGCICS_CHILDPROG", program, 1);
+            if (getenv("COB_TRACE_FILE")) setenv("COB_TRACE_FILE", trace, 1); /* (its own: the parent's stays open) */
+            const char *gone[] = {"GGCICS_FACILITY", "GGCICS_STARTCODE", "GGCICS_ORIGIN", "GGCICS_UCTRANST",
+                                  "GGCICS_WEBREQ", "GGCICS_HTTP", "GGCICS_LU2", "GGCICS_URIMAPS", "GGCICS_DOCTEMPLATES"};
+            for (size_t j = 0; j < sizeof gone / sizeof gone[0]; j++) unsetenv(gone[j]);
+            execl("/proc/self/exe", "task", (char *)NULL);
+            _exit(97);
+        }
+        int st = 0;
+        if (waitpid(pid, &st, 0) < 0 || !WIFEXITED(st)) {
+            printf("RUN TRANSID child %s failed\n", k->token);
+            exit(1);
+        }
+        if (WEXITSTATUS(st) == 98) exit(98); /* the child refused (its reason is in the shared log): so does the task */
+        if (WEXITSTATUS(st) != 0) {
+            printf("RUN TRANSID child %s failed (exit %d)\n", k->token, WEXITSTATUS(st));
+            exit(1);
+        }
+        long long its = 0;
+        snprintf(path, sizeof path, "%s/out/end.txt", dir);
+        f = fopen(path, "r");
+        if (!f || !fgets(line, sizeof line, f) || sscanf(line, "%15s %7s %lld", status, code, &its) != 3)
+            refuse("a RUN TRANSID child that left no end state");
+        fclose(f);
+        if (strcmp(status, "RECOVERED") == 0)
+            refuse("a RUN TRANSID child that went on after an abend (HANDLE ABEND): its completion status");
+        k->abended = strcmp(status, "ABEND") == 0;
+        snprintf(k->abcode, sizeof k->abcode, "%.4s", code);
+        k->completes = waited + its;
+        snprintf(msg, sizeof msg, "CHILD child=%s transid=%s dir=child_%03d", k->token, k->transid, k->number);
+        event(msg, NULL, 0);
+    }
+#endif
+}
+
+/* #4950: in a child ($GGCICS_CHILDOF), at its end: end.txt (NORMAL | ABEND | RECOVERED, the abend code, its own
+ * waits in ms) and reply.cfg, the current channel it leaves its parent (none: no file). */
+static void child_end(void) {
+    char path[4096];
+    if (!getenv("GGCICS_CHILDOF")) return;
+    snprintf(path, sizeof path, "%s/end.txt", dir_out());
+    FILE *f = fopen(path, "w");
+    if (!f) refuse("a RUN TRANSID child: cannot write its end");
+    int abcode = strncmp(task_abcode, "    ", 4) != 0;
+    fprintf(f, "%s %.4s %lld\n", terminated ? "ABEND" : abcode ? "RECOVERED" : "NORMAL", abcode ? task_abcode : "----",
+            waited);
+    fclose(f);
+    if (levels[0].cur) {
+        snprintf(path, sizeof path, "%s/reply.cfg", dir_out());
+        save_channel(&chans[levels[0].cur - 1], path);
+    }
+}
+
+/* #4950: the driver asks whether this process is a RUN TRANSID child: GG-ITEM 1 with its program in GG-NAME1. */
+int GGCCHLD(gg_cics *c) {
+    const char *p = getenv("GGCICS_CHILDOF") ? getenv("GGCICS_CHILDPROG") : NULL;
+    c->item = 0;
+    if (!p) return 0;
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+    c->item = 1;
+    return 0;
+}
+
+/* #4950: DELAY (IBM, EXEC CICS DELAY), as CicsTask.delay / delayMillis: GG-FLAGS INTERVAL (GG-NUM hhmmss), TIME, or
+ * FOR (GG-HOURS / GG-MINS / GG-SECS / GG-LEN milliseconds, -999999999 when not given); none: INTERVAL(0). A task takes no
+ * time (X4): NORMAL at once, after the RUN children the wait dispatches; the scheduler's clock moves by its length. A
+ * TIME, or a value out of IBM's ranges, is refused in a task with RUN children or in a child. */
+int GGCDLAY(gg_cics *c) {
+    const int none = -999999999;
+    long long ms = -1;
+    char msg[96];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strstr(c->flags, "INTERVAL")) {
+        long long v = c->num;
+        if (v >= 0 && v / 10000 <= 99 && v / 100 % 100 <= 59 && v % 100 <= 59)
+            ms = (v / 10000 * 3600 + v / 100 % 100 * 60 + v % 100) * 1000;
+    } else if (strstr(c->flags, "FOR")) {
+        long long h = c->hours, m = c->mins, s = c->secs, l = c->len;
+        int given = (h != none) + (m != none) + (s != none) + (l != none), one = given == 1;
+        if (!((h != none && (h < 0 || h > 99)) || (m != none && (m < 0 || m > (one ? 5999 : 59)))
+              || (s != none && (s < 0 || s > (one ? 359999 : 59))) || (l != none && (l < 0 || l > (one ? 359999999 : 999)))))
+            ms = ((h != none ? h : 0) * 3600 + (m != none ? m : 0) * 60 + (s != none ? s : 0)) * 1000 + (l != none ? l : 0);
+    } else if (!strstr(c->flags, "TIME")) {
+        ms = 0;
+    }
+    if (ms < 0) {
+        if (nchildren || getenv("GGCICS_CHILDOF")) {
+            snprintf(msg, sizeof msg, "DELAY %s in a task with RUN TRANSID children",
+                     strstr(c->flags, "TIME") ? "TIME" : "out of range");
+            refuse(msg);
+        }
+        return 0;
+    }
+    dispatch_children();
+    waited += ms;
+    return 0;
+}
+
+static int kid_of(const char *qname) {
+    char token[17];
+    memcpy(token, qname, 16);
+    token[16] = 0;
+    for (int i = 0; i < nchildren; i++)
+        if (strcmp(kids[i].token, token) == 0) return i + 1;
+    return 0;
+}
+
+/* #4884, #4950: FETCH ANY / FETCH CHILD(token) (IBM, EXEC CICS FETCH), as CicsTask.fetch: GG-FLAGS 'CHILD' with the
+ * token in GG-QNAME (else FETCH ANY), NOSUSPEND, TIMEOUT (GG-NUM milliseconds) or neither (it waits), CHANNEL (the reply
+ * channel asked for). On NORMAL: the token in GG-QNAME, the reply channel's name in GG-CHAN, the abend code in GG-NAME1
+ * (GG-ITEM 1: the child abended) and COMPSTATUS's CVDA in GG-NUM (NORMAL 1016, ABEND 900). */
+int GGCFETCH(gg_cics *c) {
+    char ev[200], msg[96], path[4300], dir[4096], reply[17];
+    int one = 0, any = 0, first = -1;
+    int nosuspend = strstr(c->flags, "NOSUSPEND") != NULL, timed = strstr(c->flags, "TIMEOUT") != NULL;
+    long long timeout = timed ? c->num : 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    c->item = 0;
+    if (timed && (timeout < 0 || timeout > 4080000)) {
+        snprintf(msg, sizeof msg, "FETCH TIMEOUT(%d) outside 0 to 4080000 milliseconds", (int)timeout);
+        refuse(msg);
+    }
+    if (strstr(c->flags, "CHILD")) {
+        one = kid_of(c->qname);
+        if (!one || kids[one - 1].freed) { c->resp = INVREQ; c->resp2 = 50; goto done; }
+        if (kids[one - 1].fetched) refuse("FETCH CHILD of a child already fetched");
+    } else if (nchildren == 0) {
+        c->resp = INVREQ;
+        c->resp2 = 52;
+        goto done;
+    }
+    if (!nosuspend) dispatch_children();
+    for (int i = 0; i < nchildren; i++) {
+        gg_kid *k = &kids[i];
+        if (one ? i != one - 1 : k->fetched || k->freed) continue;
+        any = 1;
+        if (k->dispatched && (first < 0 || k->completes < kids[first].completes)) first = i;
+    }
+    if (!any) { c->resp = DFHRESP_NOTFND; c->resp2 = 1; goto done; }
+    if (nosuspend) {
+        if (first < 0 || kids[first].completes > waited) { c->resp = DFHRESP_NOTFINISHED; c->resp2 = 52; goto done; }
+        if (kids[first].completes == waited) refuse("a FETCH whose answer turns on a child completing at the instant its parent resumed from a wait (a tie)");
+    } else if (timed) {
+        if (kids[first].completes == waited + timeout) refuse("a FETCH whose answer turns on a child completing at the instant its parent resumed from a wait (a tie)");
+        if (kids[first].completes > waited + timeout) {
+            waited += timeout;
+            c->resp = DFHRESP_NOTFINISHED;
+            c->resp2 = 53;
+            goto done;
+        }
+    }
+    if (kids[first].completes > waited) waited = kids[first].completes;
+    gg_kid *k = &kids[first];
+    k->fetched = 1;
+    memcpy(c->qname, k->token, 16);
+    c->num = k->abended ? 900 : 1016;
+    if (k->abended) { memset(c->name1, ' ', 8); memcpy(c->name1, k->abcode, 4); c->item = 1; }
+    reply[0] = 0;
+    if (strstr(c->flags, "CHANNEL")) {
+        kid_dir(k->number, dir, sizeof dir);
+        snprintf(path, sizeof path, "%s/out/reply.cfg", dir);
+        snprintf(reply, sizeof reply, "GGREPLY%09d", replies + 1);
+        if (!load_channel(path, reply)) refuse("FETCH CHANNEL of a child that left no current channel");
+        replies++;
+        memset(c->chan, ' ', 16);
+        memcpy(c->chan, reply, 16);
+    }
+    snprintf(ev, sizeof ev, "FETCH resp=%d resp2=%d child=%s compstatus=%s abcode=%s channel=%s", c->resp, c->resp2,
+             k->token, k->abended ? "ABEND" : "NORMAL", k->abended ? k->abcode : "-", reply[0] ? reply : "-");
+    event(ev, NULL, 0);
+    return 0;
+done:
     snprintf(ev, sizeof ev, "FETCH resp=%d resp2=%d", c->resp, c->resp2);
+    event(ev, NULL, 0);
+    return 0;
+}
+
+/* #4950: FREE CHILD(token in GG-QNAME) (IBM, EXEC CICS FREE CHILD), as CicsTask.freeChild: INVREQ 50 for a token that
+ * is not a child's or was freed; freeing a child already fetched is refused. */
+int GGCFREE(gg_cics *c) {
+    char ev[64];
+    int k = kid_of(c->qname);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!k || kids[k - 1].freed) {
+        c->resp = INVREQ;
+        c->resp2 = 50;
+    } else if (kids[k - 1].fetched) {
+        refuse("FREE CHILD of a child already fetched");
+    } else {
+        kids[k - 1].freed = 1;
+    }
+    snprintf(ev, sizeof ev, "FREE-CHILD resp=%d resp2=%d", c->resp, c->resp2);
     event(ev, NULL, 0);
     return 0;
 }
@@ -3217,6 +3583,7 @@ int GGCEND(gg_cics *c) {
      * RETURN (no TRANSID, no COMMAREA), as GGCPEND has it for a task run through GGCRUN */
     if (!ended) return_event("", NULL, 0);
     containers_out();
+    child_end(); /* #4950 */
     return 0;
 }
 

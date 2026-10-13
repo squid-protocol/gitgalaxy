@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 77 full, 2 engine-only, 176 name-only.
+**255 entries:** 83 full, 2 engine-only, 170 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -29,14 +29,19 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | PUT CONTAINER | full | yes (11 options, 3 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
 | GET CONTAINER | full | yes (8 options, 6 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
 | DELETE CONTAINER | full | yes (5 options) | yes | X17 | — | 0 | ca-channel-containers |
+| MOVE CONTAINER | full | yes (7 options) | yes | X17, X42 | — | 0 | — |
+| STARTBROWSE CONTAINER | full | yes (5 options) | yes | X17, X42 | — | 2 (1 / 1) | — |
+| GETNEXT CONTAINER | full | yes (5 options) | yes | X42 | — | 1 (1 / 0) | — |
+| ENDBROWSE CONTAINER | full | yes (4 options) | yes | X42 | — | 0 | — |
 | DOCUMENT CREATE | full | yes (8 options, 8 refused by name) | yes | X33 | doctemplates | 3 (3 / 0) | — |
 | DOCUMENT RETRIEVE | full | yes (8 options, 2 refused by name) | yes | X33 | — | 3 (3 / 0) | — |
-| START | full | yes (20 options, 7 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
+| START | full | yes (21 options, 6 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
 | RETRIEVE | full | yes (9 options, 2 refused by name) | yes | X18 | — | 4 (4 / 0) | gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
 | CANCEL | full | yes (4 options, 5 refused by name) | yes | X18 | — | 0 | gt-terminal-coalesce |
 | RUN | full | yes (6 options) | yes | X18 | — | 4 (1 / 3) | gt-start-options |
-| FETCH ANY | full | yes (8 options, 1 refused by name) | yes | X18 | — | 2 (1 / 1) | — |
-| FETCH CHILD | full | yes (8 options, 1 refused by name) | yes | X18 | — | 2 (0 / 2) | — |
+| FETCH ANY | full | yes (9 options) | yes | X18 | — | 2 (1 / 1) | — |
+| FETCH CHILD | full | yes (9 options) | yes | X18 | — | 2 (0 / 2) | — |
+| FREE CHILD | full | yes (4 options) | yes | X18 | — | 0 | — |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
 | READ | full | yes (16 options, 2 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
@@ -56,8 +61,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | RETURN | full | yes (7 options, 1 refused by name) | yes | X27 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | ABEND | full | yes (3 options) | yes | — | — | 57 (47 / 10) | gt-start-retrieve, hc-abend-link |
 | HANDLE ABEND | full | yes (5 options) | yes | — | — | 13 (13 / 0) | hc-abend-link |
-| HANDLE CONDITION | full | yes (104 options) | yes | X16 | — | 6 (6 / 0) | ca-channel-containers, hc-abend-link, hc-eoc-error, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive |
-| IGNORE CONDITION | full | yes (104 options) | yes | X16 | — | 0 | hc-ignore-error, hc-perform-range |
+| HANDLE CONDITION | full | yes (105 options) | yes | X16 | — | 6 (6 / 0) | ca-channel-containers, hc-abend-link, hc-eoc-error, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive |
+| IGNORE CONDITION | full | yes (105 options) | yes | X16 | — | 0 | hc-ignore-error, hc-perform-range |
 | HANDLE AID | full | yes (34 options) | yes | X16 | — | 5 (5 / 0) | hc-handle-aid, pc-aid-menu |
 | PUSH HANDLE | full | yes (3 options) | yes | X16 | — | 0 | hc-abend-link, hc-handle-aid, hc-ignore-error |
 | POP HANDLE | full | yes (3 options) | yes | X16 | — | 0 | hc-abend-link, hc-handle-aid, hc-ignore-error |
@@ -67,7 +72,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DELETEQ TS | full | yes (6 options, 1 refused by name) | yes | X29 | — | 2 (2 / 0) | — |
 | ENQ | full | yes (9 options) | yes | — | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
-| DELAY | full | yes (10 options) | yes | — | — | 20 (11 / 9) | — |
+| DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |
 | GET COUNTER | full | yes (9 options, 4 refused by name) | yes | X30 | — | 2 (2 / 0) | — |
 | QUERY COUNTER | full | yes (6 options) | yes | X29 | — | 1 (1 / 0) | — |
 | DEFINE COUNTER | full | yes (6 options) | yes | X30 | — | 1 (1 / 0) | — |
@@ -92,6 +97,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB RECEIVE | full | yes (9 options, 10 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
+| WEB RETRIEVE | full | yes (4 options) | yes | X41 | http_request | 0 | — |
 | WEB READ FORMFIELD | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READ QUERYPARM | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB STARTBROWSE HTTPHEADER | full | yes (4 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
@@ -112,13 +118,11 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 
 | command | census use | crucible cases |
 |---|---|---|
-| STARTBROWSE CONTAINER | 2 (1 / 1) | — |
 | FREEMAIN | 2 (2 / 0) | — |
 | GETMAIN | 2 (2 / 0) | — |
-| GETNEXT CONTAINER | 1 (1 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-171 more name-only entries no census program uses.
+167 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

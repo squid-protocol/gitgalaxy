@@ -964,7 +964,7 @@ _RESP_SAMPLES = {
     "GETNEXT CONTAINER": "GETNEXT CONTAINER(REC) BROWSETOKEN(REC)",
     "ENDBROWSE CONTAINER": "ENDBROWSE CONTAINER BROWSETOKEN(REC)",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
-    "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)",
+    "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
@@ -1755,7 +1755,9 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("START TRANSID('T') CHANNEL(CH)", "started task's channel"),
+        ("START TRANSID('T') CHANNEL(CH) FROM(AREA)", "START CHANNEL with FROM"),
+        ("START TRANSID('T') CHANNEL(CH) INTERVAL(5)", "START CHANNEL with INTERVAL"),
+        ("START TRANSID('T') CHANNEL(CH) REQID('R')", "START CHANNEL with REQID"),
         ("START TRANSID('T') USERID(U)", "surrogate security"),
         ("START TRANSID('T') SYSID(S)", "remote system"),
         ("START TRANSID('T') NOCHECK", "NOCHECK"),
@@ -1769,8 +1771,9 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
         ("CANCEL", "only CANCEL REQID"),
-        ("FETCH CHILD(REC) CHANNEL(CH) COMPSTATUS(C)", "FETCH without NOSUSPEND"),
-        ("FETCH ANY(REC)", "FETCH without NOSUSPEND"),
+        ("FETCH CHILD(REC) NOSUSPEND TIMEOUT(5)", "FETCH NOSUSPEND and TIMEOUT together"),
+        ("FETCH ANY", "FETCH ANY without ANY"),
+        ("FREE CHILD", "FREE CHILD without CHILD"),
     ],
 )
 def test_what_interval_control_does_not_model_is_refused_by_name(text, why):
@@ -1787,6 +1790,45 @@ def test_run_transid_puts_the_child_token_and_takes_its_outcome():
     assert out == ["CicsTask.RunResult run1 = task.runTransid('GT24'.strip());",
                    "if (run1.child() != null) DetCics.putPadded(f_REC, run1.child(), CS);",
                    "OUTCOME(DetCics.resp(run1.resp()), run1.resp2());"]  # fmt: skip
+
+
+def test_fetch_waits_times_out_or_not_and_writes_what_the_child_left():
+    """#4950: FETCH ANY / CHILD on CicsTask.fetch -- NOSUSPEND, TIMEOUT or neither (it waits) -- and on NORMAL the token
+    (ANY), the reply channel's name (CHANNEL), the abend code (ABCODE, an abended child only) and COMPSTATUS's CVDA."""
+    out = _ChanCics().command("FETCH ANY(REC) CHANNEL(CH) COMPSTATUS(C) ABCODE(AB) NOSUSPEND RESP(R)", "")
+    assert out[0] == 'CicsTask.FetchResult fetch1 = task.fetch(null, "NOSUSPEND", 0, true);'
+    assert out[1:7] == ["if (fetch1.child() != null) {", "    DetCics.putPadded(f_REC, fetch1.child(), CS);",
+                        "    DetCics.putPadded(f_CH, fetch1.channel(), CS);",
+                        "    if (fetch1.abcode() != null) DetCics.putPadded(f_AB, fetch1.abcode(), CS);",
+                        out[5], "}"]  # fmt: skip
+    assert "fetch1.compstatus()" in out[5] and out[-1] == "OUTCOME(DetCics.resp(fetch1.resp()), fetch1.resp2());"
+    assert (
+        _ChanCics().command("FETCH CHILD(REC)", "")[0]
+        == ('CicsTask.FetchResult fetch1 = task.fetch(DetCics.str(f_REC, CS), "WAIT", 0, false);')
+        or "task.fetch(" in _ChanCics().command("FETCH CHILD(REC)", "")[0]
+    )
+    timed = _ChanCics().command("FETCH CHILD(REC) TIMEOUT(250)", "")[0]
+    assert '"TIMEOUT", 250, false);' in timed and "WAIT" not in timed
+
+
+def test_free_child_delay_and_start_channel():
+    """#4950: FREE CHILD on CicsTask.freeChild; DELAY on CicsTask.delay (INTERVAL / FOR as milliseconds, TIME refused at
+    run time in a task with children); START CHANNEL hands the channel's name to the request."""
+    assert (
+        _ChanCics()
+        .command("FREE CHILD(REC) RESP(R)", "")[0]
+        .startswith("CicsTask.FetchResult freed1 = task.freeChild(")
+    )
+    assert _ChanCics().command("DELAY FOR SECONDS(3)", "")[0] == (
+        'task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
+    )
+    assert _ChanCics().command("DELAY INTERVAL(000105)", "")[0] == (
+        'task.delay(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
+    )
+    assert _ChanCics().command("DELAY TIME(120000)", "")[0] == 'task.delay(-1L, "DELAY TIME (a time of day)");'
+    assert _ChanCics().command("DELAY", "")[0] == 'task.delay(0L, "DELAY");'
+    start = _ChanCics().command("START TRANSID('T') CHANNEL('CIPCHAN')", "")[0]
+    assert ".channel('CIPCHAN'.strip())" in start or ".channel(" in start
 
 
 def test_the_interval_conditions_are_known_by_resp():

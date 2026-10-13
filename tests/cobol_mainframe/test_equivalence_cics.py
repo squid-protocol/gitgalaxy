@@ -2089,3 +2089,68 @@ def test_exec_in_a_literal_or_a_debugging_line_is_not_a_command():
     with pytest.raises(ec.Unsupported, match="WITH DEBUGGING MODE"):
         ec.translate("       SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.\n" + src)
     assert (ec.DET_COPY / "CEEIGZCT.cpy").is_file()
+
+
+def test_extract_web_is_web_extract_for_the_stub():
+    """#4972 (register X38): EXTRACT WEB (IBM: "a synonym of WEB EXTRACT") is the same GGCWEXT call and moves, with the same
+    refusals."""
+    opts = ("SCHEME(WS-S) HOST(WS-H) HOSTLENGTH(WS-HL) HTTPMETHOD(WS-M) METHODLENGTH(WS-ML) PATH(WS-P) PATHLENGTH(WS-PL) "
+            "PORTNUMBER(WS-N) REQUESTTYPE(WS-R) NOHANDLE")  # fmt: skip
+    assert ec.translate_command(f"EXTRACT WEB {opts}") == ec.translate_command(f"WEB EXTRACT {opts}")
+    for form in ("HOST(WS-H)", "HTTPMETHOD(WS-M)", "HTTPVERSION(WS-V)", "QUERYSTRLEN(WS-Q)", "SESSTOKEN(WS-T)",
+                 "HOSTTYPE(WS-T)", "URIMAP(WS-U)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported) as want:
+            ec.translate_command(f"WEB EXTRACT {form}")
+        with pytest.raises(ec.Unsupported) as got:
+            ec.translate_command(f"EXTRACT WEB {form}")
+        assert str(got.value).replace("EXTRACT WEB", "WEB EXTRACT") == str(want.value), form
+
+
+def test_extract_tcpip_becomes_a_stub_call():
+    """#4972 (register X38): EXTRACT TCPIP -> GGCTCPX (CADDRLENGTH / CNAMELENGTH / SADDRLENGTH / SNAMELENGTH in GG-LEN /
+    GG-HOURS / GG-MINS / GG-SECS, 0 for an area given without its length option; GG-FLAGS A1 N1 A2 N2 the areas given and U1
+    U2 F1 F2 the numbers asked for; every area by reference with its size), then on NORMAL the lengths, each number from
+    GGCTCPN and the IPv4 family (300) moved back. The option rules as the det translator's."""
+    t = ec.translate_command("EXTRACT TCPIP CLIENTADDR(WS-A) CADDRLENGTH(WS-AL) SERVERNAME(WS-SN) CLIENTADDRNU(WS-CN) "
+                             "SERVERADDRNU(WS-SNU) CLNTIPFAMILY(WS-CF) SRVRIPFAMILY(WS-SF) PORTNUMNU(WS-P) SSLTYPE(WS-T) "
+                             "NOHANDLE")  # fmt: skip
+    assert t[:5] == ["MOVE WS-AL TO GG-LEN", "MOVE 0 TO GG-HOURS", "MOVE 0 TO GG-MINS", "MOVE 0 TO GG-SECS",
+                     "MOVE 'A1 N2 U1 U2 F1 F2' TO GG-FLAGS"]  # fmt: skip
+    assert t[5] == "CALL 'GGCTCPX' USING GG-CICS" and t[6:8] == ["    BY REFERENCE WS-A", "    BY VALUE LENGTH OF WS-A"]
+    assert t[12:14] == ["    BY REFERENCE WS-SN", "    BY VALUE LENGTH OF WS-SN"]
+    tail = "\n".join(t)
+    for back in ("MOVE GG-LEN TO WS-AL", "MOVE 'CNU' TO GG-FLAGS", "MOVE 'SNU' TO GG-FLAGS", "MOVE 'PORT' TO GG-FLAGS",
+                 "MOVE 'SSL' TO GG-FLAGS", "CALL 'GGCTCPN' USING GG-CICS", "MOVE GG-NUM TO WS-CN", "MOVE GG-NUM TO WS-SNU",
+                 "MOVE GG-NUM TO WS-P", "MOVE GG-NUM TO WS-T", "MOVE 300 TO WS-CF", "MOVE 300 TO WS-SF"):  # fmt: skip
+        assert back in tail, back
+    # the stub reads exactly the flag words this emits (ggcics.c GGCTCPX / GGCTCPN)
+    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    for word in ("A1", "N1", "A2", "N2", "U1", "U2", "F1", "F2"):
+        assert f'strstr(flags, "{word}")' in stub, word
+    for word in ("CNU", "SNU", "PORT"):
+        assert f'strcmp(flags, "{word}")' in stub, word
+    for bad, why in (("EXTRACT TCPIP CADDRLENGTH(WS-L)", "CADDRLENGTH without CLIENTADDR"),
+                     ("EXTRACT TCPIP SNAMELENGTH(WS-L)", "SNAMELENGTH without SERVERNAME"),
+                     ("EXTRACT TCPIP PORTNUMBER(WS-P)", "5 characters are padded"),
+                     ("EXTRACT TCPIP CLNTADDR6NU(WS-P)", "IPv6"),
+                     ("EXTRACT TCPIP AUTHENTICATE(WS-P)", "authentication"),
+                     ("EXTRACT TCPIP TCPIPSERVICE(WS-P)", "TCPIPSERVICE definition"),
+                     ("EXTRACT TCPIP CLIENTADDR('1.2.3.4') CADDRLENGTH(WS-L)", "as a literal")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_the_tcpip_connection_is_stated_alike_on_both_sides():
+    """#4972 (register X38): a case's "tcpip" (the scenario's first) is checked and written for the stub, the names as hex in the
+    data's page ('-' for a name the DNS does not know), and handed to CicsTask.withTcpip."""
+    conn = {"client_addr": "10.1.2.3", "client_name": "client.example", "server_addr": "10.9.8.7", "server_name": None,
+            "port": 8080, "ssl_type": "SSL"}  # fmt: skip
+    assert ec.tcpip({"tcpip": conn}, {"name": "s"}) == conn
+    assert ec.tcpip({}, {"name": "s"}) is None
+    assert ec.tcpip({"tcpip": conn}, {"name": "s", "tcpip": {**conn, "ssl_type": "NOSSL"}})["ssl_type"] == "NOSSL"
+    for broken in ({**conn, "port": 0}, {**conn, "ssl_type": "TLS"}, {**conn, "client_addr": ""}, {**conn, "extra": 1},
+                   {**conn, "server_name": "a b"}, {**conn, "port": "80"}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="tcpip"):
+            ec.tcpip({"tcpip": broken}, {"name": "s"})
+    assert ec.tcpip_cfg(conn, "latin-1") == f"T 10.1.2.3 {b'client.example'.hex().upper()} 10.9.8.7 - 8080 SSL\n"
+    assert 'task.withTcpip(new CicsTask.Tcpip(q.get("client_addr")' in Path(ec.__file__).read_text(encoding="utf-8")

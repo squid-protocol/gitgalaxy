@@ -1498,8 +1498,13 @@ class Cics:
             return f"{ind}    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({value})", False)
 
         args = ", ".join(f"{length(a, n)}, {cap(a)}" for a, n, _ in pieces)
-        flags = ", ".join(str(o in opts).lower() for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY"))
-        out = [f"{ind}CicsTask.TcpipExtracted {r} = task.extractTcpip({args}, {flags});", f"{ind}if ({r}.resp() == 0) {{"]
+        flags = ", ".join(
+            str(o in opts).lower() for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY")
+        )
+        out = [
+            f"{ind}CicsTask.TcpipExtracted {r} = task.extractTcpip({args}, {flags});",
+            f"{ind}if ({r}.resp() == 0) {{",
+        ]
         for a, n, piece in pieces:
             if a in opts:
                 f = self.field(_arg(opts[a]))

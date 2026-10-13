@@ -856,9 +856,7 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 
 
-def _web_extract(
-    opts: dict[str, str | None], labels: list[str] | None, key: str = "WEB EXTRACT"
-) -> list[str]:
+def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str = "WEB EXTRACT") -> list[str]:
     """#4767 zECS (register X38): WEB EXTRACT (server) -> GGCWEXT (HOSTLENGTH / METHODLENGTH / VERSIONLEN / PATHLENGTH /
     QUERYSTRLEN in GG-LEN / GG-HOURS / GG-MINS / GG-SECS / GG-ITEM, each moved back as the piece's length; GG-FLAGS names HOST
     METHOD VERSION PATH QUERY given; the stub writes the pieces, the port in GG-NUM and the scheme in GG-NAME1), then on NORMAL
@@ -931,8 +929,14 @@ def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> lis
     back = [f"    MOVE {gg} TO {opts[n]}" for a, n, gg, _ in pieces if n in opts and a in opts]
     for o, token in (("CLIENTADDRNU", "CNU"), ("SERVERADDRNU", "SNU"), ("PORTNUMNU", "PORT"), ("SSLTYPE", "SSL")):
         if opts.get(o):
-            back += [f"    MOVE '{token}' TO GG-FLAGS", "    CALL 'GGCTCPN' USING GG-CICS", f"    MOVE GG-NUM TO {opts[o]}"]
-    back += [f"    MOVE 300 TO {opts[o]}" for o in ("CLNTIPFAMILY", "SRVRIPFAMILY") if opts.get(o)]  # (IPV4: IPv6 is refused)
+            back += [
+                f"    MOVE '{token}' TO GG-FLAGS",
+                "    CALL 'GGCTCPN' USING GG-CICS",
+                f"    MOVE GG-NUM TO {opts[o]}",
+            ]
+    back += [
+        f"    MOVE 300 TO {opts[o]}" for o in ("CLNTIPFAMILY", "SRVRIPFAMILY") if opts.get(o)
+    ]  # (IPV4: IPv6 is refused)
     after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
     return lines + _call("GGCTCPX", args) + after + _resp(opts, True, labels)
 

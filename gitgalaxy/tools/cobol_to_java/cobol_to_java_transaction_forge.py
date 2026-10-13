@@ -1403,12 +1403,8 @@ public class CicsTask {
         if (tooSmall) {
             throw refused("EXTRACT TCPIP");
         }
-        int ssl = switch (t.sslType()) {
-            case "SSL" -> 1030;
-            case "NOSSL" -> 1031;
-            case "CLIENTAUTH" -> 1032;
-            default -> 1205;
-        };
+        int ssl = "SSL".equals(t.sslType()) ? 1030 : "NOSSL".equals(t.sslType()) ? 1031
+                : "CLIENTAUTH".equals(t.sslType()) ? 1032 : 1205;  // (ATTLSAWARE)
         return new TcpipExtracted(0, 0, t.clientAddr(), clientName, t.serverAddr(), serverName, (int) cNum, (int) sNum,
                 t.port(), ssl);
     }

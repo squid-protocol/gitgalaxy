@@ -974,7 +974,8 @@ _RESP_SAMPLES = {
     "WEB CONVERSE": "WEB CONVERSE SESSTOKEN(KEY) METHOD(10) INTO(REC) MAXLENGTH(10)",
     "WEB PARSE URL": "WEB PARSE URL(REC) URLLENGTH(R) HOST(REC) HOSTLENGTH(R2)",
     "WEB SEND": "WEB SEND FROM(REC) FROMLENGTH(R) ACTION(R2)",
-    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
+    "WEB EXTRACT": "WEB EXTRACT HOST(REC) HOSTLENGTH(R)", "EXTRACT WEB": "EXTRACT WEB HOST(REC) HOSTLENGTH(R)",
+    "EXTRACT TCPIP": "EXTRACT TCPIP CLIENTADDR(REC) CADDRLENGTH(R)", "WEB RECEIVE": "WEB RECEIVE INTO(REC) MAXLENGTH(R)",
     "WEB READ HTTPHEADER": "WEB READ HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
     "WEB WRITE HTTPHEADER": "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2)",
     "WEB RETRIEVE": "WEB RETRIEVE DOCTOKEN(REC)",
@@ -3204,3 +3205,59 @@ def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
     for extra in ("SESSTOKEN(KEY)", "FROM(REC)", "ACTION(R)", "DOCSTATUS(R)", "INTO(REC)", "MEDIATYPE(REC)"):
         with pytest.raises(C.CicsError):
             c.command(f"WEB RETRIEVE DOCTOKEN(REC) {extra}", "")
+
+
+def test_extract_web_is_web_extract():
+    """#4972 (register X38): IBM's EXTRACT WEB is "a synonym of WEB EXTRACT" -- the same options, the same CicsTask.webExtract
+    call and writes, the same refusals (the messages name the form the program wrote)."""
+    c = _ChanCics()
+    opts = ("SCHEME(R) HOST(REC) HOSTLENGTH(R2) HTTPMETHOD(REC) METHODLENGTH(R) HTTPVERSION(REC) VERSIONLEN(R) PATH(REC) "
+            "PATHLENGTH(R) PORTNUMBER(R) QUERYSTRING(REC) QUERYSTRLEN(R) REQUESTTYPE(R2) NOHANDLE")  # fmt: skip
+    old = c.command(f"WEB EXTRACT {opts}", "")
+    new = c.command(f"EXTRACT WEB {opts}", "")
+    assert [re.sub(r"web\d+", "web", ln) for ln in new] == [re.sub(r"web\d+", "web", ln) for ln in old]
+    for form in ("HOST(REC)", "HTTPMETHOD(REC)", "HTTPVERSION(REC)", "PATH(REC)", "QUERYSTRING(REC)", "HOSTLENGTH(R)",
+                 "SESSTOKEN(KEY)", "HOSTTYPE(R)", "URIMAP(REC)", "REALM(REC)", "REALMLEN(R)"):  # fmt: skip
+        with pytest.raises(C.CicsError) as want:
+            c.command(f"WEB EXTRACT {form}", "")
+        with pytest.raises(C.CicsError) as got:
+            c.command(f"EXTRACT WEB {form}", "")
+        assert str(got.value).replace("EXTRACT WEB", "WEB EXTRACT") == str(want.value), form
+
+
+def test_extract_tcpip_reads_the_stated_connection():
+    """#4972 (register X38), IBM EXTRACT TCPIP: CicsTask.extractTcpip takes each address / name area's length option (0 when the
+    area is given without its length option: LENGERR RESP2 1) and its area's size, then which numbers are asked for; on NORMAL
+    only the bytes, the lengths, the address numbers, the IPv4 family (300), the port and the SSL type's CVDA are written. The
+    character port, the IPv6 forms and the TCPIPSERVICE's own settings are refused by name."""
+    c = _ChanCics()
+    w = c.command(
+        "EXTRACT TCPIP CLIENTADDR(REC) CADDRLENGTH(R) CLIENTADDRNU(R2) PORTNUMNU(R2) SSLTYPE(R2) CLNTIPFAMILY(R) NOHANDLE",
+        "",
+    )
+    assert w[0].startswith("CicsTask.TcpipExtracted tcp") and ".extractTcpip(Integer.valueOf(" in w[0]
+    assert (
+        ", 56, null, 0, null, 0, null, 0, true, false, true, false);" in w[0]
+    )  # (the client address number and family)
+    body = " ".join(w)
+    assert ".resp() == 0) {" in body and ".clientAddr().getBytes(CS)" in body and ".clientAddr().length()" in body
+    assert ".clientNu()" in body and ".port()" in body and ".ssl()" in body and "valueOf(300)" in body
+    missing = c.command("EXTRACT TCPIP SERVERNAME(REC) NOHANDLE", "")
+    assert ".extractTcpip(null, 0, null, 0, null, 0, Integer.valueOf(0), 56, false, false, false, false);" in missing[0]
+    for ok in ("CLIENTNAME(REC) CNAMELENGTH(R)", "SERVERADDR(REC) SADDRLENGTH(R) SERVERADDRNU(R2) SRVRIPFAMILY(R2)",
+               "SERVERNAME(REC) SNAMELENGTH(R)", "PORTNUMNU(R)", "SSLTYPE(R)", "NOHANDLE"):  # fmt: skip
+        assert c.command(f"EXTRACT TCPIP {ok}", "")[0].startswith("CicsTask.TcpipExtracted tcp")
+    for bad, why in (("CADDRLENGTH(R)", "CADDRLENGTH without CLIENTADDR"),
+                     ("CNAMELENGTH(R)", "CNAMELENGTH without CLIENTNAME"),
+                     ("SADDRLENGTH(R)", "SADDRLENGTH without SERVERADDR"),
+                     ("SNAMELENGTH(R)", "SNAMELENGTH without SERVERNAME"),
+                     ("PORTNUMBER(REC)", "5 characters are padded"),
+                     ("CLNTADDR6NU(REC)", "IPv6"),
+                     ("SRVRADDR6NU(REC)", "IPv6"),
+                     ("AUTHENTICATE(R)", "authentication"),
+                     ("TCPIPSERVICE(REC)", "TCPIPSERVICE definition"),
+                     ("PRIVACY(R)", "TCPIPSERVICE definition"),
+                     ("MAXDATALEN(R)", "TCPIPSERVICE definition"),
+                     ("TERMINAL(REC)", "only CLIENTADDR")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            c.command(f"EXTRACT TCPIP {bad}", "")

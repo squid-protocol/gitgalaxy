@@ -40,7 +40,9 @@ _TWO = "EXTRACT TCPIP with more than one condition at once"
 def _ipv4(addr: str) -> int:
     """The address as a number, -1 when it is not four decimal parts 0-255 without a leading zero."""
     parts = addr.split(".")
-    if len(parts) != 4 or any(not (p.isdigit() and p.isascii()) or len(p) > 3 or (len(p) > 1 and p[0] == "0") for p in parts):
+    if len(parts) != 4 or any(
+        not (p.isdigit() and p.isascii()) or len(p) > 3 or (len(p) > 1 and p[0] == "0") for p in parts
+    ):
         return -1
     if any(int(p) > 255 for p in parts):
         return -1
@@ -175,7 +177,12 @@ def test_the_stub_extracts_the_stated_connection(tmp_path):
     for fixture in _FIXTURES:
         cfg = tmp_path / f"tcpip-{fixture}.cfg"
         cfg.write_text(_cfg(fixture), encoding="ascii")
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path), "GGCICS_TCPIP": str(cfg)}
+        env = {
+            "PATH": "/usr/bin:/bin",
+            "GGCICS_DIR": str(tmp_path),
+            "GGCICS_OUT": str(tmp_path),
+            "GGCICS_TCPIP": str(cfg),
+        }
         steps = _steps(fixture)
         answers = {s: _reference(fixture, s) for s in steps}
         normal = [s for s in steps if not answers[s].startswith("refused")]
@@ -184,7 +191,9 @@ def test_the_stub_extracts_the_stated_connection(tmp_path):
         for s in steps:
             if answers[s].startswith("refused"):
                 bad = subprocess.run([str(exe), s], env=env, capture_output=True, text=True, check=False)  # noqa: S603
-                assert bad.returncode == 98 and bad.stdout == answers[s].removeprefix("refused ") + ": not modelled\n", (
+                assert (
+                    bad.returncode == 98 and bad.stdout == answers[s].removeprefix("refused ") + ": not modelled\n"
+                ), (
                     fixture,
                     s,
                     bad.stdout,
@@ -242,7 +251,7 @@ def test_cics_task_extracts_the_stated_connection_as_the_stub_does(tmp_path):
         steps = _steps(fixture)
         parts.append(
             f"{{ CicsTask t = task({_java_str(ca)}, {_java_str(cn)}, {_java_str(sa)}, {_java_str(sn)}, {port}, "
-            f'{_java_str(ssl)});\n for (String s : new String[] {{{", ".join(_java_str(s) for s in steps)}}}) {{\n'
+            f"{_java_str(ssl)});\n for (String s : new String[] {{{', '.join(_java_str(s) for s in steps)}}}) {{\n"
             ' try { step(t, s); } catch (UnsupportedOperationException e) { System.out.println("refused " + e.getMessage()); }\n'
             "} }"
         )

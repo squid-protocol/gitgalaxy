@@ -1182,6 +1182,9 @@ def test_web_send_becomes_a_stub_call():
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
     dd = ec.translate_command("WEB SEND DOCTOKEN(WS-D) MEDIATYPE(WS-M) ACTION(WS-A) STATUSCODE(WS-S) NOHANDLE")
     at = dd.index("CALL 'GGCWSDC' USING GG-CICS")  # (#4767: the response is the document the token names)
+    assert "MOVE 0 TO GG-SECS" in dd[:at]  # (#4941 X37: DOCSTATUS not given)
+    ds = ec.translate_command("WEB SEND DOCTOKEN(WS-D) ACTION(WS-A) DOCSTATUS(WS-X) NOHANDLE")
+    assert "MOVE WS-X TO GG-SECS" in ds[: ds.index("CALL 'GGCWSDC' USING GG-CICS")]
     assert dd[0] == "MOVE 0 TO GG-LEN" and dd[at + 1 : at + 3] == [
         "    BY REFERENCE WS-D",
         "    BY VALUE LENGTH OF WS-D",
@@ -1189,7 +1192,7 @@ def test_web_send_becomes_a_stub_call():
     for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
-                     ("WEB SEND DOCTOKEN(WS-D) DOCSTATUS(WS-X)", "after it is sent"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCSTATUS(WS-X)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
@@ -1994,10 +1997,10 @@ def test_send_and_receive_map_leave_the_program_on_the_abm0_abend_x31():
 
 
 def test_web_retrieve_becomes_a_stub_call_and_refuses_every_other_option():
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV with no argument (the stub writes no DOCTOKEN); DOCTOKEN is
-    required, a literal is refused, and every other option is refused by name."""
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV with the area and its length (the stub writes the DOCTOKEN
+    on NORMAL only); DOCTOKEN is required, a literal is refused, and every other option is refused by name."""
     r = ec.translate_command("WEB RETRIEVE DOCTOKEN(WS-T) NOHANDLE")
-    assert r[0] == "CALL 'GGCWRTV' USING GG-CICS" and "WS-T" not in "".join(r)
+    assert r[:3] == ["CALL 'GGCWRTV' USING GG-CICS", "    BY REFERENCE WS-T", "    BY VALUE LENGTH OF WS-T"]
     with pytest.raises(ec.Unsupported, match="DOCTOKEN"):
         ec.translate_command("WEB RETRIEVE NOHANDLE")
     with pytest.raises(ec.Unsupported, match="literal"):

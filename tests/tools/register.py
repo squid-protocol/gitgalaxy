@@ -8,10 +8,14 @@ Source of truth: ``docs/language_status/register/``
   _parts/*.md    the page's prose, verbatim (intro, pins, status key, section headings, Method tail ...)
   _layout.json   the order of the page: parts, the summary table, and where each family's entries go
 
-Generated: ``docs/language_status/oracle_assumptions.md`` (do not edit by hand).
+Generated: ``docs/language_status/oracle_assumptions.md`` -- git-ignored, never committed (#5057: every PR that added
+an entry re-rendered and committed it, and parallel PRs conflicted on it). generated-docs.yml renders it from main
+after each merge and publishes it to the `generated` branch:
+  https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md
+A PR commits entry files only; its CI renders the page and shows the diff (tests/tools/generated_docs.py).
 
-  register.py render           write the combined page
-  register.py --check          exit 1 if the combined page is stale or the register is inconsistent (CI)
+  register.py render           write the combined page into the working tree (local reading)
+  register.py --check          exit 1 if the register is inconsistent (the page does not render)
   register.py next FAMILY      the next free number in a family (C, D, F, X, L, A, Q, J, M), looking at this
                                tree, origin/main and the remote branches; take it when the issue is filed
   register.py new ID           write a skeleton entry file for an ID
@@ -108,18 +112,13 @@ def render() -> str:
 
 
 def check() -> list[str]:
-    problems: list[str] = []
+    """The register's problems: every entry parses and _layout.json places it (#5057: there is no committed page to
+    compare against any more)."""
     try:
-        want = render()
+        render()
     except (ValueError, OSError) as e:
         return [str(e)]
-    have = PAGE.read_text(encoding="utf-8") if PAGE.exists() else ""
-    if have != want:
-        problems.append(
-            "docs/language_status/oracle_assumptions.md is stale: run `python tests/tools/register.py render` "
-            "and commit it (edit the entry files under docs/language_status/register/, not the page)"
-        )
-    return problems
+    return []
 
 
 def _git(*args: str) -> str:
@@ -154,7 +153,7 @@ def new_entry(i: str) -> Path:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--check", action="store_true", help="fail if the combined page is stale")
+    ap.add_argument("--check", action="store_true", help="fail if the register is inconsistent")
     sub = ap.add_subparsers(dest="cmd")
     sub.add_parser("render")
     n = sub.add_parser("next")

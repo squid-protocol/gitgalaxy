@@ -23,7 +23,8 @@ name: Evidence Refresh
 # Earlier bot PRs failed twice: #4640 was opened against a feature branch (the base is now pinned to main) and #4649
 # went dirty while parallel PRs kept conflicting on the report (those PRs no longer commit it).
 #
-# #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md): rendered here, never in a PR.
+# #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md), never in a PR; since #5057
+# generated-docs.yml renders and publishes it after every merge (this job no longer touches it).
 # The det-sweep coverage ledger is one file per case (tests/equivalence/det_sweep_coverage/<CASE>.json), so a case PR and
 # this bot (or two case PRs) touch only the files of the cases they swept.
 #
@@ -970,15 +971,6 @@ jobs:
           path: gitgalaxy/docs/language_status/evidence_report
           retention-days: 1
 
-      - name: Re-render the CICS spec status page (#4789)
-        # Derived output like the report above: PRs no longer commit docs/language_status/cics_spec_status.md (parallel
-        # slices conflicted on it); it is rendered here from main's spec, translator, stub and cics_spec_status.json.
-        if: always()
-        continue-on-error: true  # a page that fails to render stays as main has it; it never holds back the records
-        run: |
-          cd gitgalaxy
-          python tests/tools/cics_spec_status.py render
-
       - name: Summary
         if: always()
         run: |
@@ -1028,13 +1020,12 @@ jobs:
             the records are rewritten from those runs (their pages are published from main to the `generated` branch by evidence-pages.yml, #4825). A proof that now fails is recorded as
             not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703) and published to the `generated` branch, not committed (#4963),
             the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/, one file per case: #4789) from the
-            sweep, and the CICS spec status page (docs/language_status/cics_spec_status.md, #4789) from main.
+            sweep. The CICS spec status page is published to the `generated` branch by generated-docs.yml (#5057).
             Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
           branch: auto/evidence-refresh${{ github.event_name != 'push' && '-full' || '' }}  # a lane's own branch (#4743)
           delete-branch: true
           add-paths: |
             tests/equivalence/det_sweep_coverage/*.json
-            docs/language_status/cics_spec_status.md
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
 

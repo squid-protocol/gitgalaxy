@@ -128,7 +128,7 @@ which generates CardDemo under 17 configs and runs the real Maven / Gradle build
   (`tests/equivalence/le/`), and Db2 for Linux standing in for Db2 for z/OS. An undocumented
   case is refused, not guessed. Every known or suspected difference from z/OS, and whether a
   proven program reaches it, is in the
-  [oracle-assumptions register](../../../docs/language_status/oracle_assumptions.md) (for example
+  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) (for example
   C9: a POINTER is 8 bytes here and 4 on z/OS; D1: text compares in ASCII order). Captured
   mainframe output as the oracle is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
 - **Data runs as ASCII pages** under GnuCOBOL. An EBCDIC data page cannot be run (#3815).

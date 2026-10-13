@@ -43,7 +43,7 @@ Traps `--check` exists for:
 - [ ] **Spec entry first** (`gitgalaxy/standards/cics`): promote the command's name-only entry to a full one
       (options, refusals with reasons and register, groups, outcomes with RESP2, facts); `det/cics.py` and the stub
       read it. The runtimes stay hand-written, and no crucible log is derived from the spec. Do not commit
-      `cics_spec_status.md` (#4789: the evidence-refresh bot renders it on main).
+      `cics_spec_status.md` (git-ignored; generated-docs.yml publishes it to `generated`, #5057).
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).
@@ -75,7 +75,7 @@ Traps `--check` exists for:
   - A divergence is a bug report against the runtime / translator, never a reason to edit the log.
 - [ ] **Refusals registered:** a new X-number: `register.py next X` (take it when the issue is filed), then one file
       `docs/language_status/register/Xnn.md` (front matter incl. the summary-table fields; body: ASSUMED / REFUSED, what
-      IBM says, which case proves it) and `register.py render`. Never edit `oracle_assumptions.md` by hand.
+      IBM says, which case proves it). `oracle_assumptions.md` is rendered, never committed (#5057).
 - [ ] **After survey:** `... survey --out $SCRATCH/s --label after --verb VERB`, then
       `$PY tests/tools/cics_census.py compare $SCRATCH/s --verb VERB`: per program translated / statements before ->
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the

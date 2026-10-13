@@ -98,7 +98,6 @@ from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa
 
 FORMAT = "gitgalaxy-evidence-report/1"
 OUT = REPO / "docs" / "language_status" / "evidence_report"
-REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
 CRUCIBLE_BASELINE = REPO / "tests" / "cics_crucible" / "baseline.json"
 CRUCIBLE_PIN = REPO / "tests" / "_cics_crucible_pin.py"
 PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597
@@ -145,10 +144,14 @@ def pct(n: int | None, d: int | None) -> float | None:
 
 
 # ---- repo-derived inputs -----------------------------------------------------------------------------------------
-def register(path: Path = REGISTER) -> dict[str, dict[str, str]]:
-    """oracle_assumptions.md's summary table: id -> {area, entry, status} (the register's own words)."""
+def register(path: Path | None = None) -> dict[str, dict[str, str]]:
+    """oracle_assumptions.md's summary table: id -> {area, entry, status} (the register's own words). #5057: the page
+    is not committed, so it is rendered from the register's entry files unless a rendered `path` is given."""
+    import register as oracle_register  # tests/tools/register.py
+
+    text = path.read_text("utf-8") if path else oracle_register.render()
     out = {}
-    for m in re.finditer(r"^\| ([A-Z]\d+) \| ([^|]*) \| (.*) \| ([^|]*) \| ([^|]*) \|$", path.read_text("utf-8"), re.M):
+    for m in re.finditer(r"^\| ([A-Z]\d+) \| ([^|]*) \| (.*) \| ([^|]*) \| ([^|]*) \|$", text, re.M):
         out[m.group(1)] = {
             "area": m.group(2).strip(),
             "entry": neutral(m.group(3).strip()),

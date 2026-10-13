@@ -11,7 +11,7 @@ description: "Charter (#4722): what 'done' means for a COBOL/CICS/Db2 migration 
 **In scope:** COBOL programs, with the CICS commands and Db2 SQL they use, and batch file I/O, on IBM z/OS, under
 the compile and runtime options recorded for each estate (`tests/equivalence/estate_options/<estate>.json`, #4704).
 The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, IDCAMS, IEBGENER, DFSORT) are *not* run
-([register](oracle_assumptions.md) F4): the generated job refuses them by name.
+([register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) F4): the generated job refuses them by name.
 
 **Out of scope or parked** (state of 2026-10-09; recheck before quoting):
 
@@ -51,7 +51,7 @@ A level marked `*` is **stale**: last measured against an earlier harness or ora
 An estate is done when all of the following hold:
 
 1. Every program the customer wants migrated is at its promised level, or on an agreed refusal list (section 2).
-2. **Every oracle caveat the estate relies on is listed; DIFFERS entries it reaches are accepted by the customer, ASSUMED ones disclosed.** The register ([oracle_assumptions.md](oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
+2. **Every oracle caveat the estate relies on is listed; DIFFERS entries it reaches are accepted by the customer, ASSUMED ones disclosed.** The register ([oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
 3. **Options are recorded with provenance, and the customer confirms every assumed one in writing (#4709).** Compiler and runtime options per estate come from the estate's own build files where they exist and are marked `assumed: IBM default` where they do not (`estate_options/*.json`: each value carries `source`, `quote`, `note`). The evidence report shows each program's effective options and provenance (#4708, in review as PR #4775). What to request, and what is assumed when it is missing: [estate_intake.md](estate_intake.md); `tests/tools/estate_intake.py <estate>` writes the customer's confirmation list.
 4. **Evidence is current at release.** The release job runs `evidence_report.py --check --live` (publish.yml); a tag fails while the committed report differs from the repo or any level is stale. The Evidence Refresh bot regenerates reports on main.
 5. **Declared differences are listed and approved.** The machinery is #4051 (none exist yet). The owner approves the difference class; each one is listed in the customer's evidence report.

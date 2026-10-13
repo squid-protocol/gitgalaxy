@@ -126,6 +126,24 @@ def test_the_facade_keeps_its_signature_and_adds_the_bytes_overload_4870():
     assert "public PcconfWsState handleTransaction(String transid, Object request, byte[] area) {" in svc["PCCONF"]
 
 
+def test_the_contract_regex_reads_the_dto_overload_never_the_bytes_one_4965():
+    """#4965: det/cics.py target_contract (and Generated.__init__) read the DTO overload only, so the byte-carrying
+    handleTransaction beside it -- with a DTO, or a DTO-less (String, byte[]) -- must never match."""
+    import re as _re
+
+    pat = r"handleTransaction\(String transid, (\w+) request\)"
+    dto = "public X handleTransaction(String transid, X request) {}\npublic X handleTransaction(String transid, X request, byte[] area) {}"
+    assert _re.findall(pat, dto) == ["X"]
+    assert (
+        _re.findall(
+            pat,
+            "public void handleTransaction(String transid) {}\n"
+            "public void handleTransaction(String transid, byte[] area) {}",
+        )
+        == []
+    )
+
+
 def test_det_facades_rebuild_both_overloads_and_the_tagged_helpers_4870():
     _, svc = _wizard()
     from gitgalaxy.tools.cobol_to_java.det.program import facades

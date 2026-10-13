@@ -737,6 +737,9 @@ class EquivalenceRunTest {
         int issued;
         String pending;
         Object pendingCa;
+        byte[] pendingBytes;  // #4965: the bytes the last RETURN TRANSID passed on (lastAnswerBytes), for the next task
+        byte[] inBytes;  // ... handed to the task about to start
+        byte[] answered;  // ... and what the task that just ran answered (null: none)
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
@@ -771,6 +774,7 @@ class EquivalenceRunTest {
                     trigger.put("event", im.get("event"));
                     Map<String, Object> f = frame(terminal, trigger, null);
                     f.put("startcode", "TD");  // IBM: "appears to the operator as having been started by terminal data"
+                    inBytes = (byte[]) im.get("bytes");
                     runOne(f, (String) im.get("transid"), im.get("commarea"), (Integer) im.get("length"), null, List.of());
                     continue;
                 }
@@ -816,7 +820,9 @@ class EquivalenceRunTest {
                     String transid = pending;
                     Object commarea = pendingCa;
                     Integer calen = pendingLen;
+                    byte[] bytes = pendingBytes;
                     if (transid == null) {
+                        bytes = null;
                         String text = step.path("text").asText("").trim();
                         if (text.isEmpty()) {
                             stopped = "step " + n + ": no pending RETURN TRANSID and no transaction id typed";
@@ -831,6 +837,7 @@ class EquivalenceRunTest {
                     trigger.put("step", n);
                     Map<String, Object> f = frame(terminal, trigger, step.get("aid").asText());
                     f.put("startcode", "TD");  // #4270 slice 3: "Terminal input or permanent transid"
+                    inBytes = bytes;
                     runOne(f, transid, commarea, calen, step, List.of());
                     continue;
                 }
@@ -863,6 +870,7 @@ class EquivalenceRunTest {
                 List<CicsTask.StartData> data) {
             String program = plan.path("transactions").path(transid).asText(null);
             Map<String, Object> task = new LinkedHashMap<>(frame);
+            answered = null;
             task.remove("startcode");
             task.put("transid", transid);
             task.put("program", program);
@@ -1001,6 +1009,10 @@ class EquivalenceRunTest {
                     if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
                         end = "abend";
                     }
+                    if ("RETURN".equals(e.get("event")) && !e.containsKey("level") && e.get("commarea") != null
+                            && answered != null) {  // #4965: the bytes lastAnswerBytes() answered for this RETURN
+                        copy.put("answer_bytes", java.util.Base64.getEncoder().encodeToString(answered));
+                    }
                     events.add(copy);
                 }
                 if (thrown != null) {
@@ -1066,23 +1078,39 @@ class EquivalenceRunTest {
                 }
             }
 
-            /** The task's first program, entered through its service's handleTransaction (else runTask). */
+            /** The task's first program, entered through its service's handleTransaction (else runTask). #4965: by
+             *  the byte-carrying overload when the service has one -- the previous task's RETURN bytes in, the bytes
+             *  this task's RETURN passes on out (lastAnswerBytes()) -- else by the DTO one. */
             void start(CicsTask t, String program, Object commarea) {
                 Object service = service(plan, program);
-                Method one = method(service, "handleTransaction", 1);
-                Method two = method(service, "handleTransaction", 2);
-                if (one == null && two == null) {
+                Method one = facade(service, "handleTransaction", 1, false);
+                Method two = facade(service, "handleTransaction", 2, false);
+                Method oneB = facade(service, "handleTransaction", 2, true);
+                Method twoB = facade(service, "handleTransaction", 3, true);
+                if (one == null && two == null && oneB == null && twoB == null) {
                     entry(program, "runTask");
                     t.run(program);
                     return;
                 }
+                byte[] in = inBytes;
+                inBytes = null;
                 scenarioTask = t;
                 scenarioProgram = program;
                 top = t;
-                entry(program, "handleTransaction");
-                if (commarea == null && one != null) {
+                Method used = null;
+                if (commarea == null && oneB != null) {
+                    used = oneB;
+                    entry(program, "handleTransaction");
+                    invoke(oneB, service, t.transid(), in);
+                } else if (twoB != null && (commarea == null || twoB.getParameterTypes()[1].isInstance(commarea))) {
+                    used = twoB;
+                    entry(program, "handleTransaction");
+                    invoke(twoB, service, t.transid(), commarea, in);
+                } else if (commarea == null && one != null) {
+                    entry(program, "handleTransaction");
                     invoke(one, service, t.transid());
                 } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
+                    entry(program, "handleTransaction");
                     invoke(two, service, t.transid(), commarea);
                 } else {
                     throw new IllegalStateException("handleTransaction of " + program + " cannot take the COMMAREA ("
@@ -1091,6 +1119,19 @@ class EquivalenceRunTest {
                 if (top != null) {
                     throw new IllegalStateException("handleTransaction of " + program
                             + " did not run its task in the region");
+                }
+                if (used != null) {
+                    Method a0 = null;
+                    for (Method m : service.getClass().getMethods()) {
+                        if (m.getName().equals("lastAnswerBytes") && m.getParameterCount() == 0) {
+                            a0 = m;
+                        }
+                    }
+                    if (a0 == null) {
+                        throw new IllegalStateException("handleTransaction (bytes) of " + program
+                                + " has no lastAnswerBytes()");
+                    }
+                    answered = (byte[]) invoke(a0, service);
                 }
             }
 
@@ -1186,6 +1227,7 @@ class EquivalenceRunTest {
                         immediate.put("transid", transid);
                         immediate.put("commarea", commarea);
                         immediate.put("length", length);
+                        immediate.put("bytes", abended ? null : answered);
                         immediate.put("task", tasks.size());
                         immediate.put("event", j);
                         transid = null;  // not the terminal's next input
@@ -1196,6 +1238,7 @@ class EquivalenceRunTest {
                 pending = abended ? null : transid;
                 pendingCa = abended || transid == null ? null : commarea;
                 pendingLen = abended || transid == null ? null : length;
+                pendingBytes = abended || transid == null ? null : answered;
             }
         }
     }
@@ -1240,6 +1283,21 @@ class EquivalenceRunTest {
         }
         for (Method m : service.getClass().getMethods()) {
             if (m.getName().equals(name) && m.getParameterCount() == params) {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    /** #4965: the overload of `name` with `params` parameters that does (bytes) or does not end in the raw
+     *  COMMAREA bytes (byte[]): `handleTransaction(String, byte[])` is not the DTO-less `(String, T)`. */
+    static Method facade(Object service, String name, int params, boolean bytes) {
+        if (service == null) {
+            return null;
+        }
+        for (Method m : service.getClass().getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == params
+                    && (m.getParameterTypes()[params - 1] == byte[].class) == bytes) {
                 return m;
             }
         }
@@ -1474,6 +1532,16 @@ def _java_area(desc: dict[str, Any] | None, src: Path, shapes: dict[str, Any],
     return cc.FieldArea(values, cc.FULL if length is None else length, data, known)
 
 
+def _with_answered_bytes(area: Any, answer: str | None) -> Any:
+    """#4965: the bytes the byte-carrying handleTransaction answered (lastAnswerBytes()) are the RETURN's COMMAREA
+    bytes -- every one, a numeric DISPLAY field holding spaces too, which the DTO cannot carry -- so they, not the
+    bytes encoded from the DTO, are what the log's hex / text / layout is compared with."""
+    if answer is None or not isinstance(area, cc.FieldArea):
+        return area
+    data = base64.b64decode(answer)
+    return dataclasses.replace(area, data=data, known=len(data))
+
+
 def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], Any]:
     """#4001: what BMS sends for a CicsTask SEND-MAP event -- the screen's values as each field's
     data (EBCDIC), its subfields' attribute / colour / highlight bytes and lengths -- resolved from
@@ -1545,7 +1613,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                                                                        e.get("length")))  # fmt: skip
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
-                          commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
+                          commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),
+                                                        e.get("answer_bytes")))  # fmt: skip
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
             elif kind == "LINK":

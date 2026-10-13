@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Cousr01cService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D1 = new BigDecimal("1");
@@ -669,11 +669,28 @@ public class Cousr01cService {
         return task.returned(Object.class);
     }
 
+    public Object handleTransaction(String transid, CarddemoCommarea request, byte[] area) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request, area);
+        region.run(task, "COUSR01C", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+        return task.returned(Object.class);
+    }
+
     public CarddemoCommarea handleLink(CarddemoCommarea request) {
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.linked("COUSR01C", request);
         region.run(task, "COUSR01C", this::runTask);
         return request;
+    }
+
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
 
@@ -832,7 +849,7 @@ public class Cousr01cService {
         }
         // EXEC CICS RETURN TRANSID (WS-TRANID) COMMAREA (CARDDEMO-COMMAREA) END-EXEC
         caBack.run();
-        task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()), null);
+        task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f9_CARDDEMO_COMMAREA, 160).bytes);
         if (true) throw new Goback();
         return 1;
     }
@@ -922,10 +939,10 @@ public class Cousr01cService {
         // MOVE ZEROS TO CDEMO-PGM-CONTEXT
         Cobol.moveFigurative(Figurative.ZEROS, f17_CDEMO_PGM_CONTEXT, CS);
         // EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA(CARDDEMO-COMMAREA) END-EXEC
-        String xr1 = task.xctl(Cobol.text(f14_CDEMO_TO_PROGRAM, CS).strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()));
+        String xr1 = task.xctl(Cobol.text(f14_CDEMO_TO_PROGRAM, CS).strip(), out_CarddemoCommarea(f9_CARDDEMO_COMMAREA.storage(), f9_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f9_CARDDEMO_COMMAREA, 160).bytes);
         if ("NORMAL".equals(xr1)) throw new Goback();
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);
-        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(DetCics.xctlResp2(xr1)), false, CS);
+        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
         if (DetCics.resp(xr1) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(xr1)));
             if (to >= 0) return GOTO | to;
@@ -1065,9 +1082,9 @@ public class Cousr01cService {
         // EXEC CICS WRITE DATASET (WS-USRSEC-FILE) FROM (SEC-USER-DATA) LENGTH (LENGTH OF SEC-USER-DATA) RIDFLD (SEC-USR-ID) KEYLENGTH (LENGTH OF SEC-USR-ID) RE
         int resp8 = task.write(f5_WS_USRSEC_FILE.strip(), store(f5_WS_USRSEC_FILE.strip()).exists(DetCics.bytes(f226_SEC_USR_ID)), () -> store(f5_WS_USRSEC_FILE.strip()).store(DetCics.bytes(f225_SEC_USER_DATA, BigDecimal.valueOf(80).intValue())));
         Cobol.store(f368_EIBRESP, BigDecimal.valueOf(resp8), false, CS);
-        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f369_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         f7_WS_RESP_CD = Cobol.binary(BigDecimal.valueOf(resp8), 9, true, false, CS);
-        f8_WS_REAS_CD = Cobol.binary(BigDecimal.valueOf(0), 9, true, false, CS);
+        f8_WS_REAS_CD = Cobol.binary(BigDecimal.valueOf(task.resp2()), 9, true, false, CS);
         // EVALUATE WS-RESP-CD
         if ((f7_WS_RESP_CD == 0L)) {
             // PERFORM INITIALIZE-ALL-FIELDS

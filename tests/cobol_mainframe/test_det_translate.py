@@ -2857,7 +2857,7 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
         "String xr1 = task.xctl('XB'.strip(), DetCics.commareaOut(out_Dto(f_WS-BIG.storage(), "
         "f_WS-BIG.offset()), f_WS-BIG, INT(WS-BIGLEN), 80, CS), INT(WS-BIGLEN));"
     )
-    assert any("DetCics.xctlResp2(xr1)" in x for x in out)
+    assert any("task.transferResp2()" in x for x in out)
     within = c.command("XCTL PROGRAM('XB') COMMAREA(WS-V1) LENGTH(80)", "")
     # #4806: a DTO's XCTL passes the bytes it spans too: a det target's DFHCOMMAREA is them, not the DTO's reading
     assert "commareaOut" not in within[0] and within[0].endswith(", INT(80), Cobol.commarea(f_WS-V1, 80).bytes);")
@@ -2888,12 +2888,12 @@ def test_xctl_commarea_length_past_the_dto_passes_that_many_bytes():
 def test_link_resp2_follows_its_condition():
     """IBM, EXEC CICS LINK conditions: LENGERR RESP2 11 (COMMAREA length below 0 or above 32763), PGMIDERR RESP2 1 (no
     installed definition, autoinstall off) -- what CicsTask.link and the stub's GGCLINK raise. A failed LINK stored
-    RESP2 0; it is DetCics.linkResp2 of the condition now, as XCTL's (#4501)."""
+    RESP2 0; it is task.transferResp2() now (#4986: the event's RESP2, a planned fault's too), as XCTL's."""
     c = _OverCics()
     out = c.command("LINK PROGRAM('XB') COMMAREA(WS-V1) RESP(R) RESP2(R2)", "")
-    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), task.transferResp2());"
     out = c.command("LINK PROGRAM('XB')", "")
-    assert out[-1].endswith(", DetCics.linkResp2(lr5));")
+    assert out[-1].endswith(", task.transferResp2());")
 
 
 def test_return_and_link_commarea_length_past_the_dto():
@@ -2948,7 +2948,6 @@ public class Main {
         w.bytes[0] = 'y';
         Cobol.commareaBack(w, tail);
         System.out.println(new String(ca.bytes, l1) + "|" + new String(ca.beyond, l1));
-        System.out.println(DetCics.linkResp2("LENGERR") + " " + DetCics.linkResp2("PGMIDERR") + " " + DetCics.linkResp2("NORMAL"));
     }
 }
 """
@@ -2963,7 +2962,7 @@ public class Main {
     assert built.returncode == 0, built.stderr
     out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
                          text=True, check=True).stdout.splitlines()  # fmt: skip
-    assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG", "11 1 0"]
+    assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 
 def test_link_to_a_target_no_dto_types_passes_the_bytes():
@@ -2980,7 +2979,7 @@ def test_link_to_a_target_no_dto_types_passes_the_bytes():
     assert out[:3] == ["Storage cw3 = Cobol.commarea(f_WS-V1, Math.max(0, Math.min(INT(100), 32763)));",
                        "String lr1 = task.link('CAGONE'.strip(), DetCics.commareaBytes(cw3.bytes, CS), INT(100), cw3.bytes);",
                        'if ("NORMAL".equals(lr1)) Cobol.commareaBack(cw3, f_WS-V1);']  # fmt: skip
-    assert out[-1] == "OUTCOME(DetCics.resp(lr1), DetCics.linkResp2(lr1));"
+    assert out[-1] == "OUTCOME(DetCics.resp(lr1), task.transferResp2());"
 
 
 def test_an_integer_literal_against_an_alphanumeric_item_keeps_its_leading_zeros(tmp_path):

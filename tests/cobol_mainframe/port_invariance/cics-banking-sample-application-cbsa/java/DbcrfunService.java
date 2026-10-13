@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DbcrfunService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D100 = new BigDecimal("100");
@@ -112,7 +112,11 @@ public class DbcrfunService {
     private static final byte[] IMAGE_s_DFHCOMMAREA = Base64.getDecoder().decode(String.join("",
             "ICAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAgICAgICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="));
     private static final byte[] IMAGE_s_DFHEIBLK = Base64.getDecoder().decode(String.join("",
             "AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA=="));
     private static final byte[] IMAGE_s_GG_RETURN_CODE = Base64.getDecoder().decode(String.join("",
@@ -752,7 +756,7 @@ public class DbcrfunService {
             if (true) return GOTO | 5;
         }
         // IF COMM-AMT < 0
-        if (Cobol.num(f213_COMM_AMT, CS).compareTo(D0) < 0) {
+        if (Cobol.cmpNum(f213_COMM_AMT, CS).compareTo(D0) < 0) {
             // IF (HV-ACCOUNT-ACC-TYPE = 'MORTGAGE' AND COMM-FACILTYPE = 496) OR (HV-ACCOUNT-ACC-TYPE = 'LOAN ' AND COMM-FACILTYPE = 496)
             if (((Cobol.compare(f9_HV_ACCOUNT_ACC_TYPE, "MORTGAGE", CS) == 0 && Cobol.num(f222_COMM_FACILTYPE, CS).compareTo(D496) == 0) || (Cobol.compare(f9_HV_ACCOUNT_ACC_TYPE, "LOAN    ", CS) == 0 && Cobol.num(f222_COMM_FACILTYPE, CS).compareTo(D496) == 0))) {
                 // MOVE 'N' TO COMM-SUCCESS
@@ -768,7 +772,7 @@ public class DbcrfunService {
             BigDecimal v3 = Cobol.num(f15_HV_ACCOUNT_AVAIL_BAL, CS).add(Cobol.num(f213_COMM_AMT, CS));
             Cobol.store(f210_WS_DIFFERENCE, v3, false, CS);
             // IF WS-DIFFERENCE < 0 AND COMM-FACILTYPE = 496
-            if ((Cobol.num(f210_WS_DIFFERENCE, CS).compareTo(D0) < 0 && Cobol.num(f222_COMM_FACILTYPE, CS).compareTo(D496) == 0)) {
+            if ((Cobol.cmpNum(f210_WS_DIFFERENCE, CS).compareTo(D0) < 0 && Cobol.num(f222_COMM_FACILTYPE, CS).compareTo(D496) == 0)) {
                 // MOVE 'N' TO COMM-SUCCESS
                 Cobol.move("N", f224_COMM_SUCCESS, CS);
                 // MOVE '3' TO COMM-FAIL-CODE
@@ -898,7 +902,7 @@ public class DbcrfunService {
         // MOVE SPACES TO HV-PROCTRAN-DESC
         Cobol.moveFigurative(Figurative.SPACES, f25_HV_PROCTRAN_DESC, CS);
         // IF COMM-AMT < 0
-        if (Cobol.num(f213_COMM_AMT, CS).compareTo(D0) < 0) {
+        if (Cobol.cmpNum(f213_COMM_AMT, CS).compareTo(D0) < 0) {
             // MOVE 'DEB' TO HV-PROCTRAN-TYPE
             Cobol.move("DEB", f24_HV_PROCTRAN_TYPE, CS);
             // MOVE 'COUNTER WTHDRW' TO HV-PROCTRAN-DESC
@@ -994,12 +998,15 @@ public class DbcrfunService {
                 Storage cw10 = Cobol.commarea(f195_ABNDINFO_REC, 681);
                 AbndprocDfhcommarea ca9 = out_AbndprocDfhcommarea(cw10, 0);
                 String lr8 = task.link(Cobol.text(f194_WS_ABEND_PGM, CS).strip(), ca9, 681, cw10.bytes);
-                if ("NORMAL".equals(lr8)) { in_AbndprocDfhcommarea(ca9, cw10, 0); Cobol.commareaBack(cw10, f195_ABNDINFO_REC); }
+                if ("NORMAL".equals(lr8)) {
+                    if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca9, cw10, 0); }
+                    Cobol.commareaBack(cw10, f195_ABNDINFO_REC);
+                }
                 String exit11 = task.abendExit();
                 if (exit11 != null) return GOTO | paragraph(exit11);
                 if (task.ended()) throw abended();
                 Cobol.store(f255_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);
-                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr8)), false, CS);
+                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
                 if (DetCics.resp(lr8) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr8)));
                     if (to >= 0) return GOTO | to;
@@ -1163,12 +1170,15 @@ public class DbcrfunService {
                 Storage cw15 = Cobol.commarea(f195_ABNDINFO_REC, 681);
                 AbndprocDfhcommarea ca14 = out_AbndprocDfhcommarea(cw15, 0);
                 String lr13 = task.link(Cobol.text(f194_WS_ABEND_PGM, CS).strip(), ca14, 681, cw15.bytes);
-                if ("NORMAL".equals(lr13)) { in_AbndprocDfhcommarea(ca14, cw15, 0); Cobol.commareaBack(cw15, f195_ABNDINFO_REC); }
+                if ("NORMAL".equals(lr13)) {
+                    if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca14, cw15, 0); }
+                    Cobol.commareaBack(cw15, f195_ABNDINFO_REC);
+                }
                 String exit16 = task.abendExit();
                 if (exit16 != null) return GOTO | paragraph(exit16);
                 if (task.ended()) throw abended();
                 Cobol.store(f255_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr13)), false, CS);
-                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr13)), false, CS);
+                Cobol.store(f256_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
                 if (DetCics.resp(lr13) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr13)));
                     if (to >= 0) return GOTO | to;

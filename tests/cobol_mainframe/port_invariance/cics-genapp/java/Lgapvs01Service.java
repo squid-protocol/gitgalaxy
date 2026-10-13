@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Lgapvs01Service {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D91 = new BigDecimal("91");
@@ -634,7 +634,7 @@ public class Lgapvs01Service {
         // Exec CICS Write File('KSDSPOLY') From(WF-Policy-Info) Length(64) Ridfld(WF-Policy-Key) KeyLength(21) RESP(WS-RESP) End-Exec
         int resp1 = task.write("KSDSPOLY".strip(), store("KSDSPOLY".strip()).exists(DetCics.bytes(f8_WF_POLICY_KEY)), () -> store("KSDSPOLY".strip()).store(DetCics.bytes(f7_WF_POLICY_INFO, 64)));
         Cobol.store(f171_EIBRESP, BigDecimal.valueOf(resp1), false, CS);
-        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp1), 8, true, false, CS);
         // If WS-RESP Not = DFHRESP(NORMAL)
         if (!(f1_WS_RESP == 0L)) {
@@ -683,12 +683,15 @@ public class Lgapvs01Service {
         Storage cw4 = Cobol.commarea(f37_ERROR_MSG, Math.max(99, Math.min(BigDecimal.valueOf(101).intValue(), 32763)));
         LgstsqDfhcommarea ca3 = out_LgstsqDfhcommarea(cw4, 0);
         String lr2 = task.link("LGSTSQ".strip(), ca3, BigDecimal.valueOf(101).intValue(), cw4.bytes);
-        if ("NORMAL".equals(lr2)) { in_LgstsqDfhcommarea(ca3, cw4, 0); Cobol.commareaBack(cw4, f37_ERROR_MSG); }
+        if ("NORMAL".equals(lr2)) {
+            if (!task.linkAreaBack()) { in_LgstsqDfhcommarea(ca3, cw4, 0); }
+            Cobol.commareaBack(cw4, f37_ERROR_MSG);
+        }
         String exit5 = task.abendExit();
         if (exit5 != null) return GOTO | paragraph(exit5);
         if (task.ended()) throw abended();
         Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr2)), false, CS);
-        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr2)), false, CS);
+        Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
         if (DetCics.resp(lr2) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(lr2)));
             if (to >= 0) return GOTO | to;
@@ -703,12 +706,15 @@ public class Lgapvs01Service {
                 Storage cw8 = Cobol.commarea(f52_CA_ERROR_MSG, 99);
                 LgstsqDfhcommarea ca7 = out_LgstsqDfhcommarea(cw8, 0);
                 String lr6 = task.link("LGSTSQ".strip(), ca7, BigDecimal.valueOf(99).intValue(), cw8.bytes);
-                if ("NORMAL".equals(lr6)) { in_LgstsqDfhcommarea(ca7, cw8, 0); Cobol.commareaBack(cw8, f52_CA_ERROR_MSG); }
+                if ("NORMAL".equals(lr6)) {
+                    if (!task.linkAreaBack()) { in_LgstsqDfhcommarea(ca7, cw8, 0); }
+                    Cobol.commareaBack(cw8, f52_CA_ERROR_MSG);
+                }
                 String exit9 = task.abendExit();
                 if (exit9 != null) return GOTO | paragraph(exit9);
                 if (task.ended()) throw abended();
                 Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr6)), false, CS);
-                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr6)), false, CS);
+                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
                 if (DetCics.resp(lr6) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr6)));
                     if (to >= 0) return GOTO | to;
@@ -720,12 +726,15 @@ public class Lgapvs01Service {
                 Storage cw12 = Cobol.commarea(f52_CA_ERROR_MSG, 99);
                 LgstsqDfhcommarea ca11 = out_LgstsqDfhcommarea(cw12, 0);
                 String lr10 = task.link("LGSTSQ".strip(), ca11, BigDecimal.valueOf(99).intValue(), cw12.bytes);
-                if ("NORMAL".equals(lr10)) { in_LgstsqDfhcommarea(ca11, cw12, 0); Cobol.commareaBack(cw12, f52_CA_ERROR_MSG); }
+                if ("NORMAL".equals(lr10)) {
+                    if (!task.linkAreaBack()) { in_LgstsqDfhcommarea(ca11, cw12, 0); }
+                    Cobol.commareaBack(cw12, f52_CA_ERROR_MSG);
+                }
                 String exit13 = task.abendExit();
                 if (exit13 != null) return GOTO | paragraph(exit13);
                 if (task.ended()) throw abended();
                 Cobol.store(f171_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr10)), false, CS);
-                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(DetCics.linkResp2(lr10)), false, CS);
+                Cobol.store(f172_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
                 if (DetCics.resp(lr10) != 0) {
                     int to = condition(DetCics.condition(DetCics.resp(lr10)));
                     if (to >= 0) return GOTO | to;

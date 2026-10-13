@@ -398,6 +398,14 @@ public class CicsTask {
         return level;
     }
 
+    private int transferResp2;  // #4986: the RESP2 of this program's last LINK / XCTL, as its event carries it
+
+    /** #4986: EIBRESP2 / RESP2 after this program's last LINK or XCTL: the event's, so a planned fault's (PGMIDERR
+     *  RESP2 3, NOTAUTH 101 ...) as well as the natural LENGERR 11 / PGMIDERR 1. */
+    public int transferResp2() {
+        return transferResp2;
+    }
+
     /** LINK PROGRAM(program) COMMAREA(commarea) LENGTH(length) (#4004, IBM EXEC CICS LINK): LENGERR (RESP2
      *  11) for a length outside 0-32763, PGMIDERR (RESP2 1) for a program the CSD does not define; else the
      *  program runs at the next level on `commarea` itself -- what it changes, the caller sees -- then any
@@ -431,6 +439,7 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
         event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
                 "resp2", resp2);
         if (area != null) {
@@ -4303,6 +4312,7 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: as LINK's
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CsutldtcService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
 
@@ -122,13 +122,30 @@ public class CsutldtcService {
         return Cobol.num(f40_GG_RETURN_CODE, CS).intValue();
     }
 
+    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)
+
+    /** #4778: the next handleCall's USING items as their caller's bytes too, one array per item, BY
+     *  REFERENCE: the program runs over them -- every byte, those no DTO property names too -- and leaves
+     *  its result there as well as in the objects. */
+    public void withCallAreas(byte[]... areas) {
+        this.callAreas = areas;
+    }
+
     public int handleCall(CobolRef<String> arg1, CobolRef<String> arg2, CobolRef<String> arg3) {
         boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)
         boolean pfdBefore = Cobol.swapNumprocPfd(false);  // NUMPROC(NOPFD)
         try {
-            Cobol.move(arg1.get() == null ? "" : arg1.get(), f37_LS_DATE, CS);
-            Cobol.move(arg2.get() == null ? "" : arg2.get(), f38_LS_DATE_FORMAT, CS);
-            Cobol.move(arg3.get() == null ? "" : arg3.get(), f39_LS_RESULT, CS);
+            byte[][] areas = callAreas;
+            callAreas = null;
+            if (areas != null) {
+                System.arraycopy(areas[0], 0, f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), Math.min(areas[0].length, f37_LS_DATE.length()));
+                System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));
+                System.arraycopy(areas[2], 0, f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), Math.min(areas[2].length, f39_LS_RESULT.length()));
+            } else {
+                Cobol.move(arg1.get() == null ? "" : arg1.get(), f37_LS_DATE, CS);
+                Cobol.move(arg2.get() == null ? "" : arg2.get(), f38_LS_DATE_FORMAT, CS);
+                Cobol.move(arg3.get() == null ? "" : arg3.get(), f39_LS_RESULT, CS);
+            }
             try {
                 perform(0, 2);
             } catch (Goback g) {
@@ -137,6 +154,11 @@ public class CsutldtcService {
             arg1.set(Cobol.text(f37_LS_DATE, CS));
             arg2.set(Cobol.text(f38_LS_DATE_FORMAT, CS));
             arg3.set(Cobol.text(f39_LS_RESULT, CS));
+            if (areas != null) {
+                System.arraycopy(f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), areas[0], 0, Math.min(areas[0].length, f37_LS_DATE.length()));
+                System.arraycopy(f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), areas[1], 0, Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));
+                System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));
+            }
             return Cobol.num(f40_GG_RETURN_CODE, CS).intValue();
         } finally {
             Cobol.swapTruncBinary(truncBefore);
@@ -328,30 +350,30 @@ public class CsutldtcService {
     }
 
     /** 88 FC-INVALID-DATE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidDate() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\000\000\000\000\000\000\000", CS) == 0; }
+    private boolean isFcInvalidDate() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\000\000\000\000\000\000\000", CS), CS) == 0; }
 
     /** 88 FC-INSUFFICIENT-DATA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\313Y\303\305\305", CS) == 0; }
+    private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\313Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-BAD-DATE-VALUE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcBadDateValue() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\314Y\303\305\305", CS) == 0; }
+    private boolean isFcBadDateValue() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\314Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-INVALID-ERA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\315Y\303\305\305", CS) == 0; }
+    private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\315Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-UNSUPP-RANGE of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\321Y\303\305\305", CS) == 0; }
+    private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\321Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-INVALID-MONTH of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\325Y\303\305\305", CS) == 0; }
+    private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\325Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-BAD-PIC-STRING of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\326Y\303\305\305", CS) == 0; }
+    private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\326Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-NON-NUMERIC-DATA of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcNonNumericData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\330Y\303\305\305", CS) == 0; }
+    private boolean isFcNonNumericData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\330Y\303\305\305", CS), CS) == 0; }
 
     /** 88 FC-YEAR-IN-ERA-ZERO of FEEDBACK-TOKEN-VALUE. */
-    private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, "\000\003\011\331Y\303\305\305", CS) == 0; }
+    private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex("\000\003\011\331Y\303\305\305", CS), CS) == 0; }
 
 }

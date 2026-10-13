@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Cbact03cService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D8 = new BigDecimal("8");
     private static final BigDecimal D12 = new BigDecimal("12");

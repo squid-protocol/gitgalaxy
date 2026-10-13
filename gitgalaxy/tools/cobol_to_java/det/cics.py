@@ -952,7 +952,7 @@ class Cics:
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
-            return out + self.outcome(opts, f"DetCics.resp({r})", f"DetCics.linkResp2({r})", ind)  # #4679
+            return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
@@ -1007,7 +1007,7 @@ class Cics:
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
-                    *self.outcome(opts, f"DetCics.resp({r})", f"DetCics.xctlResp2({r})", ind)])  # fmt: skip
+                    *self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):

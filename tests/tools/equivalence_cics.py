@@ -837,7 +837,9 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+        raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
+    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
@@ -848,6 +850,8 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    if "DOCTOKEN" in opts:  # #4941 (X37): DOCSTATUS's CVDA in GG-SECS (0: none; DOCDELETE 295, NODOCDELETE 296)
+        lines.append(f"MOVE {opts.get('DOCSTATUS') or '0'} TO GG-SECS")
     args = []
     for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
@@ -976,15 +980,16 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
 
 
 def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes no DOCTOKEN (the NORMAL outcome needs an
-    ACTION(EVENTUAL) document send, which WEB SEND refuses). The option rules as the det translator's."""
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes the DOCTOKEN of the last ACTION(EVENTUAL)
+    document send on NORMAL only. The option rules as the det translator's."""
     key = "WEB RETRIEVE"
     _check_spec(key, opts, ("WEB", "RETRIEVE"), lambda bad: [f"{key} {o}" for o in bad])
     if not opts.get("DOCTOKEN"):
         raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
     if _literal(opts["DOCTOKEN"]):
         raise Unsupported(f"{key} DOCTOKEN as a literal: a data area is the COBOL form", [key])
-    return _call("GGCWRTV", []) + _resp(opts, True, labels)
+    area = opts["DOCTOKEN"]
+    return _call("GGCWRTV", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
 
 
 def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:

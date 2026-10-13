@@ -976,8 +976,12 @@ public class CicsTask {
     }
 
     private HttpRequest httpRequest;
-    private boolean webSent;
-    private boolean webSendFailed;  // #4941: a WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webSent;  // an ACTION(IMMEDIATE) response was sent
+    private boolean webSendFailed;  // #4941: the last WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webIssued;  // a WEB SEND was accepted (IMMEDIATE or EVENTUAL)
+    private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
+    private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
+    private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
     private boolean webReceived;
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -1176,7 +1180,8 @@ public class CicsTask {
         if (fromLength > from.length() || (statusText != null && statusLength > statusText.length())) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv);
+        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv, false,
+                null, 0);
     }
 
     /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
@@ -1185,7 +1190,7 @@ public class CicsTask {
      *  document is no message body (ASSUMED: IBM does not say, and lists INVREQ RESP2 72 for 204 / 205 / 304 "with a body"), so
      *  a 204 may send one; `cs` is the program's character set. Refused as webSend does, and a token that names no document of the task. */
     public int[] webSendDocument(String doctoken, String mediaType, int action, int status, String statusText,
-                                 int statusLength, int conv, java.nio.charset.Charset cs) {
+                                 int statusLength, int conv, int docStatus, java.nio.charset.Charset cs) {
         CicsTask r = root();
         if (r.httpRequest == null) {
             throw refused("the HTTP request is not stated (withHttpRequest)");
@@ -1194,21 +1199,21 @@ public class CicsTask {
             throw refused("WEB SEND after a response was sent");
         }
         byte[] doc = r.documents.get(doctoken.stripTrailing());
-        if (doc == null) {
-            throw refused("WEB SEND DOCTOKEN of a document the task did not create");
-        }
         if ((statusText != null && statusLength == 0) || statusLength < -1) {
             throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
         }
         if (statusText != null && statusLength > statusText.length()) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(new String(doc, cs), mediaType, action, status,
-                statusText, statusLength, conv);
+        r.webDocToken = doctoken.stripTrailing();
+        return webSendBody(doc == null ? "" : new String(doc, cs), mediaType, action, status,
+                statusText, statusLength, conv, true, doc, docStatus);
     }
 
+    private String webDocToken;  // (the token webSendDocument is sending: webSendBody deletes its document on DOCDELETE)
+
     private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
-                              int statusLength, int conv) {
+                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus) {
         CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
@@ -1225,8 +1230,14 @@ public class CicsTask {
             throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (ofDocument && doc == null) {
+            c.add(new int[] {13, 1});  // the document has not been created, or has been deleted, or the name is wrong
+        }
         if (action != 0 && action != 2 && action != 3) {
             c.add(new int[] {16, 11});
+        }
+        if (ofDocument && docStatus != 0 && docStatus != 295 && docStatus != 296) {
+            c.add(new int[] {16, 143});
         }
         if ((status == 204 || status == 205 || status == 304) && !body.isEmpty()) {
             c.add(new int[] {16, 72});
@@ -1238,13 +1249,27 @@ public class CicsTask {
             r.webSendFailed = true;
             return c.get(0);
         }
-        if (action != 2) {
-            throw refused("WEB SEND ACTION not IMMEDIATE");
+        boolean eventual = action != 2;  // (an omitted ACTION is EVENTUAL for a send that is not chunked: IBM)
+        if (!eventual && r.webHeld != null) {
+            throw refused("WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send");
         }
         String st = statusText == null ? null : statusText.substring(0, statusLength < 0 ? statusText.length() : statusLength);
+        Object[] fields = {"status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt, "body", body,
+                "action", eventual ? "EVENTUAL" : "IMMEDIATE", "resp", 0, "resp2", 0};
+        r.webSendFailed = false;
+        r.webIssued = true;
+        if (ofDocument && docStatus == 295) {
+            r.documents.remove(r.webDocToken);  // DOCDELETE: deleted once its contents are saved for sending
+        }
+        if (eventual) {
+            r.webHeld = fields;  // sent at the end of the task; a second send replaces it
+            r.webHeldDoc = ofDocument && docStatus != 295 ? doc.clone() : null;
+            r.webHeldToken = null;
+            return new int[] {0, 0};
+        }
         r.webSent = true;
-        event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
-                "body", body, "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+        r.webHeldDoc = null;
+        event("WEB-SEND", fields);
         return new int[] {0, 0};
     }
 
@@ -1494,7 +1519,7 @@ public class CicsTask {
      *  conditions at once. */
     public int[] webWriteHeader(String name, int nameLength, String value, int valueLength) {
         CicsTask r = statedRequest();
-        if (r.webSent) {
+        if (r.webSent || r.webHeld != null) {
             throw refused("WEB WRITE HTTPHEADER after the response was sent");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
@@ -1521,21 +1546,28 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
-    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND,
-     *  available only for a document sent with ACTION(EVENTUAL). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1:
-     *  the last WEB SEND was not an EVENTUAL document send (every send this runtime accepts is IMMEDIATE, so a send that
-     *  happened is always NOTFND 1). DOCTOKEN is never written: the NORMAL outcome needs an EVENTUAL send, which WEB SEND
-     *  refuses. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web task, cannot be told from it), a retrieve
-     *  after a WEB SEND that ended in a condition (IBM does not say whether it was issued). */
-    public int[] webRetrieve() {
+    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND.
+     *  NORMAL (resp 0, the DOCTOKEN): the last WEB SEND was a document send with ACTION(EVENTUAL) and no DOCDELETE; the token
+     *  names a copy of the document as it was sent (IBM: later changes are not in it; ASSUMED: a new document of the task,
+     *  the same token for every retrieve of that send). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1: the last
+     *  WEB SEND was DOCDELETE or not an EVENTUAL document send. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web
+     *  task, cannot be told from it), a retrieve after a WEB SEND that ended in a condition (IBM does not say whether it was
+     *  issued). The outcome is a DocumentCreated (resp, resp2, the token: null unless NORMAL). */
+    public DocumentCreated webRetrieve() {
         CicsTask r = statedRequest();
-        if (r.webSent) {
-            return new int[] {13, 1};
-        }
         if (r.webSendFailed) {
             throw refused("WEB RETRIEVE after a WEB SEND that ended in a condition");
         }
-        return new int[] {16, 2};
+        if (!r.webIssued) {
+            return new DocumentCreated(16, 2, null);
+        }
+        if (r.webHeldDoc == null) {
+            return new DocumentCreated(13, 1, null);
+        }
+        if (r.webHeldToken == null) {
+            r.webHeldToken = newDocument(r.webHeldDoc).doctoken();
+        }
+        return new DocumentCreated(0, 0, r.webHeldToken);
     }
 
     // #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (STARTBROWSE / READNEXT / ENDBROWSE of
@@ -4678,7 +4710,20 @@ public class CicsTask {
         return ended;
     }
 
+    /** The events so far. An ACTION(EVENTUAL) WEB SEND (X37) is sent at the end of the task: its WEB-SEND event is recorded
+     *  here, once, after the task's other events (read the events when the task has ended); a task that ended in an abend
+     *  with one held is refused (IBM does not say whether the response is sent). */
     public List<Map<String, Object>> events() {
+        if (webHeld != null) {
+            for (Map<String, Object> e : events) {
+                if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
+                    throw refused("WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend");
+                }
+            }
+            Object[] fields = webHeld;
+            webHeld = null;
+            event("WEB-SEND", fields);
+        }
         return Collections.unmodifiableList(events);
     }
 

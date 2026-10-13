@@ -1374,6 +1374,8 @@ class Cics:
             raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
         if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
             raise CicsError(_requires(key, "STATUSLEN", "STATUSTEXT"))
+        if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+            raise CicsError(_requires(key, "DOCSTATUS", "DOCTOKEN"))
 
         def text(o: str) -> str:
             return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
@@ -1385,7 +1387,8 @@ class Cics:
         r = self.g.tmpname("web")
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
-                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, CS)")  # fmt: skip
+                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
+                    f"{num('DOCSTATUS', '0')}, CS)")  # fmt: skip
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
@@ -1460,9 +1463,13 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
-        if key == "WEB RETRIEVE":  # #4941 (X41): DOCTOKEN is never written (the NORMAL outcome needs an EVENTUAL send)
-            req("DOCTOKEN")
-            return [f"{ind}int[] {r} = task.webRetrieve();", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if (
+            key == "WEB RETRIEVE"
+        ):  # #4941 (X41): the DOCTOKEN of the last EVENTUAL document send, written on NORMAL only
+            area = self.field(req("DOCTOKEN"))
+            return [f"{ind}CicsTask.DocumentCreated {r} = task.webRetrieve();",
+                    f"{ind}if ({r}.resp() == 0) DetCics.putText({area}, {r}.doctoken(), CS);",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key.startswith(
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):

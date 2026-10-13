@@ -3585,6 +3585,7 @@ int GGCWTO(gg_cics *c, char *from) {
 #define GG_MAXDOCS 64
 static unsigned char *docs[GG_MAXDOCS];
 static int doc_len[GG_MAXDOCS];
+static int doc_dead[GG_MAXDOCS]; /* #4941: deleted by a WEB SEND DOCSTATUS(DOCDELETE) */
 static int ndocs = 0;
 
 static int doc_new(const unsigned char *data, int len, char *tok, int toklen) {
@@ -3692,7 +3693,7 @@ int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen) {
         snprintf(t, sizeof t, "GGDOC%011d", i + 1);
         if (strcmp(t, want) == 0) break;
     }
-    if (i == ndocs) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (i == ndocs || doc_dead[i]) { c->resp = NOTFND; c->resp2 = 1; return 0; }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     n = doc_len[i];
     copied = n < c->len ? n : c->len;
@@ -3703,12 +3704,15 @@ int GGCDOCR(gg_cics *c, char *tok, int toklen, char *into, int intolen) {
     return 0;
 }
 
+static void web_flush(void); /* #4941 */
+
 /* The program returned to the driver without a RETURN / XCTL / ABEND. */
 int GGCEND(gg_cics *c) {
     (void)c;
     /* the task's program GOBACKed with no RETURN / XCTL / ABEND: at the highest level that GOBACK is the
      * RETURN (no TRANSID, no COMMAREA), as GGCPEND has it for a task run through GGCRUN */
     if (!ended) return_event("", NULL, 0);
+    web_flush(); /* #4941: an ACTION(EVENTUAL) WEB SEND goes out at the end of the task */
     containers_out();
     child_end(); /* #4950 */
     return 0;
@@ -4056,12 +4060,28 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
  * a request is stated is read here: WEB RECEIVE / EXTRACT / READ HTTPHEADER are not modelled yet). GG-LEN FROMLENGTH, GG-ITEM
  * ACTION (0: not given), GG-NUM STATUSCODE (-1: not given), GG-HOURS STATUSLEN (-1: not given), GG-MINS the conversion (0, 1
  * SRVCONVERT, 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given. Recorded as WEB-SEND. As CicsTask.webSend answers. */
-static int web_sent = 0;
-static int web_send_failed = 0; /* #4941: a WEB SEND ended in a condition */
+static int web_sent = 0;        /* an ACTION(IMMEDIATE) response was sent */
+static int web_send_failed = 0; /* #4941: the last WEB SEND ended in a condition */
+static int web_issued = 0;      /* a WEB SEND was accepted (IMMEDIATE or EVENTUAL) */
+/* #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (its WEB-SEND event line and body), the document an
+ * EVENTUAL DOCTOKEN send (not DOCDELETE) sent as it was sent, and the DOCTOKEN WEB RETRIEVE gave for it (a new document). */
+static int web_held = 0, web_held_len = 0, web_held_doclen = 0, web_held_tok = 0;
+static char web_held_ev[WEB_TXT * 4 + 200];
+static unsigned char *web_held_body = NULL, *web_held_doc = NULL;
 
-static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap) {
+/* The task ended: an ACTION(EVENTUAL) response is sent now (recorded after the task's other events); a task that ended in an
+ * abend with one held is refused (IBM does not say whether the response is sent). As CicsTask.events. */
+static void web_flush(void) {
+    if (!web_held) return;
+    if (terminated) refuse("WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend");
+    web_held = 0;
+    event(web_held_ev, (const char *)web_held_body, web_held_len);
+}
+
+static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap,
+                         int ofdoc, int doc_i, int docstatus) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
-    int action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
+    int eventual, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
     hasm = strstr(flags, "MEDIA") != NULL;
     hast = strstr(flags, "STEXT") != NULL;
@@ -4082,17 +4102,40 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (ofdoc && doc_i < 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
+    if (ofdoc && docstatus != 0 && docstatus != 295 && docstatus != 296) { c->resp = INVREQ; c->resp2 = 143; conds++; }
     if ((status == 204 || status == 205 || status == 304) && fl > 0) { c->resp = INVREQ; c->resp2 = 72; conds++; }
     if (conds > 1) refuse("WEB SEND with more than one condition at once");
     if (conds == 1) { web_send_failed = 1; return 0; }
-    if (action != 2) refuse("WEB SEND ACTION not IMMEDIATE");
-    web_sent = 1;
+    eventual = action != 2; /* (an omitted ACTION is EVENTUAL for a send that is not chunked: IBM) */
+    if (!eventual && web_held) refuse("WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send");
+    web_send_failed = 0;
+    web_issued = 1;
     web_hex(mt, hasm ? mtl : 0, hx[0]);
     if (hast) { int n = sl < 0 ? stextcap : sl; web_hex(stext, n, hx[1]); } else strcpy(hx[1], "-");
-    snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=IMMEDIATE resp=0 resp2=0",
-             status == -1 ? 200 : status, hx[1], hx[0]);
-    event(ev, from, fl);
+    snprintf(ev, sizeof ev, "WEB-SEND status=%d stext=%s media=%s action=%s resp=0 resp2=0",
+             status == -1 ? 200 : status, hx[1], hx[0], eventual ? "EVENTUAL" : "IMMEDIATE");
+    free(web_held_doc);
+    web_held_doc = NULL;
+    web_held_tok = 0;
+    if (eventual) {
+        free(web_held_body);
+        web_held_body = malloc(fl > 0 ? (size_t)fl : 1);
+        memcpy(web_held_body, from, (size_t)(fl > 0 ? fl : 0));
+        web_held_len = fl;
+        strcpy(web_held_ev, ev);
+        web_held = 1; /* sent at the end of the task; a second send replaces it */
+        if (ofdoc && docstatus != 295) {
+            web_held_doc = malloc(fl > 0 ? (size_t)fl : 1);
+            memcpy(web_held_doc, from, (size_t)(fl > 0 ? fl : 0));
+            web_held_doclen = fl;
+        }
+    } else {
+        web_sent = 1;
+        event(ev, from, fl);
+    }
+    if (ofdoc && docstatus == 295) doc_dead[doc_i] = 1; /* DOCDELETE: deleted once its contents are saved for sending */
     return 0;
 }
 
@@ -4108,12 +4151,12 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, from, fl, media, mediacap, stext, stextcap);
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0);
 }
 
 /* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
- * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. As
- * CicsTask.webSendDocument. */
+ * one the task created, as it is now; an empty document is no message body (ASSUMED), so a 204 may send one. GG-SECS is
+ * DOCSTATUS's CVDA (0: not given; 295 DOCDELETE, 296 NODOCDELETE). As CicsTask.webSendDocument. */
 int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *stext, int stextcap) {
     char flags[41], want[100];
     int sl = c->hours, hast, i;
@@ -4130,10 +4173,11 @@ int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *
         snprintf(t, sizeof t, "GGDOC%011d", i + 1);
         if (strcmp(t, want) == 0) break;
     }
-    if (i == ndocs) refuse("WEB SEND DOCTOKEN of a document the task did not create");
     if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, (const char *)docs[i], doc_len[i], media, mediacap, stext, stextcap);
+    if (i == ndocs || doc_dead[i]) i = -1; /* NOTFND 1: not created, deleted or wrongly named (IBM lists one RESP2) */
+    return web_send_body(c, i < 0 ? "" : (const char *)docs[i], i < 0 ? 0 : doc_len[i], media, mediacap, stext, stextcap, 1,
+                         i, c->secs);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ
@@ -4388,7 +4432,7 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     int nl = c->len, vl = c->num, conds = 0, i;
     char hx[2][WEB_TXT * 2 + 2];
     webreq_load();
-    if (web_sent) refuse("WEB WRITE HTTPHEADER after the response was sent");
+    if (web_sent || web_held) refuse("WEB WRITE HTTPHEADER after the response was sent");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (nl <= 0) { c->resp = LENGERR; c->resp2 = 35; conds++; }
@@ -4409,15 +4453,26 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     return 0;
 }
 
-/* WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): INVREQ RESP2 2 no WEB SEND issued, NOTFND
- * RESP2 1 the last WEB SEND was not an EVENTUAL document send (every send accepted here is IMMEDIATE, so a send that happened
- * is NOTFND 1). DOCTOKEN is never written: NORMAL needs an EVENTUAL send, which WEB SEND refuses. As CicsTask.webRetrieve. */
-int GGCWRTV(gg_cics *c) {
+/* WEB RETRIEVE DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): NORMAL (the DOCTOKEN written to `tok`) for a
+ * last WEB SEND that was a document send with ACTION(EVENTUAL) and no DOCDELETE -- the token names a copy of the document as it
+ * was sent (ASSUMED: a new document of the task, the same token for every retrieve of that send); INVREQ RESP2 2 no WEB SEND
+ * issued; NOTFND RESP2 1 the last WEB SEND was DOCDELETE or not an EVENTUAL document send. As CicsTask.webRetrieve. */
+int GGCWRTV(gg_cics *c, char *tok, int toklen) {
+    char t[17];
+    int i;
     webreq_load();
-    if (web_sent) { c->resp = NOTFND; c->resp2 = 1; return 0; }
     if (web_send_failed) refuse("WEB RETRIEVE after a WEB SEND that ended in a condition");
-    c->resp = INVREQ;
-    c->resp2 = 2;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (!web_issued) { c->resp = INVREQ; c->resp2 = 2; return 0; }
+    if (!web_held_doc) { c->resp = NOTFND; c->resp2 = 1; return 0; }
+    if (!web_held_tok) {
+        doc_new(web_held_doc, web_held_doclen, t, 16);
+        web_held_tok = ndocs;
+    }
+    snprintf(t, sizeof t, "GGDOC%011d", web_held_tok);
+    for (i = 0; i < toklen && i < 16; i++) tok[i] = t[i];
+    for (; i < toklen; i++) tok[i] = ' ';
     return 0;
 }
 

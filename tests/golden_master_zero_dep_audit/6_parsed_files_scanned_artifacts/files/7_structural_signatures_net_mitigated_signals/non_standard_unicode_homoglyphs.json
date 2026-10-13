@@ -20,7 +20,7 @@
     "ada/alire": {
       "ada/alire/LICENSE.txt": 0,
       "ada/alire/alire-conditional_trees.adb": 0,
-      "ada/alire/alire-crate_configuration.adb": 1,
+      "ada/alire/alire-crate_configuration.adb": 0,
       "ada/alire/alire-dependencies-states.ads": 0,
       "ada/alire/alire-directories.adb": 0,
       "ada/alire/alire-index_on_disk-loading.adb": 0,
@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 1,
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 0,
       "dockerfile/moby/test_targets/generate-files.Dockerfile": 0,
       "dockerfile/moby/test_targets/syscall.Dockerfile": 0,
       "dockerfile/moby/test_targets/windows.Dockerfile": 0
@@ -1337,7 +1337,7 @@
       "embedded_python/meow_turtle/logging.py": 0,
       "embedded_python/meow_turtle/meowprotocol.py": 0,
       "embedded_python/meow_turtle/mpu6050.py": 0,
-      "embedded_python/meow_turtle/ota.py": 1,
+      "embedded_python/meow_turtle/ota.py": 0,
       "embedded_python/meow_turtle/pio_programs.py": 0,
       "embedded_python/meow_turtle/sensors.py": 0,
       "embedded_python/meow_turtle/tester.py": 0,
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 0
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1,
+      "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
       "javascript/threejs/GLTFLoader.js": 0,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
-      "javascript/threejs/WebGLRenderer.js": 1
+      "javascript/threejs/WebGLRenderer.js": 0
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -3096,7 +3096,7 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 1,
+      "python/numpy/core.py": 0,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,

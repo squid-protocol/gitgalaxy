@@ -4236,8 +4236,8 @@ static void tcpip_load(void) {
 }
 
 /* An IPv4 address in dotted decimal as a number (-1: it is not one: four decimal parts 0-255, no leading zero). */
-static long ipv4_value(const char *s) {
-    long value = 0;
+static long long ipv4_value(const char *s) { /* long long: `long` is 32 bits on Windows, and 192.x is above 2^31 */
+    long long value = 0;
     int parts = 0;
     while (1) {
         int n = 0, digits = 0;
@@ -4263,7 +4263,7 @@ int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, ch
     char flags[81];
     int ca, cn, sa, sn, cnu, snu, cf, sf, cl = c->len, nl = c->hours, sl = c->mins, ml = c->secs;
     int badlength, toosmall;
-    long cnum, snum;
+    long long cnum, snum;
     tcpip_load();
     trim(c->flags, 40, flags);
     ca = strstr(flags, "A1") != NULL;
@@ -4278,8 +4278,8 @@ int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, ch
         refuse("EXTRACT TCPIP length beyond its area");
     cnum = ipv4_value(tcpipc.caddr);
     snum = ipv4_value(tcpipc.saddr);
-    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647L)
-        || (snu && snum > 2147483647L)) refuse("EXTRACT TCPIP address");
+    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647LL)
+        || (snu && snum > 2147483647LL)) refuse("EXTRACT TCPIP address");
     if (sn && !tcpipc.hassname) refuse("EXTRACT TCPIP");
     badlength = (ca && cl <= 0) || (cn && nl <= 0) || (sa && sl <= 0) || (sn && ml <= 0);
     toosmall = (ca && cl > 0 && (int)strlen(tcpipc.caddr) > cl) || (cn && nl > 0 && (int)strlen(tcpipc.cname) > nl)

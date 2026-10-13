@@ -989,11 +989,11 @@ def test_a_whole_command_refusal_gives_the_spec_reason_and_dfhresp_is_the_spec()
     from gitgalaxy.standards.cics.resp import DFHRESP
 
     with pytest.raises(ec.Unsupported) as e:
-        ec.translate_command("GETMAIN SET(P) LENGTH(10)")
-    assert str(e.value).startswith("EXEC CICS GETMAIN not modelled (storage CICS acquires")
-    assert e.value.features == ["GETMAIN"]
-    with pytest.raises(ec.Unsupported, match=r"^line 2: EXEC CICS GETMAIN not modelled \("):  # (named once)
-        ec.translate("       PROCEDURE DIVISION.\n           EXEC CICS GETMAIN SET(P) LENGTH(10) END-EXEC.\n")
+        ec.translate_command("GETMAIN64 SET(P) FLENGTH(10)")
+    assert str(e.value).startswith("EXEC CICS GETMAIN64 not modelled (storage CICS acquires")
+    assert e.value.features == ["GETMAIN64"]
+    with pytest.raises(ec.Unsupported, match=r"^line 2: EXEC CICS GETMAIN64 not modelled \("):  # (named once)
+        ec.translate("       PROCEDURE DIVISION.\n           EXEC CICS GETMAIN64 SET(P) FLENGTH(10) END-EXEC.\n")
     assert ec.DFHRESP == DFHRESP and ec.DFHRESP["VOLIDERR"] == 71 and ec.DFHRESP["NOSPOOL"] == 80
     assert all(ec.CICS_RESP[c] == DFHRESP[c] for c in ec.CICS_RESP)
 
@@ -1258,10 +1258,10 @@ def test_web_receive_becomes_a_stub_call():
     ]
     assert t[7:10] == ["IF GG-RESP = 0 OR GG-RESP2 = 57", "    MOVE GG-LEN TO WS-L", "END-IF"]
     assert ec.translate_command("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT")[1] == "MOVE SPACES TO GG-FLAGS"
-    for bad, why in (("WEB RECEIVE", "without INTO"),
+    for bad, why in (("WEB RECEIVE", "one of INTO / SET"),
                      ("WEB RECEIVE INTO(WS-B)", "INTO without MAXLENGTH"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
-                     ("WEB RECEIVE SET(WS-P) MAXLENGTH(WS-M)", "pointer lane"),
+                     ("WEB RECEIVE SET(WS-P) MAXLENGTH(WS-M)", "SET without LENGTH"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) NOTRUNCATE", "NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) CHARACTERSET(WS-C)", "code-page conversion"),

@@ -1211,6 +1211,8 @@ class Cics:
             return self.send_control(opts, ind)
         if verb == "RECEIVE":
             return self.receive(opts, ind)
+        if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
+            return self.storage(key, opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)
         if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
@@ -1502,16 +1504,25 @@ class Cics:
                     store("VALUELENGTH", f"{r}.value().length()"), f"{ind}}}",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key == "WEB RECEIVE":
-            if not opts.get("INTO"):
-                raise CicsError(_msg(key, "required", "INTO"))
-            if not opts.get("MAXLENGTH"):
+            if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
+                raise CicsError(_msg(key, "one_of", "INTO"))
+            if "INTO" in opts and not opts.get("MAXLENGTH"):
                 raise CicsError(_requires(key, "INTO", "MAXLENGTH"))
+            if "SET" in opts and not opts.get("LENGTH"):
+                raise CicsError(_requires(key, "SET", "LENGTH"))
             if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
                 raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
-            into = req("INTO")
-            call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
-            out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
-                   put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
+            if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
+                ptr = self.pointer(opts["SET"])
+                most = self.int_(req("MAXLENGTH")) if opts.get("MAXLENGTH") else "Integer.MAX_VALUE"
+                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE);",
+                       f"{ind}if ({r}.body() != null) {{",
+                       f"{ind}    DetCics.receivedBlock(task, {ptr}, {r}.body(), CS);"]  # fmt: skip
+            else:
+                into = req("INTO")
+                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)})"
+                out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
+                       put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
             if "LENGTH" in opts:
                 out.append(store("LENGTH", f"{r}.body().length()"))
             if "MEDIATYPE" in opts:
@@ -1922,6 +1933,46 @@ class Cics:
         flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
         return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
                 *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+
+    def pointer(self, text: str | None) -> str:
+        """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        try:
+            return self.g.pointer_item(_arg(text).strip())
+        except Untranslatable as e:
+            raise CicsError(str(e)) from None
+
+    def storage(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#4771 (X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) and FREEMAIN DATAPOINTER(ptr) on CicsTask's blocks
+        of task storage (IBM, EXEC CICS GETMAIN / FREEMAIN). The pointer holds the block's handle; a LENGERR (RESP2 1)
+        sets it to zero. INITIMG is a one-byte data area (IBM: "In COBOL, use a data area rather than a data value")."""
+        r = self.g.tmpname("storage")
+        if key == "FREEMAIN":
+            if not opts.get("DATAPOINTER"):
+                raise CicsError(_msg(key, "required", "DATAPOINTER"))
+            ptr = self.pointer(opts["DATAPOINTER"])
+            return [f"{ind}int[] {r} = task.freemain(DetCics.pointerValue({ptr}));",
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if not opts.get("SET"):
+            raise CicsError(_msg(key, "required", "SET"))
+        if ("FLENGTH" in opts) == ("LENGTH" in opts):
+            raise CicsError(_msg(key, "one_of", "FLENGTH"))
+        if not opts.get("INITIMG"):
+            raise CicsError(_msg(key, "required", "INITIMG"))
+        if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
+            raise CicsError(_msg(key, "at_most_one", "USERDATAKEY"))
+        if _literal(opts["INITIMG"]) is not None or not re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]):
+            raise CicsError("GETMAIN INITIMG as a literal: a data area is the COBOL form")
+        if self.size(opts["INITIMG"]) != 1:
+            raise CicsError("GETMAIN INITIMG is not one byte")
+        ptr = self.pointer(opts["SET"])
+        form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
+        if not opts.get(form):
+            raise CicsError(f"{form} needs an argument")
+        halfword = str(form == "LENGTH").lower()
+        call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     def receive(self, opts: dict, ind: str) -> list[str]:
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.

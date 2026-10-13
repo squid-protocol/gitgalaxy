@@ -606,4 +606,69 @@ public final class DetCics {
         Arrays.fill(record.storage().bytes, record.offset(), record.offset() + record.length(), (byte) 0);
         System.arraycopy(b, 0, record.storage().bytes, record.offset(), Math.min(b.length, record.length()));
     }
+
+    // ---- #4771 (register X47): pointers to task storage. A POINTER item holds the handle of a block the task owns
+    //      (CicsTask.getmain / acquireReceived / addressOf), 8 bytes big-endian, NULL all zero. An address is never an
+    //      int the program can do arithmetic on: the translator refuses a pointer that a REDEFINES overlays. ------------
+
+    /** The handle a POINTER item holds (0: NULL). */
+    public static long pointerValue(Field ptr) {
+        long h = 0;
+        for (int i = 0; i < 8; i++) {
+            h = (h << 8) | (ptr.storage().bytes[ptr.offset() + i] & 0xFF);
+        }
+        return h;
+    }
+
+    /** Store a handle into a POINTER item. */
+    public static void setPointer(Field ptr, long handle) {
+        for (int i = 7; i >= 0; i--) {
+            ptr.storage().bytes[ptr.offset() + i] = (byte) handle;
+            handle >>>= 8;
+        }
+    }
+
+    /** GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) (IBM, EXEC CICS GETMAIN; X47): the pointer takes the new block's
+     *  handle; under LENGERR (RESP2 1) it is set to zero. Returns {RESP, RESP2}. INITIMG is one byte. */
+    public static int[] getmain(CicsTask task, Field ptr, long length, boolean halfword, Field initimg) {
+        if (initimg.length() != 1) {
+            throw new PastFrom("GETMAIN INITIMG is not one byte: not modelled");
+        }
+        long[] r = task.getmain(length, halfword, initimg.storage().bytes[initimg.offset()] & 0xFF);
+        setPointer(ptr, r[2]);
+        return new int[] {(int) r[0], (int) r[1]};
+    }
+
+    /** WEB RECEIVE SET(ptr) (X47): the body becomes a block of task storage the pointer addresses. */
+    public static void receivedBlock(CicsTask task, Field ptr, String body, Charset cs) {
+        setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
+    }
+
+    /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
+    public static void setAddress(CicsTask task, Field record, Field ptr) {
+        wholeRecord(record, "SET ADDRESS OF");
+        record.storage().bytes = task.storageAt(pointerValue(ptr), record.length());
+    }
+
+    /** SET ADDRESS OF record TO ADDRESS OF other: both are one storage from here on. */
+    public static void setAddressOfRecord(CicsTask task, Field record, Field other) {
+        wholeRecord(record, "SET ADDRESS OF");
+        wholeRecord(other, "ADDRESS OF");
+        if (other.storage().bytes.length < record.length()) {
+            throw new UnsupportedOperationException("SET ADDRESS OF a record longer than its storage: not modelled");
+        }
+        record.storage().bytes = other.storage().bytes;
+    }
+
+    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes. */
+    public static void setPointerToRecord(CicsTask task, Field ptr, Field record) {
+        wholeRecord(record, "ADDRESS OF");
+        setPointer(ptr, task.addressOf(record.storage().bytes));
+    }
+
+    private static void wholeRecord(Field record, String what) {
+        if (record.offset() != 0) {
+            throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");
+        }
+    }
 }

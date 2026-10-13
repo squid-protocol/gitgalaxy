@@ -948,13 +948,16 @@ def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> lis
 def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X38): WEB RECEIVE INTO (server) -> GGCWRCV (MAXLENGTH in GG-NUM; GG-FLAGS MEDIA when MEDIATYPE is
     given; the stub writes INTO and MEDIATYPE and sets GG-LEN to the bytes returned), then on NORMAL / LENGERR 57 LENGTH moved
-    from GG-LEN. The option rules as the det translator's."""
+    from GG-LEN. #4771 (X47): SET(pointer) -> GGCWRCS, the body in a new block the pointer addresses (MAXLENGTH optional: all
+    the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     _check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("INTO"):
-        raise Unsupported(_rule(key, "required", "INTO"), [key])
-    if not opts.get("MAXLENGTH"):
+    if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
+        raise Unsupported(_rule(key, "one_of", "INTO"), [key])
+    if "INTO" in opts and not opts.get("MAXLENGTH"):
         raise Unsupported(_web_requires(key, "INTO", "MAXLENGTH"), [key])
+    if "SET" in opts and not opts.get("LENGTH"):
+        raise Unsupported(_web_requires(key, "SET", "LENGTH"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     for o in ("INTO", "MEDIATYPE"):
@@ -965,18 +968,67 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     if "LENGTH" in opts and not opts["LENGTH"]:
         raise Unsupported(NEEDS_ARGUMENT, [key])
     lines = [
-        f"MOVE {opts['MAXLENGTH']} TO GG-NUM",
+        f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
         "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
     ]
     media = opts.get("MEDIATYPE") or "GG-QNAME"
-    args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
-            f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+    if "SET" in opts:
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {media}", f"BY VALUE LENGTH OF {media}"]
+        entry = "GGCWRCS"
+    else:
+        args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
+                f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+        entry = "GGCWRCV"
     after = (
         ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
         if opts.get("LENGTH")
         else []
     )
-    return lines + _call("GGCWRCV", args) + after + _resp(opts, True, labels)
+    return lines + _call(entry, args) + after + _resp(opts, True, labels)
+
+
+def _pointer(key: str, text: str | None) -> str:
+    """#4771 (X47): the USAGE POINTER item an option names: a plain data name (GnuCOBOL's own compile refuses a name that is no
+    pointer; a subscripted or qualified one is refused here, as the translator refuses it)."""
+    if not text or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", text) is None:
+        raise Unsupported(f"{key}: a pointer is a plain data name: not modelled", [key])
+    return text.strip()
+
+
+def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
+    LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
+    key = "GETMAIN"
+    _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("SET"):
+        raise Unsupported(_rule(key, "required", "SET"), [key])
+    if ("FLENGTH" in opts) == ("LENGTH" in opts):
+        raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
+    if not opts.get("INITIMG"):
+        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
+    if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
+    form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
+    if not opts.get(form):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
+        raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
+    img = opts["INITIMG"].strip()
+    lines = [
+        f"MOVE {opts[form]} TO GG-NUM",
+        "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
+    ]
+    args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
+    return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
+
+
+def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
+    key = "FREEMAIN"
+    _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("DATAPOINTER"):
+        raise Unsupported(_rule(key, "required", "DATAPOINTER"), [key])
+    return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 
 def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -1402,6 +1454,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _extract_tcpip(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
         return _web_receive(opts, labels)
+    if verb == "GETMAIN":  # #4771 (X47): task storage addressed by a pointer
+        return _getmain(opts, labels)
+    if verb == "FREEMAIN":
+        return _freemain(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
         return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):

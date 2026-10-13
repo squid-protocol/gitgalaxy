@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """#4270: the CICS command spec's status page, docs/language_status/cics_spec_status.md (generated; do not edit).
 
-    python tests/tools/cics_spec_status.py render [--check]       # write the page (or fail when it is stale)
+    python tests/tools/cics_spec_status.py render [--check]       # write the page (or only check that it renders)
     python tests/tools/cics_spec_status.py refresh [--census] [--crucible DIR] [--corpora DIR] [--census-corpora DIR]
 
 Per CICS command the spec (gitgalaxy/standards/cics) has an entry for:
@@ -16,11 +16,12 @@ plus the progress of the 8 spec PRs (cics_command_spec.md section 7).
 The spec, the translator and the stub are read live. Census use and crucible coverage need corpora no CI job has, so
 `refresh` measures them into docs/language_status/cics_spec_status.json (counts and case ids only; the census
 programs are read as `cics_census.py usage` reads them, through the translator's own EXEC parser, and nothing but
-counts is kept) and `render` reads that file. #4789: the page is derived output, like the evidence report (#4703):
-the evidence-refresh bot runs `render` on main and commits it; a PR does NOT commit it (parallel slices conflicted on
-it). A PR that changes the spec, translator or stub commits nothing here; a slice commits the `refresh`ed
-cics_spec_status.json. Per-PR CI only says whether the page would change (smoke-test.yml, advisory);
-test_cics_spec_status.py's currency test runs only outside it (EVIDENCE_REPORT_ADVISORY unset). Never open docs/language_status/estate4_candidates.json: the census corpora are the ineligible list only.
+counts is kept) and `render` reads that file. #4789 / #5057: the page is derived output, git-ignored and never
+committed (parallel slices conflicted on it): generated-docs.yml renders it from main after each merge and publishes it
+to the `generated` branch
+(https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md). A PR that
+changes the spec, translator or stub commits nothing here; a slice commits the `refresh`ed cics_spec_status.json. A
+PR's CI renders the page and shows its diff (tests/tools/generated_docs.py); `render --check` only renders. Never open docs/language_status/estate4_candidates.json: the census corpora are the ineligible list only.
 """
 
 from __future__ import annotations
@@ -43,7 +44,6 @@ sys.path.insert(0, str(REPO))
 PAGE = REPO / "docs" / "language_status" / "cics_spec_status.md"
 DATA = REPO / "docs" / "language_status" / "cics_spec_status.json"
 SPEC_DOC = REPO / "docs" / "language_status" / "cics_command_spec.md"
-REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
 FORMAT = "cics-spec-status/1"
 
 # The spec PRs merged so far (cics_command_spec.md section 7): each spec PR adds its own row here.
@@ -68,9 +68,12 @@ def registers(c: Any) -> list[str]:
     return sorted((r for r in regs if r), key=lambda r: int(r[1:]))
 
 
-def register_rows(path: Path = REGISTER) -> set[str]:
-    """The X-numbers oracle_assumptions.md's summary table has a row for."""
-    return set(re.findall(r"^\| (X\d+) \|", path.read_text(encoding="utf-8"), re.M))
+def register_rows() -> set[str]:
+    """The X-numbers oracle_assumptions.md's summary table has a row for: the entries with a summary (#5057: read from
+    the register's entry files, docs/language_status/register/, since the combined page is not committed)."""
+    import register as oracle_register  # tests/tools/register.py
+
+    return {m["id"] for m, _ in oracle_register.load_entries() if m["summary"] and re.fullmatch(r"X\d+", m["id"])}
 
 
 def translator_options() -> dict[str, Any]:
@@ -327,12 +330,8 @@ def render(data: dict[str, Any] | None = None) -> str:
 
 def cmd_render(args: argparse.Namespace) -> int:
     text = render()
-    if args.check:
-        if not PAGE.is_file() or PAGE.read_text(encoding="utf-8") != text:
-            print(f"stale: {PAGE.relative_to(REPO)} -- run python tests/tools/cics_spec_status.py render",
-                  file=sys.stderr)  # fmt: skip
-            return 1
-        print(f"{PAGE.relative_to(REPO)} is current")
+    if args.check:  # #5057: the page is not committed; a render that raises is the failure
+        print(f"{PAGE.relative_to(REPO)} renders ({len(text.splitlines())} lines)")
         return 0
     PAGE.write_text(text, encoding="utf-8")
     print(f"wrote {PAGE.relative_to(REPO)}")
@@ -343,7 +342,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("render", help="write the page from the spec and cics_spec_status.json")
-    r.add_argument("--check", action="store_true", help="fail (exit 1) when the committed page is stale")
+    r.add_argument(
+        "--check", action="store_true", help="only render (exit 1 when the page does not render); write nothing"
+    )
     f = sub.add_parser("refresh", help="measure census use / crucible cases into cics_spec_status.json")
     f.add_argument("--census", action="store_true", help="count census use (needs the corpora and census clones)")
     f.add_argument("--crucible", type=Path, help="a cics-crucible checkout AT THE PIN (a private clone)")

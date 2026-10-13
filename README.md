@@ -250,7 +250,7 @@ unit a customer receives next to the Java:
 - **The options it holds under**: TRUNC, NUMPROC, ARITH and the rest, each marked
   `found at <file>:<line>` or `assumed`.
 - **The assumptions it rests on**: the entries in the
-  [oracle-assumptions register](docs/language_status/oracle_assumptions.md) its CICS commands
+  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) its CICS commands
   name, each tagged MATCHED, REFUSED, DIFFERS or ASSUMED.
 
 Change any input and the record goes stale; the release gate fails until it is re-proven.
@@ -324,7 +324,7 @@ What these levels do not show:
 - **The oracle is not a mainframe.** It is GnuCOBOL, a model of CICS, Db2 for Linux, and IBM
   services modelled only where IBM documents them. Anything else is refused, never guessed. Every
   known or suspected difference from z/OS, and whether a proven program reaches it, is in the
-  [oracle-assumptions register](docs/language_status/oracle_assumptions.md): for example a POINTER
+  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md): for example a POINTER
   is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
   ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
   [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).

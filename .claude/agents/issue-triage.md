@@ -39,7 +39,7 @@ DOCUMENT family was missing too, and the owner had to argue for the siblings sep
    or clause family (every `INSPECT` form), the data class (national / DBCS / multi-byte across code pages), the
    construct family (every pipeline file format), the rule family (every unpinned-install form).
 7. **List its members from the authoritative source**, not from memory:
-   - CICS commands: the spec `gitgalaxy/standards/cics/commands/<family>.py` and `docs/language_status/cics_spec_status.md`
+   - CICS commands: the spec `gitgalaxy/standards/cics/commands/<family>.py` and `docs/language_status/cics_spec_status.md` (rendered, not committed: `python tests/tools/generated_docs.py render` or the `generated` branch)
      (and IBM's command reference for options the spec lacks).
    - COBOL / det translation: `docs/language_status/det_survey.md`, `docs/language_status/construct_correspondence.md`,
      the language register `docs/language_status/register/`.

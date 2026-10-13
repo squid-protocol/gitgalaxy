@@ -25,7 +25,9 @@ def test_a_tag_is_not_a_pin():
 
 
 def test_the_pinned_digest_is_written_in_the_oracle_assumptions():
-    text = (REPO / "docs" / "language_status" / "oracle_assumptions.md").read_text(encoding="utf-8")
+    import register  # tests/tools/register.py; #5057: the combined page is rendered, not committed
+
+    text = register.render()
     digest = DIGEST.search(db2.IMAGE).group(1)
     assert digest in text, "docs/language_status/oracle_assumptions.md must name the pinned Db2 image digest"
 
@@ -42,8 +44,9 @@ def test_a_db2_cases_oracle_records_the_db2_image(monkeypatch):
     assert "db2" not in eo.for_case({})
 
 
-def test_the_combined_register_page_is_current():
-    """#4788: oracle_assumptions.md is generated from docs/language_status/register/ (register.py render)."""
+def test_the_register_is_consistent():
+    """#4788: oracle_assumptions.md is generated from docs/language_status/register/ (register.py render). #5057: it is
+    not committed any more (generated-docs.yml publishes it), so every entry parsing and being placed is the check."""
     import register  # tests/tools/register.py
 
     assert register.check() == []

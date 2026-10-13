@@ -154,6 +154,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X44 | CICS | DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, the number of containers) with IBM's one condition, CHANNELERR RESP2 2; refused: deleting the program's current channel (IBM's RESP2 4 / 5 / 6 all fit it and it ranks none), a name that is blank or has an embedded blank, a channel an XCTL left behind; unreachable: CHANNELERR 3 (read-only). INQUIRE CONTAINER stays refused: IBM documents it only in its BTS form | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
 | X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
+| X49 | CICS | The equivalence harness's `faults` on a file command (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE) take a condition only where IBM lists it for that command, and carry IBM's RESP2 (given, or the default when IBM gives one; INVREQ and LENGERR have several, so the scenario names one); an unlisted command / condition pair, a RESP2 IBM does not give, the data-table and RLS conditions (LOADING, RECORDBUSY, CHANGED, SUPPRESSED) and ILLOGIC on READNEXT / READPREV / REWRITE (IBM also ends the browse, not modelled) are refused by name | ASSUMED (REFUSED where IBM is silent) | no (an injection: the reference region's logs do not hold these conditions; the planned form is proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults reading the same plan: tests/cics_crucible/test_file_fault_conditions.py, tests/cobol_mainframe/test_equivalence_cics.py) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2321,6 +2322,36 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   but WRITE / REWRITE, and an explicit RESP2 that is not IBM's. **DUPKEY on DELETE:** the DELETE page lists it (RESP2 140) but
   does not say whether the record is deleted, so the outcome is not modelled and the fault is refused.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent.
+
+### X49. Injected file faults: each condition only on the file commands IBM lists it for, with IBM's RESP2 — ASSUMED, REFUSED where IBM is silent (#5044, sibling of #4623)
+- **Source.** CICS TS 6.x, the "Conditions" of each command's page
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read, and `summary-readnext`, `-readprev`, `-write`, `-rewrite`,
+  `-delete`, `-startbr`, `-endbr`; UNLOCK is not a plannable command, see below). The condition list (the syntax line's
+  `Conditions:`) and each RESP2 were read from the raw page text on 2026-10-13, not from a summary.
+- **Per command.** FILENOTFOUND 1, NOTAUTH 101, IOERR 120, SYSIDERR 130 and ISCINVREQ 70: all eight. ILLOGIC 110: READ, STARTBR,
+  ENDBR, WRITE, DELETE. NOTFND 80: READ, READNEXT, READPREV, STARTBR, DELETE. ENDFILE 90: READNEXT, READPREV. DISABLED 50 and
+  NOTOPEN 60: READ, WRITE, DELETE, STARTBR. NOSPACE 100: WRITE, REWRITE. LOCKED 106: READ, READNEXT, READPREV, WRITE, REWRITE,
+  DELETE. LENGERR 10 / 11 / 13: the three reads; 10 / 12 / 14: WRITE, REWRITE. INVREQ: READ 20 25 26 28 42; READNEXT 20 25 26 34
+  37 42; READPREV 20 24 26 37 41; STARTBR 20 25 26 33 42; ENDBR 35; WRITE 20 23 26; REWRITE 30 47; DELETE 20 21 22 25 26 31 42 47.
+  DUPKEY / DUPREC as X48.
+- **REWRITE lists no NOTOPEN and no DISABLED** (the page's syntax line and its Conditions section both lack them; the worker's
+  doubt in #5044 was checked against the raw text). They are refused on REWRITE by name. READNEXT, READPREV and ENDBR list neither
+  either. carddemo-userupd's `rewrite-not-open` therefore became `rewrite-io-error` (IOERR is listed;
+  the program's WHEN OTHER branch is the same).
+- **Injections.** A planned condition is what the program sees, not something the region raises: SYSIDERR / ISCINVREQ (a remote
+  file's answers) are planned like IOERR, as cbsa-inqcust's retry scenarios do. RESP2 131 / 132 (coupling-facility data tables)
+  are not planned.
+- **Refused by name.** LOADING 104, CHANGED 109, SUPPRESSED 105 (data tables) and RECORDBUSY 107 (NOSUSPEND, RLS only); READ's
+  NOSPACE 100 (IBM: an RLS file READ after a WRITE got it) and the RLS / BDAM / user-maintained and coupling-facility data-table /
+  XRBA values of INVREQ, NOTFND and NOSPACE; NOTFND 80 on REWRITE (IBM: user-maintained and CF data tables only); ILLOGIC on
+  READNEXT / READPREV / REWRITE (IBM adds "the browse in progress is terminated"; neither runtime ends a browse on an injected
+  fault). DUPKEY on DELETE stays refused (X48): the DELETE page restates it and still does not say whether the record is deleted.
+- **Not covered here.** UNLOCK (not a plannable command in the stub or CicsTask). A planned IOERR, NOSPACE, NOTOPEN, DISABLED,
+  FILENOTFOUND or LOCKED has no entry in `CONDITION_ABEND`, so a program that neither checks RESP nor handles the condition is
+  abended by neither runtime with IBM's code (LOCKED: AEX8 is documented on the pages); every case plans these where the program
+  checks RESP.
+- **Status:** ASSUMED where listed (the planned RESP2 is IBM's, the effect is the program's), REFUSED where IBM is silent or the
+  runtimes do not model it.
 
 ## Language Environment
 

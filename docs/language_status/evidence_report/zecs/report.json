@@ -1,0 +1,3799 @@
+{
+ "assumptions_named": [
+  {
+   "area": "CICS",
+   "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+   "id": "X3",
+   "status": "MATCHED"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+   "id": "X14",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+   "id": "X15",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused",
+   "id": "X18",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+   "id": "X19",
+   "status": "ASSUMED (REFUSED where the harness cannot decide)"
+  },
+  {
+   "area": "CICS",
+   "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+   "id": "X20",
+   "status": "MATCHED (REFUSED where the region cannot decide)"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "id": "X22",
+   "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+  },
+  {
+   "area": "CICS",
+   "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+   "id": "X27",
+   "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused",
+   "id": "X30",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+   "id": "X32",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused",
+   "id": "X33",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused",
+   "id": "X34",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use",
+   "id": "X35",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE",
+   "id": "X36",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused",
+   "id": "X37",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "#4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
+   "id": "X38",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  }
+ ],
+ "bars": {
+  "branches": 100.0,
+  "paragraphs": 100.0
+ },
+ "burned": true,
+ "estate": "zecs",
+ "format": "gitgalaxy-evidence-report/1",
+ "levels": [
+  {
+   "condition": "the program is in the estate's survey",
+   "level": "L0",
+   "name": "inventoried"
+  },
+  {
+   "condition": "the det translator leaves no hole and does not refuse it",
+   "level": "L1",
+   "name": "translated whole"
+  },
+  {
+   "condition": "a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required",
+   "level": "L2",
+   "name": "executed equivalent"
+  },
+  {
+   "condition": "L2, and the scenarios execute >= 100.0 percent of its live paragraphs",
+   "level": "L3",
+   "name": "paragraph coverage"
+  },
+  {
+   "condition": "L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions)",
+   "level": "L4",
+   "name": "branch coverage"
+  },
+  {
+   "condition": "L4, and every surviving mutant of the det port accounted for: not yet measured (#4628)",
+   "level": "L5",
+   "name": "mutants accounted for"
+  }
+ ],
+ "measured": {
+  "det_coverage": {
+   "asynccc-crdtchk": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstats2": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstatus": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getaddr": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getname": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getpol": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-getspnd": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-seqpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "asynccc-updcsdb": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "carddemo-acctupdate": [
+    89,
+    95,
+    310,
+    397
+   ],
+   "carddemo-acctview": [
+    31,
+    32,
+    58,
+    69
+   ],
+   "carddemo-acctview-generated": [
+    30,
+    32,
+    42,
+    69
+   ],
+   "carddemo-adminmenu": [
+    8,
+    8,
+    20,
+    26
+   ],
+   "carddemo-billpay": [
+    16,
+    16,
+    46,
+    48
+   ],
+   "carddemo-cardlist": [
+    36,
+    36,
+    146,
+    149
+   ],
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
+   "carddemo-cardview": [
+    30,
+    30,
+    69,
+    75
+   ],
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
+   "carddemo-dailyval": [
+    18,
+    18,
+    65,
+    66
+   ],
+   "carddemo-dateutil": [
+    2,
+    2,
+    4,
+    10
+   ],
+   "carddemo-intcalc": [
+    22,
+    22,
+    85,
+    86
+   ],
+   "carddemo-intcalc-generated": [
+    20,
+    22,
+    49,
+    86
+   ],
+   "carddemo-menu": [
+    7,
+    7,
+    29,
+    33
+   ],
+   "carddemo-posttran": [
+    26,
+    26,
+    95,
+    96
+   ],
+   "carddemo-posttran-generated": [
+    24,
+    26,
+    56,
+    96
+   ],
+   "carddemo-readacct": [
+    16,
+    16,
+    41,
+    44
+   ],
+   "carddemo-readcard": [
+    5,
+    5,
+    21,
+    22
+   ],
+   "carddemo-readcust": [
+    5,
+    5,
+    21,
+    22
+   ],
+   "carddemo-readxref": [
+    5,
+    5,
+    21,
+    22
+   ],
+   "carddemo-report": [
+    10,
+    10,
+    51,
+    59
+   ],
+   "carddemo-signon": [
+    6,
+    6,
+    17,
+    17
+   ],
+   "carddemo-tranadd": [
+    18,
+    18,
+    72,
+    75
+   ],
+   "carddemo-tranlist": [
+    16,
+    16,
+    96,
+    101
+   ],
+   "carddemo-tranview": [
+    9,
+    9,
+    23,
+    24
+   ],
+   "carddemo-trnrpt": [
+    26,
+    26,
+    81,
+    82
+   ],
+   "carddemo-useradd": [
+    9,
+    9,
+    20,
+    21
+   ],
+   "carddemo-userdel": [
+    11,
+    11,
+    30,
+    32
+   ],
+   "carddemo-userlist": [
+    16,
+    16,
+    95,
+    100
+   ],
+   "carddemo-userupd": [
+    11,
+    11,
+    44,
+    46
+   ],
+   "cbsa-abndproc": [
+    4,
+    4,
+    2,
+    2
+   ],
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    46,
+    51,
+    62,
+    102
+   ],
+   "cbsa-bnkmenu": [
+    19,
+    25,
+    35,
+    62
+   ],
+   "cbsa-crdtagy1": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy2": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy3": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy4": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-crdtagy5": [
+    4,
+    7,
+    4,
+    6
+   ],
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-getcompy": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-getscode": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
+   "cbsa-inqcust": [
+    22,
+    25,
+    39,
+    46
+   ],
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updcust": [
+    7,
+    7,
+    28,
+    28
+   ],
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgastat1": [
+    1,
+    1,
+    10,
+    10
+   ],
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
+   "genapp-lgdpvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicvs01": [
+    1,
+    1,
+    7,
+    12
+   ],
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucvs01": [
+    2,
+    3,
+    0,
+    4
+   ],
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupvs01": [
+    2,
+    3,
+    5,
+    9
+   ],
+   "genapp-lgwebst5": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
+   "mortgage-csmrt": null,
+   "mortgage-mlist": [
+    5,
+    6,
+    14,
+    15
+   ],
+   "mortgage-mlist-generated": [
+    5,
+    6,
+    7,
+    15
+   ],
+   "mortgage-mpmt": null,
+   "mortgage-nbrvl": [
+    3,
+    3,
+    22,
+    22
+   ],
+   "zecs-zecsplt": [
+    11,
+    11,
+    6,
+    6
+   ]
+  },
+  "programs": [
+   {
+    "cards": [
+     {
+      "line": 1,
+      "option": "CICS",
+      "value": "SP",
+      "written": "CICS(SP)"
+     }
+    ],
+    "commands": [
+     "INQUIRE URIMAP",
+     "RECEIVE",
+     "RETURN",
+     "SEND TEXT",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ECS001.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 105,
+     "translated": 105
+    },
+    "source_read": true
+   },
+   {
+    "cards": [
+     {
+      "line": 1,
+      "option": "CICS",
+      "value": "SP",
+      "written": "CICS(SP)"
+     }
+    ],
+    "commands": [
+     "ASKTIME",
+     "ASSIGN",
+     "DELAY",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "ENQ",
+     "FORMATTIME",
+     "HANDLE ABEND",
+     "INQUIRE URIMAP",
+     "READ",
+     "RETRIEVE",
+     "RETURN",
+     "REWRITE",
+     "START",
+     "SYNCPOINT",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts": {
+     "assign_region": [
+      "APPLID"
+     ],
+     "assign_task": [],
+     "eib": [
+      "EIBFN",
+      "EIBTASKN"
+     ]
+    },
+    "program": "Source/ZECS000.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 173,
+     "translated": 173
+    },
+    "source_read": true
+   },
+   {
+    "cards": [
+     {
+      "line": 1,
+      "option": "CICS",
+      "value": "SP",
+      "written": "CICS(SP)"
+     }
+    ],
+    "commands": [
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "FORMATTIME",
+     "FREEMAIN",
+     "GET COUNTER",
+     "GETMAIN",
+     "INQUIRE PROGRAM",
+     "LINK",
+     "READ",
+     "RETURN",
+     "REWRITE",
+     "SYNCPOINT",
+     "SYNCPOINT ROLLBACK",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB EXTRACT",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB READ HTTPHEADER",
+     "WEB RECEIVE",
+     "WEB SEND",
+     "WEB WRITE HTTPHEADER",
+     "WRITE",
+     "WRITEQ TD",
+     "XCTL"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": [
+      "EIBDS",
+      "EIBFN",
+      "EIBRCODE"
+     ]
+    },
+    "program": "Source/ZECS001.cbl",
+    "row": {
+     "holes": [
+      "line 530: EXEC EXEC CICS: WEB RECEIVE SET: option not modelled (SET: a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled)",
+      "line 542: EXEC EXEC CICS: WEB RECEIVE SET: option not modelled (SET: a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled)",
+      "line 1098: HOLE SET ADDRESS OF (pointers)",
+      "line 1104: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 1110: HOLE SET ADDRESS OF (pointers)",
+      "line 1134: HOLE SET ADDRESS OF (pointers)",
+      "line 1180: EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+      "line 1195: HOLE SET ADDRESS OF (pointers)",
+      "line 1198: HOLE SET ADDRESS OF (pointers)",
+      "line 1244: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+      "line 1487: HOLE SET ADDRESS OF (pointers)",
+      "line 1850: HOLE SET ADDRESS OF (pointers)"
+     ],
+     "kind": "cics",
+     "statements": 561,
+     "translated": 549
+    },
+    "source_read": true
+   },
+   {
+    "cards": [
+     {
+      "line": 1,
+      "option": "CICS",
+      "value": "SP",
+      "written": "CICS(SP)"
+     }
+    ],
+    "commands": [
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "INQUIRE URIMAP",
+     "READ",
+     "RETURN",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB SEND"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": [
+      "EIBFN"
+     ]
+    },
+    "program": "Source/ZECS003.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 73,
+     "translated": 73
+    },
+    "source_read": true
+   },
+   {
+    "cards": [
+     {
+      "line": 1,
+      "option": "CICS",
+      "value": "SP",
+      "written": "CICS(SP)"
+     }
+    ],
+    "commands": [
+     "INQUIRE URIMAP",
+     "RETURN",
+     "START",
+     "WRITE OPERATOR",
+     "WRITEQ TD"
+    ],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ZECSPLT.cbl",
+    "row": {
+     "holes": [],
+     "kind": "cics",
+     "statements": 27,
+     "translated": 27
+    },
+    "source_read": true
+   }
+  ],
+  "record_status": {
+   "carddemo-acctview": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-adminmenu": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-billpay": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cardlist": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cardview": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-dailyval": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-dateutil": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-intcalc": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-menu": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-posttran": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-readcard": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-readcust": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-readxref": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-report": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-signon": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-tranadd": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-tranlist": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-tranview": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-trnrpt": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-useradd": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-userdel": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-userlist": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-userupd": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "cbsa-inqacc": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "cbsa-updacc": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "genapp-lgapvs01": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "genapp-lgicdb01": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "genapp-lgupdb01": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   }
+  },
+  "survey": {
+   "label": "before",
+   "scope": "burned + local corpora (no census)",
+   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "translator": {
+    "files": 106,
+    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+   }
+  },
+  "sweeps": {}
+ },
+ "mutation": "not yet measured (#4628)",
+ "not_measured": [
+  {
+   "dimension": "data",
+   "issue": "#4514",
+   "what": "data migration: VSAM / Db2 / sequential data converted and reconciled"
+  },
+  {
+   "dimension": "JCL streams",
+   "issue": "#4514",
+   "what": "the batch job streams that run the programs (steps, utilities, restart)"
+  },
+  {
+   "dimension": "interfaces",
+   "issue": "#4514",
+   "what": "the estate's external interfaces (MQ, files exchanged, web services, other systems)"
+  },
+  {
+   "dimension": "performance",
+   "issue": "#4514",
+   "what": "throughput, latency and batch windows"
+  },
+  {
+   "dimension": "security",
+   "issue": "#4514",
+   "what": "RACF / CICS security, user and transaction authorisation"
+  },
+  {
+   "dimension": "cutover",
+   "issue": "#4514",
+   "what": "the switch-over plan: parallel run, fallback, data freeze"
+  }
+ ],
+ "options": {
+  "compiler": {
+   "product": {
+    "applied_value": null,
+    "option": "product",
+    "provenance": "found",
+    "source": "System Requirements and Considerations.md:12",
+    "value": "Enterprise COBOL"
+   },
+   "version": {
+    "applied_value": null,
+    "option": "version",
+    "provenance": "found",
+    "source": "System Requirements and Considerations.md:12",
+    "value": "4.2"
+   }
+  },
+  "counts": {
+   "assumed": 16,
+   "found": 3
+  },
+  "estate_file": "tests/equivalence/estate_options/zecs.json",
+  "installation_defaults": [
+   {
+    "applied_value": null,
+    "option": "ARITH",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "CODEPAGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "1140"
+   },
+   {
+    "applied_value": null,
+    "option": "DISPSIGN",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "COMPAT"
+   },
+   {
+    "applied_value": null,
+    "option": "INTDATE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "ANSI"
+   },
+   {
+    "applied_value": null,
+    "option": "NOSSRANGE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": ""
+   },
+   {
+    "applied_value": null,
+    "option": "NSYMBOL",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NATIONAL"
+   },
+   {
+    "applied_value": null,
+    "option": "NUMPROC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "NOPFD"
+   },
+   {
+    "applied_value": null,
+    "option": "OPTIMIZE",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "0"
+   },
+   {
+    "applied_value": null,
+    "option": "TRUNC",
+    "provenance": "assumed",
+    "source": "assumed: IBM default",
+    "value": "STD"
+   }
+  ],
+  "parm_default": [
+   {
+    "applied_value": null,
+    "option": "CICS",
+    "provenance": "assumed",
+    "source": "assumed: owner decision",
+    "value": ""
+   }
+  ],
+  "parm_programs": [],
+  "programs_assumed": 30,
+  "programs_found": 0,
+  "programs_with_deviation": 0,
+  "sections": {
+   "cics": {
+    "assumed": 2,
+    "found": 1
+   },
+   "db2": {
+    "assumed": 1,
+    "found": 0
+   },
+   "le": {
+    "assumed": 3,
+    "found": 0
+   }
+  }
+ },
+ "oracle": {
+  "base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
+ },
+ "programs": [
+  {
+   "assumptions": {
+    "facts_stated": [
+     "urimaps"
+    ],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused",
+      "id": "X18",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+      "id": "X32",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 6,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 6,
+     "total": 6
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 11,
+     "live": 11
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "zecs-zecsplt",
+      "case_scenarios": 4,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecsplt",
+     "case_scenarios": 4,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [
+      "urimaps"
+     ],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "START",
+     "crucible_cases": [
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE OPERATOR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECSPLT.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X18",
+     "X27",
+     "X32"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 5,
+    "commands_backed": 2,
+    "commands_not_backed": [
+     "INQUIRE URIMAP",
+     "WRITE OPERATOR",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 27,
+    "translated": 27,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "http_peers",
+     "urimaps"
+    ],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+      "id": "X15",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+      "id": "X32",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use",
+      "id": "X35",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [
+      "urimaps"
+     ],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X15"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ECS001.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X15",
+     "X27",
+     "X32",
+     "X35"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 7,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "INQUIRE URIMAP",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 105,
+    "translated": 105,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "doctemplates",
+     "facility",
+     "http_peers",
+     "screen",
+     "startcode",
+     "urimaps",
+     "userid"
+    ],
+    "facts_unstated": [
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
+     "ASSIGN APPLID (the case states no region)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused",
+      "id": "X18",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+      "id": "X32",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused",
+      "id": "X33",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use",
+      "id": "X35",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE",
+      "id": "X36",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELAY",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "doctemplates"
+     ],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ENQ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [
+      "urimaps"
+     ],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETRIEVE",
+     "crucible_cases": [
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "START",
+     "crucible_cases": [
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X18"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X36"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECS000.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X18",
+     "X19",
+     "X22",
+     "X27",
+     "X32",
+     "X33",
+     "X35",
+     "X36"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 22,
+    "commands_backed": 5,
+    "commands_not_backed": [
+     "ASKTIME",
+     "DELAY",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "ENQ",
+     "FORMATTIME",
+     "INQUIRE URIMAP",
+     "READ",
+     "REWRITE",
+     "SYNCPOINT",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 3,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 173,
+    "translated": 173,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "doctemplates",
+     "http_peers",
+     "http_request",
+     "urimaps"
+    ],
+    "facts_unstated": [
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused",
+      "id": "X32",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused",
+      "id": "X33",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use",
+      "id": "X35",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE",
+      "id": "X36",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused",
+      "id": "X37",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "doctemplates"
+     ],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "INQUIRE URIMAP",
+     "crucible_cases": [],
+     "facts_stated": [
+      "urimaps"
+     ],
+     "registers": [
+      "X32"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X36"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB SEND",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X37"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECS003.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X32",
+     "X33",
+     "X35",
+     "X36",
+     "X37"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 12,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "INQUIRE URIMAP",
+     "READ",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB SEND"
+    ],
+    "facts_unstated": 1,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 73,
+    "translated": 73,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "doctemplates",
+     "http_peers",
+     "http_request"
+    ],
+    "facts_unstated": [
+     "EIB field EIBDS (both runtimes read zero; z/OS does not)",
+     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
+     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused",
+      "id": "X30",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "DOCUMENT CREATE (DOCTOKEN; none, TEXT / BINARY with LENGTH, or TEMPLATE: an empty document, the area's bytes unchanged, or the text the installed DOCTEMPLATE yields; LENGERR RESP2 1 for a negative LENGTH, NOTFND RESP2 3 for a template not installed) and DOCUMENT RETRIEVE (DOCTOKEN, INTO, LENGTH, MAXLENGTH, DATAONLY: at most MAXLENGTH bytes INTO, LENGTH the document's length, LENGERR RESP2 2 when truncated, NOTFND RESP2 1 for an unknown token, LENGERR RESP2 1 for a negative MAXLENGTH); the DOCTOKEN value, the installed templates' text, and the text a retrieved document's bytes are in are ours / stated by whoever runs the task; FROM, FROMDOC, SYMBOLLIST / LISTLENGTH / DELIMITER / UNESCAPED, DOCSIZE, HOSTCODEPAGE / CHARACTERSET, a RETRIEVE without DATAONLY or MAXLENGTH, a CREATE of TEXT / BINARY without LENGTH, a template with symbols or template commands, and DOCUMENT INSERT / SET / DELETE refused",
+      "id": "X33",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused",
+      "id": "X34",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use",
+      "id": "X35",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE",
+      "id": "X36",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused",
+      "id": "X37",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "#4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once",
+      "id": "X38",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (12 holes left)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DELETE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT CREATE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "doctemplates"
+     ],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "DOCUMENT RETRIEVE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X33"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FREEMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "GET COUNTER",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X30"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "GETMAIN",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "name-only"
+    },
+    {
+     "backed": false,
+     "command": "INQUIRE PROGRAM",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X34"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT ROLLBACK",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CLOSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB CONVERSE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB EXTRACT",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X38"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB OPEN",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_peers"
+     ],
+     "registers": [
+      "X35"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB PARSE URL",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X36"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB READ HTTPHEADER",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X38"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB RECEIVE",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X38"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB SEND",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X37"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WEB WRITE HTTPHEADER",
+     "crucible_cases": [],
+     "facts_stated": [
+      "http_request"
+     ],
+     "registers": [
+      "X38"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "Source/ZECS001.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X30",
+     "X33",
+     "X34",
+     "X35",
+     "X36",
+     "X37",
+     "X38"
+    ],
+    "branch_outcomes_unrun": null,
+    "commands": 27,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "ASKTIME",
+     "DELETE",
+     "DOCUMENT CREATE",
+     "DOCUMENT RETRIEVE",
+     "FORMATTIME",
+     "FREEMAIN",
+     "GET COUNTER",
+     "GETMAIN",
+     "INQUIRE PROGRAM",
+     "READ",
+     "REWRITE",
+     "SYNCPOINT",
+     "SYNCPOINT ROLLBACK",
+     "WEB CLOSE",
+     "WEB CONVERSE",
+     "WEB EXTRACT",
+     "WEB OPEN",
+     "WEB PARSE URL",
+     "WEB READ HTTPHEADER",
+     "WEB RECEIVE",
+     "WEB SEND",
+     "WEB WRITE HTTPHEADER",
+     "WRITE",
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 3,
+    "holes": 12,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [
+     "EXEC CICS FREEMAIN",
+     "EXEC CICS GETMAIN",
+     "EXEC CICS WEB RECEIVE SET",
+     "SET ADDRESS OF",
+     "ZUIDSTCK: no program of that name with a CALL entry in the estate"
+    ],
+    "hole_count": 12,
+    "holes": [
+     "CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+     "EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+     "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)",
+     "EXEC EXEC CICS: WEB RECEIVE SET: option not modelled (SET: a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled)",
+     "HOLE SET ADDRESS OF (pointers)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 561,
+    "translated": 549,
+    "whole": false
+   }
+  }
+ ],
+ "reproducibility": {
+  "commands": [
+   "python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "python tests/tools/evidence_report.py --refresh",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-zecsplt",
+   "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
+  ],
+  "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
+  "coverage_from": "det-sweep coverage ledger, freshness at build time",
+  "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
+  "crucible_cases_measured_at": "v0.5.0",
+  "crucible_pins": {
+   "cics": "v0.7.0",
+   "estate": "v0.4.0",
+   "language": "v1.7.0"
+  },
+  "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+  "oracle_images_of_records": [],
+  "pin_manifest": "tests/crucible_pins.toml",
+  "record_status_from": "evidence.py status at build time",
+  "survey": {
+   "label": "before",
+   "scope": "burned + local corpora (no census)",
+   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "translator": {
+    "files": 106,
+    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+   }
+  },
+  "translator_commit": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+  "translator_from": "translator fingerprint as stored with the survey"
+ },
+ "summary": {
+  "cics_programs": 5,
+  "det_equal": 1,
+  "histogram": {
+   "L0": 1,
+   "L1": 3,
+   "L2": 0,
+   "L3": 0,
+   "L4": 1,
+   "L5": 0
+  },
+  "histogram_stale": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "histogram_stale_survey": {
+   "L0": 0,
+   "L1": 0,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
+   "L5": 0
+  },
+  "holes": 12,
+  "levels_stale": 0,
+  "levels_stale_survey": 0,
+  "programs": 5,
+  "records_current": 0,
+  "refused_whole": 0,
+  "source_unread": 0,
+  "translated_whole": 4,
+  "with_case": 1,
+  "with_record": 0
+ },
+ "survey_translator": {
+  "current": true,
+  "fingerprint": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+ }
+}

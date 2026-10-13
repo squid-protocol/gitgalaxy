@@ -147,6 +147,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued, NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send or was DOCDELETE, and NORMAL when the last WEB SEND was an EVENTUAL (or ACTION-omitted) document send that did not DOCDELETE: the 16-byte DOCTOKEN written is that of a new document of the task holding the document as it was sent (ASSUMED), the same token for every retrieve of that send; refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike, NORMAL included; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
+| X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2234,6 +2235,37 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   program is not proven while a program it LINKs has holes. When IBM's abend pages are sourced, add them to `CONDITION_ABEND`,
   model the condition, and remove the refusal.
 - **Status:** REFUSED for the three conditions; the RESP2 fix is exact.
+
+### X46. FORMATTIME day-of-year and binary forms, DUMP TRANSACTION — ASSUMED, REFUSED where IBM is silent (#4415 slice 3)
+- **FORMATTIME date forms** (CICS TS 6.x, EXEC CICS FORMATTIME, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-formattime).
+  YYDDD "the 6-character user field where CICS returns the date, in year/day format; for example, 95/301", YYYYDDD "8-character
+  ... for example 1995/200", YYDDMM "8-character ... year/day/month format; for example, 95/30/10", YYYYDDMM 10-character.
+  "If no separator is requested, the returned value is left-aligned" in the field. The page's day-of-year has three digits only
+  by its examples (95/301, 1995/200) and the 6- / 8-character field widths: **ASSUMED** three digits with leading zeros (day 1
+  is `001`). DATESEP applies as for the other forms (no DATESEP: none; DATESEP alone: '/'). The same INVREQ RESP2 1 for an
+  ABSTIME below zero as X28.
+- **FORMATTIME binary forms.** DAYCOUNT "the number of days since 1 January 1900 (day 1), as a fullword binary number":
+  **ASSUMED** read as 1 January 1900 being day 1 (ABSTIME 0 gives 1). DAYOFMONTH, MONTHOFYEAR (January=1), YEAR (the full four
+  figures) "as a fullword binary number"; DAYOFWEEK "Sunday=0, Saturday=6" (1 January 1900 was a Monday: 1). MILLISECONDS "the
+  number of milliseconds in the current second specified by ABSTIME, as a binary integer in the range 0 - 999": the page does
+  not say fullword or halfword, so the value is **written by the receiving area's declared usage** (a field too small for the
+  value is the program's own size error, as for any store) rather than a width being chosen. Local time, as the other forms:
+  IBM says the date and time values other than DATESTRING "are returned in local time" and ABSTIME is the region's clock.
+- **Refused by name:** DATE, FULLDATE and DATEFORM return the date "in the format specified in the DATFORM system
+  initialization parameter" (DATEFORM: YYMMDD, DDMMYY or MMDDYY): the run states no DATFORM. DATESTRING (RFC1123 / RFC3339,
+  with STRINGFORMAT, and STRINGZONE UTC / LOCAL) needs the region's offset from UTC, which the run does not state; INVREQ RESP2 2
+  (an invalid STRINGFORMAT CVDA) therefore does not arise.
+- **DUMP TRANSACTION** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-dump-transaction), also the bare `EXEC CICS DUMP`
+  an old program writes (the page does not say they are one command, so the bare form is refused on its own). IBM lists INVREQ
+  RESP2 13 (a DUMPCODE with unprintable, leading or embedded blank characters: the dump is still taken), IOERR 9 / 10 / 13,
+  NOSPACE 4, NOSTG 5, NOTOPEN 6, OPENERR 7 and SUPPRESSED 1 / 2 / 3 (the dump table's MAXIMUM, its NOTRANDUMP, a user exit);
+  DUMPID returns "xxxx/yyyy" with a run number; "if the DUMPCODE has a SYSDUMP entry in the transaction dump table, a system
+  dump is also taken". Every outcome but the DUMPCODE's validity is the region's dump setup (dump table, dump data set, user
+  exit, run count), none of which a run states, and the page does not say the task continues after a successful dump. Not
+  modelled; refused by name, with its options.
+- **QUERY** (#4415 lists it): QUERY COUNTER is X29 (QUERY DCOUNTER is #4770, QUERY CHANNEL #5005); QUERY SECURITY stays refused
+  (the region has no security manager).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent.
 
 ## Language Environment
 

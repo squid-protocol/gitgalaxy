@@ -2070,6 +2070,49 @@ int GGCDELC(gg_cics *c) {
     return 0;
 }
 
+/* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
+ * CicsTask (register X43). The channel's name is GG-CHAN. */
+
+/* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
+ * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */
+int GGCDELH(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (chans[ch - 1].c[i].used) free(chans[ch - 1].c[i].data);
+        memset(&chans[ch - 1].c[i], 0, sizeof chans[ch - 1].c[i]);
+    }
+    chans[ch - 1].shape++;
+    level *L = &levels[lvl];
+    for (int i = 0; i < L->nscope; i++) {
+        if (L->scope[i] == ch) {
+            for (int j = i; j + 1 < L->nscope; j++) L->scope[j] = L->scope[j + 1];
+            L->nscope--;
+            break;
+        }
+    }
+    return 0;
+}
+
+/* QUERY CHANNEL: the number of containers into GG-NUM; CHANNELERR RESP2 2 for a channel not in scope. */
+int GGCQCHN(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    int n = 0;
+    for (int i = 0; i < MAX_CONTAINERS; i++) if (chans[ch - 1].c[i].used) n++;
+    c->num = n;
+    return 0;
+}
+
 /* ---- #4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL), STARTBROWSE /
  * GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); the same semantics as CicsTask (register X42). */
 

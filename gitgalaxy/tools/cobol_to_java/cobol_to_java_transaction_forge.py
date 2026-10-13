@@ -2942,6 +2942,37 @@ public class CicsTask {
         return new ContainerResult("NORMAL", 0, -1, null);
     }
 
+    /** DELETE CHANNEL(channel) (IBM, EXEC CICS DELETE CHANNEL): the channel and every container it holds go; a later
+     *  command naming it finds no channel (CHANNELERR RESP2 2), a PUT CONTAINER makes a new empty one. CHANNELERR
+     *  RESP2 2: not in the program's scope. IBM's other RESP2 values name the current channel (4), the transaction
+     *  channel (5), a channel not owned by the calling program (6) and a read-only channel (3); a channel the program
+     *  is passed is the current one, and is also not its own, so IBM's order among 4 / 5 / 6 decides and it gives none:
+     *  the current channel is refused (ASSUMED: no read-only channel exists). A browse of the deleted channel is
+     *  refused at its next GETNEXT, as for any change to the channel (X42). */
+    public ContainerResult deleteChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        if (ch == currentChannel) {
+            throw refused("DELETE CHANNEL of the current channel");
+        }
+        ch.containers.clear();
+        ch.shape++;
+        channels.remove(ch.name);
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** QUERY CHANNEL(channel) CONTAINERCNT(count) (IBM, EXEC CICS QUERY CHANNEL): the number of containers the channel
+     *  holds, as the result's length. CHANNELERR RESP2 2: not in the program's scope (the count is then not set). */
+    public ContainerResult queryChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        return new ContainerResult("NORMAL", 0, ch.containers.size(), null);
+    }
+
     /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
      *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
      *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the

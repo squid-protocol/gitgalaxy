@@ -212,6 +212,14 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"
 
+      # #4980: IBM's ODBC driver (the Db2 image's one download) cached on its pin; on a miss the harness fetches it with
+      # curl --retry and checks the sha256, and a failure there says it is infrastructure.
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
+
       # Db2 takes minutes to start and its databases to create (#4733): start them now, in the background, so they come
       # up while the JDK, Maven cache and corpora are set up. The harness's own ensure() then finds them running (the
       # start lock makes it wait for this one when it is not done yet).

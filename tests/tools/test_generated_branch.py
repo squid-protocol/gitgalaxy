@@ -76,6 +76,23 @@ def test_fetch_restores_the_published_copy_and_falls_back_when_absent(remote_and
     assert (clone / "docs" / "h.csv").read_text() == "seed\nnewer\n"
 
 
+def test_publish_expands_a_directory_to_the_files_beneath_it(remote_and_clone):
+    remote, clone = remote_and_clone
+    rep = clone / "docs" / "report"
+    (rep / "a").mkdir(parents=True)
+    (rep / "a" / "report.md").write_text("one\n")
+    (rep / "README.md").write_text("top\n")
+    assert gb.expand(["docs/report", "docs/h.csv"], clone) == [
+        "docs/report/README.md",
+        "docs/report/a/report.md",
+        "docs/h.csv",
+    ]
+    assert gb.publish(["docs/report"], "m", root=clone)
+    assert git(remote, "show", "generated:docs/report/a/report.md") == "one"
+    assert git(remote, "show", "generated:docs/report/README.md") == "top"
+    assert gb.publish(["docs/report"], "again", root=clone) is None  # unchanged: nothing committed
+
+
 def test_publish_refuses_a_missing_file(remote_and_clone):
     _, clone = remote_and_clone
     with pytest.raises(FileNotFoundError):
@@ -88,8 +105,7 @@ def test_publish_refuses_a_missing_file(remote_and_clone):
 # copy: new bot output goes to `generated` through tests/tools/generated_branch.py.
 STILL_COMMITS_TO_MAIN = {
     "gitgalaxy.yml",  # docs/gitgalaxy_architecture_brief.md, read from the checkout by agents (CLAUDE.md)
-    "mainframe-ground-truth.yml",  # docs/self_scan/ground_truth_history.jsonl (#4935 in flight)
-    "evidence-refresh.yml",  # evidence records + det-sweep ledger: inputs of human approval, must be on main
+    "evidence-refresh.yml",  # evidence records + det-sweep ledger: inputs of human approval, must be on main (its report is MOVED)
     "release-crucible-archive.yml",  # opens its PR in language-crucible, not in this repo
 }
 MOVED = {
@@ -97,6 +113,7 @@ MOVED = {
     "graph-comparison-history.yml": ["docs/self_scan/graph_comparison_ledger.json"],
     "tree-sitter-accuracy-history.yml": ["docs/self_scan/tree_sitter_accuracy_history.csv"],
     "tri-comparison-history.yml": ["docs/self_scan/tri_comparison_ledger.json"],
+    "mainframe-ground-truth.yml": ["docs/self_scan/ground_truth_history.jsonl"],  # #4963
     "archetype-validation.yml": ["gitgalaxy/standards/archetype_brains/archetype_validation.json"],
 }
 
@@ -133,10 +150,37 @@ def test_a_moved_writer_publishes_to_generated_and_never_opens_a_pr(name):
 
 
 @pytest.mark.parametrize(
-    "name", ["call-resolution-history.yml", "tree-sitter-accuracy-history.yml", "graph-comparison-history.yml"]
+    "name",
+    [
+        "call-resolution-history.yml",
+        "tree-sitter-accuracy-history.yml",
+        "graph-comparison-history.yml",
+        "mainframe-ground-truth.yml",
+    ],
 )
 def test_an_appending_writer_starts_from_the_published_series(name):
     """The history CSV is appended to: it must be restored from generated before the tool runs, or each run would
     append to main's frozen copy and publish a series that forgets every earlier batch."""
     code = _code(name)
     assert code.index("generated_branch.py fetch") < code.index("--history")
+
+
+def test_the_evidence_report_is_published_not_committed_by_the_refresh_bot():
+    """#4963: the bot PR carries the records and the ledger (approval inputs), never the rendered report."""
+    code = _code("evidence-refresh.yml")
+    add_paths = code.split("add-paths: |", 1)[1].split("- name:", 1)[0]
+    assert "evidence_report" not in add_paths
+    publish = code.split("publish-report:", 1)[1].split("\n  publish-blockers:", 1)[0]
+    assert "generated_branch.py publish" in publish
+    assert "docs/language_status/evidence_report" in publish
+    assert "create-pull-request" not in publish and "gh pr merge" not in publish
+    assert re.search(r"persist-credentials:\s*true", publish)
+
+
+def test_the_ground_truth_pr_job_holds_no_write_token():
+    """The job that runs PR code only reads; the publish to generated is a separate, main-only job."""
+    code = _code("mainframe-ground-truth.yml")
+    job = code.split("  ground-truth:", 1)[1].split("\n  publish-history:", 1)[0]
+    assert "contents: write" not in job and "persist-credentials: true" not in job
+    publish = code.split("publish-history:", 1)[1]
+    assert "refs/heads/main" in publish and "pull_request" not in publish.split("steps:", 1)[0]

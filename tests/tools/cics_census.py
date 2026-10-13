@@ -85,6 +85,8 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
+import generated_branch  # noqa: E402
+
 CENSUS_ENV = "CICS_CENSUS_CORPORA"
 PROGRAM_EXTS = {".cbl", ".cob", ".cobol"}  # det_survey.EXTS
 PLI_EXTS = {".pli", ".pl1"}  # counted and flagged: the det translator takes COBOL only
@@ -551,7 +553,6 @@ def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
 
 def cmd_blockers(args: argparse.Namespace) -> int:
     if args.generated:  # the nightly ranking published on the generated branch (#4863)
-        _git("fetch", "-q", "origin", "generated")
         res = json.loads(read_generated(f"{GENERATED_DIR}/blockers.json"))
         meta = json.loads(read_generated(f"{GENERATED_DIR}/meta.json"))
         where = f"nightly {meta['sha'][:12]} ({meta['scope']}, surveyed {meta['surveyed_utc']})"
@@ -596,7 +597,6 @@ SNAPSHOT_PATHS = ("gitgalaxy", "tests/tools", "pyproject.toml")  # what det_surv
 HISTORY = REPO / "docs" / "language_status" / "blockers_history.jsonl"
 # #4863: the nightly baseline (blockers.txt / .json / meta.json) and its history are published to the `generated` branch by
 # evidence-refresh.yml (one survey a night), not committed on main. The per-slice HISTORY above stays on main as the seed.
-GENERATED_REF = "origin/generated"
 GENERATED_DIR = "docs/language_status/blockers"
 GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
@@ -941,7 +941,6 @@ def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            _git("fetch", "-q", "origin", "generated")
             rows = [json.loads(ln) for ln in read_generated(GENERATED_HISTORY).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
@@ -1007,8 +1006,15 @@ def cmd_publish(args: argparse.Namespace) -> int:
 
 
 def read_generated(path: str) -> str:
-    """A file of the published `generated` branch (after `git fetch origin generated`)."""
-    return _git("show", f"{GENERATED_REF}:{path}")
+    """A file of the published `generated` branch, through the shared reader (#4963; it fetches the tip itself). These
+    files have no committed copy on main, so a branch or file that is not published yet is an error, not a fallback."""
+    try:
+        data = generated_branch.read_published(path, REPO)
+    except RuntimeError as e:
+        raise SystemExit(f"cannot read the generated branch: {e}") from e
+    if data is None:
+        raise SystemExit(f"{path} is not published on the generated branch (evidence-refresh.yml writes it nightly)")
+    return data.decode("utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:

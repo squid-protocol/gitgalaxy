@@ -316,7 +316,8 @@ def _pprogram(pic: str, op: str, data: bytes) -> str:
     lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
              "       WORKING-STORAGE SECTION.", "       01 R PIC X(2).", f"       01 S REDEFINES R {pic}.",
              "       01 DU PIC 9(7).", "       01 DS PIC S9(7).", "       01 PK PIC S9(7) COMP-3.",
-             "       01 BN PIC S9(9) COMP.", "       01 E1 PIC Z(6)9.", "       PROCEDURE DIVISION.",
+             "       01 BN PIC S9(9) COMP.", "       01 E1 PIC Z(6)9.", "       01 X PIC X(6).", "       01 N PIC 9(4).",
+             "       PROCEDURE DIVISION.",
              f"           MOVE X'{data.hex().upper()}' TO R", f"           {op}", "           GOBACK.", ""]  # fmt: skip
     return "\n".join(lines)
 
@@ -369,9 +370,11 @@ def _holes(src: str, work: Path) -> list[str]:
 @pytest.mark.parametrize(
     ("op", "hole"),
     [("DISPLAY '[' S ']'", "a P-scaled item's DISPLAY form (#4670)"),
-     ("INITIALIZE N REPLACING NUMERIC BY S", "INITIALIZE REPLACING")],
+     ("INITIALIZE N REPLACING NUMERIC BY S", "INITIALIZE REPLACING"),
+     ("STRING S DELIMITED BY SIZE INTO X", "STRING sender S"),
+     ("STRING 'a' DELIMITED BY S INTO X", "STRING sender S")],
 )  # fmt: skip
-def test_a_p_scaled_display_and_initialize_replacing_are_refused_by_name(pic, data, op, hole, tmp_path):
+def test_a_p_scaled_display_initialize_and_string_are_refused_by_name(pic, data, op, hole, tmp_path):
     """DISPLAY of a P-scaled item (cobc prints the P positions' zeros as digits, IBM the stored bytes) and a P-scaled
     INITIALIZE ... REPLACING sender are holes at translation, digit-only or not (#4996)."""
     pytest.importorskip("tree_sitter_language_pack")
@@ -379,10 +382,35 @@ def test_a_p_scaled_display_and_initialize_replacing_are_refused_by_name(pic, da
     assert len(holes) == 1 and hole in holes[0], holes
 
 
+@pytest.mark.parametrize("pic", ["PIC VPP99", "PIC SVPP99"])
+@pytest.mark.parametrize("data", [b"12", b"1A"])
+@pytest.mark.parametrize("target", ["X", "XB"])
+def test_a_noninteger_p_scaled_item_moved_to_alphanumeric_is_refused_by_name(pic, data, target, tmp_path):
+    """Enterprise COBOL 6.4 Language Reference Table 51: a numeric noninteger sending item to an alphanumeric or
+    alphanumeric-edited receiver is an invalid MOVE (a left-P item has only decimal places); cobc warns and moves."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = _pprogram(pic, f"MOVE S TO {target}", data).replace(
+        "       01 N PIC 9(4).", "       01 N PIC 9(4).\n       01 XB PIC XXBXX."
+    )
+    holes = _holes(src, tmp_path)
+    assert len(holes) == 1 and "a noninteger numeric item" in holes[0] and "Table 51" in holes[0], holes
+
+
+@pytest.mark.parametrize("op", ["MOVE V TO X", "STRING V DELIMITED BY SIZE INTO X"])
+def test_a_noninteger_numeric_to_alphanumeric_or_string_is_refused_by_name_without_p_too(op, tmp_path):
+    """The same two rules without a P (Table 51; STRING needs an integer): `PIC 9V99` is no sender of either."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = _pprogram("PIC 99PP", op, b"12").replace(
+        "01 S REDEFINES R PIC 99PP.", "01 S REDEFINES R PIC 99PP.\n       01 V PIC 9V99."
+    )
+    holes = _holes(src, tmp_path)
+    assert len(holes) == 1 and ("noninteger numeric item" in holes[0] or "STRING sender V" in holes[0]), holes
+
+
 # #4996: what reads a P item as bytes or as a digit-only number. Each case is `pic|data|op`; the op's lines print
 # through DSX / DUX / BX (the receivers' bytes) so no DISPLAY form of a signed number is in play.
 BYTE_READS = {
-    "string": "STRING S DELIMITED BY SIZE INTO X", "refmod": "MOVE S(1:1) TO X", "movex": "MOVE S TO X",
+    "strref": "STRING S(1:1) DELIMITED BY SIZE INTO X", "refmod": "MOVE S(1:1) TO X", "movex": "MOVE S TO X",
 }  # fmt: skip
 VALUE_READS = {
     "mulby": "MOVE 3 TO DS\n           MULTIPLY S BY DS", "mulgiv": "MULTIPLY 2 BY S GIVING DS",
@@ -405,7 +433,7 @@ def _pdata(pic: str, dirty: bool) -> list[bytes]:
 # a left-P item MOVEd to a binary one makes cobc 3.1.2 hang even digit-only: not measurable, so not a case
 P_CASES = (
     [(pic, d, op) for pic in PICS for d in _pdata(pic, False) for op in VALUE_READS if not (op == "bn" and "VPP" in pic)]
-    + [(pic, d, op) for pic in PICS for d in _pdata(pic, True) for op in BYTE_READS]
+    + [(pic, d, op) for pic in PICS for d in _pdata(pic, True) for op in BYTE_READS if not (op == "movex" and "VPP" in pic)]
 )  # fmt: skip
 P_EXPECTED = Path(__file__).with_name("nondigit_zoned_p_expected.txt")
 

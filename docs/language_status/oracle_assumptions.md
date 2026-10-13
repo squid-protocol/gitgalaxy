@@ -634,13 +634,33 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   `Cobol.moveNonDigit`: "... a zoned item with a P scaling position ... is not modelled"); a digit-only P item is read
   as ever (PSCALE, `test_det_programs.py`). Tested over `99PP`, `S99PP`, `VPP99`, `SVPP99` x MOVE to zoned / packed /
   binary / edited, ADD, SUBTRACT, COMPUTE, comparison (`test_det_nondigit_zoned.py`).
-  The rest of the sender class (#4996): MULTIPLY / DIVIDE operands go through the same `Zoned.operand` (refused, tested);
-  a P item as the receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is the dirty-receiver refusal above (tested); DISPLAY of a
-  P-scaled item (cobc prints the P positions' zeros as digits, `[0012]` for `99PP` holding `12`; IBM the stored bytes)
-  and `INITIALIZE ... REPLACING` with a P-scaled sender are translation holes by name, digit-only or not (#4670);
-  STRING, reference modification and MOVE to alphanumeric read the bytes, as cobc does (modelled, byte-exact). A
-  digit-only P item's value is cobc's on every arithmetic / compare / MOVE read (`nondigit_zoned_p_expected.txt`, 270
-  cobc-measured cases; a left-P MOVE to binary is left out, cobc hangs on it even digit-only).
+  The rest of the sender class (#4996), against the Enterprise COBOL for z/OS 6.4 Language Reference (every quote below
+  is from `lrmvs.pdf`; where IBM rejects, the port refuses by name rather than model cobc):
+  - **STRING -- REFUSED (translation hole).** STRING rules: "If identifier-1 or identifier-2 references a data item of
+    category numeric, each numeric item must be described as an integer without the symbol 'P' in its PICTURE
+    character-string." A P-scaled (or noninteger) numeric sender, or DELIMITED BY item, is a compile error on z/OS; cobc
+    sends its stored bytes. A reference-modified one is alphanumeric (below) and is translated.
+  - **MOVE of a noninteger numeric (`VPP99`, `SVPP99`, `9V99`) to an alphabetic / alphanumeric / alphanumeric-edited
+    item -- REFUSED (translation hole).** "Valid and invalid elementary moves" (Table 51), row "Numeric noninteger
+    sending item", columns alphabetic / alphanumeric / alphanumeric-edited: NO. cobc warns ("MOVE of non-integer to
+    alphanumeric") and moves. A right-P item (`99PP`, `S99PP`) is an integer: the MOVE is valid and "any digit positions
+    described with picture symbol P in the sending item are considered to have the value zero. Each P is counted in
+    the size of the sending item" (MOVE, usage note 1), which is what the port and cobc do (`1200  ` for `12`). A
+    non-digit in its digit positions is C11's undefined data, copied as for an unscaled item (ASSUMED).
+  - **Reference modification -- MODELLED.** A numeric DISPLAY data-name-1 "is operated upon for purposes of reference
+    modification as if it were redefined as a data item of category alphanumeric with the same size"; the rules name no
+    P restriction, and in operations other than the numeric ones listed under "P symbol" the Ps "are ignored and are not
+    counted in the size of the operand", so `S(1:1)` of `99PP` is its first stored byte (cobc agrees).
+  - **DISPLAY of a P-scaled item -- REFUSED (translation hole, #4670).** The DISPLAY page names no P rule and says only
+    "No other categories of data require conversion" beyond binary / packed / float / pointer; DISPLAY is none of the
+    operations "P symbol" lists as using the algebraic value, so IBM writes the item's stored bytes (an inference from
+    those two statements, not a sentence about DISPLAY). cobc writes the P positions as digits (`[0012]` for `99PP`
+    holding `12`), so the port refuses rather than print either.
+  - Also refused already, now tested: MULTIPLY / DIVIDE operands (`Zoned.operand`), a P item as the receiver of ADD /
+    SUBTRACT / MULTIPLY / DIVIDE (#4889), `INITIALIZE ... REPLACING` with such a sender (hole).
+  A digit-only P item's value is cobc's on every arithmetic / compare / MOVE read, and a P item's reference-modified
+  and right-P MOVE-to-alphanumeric bytes are cobc's (`nondigit_zoned_p_expected.txt`, 260 cobc-measured cases; a left-P
+  MOVE to binary is left out, cobc hangs on it even digit-only).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,

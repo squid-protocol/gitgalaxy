@@ -53,25 +53,24 @@ DEFINITION: dict[str, Any] = {
     # statements, or procedures. A .inc file is Fortran on this positive evidence
     # across fixed-form and free-form Fortran constructs.
     "internal_discriminator": re.compile(
-        r"^[ \t]*COMMON\s*(?:/[^/\n]*/|[A-Za-z_]\w*[ \t]*[,(])|"
-        r"^[ \t]*EQUIVALENCE\s*\([^)\n]+,[^)\n]+\)|"
-        r"^[ \t]*PARAMETER\s*\([^)\n]*=[^)\n]*\)|"
-        r"^[ \t]*IMPLICIT[ \t]+(?:NONE\b|(?:INTEGER|REAL|CHARACTER|DOUBLE|COMPLEX|LOGICAL|BYTE)\b)|"
-        r"^[ \t]*DOUBLE[ \t]+(?:PRECISION|COMPLEX)\b|"
-        r"^[ \t]*(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS)\b[^;\n]*::|"
-        r"^[ \t]*(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|BYTE)\s*\*\s*(?:\d+|\([^)\n]+\))|"
-        r"^[ \t]*(?:INTEGER|REAL|LOGICAL|COMPLEX|BYTE)[ \t]+[A-Za-z_]\w*(?:\s*\([^)\n]+\))?(?:[ \t]*,[ \t]*[A-Za-z_]\w*(?:\s*\([^)\n]+\))?){0,50}[ \t]*(?:!.*)?$|"
-        r"^[ \t]*CHARACTER\s*(?:\*\s*(?:\d+|\([^)\n]+\))|\([^)\n]+\))?[ \t]+[A-Za-z_]\w*|"
-        r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+){0,3}SUBROUTINE\s+[A-Za-z_]\w*|"
-        r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+|(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE[ \t]+PRECISION)(?:\*\d+|\([^)\n]+\))?[ \t]+)FUNCTION\s+[A-Za-z_]\w*|"
-        r"^[ \t]*(?:PROGRAM|MODULE\s+(?!PROCEDURE\b)|SUBMODULE|BLOCK\s+DATA)\s+[A-Za-z_]\w*|"
-        r"^[ \t]*END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|TYPE|INTERFACE)\b|"
-        r"\.(?:TRUE|FALSE|AND|OR|NOT|EQ|NE|LT|LE|GT|GE|EQV|NEQV)\.|"
-        r"^[ \t]*DIMENSION[ \t]+[A-Za-z_]\w*\s*\([^)\n]+\)|"
-        r"^[ \t]*DATA[ \t]+[A-Za-z_]\w*[ \t]*/[^/\n]*/|"
-        r"^[ \t]*(?:\d+[ \t]+)?FORMAT\s*\([^)\n]*\)|^[ \t]*PRINT\s*\*\s*,|^[ \t]*WRITE\s*\(\s*\*\s*,\s*\*|"
-        r"^[ \t]*CONTAINS[ \t]*$|^[ \t]*INTERFACE(?:\s+[A-Za-z_]\w*|\s*$)",
-        re.M | re.I,
+        r"(?mi)(?:^[ \t]*(?:COMMON\s*(?:/[^/\n]*/|[A-Za-z_]\w*[ \t]*[,(])|"
+        r"EQUIVALENCE\s*\([^)\n]+,[^)\n]+\)|"
+        r"PARAMETER\s*\([^)\n]*=[^)\n]*\)|"
+        r"IMPLICIT[ \t]+(?:NONE\b|(?:INTEGER|REAL|CHARACTER|DOUBLE|COMPLEX|LOGICAL|BYTE)\b)|"
+        r"DOUBLE[ \t]+(?:PRECISION|COMPLEX)\b|"
+        r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS)\b[^;\n]*::|"
+        r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|BYTE)\s*\*\s*(?:\d+|\([^)\n]+\))|"
+        r"(?:INTEGER|REAL|LOGICAL|COMPLEX|BYTE)[ \t]+[A-Za-z_]\w*(?:\s*\([^)\n]+\))?(?:[ \t]*,[ \t]*[A-Za-z_]\w*(?:\s*\([^)\n]+\))?){0,50}[ \t]*(?:!.*)?$|"
+        r"CHARACTER\s*(?:\*\s*(?:\d+|\([^)\n]+\))|\([^)\n]+\))?[ \t]+[A-Za-z_]\w*|"
+        r"(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+){0,3}SUBROUTINE\s+[A-Za-z_]\w*|"
+        r"(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+|(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE[ \t]+PRECISION)(?:\*\d+|\([^)\n]+\))?[ \t]+)FUNCTION\s+[A-Za-z_]\w*|"
+        r"(?:PROGRAM|MODULE\s+(?!PROCEDURE\b)|SUBMODULE|BLOCK\s+DATA)\s+[A-Za-z_]\w*|"
+        r"END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|TYPE|INTERFACE)\b|"
+        r"DIMENSION[ \t]+[A-Za-z_]\w*\s*\([^)\n]+\)|"
+        r"DATA[ \t]+[A-Za-z_]\w*[ \t]*/[^/\n]*/|"
+        r"(?:\d+[ \t]+)?FORMAT\s*\([^)\n]*\)|PRINT\s*\*\s*,|WRITE\s*\(\s*\*\s*,\s*\*|"
+        r"CONTAINS[ \t]*$|INTERFACE(?:\s+[A-Za-z_]\w*|\s*$))|"
+        r"\.(?:TRUE|FALSE|AND|OR|NOT|EQ|NE|LT|LE|GT|GE|EQV|NEQV)\.)",
     ),
     # #4974: the shared .inc extension. Fortran is Tier-2 proven by the
     # `internal_discriminator` above or it is not a candidate for these extensions in

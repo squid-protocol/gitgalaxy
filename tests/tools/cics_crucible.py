@@ -712,7 +712,17 @@ class EquivalenceRunTest {
     void run() throws Exception {
         JsonNode plan = json.readTree(in.resolve("plan.json").toFile());
         for (JsonNode sc : plan.get("scenarios")) {
-            json.writeValue(out.resolve(sc.get("id").asText() + ".json").toFile(), new Scenario(plan, sc).drive());
+            String id = sc.get("id").asText();
+            json.writeValue(out.resolve(id + ".json").toFile(), new Scenario(plan, sc, false).drive());
+            if (facades) {
+                // #4965: the same scenario again, each task entered by the byte-carrying handleTransaction overload
+                // (the previous RETURN's bytes in, lastAnswerBytes() out) -- written only when some task was
+                Scenario again = new Scenario(plan, sc, true);
+                Map<String, Object> log = again.drive();
+                if (again.usedBytes) {
+                    json.writeValue(out.resolve(id + ".bytes.json").toFile(), log);
+                }
+            }
         }
     }
 
@@ -744,7 +754,11 @@ class EquivalenceRunTest {
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
 
-        Scenario(JsonNode plan, JsonNode sc) {
+        final boolean viaBytes;  // #4965: enter tasks by the byte-carrying handleTransaction where a service has one
+        boolean usedBytes;
+
+        Scenario(JsonNode plan, JsonNode sc, boolean viaBytes) {
+            this.viaBytes = viaBytes;
             this.plan = plan;
             this.sc = sc;
             this.clock = LocalDateTime.parse(plan.get("clock").asText());
@@ -1097,20 +1111,24 @@ class EquivalenceRunTest {
                 scenarioTask = t;
                 scenarioProgram = program;
                 top = t;
+                // the DTO overload: (String) for no COMMAREA, else (String, T); the byte one the same with byte[] last
+                boolean dtoOne = commarea == null && one != null;
+                boolean dtoTwo = !dtoOne && two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea));
+                boolean bytesOne = commarea == null && oneB != null;
+                boolean bytesTwo = !bytesOne && twoB != null
+                        && (commarea == null || twoB.getParameterTypes()[1].isInstance(commarea));
                 Method used = null;
-                if (commarea == null && oneB != null) {
-                    used = oneB;
-                    entry(program, "handleTransaction");
-                    invoke(oneB, service, t.transid(), in);
-                } else if (twoB != null && (commarea == null || twoB.getParameterTypes()[1].isInstance(commarea))) {
-                    used = twoB;
-                    entry(program, "handleTransaction");
-                    invoke(twoB, service, t.transid(), commarea, in);
-                } else if (commarea == null && one != null) {
-                    entry(program, "handleTransaction");
+                entry(program, "handleTransaction");
+                if ((bytesOne || bytesTwo) && (viaBytes || !(dtoOne || dtoTwo))) {
+                    used = bytesOne ? oneB : twoB;
+                    if (bytesOne) {
+                        invoke(oneB, service, t.transid(), in);
+                    } else {
+                        invoke(twoB, service, t.transid(), commarea, in);
+                    }
+                } else if (dtoOne) {
                     invoke(one, service, t.transid());
-                } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
-                    entry(program, "handleTransaction");
+                } else if (dtoTwo) {
                     invoke(two, service, t.transid(), commarea);
                 } else {
                     throw new IllegalStateException("handleTransaction of " + program + " cannot take the COMMAREA ("
@@ -1132,6 +1150,7 @@ class EquivalenceRunTest {
                                 + " has no lastAnswerBytes()");
                     }
                     answered = (byte[]) invoke(a0, service);
+                    usedBytes = true;
                 }
             }
 
@@ -1659,10 +1678,13 @@ class JavaRunError(RuntimeError):
 
 
 def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: bool = False,
-             entries: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
+             entries: dict[str, list[dict[str, Any]]] | None = None,
+             byte_runs: dict[str, dict[str, Any]] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Every scenario through the generated services; {scenario: actual log}. Raises RuntimeError when
     the test itself cannot run (the project does not start). #4343: `facades` enters each task through the
-    program's deployed entry point; `entries` gets, per scenario, the entry point each program ran by."""
+    program's deployed entry point; `entries` gets, per scenario, the entry point each program ran by. #4965: each
+    facade scenario also runs through the byte-carrying handleTransaction overload; `byte_runs` gets the log of
+    those that entered by one."""
     import equivalence_java as ej
 
     src = project / "src/main/java"
@@ -1689,6 +1711,11 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: b
         if entries is not None:
             entries[sc["id"]] = raw.get("entries") or []
         result[sc["id"]] = java_actual(case, raw, src, screens)
+        fb = out / f"{sc['id']}.bytes.json"  # #4965: the byte-carrying overload's run, when a task entered by it
+        if byte_runs is not None and fb.is_file():
+            braw = json.loads(fb.read_text(encoding="utf-8"))
+            braw["_scenario"] = sc["id"]
+            byte_runs[sc["id"]] = java_actual(case, braw, src, screens)
     return result
 
 
@@ -2380,8 +2407,9 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
     for side in sides:
         facades = side == "java-facade"
         got: dict[str, list[dict[str, Any]]] = {}
+        byte_runs: dict[str, dict[str, Any]] = {}
         try:
-            actual = run_java(case, project, work / side, offline, facades, got)
+            actual = run_java(case, project, work / side, offline, facades, got, byte_runs)
         except RuntimeError as e:
             detail = getattr(e, "detail", "")
             for sc in scenarios:
@@ -2389,6 +2417,11 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
             continue
         for sc in scenarios:
             v = cc.compare(case.expected[sc["id"]], actual[sc["id"]], JAVA_CAPS, case_context(case), sc)
+            if v.status == "pass" and sc["id"] in byte_runs:  # #4965: and through the byte overload, the same
+                vb = cc.compare(case.expected[sc["id"]], byte_runs[sc["id"]], JAVA_CAPS, case_context(case), sc)
+                if vb.status != "pass":
+                    vb.reason = f"through handleTransaction(.., byte[]): {vb.reason}"
+                    v = vb
             cid = cc.cell_id(case.id, sc["id"], side)
             opts.actual[cid] = actual[sc["id"]]
             if facades:

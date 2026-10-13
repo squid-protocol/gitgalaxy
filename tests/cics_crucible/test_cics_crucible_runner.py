@@ -1123,6 +1123,8 @@ def test_the_java_test_drives_the_byte_overload_and_reads_lastAnswerBytes():
     src = runner._JAVA_TEST
     assert "static Method facade(Object service, String name, int params, boolean bytes)" in src
     assert '"handleTransaction", 2, true' in src and '"handleTransaction", 3, true' in src
+    # both overloads are entered: the scenario runs once by the DTO one, then again by the byte one (#4965)
+    assert "new Scenario(plan, sc, false)" in src and "new Scenario(plan, sc, true)" in src and '".bytes.json"' in src
     assert 'm.getName().equals("lastAnswerBytes")' in src and "answered = (byte[]) invoke(a0, service)" in src
     assert 'copy.put("answer_bytes"' in src and "pendingBytes = abended || transid == null ? null : answered;" in src
     assert (

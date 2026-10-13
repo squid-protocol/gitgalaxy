@@ -747,9 +747,12 @@ public class Cotrn02cService {
             long key = xref.getXrefAcctId() == null ? 0L : xref.getXrefAcctId();
             CicsTask.FileRead<CardXrefRecord> r =
                     task.read("CXACAIX", () -> readCxacaix(key).stream().findFirst());
-            if (r.resp() == 0) {
+            if (r.resp() == 0 || r.resp() == 15) {  // DUPKEY: IBM retrieves the record, INTO is filled
                 // READ INTO: the program's own copy
                 xref = CardXrefRecord.fromRecord(r.record().toRecord(CobolRecords.charset()), CobolRecords.charset());
+            }
+            if (r.resp() == 0) {
+                return;
             } else if (r.resp() == 13) {
                 fail("Account ID NOT found...", "ACTIDIN");
             } else {

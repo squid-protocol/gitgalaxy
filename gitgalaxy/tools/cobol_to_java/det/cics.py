@@ -1067,10 +1067,10 @@ class Cics:
                            else '"/"' if "DATESEP" in opts else '""')  # fmt: skip
                     body.append(f"Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
                                 f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
-            for form in NUMBER_FORMS:  # #4415 slice 3 (X46): a binary integer, stored by the area's declared usage
-                if form in opts:
-                    body.append(self.g.store_into(self.ref(_arg(opts[form])),
-                                                  f"BigDecimal.valueOf(CicsTask.formatNumber({t}, {G_jstr(form)}))", False))  # fmt: skip
+            # #4415 slice 3 (X46): a binary integer, stored by the area's declared usage
+            body += [self.g.store_into(self.ref(_arg(opts[form])),
+                                       f"BigDecimal.valueOf(CicsTask.formatNumber({t}, {G_jstr(form)}))", False)
+                     for form in NUMBER_FORMS if form in opts]  # fmt: skip
             if "TIME" in opts:
                 sep = (self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP")
                        else '":"' if "TIMESEP" in opts else '""')  # TIMESEP alone: IBM's ':'  # fmt: skip

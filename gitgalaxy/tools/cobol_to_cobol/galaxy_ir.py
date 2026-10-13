@@ -4030,6 +4030,10 @@ class GalaxyIR:
                 cand["defined"] = True
 
                 cand["defined_by"] = {"match": "symbolic", "pattern": sym["dataset"], "evidence": evidence}
+                # #4949: the programs the JCL binds to the symbolic dataset (a batch step's DD) are users of the merged
+                # store; dropping them left the batch SELECT with no repository in the generated project
+                cand["users"].extend(sym["users"])
+                cand["cics_files"].extend(c for c in sym["cics_files"] if c not in cand["cics_files"])
                 to_drop.add(sym_key)
 
         return [stores[k] for k in sorted(stores) if k not in to_drop]

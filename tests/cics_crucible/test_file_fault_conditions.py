@@ -12,26 +12,28 @@ import pytest
 
 TESTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import equivalence_cics as ec  # noqa: E402
+import test_cics_runtimes as rt  # noqa: E402  (its compile helper)
 
 FILE_COMMANDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
 ALL = FILE_COMMANDS
 # IBM, per condition: the commands that list it -> the RESP2 a local VSAM file reaches
 IBM = {
-    "FILENOTFOUND": {c: (1,) for c in ALL},
-    "NOTAUTH": {c: (101,) for c in ALL},
-    "IOERR": {c: (120,) for c in ALL},
-    "SYSIDERR": {c: (130,) for c in ALL},
-    "ISCINVREQ": {c: (70,) for c in ALL},
-    "ILLOGIC": {c: (110,) for c in ("READ", "STARTBR", "ENDBR", "WRITE", "DELETE")},
-    "NOTFND": {c: (80,) for c in ("READ", "READNEXT", "READPREV", "STARTBR", "DELETE")},
-    "ENDFILE": {c: (90,) for c in ("READNEXT", "READPREV")},
-    "DISABLED": {c: (50,) for c in ("READ", "WRITE", "DELETE", "STARTBR")},
-    "NOTOPEN": {c: (60,) for c in ("READ", "WRITE", "DELETE", "STARTBR")},
-    "NOSPACE": {c: (100,) for c in ("WRITE", "REWRITE")},
-    "LOCKED": {c: (106,) for c in ("READ", "READNEXT", "READPREV", "WRITE", "REWRITE", "DELETE")},
-    "DUPKEY": {c: (140,) for c in ("READ", "READNEXT", "READPREV")},
-    "DUPREC": {c: (150,) for c in ("WRITE", "REWRITE")},
+    "FILENOTFOUND": dict.fromkeys(ALL, (1,)),
+    "NOTAUTH": dict.fromkeys(ALL, (101,)),
+    "IOERR": dict.fromkeys(ALL, (120,)),
+    "SYSIDERR": dict.fromkeys(ALL, (130,)),
+    "ISCINVREQ": dict.fromkeys(ALL, (70,)),
+    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
+    "NOTFND": dict.fromkeys(("READ", "READNEXT", "READPREV", "STARTBR", "DELETE"), (80,)),
+    "ENDFILE": dict.fromkeys(("READNEXT", "READPREV"), (90,)),
+    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
+    "NOTOPEN": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (60,)),
+    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),
+    "LOCKED": dict.fromkeys(("READ", "READNEXT", "READPREV", "WRITE", "REWRITE", "DELETE"), (106,)),
+    "DUPKEY": dict.fromkeys(("READ", "READNEXT", "READPREV"), (140,)),
+    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),
     "LENGERR": {
         "READ": (10, 11, 13),
         "READNEXT": (10, 11, 13),
@@ -124,3 +126,25 @@ def test_a_non_file_command_is_not_read_by_the_file_rule():
     assert ec.fault_lines(
         {"name": "s", "faults": [{"cmd": "START", "transid": "T", "resp": "SYSIDERR", "resp2": 1}]}
     ) == ["START T 1 53 1"]
+
+
+@rt.needs_javac
+def test_cics_task_answers_the_planned_resp2_after_write_rewrite_and_delete(tmp_path):
+    """The model ports and det ports read EIBRESP2 as CicsTask.resp2() after these commands (as the stub's c->resp2)."""
+    plan = ec.fault_lines({"name": "s", "faults": [
+        {"cmd": "WRITE", "file": "F", "resp": "NOSPACE"},
+        {"cmd": "REWRITE", "file": "F", "resp": "IOERR"},
+        {"cmd": "DELETE", "file": "F", "resp": "LOCKED"},
+        {"cmd": "REWRITE", "file": "F", "nth": 2, "resp": "INVREQ", "resp2": 47}]})  # fmt: skip
+    lines = ", ".join(f'"{ln}"' for ln in plan)
+    out = rt._cics_task(
+        tmp_path,
+        f"""
+        CicsTask t = new CicsTask("HC01", "ENTER", null, null).withFaults(java.util.List.of({lines}), null);
+        System.out.println("write " + t.write("F", false, () -> {{}}) + " " + t.resp2());
+        System.out.println("rewrite " + t.rewrite("F", () -> {{}}) + " " + t.resp2());
+        System.out.println("rewrite2 " + t.rewrite("F", () -> {{}}) + " " + t.resp2());
+        System.out.println("delete " + t.deleteHeld("F", () -> {{}}) + " " + t.resp2());
+        System.out.println("unplanned " + t.write("F", true, () -> {{}}) + " " + t.resp2());""",
+    )
+    assert out.splitlines() == ["write 18 100", "rewrite 17 120", "rewrite2 16 47", "delete 100 106", "unplanned 14 0"]

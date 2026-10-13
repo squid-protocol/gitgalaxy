@@ -2467,29 +2467,31 @@ _BROWSE = ("READNEXT", "READPREV")
 _FILE_CMDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
 _READS = ("READ", *_BROWSE)
 FILE_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
-    "FILENOTFOUND": {c: (1,) for c in _FILE_CMDS},
-    "NOTAUTH": {c: (101,) for c in _FILE_CMDS},
+    "FILENOTFOUND": dict.fromkeys(_FILE_CMDS, (1,)),
+    "NOTAUTH": dict.fromkeys(_FILE_CMDS, (101,)),
     # READNEXT / READPREV / REWRITE: IBM adds "the browse in progress is terminated", which neither runtime models (below)
-    "ILLOGIC": {c: (110,) for c in ("READ", "STARTBR", "ENDBR", "WRITE", "DELETE")},
-    "IOERR": {c: (120,) for c in _FILE_CMDS},
+    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
+    "IOERR": dict.fromkeys(_FILE_CMDS, (120,)),
     # remote files: planned like IOERR, an injection (the case states what the program sees, the region needs no remote
     # system). SYSIDERR 130 "SYSID is neither the local system nor a known remote system, or the link is closed" (131 / 132
     # are coupling-facility data tables); ISCINVREQ 70 "the remote system reported a failure that is no known condition"
-    "SYSIDERR": {c: (130,) for c in _FILE_CMDS},
-    "ISCINVREQ": {c: (70,) for c in _FILE_CMDS},
+    "SYSIDERR": dict.fromkeys(_FILE_CMDS, (130,)),
+    "ISCINVREQ": dict.fromkeys(_FILE_CMDS, (70,)),
     # NOTFND 80 (READ/READNEXT/READPREV/STARTBR: no record matches the search argument); REWRITE's 80 is the data-table
     # case only, WRITE / ENDBR do not list it
-    "NOTFND": {c: (80,) for c in (*_READS, "STARTBR", "DELETE")},
-    "ENDFILE": {c: (90,) for c in _BROWSE},
-    "DISABLED": {c: (50,) for c in ("READ", "WRITE", "DELETE", "STARTBR")},
-    "NOTOPEN": {c: (60,) for c in ("READ", "WRITE", "DELETE", "STARTBR")},  # not REWRITE / READNEXT / READPREV / ENDBR
-    "NOSPACE": {c: (100,) for c in ("WRITE", "REWRITE")},  # READ's 100 is an RLS-only case
-    "LOCKED": {c: (106,) for c in (*_READS, "WRITE", "REWRITE", "DELETE")},
-    "DUPKEY": {c: (140,) for c in _READS},  # #4623
-    "DUPREC": {c: (150,) for c in ("WRITE", "REWRITE")},  # #4623
+    "NOTFND": dict.fromkeys((*_READS, "STARTBR", "DELETE"), (80,)),
+    "ENDFILE": dict.fromkeys(_BROWSE, (90,)),
+    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
+    "NOTOPEN": dict.fromkeys(
+        ("READ", "WRITE", "DELETE", "STARTBR"), (60,)
+    ),  # not REWRITE / READNEXT / READPREV / ENDBR
+    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),  # READ's 100 is an RLS-only case
+    "LOCKED": dict.fromkeys((*_READS, "WRITE", "REWRITE", "DELETE"), (106,)),
+    "DUPKEY": dict.fromkeys(_READS, (140,)),  # #4623
+    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),  # #4623
     "LENGERR": {
-        **{c: (10, 11, 13) for c in _READS},
-        **{c: (10, 12, 14) for c in ("WRITE", "REWRITE")},
+        **dict.fromkeys(_READS, (10, 11, 13)),
+        **dict.fromkeys(("WRITE", "REWRITE"), (10, 12, 14)),
     },
     "INVREQ": {
         "READ": (20, 25, 26, 28, 42),

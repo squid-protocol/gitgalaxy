@@ -445,6 +445,7 @@ public class CicsTask {
         callee.linkLength = len;
         callee.linkArea = area;
         callee.callerArea = area != null;  // #4816: that area is the caller's own storage, not a copy
+        callee.linkedDto = commarea != null;  // #4956: its DTO is the caller's own object, not a copy
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
@@ -4223,6 +4224,60 @@ public class CicsTask {
 
     private boolean callerArea;      // #4816: linkArea is the LINK caller's storage (not a copy, not a task's own area)
     private boolean xctlOfLinkage;   // #4816: the next XCTL's COMMAREA is inside this program's DFHCOMMAREA
+    private boolean linkedDto;       // #4956: the DTO this program was LINKed with is its LINK caller's own object
+
+    /** #4956: whether `o` can be an alias of another object: a value (String, number, enum) is passed as it is. */
+    private static boolean aliasable(Object o) {
+        return o != null && !(o instanceof Enum || o instanceof String || o instanceof Boolean
+                || o instanceof Character || o instanceof java.math.BigDecimal || o instanceof java.math.BigInteger
+                || o instanceof Integer || o instanceof Long || o instanceof Short || o instanceof Byte
+                || o instanceof Double || o instanceof Float);
+    }
+
+    /** #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+     *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
+    private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
+        if (whole == part) {
+            return true;
+        }
+        if (!aliasable(whole) || seen.put(whole, Boolean.TRUE) != null) {
+            return false;
+        }
+        Class<?> type = whole.getClass();
+        java.util.List<Object> held = new ArrayList<>();
+        if (type.isArray()) {
+            if (type.getComponentType().isPrimitive()) {
+                return false;
+            }
+            held.addAll(Arrays.asList((Object[]) whole));
+        } else if (whole instanceof Iterable) {
+            for (Object e : (Iterable<?>) whole) {
+                held.add(e);
+            }
+        } else if (whole instanceof Map) {
+            held.addAll(((Map<?, ?>) whole).values());
+        } else if (!type.getName().startsWith("java.")) {
+            for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
+                for (java.lang.reflect.Field f : k.getDeclaredFields()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) {
+                        continue;
+                    }
+                    try {
+                        f.setAccessible(true);
+                        held.add(f.get(whole));
+                    } catch (RuntimeException | IllegalAccessException e) {
+                        // an unreadable field is not an alias this walk can see
+                    }
+                }
+            }
+        }
+        for (Object h : held) {
+            if (within(h, part, seen)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /** #4816: the XCTL about to be issued passes (part of) this program's own DFHCOMMAREA. A LINKed program's is its
      *  caller's storage; IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether
@@ -4252,7 +4307,8 @@ public class CicsTask {
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        if ("NORMAL".equals(resp) && ofLinkage && callerArea) {
+        boolean ofDto = linkedDto && aliasable(commarea) && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");
         }

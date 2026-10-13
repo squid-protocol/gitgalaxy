@@ -456,7 +456,15 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
 
     def gh(argv: list[str], what: str) -> None:
         r = run(argv)
-        detail = "ok" if not r.returncode else "FAILED: " + (r.stderr or r.stdout).strip()[:200]
+        err = (r.stderr or r.stdout or "").strip()
+        if not r.returncode:
+            detail = "ok"
+        elif (what.startswith("rerun") or (len(argv) >= 3 and argv[:3] == ["gh", "run", "rerun"])) and (
+            "already running" in f"{r.stderr or ''} {r.stdout or ''}".lower()
+        ):
+            detail = "skipped (already running)"
+        else:
+            detail = "FAILED: " + err[:200]
         log.append(f"#{n} {what}: {detail}")
 
     for a in acts:

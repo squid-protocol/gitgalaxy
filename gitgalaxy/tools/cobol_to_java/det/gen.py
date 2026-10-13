@@ -1902,16 +1902,15 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            return [c, f"{ind}DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, "
-                       f"{self.address_record(s.data['of'])});"]  # fmt: skip
+            call = f"DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, {self.address_record(s.data['of'])});"
+            return [c, ind + call]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
+            rec = self.address_record(s.data["record"])
             if s.data["pointer"]:
-                return [c, f"{ind}DetCics.setAddress(task, {self.address_record(s.data['record'])}, "
-                           f"{self.pointer_item(s.data['pointer'])});"]  # fmt: skip
-            return [c, f"{ind}DetCics.setAddressOfRecord(task, {self.address_record(s.data['record'])}, "
-                       f"{self.address_record(s.data['of'])});"]  # fmt: skip
+                return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
+            return [c, f"{ind}DetCics.setAddressOfRecord(task, {rec}, {self.address_record(s.data['of'])});"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:

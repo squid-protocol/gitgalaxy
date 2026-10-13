@@ -1888,9 +1888,8 @@ class Cics:
         if not opts.get(form):
             raise CicsError(f"{form} needs an argument")
         halfword = str(form == "LENGTH").lower()
-        return [f"{ind}int[] {r} = DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, "
-                f"{self.read_field(opts['INITIMG'])});",
-                *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
+        return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
     def receive(self, opts: dict, ind: str) -> list[str]:
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.

@@ -797,7 +797,15 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         seen.add(id(r))
         img = L.image(r) if r.section != "FILE" else b" " * sizes[id(r)]
         img = img.ljust(sizes[id(r)], b"\x00" if r.section != "FILE" else b" ")
-        storages.append((_storage_name(r), base64.b64encode(img).decode("ascii")))
+        name = _storage_name(r)
+        if any(n == name for n, _ in storages):
+            # #4952: a second 01 of the same name (CBSA CRECUST declares HIGHEST-CUST-NUMBER twice). An unqualified
+            # reference to it is ambiguous, so a program that compiles never names it: an elementary one is not
+            # emitted (it would redeclare the Java field); a group's children would bind to the wrong storage.
+            if r.children:
+                raise ValueError(f"line {r.line}: a second 01 group named {r.name}: its items cannot be told apart")
+            continue
+        storages.append((name, base64.b64encode(img).decode("ascii")))
     field_lines, inits = [], []
     lifted_decls: list[str] = []
     sync_methods = sync_code(gen, records, roots)

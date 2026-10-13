@@ -147,6 +147,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
+| X45 | CICS | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1744,6 +1745,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
   command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
   check the pool first); the value area of a failed GET / QUERY (not written).
+- **Superseded in part by X45** (#4770): DEFINE / QUERY / DELETE DCOUNTER, MINIMUM / MAXIMUM on the doubleword form and WRAP at a
+  counter's limits are modelled there; the limits (1) of GET DCOUNTER above hold only for a counter with no limits entry.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).
@@ -2211,6 +2214,40 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   program is not proven while a program it LINKs has holes. When IBM's abend pages are sourced, add them to `CONDITION_ABEND`,
   model the condition, and remove the refusal.
 - **Status:** REFUSED for the three conditions; the RESP2 fix is exact.
+
+### X45. DEFINE / QUERY / DELETE DCOUNTER with MINIMUM and MAXIMUM; GET DCOUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#4770)
+- **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,
+  ...summary-query-counter-query-dcounter, ...summary-delete-counter-delete-dcounter). DEFINE DCOUNTER: VALUE, MINIMUM and MAXIMUM are
+  "a doubleword unsigned value for DCOUNTER"; "If you omit the MINIMUM parameter, the named counter is defined with a default minimum
+  of low-values", MAXIMUM "a doubleword filled with X'FF'"; "If you specify the MINIMUM parameter, you must also specify a VALUE";
+  VALUE "equal to, or greater than, the minimum value, up to the maximum value plus 1"; INVREQ RESP2 406 "VALUE is invalid", 407 "MINIMUM
+  or MAXIMUM is invalid" (MAXIMUM below MINIMUM). "The named counter server stores all values as doubleword unsigned values."
+  GET: VALUE "the current number"; the counter is incremented after the number is assigned; at its limit, with neither REDUCE
+  nor WRAP, SUPPRESSED (72) RESP2 101 and "the current number is not changed"; WRAP "resets the current value of the named counter
+  equal to the minimum value defined for the counter"; INVREQ 406 "INCREMENT exceeds the counter's total range". QUERY DCOUNTER:
+  VALUE, MINIMUM and MAXIMUM data areas, "a doubleword unsigned binary value".
+- **Modelled** (`CicsTask.defineDcounter` / `queryDcounter` / `getCounter(pool, name, increment, wrap)`, the stub's `GGCDDCN` /
+  `GGCQDCN` / `GGCGDCN` on `counters.cfg`, whose rows gain `MINIMUM MAXIMUM` after the value; the det translator and
+  `equivalence_cics.py`): a counter DEFINE DCOUNTER made holds its limits as unsigned doublewords (one store for both forms, as X30).
+  A GET hands out the value and adds INCREMENT; a counter at MAXIMUM + 1 (the value past MAXIMUM, where an earlier GET left it) is
+  SUPPRESSED 101 and unchanged, or with WRAP the GET returns MINIMUM and the counter is MINIMUM + INCREMENT. 407 is checked before 406,
+  then 202 (403 / 404 first: the page gives no order). DELETE DCOUNTER is DELETE COUNTER's call. GET DCOUNTER's VALUE is written
+  unsigned (a value past 2**63 is not negative); INCREMENT is read as 64 bits (a COBOL `.intValue()` truncated it before).
+- **What IBM leaves open, and what we do.** (1) What WRAP does when the increment overshoots (a counter below MAXIMUM whose INCREMENT
+  carries it past MAXIMUM + 1) and where REDUCE's boundary lies: REFUSED ("GET COUNTER with an INCREMENT past MAXIMUM + 1"); WRAP acts
+  only at a counter already at MAXIMUM + 1. (2) The 406 boundary of INCREMENT ("exceeds the counter's total range"): an INCREMENT
+  beyond MAXIMUM - MINIMUM is REFUSED, one within it is not an error. (3) A counter whose maximum is a doubleword of X'FF' has
+  no MAXIMUM + 1 in a doubleword: it is never at its limit, and one that would pass it is REFUSED ("GET COUNTER past a doubleword").
+  (4) A counter DEFINE COUNTER made, or a scenario states, has no limits entry: the run does not state them, so GET behaves as before
+  (WRAP changes nothing; past 4294967295 REFUSED) and QUERY DCOUNTER MINIMUM / MAXIMUM of it is REFUSED -- IBM states the fullword
+  form's default maximum, X'7FFFFFFF', but its signed reading of low-values is the open point X30 left, so the fullword form's
+  MINIMUM / MAXIMUM stay refused. (5) A COUNTER and a DCOUNTER of one name are one counter (ASSUMED, X30): IBM says to "access a
+  counter with the same command set that defined it" and states nothing for a mismatch. (6) The order of 407 / 406 / 202 (above).
+  (7) VALUE / MINIMUM / MAXIMUM are data areas in the stub translator (a literal is refused); the det translator takes literals too.
+- **Refused by name, unchanged:** DEFINE COUNTER's MINIMUM / MAXIMUM, NOSUSPEND, GET's REDUCE / COMPAREMIN / COMPAREMAX / NOSUSPEND.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
+  (tests/cics_crucible/test_cics_runtimes.py `_X45_CASES`) and both translators; no case runs it yet (zECS ZECSNC is assembler, its
+  DEFINE DCOUNTER / ZECS001's GET DCOUNTER are not in a COBOL case the corpus ships whole).
 
 ## Language Environment
 

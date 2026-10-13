@@ -8,6 +8,7 @@ between them and the program's own bytes -- nothing is taken from a test case.""
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -451,6 +452,13 @@ class Cics:
     def int_(self, text: str) -> str:
         return self.g.int_expr(self.operand(text))
 
+    def long_(self, text: str) -> str:
+        """#4770 (X45): a doubleword operand's 64 bits (an unsigned one past 2**63 keeps its low 64 bits, as the counters hold it)."""
+        e = self.operand(text)
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            return f"{int(e.value) if int(e.value) < 2**63 else int(e.value) - 2**64}L"
+        return f"{self.g.num(e)}.longValue()"
+
     def field(self, text: str) -> str:
         return self.g.field_expr(self.ref(text))
 
@@ -839,23 +847,66 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
-            inc = f", {self.int_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            # #4770 (X45): INCREMENT is an unsigned doubleword and WRAP acts at a DEFINE DCOUNTER counter's maximum; the VALUE
+            # of a doubleword counter is unsigned too (a 64-bit value past 2**63 is not a negative number)
+            inc = f", {self.long_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
+            if "WRAP" in opts:
+                inc = f"{inc or ', 1L'}, true"
+            val = (
+                f"new BigDecimal(Long.toUnsignedString({v}[2]))"
+                if "DCOUNTER" in opts
+                else f"BigDecimal.valueOf({v}[2])"
+            )
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
                     f"{ind}if ({v}[0] == 0) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
-        if verb in ("DEFINE", "DELETE") and "COUNTER" in opts:  # #4270 (X30): the region's named counters
+        if verb in ("DEFINE", "DELETE", "QUERY") and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # #4770 (X45): the spec's groups, for the commands that now take both forms
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
+            for o in ("MINIMUM", "MAXIMUM"):
+                if o in opts and "DCOUNTER" not in opts:
+                    raise CicsError(_msg(f"{verb} COUNTER", "requires", o))
+            if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
+                raise CicsError(_requires("DEFINE COUNTER", "MINIMUM", "VALUE"))
+        if verb in ("DEFINE", "DELETE") and (
+            "COUNTER" in opts or "DCOUNTER" in opts
+        ):  # #4270 (X30): the region's named counters
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            nm = self.name(_arg(opts["COUNTER"]))
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
             if verb == "DELETE":
                 call = f"task.deleteCounter({pool}, {nm})"
+            elif (
+                "DCOUNTER" in opts
+            ):  # #4770 (X45): doubleword limits; IBM's defaults MINIMUM zero, MAXIMUM a doubleword of X'FF'
+                val = self.long_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0L"
+                lo = self.long_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
+                hi = self.long_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
+                call = f"task.defineDcounter({pool}, {nm}, {val}, {lo}, {hi})"
             else:  # (VALUE omitted: IBM's initial value of zero)
                 call = (
                     f"task.defineCounter({pool}, {nm}, {self.int_(_arg(opts['VALUE'])) if opts.get('VALUE') else '0'})"
                 )
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
+        if verb == "QUERY" and "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
+            out = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
+                if opts.get(o):
+                    out.append(
+                        ind
+                        + "    "
+                        + self.g.store_into(
+                            self.ref(_arg(opts[o])), f"new BigDecimal(Long.toUnsignedString({v}[{i}]))", False
+                        )
+                    )
+            return out + [f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
         if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
@@ -865,7 +916,7 @@ class Cics:
                     f"{ind}}}",
                     *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
-            # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
+            # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:

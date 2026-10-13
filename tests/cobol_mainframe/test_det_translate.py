@@ -418,6 +418,9 @@ class _LenCics(_KeyCics):
     def int_(self, text):
         return f"INT({text})"
 
+    def long_(self, text):
+        return f"LONG({text})"
+
 
 def test_read_length_is_modelled_in_and_out():
     """#4436 (GenApp LGUCVS01 / LGUPVS01: LENGTH(WS-Commarea-Len), set from EIBCALEN): IBM, EXEC CICS READ -- LENGTH
@@ -1319,8 +1322,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
-    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(KEY)", "only the counter's value"),
-                     ("QUERY DCOUNTER(KEY) VALUE(REC)", "DCOUNTER")):  # fmt: skip
+    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) MINIMUM(KEY)", "MINIMUM without DCOUNTER"),
+                     ("QUERY COUNTER(KEY) VALUE(REC) MAXIMUM(KEY)", "MAXIMUM without DCOUNTER"),
+                     ("QUERY DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
@@ -1332,11 +1336,12 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     assert ", 0);" in c.command("DEFINE COUNTER(KEY) RESP(R)", "")[0]  # VALUE omitted: IBM's initial zero
     x = c.command("DELETE COUNTER(KEY) POOL('GENAPOOL') RESP(R)", "")
     assert x[0].startswith("int[] counter") and ".deleteCounter(" in x[0]
-    for bad, why in (("DEFINE COUNTER(KEY) VALUE(0) MINIMUM(0)", "only a fullword counter"),
-                     ("DEFINE COUNTER(KEY) VALUE(0) MAXIMUM(5)", "only a fullword counter"),
+    for bad, why in (("DEFINE COUNTER(KEY) VALUE(0) MINIMUM(0)", "MINIMUM without DCOUNTER"),
+                     ("DEFINE COUNTER(KEY) VALUE(0) MAXIMUM(5)", "MAXIMUM without DCOUNTER"),
                      ("DEFINE COUNTER(KEY) NOSUSPEND", "only a fullword counter"),
-                     ("DEFINE DCOUNTER(KEY) VALUE(0)", "DCOUNTER"), ("DELETE DCOUNTER(KEY)", "DCOUNTER"),
-                     ("DELETE COUNTER(KEY) NOSUSPEND", "only a fullword counter")):  # fmt: skip
+                     ("DEFINE DCOUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
+                     ("DEFINE DCOUNTER(KEY) COUNTER(KEY)", "one of COUNTER and DCOUNTER"),
+                     ("DELETE COUNTER(KEY) NOSUSPEND", "only the counter's name and pool")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
     for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),
@@ -1550,6 +1555,24 @@ def test_web_browse_forms_are_the_requests_pairs():
             c.command(bad, "")
 
 
+def test_define_query_delete_dcounter_pass_the_doubleword_limits():
+    """#4770 zECS (register X45), IBM DEFINE / QUERY / DELETE DCOUNTER: CicsTask.defineDcounter(pool, name, value, min, max) --
+    the unsigned doublewords as longs, IBM's defaults for what the command omits (VALUE 0, MINIMUM 0, MAXIMUM a doubleword of
+    X'FF', which is -1L); queryDcounter writes VALUE / MINIMUM / MAXIMUM unsigned, on NORMAL only; DELETE DCOUNTER is
+    DELETE COUNTER's call."""
+    c = _ChanCics()
+    assert c.command("DEFINE DCOUNTER(KEY) POOL('P') VALUE(R) MINIMUM(R) MAXIMUM(R) NOHANDLE", "")[0].endswith(
+        "task.defineDcounter('P'.strip(), KEY.strip(), LONG(R), LONG(R), LONG(R));"
+    )
+    assert c.command("DEFINE DCOUNTER(KEY) NOHANDLE", "")[0].endswith('defineDcounter("", KEY.strip(), 0L, 0L, -1L);')
+    assert c.command("DEFINE DCOUNTER(KEY) VALUE(R) NOHANDLE", "")[0].endswith("KEY.strip(), LONG(R), 0L, -1L);")
+    q = c.command("QUERY DCOUNTER(KEY) VALUE(REC) MINIMUM(REC) MAXIMUM(REC) NOHANDLE", "")
+    assert q[0].startswith("long[] counter") and q[0].endswith('queryDcounter("", KEY.strip(), true);')
+    assert sum("Long.toUnsignedString" in x for x in q) == 3 and q[-1].startswith("OUTCOME((int) counter")
+    assert c.command("QUERY DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")[0].endswith(", false);")  # (no limits asked for)
+    assert ".deleteCounter(" in c.command("DELETE DCOUNTER(KEY) NOHANDLE", "")[0]
+
+
 def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     """#4767 zECS (register X30), IBM GET DCOUNTER: CicsTask.getCounter(pool, name[, increment]) -- VALUE written on NORMAL
     only, the increment read from its data area (omitted: the one-argument form, IBM's default 1); WRAP is accepted (it acts at a
@@ -1557,9 +1580,18 @@ def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     refused by name."""
     c = _ChanCics()
     w = c.command("GET DCOUNTER(KEY) VALUE(REC) INCREMENT(R) WRAP NOHANDLE", "")
+    assert (w[0].startswith("long[] counter") and '.getCounter("", ' in w[0] and w[0].count(",") == 3) and w[
+        0
+    ].endswith(
+        "LONG(R), true);"
+    )  # (pool, name, increment, wrap) -- #4770 (X45): WRAP acts at DEFINE DCOUNTER's maximum
     assert (
-        w[0].startswith("long[] counter") and '.getCounter("", ' in w[0] and w[0].count(",") == 2
+        c.command("GET DCOUNTER(KEY) VALUE(REC) INCREMENT(R) NOHANDLE", "")[0].count(",") == 2
     )  # (pool, name, increment)
+    assert c.command("GET DCOUNTER(KEY) VALUE(REC) WRAP NOHANDLE", "")[0].endswith(
+        ", 1L, true);"
+    )  # (the default increment)
+    assert "Long.toUnsignedString" in "".join(w)  # the doubleword VALUE is unsigned
     plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
     assert plain[0].count(",") == 1  # (pool, name: the default increment)
     assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)

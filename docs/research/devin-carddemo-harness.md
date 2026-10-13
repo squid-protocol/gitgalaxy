@@ -73,7 +73,7 @@ The only difference is the locale defect: arm A has it in both programs, arm B o
 ## Caveats
 
 - **Base run only.** Each arm was judged on one base run per case, under six environments. It covers 49/86 and 55/96 of the COBOL's branches; our ports' proofs, with fault runs, cover 85/86 and 95/96. Error-path behaviour, which is mostly what the fault runs exercise, was not compared.
-- **Our reference is GnuCOBOL with a CICS and file model, not z/OS**: see [`oracle_assumptions.md`](../language_status/oracle_assumptions.md). The arms' own golden harness was GnuCOBOL too. Our SYSOUT models IBM's DISPLAY text (C8), and both arms' SYSOUT matched it on these two programs.
+- **Our reference is GnuCOBOL with a CICS and file model, not z/OS**: see [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md). The arms' own golden harness was GnuCOBOL too. Our SYSOUT models IBM's DISPLAY text (C8), and both arms' SYSOUT matched it on these two programs.
 - **Builds:** both arms target Java 21 and were built with a portable Temurin 21 (`mvn package`, tests skipped). Nothing in their code was changed.
 
 ## Still to do (item 2, deferred)

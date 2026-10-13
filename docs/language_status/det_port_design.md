@@ -37,7 +37,7 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
 faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 310 of 397
 branches, from 256 before generated per-field scenarios; the rest sit mostly behind CEEDAYS, below). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
-difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](oracle_assumptions.md).
+difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md).
 
 **Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
 as in style. Here a model never decides behaviour. The translator fixes it, and the model's only freedom is
@@ -280,7 +280,7 @@ Only generator output, never a test case:
   is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
   reaches it; test_det_programs.py keeps its unsigned item above zero.
 
-- **FUNCTION RANDOM draws the oracle's numbers, not z/OS's** ([oracle_assumptions.md](oracle_assumptions.md) C12).
+- **FUNCTION RANDOM draws the oracle's numbers, not z/OS's** ([oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) C12).
   IBM documents RANDOM's interface (a seed, zero or a positive integer; a run unit's first reference with no seed
   seeds zero; a reference with no seed continues the sequence; the value between 0 and 1) but not its generator, so
   no port can reproduce z/OS's sequence. `Funcs.Random` reproduces GnuCOBOL 3.1.2's (glibc `srand` / `rand`,
@@ -832,7 +832,7 @@ The combined method runs in the porting loop like any other backend, and every e
 
 - **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
   input and output maps overlap (`REDEFINES`), which typing does not do yet.
-- **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
+- **The oracle is GnuCOBOL.** [oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) lists every known or suspected difference
   from z/OS, with its status; a z/OS session would settle most. Two bound what is proven today: **C9**, a POINTER is
   8 bytes under the harness's 64-bit GnuCOBOL and 4 on z/OS, so a COMMAREA that carries one (CBSA's INQACCCU, DELCUS,
   CREACC) is compared field by field, each side read by its own layout, and the POINTER only as NULL or not; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed

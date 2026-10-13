@@ -664,3 +664,63 @@ def test_fortran_calls_out_strict():
     # 3. ReDoS Scale Testing
     payload = "CALL " + ("A" * 10000)
     assert_redos_immune(calls_out, payload)
+
+
+def test_fortran_internal_discriminator():
+    """#4974: Fortran internal discriminator for shared .inc files."""
+    fortran_def = LANGUAGE_DEFINITIONS["fortran"]
+    assert fortran_def.get("internal_discriminator") is not None
+    assert fortran_def.get("extensions_needing_discriminator") == [".inc"]
+    disc = fortran_def["internal_discriminator"]
+
+    # Positive matches: Fixed-form
+    assert disc.search("      INTEGER I\n      COMMON /BLK/ I\n")
+    assert disc.search("      INTEGER, PARAMETER :: MAX_N = 100\n      COMMON /MYBLOCK/ A, B\n")
+    assert disc.search("      SUBROUTINE HELPER(X, Y)\n      INTEGER X, Y\n      Y = X + 1\n      END SUBROUTINE\n")
+    assert disc.search("      DOUBLE PRECISION X, Y, Z\n")
+    assert disc.search("      CHARACTER*80 TITLE\n")
+    assert disc.search("      CHARACTER*(80) TITLE\n")
+    assert disc.search("      IMPLICIT NONE\n")
+    assert disc.search("      EQUIVALENCE (A, B)\n")
+    assert disc.search("      PARAMETER (MAX_N = 100)\n")
+    assert disc.search("      DIMENSION ARR(100)\n")
+    assert disc.search("      DATA X /1.0/\n")
+    assert disc.search("  100 FORMAT(I5, F10.2)\n")
+    assert disc.search("      PRINT *, 'HELLO'\n")
+    assert disc.search("      WRITE(*,*) 'HELLO'\n")
+    assert disc.search("      LOGICAL FLAG\n")
+    assert disc.search("      INTEGER*4 COUNT\n")
+    assert disc.search("      REAL*8 VALUE\n")
+    assert disc.search("      COMPLEX Z\n")
+
+    # Positive matches: Free-form
+    assert disc.search("INTEGER :: a, b\n")
+    assert disc.search("REAL(KIND=8), INTENT(IN) :: x\n")
+    assert disc.search("TYPE :: MyType\n  INTEGER :: val\nEND TYPE MyType\n")
+    assert disc.search("flag = .TRUE.\n")
+    assert disc.search("INTERFACE\n  SUBROUTINE foo()\n  END SUBROUTINE\nEND INTERFACE\n")
+
+    # Negative matches (non-Fortran files sharing .inc)
+    assert not disc.search("#ifndef FOO_H\n#define FOO_H\nint helper(int a);\n#endif\n")
+    assert not disc.search(
+        "#pragma once\n#define MAX(a,b) ((a)>(b)?(a):(b))\nstatic inline int dot(int x, int y) { return x*y; }\n"
+    )
+    assert not disc.search("#pragma once\n#include <vector>\nnamespace a { class B { public: virtual ~B(); }; }\n")
+    assert not disc.search("#pragma once\ntemplate <typename T>\nT twice(T x) { return x + x; }\n")
+    assert not disc.search("%define BUFFER_SIZE 1024\nsection .data\nmsg: db 'hello', 0\n")
+    assert not disc.search("<?php\nfunction helper($a) { return 1; }\n")
+    assert not disc.search("int c;\nc = 1;\n")
+    assert not disc.search("struct Point { int x; int y; };\n")
+    assert not disc.search("common counter 4\nsection .bss\n")  # NASM COMMON directive
+    assert not disc.search("/* notes */\nend if\n")
+    assert not disc.search("typedef int INTEGER;\nINTEGER x;\n")
+    assert not disc.search("class Register<string n> { string Name = n; }\n")
+    assert not disc.search("DCL 1 CUSTREC,\n  2 NAME CHAR(30),\n  2 AGE FIXED BIN(15);\n")
+
+    # ReDoS immunity
+    assert_redos_immune(disc, "      INTEGER " + "a" * 40000, timeout_sec=2.0)
+    assert_redos_immune(disc, "      INTEGER " + "a, " * 2000 + "@", timeout_sec=2.0)
+    assert_redos_immune(disc, "COMMON " + "/" * 40000, timeout_sec=2.0)
+    assert_redos_immune(disc, "PARAMETER (" + "a" * 40000, timeout_sec=2.0)
+    assert_redos_immune(disc, " " * 40000, timeout_sec=2.0)
+    assert_redos_immune(disc, "." + "A" * 40000, timeout_sec=2.0)

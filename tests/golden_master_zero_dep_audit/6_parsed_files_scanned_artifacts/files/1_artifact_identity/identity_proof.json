@@ -1352,17 +1352,17 @@
       "fortran/wrf/cleanCMake.sh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/configure_reader.py": "Single Indicator (Shebang)",
       "fortran/wrf/gen_be_wrapper.ksh": "Absolute Consensus (Ext + Shebang)",
-      "fortran/wrf/module_configure.F": "Single Indicator (Ext: .f)",
-      "fortran/wrf/module_domain.F": "Single Indicator (Ext: .f)",
-      "fortran/wrf/module_initialize_real.F": "Single Indicator (Ext: .f)",
-      "fortran/wrf/module_physics_init.F": "Single Indicator (Ext: .f)",
-      "fortran/wrf/module_sf_noahdrv.F": "Single Indicator (Ext: .f)",
+      "fortran/wrf/module_configure.F": "Absolute Consensus (Ext + Internal Signature)",
+      "fortran/wrf/module_domain.F": "Absolute Consensus (Ext + Internal Signature)",
+      "fortran/wrf/module_initialize_real.F": "Absolute Consensus (Ext + Internal Signature)",
+      "fortran/wrf/module_physics_init.F": "Absolute Consensus (Ext + Internal Signature)",
+      "fortran/wrf/module_sf_noahdrv.F": "Absolute Consensus (Ext + Internal Signature)",
       "fortran/wrf/regtest.csh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/regtest_hwrf.csh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/regtest_nmmnest.csh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/run_convert_e2c.ksh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/sourcetree.py": "Ecosystem Consensus Lock (100% Local Dominance)",
-      "fortran/wrf/wrf_timeseries.F": "Single Indicator (Ext: .f)"
+      "fortran/wrf/wrf_timeseries.F": "Absolute Consensus (Ext + Internal Signature)"
     },
     "go": {
       "go/SOURCES.md": "Prose Extension (.md)"

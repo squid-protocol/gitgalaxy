@@ -1913,12 +1913,12 @@
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 5.993,
-      "java/springboot/Binder.java": 7.549,
+      "java/springboot/Binder.java": 7.575,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 6.314,
+      "java/springboot/OnClassCondition.java": 6.374,
       "java/springboot/ServletWebServerApplicationContext.java": 7.241,
-      "java/springboot/SpringApplication.java": 5.956,
+      "java/springboot/SpringApplication.java": 5.97,
       "java/springboot/WebMvcAutoConfiguration.java": 6.586
     },
     "javascript": {

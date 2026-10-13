@@ -1159,13 +1159,13 @@ def test_the_answered_bytes_are_what_the_returns_commarea_is_compared_by():
     import base64
 
     dto = cc.FieldArea({"WS-N": Decimal(0)}, cc.FULL, bytes.fromhex("F0F0"), 2)
-    spaces = base64.b64encode(bytes.fromhex("4040")).decode()
+    spaces = base64.b64encode(b"  ").decode()  # the runtime page's blanks (#5053: not EBCDIC)
     w = cc._Walk(ALL, cc.Context(layouts={}))
     exp = {"length": 2, "hex": "4040"}
     with pytest.raises(cc._Decided, match="commarea byte 0"):
         w.area("here", "commarea", exp, dto)  # the DTO's own bytes: zeros, not the instrument's spaces
     w.area("here", "commarea", exp, runner._with_answered_bytes(dto, spaces))  # no exception: the answered bytes
-    wrong = base64.b64encode(bytes.fromhex("4041")).decode()
+    wrong = base64.b64encode(b" A").decode()
     with pytest.raises(cc._Decided, match="commarea byte 1"):
         w.area("here", "commarea", exp, runner._with_answered_bytes(dto, wrong))
     # nothing answered (a port that passes no bytes), or no DTO area (no COMMAREA): untouched
@@ -1173,3 +1173,44 @@ def test_the_answered_bytes_are_what_the_returns_commarea_is_compared_by():
     assert runner._with_answered_bytes(None, spaces) is None
     raw = cc.RawArea(b"\x40", E)
     assert runner._with_answered_bytes(raw, spaces) is raw
+
+
+def _answered(area, data: bytes, **kw):
+    import base64
+
+    return runner._with_answered_bytes(area, base64.b64encode(data).decode(), **kw)
+
+
+def test_the_answered_bytes_are_converted_from_the_runtime_page():
+    """#5053: a det port's bytes are in the runtime page (ASCII-family), the log's in CCSID 037 -- PC-STEP X'31' against
+    X'F1'. DISPLAY bytes go through the page, the binary ones (the layout) are kept as they are."""
+    dto = cc.FieldArea({"PC-STEP": Decimal(1)}, cc.FULL, bytes.fromhex("F1"), 1)
+    w = cc._Walk(ALL, cc.Context(layouts={}))
+    exp = {"length": 1, "hex": "F1"}
+    w.area("here", "commarea", exp, _answered(dto, b"1"))  # the runtime's '1' is the log's X'F1'
+    with pytest.raises(cc._Decided, match="commarea byte 0"):
+        w.area("here", "commarea", exp, _answered(dto, b"2"))
+    with pytest.raises(cc._Decided, match="commarea byte 0"):  # the page is never assumed to be EBCDIC
+        w.area("here", "commarea", exp, _answered(dto, b"\xf1", page="latin-1"))
+    # blanks, mixed text, the same bytes in the EBCDIC page itself
+    assert _answered(dto, b"A 1").data == "A 1".encode("cp037")
+    assert _answered(dto, bytes.fromhex("F1C140"), page="cp037").data == bytes.fromhex("F1C140")
+    assert _answered(dto, b"").data == b""
+    # a binary (COMP-3 / COMP) field is not text: its bytes stay, the DISPLAY ones around it convert
+    layout = [{"name": "N", "pic": "9(2)", "usage": "DISPLAY", "offset": 0, "bytes": 2},
+              {"name": "P", "pic": "S9(3)", "usage": "COMP-3", "offset": 2, "bytes": 2},
+              {"name": "H", "pic": "S9(4)", "usage": "COMP", "offset": 4, "bytes": 2}]  # fmt: skip
+    got = _answered(dto, b"12" + b"\x12\x3c" + b"\x00\x31", layout=layout)
+    assert got.data == bytes.fromhex("F1F2") + b"\x12\x3c" + b"\x00\x31"
+    assert got.known == 6
+    # nothing answered / no DTO area: untouched
+    assert runner._with_answered_bytes(dto, None) is dto
+    assert runner._with_answered_bytes(None, "MQ==") is None
+
+
+def test_the_java_run_declares_the_page_of_the_answered_bytes():
+    """#5053: the harness names the record charset the Java run writes (RUNTIME_PAGE), not the forge's default."""
+    src = Path(runner.__file__).read_text(encoding="utf-8")
+    assert 'props += f" -Dgitgalaxy.data.charset={java_charset_name(RUNTIME_PAGE)}"' in src
+    assert '_answered_layout(e.get("commarea"), shapes)' in src
+    assert runner.RUNTIME_PAGE == "latin-1"

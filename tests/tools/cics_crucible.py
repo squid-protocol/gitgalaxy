@@ -28,7 +28,7 @@ pipeline and compares, cell by cell:
                          entry points its passing scenarios ran (`entries`). #4965: each scenario runs a
                          second time through the byte-carrying overload handleTransaction(String, [T,] byte[])
                          where a service has one -- the previous task's RETURN bytes in -- and the bytes
-                         lastAnswerBytes() answers are what the RETURN's COMMAREA is compared by (a port
+                         lastAnswerBytes() answers (converted from the runtime page, #5053) are what the RETURN's COMMAREA is compared by (a port
                          that passes none answers null: the DTO is compared as before).
 
 Proving one program's port for the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py):
@@ -124,6 +124,11 @@ from maven_exe import mvn_executable  # noqa: E402
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
 from _cics_crucible_pin import PATH_ENV, PINNED_REF, pin_mismatch  # noqa: E402
+from gitgalaxy.core.ebcdic_codecs import java_charset_name  # noqa: E402
+
+RUNTIME_PAGE = (
+    "latin-1"  # #5053: the page the Java runtime's record bytes are in (the stub runtime's; SPEC logs are cp037)
+)
 
 LEDGER_DIR = REPO_ROOT / "tests" / "cics_crucible"
 BASELINE = LEDGER_DIR / "baseline.json"
@@ -1564,14 +1569,22 @@ def _java_area(desc: dict[str, Any] | None, src: Path, shapes: dict[str, Any],
     return cc.FieldArea(values, cc.FULL if length is None else length, data, known)
 
 
-def _with_answered_bytes(area: Any, answer: str | None) -> Any:
+def _with_answered_bytes(area: Any, answer: str | None, page: str = RUNTIME_PAGE,
+                         layout: list[dict[str, Any]] | None = None) -> Any:  # fmt: skip
     """#4965: the bytes the byte-carrying handleTransaction answered (lastAnswerBytes()) are the RETURN's COMMAREA
     bytes -- every one, a numeric DISPLAY field holding spaces too, which the DTO cannot carry -- so they, not the
-    bytes encoded from the DTO, are what the log's hex / text / layout is compared with."""
+    bytes encoded from the DTO, are what the log's hex / text / layout is compared with. #5053: they are in the
+    runtime's `page` (a det port writes CobolRecords.charset(), the one run_java sets), the log's in CCSID 037
+    (PC-STEP X'31' against X'F1'): converted by the page, DISPLAY bytes through it, binary ones (`layout`) as they are."""
     if answer is None or not isinstance(area, cc.FieldArea):
         return area
-    data = base64.b64decode(answer)
+    data = cc.to_ebcdic(cc.RawArea(base64.b64decode(answer), page), layout)
     return dataclasses.replace(area, data=data, known=len(data))
+
+
+def _answered_layout(desc: dict[str, Any] | None, shapes: dict[str, Any]) -> list[dict[str, Any]] | None:
+    """The record layout of the DTO class a Java COMMAREA description names (cached by _java_area), if any."""
+    return shapes[desc["class"]][1] if desc and desc.get("class") in shapes else None
 
 
 def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], Any]:
@@ -1646,7 +1659,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
                           commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),
-                                                        e.get("answer_bytes")))  # fmt: skip
+                                                        e.get("answer_bytes"), RUNTIME_PAGE,
+                                                        _answered_layout(e.get("commarea"), shapes)))  # fmt: skip
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
             elif kind == "LINK":
@@ -1709,6 +1723,7 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: b
         d.mkdir(parents=True, exist_ok=True)
     (inputs / "plan.json").write_text(json.dumps(java_plan(case, src), indent=1), encoding="utf-8")
     props = f"-Dequivalence.in={inputs} -Dequivalence.out={out} {ej.jvm_args(ej.environment('default'))}"
+    props += f" -Dgitgalaxy.data.charset={java_charset_name(RUNTIME_PAGE)}"  # #5053: the page the answered bytes are in
     if facades:
         props += " -Dequivalence.facades=true"
     ok, errors = maven(project, ["test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",

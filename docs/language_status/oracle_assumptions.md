@@ -1347,7 +1347,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   completion order, NOSUSPEND before and after a wait, a waiting FETCH, TIMEOUT running out, FREE CHILD, an abended
   child, a tie, a child's region-resource command, channel names); every port that DELAYs re-proved. CBSA CRECUST's
   credit check (five RUN children, DELAY 3 seconds, FETCH ANY NOSUSPEND x6) runs on the oracle, but the program is not
-  provable: its CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' (refused, L1).
+  provable: its CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' (refused, L1). **#4952:** the case is
+  `tests/equivalence/cbsa-crecust` (Db2 seed, five RUN children). The scenario `born-before-1601` (the date-of-birth
+  check ends before its CEEDAYS call) runs the children and the six FETCH ANYs and, run alone through det_port, has
+  all 18 events equal on both runtimes; that is not a proof of the program (13/37 paragraphs), and the committed case
+  is refused by name on `create-customer` / `born-in-the-future` until L1 is settled. Holes of the program: L1 (the
+  CEEDAYS picture and date strings overrun their 8 bytes by 2), L4 (`FC` is 8 bytes, LE's token 12) and this
+  entry's ASSUMED schedule. BNK1CCS, which LINKs CRECUST, is not proven while they stand.
 
 ### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).

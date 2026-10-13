@@ -8,7 +8,8 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 """#4270 slice 1 (#4575): PUT / GET / DELETE CONTAINER (CHANNEL), register X17; #4951: MOVE CONTAINER and the container
-browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), register X42."""
+browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), register X42; #5005: DELETE CHANNEL and QUERY CHANNEL, register
+X44."""
 
 from __future__ import annotations
 
@@ -265,6 +266,54 @@ ENDBROWSE_CONTAINER = Command(
     impl=Impl(java="endBrowseContainer", c="GGCEBRC", **_BROWSE_IMPL),
 )
 
+_CHANNEL_IMPL = {"translator": "Cics.channel_command", "harness": "_channel_command"}
+
+DELETE_CHANNEL = Command(
+    key="DELETE CHANNEL",
+    ibm=ibm("EXEC CICS DELETE CHANNEL", "summary-delete-channel"),
+    status="modelled",
+    register="X44",
+    options={"CHANNEL": _NAME, **RESP_OPTIONS},  # deleting a channel deletes every container it holds
+    groups=(required("CHANNEL", msg=NEEDS_ARGUMENT),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("CHANNELERR", 2, "the channel named on CHANNEL could not be found"),
+    ),
+    runtime_refusals=(
+        _SCOPE,
+        _ILLEGAL_NAME,
+        RuntimeRefusal(
+            "the program's current channel: IBM gives CHANNELERR RESP2 4 (current), 5 (transaction channel) or 6 (not "
+            "owned by the calling program), and a channel a program is passed is all of them, unranked",
+            "X44",
+            java="DELETE CHANNEL of the current channel",
+            c="DELETE CHANNEL of the current channel",
+        ),
+    ),
+    state=("channel_scope", "handle_table"),
+    impl=Impl(java="deleteChannel", c="GGCDELH", **_CHANNEL_IMPL),
+)
+
+QUERY_CHANNEL = Command(
+    key="QUERY CHANNEL",
+    ibm=ibm("EXEC CICS QUERY CHANNEL", "summary-query-channel"),
+    status="modelled",
+    register="X44",
+    options={
+        "CHANNEL": _NAME,
+        "CONTAINERCNT": Arg("area_out", width=4, binary=True),  # "a count of the number of containers", a fullword
+        **RESP_OPTIONS,
+    },
+    groups=(required("CHANNEL", msg=NEEDS_ARGUMENT), required("CONTAINERCNT", msg=NEEDS_ARGUMENT)),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("CONTAINERCNT",)),
+        Outcome("CHANNELERR", 2, "the channel named on CHANNEL could not be found"),
+    ),
+    runtime_refusals=(_SCOPE, _ILLEGAL_NAME),
+    state=("channel_scope", "handle_table"),
+    impl=Impl(java="queryChannel", c="GGCQCHN", **_CHANNEL_IMPL),
+)
+
 COMMANDS = (
     PUT_CONTAINER,
     GET_CONTAINER,
@@ -273,4 +322,6 @@ COMMANDS = (
     STARTBROWSE_CONTAINER,
     GETNEXT_CONTAINER,
     ENDBROWSE_CONTAINER,
+    DELETE_CHANNEL,
+    QUERY_CHANNEL,
 )

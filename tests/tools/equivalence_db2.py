@@ -196,8 +196,71 @@ def _ensure_database(database: str) -> None:
             raise RuntimeError(f"Db2: CREATE DATABASE {database} failed: {out.strip()[-400:]}")
 
 
+ODBC_PIN = common.CASES / "odbc_cli.pin"
+ODBC_TARBALL = common.CASES / "linuxx64_odbc_cli.tar.gz"  # in the Docker build context; git-ignored
+
+
+class OdbcDownloadError(RuntimeError):
+    """#4980: IBM's ODBC CLI driver could not be fetched or did not match its pin -- infrastructure, not our code."""
+
+
+def _odbc_fail(why: str, url: str) -> OdbcDownloadError:
+    return OdbcDownloadError(f"INFRASTRUCTURE (not a code defect): could not get IBM's Db2 ODBC CLI driver from {url}: "
+                             f"{why}. Re-run; if IBM replaced the file, bump url/sha256 together in {ODBC_PIN.name}.")  # fmt: skip
+
+
+def odbc_pin(path: Path | None = None) -> dict[str, str]:
+    """{"url", "sha256"} from odbc_cli.pin (key=value lines, # comments)."""
+    pin: dict[str, str] = {}
+    for line in (path or ODBC_PIN).read_text(encoding="utf-8").splitlines():
+        if line.strip() and not line.lstrip().startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            pin[key.strip()] = value.strip()
+    return pin
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def fetch_odbc_cli(dest: Path | None = None, pin: dict[str, str] | None = None) -> Path:
+    """#4980: the driver tarball at `dest`, sha256-checked against the pin. A file already there that matches is kept
+    (the CI cache restores it); otherwise curl fetches it with retries. Any failure raises OdbcDownloadError."""
+    dest = dest or ODBC_TARBALL
+    pin = pin or odbc_pin()
+    url, want = pin["url"], pin["sha256"]
+    if dest.is_file() and _sha256(dest) == want:
+        return dest
+    dest.unlink(missing_ok=True)
+    part = dest.with_name(dest.name + ".part")
+    part.unlink(missing_ok=True)
+    cmd = ["curl", "--fail", "--silent", "--show-error", "--location", "--retry", "5", "--retry-all-errors",
+           "--retry-delay", "5", "--connect-timeout", "30", "--max-time", "900", "--output", str(part), url]  # fmt: skip
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=1000)  # noqa: S603
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        part.unlink(missing_ok=True)
+        raise _odbc_fail(f"curl did not run to completion ({exc})", url) from exc
+    if proc.returncode != 0:
+        part.unlink(missing_ok=True)
+        raise _odbc_fail(f"curl exited {proc.returncode} after retries: {proc.stderr.strip()[-300:]}", url)
+    got = _sha256(part) if part.is_file() else "no file"
+    if got != want:
+        part.unlink(missing_ok=True)
+        raise _odbc_fail(f"sha256 {got} is not the pinned {want}", url)
+    part.replace(dest)
+    return dest
+
+
 def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
+        fetch_odbc_cli()
         _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
     import fcntl
 

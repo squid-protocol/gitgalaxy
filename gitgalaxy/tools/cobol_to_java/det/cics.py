@@ -88,6 +88,10 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if (
+        first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts
+    ):  # #5005 (DELETE CONTAINER is above)
+        return f"{first} CHANNEL"
     if first == "GETNEXT" and "CONTAINER" in opts:  # #4951: GETNEXT CONTAINER(area) BROWSETOKEN(token)
         return "GETNEXT CONTAINER"
     if verb == "GET" and "DCOUNTER" in opts:  # #4767 (X30): GET DCOUNTER is the doubleword form of GET COUNTER's entry
@@ -821,6 +825,8 @@ class Cics:
             return self.container(key, opts, ind)
         if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
             return self.container_browse(key, opts, ind)  # #4951
+        if key in ("DELETE CHANNEL", "QUERY CHANNEL"):
+            return self.channel_command(key, opts, ind)  # #5005
         if verb == "RUN":  # #4270 slice 2
             return self.run_transid(opts, ind)
         if words[:1] == ["FETCH"]:  # #4884, #4950: FETCH ANY / FETCH CHILD
@@ -1679,6 +1685,22 @@ class Cics:
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
+        """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
+        channels. DELETE: the channel and its containers go. QUERY: CONTAINERCNT, a fullword, is set to the number of
+        containers on NORMAL (not on a condition: IBM does not say). CHANNELERR RESP2 2 comes back through RESP / HANDLE
+        CONDITION (AEZV by default); what IBM leaves open is refused at run time (register X44)."""
+        r = self.g.tmpname("chan")
+        chan = self.name(_arg(opts.get("CHANNEL")))
+        if key == "DELETE CHANNEL":
+            call = f"task.deleteChannel({chan})"
+            return [f"{ind}CicsTask.ContainerResult {r} = {call};",
+                    *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
+        count = _arg(opts.get("CONTAINERCNT"))
+        return [f"{ind}CicsTask.ContainerResult {r} = task.queryChannel({chan});",
+                f"{ind}if ({r}.length() >= 0) " + self.g.store_into(self.ref(count), f"BigDecimal.valueOf({r}.length())", False),
+                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
 
     def container_browse(self, key: str, opts: dict, ind: str) -> list[str]:
         """#4951: MOVE CONTAINER and the container browse (IBM CICS TS, EXEC CICS MOVE CONTAINER (CHANNEL),

@@ -102,7 +102,7 @@ typedef struct {
 /* the conditions the stub raises, by their short names; the numbers are the spec's (ggcics_spec.h) */
 enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
-       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
+       PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, DUPKEY = DFHRESP_DUPKEY, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
        END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR,
        SUPPRESSED = DFHRESP_SUPPRESSED };
 
@@ -215,6 +215,10 @@ int GGCAREA(char **area, int len) {
  * command counts (per task: a task is one process), whether or not it faults. */
 static int fault_counts[32];
 static char fault_keys[32][40];
+/* #4623: a planned DUPKEY is not a failure of the read. IBM retrieves the record through the non-unique alternate
+ * index and answers DUPKEY (RESP2 140) because another record with the same key follows. So injected() holds it
+ * back (the read runs) and dupkey_apply() turns the NORMAL of a read that found its record into it. */
+static struct { int on, n, resp, resp2; char cmd[16], file[32]; } dupkey;
 static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     char path[3000], line[256], pcmd[16], pfile[32], nth[16];
     int presp, presp2, n = 0, slot = -1, hit = 0;
@@ -226,6 +230,7 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     if (slot < 0) return 0;
     if (fault_keys[slot][0] == 0) snprintf(fault_keys[slot], sizeof fault_keys[slot], "%s", key);
     n = ++fault_counts[slot];
+    dupkey.on = 0;
     snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
     FILE *f = fopen(path, "r");
     while (f && !hit && fgets(line, sizeof line, f)) {
@@ -238,12 +243,30 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
         hit = 1;
     }
     if (f) fclose(f);
+    if (hit && *resp == DFHRESP_DUPKEY) {
+        dupkey.on = 1; dupkey.n = n; dupkey.resp = *resp; dupkey.resp2 = *resp2;
+        snprintf(dupkey.cmd, sizeof dupkey.cmd, "%s", cmd);
+        snprintf(dupkey.file, sizeof dupkey.file, "%s", file);
+        return 0;
+    }
     if (hit) {
         snprintf(path, sizeof path, "%s/faults.txt", dir_out());
         FILE *log = fopen(path, "a");
         if (log) { fprintf(log, "%s %s %d %d %d\n", cmd, file, n, *resp, *resp2); fclose(log); }
     }
     return hit;
+}
+
+static void dupkey_apply(gg_cics *c) {
+    if (!dupkey.on) return;
+    dupkey.on = 0;
+    if (c->resp != NORMAL) return;  /* no record was retrieved: nothing for DUPKEY to qualify */
+    c->resp = dupkey.resp;
+    c->resp2 = dupkey.resp2;
+    char path[3000];
+    snprintf(path, sizeof path, "%s/faults.txt", dir_out());
+    FILE *log = fopen(path, "a");
+    if (log) { fprintf(log, "%s %s %d %d %d\n", dupkey.cmd, dupkey.file, dupkey.n, c->resp, c->resp2); fclose(log); }
 }
 
 /* ---- file updates (CardDemo's update programs) --------------------------------------------------------------
@@ -590,6 +613,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     int shown = keylen < 200 ? keylen : 200;
     memcpy(key, ridfld, (size_t)shown);
     key[shown] = '\0';
+    dupkey_apply(c);
     snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
     event(ev, NULL, 0);
     return 0;
@@ -776,6 +800,7 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
         if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
     }
     free(all);
+    dupkey_apply(c);
     rba_event(verb, want, rba, c->resp);
     return 0;
 }
@@ -891,6 +916,7 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
         }
         free(all);
     }
+    dupkey_apply(c);
     file_event(verb, want, ridfld, keylen, c->resp);
     return 0;
 }
@@ -2068,6 +2094,49 @@ int GGCDELC(gg_cics *c) {
     free(k->data);
     memset(k, 0, sizeof *k);
     chans[ch - 1].shape++;
+    return 0;
+}
+
+/* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
+ * CicsTask (register X44). The channel's name is GG-CHAN. */
+
+/* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
+ * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */
+int GGCDELH(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
+    for (int i = 0; i < MAX_CONTAINERS; i++) {
+        if (chans[ch - 1].c[i].used) free(chans[ch - 1].c[i].data);
+        memset(&chans[ch - 1].c[i], 0, sizeof chans[ch - 1].c[i]);
+    }
+    chans[ch - 1].shape++;
+    level *L = &levels[lvl];
+    for (int i = 0; i < L->nscope; i++) {
+        if (L->scope[i] == ch) {
+            for (int j = i; j + 1 < L->nscope; j++) L->scope[j] = L->scope[j + 1];
+            L->nscope--;
+            break;
+        }
+    }
+    return 0;
+}
+
+/* QUERY CHANNEL: the number of containers into GG-NUM; CHANNELERR RESP2 2 for a channel not in scope. */
+int GGCQCHN(gg_cics *c) {
+    char name[17];
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->chan, name, "channel");
+    int ch = channel_named(name, 0);
+    if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
+    int n = 0;
+    for (int i = 0; i < MAX_CONTAINERS; i++) if (chans[ch - 1].c[i].used) n++;
+    c->num = n;
     return 0;
 }
 
@@ -4294,8 +4363,8 @@ static void tcpip_load(void) {
 }
 
 /* An IPv4 address in dotted decimal as a number (-1: it is not one: four decimal parts 0-255, no leading zero). */
-static long ipv4_value(const char *s) {
-    long value = 0;
+static long long ipv4_value(const char *s) { /* long long: `long` is 32 bits on Windows, and 192.x is above 2^31 */
+    long long value = 0;
     int parts = 0;
     while (1) {
         int n = 0, digits = 0;
@@ -4321,7 +4390,7 @@ int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, ch
     char flags[81];
     int ca, cn, sa, sn, cnu, snu, cf, sf, cl = c->len, nl = c->hours, sl = c->mins, ml = c->secs;
     int badlength, toosmall;
-    long cnum, snum;
+    long long cnum, snum;
     tcpip_load();
     trim(c->flags, 40, flags);
     ca = strstr(flags, "A1") != NULL;
@@ -4336,8 +4405,8 @@ int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, ch
         refuse("EXTRACT TCPIP length beyond its area");
     cnum = ipv4_value(tcpipc.caddr);
     snum = ipv4_value(tcpipc.saddr);
-    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647L)
-        || (snu && snum > 2147483647L)) refuse("EXTRACT TCPIP address");
+    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647LL)
+        || (snu && snum > 2147483647LL)) refuse("EXTRACT TCPIP address");
     if (sn && !tcpipc.hassname) refuse("EXTRACT TCPIP");
     badlength = (ca && cl <= 0) || (cn && nl <= 0) || (sa && sl <= 0) || (sn && ml <= 0);
     toosmall = (ca && cl > 0 && (int)strlen(tcpipc.caddr) > cl) || (cn && nl > 0 && (int)strlen(tcpipc.cname) > nl)

@@ -754,6 +754,7 @@ class EquivalenceRunTest {
         byte[] pendingBytes;  // #4965: the bytes the last RETURN TRANSID passed on (lastAnswerBytes), for the next task
         byte[] inBytes;  // ... handed to the task about to start
         byte[] answered;  // ... and what the task that just ran answered (null: none)
+        boolean answeredByBytes;  // the task that just ran was entered by the byte overload (its answer is owed)
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
@@ -889,6 +890,7 @@ class EquivalenceRunTest {
             String program = plan.path("transactions").path(transid).asText(null);
             Map<String, Object> task = new LinkedHashMap<>(frame);
             answered = null;
+            answeredByBytes = false;
             task.remove("startcode");
             task.put("transid", transid);
             task.put("program", program);
@@ -1033,6 +1035,12 @@ class EquivalenceRunTest {
                     }
                     events.add(copy);
                 }
+                if (answeredByBytes && thrown == null && !java.util.Arrays.equals(answered, t.returnedBytes())) {
+                    // #4965 (as equivalence_cics.py): the accessor answers the bytes the task's RETURN passed on -- a
+                    // facade that stopped assigning them (answers null, or a previous task's) is not proven by the
+                    // DTO's bytes the comparison falls back to
+                    thrown = "lastAnswerBytes() of " + program + " is not the bytes its RETURN passes on";
+                }
                 if (thrown != null) {
                     events.add(error(program, thrown));
                     end = "abend";
@@ -1125,6 +1133,7 @@ class EquivalenceRunTest {
                 entry(program, "handleTransaction");
                 if ((bytesOne || bytesTwo) && (viaBytes || !(dtoOne || dtoTwo))) {
                     used = bytesOne ? oneB : twoB;
+                    answeredByBytes = true;
                     usedBytes = true;  // even when it throws: the run is the byte overload's, and is compared
                     if (bytesOne) {
                         invoke(oneB, service, t.transid(), in);

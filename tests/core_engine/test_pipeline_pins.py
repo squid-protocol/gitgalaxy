@@ -245,11 +245,7 @@ def test_gitlab_services_without_digest_is_flagged():
     assert [(n, k) for n, k, _ in find_unpinned_gitlab("job:\n  services:\n    - name: redis:7\n")] == [
         (3, "gitlab-service")
     ]
-    mixed = (
-        "services:\n"
-        "  - postgres:16@sha256:" + "a" * 64 + "\n"
-        "  - redis:7\n"
-    )
+    mixed = "services:\n  - postgres:16@sha256:" + "a" * 64 + "\n  - redis:7\n"
     assert [(n, k) for n, k, _ in find_unpinned_gitlab(mixed)] == [(3, "gitlab-service")]
 
 
@@ -309,7 +305,11 @@ def test_gitlab_and_github_checks_scoped_by_file_path():
     text = "services:\n  db:\n    image: postgres:16\n"
     assert _surface_kinds(text, "yaml", gitlab=False) == []
     assert _surface_kinds(text, "yaml", gitlab=True) == ["gitlab-image"]
-    assert is_gitlab_ci(".gitlab-ci.yml") and is_gitlab_ci("ci/.gitlab-ci.yaml") and is_gitlab_ci("templates/gitlab/scan.yml")
+    assert (
+        is_gitlab_ci(".gitlab-ci.yml")
+        and is_gitlab_ci("ci/.gitlab-ci.yaml")
+        and is_gitlab_ci("templates/gitlab/scan.yml")
+    )
     assert is_github_workflow(".github/workflows/ci.yml") and is_github_workflow("action.yml")
     assert not is_gitlab_ci("docker-compose.yml") and not is_github_workflow("docker-compose.yml")
     assert scan_pipeline(text, "yaml", ".gitlab-ci.yml")["counts"] == {"unpinned_install": 1}
@@ -362,7 +362,7 @@ def test_our_own_pipelines_are_clean(path):
     `.github/workflows`, which is the CI half of #4944; each entry is exact (file, line, kind), so any other
     finding, or a moved one, fails, and fixing one forces its entry out of this table.
     """
-    rel = str(path.relative_to(ROOT))
+    rel = path.relative_to(ROOT).as_posix()  # the table's keys are POSIX; str() gives backslashes on Windows
     got = {(n, k) for n, k, _ in find_unpinned(path.read_text())}
     assert got == OPEN_SYSTEM_PACKAGE_INSTALLS.get(rel, set()), got
 

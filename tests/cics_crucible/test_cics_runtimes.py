@@ -1852,6 +1852,193 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
     assert out.startswith("refused: ") and why in out, out
 
 
+# ---- #5005: DELETE CHANNEL and QUERY CHANNEL -------------------------------------------------------------
+# One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS DELETE CHANNEL, QUERY
+# CHANNEL: CHANNELERR RESP2 2 for a channel not in scope); what IBM leaves open is refused (register X44).
+_CHAN_EXTERNS = "int GGCDELH(gg_cics *c); int GGCQCHN(gg_cics *c); int GGCDELC(gg_cics *c);\nint GGCSYNC(gg_cics *c);"
+_CHAN_HELPERS = r"""
+static void delch(const char *what, const char *chan) { blank(c.chan, 16, chan); GGCDELH(&c); say(what); }
+static void query(const char *what, const char *chan) {
+    blank(c.chan, 16, chan); c.num = -7; GGCQCHN(&c);
+    printf("%s=%s/%d", what, nm(c.resp), c.resp2);
+    if (c.resp == 0) printf("/count %d", c.num); else if (c.num != -7) printf("/count written");
+    printf("\n");
+}
+static void delc(const char *what, const char *chan, const char *cont) {
+    blank(c.qname, 16, cont); blank(c.chan, 16, chan); blank(c.flags, 40, "CHANNEL"); GGCDELC(&c); say(what);
+}
+static void link_sub(const char *chan) {
+    char *area = NULL;
+    blank(c.name1, 8, "SUB"); c.item = 0; c.len = 0; blank(c.flags, 40, "CHANNEL"); blank(c.chan, 16, chan);
+    GGCLINK(&c, NULL); GGCNEXT(&c, &area);
+}
+"""
+
+
+def _chan_stub_main(body: str) -> str:
+    head = _MOVE_STUB_MAIN.replace("int GGCSYNC(gg_cics *c);", _CHAN_EXTERNS).split("int main(void) {")[0]
+    return (
+        head + _CHAN_HELPERS + "int main(void) {\n    char *area = NULL;\n"
+        '    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); GGCNEXT(&c, &area);\n' + body + "\n    return 0;\n}\n"
+    )
+
+
+_CHAN_STUB_SCENARIO = r"""
+    query("q-none", "CH1"); delch("d-none", "CH1");
+    put("CH1", "A", "aa", "CHANNEL CHAR"); put("CH1", "B", "bb", "CHANNEL"); put("CH2", "X", "xx", "CHANNEL");
+    query("q-ch1", "CH1"); query("q-ch2", "CH2");
+    delc("delc", "CH1", "A"); query("q-after-delc", "CH1");
+    delch("d-ch1", "CH1");
+    get("get-gone", "CH1", "B"); query("q-gone", "CH1"); delch("d-again", "CH1");
+    put("CH1", "N", "n", "CHANNEL"); query("q-recreated", "CH1"); get("old-b", "CH1", "B");
+    put("CH3", "Z", "z", "CHANNEL"); delc("delc-z", "CH3", "Z"); query("q-empty", "CH3"); delch("d-empty", "CH3");
+    query("q-empty-gone", "CH3");
+    link_sub("CH2");
+    query("sub-query", "CH2"); query("sub-other", "CH1"); delch("sub-del-other", "CH1");
+    put("CH2", "S", "s", "CHANNEL"); query("sub-query2", "CH2");
+    GGCLRET(&c);
+    query("q-after", "CH2"); delch("d-ch2", "CH2"); query("q-ch2-gone", "CH2"); get("x-gone", "CH2", "X");
+"""
+
+_CHAN_EXPECTED = [
+    "q-none=CHANNELERR/2",
+    "d-none=CHANNELERR/2",
+    "q-ch1=NORMAL/0/count 2",
+    "q-ch2=NORMAL/0/count 1",
+    "delc=NORMAL/0",
+    "q-after-delc=NORMAL/0/count 1",
+    "d-ch1=NORMAL/0",
+    "get-gone=CHANNELERR/2",
+    "q-gone=CHANNELERR/2",
+    "d-again=CHANNELERR/2",
+    "q-recreated=NORMAL/0/count 1",
+    "old-b=CONTAINERERR/10",
+    "delc-z=NORMAL/0",
+    "q-empty=NORMAL/0/count 0",
+    "d-empty=NORMAL/0",
+    "q-empty-gone=CHANNELERR/2",
+    "sub-query=NORMAL/0/count 1",
+    "sub-other=CHANNELERR/2",
+    "sub-del-other=CHANNELERR/2",
+    "sub-query2=NORMAL/0/count 2",
+    "q-after=NORMAL/0/count 2",
+    "d-ch2=NORMAL/0",
+    "q-ch2-gone=CHANNELERR/2",
+    "x-gone=CHANNELERR/2",
+]
+
+
+@needs_cc
+def test_the_stub_deletes_and_queries_channels_as_ibm_documents(tmp_path):
+    """#5005, IBM DELETE CHANNEL / QUERY CHANNEL: the count of containers (0 for an emptied channel, then the channel still
+    exists), a deleted channel and its containers gone (CHANNELERR RESP2 2 for it afterwards; a PUT makes a new, empty one),
+    a channel outside the program's scope CHANNELERR RESP2 2 (a LINKed program sees only the channel it was passed)."""
+    out = _run_stub(_stub(tmp_path, _chan_stub_main(_CHAN_STUB_SCENARIO)), tmp_path)
+    assert out == _CHAN_EXPECTED
+
+
+@needs_javac
+def test_cics_task_deletes_and_queries_channels_as_the_stub_does(tmp_path):
+    """#5005: CicsTask answers the scenario above line for line."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> say = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2());
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> count = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2()
+                + (r.normal() ? "/count " + r.length() : (r.length() != -1 ? "/count written" : "")));
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                count.accept("sub-query", s.queryChannel("CH2"));
+                count.accept("sub-other", s.queryChannel("CH1"));
+                say.accept("sub-del-other", s.deleteChannel("CH1"));
+                s.putContainer("CH2", "S", "s".getBytes(), 1, null, false);
+                count.accept("sub-query2", s.queryChannel("CH2"));
+            }
+        });
+        java.util.function.BiConsumer<String, CicsTask.ContainerResult> got = (what, r) -> System.out.println(what + "=" + r.resp() + "/" + r.resp2()
+                + (r.normal() ? "/" + r.length() + "/" + new String(r.data()) : ""));
+        count.accept("q-none", t.queryChannel("CH1")); say.accept("d-none", t.deleteChannel("CH1"));
+        t.putContainer("CH1", "A", "aa".getBytes(), 2, "CHAR", false); t.putContainer("CH1", "B", "bb".getBytes(), 2, null, false);
+        t.putContainer("CH2", "X", "xx".getBytes(), 2, null, false);
+        count.accept("q-ch1", t.queryChannel("CH1")); count.accept("q-ch2", t.queryChannel("CH2"));
+        say.accept("delc", t.deleteContainer("CH1", "A")); count.accept("q-after-delc", t.queryChannel("CH1"));
+        say.accept("d-ch1", t.deleteChannel("CH1"));
+        got.accept("get-gone", t.getContainer("CH1", "B", 16)); count.accept("q-gone", t.queryChannel("CH1"));
+        say.accept("d-again", t.deleteChannel("CH1"));
+        t.putContainer("CH1", "N", "n".getBytes(), 1, null, false); count.accept("q-recreated", t.queryChannel("CH1"));
+        got.accept("old-b", t.getContainer("CH1", "B", 16));
+        t.putContainer("CH3", "Z", "z".getBytes(), 1, null, false); say.accept("delc-z", t.deleteContainer("CH3", "Z"));
+        count.accept("q-empty", t.queryChannel("CH3")); say.accept("d-empty", t.deleteChannel("CH3"));
+        count.accept("q-empty-gone", t.queryChannel("CH3"));
+        t.linkChannel("SUB", "CH2");
+        count.accept("q-after", t.queryChannel("CH2")); say.accept("d-ch2", t.deleteChannel("CH2"));
+        count.accept("q-ch2-gone", t.queryChannel("CH2")); got.accept("x-gone", t.getContainer("CH2", "X", 16));""",
+    )
+    assert out.splitlines() == _CHAN_EXPECTED
+
+
+@needs_cc
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        (
+            'put("CH1", "A", "a", "CHANNEL"); int t = start("s", "CH1"); delch("d", "CH1"); next("n", t);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            'put("CH2", "A", "a", "CHANNEL"); link_sub("CH2"); delch("d", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
+        ('delch("d", " A");', "channel name"),
+        ('query("q", " A");', "channel name"),
+        ('delch("d", "");', "channel name"),
+    ],
+)
+def test_the_stub_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
+    """#5005 (X44): the current channel (IBM's RESP2 4 / 5 / 6 all fit it, unranked), a browse of a channel that was deleted
+    and a blank or embedded-blank name are refused, never guessed."""
+    exe = _stub(tmp_path, _chan_stub_main(steps))
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode != 0 and why in proc.stderr + proc.stdout
+
+
+@needs_javac
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        (
+            't.putContainer("CH1", "A", "a".getBytes(), 1, null, false); int k = t.startBrowseContainer("CH1").length();'
+            ' t.deleteChannel("CH1"); t.getNextContainer(k);',
+            "browsed channel changed during the browse",
+        ),
+        (
+            't.putContainer("CH2", "A", "a".getBytes(), 1, null, false); t.linkChannel("SUB", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
+        ('t.deleteChannel(" A");', "channel name"),
+        ('t.queryChannel(" A");', "channel name"),
+        ('t.deleteChannel("");', "channel name"),
+    ],
+)
+def test_cics_task_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
+    """#5005 (X44): the same refusals as the stub's."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {\n'
+        "    public boolean defined(String p) { return true; }\n"
+        '    public void run(String p, CicsTask s) { s.deleteChannel("CH2"); }\n});\n'
+        "try {\n" + steps + '\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and why in out, out
+
+
 # ---- #4270 slice 2: START AFTER / AT, the data options, ENVDEFERR, IOERR ---------------------------------------
 _IC2_MAIN = r"""
 #include <stdio.h>

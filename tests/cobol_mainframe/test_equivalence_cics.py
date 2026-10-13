@@ -279,6 +279,21 @@ def test_move_container_and_the_container_browse_call_the_stub():
     assert end[:2] == ["MOVE WS-TOK TO GG-NUM", "CALL 'GGCEBRC' USING GG-CICS"]
 
 
+def test_delete_and_query_channel_call_the_stub():
+    """#5005: DELETE CHANNEL -> GGCDELH (CHANNEL in GG-CHAN) and QUERY CHANNEL -> GGCQCHN (the count out of GG-NUM into
+    CONTAINERCNT on NORMAL only); CHANNEL (and CONTAINERCNT) required, an option IBM's command does not list refused."""
+    got = ec.translate_command("DELETE CHANNEL(WS-CH) RESP(WS-R)")
+    assert got[:2] == ["MOVE WS-CH TO GG-CHAN", "CALL 'GGCDELH' USING GG-CICS"] and "MOVE GG-RESP TO WS-R" in got
+    assert ec.translate_command("DELETE CHANNEL('C')")[0] == "MOVE 'C' TO GG-CHAN"
+    got = ec.translate_command("QUERY CHANNEL(WS-CH) CONTAINERCNT(WS-N) RESP(WS-R)")
+    assert got[:5] == ["MOVE WS-CH TO GG-CHAN", "CALL 'GGCQCHN' USING GG-CICS", "IF GG-RESP = 0",
+                       "    MOVE GG-NUM TO WS-N", "END-IF"]  # fmt: skip
+    for bad in ("DELETE CHANNEL", "DELETE CHANNEL(C) CONTAINERTYPE(X)", "QUERY CHANNEL(C)",
+                "QUERY CHANNEL CONTAINERCNT(N)", "QUERY CHANNEL(C) CONTAINERCNT(N) BOGUS(X)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
 def test_send_map_records_its_options_and_area():
     got = ec.translate_command("SEND MAP(M) MAPSET(S) FROM(MO) CURSOR ERASE FREEKB")
     assert "MOVE 'CURSOR ERASE FREEKB' TO GG-FLAGS" in got and "    BY REFERENCE MO" in got

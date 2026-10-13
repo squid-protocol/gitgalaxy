@@ -63,6 +63,10 @@ Moving it is a deliberate change: resolve the new digest (`curl -sI -H 'Accept: 
 https://icr.io/v2/db2_community/db2/manifests/latest`, header `docker-content-digest`), set `IMAGE`, update this table,
 and re-sweep the Db2 cases.
 
+The COBOL side's driver tarball is pinned too (#4980): `tests/equivalence/odbc_cli.pin` holds IBM's URL and its sha256.
+`equivalence_db2.fetch_odbc_cli()` downloads it with `curl --retry`, CI caches it on the pin, and the Dockerfile COPYs it
+and checks the sha256 again; a failed download or a mismatch is reported as infrastructure, never as a case failure.
+
 ## Status key
 
 | status | meaning |
@@ -147,8 +151,10 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued, NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send or was DOCDELETE, and NORMAL when the last WEB SEND was an EVENTUAL (or ACTION-omitted) document send that did not DOCDELETE: the 16-byte DOCTOKEN written is that of a new document of the task holding the document as it was sent (ASSUMED), the same token for every retrieve of that send; refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike, NORMAL included; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
+| X44 | CICS | DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, the number of containers) with IBM's one condition, CHANNELERR RESP2 2; refused: deleting the program's current channel (IBM's RESP2 4 / 5 / 6 all fit it and it ranks none), a name that is blank or has an embedded blank, a channel an XCTL left behind; unreachable: CHANNELERR 3 (read-only). INQUIRE CONTAINER stays refused: IBM documents it only in its BTS form | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X45 | CICS | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
+| X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2239,6 +2245,38 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   model the condition, and remove the refusal.
 - **Status:** REFUSED for the three conditions; the RESP2 fix is exact.
 
+### X44. DELETE CHANNEL and QUERY CHANNEL — ASSUMED, REFUSED where IBM is silent (#5005, sibling of #4951)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS DELETE CHANNEL and EXEC CICS QUERY CHANNEL:
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete-channel and `summary-query-channel`). DELETE CHANNEL(name): the
+  channel (1 - 16 characters) is deleted, and "deleting the channel also deletes every container it holds". Its only condition is
+  CHANNELERR, with RESP2 2 (the channel could not be found), 3 (a read-only channel), 4 (the current channel), 5 (the transaction
+  channel) and 6 (a channel not owned by the calling program). QUERY CHANNEL: CHANNEL(name) is required; CONTAINERCNT(data-area)
+  "returns, as a fullword binary value, a count of the number of containers that are in the specified channel"; its only condition is
+  CHANNELERR RESP2 2 (the channel could not be found). CHANNELERR abends AEZV when unhandled (X17). Both sides model it: `ggcics.c`
+  GGCDELH / GGCQCHN and CicsTask deleteChannel / queryChannel; the spec entries are `standards/cics/commands/containers.py`.
+- **Assumed.** (1) A channel is found in the program's scope (X17): the channels it created and the one it was passed; a channel in
+  another program's scope is not found (CHANNELERR 2), so a LINKed program deleting or querying a channel its caller made but did
+  not pass gets CHANNELERR 2. (2) After a DELETE the channel is gone from the scope: a later GET / DELETE CONTAINER, QUERY or DELETE
+  CHANNEL naming it is CHANNELERR 2, and a PUT CONTAINER naming it makes a new, empty channel ("If the channel does not exist, it is
+  created", X17) that holds none of the old containers. (3) A channel emptied container by container still exists: QUERY CHANNEL
+  gives CONTAINERCNT 0, and DELETE CHANNEL succeeds. (4) CONTAINERCNT is set on NORMAL only; IBM does not say what it holds on
+  CHANNELERR (as FLENGTH, X17). (5) A browse (X42) of a channel that was then deleted is refused at its next GETNEXT, like any change to
+  the browsed channel.
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run time): any option
+  IBM's commands do not list; a missing CHANNEL (or, for QUERY, CONTAINERCNT); DELETE CHANNEL of the program's current channel (IBM's
+  RESP2 4 names the current channel, 5 the transaction channel and 6 a channel the program does not own, and a channel a program is
+  passed is the current one, is not its own, and for the task's first program is also the transaction channel: IBM ranks none, so
+  the port refuses instead of choosing); a channel an XCTL left behind and a blank / embedded-blank name (X17's refusals).
+  **Unreachable, so no outcome:** CHANNELERR 3 (no channel is read-only: CICS-defined channels are not modelled); 4, 5 and 6 as
+  separate outcomes (the refusal above covers every case they could apply to).
+- **INQUIRE CONTAINER** is still refused whole, as the BTS form: IBM's INQUIRE CONTAINER page documents only the BTS data-container
+  (ACTIVITYID / PROCESS / PROCESSTYPE / DATALENGTH / SET; ACTIVITYERR, PROCESSERR, CONTAINERERR 1), and BTS is out of scope. No IBM
+  page for a channel form was found; a channel container's length is `GET CONTAINER ... NODATA FLENGTH` (X17).
+- **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 24-step scenario (counts, delete, the channel gone
+  and recreated, an emptied channel, a LINKed program's scope, every condition) on the stub and on CicsTask, which print the same
+  lines, and the refusals above on both; the translators' tests are in `tests/cobol_mainframe/test_det_translate.py` and
+  `test_equivalence_cics.py`. No cics-crucible case yet: a hand-traced case is a companion PR on the crucible.
+
 ### X45. DEFINE / QUERY / DELETE DCOUNTER with MINIMUM and MAXIMUM; GET DCOUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#4770)
 - **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,
   ...summary-query-counter-query-dcounter, ...summary-delete-counter-delete-dcounter). DEFINE DCOUNTER: VALUE, MINIMUM and MAXIMUM are
@@ -2302,6 +2340,23 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   modelled; refused by name, with its options.
 - **QUERY** (#4415 lists it): QUERY COUNTER is X29 (QUERY DCOUNTER is #4770, QUERY CHANNEL #5005); QUERY SECURITY stays refused
   (the region has no security manager).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent.
+
+### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
+- **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an
+  alternate index that has the NONUNIQUEKEY attribute, and another alternate index record with the same key follows". The
+  condition qualifies a successful read: IBM retrieves the record. The injection therefore runs the read and turns its
+  NORMAL into DUPKEY / 140 (the record moved INTO, a browse's RIDFLD set, a READ UPDATE held, as for NORMAL). A read that finds
+  no record (NOTFND, ENDFILE, LENGERR) has no DUPKEY to give: the fault does not fire (and so the run's fault log does not
+  hold it, which the harness reports). **ASSUMED:** the DUPKEY read's own RIDFLD / INTO are as NORMAL's (the pages say the
+  record is retrieved and do not say otherwise). The harness has no alternate index: the fault is planned, not derived from
+  duplicate keys in a path.
+- **DUPREC** (WRITE: RESP2 150 "adding a record whose key already exists", also a UNIQUEKEY alternate key already present;
+  REWRITE: RESP2 150, the alternate key already in the upgrade set). The write / rewrite does nothing.
+  A unique-alternate-key violation on WRITE is DUPREC 150, **not** DUPKEY: the WRITE page lists no DUPKEY.
+- **Refused by name:** DUPKEY on any other command (WRITE, REWRITE, STARTBR, ENDBR: not in their lists), DUPREC on any command
+  but WRITE / REWRITE, and an explicit RESP2 that is not IBM's. **DUPKEY on DELETE:** the DELETE page lists it (RESP2 140) but
+  does not say whether the record is deleted, so the outcome is not modelled and the fault is refused.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent.
 
 ## Language Environment

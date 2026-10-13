@@ -29,7 +29,7 @@ def remote_and_clone(tmp_path):
     git(clone, "config", "user.email", "t@t")
     git(clone, "config", "user.name", "t")
     (clone / "docs").mkdir()
-    (clone / "docs" / "h.csv").write_text("seed\n")
+    (clone / "docs" / "h.csv").write_text("seed\n", newline="\n")
     git(clone, "add", ".")
     git(clone, "commit", "-q", "-m", "seed")
     git(clone, "push", "-q", "origin", "HEAD:main")
@@ -39,7 +39,7 @@ def remote_and_clone(tmp_path):
 def test_first_publish_creates_the_branch_and_leaves_the_checkout_alone(remote_and_clone):
     remote, clone = remote_and_clone
     head = git(clone, "rev-parse", "HEAD")
-    (clone / "docs" / "h.csv").write_text("seed\nrow1\n")
+    (clone / "docs" / "h.csv").write_text("seed\nrow1\n", newline="\n")
     assert gb.publish(["docs/h.csv"], "m", root=clone, stamp="w1")
     assert git(remote, "show", "generated:docs/h.csv") == "seed\nrow1"
     assert "Source: main @" in git(remote, "show", "generated:.generated_from/w1.txt")
@@ -50,14 +50,14 @@ def test_unchanged_files_commit_nothing_and_a_change_is_one_commit(remote_and_cl
     remote, clone = remote_and_clone
     assert gb.publish(["docs/h.csv"], "m", root=clone, stamp="w1")
     assert gb.publish(["docs/h.csv"], "m", root=clone, stamp="w1") is None
-    (clone / "docs" / "h.csv").write_text("changed\n")
+    (clone / "docs" / "h.csv").write_text("changed\n", newline="\n")
     assert gb.publish(["docs/h.csv"], "m2", root=clone, stamp="w1")
     assert git(remote, "rev-list", "--count", "generated") == "2"
 
 
 def test_writers_with_disjoint_paths_do_not_overwrite_each_other(remote_and_clone):
     remote, clone = remote_and_clone
-    (clone / "docs" / "other.json").write_text("{}\n")
+    (clone / "docs" / "other.json").write_text("{}\n", newline="\n")
     assert gb.publish(["docs/other.json"], "other", root=clone)
     assert gb.publish(["docs/h.csv"], "mine", root=clone)
     assert git(remote, "show", "generated:docs/other.json") == "{}"
@@ -68,7 +68,7 @@ def test_fetch_restores_the_published_copy_and_falls_back_when_absent(remote_and
     remote, clone = remote_and_clone
     assert gb.fetch(["docs/h.csv"], root=clone) == []  # no generated branch yet: the committed copy stays
     assert gb.show("docs/h.csv", root=clone) == b"seed\n"
-    (clone / "docs" / "h.csv").write_text("seed\nnewer\n")
+    (clone / "docs" / "h.csv").write_text("seed\nnewer\n", newline="\n")
     gb.publish(["docs/h.csv"], "m", root=clone)
     git(clone, "checkout", "-q", "--", "docs/h.csv")
     assert gb.show("docs/h.csv", root=clone) == b"seed\nnewer\n"
@@ -80,8 +80,8 @@ def test_publish_expands_a_directory_to_the_files_beneath_it(remote_and_clone):
     remote, clone = remote_and_clone
     rep = clone / "docs" / "report"
     (rep / "a").mkdir(parents=True)
-    (rep / "a" / "report.md").write_text("one\n")
-    (rep / "README.md").write_text("top\n")
+    (rep / "a" / "report.md").write_text("one\n", newline="\n")
+    (rep / "README.md").write_text("top\n", newline="\n")
     assert gb.expand(["docs/report", "docs/h.csv"], clone) == [
         "docs/report/README.md",
         "docs/report/a/report.md",

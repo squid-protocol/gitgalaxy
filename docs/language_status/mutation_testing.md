@@ -200,6 +200,31 @@ java-ported alone, which never runs a facade body (`handleTransaction`, `handleL
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
 
+## The byte overload's mutants (#4965)
+
+Every region facade has `handleTransaction(.., byte[])`: `lastAnswerBytes = task.returnedBytes();` after the task ran,
+and a `lastAnswerBytes()` accessor. The harness and the CICS crucible compare the accessor with the bytes the task's
+RETURN passed on. Those bytes exist only for a port that RETURNs through `returnTransid(.., byte[])` (the
+deterministic port, #4817). A model-written port RETURNs through the DTO-only form, so `returnedBytes()` is null on
+every path: the deleted assignment is an **equivalent** mutant there, whatever the program does with a COMMAREA (PCWIZ,
+PCCONF, PCMENU, PCDETL and COMEN01C all RETURN one and none of them carries bytes). The accessor's inverted test dies
+on any port that RETURNs with a COMMAREA.
+
+`python tests/tools/mutation_bytes.py run CASE --work DIR [--det-work DETDIR]` proves exactly those two mutants on the
+committed port and on the deterministic port. COMEN01C (`carddemo-menu`, RETURN TRANSID with a COMMAREA, 91/91
+statements translated), measured 2026-10-13:
+
+| port | deleted assignment | inverted accessor |
+|---|---|---|
+| committed (model, DTO-only RETURN) | survives: equivalent | killed |
+| deterministic (byte-carrying RETURN) | killed | killed |
+
+The crucible's java-facade side now checks the same thing the equivalence harness does: the bytes the accessor answers
+are the bytes the task's RETURN passed on (`Arrays.equals(answered, task.returnedBytes())`); before, a null answer fell
+back to the DTO's bytes and was never seen. The crucible cannot yet take a deterministic port's bytes: they are in the
+runtime's ASCII page and the crucible's expected logs are EBCDIC (a `PC-STEP` of `X'31'` against `X'F1'`), so the
+crucible ports stay model-written and the byte path is proven on the equivalence side.
+
 ## The test-strengthening loop (#4049)
 
 `tests/tools/strengthen.py run <case> --work DIR --mutation MDIR` gives a model the case's uncovered COBOL

@@ -2551,59 +2551,59 @@
       "php/SOURCES.md": "Prose Extension (.md)"
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/CurlFactory.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/CurlMultiHandler.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/Middleware.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/Pool.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/RequestException.php": "Single Indicator (Ext: .php)",
-      "php/guzzle/StreamHandler.php": "Single Indicator (Ext: .php)"
+      "php/guzzle/Client.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/CurlFactory.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/CurlMultiHandler.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/Middleware.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/Pool.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/RequestException.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/guzzle/StreamHandler.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "php/laravel_core": {
-      "php/laravel_core/Application.php": "Single Indicator (Ext: .php)",
-      "php/laravel_core/BladeCompiler.php": "Single Indicator (Ext: .php)",
-      "php/laravel_core/Collection.php": "Single Indicator (Ext: .php)",
-      "php/laravel_core/Container.php": "Single Indicator (Ext: .php)",
-      "php/laravel_core/Facade.php": "Single Indicator (Ext: .php)",
+      "php/laravel_core/Application.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/laravel_core/BladeCompiler.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/laravel_core/Collection.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/laravel_core/Container.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/laravel_core/Facade.php": "Absolute Consensus (Ext + Internal Signature)",
       "php/laravel_core/LICENSE.md": "Prose Extension (.md)",
-      "php/laravel_core/Model.php": "Single Indicator (Ext: .php)",
-      "php/laravel_core/Router.php": "Single Indicator (Ext: .php)"
+      "php/laravel_core/Model.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/laravel_core/Router.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": "Single Indicator (Ext: .php)",
+      "php/laravel_validation_rules/Can.php": "Absolute Consensus (Ext + Internal Signature)",
       "php/laravel_validation_rules/LICENSE.md": "Prose Extension (.md)"
     },
     "php/magento2": {
-      "php/magento2/AbstractBlock.php": "Single Indicator (Ext: .php)",
-      "php/magento2/AbstractModel.php": "Single Indicator (Ext: .php)",
-      "php/magento2/Application.php": "Single Indicator (Ext: .php)",
-      "php/magento2/Http.php": "Single Indicator (Ext: .php)",
-      "php/magento2/Interceptor.php": "Single Indicator (Ext: .php)",
+      "php/magento2/AbstractBlock.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/magento2/AbstractModel.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/magento2/Application.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/magento2/Http.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/magento2/Interceptor.php": "Absolute Consensus (Ext + Internal Signature)",
       "php/magento2/LICENSE.txt": "Prose Extension (.txt)",
-      "php/magento2/Mysql.php": "Single Indicator (Ext: .php)",
-      "php/magento2/ObjectManager.php": "Single Indicator (Ext: .php)"
+      "php/magento2/Mysql.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/magento2/ObjectManager.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "php/symfony": {
-      "php/symfony/Application.php": "Single Indicator (Ext: .php)",
-      "php/symfony/ContainerBuilder.php": "Single Indicator (Ext: .php)",
-      "php/symfony/EventDispatcher.php": "Single Indicator (Ext: .php)",
-      "php/symfony/HttpKernel.php": "Single Indicator (Ext: .php)",
-      "php/symfony/Parser.php": "Single Indicator (Ext: .php)",
-      "php/symfony/Request.php": "Single Indicator (Ext: .php)",
-      "php/symfony/Router.php": "Single Indicator (Ext: .php)"
+      "php/symfony/Application.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/ContainerBuilder.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/EventDispatcher.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/HttpKernel.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/Parser.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/Request.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/symfony/Router.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": "Single Indicator (Ext: .php)"
+      "php/symfony_emoji_data/emoji-ccp.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": "Single Indicator (Ext: .php)",
-      "php/wordpress/class-wp-query.php": "Single Indicator (Ext: .php)",
-      "php/wordpress/formatting.php": "Single Indicator (Ext: .php)",
-      "php/wordpress/functions.php": "Single Indicator (Ext: .php)",
+      "php/wordpress/admin-ajax.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/wordpress/class-wp-query.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/wordpress/formatting.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/wordpress/functions.php": "Absolute Consensus (Ext + Internal Signature)",
       "php/wordpress/license.txt": "Prose Extension (.txt)",
-      "php/wordpress/plugin.php": "Single Indicator (Ext: .php)",
-      "php/wordpress/wp-login.php": "Single Indicator (Ext: .php)",
-      "php/wordpress/wp-settings.php": "Single Indicator (Ext: .php)"
+      "php/wordpress/plugin.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/wordpress/wp-login.php": "Absolute Consensus (Ext + Internal Signature)",
+      "php/wordpress/wp-settings.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "plaintext": {
       "plaintext/SOURCES.md": "Prose Extension (.md)"
@@ -3619,7 +3619,7 @@
       "sql/SOURCES.md": "Prose Extension (.md)"
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": "Single Indicator (Ext: .php)"
+      "sql/baseline/schema.php": "Absolute Consensus (Ext + Internal Signature)"
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": "Metadata Anchor (COPYING)",

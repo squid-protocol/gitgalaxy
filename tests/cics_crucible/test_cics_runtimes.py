@@ -267,7 +267,7 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
                     task.returnTransid(null, null);
                 } else if (p.equals("SUB")) {
                     ca.append("-SUB");
-                    task.xctl("SUB2", ca, 50);
+                    task.xctl("SUB2", new StringBuilder(ca), 50);  // a copy: its own DTO is X39's refusal (#4956)
                 } else if (p.equals("SUB2")) {
                     ca.append("-SUB2");
                     task.receiveText(10);
@@ -291,15 +291,15 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "MAIN level=1 calen=0",
         "SUB level=2 calen=100",
         "SUB2 level=2 calen=50",
-        "NORMAL PING-SUB-SUB2",
+        "NORMAL PING-SUB",
         "PGMIDERR LENGERR",
         "NOCA level=2 calen=0",
         "{commarea=PING, event=LINK, issuer=MAIN, length=100, resp=NORMAL, resp2=null, target=SUB}",
         "{commarea=PING-SUB, event=XCTL, issuer=SUB, length=50, program=SUB2, resp=NORMAL, resp2=null}",
         "{data=T1 X, event=RECEIVE, issuer=SUB2, length=4, resp=NORMAL}",
-        "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, length=100, level=2}",  # #3989: the LINK's LENGTH
-        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
-        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
+        "{caller_commarea=PING-SUB, event=RETURN, issuer=SUB2, length=100, level=2}",  # #3989: the LINK's LENGTH
+        "{commarea=PING-SUB, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
+        "{commarea=PING-SUB, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
         "{commarea=null, event=LINK, issuer=MAIN, length=0, resp=NORMAL, resp2=null, target=NOCA}",
         "{caller_commarea=null, event=RETURN, issuer=NOCA, length=0, level=2}",
         "{commarea=null, event=RETURN, issuer=MAIN, length=null, transid=null}",

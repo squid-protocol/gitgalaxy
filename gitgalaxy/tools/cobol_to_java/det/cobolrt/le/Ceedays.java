@@ -84,10 +84,9 @@ public final class Ceedays {
             throw new UnsupportedOperationException("CEEDAYS: picture not modelled");
         }
         putLilian(lilian, 0);
-        for (int n = 0; n < dl && n < span; n++) {
-            if (db[d + n] == ' ') {
-                throw new UnsupportedOperationException("CEEDAYS: a date with blanks is not modelled");
-            }
+        int cover = Math.min(dl, span);
+        if (cover > 0 && db[d + cover - 1] == ' ') {
+            throw new UnsupportedOperationException("CEEDAYS: a date with trailing blanks is not modelled");
         }
         if (dl < span) {
             putFc(fc, 2507);

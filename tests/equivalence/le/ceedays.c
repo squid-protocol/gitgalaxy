@@ -27,7 +27,7 @@
  * ASSUMED ignored: IBM does not say how characters after the last token are read, and in CRECUST they are not even
  * in the item (the slack bytes of the storage that follows), so no byte past the span is ever looked at.
  * NOT modelled, and refused the same way: a numeric month outside 1-12 (2508 or 2517 -- IBM's documentation does
- * not settle it); a blank among the date's bytes the picture covers, all blanks included (#4049: whether CEEDAYS
+ * not settle it); a trailing blank on the part of the date the picture covers, all blanks included (#4049: whether CEEDAYS
  * ignores them -- 2507, insufficient data, once the date is shorter than the picture -- or reads a blank in a
  * numeric position as 2520 is not documented either; the test-strengthening loop found a port and this model
  * disagreeing on exactly that). Any other picture -- YY (a century window), month names, eras, a null or blank
@@ -160,13 +160,13 @@ int CEEDAYS(unsigned char *date, unsigned char *pic, unsigned char *lilian, unsi
         exit(98);
     }
     put_lilian(lilian, 0);
-    /* a blank among the date's bytes the picture covers: not modelled (#4049). Bytes past the span are never read. */
-    for (int i = 0; i < dl && i < span; i++) {
-        if (d[i] == ' ') {
-            fprintf(stderr, "CEEDAYS: a date with blanks is not modelled (2507 or 2520?): '%.*s'\n", dl < span ? dl : span,
-                    (const char *)d);
-            exit(98);
-        }
+    /* a trailing blank on the part of the date the picture covers: not modelled (#4049). A blank inside it is a
+     * non-numeric position (2520); bytes past the span are never read. */
+    int cover = dl < span ? dl : span;
+    if (cover > 0 && d[cover - 1] == ' ') {
+        fprintf(stderr, "CEEDAYS: a date with trailing blanks is not modelled (2507 or 2520?): '%.*s'\n", cover,
+                (const char *)d);
+        exit(98);
     }
     if (dl < span) {
         put_fc(fc, 2507);

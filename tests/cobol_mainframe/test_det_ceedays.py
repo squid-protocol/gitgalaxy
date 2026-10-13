@@ -94,7 +94,9 @@ VECTORS = [
     # refused by name: what IBM leaves open
     ("19881316", 8, "YYYYMMDD", 8, REFUSED),  # a month outside 1-12: 2508 or 2517
     ("19880016", 8, "YYYYMMDD", 8, REFUSED),
-    ("1988051 ", 8, "YYYYMMDD", 8, REFUSED),  # a blank among the covered bytes (#4049)
+    ("1988051 ", 8, "YYYYMMDD", 8, REFUSED),  # a trailing blank on the covered part (#4049)
+    ("2022-07- 8", 10, "YYYY-MM-DD", 10, "2520|"),  # a blank inside it is a non-numeric position (CardDemo dateutil)
+    ("1988 516", 8, "YYYYMMDD", 8, "2520|"),
     ("        ", 8, "YYYYMMDD", 8, REFUSED),
     ("1988-05- ", 9, "YYYY-MM-DD", 10, REFUSED),
     ("880516", 6, "YYMMDD", 6, REFUSED),  # a century window

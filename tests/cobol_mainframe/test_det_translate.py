@@ -363,7 +363,7 @@ class _KeyCics(_RbaCics):
         "LINK PROGRAM('P') COMMAREA(REC) DATALENGTH(KEY)",
         "ASSIGN OPID(REC)",
         "ASSIGN NETNAME(REC) APPLID(REC)",
-        "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DAYOFMONTH(KEY)",
+        "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DATE(KEY)",  # #4415 slice 3 (X46): the DATFORM order is the installation's
         "ASKTIME ABSTIME(REC) RESP(R)",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
         "READQ TS QUEUE('Q') SET(PTR)",
@@ -1412,13 +1412,15 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ", null, 0, -1, Cobol.text(" in n[0] and n[0].endswith(", 2);")
     d = c.command("WEB SEND DOCTOKEN(KEY) MEDIATYPE(REC) ACTION(R2) STATUSCODE(R) SRVCONVERT NOHANDLE", "")
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
-        ", 1, CS);"
-    )  # (#4767: the document the token names)
+        ", 1, 0, CS);"
+    )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
+    assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
     for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
-                     ("WEB SEND DOCTOKEN(KEY) DOCSTATUS(R)", "after it is sent"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(REC)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
@@ -3068,6 +3070,54 @@ def test_asktime_nohandle_formattime_resp_and_readq_length_of():
     assert any("Cobol.store" in x and "length()" in x for x in stored)
 
 
+_FMT_TEXT = ("YYDDD", "YYYYDDD", "YYDDMM", "YYYYDDMM", "YYYYMMDD", "DDMMYY")
+_FMT_BIN = ("DAYCOUNT", "DAYOFMONTH", "DAYOFWEEK", "MONTHOFYEAR", "YEAR", "MILLISECONDS")
+_FMT_REFUSED = ("DATE", "DATEFORM", "FULLDATE", "DATESTRING", "STRINGFORMAT", "STRINGZONE")
+
+
+@pytest.mark.parametrize("form", _FMT_TEXT)
+def test_formattime_each_text_date_form_is_formatted_with_its_separator(form):
+    """#4415 slice 3 (X46): every date form (the day-of-year ones included) is CicsTask.formatDate of the form, with
+    '/' for a DATESEP with no value, or no separator at all (a DATESEP value is a literal, tested in the runtime)."""
+    c = _LenCics()
+    for sep_opt, sep in (("", '""'), (" DATESEP", '"/"')):
+        out = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY){sep_opt} NOHANDLE", "")
+        assert len(out) == 1 and f"CicsTask.formatDate(" in out[0] and f'"{form}", {sep})' in out[0]
+
+
+@pytest.mark.parametrize("form", _FMT_BIN)
+def test_formattime_each_binary_form_is_stored_by_the_areas_declared_usage(form):
+    c = _LenCics()
+    out = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY) NOHANDLE", "")
+    assert len(out) == 1 and out[0].startswith("STORE(KEY, BigDecimal.valueOf(CicsTask.formatNumber(")
+    assert f'"{form}"))' in out[0]
+    with_resp = c.command(f"FORMATTIME ABSTIME(REC) {form}(KEY) RESP(R)", "")  # INVREQ RESP2 1 guards every form
+    assert (
+        with_resp[0].startswith("int[] fmt") and with_resp[1].endswith("[0] == 0) {") and "formatNumber" in with_resp[2]
+    )
+
+
+@pytest.mark.parametrize("form", _FMT_REFUSED)
+def test_formattime_options_ibm_leaves_to_the_installation_or_the_zone_are_refused_by_name(form):
+    with pytest.raises(C.CicsError, match=form):
+        _LenCics().command(f"FORMATTIME ABSTIME(REC) {form}(KEY) NOHANDLE", "")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "DUMP TRANSACTION DUMPCODE('ABCD')",
+        "DUMP DUMPCODE('ABCD')",
+        "DUMP TRANSACTION DUMPCODE('ABCD') FROM(REC) LENGTH(10) NOHANDLE",
+        "DUMP TRANSACTION COMPLETE",
+    ],
+)
+def test_dump_is_refused_by_name_in_both_forms(text):
+    """#4415 slice 3 (X46): IBM's DUMP TRANSACTION outcome is the region's dump setup, which the run does not state."""
+    with pytest.raises(C.CicsError, match=r"DUMP.*(not modelled|X46)"):
+        _LenCics().command(text, "")
+
+
 def test_document_create_each_source_and_retrieve_as_cicstask_answers():
     """#4769 (register X33), IBM DOCUMENT CREATE / DOCUMENT RETRIEVE: CREATE builds an empty document, one of TEXT /
     BINARY (LENGTH bytes of the area, unchanged) or a TEMPLATE (the installed DOCTEMPLATE's text, in the program's page);
@@ -3217,11 +3267,12 @@ def test_xctl_marks_only_an_operand_inside_the_linkage_dfhcommarea():
 
 def test_web_retrieve_asks_the_task_and_refuses_every_other_option():
     """#4941 zECS (register X41), IBM WEB RETRIEVE: DOCTOKEN is the only option and is required; the outcome is CicsTask's
-    (INVREQ RESP2 2 / NOTFND RESP2 1), the area is never written; every other option and the literal form are refused."""
+    (INVREQ RESP2 2 / NOTFND RESP2 1), the area written with the token on NORMAL only; every other option and the literal
+    form are refused."""
     c = _ChanCics()
     r = c.command("WEB RETRIEVE DOCTOKEN(REC) NOHANDLE", "")
-    assert r[0].startswith("int[] web") and ".webRetrieve();" in r[0]
-    assert "Cobol.text(" not in r[0]
+    assert r[0].startswith("CicsTask.DocumentCreated web") and ".webRetrieve();" in r[0]
+    assert "if (web" in r[1] and ".resp() == 0) DetCics.putText(" in r[1] and ".doctoken(), CS);" in r[1]
     r2 = c.command("WEB RETRIEVE DOCTOKEN(REC) RESP(R) RESP2(R2)", "")
     assert ".webRetrieve();" in r2[0] and len(r2) > 1
     with pytest.raises(C.CicsError, match="without DOCTOKEN"):

@@ -18,7 +18,7 @@ from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
-from gitgalaxy.standards.cics.commands.task import DATE_FORMS
+from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP
@@ -62,7 +62,7 @@ def region_page(declared: str | None) -> str:
 OPTIONS: dict[str, frozenset | None] = {
     k: None if c.open_options else frozenset(c.options) for k, c in SPEC.items() if c.status == "modelled"
 }
-_FORMS = DATE_FORMS
+_FORMS = (*DATE_FORMS, *NUMBER_FORMS)
 _SEND_CONTROL = frozenset(SEND_CONTROL_OPTIONS)  # #4413: its device controls
 
 
@@ -1073,6 +1073,10 @@ class Cics:
                            else '"/"' if "DATESEP" in opts else '""')  # fmt: skip
                     body.append(f"Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
                                 f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
+            # #4415 slice 3 (X46): a binary integer, stored by the area's declared usage
+            body += [self.g.store_into(self.ref(_arg(opts[form])),
+                                       f"BigDecimal.valueOf(CicsTask.formatNumber({t}, {G_jstr(form)}))", False)
+                     for form in NUMBER_FORMS if form in opts]  # fmt: skip
             if "TIME" in opts:
                 sep = (self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP")
                        else '":"' if "TIMESEP" in opts else '""')  # TIMESEP alone: IBM's ':'  # fmt: skip
@@ -1179,6 +1183,12 @@ class Cics:
             return self.extract_tcpip(key, opts, ind)
         # #4270 spec PR 2: a command we do not model, refused whole -- with its name-only (or engine-only) entry's
         # reason when it is a CICS application command the spec lists
+        if (
+            key == "DUMP"
+        ):  # #4415 slice 3 (X46): the old bare form; IBM's page is DUMP TRANSACTION and does not equate them
+            raise CicsError(
+                "EXEC CICS DUMP: the bare DUMP form is read as DUMP TRANSACTION, which is not modelled (X46)"
+            )
         known = whole_refusal(key, verb, next(iter(opts), None))
         raise CicsError(known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled")
 
@@ -1329,6 +1339,8 @@ class Cics:
             raise CicsError(_msg(key, "at_most_one", "SRVCONVERT"))
         if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
             raise CicsError(_requires(key, "STATUSLEN", "STATUSTEXT"))
+        if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+            raise CicsError(_requires(key, "DOCSTATUS", "DOCTOKEN"))
 
         def text(o: str) -> str:
             return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
@@ -1340,7 +1352,8 @@ class Cics:
         r = self.g.tmpname("web")
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
-                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, CS)")  # fmt: skip
+                    f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
+                    f"{num('DOCSTATUS', '0')}, CS)")  # fmt: skip
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         call = (f"task.webSend({text('FROM')}, {num('FROMLENGTH', '0')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                 f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv})")  # fmt: skip
@@ -1415,9 +1428,13 @@ class Cics:
             return (f'{ind}    if ({data}.length > {f}.length()) throw new DetCics.PastFrom("{what} beyond its area: '
                     f'not modelled"); DetCics.put({f}, {data});')  # fmt: skip
 
-        if key == "WEB RETRIEVE":  # #4941 (X41): DOCTOKEN is never written (the NORMAL outcome needs an EVENTUAL send)
-            req("DOCTOKEN")
-            return [f"{ind}int[] {r} = task.webRetrieve();", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+        if (
+            key == "WEB RETRIEVE"
+        ):  # #4941 (X41): the DOCTOKEN of the last EVENTUAL document send, written on NORMAL only
+            area = self.field(req("DOCTOKEN"))
+            return [f"{ind}CicsTask.DocumentCreated {r} = task.webRetrieve();",
+                    f"{ind}if ({r}.resp() == 0) DetCics.putText({area}, {r}.doctoken(), CS);",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
         if key.startswith(
             ("WEB READ FORMFIELD", "WEB READ QUERYPARM", "WEB STARTBROWSE ", "WEB READNEXT ", "WEB ENDBROWSE ")
         ):

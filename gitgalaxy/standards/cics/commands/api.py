@@ -226,7 +226,13 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("WAITCICS", None, _EVENT_WAIT),
     ("ENTER TRACENUM", None, _TRACE),
     ("MONITOR", None, _TRACE),
-    ("DUMP TRANSACTION", None, "a transaction dump is not modelled"),
+    # #4415 slice 3 (X46): the dump's outcome (SUPPRESSED by the dump table or a user exit, IOERR, NOTOPEN, a DUMPID's run
+    # number) is the region's dump setup, which the run does not state; the page does not say the task continues after one
+    (
+        "DUMP TRANSACTION",
+        None,
+        "a transaction dump is not modelled: its outcome is the region's dump setup, not stated (X46)",
+    ),
     ("OTEL ENDSPAN", None, _OTEL),
     ("OTEL EXTRACT", None, _OTEL),
     ("OTEL STARTSPAN", None, _OTEL),

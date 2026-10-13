@@ -837,7 +837,9 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+        raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
+    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
@@ -848,6 +850,8 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    if "DOCTOKEN" in opts:  # #4941 (X37): DOCSTATUS's CVDA in GG-SECS (0: none; DOCDELETE 295, NODOCDELETE 296)
+        lines.append(f"MOVE {opts.get('DOCSTATUS') or '0'} TO GG-SECS")
     args = []
     for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
@@ -976,15 +980,16 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
 
 
 def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes no DOCTOKEN (the NORMAL outcome needs an
-    ACTION(EVENTUAL) document send, which WEB SEND refuses). The option rules as the det translator's."""
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes the DOCTOKEN of the last ACTION(EVENTUAL)
+    document send on NORMAL only. The option rules as the det translator's."""
     key = "WEB RETRIEVE"
     _check_spec(key, opts, ("WEB", "RETRIEVE"), lambda bad: [f"{key} {o}" for o in bad])
     if not opts.get("DOCTOKEN"):
         raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
     if _literal(opts["DOCTOKEN"]):
         raise Unsupported(f"{key} DOCTOKEN as a literal: a data area is the COBOL form", [key])
-    return _call("GGCWRTV", []) + _resp(opts, True, labels)
+    area = opts["DOCTOKEN"]
+    return _call("GGCWRTV", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
 
 
 def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -2198,7 +2203,13 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
 # FORMATTIME's date forms (IBM CICS TS, EXEC CICS FORMATTIME): the parts in order, and the separator's default
 _DATE_FORMS = {"YYYYMMDD": ("GG-Y", "GG-M", "GG-D"), "MMDDYYYY": ("GG-M", "GG-D", "GG-Y"),
                "DDMMYYYY": ("GG-D", "GG-M", "GG-Y"), "YYMMDD": ("GG-Y(3:2)", "GG-M", "GG-D"),
-               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)")}  # fmt: skip
+               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)"),
+               "YYDDD": ("GG-Y(3:2)", "GG-DOY"), "YYYYDDD": ("GG-Y", "GG-DOY"),
+               "YYDDMM": ("GG-Y(3:2)", "GG-D", "GG-M"), "YYYYDDMM": ("GG-Y", "GG-D", "GG-M")}  # fmt: skip
+# #4415 slice 3 (X46): the binary forms, each the COBOL expression of IBM's value (DAYCOUNT: 1 January 1900 is day 1;
+# DAYOFWEEK: Sunday=0; GG-DAYS 0 is a Monday)
+_NUMBER_FORMS = {"DAYCOUNT": "GG-DAYS + 1", "DAYOFMONTH": "GG-D", "DAYOFWEEK": "FUNCTION MOD(GG-DAYS + 1, 7)",
+                 "MONTHOFYEAR": "GG-M", "YEAR": "GG-Y", "MILLISECONDS": "FUNCTION MOD({t}, 1000)"}  # fmt: skip
 
 
 def _formattime(opts: dict[str, str]) -> list[str]:
@@ -2211,6 +2222,8 @@ def _formattime(opts: dict[str, str]) -> list[str]:
     lines = [f"COMPUTE GG-DAYS = {t} / 86400000", f"COMPUTE GG-REM = {t} - GG-DAYS * 86400000",
              "COMPUTE GG-DATE8 = FUNCTION DATE-OF-INTEGER(GG-DAYS",
              "    + FUNCTION INTEGER-OF-DATE(19000101))",
+             "COMPUTE GG-DOY = FUNCTION INTEGER-OF-DATE(GG-DATE8)",
+             "    - FUNCTION INTEGER-OF-DATE(GG-Y * 10000 + 101) + 1",
              "COMPUTE GG-HH = GG-REM / 3600000", "COMPUTE GG-MI = (GG-REM - GG-HH * 3600000) / 60000",
              "COMPUTE GG-SS = (GG-REM - GG-HH * 3600000", "    - GG-MI * 60000) / 1000"]  # fmt: skip
 
@@ -2225,7 +2238,7 @@ def _formattime(opts: dict[str, str]) -> list[str]:
             if i and separator:
                 pieces.append(separator)
             pieces.append(p)
-        width = sum(4 if p == "GG-Y" else 2 for p in parts) + (len(parts) - 1 if separator else 0)
+        width = sum({"GG-Y": 4, "GG-DOY": 3}.get(p, 2) for p in parts) + (len(parts) - 1 if separator else 0)
         return (["MOVE SPACES TO GG-OUT", "STRING " + " ".join(pieces), "    DELIMITED BY SIZE INTO GG-OUT"]
                 + [f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})"])  # fmt: skip
 
@@ -2233,6 +2246,9 @@ def _formattime(opts: dict[str, str]) -> list[str]:
     for form, parts in _DATE_FORMS.items():
         if opts.get(form):
             body += build(parts, sep("DATESEP", "/"), opts[form])
+    for form, expr in _NUMBER_FORMS.items():
+        if opts.get(form):
+            body += [f"COMPUTE {opts[form]} = {expr.format(t=t)}"]
     if opts.get("TIME"):
         body += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
     # #4737 (X28): IBM, INVREQ RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal format": with RESP /

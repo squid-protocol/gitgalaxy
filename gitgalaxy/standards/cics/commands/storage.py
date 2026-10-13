@@ -69,7 +69,12 @@ GETMAIN = Command(
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("SET",)),
-        Outcome("LENGERR", 1, "FLENGTH is less than 1, or LENGTH is zero (the pointer is set to zero)", raised_by=("FLENGTH", "LENGTH")),
+        Outcome(
+            "LENGERR",
+            1,
+            "FLENGTH is less than 1, or LENGTH is zero (the pointer is set to zero)",
+            raised_by=("FLENGTH", "LENGTH"),
+        ),
     ),
     runtime_refusals=(
         RuntimeRefusal(
@@ -95,7 +100,9 @@ FREEMAIN = Command(
     register="X47",
     options={"DATAPOINTER": Arg("pointer"), **RESP_OPTIONS},
     refused={
-        "DATA": Refusal("FREEMAIN DATA(area): the storage is named by its data area, not a pointer: not modelled", "X47"),
+        "DATA": Refusal(
+            "FREEMAIN DATA(area): the storage is named by its data area, not a pointer: not modelled", "X47"
+        ),
     },
     default_refusal=Refusal("DATAPOINTER is the only form modelled", "X47"),
     groups=(required("DATAPOINTER", msg="FREEMAIN without DATAPOINTER"),),

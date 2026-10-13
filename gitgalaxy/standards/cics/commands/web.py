@@ -704,7 +704,11 @@ WEB_RECEIVE = Command(
         "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
     ),
     groups=(
-        one_of("INTO", "SET", msg="WEB RECEIVE needs one of INTO / SET: the body into the program's area or into CICS storage"),
+        one_of(
+            "INTO",
+            "SET",
+            msg="WEB RECEIVE needs one of INTO / SET: the body into the program's area or into CICS storage",
+        ),
         requires(("INTO",), ("MAXLENGTH",), msg="WEB RECEIVE INTO without MAXLENGTH (IBM: INVREQ RESP2 16)"),
         requires(("SET",), ("LENGTH",), msg="WEB RECEIVE SET without LENGTH (IBM: LENGTH must be specified with SET)"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB RECEIVE with both SRVCONVERT and NOSRVCONVERT"),
@@ -719,7 +723,9 @@ WEB_RECEIVE = Command(
             writes=("INTO", "SET", "LENGTH", "MEDIATYPE"),
         ),
     ),
-    facts=(Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO", "SET")),),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO", "SET")),
+    ),
     runtime_refusals=(
         _NO_REQUEST_READ,
         RuntimeRefusal(

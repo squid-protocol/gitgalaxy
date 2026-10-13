@@ -82,13 +82,26 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
     ("edit", "why"),
     [
         # a REDEFINES over a pointer: ZECS001's CACHE-ADDRESS-X, which `ADD n TO` moves along the block
-        (("USAGE POINTER.\n       01  SAVE-ADDRESS", "USAGE POINTER.\n       01  CACHE-ADDRESS-X REDEFINES CACHE-ADDRESS "
-                                                      "PIC S9(8) COMP.\n       01  SAVE-ADDRESS"), "REDEFINES overlays"),
+        (
+            (
+                "USAGE POINTER.\n       01  SAVE-ADDRESS",
+                "USAGE POINTER.\n       01  CACHE-ADDRESS-X REDEFINES CACHE-ADDRESS "
+                "PIC S9(8) COMP.\n       01  SAVE-ADDRESS",
+            ),
+            "REDEFINES overlays",
+        ),
         # ADDRESS OF a WORKING-STORAGE record: its storage is shared with the rest of the section
-        (("SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.", "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF GETMAIN-LENGTH."),
-         "not a LINKAGE 01"),
-        (("SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.", "SET ADDRESS OF OTHER-MESSAGE TO NULL."),
-         "SET ADDRESS OF"),
+        (
+            (
+                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.",
+                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF GETMAIN-LENGTH.",
+            ),
+            "not a LINKAGE 01",
+        ),
+        (
+            ("SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.", "SET ADDRESS OF OTHER-MESSAGE TO NULL."),
+            "SET ADDRESS OF",
+        ),
     ],
 )
 def test_what_the_lane_cannot_model_is_refused_by_name(tmp_path, edit, why):

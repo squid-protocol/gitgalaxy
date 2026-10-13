@@ -1014,7 +1014,10 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
         raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
     img = opts["INITIMG"].strip()
-    lines = [f"MOVE {opts[form]} TO GG-NUM", "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS"]
+    lines = [
+        f"MOVE {opts[form]} TO GG-NUM",
+        "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
+    ]
     args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 

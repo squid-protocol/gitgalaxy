@@ -227,6 +227,14 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      # #4980: IBM's ODBC driver (the Db2 image's one download) cached on its pin; on a miss the harness fetches it with
+      # curl --retry and checks the sha256, and a failure there says it is infrastructure.
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
+
       - name: Build the oracle image and check it against its pin (#4309)
         run: |
           docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence

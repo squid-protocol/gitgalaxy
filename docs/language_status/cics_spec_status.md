@@ -78,7 +78,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DEFINE COUNTER | full | yes (9 options) | yes | X30 | — | 1 (1 / 0) | — |
 | DELETE COUNTER | full | yes (6 options) | yes | X30 | — | 1 (1 / 0) | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
-| FORMATTIME | full | yes (13 options) | yes | — | — | 56 (55 / 1) | — |
+| FORMATTIME | full | yes (23 options, 6 refused by name) | yes | X46 | — | 56 (55 / 1) | — |
 | INQUIRE PROGRAM | full | yes (5 options) | yes | X34 | — | 2 (2 / 0) | — |
 | SYNCPOINT | full | yes (4 options) | yes | X3 | — | 15 (9 / 6) | — |
 | SYNCPOINT ROLLBACK | full | yes (3 options) | yes | X3 | — | 14 (14 / 0) | — |
@@ -92,7 +92,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB CONVERSE | full | yes (23 options, 8 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
 | WEB CLOSE | full | yes (4 options) | yes | X35 | http_peers | 4 (4 / 0) | — |
 | WEB PARSE URL | full | yes (13 options, 1 refused by name) | yes | X36 | — | 3 (3 / 0) | — |
-| WEB SEND | full | yes (13 options, 9 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
+| WEB SEND | full | yes (14 options, 8 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
 | WEB EXTRACT | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 1 (1 / 0) | — |
 | EXTRACT WEB | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 0 | — |
 | EXTRACT TCPIP | full | yes (17 options, 7 refused by name) | yes | X38 | tcpip | 0 | — |

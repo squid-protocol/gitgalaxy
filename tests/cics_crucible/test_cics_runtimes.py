@@ -1160,6 +1160,35 @@ def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
     assert out.split() == ["3867129015000", "2022-07-18", "10:30:15", "07/18/22", "18072022"]
 
 
+@needs_javac
+def test_cics_task_formattime_day_of_year_forms_and_binary_numbers(tmp_path):
+    """#4415 slice 3 (X46): YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and DAYCOUNT / DAYOFMONTH / DAYOFWEEK (Sunday=0) /
+    MONTHOFYEAR / YEAR / MILLISECONDS, over the whole input class: the first instant (1900-01-01, day 1), a leap day, a
+    non-leap and a leap year end (day 365 / 366), a century leap year; expected values from Python's datetime."""
+    out = _cics_task(
+        tmp_path,
+        """
+        long[] abs = {0L, 3867129015123L, 3918239999999L, 3912969600000L, 3944635200007L, 3160857600000L};
+        for (long ab : abs) {
+            System.out.println(CicsTask.formatDate(ab, "YYDDD", "/") + " " + CicsTask.formatDate(ab, "YYYYDDD", "/") + " "
+                + CicsTask.formatDate(ab, "YYDDMM", "/") + " " + CicsTask.formatDate(ab, "YYYYDDMM", "") + " "
+                + CicsTask.formatNumber(ab, "DAYCOUNT") + " " + CicsTask.formatNumber(ab, "DAYOFMONTH") + " "
+                + CicsTask.formatNumber(ab, "DAYOFWEEK") + " " + CicsTask.formatNumber(ab, "MONTHOFYEAR") + " "
+                + CicsTask.formatNumber(ab, "YEAR") + " " + CicsTask.formatNumber(ab, "MILLISECONDS"));
+        }
+        try { CicsTask.formatNumber(-1, "YEAR"); } catch (UnsupportedOperationException e) { System.out.println("refused"); }""",
+    )
+    assert out.splitlines() == [
+        "00/001 1900/001 00/01/01 19000101 1 1 1 1 1900 0",
+        "22/199 2022/199 22/18/07 20221807 44759 18 1 7 2022 123",
+        "24/060 2024/060 24/29/02 20242902 45350 29 4 2 2024 999",
+        "23/365 2023/365 23/31/12 20233112 45290 31 0 12 2023 0",
+        "24/366 2024/366 24/31/12 20243112 45656 31 2 12 2024 7",
+        "00/061 2000/061 00/01/03 20000103 36585 1 3 3 2000 0",
+        "refused",
+    ]
+
+
 # ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------------
 _RBA_MAIN = r"""
 #include <stdio.h>

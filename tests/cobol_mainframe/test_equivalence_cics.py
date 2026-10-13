@@ -781,7 +781,8 @@ def test_browse_delete_and_time_commands_translate():
     for bad in (
         "STARTBR FILE(F) RIDFLD(K) GENERIC KEYLENGTH(2)",
         "READNEXT FILE(F) INTO(R) RIDFLD(K) REQID(1)",
-        "FORMATTIME ABSTIME(T) DAYOFWEEK(D)",
+        "FORMATTIME ABSTIME(T) DATE(D)",  # #4415 slice 3 (X46): the installation's DATFORM, not stated
+        "FORMATTIME ABSTIME(T) DATESTRING(D) STRINGFORMAT(DFHVALUE(RFC1123))",
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
@@ -2191,3 +2192,60 @@ def test_the_tcpip_connection_is_stated_alike_on_both_sides():
             ec.tcpip({"tcpip": broken}, {"name": "s"})
     assert ec.tcpip_cfg(conn, "latin-1") == f"T 10.1.2.3 {b'client.example'.hex().upper()} 10.9.8.7 - 8080 SSL\n"
     assert 'task.withTcpip(new CicsTask.Tcpip(q.get("client_addr")' in Path(ec.__file__).read_text(encoding="utf-8")
+
+
+def test_formattime_day_of_year_and_binary_forms_translate_to_cobol_of_ibms_values():
+    """#4415 slice 3 (X46): YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and the six binary forms, in COBOL from the task's clock."""
+    out = ec.translate_command("FORMATTIME ABSTIME(T) YYDDD(A) YYYYDDD(B) YYDDMM(C) YYYYDDMM(E) DATESEP RESP(R)")
+    text = "\n".join(out)
+    assert "FUNCTION INTEGER-OF-DATE(GG-Y * 10000 + 101) + 1" in text  # the day of the year
+    for target, parts in (("A", "GG-Y(3:2) '/' GG-DOY"), ("B", "GG-Y '/' GG-DOY"), ("C", "GG-Y(3:2) '/' GG-D '/' GG-M"),
+                          ("E", "GG-Y '/' GG-D '/' GG-M")):  # fmt: skip
+        assert f"STRING {parts}" in text
+    for width, target in ((6, "A"), (8, "B"), (8, "C"), (10, "E")):
+        assert f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})" in text
+    nums = ec.translate_command("FORMATTIME ABSTIME(T) DAYCOUNT(A) DAYOFMONTH(B) DAYOFWEEK(C) MONTHOFYEAR(E) YEAR(F) "
+                                "MILLISECONDS(G) NOHANDLE")  # fmt: skip
+    for line in ("COMPUTE A = GG-DAYS + 1", "COMPUTE B = GG-D", "COMPUTE C = FUNCTION MOD(GG-DAYS + 1, 7)",
+                 "COMPUTE E = GG-M", "COMPUTE F = GG-Y", "COMPUTE G = FUNCTION MOD(T, 1000)"):  # fmt: skip
+        assert line in nums
+    assert all(len(s) <= 61 for s in out + nums)  # each statement fits area B
+
+
+@pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL)")
+def test_formattime_day_of_year_and_binary_forms_under_gnucobol_equal_the_java_runtime(tmp_path):
+    """#4415 slice 3 (X46): the translated COBOL, run under GnuCOBOL at the six instants test_cics_runtimes.py gives
+    CicsTask.formatDate / formatNumber (1900-01-01, a leap day, both year ends, a century leap year): the same text."""
+    import subprocess
+
+    cpy = (Path(eq.__file__).parent.parent / "equivalence" / "cics" / "DFHEIBLK.cpy").read_text()
+    gg_time = cpy[cpy.index("       01  GG-TIME.") : cpy.index("      * #4413: the address")]
+    cmds = ("FORMATTIME ABSTIME(T) YYDDD(A) YYYYDDD(B) YYDDMM(C) YYYYDDMM(E) DATESEP RESP(R)",
+            "FORMATTIME ABSTIME(T) DAYCOUNT(N1) DAYOFMONTH(N2) DAYOFWEEK(N3) MONTHOFYEAR(N4) YEAR(N5) MILLISECONDS(N6)")  # fmt: skip
+    abs_values = (0, 3867129015123, 3918239999999, 3912969600000, 3944635200007, 3160857600000)
+    src = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. FT.", "       DATA DIVISION.",
+           "       WORKING-STORAGE SECTION.", gg_time, "       01 T PIC S9(18) COMP-3.", "       01 A PIC X(6).",
+           "       01 B PIC X(8).", "       01 C PIC X(8).", "       01 E PIC X(10).", "       01 R PIC S9(8) COMP.",
+           "       01 EIBRESP PIC S9(8) COMP.", "       01 EIBRESP2 PIC S9(8) COMP.",
+           "       01 GG-RESP PIC S9(8) COMP.", "       01 GG-RESP2 PIC S9(8) COMP.",
+           *[f"       01 N{k} PIC 9(9) COMP-5." for k in range(1, 7)], "       PROCEDURE DIVISION."]  # fmt: skip
+    for v in abs_values:
+        src.append(f"           MOVE {v} TO T")
+        src += ["           " + ln for c in cmds for ln in ec.translate_command(c)]
+        src.append("           DISPLAY A '|' B '|' C '|' E '|' N1 '|' N2 '|' N3 '|' N4 '|' N5 '|' N6")
+    src.append("           STOP RUN.")
+    (tmp_path / "ft.cob").write_text("\n".join(src) + "\n")
+    eq.build_image()
+    run = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", eq.IMAGE, "sh", "-c",  # noqa: S603, S607
+                          "cobc -x -free -o ft ft.cob && ./ft"], capture_output=True, text=True, check=False)  # fmt: skip
+    assert run.returncode == 0, run.stdout + run.stderr
+    got = [[int(p) if p.lstrip("+").isdigit() and i > 3 else p for i, p in enumerate(ln.split("|"))]
+           for ln in run.stdout.splitlines()]  # fmt: skip
+    assert got == [
+        ["00/001", "1900/001", "00/01/01", "1900/01/01", 1, 1, 1, 1, 1900, 0],
+        ["22/199", "2022/199", "22/18/07", "2022/18/07", 44759, 18, 1, 7, 2022, 123],
+        ["24/060", "2024/060", "24/29/02", "2024/29/02", 45350, 29, 4, 2, 2024, 999],
+        ["23/365", "2023/365", "23/31/12", "2023/31/12", 45290, 31, 0, 12, 2023, 0],
+        ["24/366", "2024/366", "24/31/12", "2024/31/12", 45656, 31, 2, 12, 2024, 7],
+        ["00/061", "2000/061", "00/01/03", "2000/01/03", 36585, 1, 3, 3, 2000, 0],
+    ]

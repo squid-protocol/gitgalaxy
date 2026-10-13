@@ -31,7 +31,20 @@ from gitgalaxy.standards.cics.model import (
 _NORMAL = Outcome("NORMAL", 0, "")
 _NOHANDLE = {"NOHANDLE": Arg("flag")}
 # FORMATTIME's date forms (det/cics.py Cics.command)
-DATE_FORMS = ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY")
+DATE_FORMS = (
+    "YYYYMMDD",
+    "MMDDYYYY",
+    "DDMMYYYY",
+    "YYMMDD",
+    "MMDDYY",
+    "DDMMYY",
+    "YYDDD",
+    "YYYYDDD",
+    "YYDDMM",
+    "YYYYDDMM",
+)
+# FORMATTIME's numeric forms (#4415 slice 3, X46): a binary integer, written to the area by its declared usage
+NUMBER_FORMS = ("DAYCOUNT", "DAYOFMONTH", "DAYOFWEEK", "MONTHOFYEAR", "YEAR", "MILLISECONDS")
 _RESOURCE = {
     "RESOURCE": Arg("area_in"),
     "LENGTH": Arg("value"),
@@ -330,9 +343,11 @@ FORMATTIME = Command(
     key="FORMATTIME",
     ibm=ibm("EXEC CICS FORMATTIME", "summary-formattime"),
     status="modelled",
+    register="X46",
     options={
         "ABSTIME": Arg("area_in", width=8),
         **{f: Arg("area_out") for f in DATE_FORMS},
+        **{f: Arg("area_out", binary=True) for f in NUMBER_FORMS},
         "TIME": Arg("area_out", width=6),
         "DATESEP": Arg("value"),  # no value: IBM's default '/'
         "TIMESEP": Arg("value"),  # no value: IBM's default ':'
@@ -342,9 +357,20 @@ FORMATTIME = Command(
     # format" and RESP2 2 (invalid STRINGFORMAT CVDA; STRINGFORMAT is not an option here, so it is refused by name).
     # "Not packed-decimal" is the declared storage's business (the port reads ABSTIME by its declared usage)
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=(*DATE_FORMS, "TIME")),
+        Outcome("NORMAL", 0, "", writes=(*DATE_FORMS, *NUMBER_FORMS, "TIME")),
         Outcome("INVREQ", 1, "ABSTIME is less than zero"),
     ),
+    # #4415 slice 3 (X46): what IBM leaves to the installation (DATFORM) or to the zone (DATESTRING) is refused by name
+    refused={
+        "DATE": Refusal("the date in the installation's DATFORM order: the run states no DATFORM", "X46"),
+        "DATEFORM": Refusal("the installation's DATFORM (YYMMDD / DDMMYY / MMDDYY): the run states none", "X46"),
+        "FULLDATE": Refusal("the date in the installation's DATFORM order: the run states no DATFORM", "X46"),
+        "DATESTRING": Refusal(
+            "the architected date stamp (RFC1123 / RFC3339) needs the region's zone: not modelled", "X46"
+        ),
+        "STRINGFORMAT": Refusal("the DATESTRING format: DATESTRING is not modelled", "X46"),
+        "STRINGZONE": Refusal("the DATESTRING zone (UTC / LOCAL): DATESTRING is not modelled", "X46"),
+    },
 )
 
 # #4768 zECS, register X34: STATUS (ZECS001's extended-TTL switch). IBM (CICS SPI command INQUIRE PROGRAM): STATUS "Returns

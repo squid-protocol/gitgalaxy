@@ -225,6 +225,9 @@ C_DRIVER = r"""
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define setenv(k, v, o) _putenv_s((k), (v)) /* MinGW has no setenv */
+#endif
 int CEEGMT(unsigned char*, unsigned char*, unsigned char*);
 int CEEUTC(unsigned char*, unsigned char*, unsigned char*);
 int CEEQCEN(unsigned char*, unsigned char*);
@@ -349,7 +352,7 @@ def c_driver(tmp_path_factory):
     if not shutil.which("gcc"):
         pytest.skip("needs a C compiler")
     d = tmp_path_factory.mktemp("le_c")
-    (d / "driver.c").write_text(C_DRIVER)
+    (d / "driver.c").write_text(C_DRIVER, newline="\n")
     run = subprocess.run(  # noqa: S603
         ["gcc", "-O0", "-o", str(d / "t"), str(d / "driver.c"), str(LE_C), "-lm"],
         capture_output=True,
@@ -360,8 +363,13 @@ def c_driver(tmp_path_factory):
     return d / "t"
 
 
+def _bare_env() -> dict[str, str]:
+    """An environment with no clock pinned. Windows will not start a process from an empty one, so it keeps SYSTEMROOT."""
+    return {k: os.environ[k] for k in ("SYSTEMROOT",) if k in os.environ} if os.name == "nt" else {}
+
+
 def _run_c(exe: Path, svc: str, args: list[str]) -> str:
-    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env={})  # noqa: S603
+    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
     if run.returncode == 98:
         assert run.stderr.rstrip().endswith("is not modelled"), run.stderr
         return REFUSED
@@ -418,7 +426,7 @@ def _norm_row(row: str) -> str:
 
 
 def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
-    run = subprocess.run([str(c_driver), "CEEGMT", ""], capture_output=True, text=True, check=False, env={})  # noqa: S603
+    run = subprocess.run([str(c_driver), "CEEGMT", ""], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
     assert run.returncode == 98 and run.stderr.rstrip().endswith("is not modelled")
 
 

@@ -1686,6 +1686,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _container_command(verb, opts, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
         return _container_browse_command(verb, opts, labels)
+    if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
+        return _channel_command(verb, opts, labels)
     raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
@@ -1803,6 +1805,21 @@ def _in_literal(code: str, pos: int) -> bool:
         elif ch == quote:
             quote = None  # (a doubled quote closes and reopens: the same state at the next character)
     return quote is not None
+
+
+def _channel_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#5005: DELETE CHANNEL -> GGCDELH and QUERY CHANNEL -> GGCQCHN (CHANNEL in GG-CHAN; the count comes back in GG-NUM and
+    is moved to CONTAINERCNT on NORMAL)."""
+    key = f"{verb} CHANNEL"
+    _check_spec(key, opts, (verb,))
+    for need in SPEC[key].groups:
+        if need.kind == "required" and not opts.get(need.options[0]):
+            raise Unsupported(need.msg, [key])
+    lines = [f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
+    if verb == "DELETE":
+        return lines + _call("GGCDELH", []) + _resp(opts, True, labels)
+    return (lines + _call("GGCQCHN", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['CONTAINERCNT']}", "END-IF"]
+            + _resp(opts, True, labels))  # fmt: skip
 
 
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
@@ -2460,7 +2477,7 @@ def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, An
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
-CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "INVREQ", "IOERR", "NOSPACE",
+CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
                                      "ISCINVREQ", "LOCKED")}  # fmt: skip
@@ -2497,6 +2514,20 @@ LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
 _FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
 
+# #4623: the duplicate-key conditions, by the file commands IBM documents them for (CICS TS, each command's
+# "Conditions") and the RESP2 IBM gives: DUPREC 150 on WRITE ("adding a record whose key already exists", which
+# includes a unique alternate key, UNIQUEKEY) and REWRITE (a UNIQUEKEY alternate key already in the upgrade set);
+# DUPKEY 140 on READ, READNEXT and READPREV ("a record is retrieved through a NONUNIQUEKEY alternate index and another
+# record with the same key follows"). DUPKEY is the one condition that is not a failure: the read delivers the record
+# and answers DUPKEY, so the stub and CicsTask.withFaults run the read and qualify its NORMAL (a read that finds no
+# record has no DUPKEY to give: the fault does not fire).
+DUP_KEY_FAULTS = {
+    "DUPREC": (("WRITE", "REWRITE"), 150),
+    "DUPKEY": (("READ", "READNEXT", "READPREV"), 140),
+}
+# IBM lists DUPKEY (RESP2 140) for DELETE too but does not say whether the record is deleted: refused by name (X48).
+DUP_KEY_REFUSED = {("DELETE", "DUPKEY"): "register X48"}
+
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
     """A CICS file's records: its dataset's `input`, then (#4049) the records of `append` -- a case's own file of
@@ -2522,11 +2553,26 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
             )
+        resp2 = int(f.get("resp2", 0))
+        if (cmd, f["resp"]) in DUP_KEY_REFUSED:
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f}: IBM lists {f['resp']} for {cmd} but not whether the record is "
+                f"deleted ({DUP_KEY_REFUSED[(cmd, f['resp'])]}, refused)"
+            )
+        if f["resp"] in DUP_KEY_FAULTS:
+            cmds, ibm2 = DUP_KEY_FAULTS[f["resp"]]
+            if cmd not in cmds:
+                raise Unsupported(
+                    f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {'/'.join(cmds)}, not {cmd}"
+                )
+            if resp2 not in (0, ibm2):  # 0: not given
+                raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM's {f['resp']} has RESP2 {ibm2}, not {resp2}")
+            resp2 = ibm2
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
             raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
+        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")
     return out
 
 

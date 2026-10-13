@@ -231,3 +231,6 @@ tests/telemetry_out/
 # #4825: the per-program evidence pages are rendered from the records and published to the `generated` branch by
 # .github/workflows/evidence-pages.yml; main never commits them (PRs collided on them).
 docs/language_status/evidence/
+
+# #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed
+tests/equivalence/linuxx64_odbc_cli.tar.gz

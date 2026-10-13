@@ -102,6 +102,7 @@ HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "t
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py")  # fmt: skip
 CRUCIBLE_HARNESS = (*HARNESS, "tests/tools/cics_crucible.py", "tests/tools/cics_crucible_compare.py")
 ORACLE = ("tests/equivalence/gnucobol.Dockerfile", "tests/equivalence/gnucobol-db2.Dockerfile",
+          "tests/equivalence/odbc_cli.pin",
           "tests/equivalence/cics/**", "tests/equivalence/le/**", "tests/equivalence/faults/**",
           "tests/equivalence/db2/**", "tests/tools/equivalence_sql.py")  # fmt: skip
 GENERATOR = ("gitgalaxy/tools/cobol_to_java/**",)  # #4048 Q2 (default): the Java generator, not the whole engine
@@ -247,7 +248,7 @@ COMPONENTS: tuple[Component, ...] = (
     Component(
         "oracle:image-db2",
         "oracle",
-        ("tests/equivalence/gnucobol-db2.Dockerfile",),
+        ("tests/equivalence/gnucobol-db2.Dockerfile", "tests/equivalence/odbc_cli.pin"),
         lambda u: u.db2,
         "the Db2 CLI layer of the oracle image",
     ),
@@ -798,15 +799,22 @@ def mutation_section(t: Target, existing_mutation: dict[str, Any] | None = None)
         old_commit = (old_mut.get("rejudged") or {}).get("commit") or old_mut.get("commit")
         if old_commit == commit and old_mut.get("inputs"):
             inputs = old_mut["inputs"]
-    return {"commit": e["commit"], "rejudged": e.get("rejudged"), "seed": e.get("seed"), "mode": e.get("mode"),
-            "mutants": e["mutants"], "chosen": e["chosen"],
-            "killed": tot["killed"], "survived": tot["survived"], "stillborn": tot["stillborn"],
-            "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable",
-                                                     "untriaged")},
-            "score_raw": _score(tot["killed"], judged),
-            "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
-            "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
-            "inputs": inputs}
+    return {
+        "commit": e["commit"],
+        "rejudged": e.get("rejudged"),
+        "seed": e.get("seed"),
+        "mode": e.get("mode"),
+        "mutants": e["mutants"],
+        "chosen": e["chosen"],
+        "killed": tot["killed"],
+        "survived": tot["survived"],
+        "stillborn": tot["stillborn"],
+        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")},
+        "score_raw": _score(tot["killed"], judged),
+        "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
+        "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
+        "inputs": inputs,
+    }
 
 
 # ---- the record --------------------------------------------------------------------------------------------------------

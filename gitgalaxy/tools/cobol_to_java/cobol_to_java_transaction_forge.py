@@ -3083,6 +3083,37 @@ public class CicsTask {
         return new ContainerResult("NORMAL", 0, -1, null);
     }
 
+    /** DELETE CHANNEL(channel) (IBM, EXEC CICS DELETE CHANNEL): the channel and every container it holds go; a later
+     *  command naming it finds no channel (CHANNELERR RESP2 2), a PUT CONTAINER makes a new empty one. CHANNELERR
+     *  RESP2 2: not in the program's scope. IBM's other RESP2 values name the current channel (4), the transaction
+     *  channel (5), a channel not owned by the calling program (6) and a read-only channel (3); a channel the program
+     *  is passed is the current one, and is also not its own, so IBM's order among 4 / 5 / 6 decides and it gives none:
+     *  the current channel is refused (ASSUMED: no read-only channel exists). A browse of the deleted channel is
+     *  refused at its next GETNEXT, as for any change to the channel (X42). */
+    public ContainerResult deleteChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        if (ch == currentChannel) {
+            throw refused("DELETE CHANNEL of the current channel");
+        }
+        ch.containers.clear();
+        ch.shape++;
+        channels.remove(ch.name);
+        return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    /** QUERY CHANNEL(channel) CONTAINERCNT(count) (IBM, EXEC CICS QUERY CHANNEL): the number of containers the channel
+     *  holds, as the result's length. CHANNELERR RESP2 2: not in the program's scope (the count is then not set). */
+    public ContainerResult queryChannel(String channel) {
+        Channel ch = scopeChannel(channel, false);
+        if (ch == null) {
+            return new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        return new ContainerResult("NORMAL", 0, ch.containers.size(), null);
+    }
+
     /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
      *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
      *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the
@@ -3519,7 +3550,11 @@ public class CicsTask {
             return new FileRead<>(planned[0], planned[1], null);
         }
         T record = lookup.get().orElse(null);
-        return new FileRead<>(record != null ? 0 : 13, 0, record);
+        if (record == null) {
+            return new FileRead<>(13, 0, null);
+        }
+        int[] o = root().dupkeyOr();  // #4623: a planned DUPKEY follows the read that found the record
+        return new FileRead<>(o[0], o[1], record);
     }
 
     /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
@@ -3547,7 +3582,8 @@ public class CicsTask {
         if (update) {
             root().held.add(file);
         }
-        return new FileRead<>(0, 0, record);
+        int[] o = root().dupkeyOr();
+        return new FileRead<>(o[0], o[1], record);
     }
 
     /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
@@ -3623,7 +3659,7 @@ public class CicsTask {
     /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
     public record Browsed(int resp, int resp2, String key) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
     }
 
@@ -3704,7 +3740,8 @@ public class CicsTask {
         }
         b.last = at;
         b.dir = 1;
-        return new Browsed(0, 0, at);
+        int[] o = root().dupkeyOr();
+        return new Browsed(o[0], o[1], at);
     }
 
     /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
@@ -3742,7 +3779,8 @@ public class CicsTask {
         }
         b.last = at;
         b.dir = -1;
-        return new Browsed(0, 0, at);
+        int[] o = root().dupkeyOr();
+        return new Browsed(o[0], o[1], at);
     }
 
     // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
@@ -3810,7 +3848,7 @@ public class CicsTask {
      *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
     public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
         }
     }
 
@@ -3896,7 +3934,11 @@ public class CicsTask {
         long rba = at * e.reclen();
         b.rbaLast = rba;
         b.dir = dir;
-        return rec.length > intoLength ? new BrowsedRba(22, 11, rba, rec) : new BrowsedRba(0, 0, rba, rec);
+        if (rec.length > intoLength) {
+            return new BrowsedRba(22, 11, rba, rec);
+        }
+        int[] o = root().dupkeyOr();
+        return new BrowsedRba(o[0], o[1], rba, rec);
     }
 
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
@@ -3997,7 +4039,35 @@ public class CicsTask {
     /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
     public record FileRead<T>(int resp, int resp2, T record) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+        }
+    }
+
+    /** #4623: a planned DUPKEY (15) is not a failure of the read: IBM retrieves the record through the non-unique
+     *  alternate index and answers DUPKEY (RESP2 140) because another with the same key follows. So `injected`
+     *  holds it back (the read runs), and a read that did find a record asks here for its outcome. */
+    private int[] deferredDupkey;  // {n, resp, resp2} of the plan line, and its command and file
+    private String deferredWhat;
+
+    private int[] dupkeyOr() {
+        if (deferredDupkey == null) {
+            return new int[] {0, 0};
+        }
+        int[] d = deferredDupkey;
+        deferredDupkey = null;
+        logFault(deferredWhat, d[0], d[1], d[2]);
+        return new int[] {d[1], d[2]};
+    }
+
+    private void logFault(String what, int n, int resp, int resp2) {
+        if (faultLog != null) {
+            try {
+                java.nio.file.Files.writeString(faultLog, what + " " + n + " " + resp + " " + resp2
+                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
         }
     }
 
@@ -4006,19 +4076,17 @@ public class CicsTask {
             return null;
         }
         int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
+        deferredDupkey = null;
         for (String[] f : faultPlan) {
             if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
-                if (faultLog != null) {
-                    try {
-                        java.nio.file.Files.writeString(faultLog, cmd + " " + file + " " + n + " " + resp + " " + resp2
-                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
-                                java.nio.file.StandardOpenOption.APPEND);
-                    } catch (java.io.IOException e) {
-                        throw new java.io.UncheckedIOException(e);
-                    }
+                if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
+                    deferredDupkey = new int[] {n, resp, resp2};
+                    deferredWhat = cmd + " " + file;
+                    return null;
                 }
+                logFault(cmd + " " + file, n, resp, resp2);
                 return new int[] {resp, resp2};
             }
         }

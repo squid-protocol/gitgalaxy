@@ -582,6 +582,9 @@ _IBM_OPTIONS = {
     "STARTBROWSE CONTAINER": "CHANNEL BROWSETOKEN",
     "GETNEXT CONTAINER": "CONTAINER BROWSETOKEN",
     "ENDBROWSE CONTAINER": "BROWSETOKEN",
+    # #5005: DELETE CHANNEL and QUERY CHANNEL
+    "DELETE CHANNEL": "CHANNEL",
+    "QUERY CHANNEL": "CHANNEL CONTAINERCNT",
     # #4270 slice 2: interval control (START, RETRIEVE, CANCEL)
     "START": "TRANSID INTERVAL TIME AFTER AT HOURS MINUTES SECONDS FROM LENGTH FLENGTH FMH TERMID USERID SYSID "
     "RTRANSID RTERMID QUEUE REQID NOCHECK PROTECT ATTACH BREXIT CHANNEL",
@@ -963,6 +966,7 @@ _RESP_SAMPLES = {
     "MOVE CONTAINER": "MOVE CONTAINER('C') AS('D')", "STARTBROWSE CONTAINER": "STARTBROWSE CONTAINER BROWSETOKEN(REC)",
     "GETNEXT CONTAINER": "GETNEXT CONTAINER(REC) BROWSETOKEN(REC)",
     "ENDBROWSE CONTAINER": "ENDBROWSE CONTAINER BROWSETOKEN(REC)",
+    "DELETE CHANNEL": "DELETE CHANNEL('C')", "QUERY CHANNEL": "QUERY CHANNEL('C') CONTAINERCNT(REC)",
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
@@ -1208,6 +1212,26 @@ def test_the_container_browse_stores_the_token_and_the_name():
                 "ENDBROWSE CONTAINER"):  # fmt: skip
         with pytest.raises(C.CicsError):
             _ChanCics().command(bad, "")
+
+
+def test_delete_and_query_channel_answer_with_channelerr_and_the_count():
+    """IBM, DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, a fullword, the number of
+    containers): CHANNEL is required, CHANNELERR RESP2 2 comes back through RESP / HANDLE CONDITION, and the count is
+    stored on NORMAL only."""
+    out = _ChanCics().command("DELETE CHANNEL(CH) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult chan1 = task.deleteChannel(CH.strip());",
+                   "OUTCOME(DetCics.resp(chan1.resp()), chan1.resp2());"]  # fmt: skip
+    assert "task.deleteChannel('X'.strip());" in _ChanCics().command("DELETE CHANNEL('X') NOHANDLE", "")[0]
+    out = _ChanCics().command("QUERY CHANNEL(CH) CONTAINERCNT(REC) RESP(R)", "")
+    assert out[0] == "CicsTask.ContainerResult chan1 = task.queryChannel(CH.strip());"
+    assert out[1].startswith("if (chan1.length() >= 0) STORE(REC, BigDecimal.valueOf(chan1.length()))")
+    assert out[-1] == "OUTCOME(DetCics.resp(chan1.resp()), chan1.resp2());"
+    for bad in ("DELETE CHANNEL", "DELETE CHANNEL(CH) CONTAINER(CN) CHANNELX(Q)", "QUERY CHANNEL(CH)",
+                "QUERY CHANNEL CONTAINERCNT(REC)", "QUERY CHANNEL(CH) CONTAINERCNT"):  # fmt: skip
+        with pytest.raises(C.CicsError):
+            _ChanCics().command(bad, "")
+    with pytest.raises(C.CicsError, match="CONTAINERTYPE"):
+        _ChanCics().command("DELETE CHANNEL(CH) CONTAINERTYPE(X)", "")
 
 
 def test_link_and_xctl_pass_a_channel_and_assign_reads_it():

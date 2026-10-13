@@ -33,6 +33,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | STARTBROWSE CONTAINER | full | yes (5 options) | yes | X17, X42 | — | 2 (1 / 1) | — |
 | GETNEXT CONTAINER | full | yes (5 options) | yes | X42 | — | 1 (1 / 0) | — |
 | ENDBROWSE CONTAINER | full | yes (4 options) | yes | X42 | — | 0 | — |
+| DELETE CHANNEL | full | yes (4 options) | yes | X17, X44 | — | 0 | — |
+| QUERY CHANNEL | full | yes (5 options) | yes | X17, X44 | — | 0 | — |
 | DOCUMENT CREATE | full | yes (8 options, 8 refused by name) | yes | X33 | doctemplates | 3 (3 / 0) | — |
 | DOCUMENT RETRIEVE | full | yes (8 options, 2 refused by name) | yes | X33 | — | 3 (3 / 0) | — |
 | START | full | yes (21 options, 6 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
@@ -124,7 +126,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-165 more name-only entries no census program uses.
+163 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

@@ -1,0 +1,6 @@
+# #4980: IBM's Data Server Driver for ODBC and CLI, the one download gnucobol-db2.Dockerfile needs. Fetched by
+# tests/tools/equivalence_db2.py fetch_odbc_cli() (curl --retry, sha256-checked), cached in CI on this file, COPYed
+# into the image and checked there again. IBM serves "latest" at this URL: if it moves, the sha256 check fails as
+# infrastructure and the pin is bumped on purpose (url and sha256 together).
+url=https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/linuxx64_odbc_cli.tar.gz
+sha256=77b754d19be2cd5c55f6feb8bd951c2b17aa6646289944855612c5a2ac555f55

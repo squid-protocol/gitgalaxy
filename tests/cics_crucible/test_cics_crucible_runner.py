@@ -1134,6 +1134,16 @@ def test_the_java_test_drives_the_byte_overload_and_reads_lastAnswerBytes():
     assert "(m.getParameterTypes()[params - 1] == byte[].class) == bytes" in src
 
 
+def test_the_answered_bytes_are_the_bytes_the_tasks_return_passed_on():
+    """#4965: as equivalence_cics.py checks it. Without it a facade that stopped assigning lastAnswerBytes (answers null,
+    or the previous task's) fell back to the DTO's bytes and passed. A port that RETURNs through the DTO-only
+    returnTransid (the model-written crucible ports, CALINK ... PCWIZ) has no raw bytes either way: null equals null."""
+    src = runner._JAVA_TEST
+    assert "answeredByBytes = true;" in src and "answeredByBytes = false;" in src
+    assert "!java.util.Arrays.equals(answered, t.returnedBytes())" in src
+    assert "is not the bytes its RETURN passes on" in src
+
+
 def test_the_equivalence_harness_drives_the_byte_overload_too():
     src = ec.FACADE_JAVA
     assert (

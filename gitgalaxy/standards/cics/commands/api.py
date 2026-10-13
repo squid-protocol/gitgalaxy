@@ -49,8 +49,6 @@ _TRACE = "user trace and monitoring points are not modelled"
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # channels and containers beyond the container commands (#4270 slice 1, #4951)
-    ("DELETE CHANNEL", None, "deleting a channel is not modelled"),
-    ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
     # BTS
@@ -77,6 +75,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("GETNEXT PROCESS", None, _BTS),
     ("GETNEXT TIMER", None, _BTS),
     ("INQUIRE ACTIVITYID", None, _BTS),
+    # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE): no channel form (#5005)
     ("INQUIRE CONTAINER", None, _BTS),
     ("INQUIRE EVENT", None, _BTS),
     ("INQUIRE PROCESS", None, _BTS),

@@ -681,6 +681,7 @@ WEB_RECEIVE = Command(
     register="X38",
     options={
         "INTO": Arg("area_out"),
+        "SET": Arg("pointer"),
         "LENGTH": Arg("area_out", width=4, binary=True),
         "MAXLENGTH": Arg("value"),
         "MEDIATYPE": Arg("area_out", width=56),
@@ -689,10 +690,6 @@ WEB_RECEIVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SET": Refusal(
-            "a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled",
-            "X38",
-        ),
         "NOTRUNCATE": Refusal("a body kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X38"),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
@@ -704,24 +701,25 @@ WEB_RECEIVE = Command(
         "TYPE": Refusal("TYPE (HTTPYES / HTTPNO) is not modelled: a stated request is always an HTTP request", "X38"),
     },
     default_refusal=Refusal(
-        "only INTO / LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
+        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
     ),
     groups=(
-        required("INTO", msg="WEB RECEIVE without INTO: only a body into the program's area is modelled"),
+        one_of("INTO", "SET", msg="WEB RECEIVE needs one of INTO / SET: the body into the program's area or into CICS storage"),
         requires(("INTO",), ("MAXLENGTH",), msg="WEB RECEIVE INTO without MAXLENGTH (IBM: INVREQ RESP2 16)"),
+        requires(("SET",), ("LENGTH",), msg="WEB RECEIVE SET without LENGTH (IBM: LENGTH must be specified with SET)"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB RECEIVE with both SRVCONVERT and NOSRVCONVERT"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "MEDIATYPE")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "MEDIATYPE")),
         Outcome("LENGERR", 16, "MAXLENGTH less than or equal to zero", raised_by=("MAXLENGTH",)),
         Outcome(
             "LENGERR",
             57,
             "The body exceeds the length specified and the remainder was discarded",
-            writes=("INTO", "LENGTH", "MEDIATYPE"),
+            writes=("INTO", "SET", "LENGTH", "MEDIATYPE"),
         ),
     ),
-    facts=(Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO",)),),
+    facts=(Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO", "SET")),),
     runtime_refusals=(
         _NO_REQUEST_READ,
         RuntimeRefusal(
@@ -732,6 +730,12 @@ WEB_RECEIVE = Command(
         ),
         RuntimeRefusal(
             _NOT_BYTES, "X38", java="WEB RECEIVE length beyond its area", c="WEB RECEIVE length beyond its area"
+        ),
+        RuntimeRefusal(
+            "a body longer than the limit the run states for CICS storage (X47)",
+            "X47",
+            java="WEB RECEIVE SET body beyond the limit",
+            c="WEB RECEIVE SET body beyond the limit",
         ),
     ),
 )

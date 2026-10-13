@@ -615,7 +615,7 @@ def test_options_honoured_without_code_say_why():
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL"}  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE"}  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -989,6 +989,8 @@ _RESP_ELSEWHERE = {
     "SEND MAP": "Cics.send_map ends in outcome() (screens: covered by the det ports' CICS proofs)",
     "RECEIVE MAP": "Cics.receive_map ends in outcome() (covered by the det ports' CICS proofs)",
     "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
+    "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
+    "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 
@@ -1452,10 +1454,11 @@ def test_web_receive_reads_the_body_of_the_stated_request():
     assert ".body() != null) {" in body and ".body().getBytes(CS)" in body and ".body().length()" in body
     assert '"%-56s"' in body and ".mediaType()" in body
     assert c.command("WEB RECEIVE INTO(REC) MAXLENGTH(R2) SRVCONVERT", "")[0].startswith("CicsTask.WebReceived web")
-    for bad, why in (("WEB RECEIVE", "without INTO"),
+    for bad, why in (("WEB RECEIVE", "one of INTO / SET"),
                      ("WEB RECEIVE INTO(REC)", "INTO without MAXLENGTH"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
-                     ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "pointer lane"),
+                     ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "SET without LENGTH"),
+                     ("WEB RECEIVE INTO(REC) SET(PTR) MAXLENGTH(R) LENGTH(R)", "one of INTO / SET"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) NOTRUNCATE", "NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TOCHANNEL('C')", "container"),

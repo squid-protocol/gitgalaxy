@@ -259,6 +259,24 @@ def _dto_size(gp, cls: str) -> int:
         return 0
 
 
+def overlaid_pointers(records: list) -> set[str]:
+    """#4771 (X47): the POINTER items a REDEFINES overlays (or that sit in a group one overlays, or redefine something):
+    their bytes can be read or changed as a number, which a handle does not model."""
+    items = [x for r in records for x in r.walk()]
+    redefined = {x.redefines.upper() for x in items if x.redefines}
+    out = set()
+    for x in items:
+        if x.usage != "POINTER":
+            continue
+        chain, p = [x], x.parent
+        while p is not None:
+            chain.append(p)
+            p = p.parent
+        if {c.name.upper() for c in chain} & redefined or any(c.redefines for c in chain):
+            out.add(x.name.upper())
+    return out
+
+
 def write_only_pointers(records: list, proc) -> set[str]:
     """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
     named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
@@ -598,6 +616,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
+    gen.overlaid_pointers = overlaid_pointers(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one

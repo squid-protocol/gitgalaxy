@@ -4326,6 +4326,89 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     return 0;
 }
 
+/* ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer. A block is registered when GETMAIN or
+ * WEB RECEIVE SET hands it out (the pointer item `slot` then holds its address), so FREEMAIN can tell storage GETMAIN returned
+ * from any other address. A freed block is kept (never reused), so a second FREEMAIN of it is recognised and refused. */
+enum { BLK_GETMAIN = 0, BLK_RECEIVED = 1, BLK_FREED = 2 };
+static struct { void *p; int kind; } blks[8192];
+static int nblks = 0;
+
+static void *blk_new(size_t n, int kind) {
+    void *p;
+    if (nblks >= 8192) refuse("more than 8192 blocks of task storage");
+    p = calloc(n ? n : 1, 1);
+    if (!p) refuse("GETMAIN length beyond the limit");
+    blks[nblks].p = p;
+    blks[nblks].kind = kind;
+    nblks++;
+    return p;
+}
+
+/* GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN): GG-NUM the length, GG-FLAGS "SHORT" for the
+ * LENGTH form; LENGERR RESP2 1 for FLENGTH below 1 / LENGTH zero (ptr set to zero). Refused: a length above the limit, a LENGTH
+ * above 65520, an INITIMG that is not one byte. */
+int GGCGETM(gg_cics *c, void **slot, char *img, int imglen) {
+    char flags[41];
+    long n = c->num;
+    trim(c->flags, 40, flags);
+    if (imglen != 1) refuse("GETMAIN INITIMG is not one byte");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (n < 1) { c->resp = LENGERR; c->resp2 = 1; *slot = NULL; return 0; }
+    if (n > 268435456L || (strcmp(flags, "SHORT") == 0 && n > 65520)) refuse("GETMAIN length beyond the limit");
+    *slot = blk_new((size_t)n, BLK_GETMAIN);
+    memset(*slot, (unsigned char)img[0], (size_t)n);
+    return 0;
+}
+
+/* GGCFREM: FREEMAIN DATAPOINTER(ptr): INVREQ RESP2 1 for an address GETMAIN did not return (a null pointer, a record's address). Refused:
+ * storage already freed, a WEB RECEIVE SET body (IBM does not say whether FREEMAIN is allowed). */
+int GGCFREM(gg_cics *c, void **slot) {
+    int i;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    for (i = 0; i < nblks; i++) {
+        if (blks[i].p == *slot) {
+            if (blks[i].kind != BLK_GETMAIN) refuse("FREEMAIN of storage already freed or received");
+            blks[i].kind = BLK_FREED;
+            return 0;
+        }
+    }
+    c->resp = INVREQ;
+    c->resp2 = 1;
+    return 0;
+}
+
+/* WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH(n)] [MEDIATYPE(area)] (X38, X47): the body as a new block the pointer addresses; GG-NUM
+ * MAXLENGTH (2147483647 when not given); GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. LENGERR 16 leaves the pointer
+ * as it was (ASSUMED); a body cut at MAXLENGTH is LENGERR 57 with the pointer set. */
+int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
+    char flags[41];
+    int hm, maxl = c->num, n;
+    webreq_load();
+    trim(c->flags, 40, flags);
+    hm = strstr(flags, "MEDIA") != NULL;
+    if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
+    if (web_received) refuse("a second WEB RECEIVE");
+    if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
+    if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    web_received = 1;
+    n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
+    if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
+    *slot = blk_new((size_t)n, BLK_RECEIVED);
+    memcpy(*slot, webreq.body, (size_t)n);
+    c->len = n;
+    if (hm) {
+        if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
+        memset(media, ' ', 56);
+        memcpy(media, webreq.media, strlen(webreq.media));
+    }
+    return 0;
+}
+
 /* WEB RETRIEVE DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): NORMAL (the DOCTOKEN written to `tok`) for a
  * last WEB SEND that was a document send with ACTION(EVENTUAL) and no DOCDELETE -- the token names a copy of the document as it
  * was sent (ASSUMED: a new document of the task, the same token for every retrieve of that send); INVREQ RESP2 2 no WEB SEND

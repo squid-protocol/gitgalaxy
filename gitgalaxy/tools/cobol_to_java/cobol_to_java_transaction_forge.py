@@ -1464,6 +1464,93 @@ public class CicsTask {
         return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
     }
 
+    // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
+    /** One block of task storage: GETMAIN (kind 0), a WEB RECEIVE SET body (1), the bytes of a LINKAGE record whose
+     *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
+    private static final class Block {
+        byte[] bytes;
+        int kind;
+        boolean bound;
+        Block(byte[] bytes, int kind) {
+            this.bytes = bytes;
+            this.kind = kind;
+        }
+    }
+
+    private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
+    private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
+    private long nextBlock = 1;
+
+    private long newBlock(byte[] bytes, int kind) {
+        long h = nextBlock++;
+        blocks.put(h, new Block(bytes, kind));
+        return h;
+    }
+
+    /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
+     *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+    public long[] getmain(long length, boolean halfword, int initimg) {
+        if (length < 1) {
+            return new long[] {22, 1, 0};
+        }
+        if (length > 268435456L || (halfword && length > 65520)) {
+            throw refused("GETMAIN length beyond the limit");
+        }
+        byte[] b = new byte[(int) length];
+        java.util.Arrays.fill(b, (byte) initimg);
+        return new long[] {0, 0, newBlock(b, 0)};
+    }
+
+    /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
+     *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
+    public int[] freemain(long handle) {
+        Block b = blocks.get(handle);
+        if (b == null || b.kind == 2) {
+            return new int[] {16, 1};
+        }
+        if (b.kind != 0) {
+            throw refused("FREEMAIN of storage already freed or received");
+        }
+        b.kind = 3;
+        return new int[] {0, 0};
+    }
+
+    /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
+    public long acquireReceived(byte[] body) {
+        if (body.length > 268435456L) {
+            throw refused("WEB RECEIVE SET body beyond the limit");
+        }
+        return newBlock(body.clone(), 1);
+    }
+
+    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
+    public long addressOf(byte[] record) {
+        return addressed.computeIfAbsent(record, r -> newBlock(r, 2));
+    }
+
+    /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
+     *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
+     *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
+     *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
+    public byte[] storageAt(long handle, int need) {
+        Block b = blocks.get(handle);
+        if (b == null) {
+            throw refused("SET ADDRESS OF a null or unknown pointer");
+        }
+        if (b.kind == 3) {
+            throw refused("SET ADDRESS OF storage already freed");
+        }
+        if (b.bytes.length < need) {
+            if (b.kind == 2 || b.bound) {
+                throw refused("SET ADDRESS OF a record longer than its storage");
+            }
+            b.bytes = java.util.Arrays.copyOf(b.bytes, need);
+        }
+        b.bound = true;
+        return b.bytes;
+    }
+
     /** WEB READ HTTPHEADER's outcome: RESP, RESP2 and, on NORMAL, the header's value, else null. */
     public record WebHeader(int resp, int resp2, String value) {
     }

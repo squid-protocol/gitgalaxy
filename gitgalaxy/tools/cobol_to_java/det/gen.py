@@ -157,6 +157,7 @@ def _missing_item(name: str) -> str:
 class Gen:
     def __init__(self, prog: Program, structured: bool = False):
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
+        self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -286,6 +287,23 @@ class Gen:
             cands = [c for c in cands if c.parent and (c.parent.name in ref.qualifiers or any(
                 q in _ancestors(c.parent) for q in ref.qualifiers))]  # fmt: skip
         return cands[0] if len(cands) == 1 else None
+
+    def pointer_item(self, name: str) -> str:
+        """#4771 (X47): the Field of a plain USAGE POINTER item the pointer lane works on. A pointer a REDEFINES overlays
+        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on."""
+        it = self.resolve(E.Ref(name.upper()))
+        if it.usage != "POINTER" or it.occurs > 1:
+            raise Untranslatable(f"{name}: not a plain USAGE POINTER item")
+        if name.upper() in self.overlaid_pointers:
+            raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
+        return self.field_expr(E.Ref(name.upper()))
+
+    def address_record(self, name: str) -> str:
+        """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
+            raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
+        return self.field_expr(E.Ref(name.upper()))
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
@@ -1880,9 +1898,20 @@ class Gen:
                 out.append(f"{ind}Cobol.moveFigurative(Figurative.LOW_VALUES, {self.field_expr(r)}, CS);")
             return out
         if k == "SET-POINTER":
-            if s.data["target"] not in self.write_only_pointers:
+            if s.data["target"] in self.write_only_pointers:
+                return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
+            if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
+            return [c, f"{ind}DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, "
+                       f"{self.address_record(s.data['of'])});"]  # fmt: skip
+        if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
+            if self.cics is None:
+                raise Untranslatable("SET ADDRESS OF (pointers)")
+            if s.data["pointer"]:
+                return [c, f"{ind}DetCics.setAddress(task, {self.address_record(s.data['record'])}, "
+                           f"{self.pointer_item(s.data['pointer'])});"]  # fmt: skip
+            return [c, f"{ind}DetCics.setAddressOfRecord(task, {self.address_record(s.data['record'])}, "
+                       f"{self.address_record(s.data['of'])});"]  # fmt: skip
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:

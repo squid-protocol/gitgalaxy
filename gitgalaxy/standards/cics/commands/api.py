@@ -158,9 +158,7 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("SEND PARTNSET", None, _PARTITION),
     ("RECEIVE PARTN", None, _PARTITION),
     # storage and addresses
-    ("GETMAIN", None, _STORAGE),
     ("GETMAIN64", None, _STORAGE),
-    ("FREEMAIN", None, _STORAGE),
     ("FREEMAIN64", None, _STORAGE),
     (
         "ADDRESS",

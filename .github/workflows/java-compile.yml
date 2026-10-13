@@ -159,12 +159,40 @@ jobs:
           path: base
           persist-credentials: false
 
-      - name: Cache the base branch's generation (pull requests)
-        if: github.event_name == 'pull_request'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #4968: restore-only on every ref. A PR's cache scope is its own ref, so a PR that saved here left one copy per PR
+      # (13-14 per corpus) that nothing else could read. Main saves it below, keyed on the commit a PR's base is.
+      - name: Restore the base branch's generation
+        id: base-gen
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/java_base_cache
-          key: java-same-base-${{ matrix.corpus }}-${{ github.event.pull_request.base.sha }}-${{ hashFiles('gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/.github/workflows/java-compile.yml') }}
+          key: java-same-base-${{ matrix.corpus }}-${{ github.event.pull_request.base.sha || github.sha }}
+
+      - name: Keep this commit's generation for the pull requests based on it (main)
+        id: keep-gen
+        if: github.event_name != 'pull_request' && steps.base-gen.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next PR a base generation
+        env:
+          CORPUS: ${{ matrix.corpus }}
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          cd gitgalaxy
+          ONLY=()
+          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          # this checkout is its own base: the run keeps the base side's projects in the cache directory
+          PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
+            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
+            --base-cache "$RUNNER_TEMP/java_base_cache" \
+            --work "$RUNNER_TEMP/java_keep" \
+            "${ONLY[@]}"
+
+      - name: Save the generation under this commit (main)
+        if: github.event_name != 'pull_request' && steps.base-gen.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_base_cache
+          key: java-same-base-${{ matrix.corpus }}-${{ github.sha }}
 
       - name: Is the generated Java unchanged? (pull requests)
         id: same
@@ -199,14 +227,21 @@ jobs:
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           gradle-version: "8.10.2"
+          cache-disabled: true  # #4968: its own key ends in the run's sha (64 gradle-home-v2 entries); keyed on hashes below
 
-      - name: Cache Maven dependencies
+      # #4968: the dependency caches are keyed on the files that decide what the builds download, and restore-only on a
+      # PR ref (one copy per PR otherwise); main saves them.
+      - name: Restore the Gradle and Maven dependency caches
+        id: deps
         if: steps.same.outputs.identical != 'true'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.m2/repository
-          key: java-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
-          restore-keys: java-compile-m2-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.m2/repository
+          key: java-compile-deps-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
+          restore-keys: java-compile-deps-
 
       - name: Generate and compile
         if: steps.same.outputs.identical != 'true'
@@ -249,3 +284,13 @@ jobs:
             --m2 "$HOME/.m2/repository" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"
+
+      - name: Save the Gradle and Maven dependency caches (not on a pull request)
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && steps.same.outputs.identical != 'true' && steps.deps.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.m2/repository
+          key: java-compile-deps-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}

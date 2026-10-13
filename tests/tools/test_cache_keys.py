@@ -85,3 +85,82 @@ def test_explicit_pip_caches_key_on_hashes_only():
                 if not key or VOLATILE.search(key.group(1)) or "hashFiles" not in key.group(1):
                     bad.append(wf.name)
     assert not bad, f"pip caches in {bad} must be keyed on hashFiles(...) only"
+
+
+# --- #4968: every cache step (not just pip) -----------------------------------------------------------------------------
+CACHE_USES = re.compile(r"uses:\s*actions/cache(/restore|/save)?@")
+# the one place a commit sha belongs in a key: the same-base generation, saved at main's sha and restored at a PR's base sha
+SHA_OK = re.compile(r"github\.sha|pull_request\.base\.sha")
+
+
+def _cache_steps():
+    """(workflow, kind, step text) for every actions/cache step: kind is 'both', 'restore' or 'save'."""
+    for wf in sorted(WORKFLOWS.glob("*.yml")):
+        for step in re.split(r"\n\s+- (?=name:|uses:)", wf.read_text(encoding="utf-8")):
+            m = CACHE_USES.search(step)
+            if m:
+                yield wf.name, (m.group(1) or "both").lstrip("/"), step
+
+
+def _key(step):
+    m = re.search(r"\bkey:\s*(.+)", step)
+    return m.group(1) if m else ""
+
+
+def test_the_sweep_sees_the_cache_steps():
+    steps = list(_cache_steps())
+    assert len(steps) >= 5, "expected the actions/cache steps; the parser found %d" % len(steps)
+    assert {k for _, k, _ in steps} >= {"restore", "save"}
+
+
+def test_no_java_compile_cache_key_has_a_run_ref_or_date_component():
+    """The `*-durations-<run_id>` keys (det-sweep, smoke-test) are deliberate (#4847: restore-keys takes the newest)."""
+    bad = [
+        (wf, _key(s))
+        for wf, _, s in _cache_steps()
+        if wf == "java-compile.yml"
+        and re.search(r"github\.(run_id|run_number|run_attempt|ref|head_ref)\b|\bdate\b|\bnow\b", _key(s))
+    ]
+    assert not bad, f"cache keys must not vary per run: {bad}"
+
+
+def test_a_sha_in_a_cache_key_is_only_the_same_base_generation():
+    bad = [(wf, _key(s)) for wf, _, s in _cache_steps() if SHA_OK.search(_key(s)) and "java-same-base-" not in _key(s)]
+    assert not bad, f"only java-same-base-* may be keyed on a commit: {bad}"
+
+
+def test_same_base_cache_is_restore_only_on_pull_requests():
+    """A PR's cache scope is its own ref, so a PR that saves leaves one unreadable copy per PR."""
+    steps = [(k, s) for wf, k, s in _cache_steps() if wf == "java-compile.yml" and "java-same-base-" in _key(s)]
+    assert sorted(k for k, _ in steps) == ["restore", "save"], steps
+    restore = next(s for k, s in steps if k == "restore")
+    save = next(s for k, s in steps if k == "save")
+    assert "pull_request.base.sha" in _key(restore) and "github.sha" in _key(restore)
+    assert _key(save).strip() == _key(restore).replace("github.event.pull_request.base.sha || ", "").strip().replace(
+        "${{ matrix.corpus }}", "${{ matrix.corpus }}"
+    ), "the save key is the restore key at main's own sha"
+    assert "github.event_name != 'pull_request'" in save, "the same-base save must not run on a pull request"
+    assert "hashFiles" not in _key(restore) + _key(save), (
+        "no head-file hash in the same-base key (a PR editing it forked the key)"
+    )
+
+
+def test_every_java_compile_cache_save_skips_pull_requests():
+    bad = [
+        wf
+        for wf, k, s in _cache_steps()
+        if wf == "java-compile.yml" and k == "save" and "github.event_name != 'pull_request'" not in s
+    ]
+    assert not bad, f"actions/cache/save steps must not run on pull requests: {bad}"
+
+
+def test_java_compile_gradle_cache_is_hash_keyed_not_setup_gradles_own():
+    text = (WORKFLOWS / "java-compile.yml").read_text(encoding="utf-8")
+    step = next(s for s in re.split(r"\n\s+- (?=name:|uses:)", text) if "gradle/actions/setup-gradle" in s)
+    assert re.search(r"cache-disabled:\s*true", step), (
+        "setup-gradle's own cache key ends in the run's sha (gradle-home-v2)"
+    )
+    deps = [s for wf, _, s in _cache_steps() if wf == "java-compile.yml" and ".gradle/caches" in s]
+    assert deps, "the gradle cache moved out of java-compile.yml"
+    for s in deps:
+        assert "hashFiles" in _key(s) and not SHA_OK.search(_key(s)), _key(s)

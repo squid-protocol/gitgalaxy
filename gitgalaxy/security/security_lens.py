@@ -219,6 +219,19 @@ def carries_homoglyph(line: str) -> bool:
     return any(is_confusable_token(t) for t in _WORD.findall(line) if not t.isascii())
 
 
+# #4987: commented-out COMMAND shapes for the dead_code signature. Each alternative needs the syntax
+# that makes the word a command or call (a flag/URL/quote after curl, a pipe into a shell, `eval(`),
+# never the bare English word.
+_DEAD_CODE_COMMAND = (
+    r"(?:\b(?:curl|wget)\b[ \t]+(?:-|[\"']?https?://|[\"'$])"
+    r"|\|[ \t]*(?:sudo[ \t]+)?(?:ba|z)?sh\b"
+    r"|\bbash\b[ \t]+(?:-|<\()"
+    r"|\beval\b[ \t]*(?:\(|[\"'$`])"
+    r"|\bbase64\b[ \t]+-|\|[ \t]*base64\b|\bbase64\b[ \t]*\("
+    r"|\bnc\s+-e|/dev/tcp|[\"'(]https?://)"
+)
+
+
 class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
@@ -270,13 +283,13 @@ class SecurityLens:
         # ------------------------------------------------------------------
         self.THREAT_SIGNATURES = {
             # 1. Obfuscation & Encoding Signatures
+            # #4987: this half reads the comment-blanked code stream (a commented-out `atob(` or `\x41`
+            # is not an obfuscated payload; dead_code reports commented-out logic). The invisible-
+            # Unicode half is HIDDEN_TEXT_SIGNATURES and reads the RAW text on purpose.
             "reflection_metaprogramming": re.compile(
                 r"\b(?:atob|btoa|base64_decode|base64_encode|gzuncompress|str_rot13)\b|"
                 r"\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|"
-                r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])|'
-                # Invisible Unicode. #3814: a ZWNJ / ZWJ right after a virama is Indic spelling
-                # (`क्‍ष`, allowed in names by UAX #31 A1/A2), not hidden text -- only that is exempt.
-                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E]|(?<![" + VIRAMA + r"])[\u200C\u200D]",
+                r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])',
                 re.I,
             ),
             # 2. Security Control & Safety Bypasses (e.g., Disabling SSL Verification)
@@ -344,8 +357,11 @@ class SecurityLens:
                 # `<http://www.gnu.org/licenses/>`), not commented-out logic. A commented-out network
                 # CALL carries the URL as a quoted/parenthesised argument, so `http` only counts right
                 # after an opening quote or paren.
-                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|[\"'(]https?://)|"
-                r"/\*(?:(?!\*/).){0,500}?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp)\b|[\"'(]https?://)",
+                # #4987: the same holds for the words bash, curl, wget, eval and base64: in prose
+                # ("the bash shell", "eval is slow") they are English. They count only in the shape of
+                # a command or call (_DEAD_CODE_COMMAND).
+                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:" + _DEAD_CODE_COMMAND + r"|\bBPXBATCH\b)|"
+                r"/\*(?:(?!\*/).){0,500}?" + _DEAD_CODE_COMMAND,
                 re.I,
             ),
             # 7. Low-Level Cryptographic & Bitwise Operations
@@ -365,8 +381,7 @@ class SecurityLens:
                 r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b"
                 r"[^\n]*?(?:[\u0400-\u04FF]|"
                 r"[\u0370-\u03FF]|"
-                r"[\U0001D400-\U0001D7FF]|"
-                r"\u3164)",
+                r"[\U0001D400-\U0001D7FF])",
                 re.I,
             ),
             # 10. Hardcoded Secrets & Credentials
@@ -514,6 +529,25 @@ class SecurityLens:
             ),
         }
 
+        # #4987: HIDDEN-TEXT halves of signatures, scanned on the RAW text (comments included) and added to
+        # the same count: a comment is where a Trojan-Source / zero-width payload hides, and it renders
+        # as nothing, so it is never "just a comment".
+        self.HIDDEN_TEXT_SIGNATURES = {
+            # Invisible Unicode. #3814: a ZWNJ / ZWJ right after a virama is Indic spelling
+            # (`क्‍ष`, allowed in names by UAX #31 A1/A2), not hidden text -- only that is exempt.
+            "reflection_metaprogramming": re.compile(
+                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E]|(?<![" + VIRAMA + r"])[\u200C\u200D]"
+            ),
+            # The Hangul filler renders as blank, so it spoofs a name wherever it sits.
+            "homoglyphs": re.compile(
+                r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b[^\n]*?\u3164", re.I
+            ),
+        }
+        # (key, regex, raw_only): the scan order -- each main signature, then the hidden-text halves.
+        self._scan_plan: list[tuple[str, re.Pattern[str], bool]] = [
+            (key, regex, False) for key, regex in self.THREAT_SIGNATURES.items()
+        ] + [(key, regex, True) for key, regex in self.HIDDEN_TEXT_SIGNATURES.items()]
+
         # ---> LITERAL PREFILTER GATES (#3173) <---
         # Each THREAT_SIGNATURE is a keyword alternation; derive a one-of required-
         # literal gate once (the AST walk costs ~100x a small-file finditer, so it is
@@ -528,6 +562,9 @@ class SecurityLens:
         # case-insensitive, so every derived gate folds; we fold the haystack once.
         self._signature_gates: dict[str, Any] = {
             key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.THREAT_SIGNATURES.items()
+        }
+        self._hidden_gates: dict[str, Any] = {
+            key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.HIDDEN_TEXT_SIGNATURES.items()
         }
 
     def _calculate_shannon_entropy(self, data: str) -> float:
@@ -561,7 +598,11 @@ class SecurityLens:
             "self_propagation",
         }
     )
-    PROSE_SKIPPED_SIGNALS = CODE_STREAM_SIGNALS | {"dead_code", "safety_bypasses"}
+    # #4987: a commented-out `verify=False` is not a bypass, `atob(` in a comment is not obfuscation, and an
+    # import line in a comment imports nothing: these read the code stream too (hidden text is the
+    # exception, see HIDDEN_TEXT_SIGNATURES). Prose files still scan them -- no code stream there.
+    CODE_STREAM_SIGNALS = CODE_STREAM_SIGNALS | {"safety_bypasses", "reflection_metaprogramming", "homoglyphs"}
+    PROSE_SKIPPED_SIGNALS = (CODE_STREAM_SIGNALS - {"reflection_metaprogramming", "homoglyphs"}) | {"dead_code"}
 
     @staticmethod
     def _armor(text: str) -> tuple[str, list[int]]:
@@ -625,7 +666,8 @@ class SecurityLens:
         # first folding gate so gate-free / auto-gen files never pay for it.
         folded_safe: str | None = None
 
-        for key, regex in self.THREAT_SIGNATURES.items():
+        dead_code_lines: set[int] = set()
+        for key, regex, raw_only in self._scan_plan:
             if is_auto_gen and key == "homoglyphs":
                 counts.setdefault(key, 0)
                 snippets.setdefault(key, [])
@@ -641,7 +683,7 @@ class SecurityLens:
                 continue
 
             hay, hay_indents, hay_starts = safe_content, indents, line_starts
-            if key in self.CODE_STREAM_SIGNALS and code_stream is not None:
+            if key in self.CODE_STREAM_SIGNALS and not raw_only and code_stream is not None:
                 if code_hay is None:
                     code_safe, code_indents = self._armor(code_stream)
                     code_hay = (code_safe, code_indents, _line_starts(code_safe))
@@ -653,7 +695,7 @@ class SecurityLens:
             # one-sided (a rejection == zero matches), so the recorded counts/snippets/
             # positions are identical to running the full sweep -- we only bypass work.
             # counts.setdefault preserves any minified fast-screen hits seeded above.
-            gate = self._signature_gates.get(key)
+            gate = (self._hidden_gates if raw_only else self._signature_gates).get(key)
             if gate is not None:
                 gate_literals, gate_needs_fold = gate
                 if gate_needs_fold:
@@ -684,22 +726,23 @@ class SecurityLens:
                     line_end = hay.find("\n", match.end())
                     if not carries_homoglyph(hay[line_start : line_end if line_end >= 0 else None]):
                         continue
+                line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
+                if key == "dead_code":
+                    # #4987: one commented-out line is one finding; the `//` inside `http://` would
+                    # otherwise open a second match on the same line.
+                    if line_idx in dead_code_lines:
+                        continue
+                    dead_code_lines.add(line_idx)
                 new_hits += 1
                 snip = match.group(0).strip()
-                line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
                 if len(snippets[key]) < 3 and snip not in snippets[key]:
                     snippets[key].append(snip)
                     # The match starts inside the stripped line; add the indent back for the column.
                     col = match.start() - hay_starts[line_idx] + hay_indents[line_idx] + 1
                     sites[key].append(None if is_auto_gen else [line_idx + 1, col])
 
-                # Map the exact line indexes of critical threats for the persisted ledger (#348)
-                if not is_auto_gen and key in {
-                    "io",
-                    "high_risk_execution",
-                    "db_hooks",
-                    "hardcoded_secrets",
-                }:
+                # Map the exact line indexes of every threat for the persisted ledger (#348, #4987)
+                if not is_auto_gen:
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
@@ -719,6 +762,7 @@ class SecurityLens:
                     entropy = self._calculate_shannon_entropy(extracted_string)
                     if entropy > 4.8:
                         entropy_hits += 1
+                        positions["entropy"].append(bisect.bisect_right(line_starts, match.start()))
                         if len(entropy_snippets) < 3:
                             entropy_snippets.append(extracted_string[:60] + "...")
 

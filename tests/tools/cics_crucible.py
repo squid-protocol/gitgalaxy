@@ -754,6 +754,7 @@ class EquivalenceRunTest {
         byte[] pendingBytes;  // #4965: the bytes the last RETURN TRANSID passed on (lastAnswerBytes), for the next task
         byte[] inBytes;  // ... handed to the task about to start
         byte[] answered;  // ... and what the task that just ran answered (null: none)
+        boolean answeredByBytes;  // the task that just ran was entered by the byte overload (its answer is owed)
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
@@ -889,6 +890,7 @@ class EquivalenceRunTest {
             String program = plan.path("transactions").path(transid).asText(null);
             Map<String, Object> task = new LinkedHashMap<>(frame);
             answered = null;
+            answeredByBytes = false;
             task.remove("startcode");
             task.put("transid", transid);
             task.put("program", program);
@@ -1027,9 +1029,14 @@ class EquivalenceRunTest {
                     if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
                         end = "abend";
                     }
-                    if ("RETURN".equals(e.get("event")) && !e.containsKey("level") && e.get("commarea") != null
-                            && answered != null) {  // #4965: the bytes lastAnswerBytes() answered for this RETURN
-                        copy.put("answer_bytes", java.util.Base64.getEncoder().encodeToString(answered));
+                    if ("RETURN".equals(e.get("event")) && !e.containsKey("level") && e.get("commarea") != null) {
+                        if (answered != null) {  // #4965: the bytes lastAnswerBytes() answered for this RETURN
+                            copy.put("answer_bytes", java.util.Base64.getEncoder().encodeToString(answered));
+                        } else if (answeredByBytes && thrown == null) {
+                            // the RETURN passed a COMMAREA on, so the byte overload owes its bytes: without them the
+                            // proof would fall back to the DTO's and never see a facade that stopped assigning them
+                            thrown = "lastAnswerBytes() of " + program + " answered null for a RETURN that passes a COMMAREA";
+                        }
                     }
                     events.add(copy);
                 }
@@ -1125,6 +1132,7 @@ class EquivalenceRunTest {
                 entry(program, "handleTransaction");
                 if ((bytesOne || bytesTwo) && (viaBytes || !(dtoOne || dtoTwo))) {
                     used = bytesOne ? oneB : twoB;
+                    answeredByBytes = true;
                     usedBytes = true;  // even when it throws: the run is the byte overload's, and is compared
                     if (bytesOne) {
                         invoke(oneB, service, t.transid(), in);

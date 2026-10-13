@@ -53,7 +53,7 @@ DEFINITION: dict[str, Any] = {
     # statements, or procedures. A .inc file is Fortran on this positive evidence
     # across fixed-form and free-form Fortran constructs.
     "internal_discriminator": re.compile(
-        r"^[ \t]*COMMON\s+(?:/[^/\n]*/|[A-Za-z_])|"
+        r"^[ \t]*COMMON\s*(?:/[^/\n]*/|[A-Za-z_]\w*[ \t]*[,(])|"
         r"^[ \t]*EQUIVALENCE\s*\([^)\n]+,[^)\n]+\)|"
         r"^[ \t]*PARAMETER\s*\([^)\n]*=[^)\n]*\)|"
         r"^[ \t]*IMPLICIT[ \t]+(?:NONE\b|(?:INTEGER|REAL|CHARACTER|DOUBLE|COMPLEX|LOGICAL|BYTE)\b)|"
@@ -65,7 +65,7 @@ DEFINITION: dict[str, Any] = {
         r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+){0,3}SUBROUTINE\s+[A-Za-z_]\w*|"
         r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+|(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE[ \t]+PRECISION)(?:\*\d+|\([^)\n]+\))?[ \t]+)FUNCTION\s+[A-Za-z_]\w*|"
         r"^[ \t]*(?:PROGRAM|MODULE\s+(?!PROCEDURE\b)|SUBMODULE|BLOCK\s+DATA)\s+[A-Za-z_]\w*|"
-        r"^[ \t]*END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|DO|IF|SELECT|TYPE|INTERFACE)\b|"
+        r"^[ \t]*END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|TYPE|INTERFACE)\b|"
         r"\.(?:TRUE|FALSE|AND|OR|NOT|EQ|NE|LT|LE|GT|GE|EQV|NEQV)\.|"
         r"^[ \t]*DIMENSION[ \t]+[A-Za-z_]\w*\s*\([^)\n]+\)|"
         r"^[ \t]*DATA[ \t]+[A-Za-z_]\w*[ \t]*/[^/\n]*/|"

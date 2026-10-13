@@ -150,6 +150,10 @@ NON_FORTRAN_SAMPLES = {
         "%define BUFFER_SIZE 1024\nsection .data\nmsg: db 'hello', 0\n",
         "assembly",
     ),
+    "assembly_nasm_common": (
+        "common counter 4\nsection .bss\n",
+        "assembly",
+    ),
     "php_helper": (
         "<?php\nfunction helper($a) {\n    if ($a) { return 1; }\n    return 0;\n}\n",
         "php",

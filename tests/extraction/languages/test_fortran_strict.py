@@ -711,6 +711,8 @@ def test_fortran_internal_discriminator():
     assert not disc.search("<?php\nfunction helper($a) { return 1; }\n")
     assert not disc.search("int c;\nc = 1;\n")
     assert not disc.search("struct Point { int x; int y; };\n")
+    assert not disc.search("common counter 4\nsection .bss\n")  # NASM COMMON directive
+    assert not disc.search("/* notes */\nend if\n")
     assert not disc.search("typedef int INTEGER;\nINTEGER x;\n")
     assert not disc.search("class Register<string n> { string Name = n; }\n")
     assert not disc.search("DCL 1 CUSTREC,\n  2 NAME CHAR(30),\n  2 AGE FIXED BIN(15);\n")

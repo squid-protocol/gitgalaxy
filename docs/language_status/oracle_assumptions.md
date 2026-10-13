@@ -148,6 +148,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
 | X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
+| X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2265,6 +2266,23 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   modelled; refused by name, with its options.
 - **QUERY** (#4415 lists it): QUERY COUNTER is X29 (QUERY DCOUNTER is #4770, QUERY CHANNEL #5005); QUERY SECURITY stays refused
   (the region has no security manager).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent.
+
+### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
+- **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an
+  alternate index that has the NONUNIQUEKEY attribute, and another alternate index record with the same key follows". The
+  condition qualifies a successful read: IBM retrieves the record. The injection therefore runs the read and turns its
+  NORMAL into DUPKEY / 140 (the record moved INTO, a browse's RIDFLD set, a READ UPDATE held, as for NORMAL). A read that finds
+  no record (NOTFND, ENDFILE, LENGERR) has no DUPKEY to give: the fault does not fire (and so the run's fault log does not
+  hold it, which the harness reports). **ASSUMED:** the DUPKEY read's own RIDFLD / INTO are as NORMAL's (the pages say the
+  record is retrieved and do not say otherwise). The harness has no alternate index: the fault is planned, not derived from
+  duplicate keys in a path.
+- **DUPREC** (WRITE: RESP2 150 "adding a record whose key already exists", also a UNIQUEKEY alternate key already present;
+  REWRITE: RESP2 150, the alternate key already in the upgrade set). The write / rewrite does nothing.
+  A unique-alternate-key violation on WRITE is DUPREC 150, **not** DUPKEY: the WRITE page lists no DUPKEY.
+- **Refused by name:** DUPKEY on any other command (WRITE, REWRITE, STARTBR, ENDBR: not in their lists), DUPREC on any command
+  but WRITE / REWRITE, and an explicit RESP2 that is not IBM's. **DUPKEY on DELETE:** the DELETE page lists it (RESP2 140) but
+  does not say whether the record is deleted, so the outcome is not modelled and the fault is refused.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent.
 
 ## Language Environment

@@ -11,6 +11,8 @@ one the DNS knows nothing of, an address past a signed fullword, IPv6, and malfo
 """
 
 import itertools
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -171,14 +173,21 @@ def _cfg(fixture: str) -> str:
     return f"T {caddr} {hx(cname)} {saddr} {hx(sname)} {port} {ssl}\n"
 
 
+def _base_env() -> dict[str, str]:
+    """What the stub needs to start: Windows wants its own PATH (the MinGW runtime) and SYSTEMROOT."""
+    if os.name == "nt":
+        return {k: os.environ[k] for k in ("PATH", "SYSTEMROOT") if k in os.environ}
+    return {"PATH": "/usr/bin:/bin"}
+
+
 @needs_cc
 def test_the_stub_extracts_the_stated_connection(tmp_path):
     exe = _stub(tmp_path, _C_MAIN)
     for fixture in _FIXTURES:
         cfg = tmp_path / f"tcpip-{fixture}.cfg"
-        cfg.write_text(_cfg(fixture), encoding="ascii")
+        cfg.write_text(_cfg(fixture), encoding="ascii", newline="\n")
         env = {
-            "PATH": "/usr/bin:/bin",
+            **_base_env(),
             "GGCICS_DIR": str(tmp_path),
             "GGCICS_OUT": str(tmp_path),
             "GGCICS_TCPIP": str(cfg),
@@ -198,7 +207,7 @@ def test_the_stub_extracts_the_stated_connection(tmp_path):
                     s,
                     bad.stdout,
                 )
-    unstated = subprocess.run([str(exe), "x 16 - - - _"], env={"PATH": "/usr/bin:/bin"}, capture_output=True,  # noqa: S603
+    unstated = subprocess.run([str(exe), "x 16 - - - _"], env=_base_env(), capture_output=True,  # noqa: S603
                               text=True, check=False)  # fmt: skip
     assert unstated.returncode == 98 and "TCP/IP connection is not stated" in unstated.stdout
 
@@ -293,3 +302,11 @@ def test_the_grid_covers_every_condition_and_refusal():
 )  # fmt: skip
 def test_ibm_documented_answers(fixture, step, line):
     assert _reference(fixture, step) == line
+
+
+def test_the_stub_holds_an_ipv4_address_in_64_bits():
+    """`long` is 32 bits on Windows (LLP64): 192.168.1.5 is above 2^31, wrapped negative there, and the stub refused a
+    connection IBM answers (the Windows leg's exit 98). The number must be a `long long`."""
+    text = (Path(__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    assert "static long long ipv4_value(" in text
+    assert re.search(r"^\s*long long cnum, snum;", text, re.MULTILINE)

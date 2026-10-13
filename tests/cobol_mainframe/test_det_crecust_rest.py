@@ -4,6 +4,7 @@ DFHRESP(NOTFINISHED), and RUN TRANSID CHANNEL."""
 from __future__ import annotations
 
 import datetime
+import os
 import shutil
 import subprocess
 import sys
@@ -110,7 +111,8 @@ def test_the_ceeloct_model_against_the_calendar(tmp_path):
     days = (datetime.date(2026, 10, 1) - datetime.date(1582, 10, 14)).days
     secs = days * 86400 + 10 * 3600 + 30 * 60 + 15
     assert ok.stdout.split() == [str(days), f"{secs}.25", "20261001103015250", "0"], ok
-    refused = subprocess.run([str(tmp_path / "t")], env={}, capture_output=True, text=True)  # noqa: S603
+    bare = {k: os.environ[k] for k in ("SYSTEMROOT",) if k in os.environ} if os.name == "nt" else {}  # no clock pinned
+    refused = subprocess.run([str(tmp_path / "t")], env=bare, capture_output=True, text=True)  # noqa: S603
     assert refused.returncode == 98 and "not modelled" in refused.stderr
 
 

@@ -210,8 +210,9 @@ python tests/tools/ground_truth_ledger.py assign CAUSE 'cics-banking-sample-appl
     --kind defect --issue N --summary "..."
 ```
 
-On push to main, the scoreboard is appended to `docs/self_scan/ground_truth_history.jsonl`, but
-only when a number moved.
+On push to main (and nightly), the scoreboard is appended to `docs/self_scan/ground_truth_history.jsonl`, but
+only when a number moved; the series is published to the `generated` branch (`tests/tools/generated_branch.py`),
+not committed to main, and the copy on main is its seed.
 
 The first triage had 546 mismatches in three causes:
 

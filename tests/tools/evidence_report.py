@@ -89,6 +89,7 @@ sys.path.insert(0, str(REPO))
 
 import cics_census as cc  # noqa: E402
 import cics_spec_status as css  # noqa: E402
+import generated_branch as gb  # noqa: E402
 import evidence as ev  # noqa: E402
 import proof_blockers as pb  # noqa: E402
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, compiler_options, parse_options  # noqa: E402
@@ -1680,6 +1681,20 @@ def write(files: dict[Path, str]) -> None:
         p.write_text(text, encoding="utf-8")
 
 
+def current_texts(paths: list[Path]) -> dict[Path, str | None]:
+    """The report files as they stand: published on the `generated` branch (#4963, where the evidence-refresh bot writes
+    them), else the committed copy (the seed and the fallback when the branch is unreachable or lacks the file)."""
+    try:
+        tip = gb.fetch_tip(REPO)
+    except RuntimeError:  # no `origin` here (an export, a sandbox): the committed copy is all there is
+        tip = None
+    out: dict[Path, str | None] = {}
+    for p in paths:
+        data = gb.read_at(tip, _rel(p), REPO) if tip else None
+        out[p] = data.decode("utf-8") if data is not None else (p.read_text("utf-8") if p.is_file() else None)
+    return out
+
+
 def _rel(p: Path) -> str:
     return p.resolve().relative_to(REPO).as_posix() if inside_repo(p) else str(p)
 
@@ -1722,7 +1737,8 @@ def main(argv: list[str] | None = None) -> int:
         stale_failed = False
         built = rebuilt(args.live)
         want = expected(args.live, built)
-        bad = [p for p, text in want.items() if not p.is_file() or p.read_text("utf-8") != text]
+        have = current_texts(list(want))
+        bad = [p for p, text in want.items() if have[p] != text]
         extra = [p for p in OUT.glob("*/*") if p.is_file() and p not in want]
         if args.live:  # #4730: the release gate never quotes a stale level as current
             for e, prog, lv, sha, ins in stale_levels(True, built):

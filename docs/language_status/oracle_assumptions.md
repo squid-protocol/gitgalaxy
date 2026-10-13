@@ -634,6 +634,13 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   `Cobol.moveNonDigit`: "... a zoned item with a P scaling position ... is not modelled"); a digit-only P item is read
   as ever (PSCALE, `test_det_programs.py`). Tested over `99PP`, `S99PP`, `VPP99`, `SVPP99` x MOVE to zoned / packed /
   binary / edited, ADD, SUBTRACT, COMPUTE, comparison (`test_det_nondigit_zoned.py`).
+  The rest of the sender class (#4996): MULTIPLY / DIVIDE operands go through the same `Zoned.operand` (refused, tested);
+  a P item as the receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is the dirty-receiver refusal above (tested); DISPLAY of a
+  P-scaled item (cobc prints the P positions' zeros as digits, `[0012]` for `99PP` holding `12`; IBM the stored bytes)
+  and `INITIALIZE ... REPLACING` with a P-scaled sender are translation holes by name, digit-only or not (#4670);
+  STRING, reference modification and MOVE to alphanumeric read the bytes, as cobc does (modelled, byte-exact). A
+  digit-only P item's value is cobc's on every arithmetic / compare / MOVE read (`nondigit_zoned_p_expected.txt`, 270
+  cobc-measured cases; a left-P MOVE to binary is left out, cobc hangs on it even digit-only).
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,

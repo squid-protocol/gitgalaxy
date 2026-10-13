@@ -305,6 +305,10 @@ PREADS = [
     "COMPUTE BN = S",
     "IF S = 0 DISPLAY 'z' END-IF",
     "IF S > 5 DISPLAY 'g' END-IF",
+    "MULTIPLY S BY DS",
+    "MULTIPLY 2 BY S GIVING DS",
+    "DIVIDE S INTO DS",
+    "DIVIDE DS BY S GIVING DU",
 ]
 
 
@@ -339,6 +343,129 @@ def test_a_p_scaled_digit_only_sender_is_read_as_ever(pic, tmp_path):
     assert run.returncode == 0, run.stderr
 
 
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("pic", PICS)
+@pytest.mark.parametrize("op", ["ADD 1 TO S", "SUBTRACT 1 FROM S", "MULTIPLY 2 BY S", "DIVIDE 2 INTO S"])
+def test_a_p_scaled_non_digit_receiver_is_refused_by_name(pic, op, tmp_path):
+    """The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is read by cobc too (#4889): a P item is refused as any."""
+    pytest.importorskip("tree_sitter_language_pack")
+    data = b"1!" if pic.startswith(("PIC S", "PIC SV")) else b"1A"
+    run = _det(_pprogram(pic, op, data), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+def _holes(src: str, work: Path) -> list[str]:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (work / "NDB.cbl").write_text(src)
+    (work / "project").mkdir()
+    r = P.translate(work / "NDB.cbl", [], "public class NdbService {\n}\n", "p", None, work / "project")
+    return list(r.stats["holes"])
+
+
+@pytest.mark.parametrize("pic", PICS)
+@pytest.mark.parametrize("data", [b"12", b"1A", b"  "])
+@pytest.mark.parametrize(
+    ("op", "hole"),
+    [("DISPLAY '[' S ']'", "a P-scaled item's DISPLAY form (#4670)"),
+     ("INITIALIZE N REPLACING NUMERIC BY S", "INITIALIZE REPLACING")],
+)  # fmt: skip
+def test_a_p_scaled_display_and_initialize_replacing_are_refused_by_name(pic, data, op, hole, tmp_path):
+    """DISPLAY of a P-scaled item (cobc prints the P positions' zeros as digits, IBM the stored bytes) and a P-scaled
+    INITIALIZE ... REPLACING sender are holes at translation, digit-only or not (#4996)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _holes(_pprogram(pic, op, data), tmp_path)
+    assert len(holes) == 1 and hole in holes[0], holes
+
+
+# #4996: what reads a P item as bytes or as a digit-only number. Each case is `pic|data|op`; the op's lines print
+# through DSX / DUX / BX (the receivers' bytes) so no DISPLAY form of a signed number is in play.
+BYTE_READS = {
+    "string": "STRING S DELIMITED BY SIZE INTO X", "refmod": "MOVE S(1:1) TO X", "movex": "MOVE S TO X",
+}  # fmt: skip
+VALUE_READS = {
+    "mulby": "MOVE 3 TO DS\n           MULTIPLY S BY DS", "mulgiv": "MULTIPLY 2 BY S GIVING DS",
+    "divinto": "MOVE 900000 TO DS\n           DIVIDE S INTO DS", "divby": "MOVE 1000 TO DS\n           DIVIDE DS BY S GIVING DU",
+    "add": "MOVE 3 TO DS\n           ADD S TO DS", "sub": "MOVE 50 TO DS\n           SUBTRACT S FROM DS",
+    "comp": "COMPUTE DS = S + 1", "du": "MOVE S TO DU", "bn": "MOVE S TO BN",
+    "gt": "IF S > 5 MOVE 'g' TO X ELSE MOVE 'l' TO X END-IF", "eq": "IF S = 0 MOVE 'z' TO X ELSE MOVE 'n' TO X END-IF",
+}  # fmt: skip
+
+
+def _pdata(pic: str, dirty: bool) -> list[bytes]:
+    signed = pic.startswith(("PIC S", "PIC SV"))
+    if not dirty:
+        return [b"12", b"07", b"1J"] if signed else [b"12", b"07"]
+    # a byte read copies a non-digit as it is; a sign byte that is no overpunch ('!') cobc rewrites, even in a MOVE to
+    # an alphanumeric item (a signed zoned item of any shape, not P-specific: a sibling gap of #4996)
+    return [b"1A", b"  ", b"0J"] if signed else [b"1A", b"  "]
+
+
+# a left-P item MOVEd to a binary one makes cobc 3.1.2 hang even digit-only: not measurable, so not a case
+P_CASES = (
+    [(pic, d, op) for pic in PICS for d in _pdata(pic, False) for op in VALUE_READS if not (op == "bn" and "VPP" in pic)]
+    + [(pic, d, op) for pic in PICS for d in _pdata(pic, True) for op in BYTE_READS]
+)  # fmt: skip
+P_EXPECTED = Path(__file__).with_name("nondigit_zoned_p_expected.txt")
+
+
+def _vprogram(pic: str, op: str, data: bytes) -> str:
+    body = (BYTE_READS | VALUE_READS)[op]
+    lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+             "       WORKING-STORAGE SECTION.", "       01 R PIC X(2).", f"       01 S REDEFINES R {pic}.",
+             "       01 X PIC X(6) VALUE 'abcdef'.", "       01 DU PIC 9(7).", "       01 DUX REDEFINES DU PIC X(7).",
+             "       01 DS PIC S9(7).", "       01 DSX REDEFINES DS PIC X(7).", "       01 BN PIC S9(9) COMP.",
+             "       01 EW PIC -9(12).", "       PROCEDURE DIVISION.", f"           MOVE X'{data.hex().upper()}' TO R",
+             f"           {body}", "           MOVE BN TO EW", "           DISPLAY '[' X '][' DUX '][' DSX '][' EW '][' R ']'",
+             "           GOBACK.", ""]  # fmt: skip
+    return "\n".join(lines)
+
+
+def _pkey(case: tuple[str, bytes, str]) -> str:
+    return f"{case[0]}|{case[1].hex()}|{case[2]}"
+
+
+def _pexpected() -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    key = ""
+    for line in P_EXPECTED.read_text().split("\n"):
+        if line.startswith("== "):
+            key = line[3:]
+            out[key] = []
+        elif key and line != "== end":
+            out[key].append(line)
+    return out
+
+
+def _pcobc(case: tuple[str, bytes, str], work: Path) -> str:
+    (work / "ndb.cbl").write_text(_vprogram(case[0], case[2], case[1]))
+    run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c",  # noqa: S607
+                          f"cobc -x -std=ibm -fsign=EBCDIC {FLAGS['STD']} ndb.cbl -o ndb 2>&1 && timeout 10 ./ndb"],
+                         capture_output=True, check=False, timeout=120)  # fmt: skip
+    text = run.stdout.decode("latin-1")
+    assert run.returncode == 0, text
+    return "".join(x for x in text.splitlines(keepends=True) if not x.startswith("ndb.cbl:"))  # cobc's warnings
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("case", P_CASES, ids=_pkey)
+def test_p_scaled_reads_that_are_modelled_are_the_oracles(case, tmp_path):
+    """#4996: a digit-only P item's value (every arithmetic, compare and MOVE read, TRUNC STD) and a P item's bytes
+    through STRING / reference modification / MOVE to alphanumeric, digit-only or not, print what cobc printed."""
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_vprogram(case[0], case[2], case[1]), tmp_path, "STD")
+    assert run.returncode == 0, run.stderr
+    assert _esc(run.stdout) == _pexpected()[_pkey(case)]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
+                    reason="needs Docker (EQUIVALENCE_E2E=1)")  # fmt: skip
+@pytest.mark.parametrize("case", P_CASES[::7], ids=_pkey)
+def test_the_p_expected_lines_are_cobcs(case, tmp_path):
+    assert _esc(_pcobc(case, tmp_path)) == _pexpected()[_pkey(case)]
+
+
 if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the receiver file) from cobc
     import tempfile
 
@@ -354,3 +481,8 @@ if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the recei
             with tempfile.TemporaryDirectory() as d:
                 parts += [f"== {k} {t}", *_esc(_rcobc(k, t, Path(d))), "== end"]
     RECEIVER_EXPECTED.write_text("\n".join(parts) + "\n")
+    parts = []
+    for c in P_CASES:
+        with tempfile.TemporaryDirectory() as d:
+            parts += [f"== {_pkey(c)}", *_esc(_pcobc(c, Path(d))), "== end"]
+    P_EXPECTED.write_text("\n".join(parts) + "\n")

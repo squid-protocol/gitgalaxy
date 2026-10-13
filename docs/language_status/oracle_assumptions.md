@@ -2130,9 +2130,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   String or number field passed as the COMMAREA (a value, the same as a copy).
 - **Aliases (#4957).** The det port marks an XCTL whose COMMAREA lies inside any LINKAGE 01 record, not only DFHCOMMAREA: a CALLed
   subprogram's USING record (`CALL 'SUB' USING DFHCOMMAREA`) is the LINK caller's storage under another name, and refuses by the
-  same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is a
-  translation hole ("SET ADDRESS OF (pointers)"), so that alias never runs; the oracle's `ggcics.c` compares addresses, so it
-  refuses every alias form.
+  same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is
+  translated since #4771 (X47) and its record is a LINKAGE 01 record like any other, so it carries the same mark and refuses
+  by the same runtime check; the oracle's `ggcics.c` compares addresses, so it refuses every alias form.
 - **Status:** REFUSED. When IBM's reference or a system run settles it, replace the refusal with the model.
 
 ### X40. A failed XCTL / LINK the program neither handles nor checks abends with the condition's code (NOTAUTH: AEY7); a planned LINK fault (#4648)

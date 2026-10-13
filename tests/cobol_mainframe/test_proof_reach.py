@@ -271,10 +271,14 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
     # #4870 re-ran the same 13 after the byte-carrying handleTransaction overload joined every region facade (seed 0, 24
     # mutants each; the added code moved the sample): 7 flagged survivors, all unreachable -- 4 in that overload
-    # (CALINK, CAXA x2, GTSTART: the crucible enters by handleTransaction(String, T) only, so no scenario calls it; its
-    # bytes are covered by the runtime and facade tests) plus HCQREAD's overload name literal, and the dead helpers
-    # CASUB writeqTsXatrace and HCQREAD readqTsHcwork.
-    assert len(flagged) == 7 and verdicts.count("unreachable") == 7
+    # (CALINK, CAXA x2, GTSTART: the crucible entered by handleTransaction(String, T) only), HCQREAD's overload name
+    # literal, and the dead helpers CASUB writeqTsXatrace and HCQREAD readqTsHcwork.
+    # #4965 made the crucible's java-facade side run every scenario through that overload too (the previous RETURN's
+    # bytes in, lastAnswerBytes() out, compared with the instrument's bytes), and re-ran those 4 ports: the overload
+    # literal (HCQREAD) and CAXA's accessor mutant died, 5 flagged survivors remain. The dead helpers stay unreachable;
+    # the 3 `lastAnswerBytes = task.returnedBytes()` deletions (CALINK, CAXA, GTSTART) are re-triaged equivalent, not
+    # unreachable: their programs RETURN TRANSID with no COMMAREA, so the bytes they answer are null either way.
+    assert len(flagged) == 5 and verdicts.count("unreachable") == 2 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 
@@ -285,7 +289,7 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
     expected = {
         "CALINK": (14, 8),
         "CASUB": (15, 9),
-        "CAXA": (13, 8),
+        "CAXA": (14, 7),
         "CAXB": (17, 6),
         "GTSTART": (15, 7),
         "GTWORK": (17, 4),
@@ -293,17 +297,17 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
         "GTTERM": (10, 11),
         "HCMAIN": (12, 11),
         "HCSUB": (18, 6),
-        "HCQREAD": (13, 8),
+        "HCQREAD": (14, 7),
         "HXATTR": (17, 5),
         "HXEXT": (16, 7),
-    }  # fmt: skip  (#4870: re-run after the byte-carrying facade overload; the floor is the measured one)
+    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD: measured)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 194 and sum(s for _, s in expected.values()) == 96
+    assert sum(k for k, _ in expected.values()) == 196 and sum(s for _, s in expected.values()) == 94
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

@@ -1111,3 +1111,55 @@ def test_the_java_test_enters_tasks_through_the_facades_only_when_asked():
     assert '"handleTransaction"' in src and '"handleLink"' in src
     assert "did not run its task in the region" in src and "that is not the one the scenario starts" in src
     assert "java-facade" in cc.SIDES
+
+
+# ---- #4965: the byte-carrying handleTransaction overload ---------------------------------------
+
+
+def test_the_java_test_drives_the_byte_overload_and_reads_lastAnswerBytes():
+    """#4965: where a service has handleTransaction(String, [T,] byte[]) the scenario's first task enters through it
+    -- the previous RETURN's bytes in -- and lastAnswerBytes() is read back; overloads are told apart by their last
+    parameter (a DTO-less (String, byte[]) is not the (String, T) of the same arity)."""
+    src = runner._JAVA_TEST
+    assert "static Method facade(Object service, String name, int params, boolean bytes)" in src
+    assert '"handleTransaction", 2, true' in src and '"handleTransaction", 3, true' in src
+    # both overloads are entered: the scenario runs once by the DTO one, then again by the byte one (#4965)
+    assert "new Scenario(plan, sc, false)" in src and "new Scenario(plan, sc, true)" in src and '".bytes.json"' in src
+    assert 'm.getName().equals("lastAnswerBytes")' in src and "answered = (byte[]) invoke(a0, service)" in src
+    assert 'copy.put("answer_bytes"' in src and "pendingBytes = abended || transid == null ? null : answered;" in src
+    assert (
+        'facade(service, "handleTransaction", 1, false)' in src
+        and 'facade(service, "handleTransaction", 2, false)' in src
+    )
+    assert "(m.getParameterTypes()[params - 1] == byte[].class) == bytes" in src
+
+
+def test_the_equivalence_harness_drives_the_byte_overload_too():
+    src = ec.FACADE_JAVA
+    assert (
+        'facade(service, "handleTransaction", 3, true)' in src
+        and 'facade(service, "handleTransaction", 2, true)' in src
+    )
+    assert "is not the bytes its RETURN passes on" in src and "scenario.returnedBytes()" in src
+
+
+def test_the_answered_bytes_are_what_the_returns_commarea_is_compared_by():
+    """The DTO cannot hold a numeric DISPLAY field of spaces (reads it as 0); the bytes lastAnswerBytes() answers can,
+    and they -- not the bytes encoded from the DTO -- decide against the instrument's hex."""
+    import base64
+
+    dto = cc.FieldArea({"WS-N": Decimal(0)}, cc.FULL, bytes.fromhex("F0F0"), 2)
+    spaces = base64.b64encode(bytes.fromhex("4040")).decode()
+    w = cc._Walk(ALL, cc.Context(layouts={}))
+    exp = {"length": 2, "hex": "4040"}
+    with pytest.raises(cc._Decided, match="commarea byte 0"):
+        w.area("here", "commarea", exp, dto)  # the DTO's own bytes: zeros, not the instrument's spaces
+    w.area("here", "commarea", exp, runner._with_answered_bytes(dto, spaces))  # no exception: the answered bytes
+    wrong = base64.b64encode(bytes.fromhex("4041")).decode()
+    with pytest.raises(cc._Decided, match="commarea byte 1"):
+        w.area("here", "commarea", exp, runner._with_answered_bytes(dto, wrong))
+    # nothing answered (a port that passes no bytes), or no DTO area (no COMMAREA): untouched
+    assert runner._with_answered_bytes(dto, None) is dto
+    assert runner._with_answered_bytes(None, spaces) is None
+    raw = cc.RawArea(b"\x40", E)
+    assert runner._with_answered_bytes(raw, spaces) is raw

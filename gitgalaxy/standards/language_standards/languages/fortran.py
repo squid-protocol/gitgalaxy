@@ -48,6 +48,36 @@ DEFINITION: dict[str, Any] = {
     ],
     # EXECUTION SIGNATURES: Interpreters found on Line 1 for modern Fortran "scripting" wrappers.
     "shebangs": ["fortran", "f90", "f77", "gfortran"],
+    # #4974: internal discriminator for shared extensions (.inc).
+    # Fortran include files (.inc) frequently define common blocks, specification
+    # statements, or procedures. A .inc file is Fortran on this positive evidence
+    # across fixed-form and free-form Fortran constructs.
+    "internal_discriminator": re.compile(
+        r"^[ \t]*COMMON\s+(?:/[^/\n]*/|[A-Za-z_])|"
+        r"^[ \t]*EQUIVALENCE\s*\([^)\n]+,[^)\n]+\)|"
+        r"^[ \t]*PARAMETER\s*\([^)\n]*=[^)\n]*\)|"
+        r"^[ \t]*IMPLICIT[ \t]+(?:NONE\b|(?:INTEGER|REAL|CHARACTER|DOUBLE|COMPLEX|LOGICAL|BYTE)\b)|"
+        r"^[ \t]*DOUBLE[ \t]+(?:PRECISION|COMPLEX)\b|"
+        r"^[ \t]*(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS)\b[^;\n]*::|"
+        r"^[ \t]*(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|BYTE)\s*\*\s*(?:\d+|\([^)\n]+\))|"
+        r"^[ \t]*(?:INTEGER|REAL|LOGICAL|COMPLEX|BYTE)[ \t]+[A-Za-z_]\w*(?:\s*\([^)\n]+\))?(?:[ \t]*,[ \t]*[A-Za-z_]\w*(?:\s*\([^)\n]+\))?){0,50}[ \t]*(?:!.*)?$|"
+        r"^[ \t]*CHARACTER\s*(?:\*\s*(?:\d+|\([^)\n]+\))|\([^)\n]+\))?[ \t]+[A-Za-z_]\w*|"
+        r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+){0,3}SUBROUTINE\s+[A-Za-z_]\w*|"
+        r"^[ \t]*(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+|(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE[ \t]+PRECISION)(?:\*\d+|\([^)\n]+\))?[ \t]+)FUNCTION\s+[A-Za-z_]\w*|"
+        r"^[ \t]*(?:PROGRAM|MODULE\s+(?!PROCEDURE\b)|SUBMODULE|BLOCK\s+DATA)\s+[A-Za-z_]\w*|"
+        r"^[ \t]*END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|DO|IF|SELECT|TYPE|INTERFACE)\b|"
+        r"\.(?:TRUE|FALSE|AND|OR|NOT|EQ|NE|LT|LE|GT|GE|EQV|NEQV)\.|"
+        r"^[ \t]*DIMENSION[ \t]+[A-Za-z_]\w*\s*\([^)\n]+\)|"
+        r"^[ \t]*DATA[ \t]+[A-Za-z_]\w*[ \t]*/[^/\n]*/|"
+        r"^[ \t]*(?:\d+[ \t]+)?FORMAT\s*\([^)\n]*\)|^[ \t]*PRINT\s*\*\s*,|^[ \t]*WRITE\s*\(\s*\*\s*,\s*\*|"
+        r"^[ \t]*CONTAINS[ \t]*$|^[ \t]*INTERFACE(?:\s+[A-Za-z_]\w*|\s*$)",
+        re.M | re.I,
+    ),
+    # #4974: the shared .inc extension. Fortran is Tier-2 proven by the
+    # `internal_discriminator` above or it is not a candidate for these extensions in
+    # the Tier-3 lexical scan: a neighbourhood vote cannot confer Fortran with no
+    # Fortran marker, and its broad rules do not outscore rival claimants (C/C++/Assembly/PHP).
+    "extensions_needing_discriminator": [".inc"],
     # UPGRADED: Maps to Family 7 (The Positional Ancients)
     # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
     "lexical_family": "positional_anchored",

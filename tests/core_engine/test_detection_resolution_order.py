@@ -53,7 +53,7 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
     ".ddl": [("sqlite", "-"), ("db2_sql", "D")],
     ".dml": [("sqlite", "-"), ("db2_sql", "D")],
     ".h": [("c", "-"), ("objective-c", "D")],
-    ".inc": [("cpp", "-"), ("c", "-"), ("php", "D"), ("fortran", "-"), ("assembly", "-")],
+    ".inc": [("cpp", "-"), ("c", "-"), ("php", "D"), ("fortran", "D"), ("assembly", "-")],
     ".m": [("matlab", "D"), ("objective-c", "D")],
     ".mac": [("hlasm", "D"), ("easytrieve", "-")],
     ".map": [("bms", "D")],
@@ -65,7 +65,7 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
 # The extensions where TWO claimants both carry a discriminator, i.e. where
 # registry order decides which content check runs first. Kept as its own pin
 # because this is the set that needs re-adjudicating when a language is added.
-_ORDER_CRITICAL_EXTENSIONS = {".cmd", ".m", ".py"}
+_ORDER_CRITICAL_EXTENSIONS = {".cmd", ".inc", ".m", ".py"}
 
 
 def _claimants_in_registry_order(ext: str) -> list[tuple[str, str]]:
@@ -144,11 +144,12 @@ _COLLISION_CONTENT: dict[str, str] = {
     ),
     "yacc": "%token NUM\n%%\nexpr: expr '+' NUM { $$ = $1 + $3; }\n    | NUM\n    ;\n%%\n",
     "php": "<?php\nfunction helper($a) {\n    return $a + 1;\n}\n",
+    "fortran": "      INTEGER I\n      COMMON /BLK/ I\n",
 }
 
 # (extension, content-language, expected winner). Only the pairs whose correct
 # answer is independently verifiable from the content are asserted; the remaining
-# non-discriminator `.inc` claimants (cpp/c/fortran/assembly) and `.cshtml` are
+# non-discriminator `.inc` claimants (cpp/c/assembly) and `.cshtml` are
 # omitted from this table because they resolve through the Tier 3 lexical scan.
 _COLLISION_CASES = [
     (".asm", "hlasm", "hlasm"),
@@ -164,6 +165,7 @@ _COLLISION_CASES = [
     (".h", "c", "c"),
     (".h", "objective-c", "objective-c"),
     (".inc", "php", "php"),
+    (".inc", "fortran", "fortran"),
     (".m", "matlab", "matlab"),
     (".m", "objective-c", "objective-c"),
     (".py", "python", "python"),

@@ -1593,8 +1593,27 @@ class Gen:
         with self.reading():
             return self._move_from(src, ft, target)
 
+    def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
+        """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
+        Reference, MOVE, "Valid and invalid elementary moves" (Table 51), numeric noninteger sending item to an
+        alphabetic / alphanumeric / alphanumeric-edited receiver: NO, a compile error on z/OS (an integer one,
+        a right-P item too, is valid: each P counts as a zero). GnuCOBOL accepts it with a warning (register C11)."""
+        if src.refmod is not None:
+            return
+        try:
+            it, tt = self.resolve(src), self.resolve(target)
+        except Untranslatable:
+            return
+        if it.category == "NUMERIC" and it.scale > 0 and tt.category in ("ALPHABETIC", "ALPHANUMERIC",
+                                                                         "ALPHANUMERIC-EDITED"):  # fmt: skip
+            raise Untranslatable(
+                f"MOVE {src.name} (PIC {it.pic}, a noninteger numeric item) to the {tt.category.lower()} "
+                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 51; C11)"
+            )
+
     def _move_from(self, src, ft: str, target: E.Ref) -> str:
         if isinstance(src, E.Ref):
+            self.noninteger_to_text(src, target)
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
         if isinstance(src, E.Lit):
             if isinstance(src.value, Decimal):
@@ -2591,6 +2610,8 @@ class Gen:
         d = s.data
         parts = []
         for sources, delim in d["parts"]:
+            for src in (*sources, *([delim] if delim is not None else [])):
+                self.string_sender(src)
             for src in sources:
                 a = self.str_arg(src)
                 a_field = isinstance(src, E.Ref)  # a data item is a Field; a literal / function, its text
@@ -2636,6 +2657,23 @@ class Gen:
         call = (f"Cobol.unstring({self.field_expr(d['src'])}, {ptr}, {tal}, java.util.List.of({', '.join(delims)}), "
                 f"CS, {', '.join(intos)})")  # fmt: skip
         return self.overflow(s, call, ind)
+
+    def string_sender(self, e) -> None:
+        """Refuse a numeric STRING sender that is not an integer without a P (#4996): Enterprise COBOL 6.4 Language
+        Reference, STRING: "If identifier-1 or identifier-2 references a data item of category numeric, each numeric
+        item must be described as an integer without the symbol 'P' in its PICTURE character-string" -- a compile
+        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric."""
+        if not isinstance(e, E.Ref) or e.refmod is not None:
+            return
+        try:
+            it = self.resolve(e)
+        except Untranslatable:
+            return
+        if it.category == "NUMERIC" and (it.p_scaled or it.scale > 0):
+            raise Untranslatable(
+                f"STRING sender {e.name}, PIC {it.pic}: a numeric item with a P or a decimal place is "
+                f"a compile error in Enterprise COBOL (Language Reference, STRING; C11)"
+            )
 
     def str_arg(self, e) -> str:
         """A STRING / INSPECT operand: a Field (an expression starting `f`) or a Java String."""

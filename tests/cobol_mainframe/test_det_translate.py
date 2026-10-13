@@ -1472,6 +1472,78 @@ def test_web_receive_reads_the_body_of_the_stated_request():
             c.command(bad, "")
 
 
+class _PtrCics(_ChanCics):
+    """#4771 (X47): PTR a USAGE POINTER, OVER-PTR one a REDEFINES overlays, TBL-PTR one in a table, REC an alphanumeric."""
+
+    SIZES = {**_ChanCics.SIZES, "INIT": 1, "TWO": 2}
+
+    def __init__(self):
+        super().__init__()
+        import types
+
+        from gitgalaxy.tools.cobol_to_java.det import layout as L
+        from gitgalaxy.tools.cobol_to_java.det.gen import Gen
+
+        items = {"PTR": L.Item(1, "PTR", "WORKING-STORAGE", usage="POINTER"),
+                 "OVER-PTR": L.Item(1, "OVER-PTR", "WORKING-STORAGE", usage="POINTER"),
+                 "TBL-PTR": L.Item(5, "TBL-PTR", "WORKING-STORAGE", usage="POINTER", occurs=3),
+                 "REC": L.Item(1, "REC", "WORKING-STORAGE"), "INIT": L.Item(1, "INIT", "WORKING-STORAGE"),
+                 "TWO": L.Item(1, "TWO", "WORKING-STORAGE")}  # fmt: skip
+        self.g.resolve = lambda ref: items[ref.name]
+        self.g.field_expr = lambda ref: f"f_{ref.name}"
+        self.g.overlaid_pointers = {"OVER-PTR"}
+        self.g.pointer_item = types.MethodType(Gen.pointer_item, self.g)
+
+
+def test_getmain_and_freemain_work_on_task_storage_through_a_pointer():
+    """#4771 (register X47), IBM GETMAIN / FREEMAIN: GETMAIN SET FLENGTH INITIMG puts the new block's handle in the pointer
+    (LENGERR 1 sets it to zero); FREEMAIN DATAPOINTER releases it (INVREQ 1 for an address GETMAIN did not return). The
+    pointer is a plain USAGE POINTER, INITIMG a one-byte data area; IBM's "no default initialization" makes INITIMG required."""
+    out = _PtrCics().command("GETMAIN SET(PTR) FLENGTH(N) INITIMG(INIT) NOHANDLE", "")
+    assert out[0] == "int[] storage1 = DetCics.getmain(task, f_PTR, INT(N), false, f_INIT);"
+    assert out[1] == "OUTCOME(storage1[0], storage1[1]);"
+    out = _PtrCics().command("GETMAIN SET(PTR) LENGTH(100) INITIMG(INIT) USERDATAKEY BELOW", "")
+    assert out[0] == "int[] storage1 = DetCics.getmain(task, f_PTR, INT(100), true, f_INIT);"
+    out = _PtrCics().command("FREEMAIN DATAPOINTER(PTR) RESP(R)", "")
+    assert out == ["int[] storage1 = task.freemain(DetCics.pointerValue(f_PTR));", "OUTCOME(storage1[0], storage1[1]);"]
+    for bad, why in (
+        ("GETMAIN FLENGTH(N) INITIMG(INIT)", "without SET"),
+        ("GETMAIN SET(PTR) INITIMG(INIT)", "one of FLENGTH / LENGTH"),
+        ("GETMAIN SET(PTR) FLENGTH(N) LENGTH(N) INITIMG(INIT)", "one of FLENGTH / LENGTH"),
+        ("GETMAIN SET(PTR) FLENGTH(N)", "without INITIMG"),
+        ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(X'00')", "INITIMG as a literal"),
+        ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(TWO)", "INITIMG is not one byte"),
+        ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(INIT) USERDATAKEY CICSDATAKEY", "both USERDATAKEY and CICSDATAKEY"),
+        ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(INIT) SHARED", "SHARED: SHARED storage"),
+        ("GETMAIN SET(PTR) FLENGTH(N) INITIMG(INIT) NOSUSPEND", "NOSUSPEND: storage unavailable"),
+        ("GETMAIN SET(REC) FLENGTH(N) INITIMG(INIT)", "not a plain USAGE POINTER"),
+        ("GETMAIN SET(TBL-PTR) FLENGTH(N) INITIMG(INIT)", "not a plain USAGE POINTER"),
+        ("GETMAIN SET(OVER-PTR) FLENGTH(N) INITIMG(INIT)", "REDEFINES overlays"),
+        ("FREEMAIN", "without DATAPOINTER"),
+        ("FREEMAIN DATA(REC)", "DATA: "),
+        ("FREEMAIN DATAPOINTER(OVER-PTR)", "REDEFINES overlays"),
+    ):
+        with pytest.raises(C.CicsError, match=why):
+            _PtrCics().command(bad, "")
+
+
+def test_web_receive_set_puts_the_body_in_a_block_the_pointer_addresses():
+    """#4771 (X47), IBM WEB RECEIVE (server) SET: the body goes into storage CICS hands the program (the pointer), LENGTH is
+    the bytes returned and must be given; MAXLENGTH is optional with SET (all the remaining data)."""
+    w = _PtrCics().command("WEB RECEIVE SET(PTR) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
+    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(INT(R2), Integer.MAX_VALUE);"
+    assert "DetCics.receivedBlock(task, f_PTR, web1.body(), CS);" in " ".join(w) and "STORE(R, " in " ".join(w)
+    w = _PtrCics().command("WEB RECEIVE SET(PTR) LENGTH(R)", "")
+    assert w[0] == "CicsTask.WebReceived web1 = task.webReceive(Integer.MAX_VALUE, Integer.MAX_VALUE);"
+    for bad, why in (("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "SET without LENGTH"),
+                     ("WEB RECEIVE SET(REC) LENGTH(R)", "not a plain USAGE POINTER"),
+                     ("WEB RECEIVE SET(OVER-PTR) LENGTH(R)", "REDEFINES overlays"),
+                     ("WEB RECEIVE INTO(REC) SET(PTR) LENGTH(R) MAXLENGTH(R)", "one of INTO / SET"),
+                     ("WEB RECEIVE SET(PTR) LENGTH(R) NOTRUNCATE", "NOTRUNCATE")):  # fmt: skip
+        with pytest.raises(C.CicsError, match=why):
+            _PtrCics().command(bad, "")
+
+
 def test_web_read_and_write_httpheader_are_the_servers_headers():
     """#4767 zECS (register X38), IBM WEB READ HTTPHEADER / WEB WRITE HTTPHEADER (server): READ takes the name area's text, its
     NAMELENGTH, VALUELENGTH and VALUE's size, writes VALUE and VALUELENGTH on NORMAL only; WRITE takes the name and value texts

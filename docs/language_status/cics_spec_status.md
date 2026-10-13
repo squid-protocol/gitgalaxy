@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 85 full, 2 engine-only, 168 name-only.
+**255 entries:** 87 full, 2 engine-only, 166 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -70,6 +70,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WRITEQ TS | full | yes (14 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | ca-channel-containers, ca-link-lengths, gt-assign-startcode, gt-start-options, gt-start-retrieve, hc-perform-range, pc-wizard |
 | READQ TS | full | yes (11 options, 2 refused by name) | yes | — | — | 5 (4 / 1) | hc-abend-link, hc-perform-range |
 | DELETEQ TS | full | yes (6 options, 1 refused by name) | yes | X29 | — | 2 (2 / 0) | — |
+| GETMAIN | full | yes (11 options, 2 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
+| FREEMAIN | full | yes (4 options, 1 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
 | ENQ | full | yes (9 options) | yes | — | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |
@@ -92,11 +94,11 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB CONVERSE | full | yes (23 options, 8 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
 | WEB CLOSE | full | yes (4 options) | yes | X35 | http_peers | 4 (4 / 0) | — |
 | WEB PARSE URL | full | yes (13 options, 1 refused by name) | yes | X36 | — | 3 (3 / 0) | — |
-| WEB SEND | full | yes (13 options, 9 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
+| WEB SEND | full | yes (14 options, 8 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |
 | WEB EXTRACT | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 1 (1 / 0) | — |
 | EXTRACT WEB | full | yes (16 options, 5 refused by name) | yes | X38 | http_request | 0 | — |
 | EXTRACT TCPIP | full | yes (17 options, 7 refused by name) | yes | X38 | tcpip | 0 | — |
-| WEB RECEIVE | full | yes (9 options, 10 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
+| WEB RECEIVE | full | yes (10 options, 9 refused by name) | yes | X38, X47 | http_request | 2 (1 / 1) | — |
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB RETRIEVE | full | yes (4 options) | yes | X41 | http_request | 0 | — |
@@ -120,8 +122,6 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 
 | command | census use | crucible cases |
 |---|---|---|
-| FREEMAIN | 2 (2 / 0) | — |
-| GETMAIN | 2 (2 / 0) | — |
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
 165 more name-only entries no census program uses.

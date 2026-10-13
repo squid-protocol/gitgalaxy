@@ -3954,6 +3954,175 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
     assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 5
 
 
+# ---- #4771 zECS (register X47): the pointer lane -- GETMAIN, FREEMAIN, WEB RECEIVE SET ----------------------------------------
+# A step a word-line, run alike by the stub (C) and CicsTask (Java): pointer slots 0 and 1; `gm SLOT LENGTH SHORT INIT` GETMAIN
+# (SHORT 1: the LENGTH form; INIT the INITIMG byte), `fm SLOT` FREEMAIN, `rs SLOT MAX` WEB RECEIVE SET (MAX -: no MAXLENGTH),
+# `adr SLOT` the pointer set to a record's address, `nul SLOT` to NULL, `rd SLOT N` the first N bytes of the storage (hex). The
+# request is the "full" fixture of X38 (body "hello world!", text/plain) unless the case says "bare" (no body).
+_X47_CASES = [  # (fixture, steps, what both runtimes answer; a last answer that is no step line is a refusal)
+    ("full", ["gm 0 8 0 255", "rd 0 4"], ["gm 0/0", "rd FFFFFFFF"]),
+    ("full", ["gm 0 8 0 0", "rd 0 8"], ["gm 0/0", "rd 0000000000000000"]),
+    ("full", ["gm 0 100 1 65", "rd 0 3"], ["gm 0/0", "rd 414141"]),
+    ("full", ["gm 0 0 0 0"], ["gm 22/1"]),
+    ("full", ["gm 0 -5 0 0"], ["gm 22/1"]),
+    ("full", ["gm 0 0 1 0"], ["gm 22/1"]),
+    ("full", ["gm 0 65520 1 7", "rd 0 2"], ["gm 0/0", "rd 0707"]),
+    ("full", ["gm 0 65521 1 7"], ["GETMAIN length beyond the limit"]),
+    ("full", ["gm 0 268435457 0 7"], ["GETMAIN length beyond the limit"]),
+    ("full", ["gm 0 4 0 1", "fm 0"], ["gm 0/0", "fm 0/0"]),
+    ("full", ["gm 0 4 0 1", "gm 1 4 0 2", "fm 0", "fm 1"], ["gm 0/0", "gm 0/0", "fm 0/0", "fm 0/0"]),
+    ("full", ["gm 0 4 0 1", "fm 0", "fm 0"], ["gm 0/0", "fm 0/0", "FREEMAIN of storage already freed or received"]),
+    ("full", ["nul 1", "fm 1"], ["fm 16/1"]),
+    ("full", ["adr 1", "fm 1"], ["fm 16/1"]),
+    ("full", ["gm 0 0 0 0", "fm 0"], ["gm 22/1", "fm 16/1"]),  # (LENGERR sets the pointer to zero)
+    ("full", ["rs 0 16", "rd 0 12"], ["rs 0/0 12|text/plain", "rd 68656C6C6F20776F726C6421"]),
+    ("full", ["rs 0 -", "rd 0 12"], ["rs 0/0 12|text/plain", "rd 68656C6C6F20776F726C6421"]),
+    ("full", ["rs 0 5", "rd 0 5"], ["rs 22/57 5|text/plain", "rd 68656C6C6F"]),
+    ("full", ["rs 0 0"], ["rs 22/16"]),
+    ("full", ["rs 0 -3"], ["rs 22/16"]),
+    ("full", ["nul 0", "rs 0 0", "fm 0"], ["rs 22/16", "fm 16/1"]),  # (LENGERR 16 leaves the pointer as it was)
+    ("full", ["rs 0 16", "fm 0"], ["rs 0/0 12|text/plain", "FREEMAIN of storage already freed or received"]),
+    ("full", ["rs 0 16", "rs 1 16"], ["rs 0/0 12|text/plain", "a second WEB RECEIVE"]),
+    ("bare", ["rs 0 16"], ["WEB RECEIVE of a request with no body"]),
+]
+_X47_STEPS = ("gm", "fm", "rs", "adr", "nul", "rd")
+
+_X47_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGETM(gg_cics *c, void **slot, char *img, int imglen);
+int GGCFREM(gg_cics *c, void **slot);
+int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap);
+static gg_cics c;
+static void flags(const char *s) { memset(c.flags, ' ', 40); memcpy(c.flags, s, strlen(s)); }
+int main(int argc, char **argv) {
+    static void *p[2];
+    static char record[8];
+    for (int i = 1; i < argc; i++) {
+        char *w[5];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 5; t = strtok(NULL, " ")) w[k++] = t;
+        int s = atoi(w[1]);
+        if (strcmp(w[0], "gm") == 0) {
+            char img = (char)atoi(w[4]);
+            c.num = atoi(w[2]);
+            flags(strcmp(w[3], "1") == 0 ? "SHORT" : "");
+            GGCGETM(&c, &p[s], &img, 1);
+            printf("gm %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "fm") == 0) {
+            GGCFREM(&c, &p[s]);
+            printf("fm %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "rs") == 0) {
+            char media[56];
+            memset(media, ' ', 56);
+            c.num = strcmp(w[2], "-") == 0 ? 2147483647 : atoi(w[2]);
+            flags("MEDIA");
+            GGCWRCS(&c, &p[s], media, 56);
+            printf("rs %d/%d", c.resp, c.resp2);
+            if (c.resp == 0 || c.resp2 == 57) {
+                int m = 56;
+                while (m > 0 && media[m - 1] == ' ') m--;
+                printf(" %d|%.*s", c.len, m, media);
+            }
+            printf("\n");
+        } else if (strcmp(w[0], "adr") == 0) {
+            p[s] = record;
+        } else if (strcmp(w[0], "nul") == 0) {
+            p[s] = NULL;
+        } else {
+            printf("rd ");
+            for (int j = 0; j < atoi(w[2]); j++) printf("%02X", ((unsigned char *)p[s])[j]);
+            printf("\n");
+        }
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_hands_out_task_storage_through_pointers(tmp_path):
+    """#4771 (register X47), IBM GETMAIN / FREEMAIN / WEB RECEIVE SET: the documented conditions with their RESP2; what IBM
+    leaves open is refused by name."""
+    exe = _stub(tmp_path, _X47_MAIN)
+    for n, (fixture, steps, answers) in enumerate(_X47_CASES):
+        req = tmp_path / f"webreq{n}.cfg"
+        req.write_text(_x38_cfg(fixture), encoding="ascii")
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        if answers[-1].split()[0] in _X47_STEPS + ("gm", "fm", "rs", "rd"):
+            assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
+        else:
+            assert run.returncode == 98 and answers[-1] + ": not modelled" in run.stdout, (steps, run.stdout)
+            assert run.stdout.splitlines()[:-1] == answers[:-1], steps
+
+
+@needs_javac
+def test_cics_task_hands_out_task_storage_as_the_stub_does(tmp_path):
+    """#4771 (X47): CicsTask.getmain / freemain / acquireReceived / storageAt answer the steps above as the stub does."""
+    helpers = r"""
+    static long[] slot = new long[2];
+    static void step(CicsTask t, String line) {
+        String[] w = line.split(" ");
+        int s = Integer.parseInt(w[1]);
+        switch (w[0]) {
+            case "gm" -> {
+                long[] r = t.getmain(Long.parseLong(w[2]), w[3].equals("1"), Integer.parseInt(w[4]));
+                slot[s] = r[2];
+                System.out.println("gm " + r[0] + "/" + r[1]);
+            }
+            case "fm" -> {
+                int[] r = t.freemain(slot[s]);
+                System.out.println("fm " + r[0] + "/" + r[1]);
+            }
+            case "rs" -> {
+                CicsTask.WebReceived r = t.webReceive(w[2].equals("-") ? Integer.MAX_VALUE : Integer.parseInt(w[2]), Integer.MAX_VALUE);
+                String o = "rs " + r.resp() + "/" + r.resp2();
+                if (r.body() != null) {
+                    slot[s] = t.acquireReceived(r.body().getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));
+                    o += " " + r.body().length() + "|" + r.mediaType();
+                }
+                System.out.println(o);
+            }
+            case "adr" -> slot[s] = t.addressOf(new byte[8]);
+            case "nul" -> slot[s] = 0;
+            default -> {
+                byte[] b = t.storageAt(slot[s], 0);
+                StringBuilder o = new StringBuilder("rd ");
+                for (int j = 0; j < Integer.parseInt(w[2]); j++) o.append(String.format("%02X", b[j] & 0xFF));
+                System.out.println(o);
+            }
+        }
+    }
+    static CicsTask fixture(String name) {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(name.equals("full")
+                ? new CicsTask.HttpRequest("HTTPS", "zecs.example", 8443, "PUT", "HTTP/1.1", "/resources/ecs/a", "x=1&y=2",
+                        java.util.List.of(), "text/plain", "hello world!")
+                : new CicsTask.HttpRequest("HTTP", "h", 80, "GET", "HTTP/1.0", "/", "", java.util.List.of(), null, null));
+    }
+"""
+    parts = []
+    for fixture, steps, _answers in _X47_CASES:
+        run = "\n".join(f'step(t, "{st}");' for st in steps)
+        parts.append(
+            f'{{ CicsTask t = fixture("{fixture}"); slot = new long[2];\n try {{\n{run}\n}} catch (UnsupportedOperationException e) {{'
+            ' System.out.println("refused " + e.getMessage()); }\nSystem.out.println("--"); }'
+        )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for fixture, steps, answers in _X47_CASES:
+        end = lines.index("--", pos)
+        want = [a if a.split()[0] in _X47_STEPS else f"refused {a}: not modelled" for a in answers]
+        assert lines[pos:end] == want, (fixture, steps, lines[pos:end], want)
+        pos = end + 1
+
+
 # ---- #4767 zECS (register X30): GET DCOUNTER INCREMENT [WRAP] ---------------------------------------------------------------
 # a step a line: NAME POOL INCREMENT -- "-" for the blank pool; what both runtimes answer: "resp/resp2 value|the counter after",
 # or the refusal. Counters: ZC01_ZECS 41, BIGCNT 4294967294, TOP 4294967295.

@@ -17,8 +17,9 @@ name: Mainframe Ground Truth
 # byte-identity checks -- skipped in every other workflow -- run here too.
 #
 # On push to main (and nightly: #4935 skips a push whose tree the PR run already proved) it appends the scoreboard to docs/self_scan/
-# ground_truth_history.jsonl (only when a number moved) through the same
-# bot-PR mechanism as call-resolution-history.yml.
+# ground_truth_history.jsonl (only when a number moved) and publishes it to the `generated` branch
+# (tests/tools/generated_branch.py, #4963), not to main through an auto-merged PR: the series starts from what generated last
+# published (the copy on main is the seed). The publish is its own main-only job, so the job that runs PR code holds no write token.
 
 on:
   pull_request:  # #4825: a required check -- runs on every PR
@@ -65,11 +66,7 @@ jobs:
 
   ground-truth:
     needs: tested-tree
-    # Loop guard: the history bot commit must not re-trigger the push run.
-    if: |
-      !cancelled() && needs.tested-tree.outputs.skip != 'true' && (
-      github.event_name != 'push' ||
-      !startsWith(github.event.head_commit.message, 'docs: auto-update mainframe ground-truth history'))
+    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -116,6 +113,14 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
+      # also the only run that appends: the `--history` flag below).
+      - name: Restore the published history from the generated branch
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
+
       - name: Gate against the ground-truth ledger
         run: |
           cd gitgalaxy
@@ -133,30 +138,40 @@ jobs:
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
           PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
 
-      - name: Open PR with updated history
+      - name: Keep the history for the publish job
         if: github.event_name == 'push' || github.event_name == 'schedule'
-        id: history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          token: ${{ secrets.AUTOMATION_PAT }}
+          name: ground-truth-history
+          path: gitgalaxy/docs/self_scan/ground_truth_history.jsonl
+          retention-days: 1
+
+  # #4963: output goes to the `generated` branch, never to main (no PR, no auto-merge). Main's code only: a push or the
+  # nightly run on main, never a pull_request, which is why it is a job of its own with the write token.
+  publish-history:
+    needs: ground-truth
+    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
           path: gitgalaxy
-          commit-message: "docs: auto-update mainframe ground-truth history"
-          title: "docs: auto-update mainframe ground-truth history"
-          body: |
-            Automated update from the mainframe ground-truth measurement on `main`.
+          persist-credentials: true  # the publish step pushes to `generated` with this token
 
-            Appends the per-corpus, per-field P/R scoreboard to
-            `docs/self_scan/ground_truth_history.jsonl` (written only when a number moved).
-          branch: auto/mainframe-ground-truth-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/ground_truth_history.jsonl
+      - name: Download the history
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ground-truth-history
+          path: ${{ runner.temp }}/history
 
-      - name: Merge the history PR
-        if: steps.history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      - name: Publish to the generated branch
         run: |
-          PR="${{ steps.history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          cp "$RUNNER_TEMP/history/ground_truth_history.jsonl" docs/self_scan/ground_truth_history.jsonl
+          python tests/tools/generated_branch.py publish --stamp mainframe-ground-truth-history \
+            --message "mainframe ground-truth history as of main $GITHUB_SHA" \
+            docs/self_scan/ground_truth_history.jsonl

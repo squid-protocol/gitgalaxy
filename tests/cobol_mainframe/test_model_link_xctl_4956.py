@@ -1,0 +1,147 @@
+"""#4956: a model-port program LINKed with its DTO that XCTLs with that DTO is refused by name, never guessed.
+
+Sibling of #4816 (register X39, the det case). A model port is LINKed with its caller's DTO object only (no bytes), so
+CicsTask cannot read the DTO's bytes as the caller's area; it finds the caller's storage by reference instead: the
+XCTL's COMMAREA is the program's own DTO, or an object that DTO holds (a nested group, a table, an element, the byte
+area). IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether the target then
+addresses the caller's storage or a copy. A copy (a new object), a failed XCTL, an XCTL at level 1 or of a task's own
+start COMMAREA, and the target of an XCTL passing its own DTO again (a copy of a copy) are not refused. A String or
+number field is a value, not an object the caller holds: it cannot be told from a copy and is passed as it is.
+"""
+
+from __future__ import annotations
+
+import os
+import subprocess
+from pathlib import Path
+
+import pytest
+
+MAIN = """package com.acme.cics;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    static class Group {
+        String text = "g";
+        Group inner;
+    }
+
+    static class Dto {
+        String name = "n";
+        int num = 1;
+        Group grp = new Group();
+        Group[] table = {new Group(), new Group()};
+        List<Group> list = new ArrayList<>(List.of(new Group()));
+        Map<String, Group> byKey = Map.of("k", new Group());
+        byte[] raw = new byte[4];
+        Dto self;
+    }
+
+    static String run(String s, boolean level1, boolean linked) {
+        Dto dto = new Dto();
+        dto.self = dto;
+        String[] seen = {""};
+        CicsTask task = new CicsTask("T001", "ENTER", level1 ? dto : null, level1 ? 4 : null, Map.of());
+        task.withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return !p.equals("NONE");
+            }
+
+            public void run(String p, CicsTask t) {
+                if (p.equals("MID")) {
+                    Dto d = t.hasCommarea() ? t.commarea(Dto.class) : new Dto();
+                    Object pass = switch (s) {
+                        case "whole" -> d;
+                        case "group" -> d.grp;
+                        case "table" -> d.table;
+                        case "element" -> d.table[1];
+                        case "listed" -> d.list.get(0);
+                        case "mapped" -> d.byKey.get("k");
+                        case "bytes" -> d.raw;
+                        case "name" -> d.name;
+                        case "copy", "hop" -> new Dto();
+                        default -> d;
+                    };
+                    String target = s.equals("failed") ? "NONE" : s.equals("hop") ? "HOP" : "EE";
+                    String resp = t.xctl(target, pass, 4);
+                    seen[0] = resp;
+                    if (!resp.equals("NORMAL")) {
+                        t.returnTransid(null, null);
+                    }
+                } else if (p.equals("HOP")) {
+                    t.xctl("EE", t.commarea(Dto.class), 4);
+                } else {
+                    seen[0] += (seen[0].isEmpty() ? "" : ">") + p;
+                    t.returnTransid(null, null);
+                }
+            }
+        });
+        task.withProgram("CALLER");
+        try {
+            if (level1) {
+                task.run("MID");
+            } else {
+                task.link("MID", linked ? dto : null, 4);
+            }
+            return seen[0];
+        } catch (UnsupportedOperationException e) {
+            return "REFUSED " + e.getMessage().contains("XCTL passing the COMMAREA its LINK caller passed");
+        }
+    }
+
+    public static void main(String[] a) {
+        for (String s : new String[] {"whole", "group", "table", "element", "listed", "mapped", "bytes"}) {
+            System.out.println(s + " " + run(s, false, true));
+        }
+        for (String s : new String[] {"name", "copy", "failed", "hop"}) {
+            System.out.println(s + " " + run(s, false, true));
+        }
+        System.out.println("level1 " + run("whole", true, true));
+        System.out.println("nodto " + run("whole", false, false));
+    }
+}
+"""
+
+
+def _jdk() -> Path | None:
+    home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
+    return Path(home) / "bin" if home and (Path(home) / "bin" / "javac").is_file() else None
+
+
+@pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
+def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path):
+    """The whole DTO and every object it holds (group, table, element, list element, map value, byte area) are the
+    caller's storage: refused. A copy, a failed XCTL (the program goes on), a String field (a value), a copy-of-a-copy
+    hop, a level-1 task and a LINK that passed no DTO are not; the DTO holding itself does not loop."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    root = tmp_path / "src" / "com" / "acme" / "cics"
+    root.mkdir(parents=True)
+    (root / "CicsTask.java").write_text(CICS_TASK_JAVA.replace("__PACKAGE__", "com.acme").replace("__ZONE__", "UTC"),
+                                        encoding="utf-8")  # fmt: skip
+    (root / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("__PACKAGE__", "com.acme"), encoding="utf-8")
+    (root / "Main.java").write_text(MAIN, encoding="utf-8")
+    jdk = _jdk()
+    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, root.glob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr[:3000]
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "com.acme.cics.Main"],  # noqa: S603
+                         capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "whole REFUSED true",
+        "group REFUSED true",
+        "table REFUSED true",
+        "element REFUSED true",
+        "listed REFUSED true",
+        "mapped REFUSED true",
+        "bytes REFUSED true",
+        "name NORMAL>EE",
+        "copy NORMAL>EE",
+        "failed PGMIDERR",
+        "hop NORMAL>EE",
+        "level1 NORMAL>EE",
+        "nodto NORMAL>EE",
+    ]

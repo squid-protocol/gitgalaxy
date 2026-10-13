@@ -401,7 +401,7 @@ def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_pa
                     for (String cmd : new String[] {"XCTL", "LINK"}) {
                         for (String want : new String[] {"INVREQ", "LENGERR", "NOTAUTH", "PGMIDERR"}) {
                             String r = cmd.equals("XCTL") ? task.xctl("CAXB", "V1", 80) : task.link("CAXB", "V1", 80);
-                            System.out.println(cmd + " " + r + " " + task.ended());
+                            System.out.println(cmd + " " + r + " " + task.ended() + " " + task.transferResp2());  // #4986
                             if (!r.equals("NORMAL")) {
                                 task.abendOnCondition(r);
                                 System.out.println(task.abcode());
@@ -427,7 +427,11 @@ def test_cics_task_failed_xctl_and_link_end_with_the_condition_abend_code(tmp_pa
         }""",
     )
     lines = out.splitlines()
-    assert lines[:2] == ["XCTL INVREQ false", "AEIP"]
+    assert lines[:2] == ["XCTL INVREQ false 1", "AEIP"]
+    # #4986: EIBRESP2 (task.transferResp2) is the plan's, not the condition name's: PGMIDERR 3 was 1, NOTAUTH 100 was 0
+    shown = [ln.split() for ln in lines if ln.startswith(("XCTL ", "LINK ")) and ln.count(" ") == 3]
+    assert [(c, r, x) for c, r, _, x in shown] == [(c, r, str(x)) for c in ("XCTL", "LINK")
+                     for r, x in (("INVREQ", 1), ("LENGERR", 11), ("NOTAUTH", 100), ("PGMIDERR", 3))]  # fmt: skip
     assert [ln for ln in lines if ln.startswith(("AE", "ran"))] == ["AEIP", "AEIV", "AEY7", "AEI0"] * 2
     assert "ran CAXB" not in lines  # nothing transferred, nothing linked
     assert lines[-8:] == [f"{c} {r} {x}" for c in ("XCTL", "LINK")
@@ -4853,3 +4857,31 @@ def test_cics_task_start_channel_as_the_stubs(tmp_path):
     )
     assert out.splitlines() == ["NORMAL CHANNELERR", "{name=CH.1, containers={IN=6162}} 1",
                                 "START CHANNEL(OTHER) of a channel not in the program's scope: not modelled"]  # fmt: skip
+
+
+def test_cics_task_transfer_resp2_for_natural_faults_and_success(tmp_path):
+    """#4986, IBM EXEC CICS XCTL / LINK conditions: with no planned fault EIBRESP2 is the natural one (LENGERR 11 for a
+    COMMAREA length outside 0-32763, PGMIDERR 1 for a program with no definition) and 0 after a success; a later
+    transfer replaces an earlier one's RESP2 (the plan's included), on both commands and the CHANNEL forms."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return !p.equals("GONE");
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("CAXA")) {
+                    System.out.println(task.link("CAXB", "V1", 40000) + " " + task.transferResp2());
+                    System.out.println(task.link("GONE", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.link("CAXB", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.xctl("CAXB", "V1", 40000) + " " + task.transferResp2());
+                    System.out.println(task.xctl("GONE", "V1", 80) + " " + task.transferResp2());
+                    System.out.println(task.xctl("CAXB", "V1", 80) + " " + task.transferResp2());
+                }
+            }
+        };
+        new CicsTask("CA02", "ENTER", null, null).withPrograms(programs).run("CAXA");""",
+    )
+    assert out.splitlines() == ["LENGERR 11", "PGMIDERR 1", "NORMAL 0", "LENGERR 11", "PGMIDERR 1", "NORMAL 0"]

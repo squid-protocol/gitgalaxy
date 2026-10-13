@@ -2335,6 +2335,9 @@ FAULT_COMMANDS = (
     "CANCEL",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
+# #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
+LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
+
 _FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
 
 
@@ -2353,6 +2356,11 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     out = []
     for f in sc.get("faults") or []:
         cmd = f.get("cmd", "READ")
+        if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
+                "and no abend code is sourced for it (register X43, refused)"
+            )
         if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"

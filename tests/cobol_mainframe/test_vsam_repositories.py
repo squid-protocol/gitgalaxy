@@ -500,3 +500,68 @@ def test_a_cics_write_is_duprec_on_a_key_already_on_file(scanned, tmp_path):
     assert "throw new org.springframework.dao.DuplicateKeyException(" in cics
     bat = (src / "service/TcatbatService.java").read_text(encoding="utf-8")
     assert "DuplicateKeyException" not in bat  # a REWRITE replaces the record it read
+
+
+# ---- #4949: the symbolic merge keeps the batch programs that open the symbolic dataset ----------------------------
+_SYM_BATCH = """\
+       ID DIVISION.
+       PROGRAM-ID. BATPROG.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACCT-FILE ASSIGN TO VSAM
+                  ORGANIZATION IS INDEXED ACCESS MODE IS RANDOM
+                  RECORD KEY IS ACCT-ID FILE STATUS IS ACCT-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  ACCT-FILE.
+       01  ACCT-REC.
+           05 ACCT-ID PIC X(8).
+           05 FILLER PIC X(30).
+       WORKING-STORAGE SECTION.
+       01  ACCT-STATUS PIC XX.
+       PROCEDURE DIVISION.
+           OPEN OUTPUT ACCT-FILE.
+           WRITE ACCT-REC.
+           CLOSE ACCT-FILE.
+           GOBACK.
+"""
+
+
+def _symbolic_batch_estate(tmp_path, keys="8 0"):
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl", "csd"):
+        (repo / d).mkdir(parents=True)
+    (repo / "jcl" / "DEF.jcl").write_text(
+        "//DEF JOB\n//STEP1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+        f"  DEFINE CLUSTER(NAME(@PFX@.ACCT.KSDS) -\n         KEYS({keys}) RECORDSIZE(38 38) INDEXED)\n/*\n"
+        "//RUN EXEC PGM=IKJEFT01\n//VSAM DD DISP=SHR,DSN=@PFX@.ACCT.KSDS\n//SYSTSIN DD *\n"
+        " DSN SYSTEM(DB2)\n RUN PROGRAM(BATPROG) PLAN(P)\n END\n/*\n"
+    )
+    (repo / "csd" / "APP.csd").write_text("  DEFINE FILE(ACCTF) GROUP(APP)\n         DSNAME(PROD.APP.ACCT.KSDS)\n")
+    (repo / "cbl" / "BATPROG.cbl").write_text(_SYM_BATCH)
+    (repo / "cbl" / "CICSPROG.cbl").write_text(
+        "       ID DIVISION.\n       PROGRAM-ID. CICSPROG.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 ACCT-REC.\n          05 ACCT-ID PIC X(8).\n          05 FILLER PIC X(30).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS READ FILE('ACCTF') INTO(ACCT-REC)\n                     RIDFLD(ACCT-ID) END-EXEC.\n"
+    )
+    return load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).vsam_stores()
+
+
+def test_a_merged_symbolic_store_keeps_its_batch_users(tmp_path):
+    (store,) = _symbolic_batch_estate(tmp_path)
+    assert store["dataset"] == "PROD.APP.ACCT.KSDS" and store["defined_by"]["match"] == "symbolic"
+    users = {(u["kind"], u["program"].rsplit("/", 1)[-1]): u for u in store["users"]}
+    assert set(users) == {("cics", "CICSPROG.cbl"), ("batch", "BATPROG.cbl")}
+    batch = users[("batch", "BATPROG.cbl")]
+    assert (batch["name"], batch["dd"], batch["modes"]) == ("ACCT-FILE", "VSAM", ["OUTPUT"])
+    assert batch["records"][0]["record"] == "ACCT-REC"
+
+
+def test_a_refused_symbolic_merge_keeps_the_batch_user_on_its_own_store(tmp_path):
+    stores = _symbolic_batch_estate(tmp_path, keys="4 12")  # the RIDFLD disagrees: no merge
+    by = {s["dataset"]: s for s in stores}
+    assert "symbolic_candidate_rejected" in by["PROD.APP.ACCT.KSDS"]
+    assert [u["kind"] for u in by["@PFX@.ACCT.KSDS"]["users"]] == ["batch"]
+    assert [u["kind"] for u in by["PROD.APP.ACCT.KSDS"]["users"]] == ["cics"]

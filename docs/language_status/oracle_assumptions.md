@@ -152,6 +152,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
 | X44 | CICS | DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, the number of containers) with IBM's one condition, CHANNELERR RESP2 2; refused: deleting the program's current channel (IBM's RESP2 4 / 5 / 6 all fit it and it ranks none), a name that is blank or has an embedded blank, a channel an XCTL left behind; unreachable: CHANNELERR 3 (read-only). INQUIRE CONTAINER stays refused: IBM documents it only in its BTS form | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
+| X45 | CICS | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | X46 | CICS | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) | ASSUMED (REFUSED where IBM is silent) | no (the reference region's logs do not hold these forms; proved by the CicsTask unit test against Python's datetime and by the translated COBOL under GnuCOBOL, tests/cics_crucible/test_cics_runtimes.py and tests/cobol_mainframe/test_equivalence_cics.py) |
 | X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
@@ -1757,6 +1758,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
   command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
   check the pool first); the value area of a failed GET / QUERY (not written).
+- **Superseded in part by X45** (#4770): DEFINE / QUERY / DELETE DCOUNTER, MINIMUM / MAXIMUM on the doubleword form and WRAP at a
+  counter's limits are modelled there; the limits (1) of GET DCOUNTER above hold only for a counter with no limits entry.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).
@@ -2279,6 +2282,40 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   and recreated, an emptied channel, a LINKed program's scope, every condition) on the stub and on CicsTask, which print the same
   lines, and the refusals above on both; the translators' tests are in `tests/cobol_mainframe/test_det_translate.py` and
   `test_equivalence_cics.py`. No cics-crucible case yet: a hand-traced case is a companion PR on the crucible.
+
+### X45. DEFINE / QUERY / DELETE DCOUNTER with MINIMUM and MAXIMUM; GET DCOUNTER INCREMENT [WRAP] at the limits — ASSUMED, REFUSED where IBM is silent (#4770)
+- **What IBM says** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-define-counter-define-dcounter, ...summary-get-counter-get-dcounter,
+  ...summary-query-counter-query-dcounter, ...summary-delete-counter-delete-dcounter). DEFINE DCOUNTER: VALUE, MINIMUM and MAXIMUM are
+  "a doubleword unsigned value for DCOUNTER"; "If you omit the MINIMUM parameter, the named counter is defined with a default minimum
+  of low-values", MAXIMUM "a doubleword filled with X'FF'"; "If you specify the MINIMUM parameter, you must also specify a VALUE";
+  VALUE "equal to, or greater than, the minimum value, up to the maximum value plus 1"; INVREQ RESP2 406 "VALUE is invalid", 407 "MINIMUM
+  or MAXIMUM is invalid" (MAXIMUM below MINIMUM). "The named counter server stores all values as doubleword unsigned values."
+  GET: VALUE "the current number"; the counter is incremented after the number is assigned; at its limit, with neither REDUCE
+  nor WRAP, SUPPRESSED (72) RESP2 101 and "the current number is not changed"; WRAP "resets the current value of the named counter
+  equal to the minimum value defined for the counter"; INVREQ 406 "INCREMENT exceeds the counter's total range". QUERY DCOUNTER:
+  VALUE, MINIMUM and MAXIMUM data areas, "a doubleword unsigned binary value".
+- **Modelled** (`CicsTask.defineDcounter` / `queryDcounter` / `getCounter(pool, name, increment, wrap)`, the stub's `GGCDDCN` /
+  `GGCQDCN` / `GGCGDCN` on `counters.cfg`, whose rows gain `MINIMUM MAXIMUM` after the value; the det translator and
+  `equivalence_cics.py`): a counter DEFINE DCOUNTER made holds its limits as unsigned doublewords (one store for both forms, as X30).
+  A GET hands out the value and adds INCREMENT; a counter at MAXIMUM + 1 (the value past MAXIMUM, where an earlier GET left it) is
+  SUPPRESSED 101 and unchanged, or with WRAP the GET returns MINIMUM and the counter is MINIMUM + INCREMENT. 407 is checked before 406,
+  then 202 (403 / 404 first: the page gives no order). DELETE DCOUNTER is DELETE COUNTER's call. GET DCOUNTER's VALUE is written
+  unsigned (a value past 2**63 is not negative); INCREMENT is read as 64 bits (a COBOL `.intValue()` truncated it before).
+- **What IBM leaves open, and what we do.** (1) What WRAP does when the increment overshoots (a counter below MAXIMUM whose INCREMENT
+  carries it past MAXIMUM + 1) and where REDUCE's boundary lies: REFUSED ("GET COUNTER with an INCREMENT past MAXIMUM + 1"); WRAP acts
+  only at a counter already at MAXIMUM + 1. (2) The 406 boundary of INCREMENT ("exceeds the counter's total range"): an INCREMENT
+  beyond MAXIMUM - MINIMUM is REFUSED, one within it is not an error. (3) A counter whose maximum is a doubleword of X'FF' has
+  no MAXIMUM + 1 in a doubleword: it is never at its limit, and one that would pass it is REFUSED ("GET COUNTER past a doubleword").
+  (4) A counter DEFINE COUNTER made, or a scenario states, has no limits entry: the run does not state them, so GET behaves as before
+  (WRAP changes nothing; past 4294967295 REFUSED) and QUERY DCOUNTER MINIMUM / MAXIMUM of it is REFUSED -- IBM states the fullword
+  form's default maximum, X'7FFFFFFF', but its signed reading of low-values is the open point X30 left, so the fullword form's
+  MINIMUM / MAXIMUM stay refused. (5) A COUNTER and a DCOUNTER of one name are one counter (ASSUMED, X30): IBM says to "access a
+  counter with the same command set that defined it" and states nothing for a mismatch. (6) The order of 407 / 406 / 202 (above).
+  (7) VALUE / MINIMUM / MAXIMUM are data areas in the stub translator (a literal is refused); the det translator takes literals too.
+- **Refused by name, unchanged:** DEFINE COUNTER's MINIMUM / MAXIMUM, NOSUSPEND, GET's REDUCE / COMPAREMIN / COMPAREMAX / NOSUSPEND.
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
+  (tests/cics_crucible/test_cics_runtimes.py `_X45_CASES`) and both translators; no case runs it yet (zECS ZECSNC is assembler, its
+  DEFINE DCOUNTER / ZECS001's GET DCOUNTER are not in a COBOL case the corpus ships whole).
 
 ### X46. FORMATTIME day-of-year and binary forms, DUMP TRANSACTION — ASSUMED, REFUSED where IBM is silent (#4415 slice 3)
 - **FORMATTIME date forms** (CICS TS 6.x, EXEC CICS FORMATTIME, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-formattime).

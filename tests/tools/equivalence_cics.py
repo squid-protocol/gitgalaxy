@@ -1292,12 +1292,24 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
                 + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}"])
+                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
+                                    f"BY VALUE {1 if 'WRAP' in opts else 0}"])  # #4770 (X45): WRAP acts at DEFINE DCOUNTER's limits
                 + _resp(opts, True, labels))  # fmt: skip
-    if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
+    if verb == "QUERY" and (
+        "COUNTER" in opts or "DCOUNTER" in opts
+    ):  # #4415 slice 2 (X29): a named counter's value, unchanged
         _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
         if not opts.get("VALUE"):
             raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule("QUERY COUNTER", "one_of", "COUNTER"), ["QUERY COUNTER"])
+        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated
+            if o in opts and "DCOUNTER" not in opts:
+                raise Unsupported(_rule("QUERY COUNTER", "requires", o), ["QUERY COUNTER"])
+        if "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords in 8-byte areas
+            return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                    + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                    + _resp(opts, True, labels))  # fmt: skip
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
                 + _resp(opts, True, labels))  # fmt: skip
@@ -1305,9 +1317,25 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         {"COUNTER", "DCOUNTER"} & set(opts)
     ):  # #4270 (X30): DEFINE / DELETE COUNTER -> GGCDCNT / GGCXCNT
         _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
-        head = [name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated; IBM: MINIMUM needs VALUE
+            if o in opts and "DCOUNTER" not in opts:
+                raise Unsupported(_rule(f"{verb} COUNTER", "requires", o), [f"{verb} COUNTER"])
+        if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
+            why = next(
+                g.msg for g in SPEC["DEFINE COUNTER"].groups if g.kind == "requires" and "VALUE" in (g.any_of or ())
+            )
+            raise Unsupported(why, ["DEFINE COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
         if verb == "DELETE":
             return head + _call("GGCXCNT", []) + _resp(opts, True, labels)
+        if "DCOUNTER" in opts:  # #4770 (X45): VALUE / MINIMUM / MAXIMUM, each an 8-byte area (length 0: omitted)
+            return (
+                head
+                + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                + _resp(opts, True, labels)
+            )
         return (head + [f"MOVE {opts.get('VALUE') or '0'} TO GG-NUM"] + _call("GGCDCNT", [])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
@@ -1649,6 +1677,18 @@ def _whole_message(pairs: list[tuple[str, str | None]]) -> str:
     key = f"{verb} COUNTER" if verb != "GET" and {"COUNTER", "DCOUNTER"} & set(rest) else verb
     known = whole_refusal(key, verb, rest[0] if rest else None)
     return known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled"
+
+
+def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list[str]:
+    """#4770 (X45): the doubleword areas of a DCOUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits;
+    a literal is refused (the stub reads and writes the area's bytes: a data area is the COBOL form)."""
+    out: list[str] = []
+    for o in names:
+        v = opts.get(o)
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(f"DCOUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+    return out
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:

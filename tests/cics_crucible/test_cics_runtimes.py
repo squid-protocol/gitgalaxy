@@ -4196,7 +4196,7 @@ _X30_MAIN = r"""
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
                  char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
                  char rtran[4], rterm[4], rqueue[8]; } gg_cics;
-int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen);
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap);
 static gg_cics c;
 int main(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
@@ -4209,7 +4209,7 @@ int main(int argc, char **argv) {
         for (int j = 7; j >= 0; j--) { inc[j] = (unsigned char)(n & 255); n >>= 8; }
         memset(c.qname, ' ', 16); memcpy(c.qname, w[0], strlen(w[0]));
         memset(c.name1, ' ', 8); if (strcmp(w[1], "-") != 0) memcpy(c.name1, w[1], strlen(w[1]) > 8 ? 8 : strlen(w[1]));
-        GGCGDCN(&c, value, 8, inc, 8);
+        GGCGDCN(&c, value, 8, inc, 8, 0);
         for (int j = 0; j < 8; j++) v = v * 256 + value[j];
         if (c.resp == 0) printf("0/0 %llu\n", v); else printf("%d/%d\n", c.resp, c.resp2);
     }
@@ -4268,6 +4268,231 @@ def test_cics_task_gets_a_doubleword_counter_as_the_stub_does(tmp_path):
     assert out[: len(want)] == want
     for got, (_steps, why) in zip(out[len(want) :], _X30_REFUSED):
         assert got == why + ": not modelled", (got, why)
+
+
+# ---- #4770 zECS (register X45): DEFINE / QUERY / DELETE DCOUNTER, GET DCOUNTER WRAP at the limits ---------------------------------
+# a scenario: (the counters stated before, the steps, what both runtimes answer, the refusal the last step ends in). A step:
+# "def NAME POOL VALUE MIN MAX" ("-": omitted), "get NAME POOL INC WRAP", "qry NAME POOL LIMITS", "gc NAME POOL" (the
+# fullword GET COUNTER), "del NAME POOL". Answer: "resp/resp2", then on NORMAL a get's / gc's / qry's values.
+_U64 = "18446744073709551615"
+_X45_CASES = [
+    # IBM's defaults: MINIMUM zero, MAXIMUM a doubleword of X'FF', VALUE zero; the GET adds INCREMENT after handing out the value
+    (
+        "",
+        ["def A - - - -", "qry A - 1", "get A - 1 0", "get A - 5 0", "qry A - 0"],
+        ["0/0", f"0/0 0 0 {_U64}", "0/0 0", "0/0 1", "0/0 6"],
+        None,
+    ),
+    # 202 duplicate; 403 / 404 names; 407 MAXIMUM below MINIMUM; 406 VALUE below MINIMUM or above MAXIMUM + 1 (MAXIMUM + 1 is allowed)
+    (
+        "",
+        [
+            "def B - 5 - -",
+            "def B - 5 - -",
+            "def x - 5 - -",
+            "def B p 5 - -",
+            "def C - 5 10 3",
+            "def C - 2 3 10",
+            "def C - 12 3 10",
+            "def C - 11 3 10",
+            "def C - 3 3 10",
+            "qry C - 1",
+        ],
+        ["0/0", "16/202", "16/404", "16/403", "16/407", "16/406", "16/406", "0/0", "16/202", "0/0 11 3 10"],
+        None,
+    ),
+    # a counter at MAXIMUM + 1: SUPPRESSED RESP2 101 and unchanged without WRAP, the minimum with WRAP (then the increment on)
+    (
+        "",
+        [
+            "def D - 8 5 10",
+            "get D - 1 0",
+            "get D - 1 0",
+            "get D - 1 0",
+            "get D - 1 0",
+            "qry D - 1",
+            "get D - 1 1",
+            "get D - 1 0",
+        ],
+        ["0/0", "0/0 8", "0/0 9", "0/0 10", "72/101", "0/0 11 5 10", "0/0 5", "0/0 6"],
+        None,
+    ),
+    (
+        "",
+        [
+            "def E - 10 5 10",
+            "get E - 1 0",
+            "get E - 3 1",
+            "qry E - 1",
+            "def J - 10 0 10",
+            "gc J -",
+            "gc J -",
+            "get J - 1 1",
+        ],
+        ["0/0", "0/0 10", "0/0 5", "0/0 8 5 10", "0/0", "0/0 10", "72/101", "0/0 0"],
+        None,
+    ),
+    # a doubleword is unsigned: a value at X'FF..FF' reads back as one, and nothing is past it
+    (
+        "",
+        ["def G - 18446744073709551614 - -", "get G - 1 0", "qry G - 0", "get G - 1 1"],
+        ["0/0", "0/0 18446744073709551614", "0/0 18446744073709551615"],
+        "GET COUNTER past a doubleword",
+    ),
+    (
+        "",
+        ["def H - 18446744073709551615 - -", "qry H - 0", "get H - 1 0"],
+        ["0/0", f"0/0 {_U64}"],
+        "GET COUNTER past a doubleword",
+    ),
+    # DELETE DCOUNTER is DELETE COUNTER's: 201 when none; a redefined counter has its own limits
+    (
+        "",
+        ["def K - 3 2 9", "del K -", "del K -", "qry K - 0", "get K - 1 0", "def K - - - -", "qry K - 1"],
+        ["0/0", "0/0", "16/201", "16/201", "16/201", "0/0", f"0/0 0 0 {_U64}"],
+        None,
+    ),
+    # refused by name: an INCREMENT of zero, beyond MAXIMUM - MINIMUM, or carrying the counter past MAXIMUM + 1
+    ("", ["def I - 0 0 10", "get I - 0 0"], ["0/0"], "GET COUNTER with an INCREMENT not above zero"),
+    ("", ["def I - 0 0 10", "get I - 11 0"], ["0/0"], "GET COUNTER with an INCREMENT beyond the counter's range"),
+    ("", ["def I - 5 0 10", "get I - 10 1"], ["0/0"], "GET COUNTER with an INCREMENT past MAXIMUM + 1"),
+    # a counter with no limits (DEFINE COUNTER's, or a scenario's) is as before: WRAP changes nothing, its limits are not stated
+    (
+        "LEG 5",
+        ["get LEG - 2 1", "qry LEG - 0", "qry LEG - 1"],
+        ["0/0 5", "0/0 7"],
+        "QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
+    ),
+]
+
+_X45_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap);
+int GGCDDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen);
+int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen);
+int GGCGCNT(gg_cics *c);
+int GGCXCNT(gg_cics *c);
+static gg_cics c;
+static void be(unsigned char *p, const char *w, int *len) {
+    unsigned long long n = strtoull(w, NULL, 10);
+    for (int j = 7; j >= 0; j--) { p[j] = (unsigned char)(n & 255); n >>= 8; }
+    *len = strcmp(w, "-") == 0 ? 0 : 8;
+}
+static unsigned long long un(const unsigned char *p) { unsigned long long v = 0; for (int j = 0; j < 8; j++) v = v * 256 + p[j]; return v; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[6] = {0};
+        int k = 0, vl, ll, hl;
+        unsigned char v[8], lo[8], hi[8];
+        for (char *t = strtok(argv[i], " "); t && k < 6; t = strtok(NULL, " ")) w[k++] = t;
+        memset(c.qname, ' ', 16); memcpy(c.qname, w[1], strlen(w[1]));
+        memset(c.name1, ' ', 8); if (strcmp(w[2], "-") != 0) memcpy(c.name1, w[2], strlen(w[2]) > 8 ? 8 : strlen(w[2]));
+        if (strcmp(w[0], "def") == 0) {
+            be(v, w[3], &vl); be(lo, w[4], &ll); be(hi, w[5], &hl);
+            GGCDDCN(&c, v, vl, lo, ll, hi, hl);
+            printf("%d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "get") == 0) {
+            be(lo, w[3], &ll);
+            GGCGDCN(&c, v, 8, lo, 8, atoi(w[4]));
+            if (c.resp == 0) printf("0/0 %llu\n", un(v)); else printf("%d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "gc") == 0) {
+            GGCGCNT(&c);
+            if (c.resp == 0) printf("0/0 %d\n", c.num); else printf("%d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "qry") == 0) {
+            int lim = atoi(w[3]);
+            GGCQDCN(&c, v, 8, lo, lim ? 8 : 0, hi, lim ? 8 : 0);
+            if (c.resp != 0) printf("%d/%d\n", c.resp, c.resp2);
+            else if (lim) printf("0/0 %llu %llu %llu\n", un(v), un(lo), un(hi));
+            else printf("0/0 %llu\n", un(v));
+        } else {
+            GGCXCNT(&c);
+            printf("%d/%d\n", c.resp, c.resp2);
+        }
+    }
+    return 0;
+}
+"""
+
+
+def _x45_seed(seed: str) -> str:
+    return f"- {seed}\n" if seed else ""
+
+
+@needs_cc
+def test_the_stub_defines_queries_and_wraps_a_doubleword_counter(tmp_path):
+    """#4770 zECS (register X45), IBM EXEC CICS DEFINE / QUERY / GET DCOUNTER: the stub's GGCDDCN / GGCQDCN / GGCGDCN."""
+    exe = _stub(tmp_path, _X45_MAIN)
+    for n, (seed, steps, answers, refusal) in enumerate(_X45_CASES):
+        work = tmp_path / f"c{n}"
+        work.mkdir()
+        (work / "out").mkdir()
+        (work / "counters.cfg").write_text(_x45_seed(seed), encoding="ascii")
+        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        got = run.stdout.splitlines()
+        if refusal is None:
+            assert run.returncode == 0 and got == answers, (steps, got)
+        else:
+            assert run.returncode == 98 and got[: len(answers)] == answers and refusal in run.stdout, (
+                steps,
+                run.stdout,
+            )
+
+
+@needs_javac
+def test_cics_task_defines_queries_and_wraps_a_doubleword_counter_as_the_stub_does(tmp_path):
+    """#4770 zECS (X45): CicsTask.defineDcounter / queryDcounter / getCounter(.., wrap) answer the scenarios above as the stub does
+    and refuse what it refuses."""
+
+    def u(x: str, dflt: str) -> str:
+        return dflt if x == "-" else f'Long.parseUnsignedLong("{x}")'
+
+    parts = []
+    for seed, steps, _answers, _refusal in _X45_CASES:
+        counters = 'java.util.Map.of("/LEG", 5L)' if seed else "java.util.Map.of()"
+        body = ""
+        for st in steps:
+            w = st.split()
+            pool = '""' if w[2] == "-" else f'"{w[2]}"'
+            nm = f'"{w[1]}"'
+            if w[0] == "def":
+                body += (f"r = t.defineDcounter({pool}, {nm}, {u(w[3], '0L')}, {u(w[4], '0L')}, {u(w[5], '-1L')}); "
+                         'System.out.println(r[0] + "/" + r[1]);\n')  # fmt: skip
+            elif w[0] in ("get", "gc"):
+                call = (
+                    f"t.getCounter({pool}, {nm}, {u(w[3], '1L')}, {'true' if w[4] == '1' else 'false'})"
+                    if w[0] == "get"
+                    else f"t.getCounter({pool}, {nm})"
+                )
+                body += f'g = {call}; System.out.println(g[0] == 0 ? "0/0 " + Long.toUnsignedString(g[2]) : g[0] + "/" + g[1]);\n'
+            elif w[0] == "qry":
+                lim = "true" if w[3] == "1" else "false"
+                tail = (
+                    ' + " " + Long.toUnsignedString(g[3]) + " " + Long.toUnsignedString(g[4])' if lim == "true" else ""
+                )
+                body += (f"g = t.queryDcounter({pool}, {nm}, {lim}); "
+                         f'System.out.println(g[0] == 0 ? "0/0 " + Long.toUnsignedString(g[2]){tail} : g[0] + "/" + g[1]);\n')  # fmt: skip
+            else:
+                body += f't_ = t.deleteCounter({pool}, {nm}); System.out.println(t_[0] + "/" + t_[1]);\n'
+        parts.append(
+            '{ CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withCounters(new java.util.HashMap<>('
+            + counters
+            + "));\n"
+            "int[] r, t_; long[] g;\n"
+            f'try {{\n{body}}} catch (UnsupportedOperationException e) {{ System.out.println("refused " + e.getMessage()); }} }}\n'
+        )
+    out = _cics_task(tmp_path, "\n".join(parts)).splitlines()
+    pos = 0
+    for _seed, _steps, answers, refusal in _X45_CASES:
+        assert out[pos : pos + len(answers)] == answers, (_steps, out[pos : pos + len(answers)])
+        pos += len(answers)
+        if refusal is not None:
+            assert out[pos] == f"refused {refusal}: not modelled", (refusal, out[pos])
+            pos += 1
 
 
 # ---- #4767 zECS (register X37): WEB SEND DOCTOKEN ------------------------------------------------------------------------------

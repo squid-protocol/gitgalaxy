@@ -103,7 +103,8 @@ typedef struct {
 enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGERR, FILENOTFOUND = DFHRESP_FILENOTFOUND,
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
        PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, DUPKEY = DFHRESP_DUPKEY, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
-       END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR };
+       END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR,
+       SUPPRESSED = DFHRESP_SUPPRESSED };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -3234,7 +3235,9 @@ int GGCAOUT(const char *ca, int len) {
  * none), read whole for each counter command and rewritten by the ones that change it, so a later task of the scenario
  * sees the result. */
 #define MAXCNT 64
-typedef struct { char pool[64], name[64]; long long value; } counter_row; /* #4836: long is 32-bit on Windows */
+/* #4770 (X45): `limited` rows (DEFINE DCOUNTER's) carry MINIMUM / MAXIMUM, unsigned doublewords; a row of three fields has limits
+ * the run does not state. */
+typedef struct { char pool[64], name[64]; unsigned long long value; int limited; unsigned long long min, max; } counter_row; /* #4836: long is 32-bit on Windows */
 
 static int counters_read(counter_row *rows) {
     char path[4096], line[256];
@@ -3242,7 +3245,11 @@ static int counters_read(counter_row *rows) {
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "r");
     while (f && n < MAXCNT && fgets(line, sizeof line, f))
-        if (sscanf(line, "%63s %63s %lld", rows[n].pool, rows[n].name, &rows[n].value) == 3) n++;
+    {
+        int got = sscanf(line, "%63s %63s %llu %llu %llu", rows[n].pool, rows[n].name, &rows[n].value, &rows[n].min, &rows[n].max);
+        rows[n].limited = got == 5;
+        if (got == 3 || got == 5) n++;
+    }
     if (f) fclose(f);
     return n;
 }
@@ -3251,7 +3258,12 @@ static void counters_write(const counter_row *rows, int n) {
     char path[4096];
     snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
     FILE *f = fopen(path, "w");
-    for (int i = 0; f && i < n; i++) fprintf(f, "%s %s %lld\n", rows[i].pool, rows[i].name, rows[i].value);
+    for (int i = 0; f && i < n; i++) {
+        if (rows[i].limited)
+            fprintf(f, "%s %s %llu %llu %llu\n", rows[i].pool, rows[i].name, rows[i].value, rows[i].min, rows[i].max);
+        else
+            fprintf(f, "%s %s %llu\n", rows[i].pool, rows[i].name, rows[i].value);
+    }
     if (f) fclose(f);
 }
 
@@ -3284,6 +3296,35 @@ static void counter_names(gg_cics *c, char *want, char *pool, char *shown) {
     if (!pool[0]) strcpy(pool, "-");
 }
 
+/* One GET of the counter at rows[at] (as CicsTask.getCounter(pool, name, increment, wrap)): the value it hands back in *out and
+ * the counter `incr` more; 1 (SUPPRESSED RESP2 101, the counter unchanged) for a DEFINE DCOUNTER counter at its limit without
+ * WRAP. #4770 (X45): such a counter has the limits it was given (unsigned doublewords): at its limit (MAXIMUM + 1) WRAP
+ * "resets the current value ... equal to the minimum value" and the GET returns that; an INCREMENT beyond MAXIMUM - MINIMUM, or
+ * past MAXIMUM + 1 (IBM's 406 / REDUCE boundaries are not stated), and a counter past a doubleword are refused. A counter with
+ * no limits has none the run states: WRAP changes nothing and one past 4294967295 is refused, as before. */
+static int counter_step(counter_row *r, unsigned long long incr, int wrap, unsigned long long *out) {
+    unsigned long long v = r->value, next;
+    if (!r->limited) {
+        if (incr > 4294967295ULL || v + incr > 4294967295ULL) refuse("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        *out = v;
+        r->value = v + incr;
+        return 0;
+    }
+    if (incr > r->max - r->min) refuse("GET COUNTER with an INCREMENT beyond the counter's range");
+    if (r->max != ~0ULL && v > r->max) { /* at its limit: the counter is MAXIMUM + 1 */
+        if (!wrap) return 1;
+        *out = r->min;
+        r->value = r->min + incr;
+        return 0;
+    }
+    next = v + incr;
+    if (next < v) refuse("GET COUNTER past a doubleword");
+    if (next > r->max && next - r->max > 1) refuse("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+    *out = v;
+    r->value = next;
+    return 0;
+}
+
 /* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
  * counter is one more; a counter not there is INVREQ RESP2 201 "Named counter not found" (the page lists no NOTFND; X30),
  * a name outside IBM's rules INVREQ 403 / 404. */
@@ -3302,18 +3343,22 @@ int GGCGCNT(gg_cics *c) {
         c->resp = INVREQ;
         c->resp2 = 201;
     } else {
-        c->num = (int)rows[at].value;
-        rows[at].value++;
-        counters_write(rows, n);
+        unsigned long long got;
+        if (counter_step(&rows[at], 1, 0, &got)) {
+            c->resp = SUPPRESSED;
+            c->resp2 = 101;
+        } else {
+            c->num = (int)got;
+            counters_write(rows, n);
+        }
     }
     return 0;
 }
 
-/* GET DCOUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER and GET DCOUNTER; X30): the
+/* GET DCOUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER and GET DCOUNTER; X30, X45): the
  * value before the increment is written big-endian (unsigned doubleword) into `value`, after which the counter is the
- * increment more. WRAP changes nothing here (it acts at the counter's maximum, which the run does not state): a counter that
- * would pass 4294967295 is refused, as an increment not above zero. As CicsTask.getCounter(pool, name, increment). */
-int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen) {
+ * increment more; `wrap` is WRAP. See counter_step for the limits. As CicsTask.getCounter(pool, name, increment, wrap). */
+int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
     unsigned long long incr = 0;
@@ -3322,8 +3367,7 @@ int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, 
     int bad = counter_name_resp2(shown, want);
     if (inclen > 8 || valuelen != 8) refuse("GET DCOUNTER with a VALUE or INCREMENT that is not a doubleword");
     for (i = 0; i < inclen; i++) incr = incr * 256 + inc[i];
-    if (incr == 0 || incr > 4294967295ULL) refuse(incr == 0 ? "GET COUNTER with an INCREMENT not above zero"
-                                                  : "GET COUNTER past 4294967295: the counter's maximum is not stated");
+    if (incr == 0) refuse("GET COUNTER with an INCREMENT not above zero");
     int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -3334,11 +3378,93 @@ int GGCGDCN(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, 
         c->resp = INVREQ;
         c->resp2 = 201;
     } else {
-        unsigned long long v = (unsigned long long)rows[at].value;
-        if (v + incr > 4294967295ULL) refuse("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        unsigned long long v;
+        if (counter_step(&rows[at], incr, wrap, &v)) {
+            c->resp = SUPPRESSED;
+            c->resp2 = 101;
+            return 0;
+        }
         for (i = 7; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
-        rows[at].value += (long long)incr;
         counters_write(rows, n);
+    }
+    return 0;
+}
+
+static unsigned long long be64(const unsigned char *p, int len) {
+    unsigned long long v = 0;
+    for (int i = 0; i < len; i++) v = v * 256 + p[i];
+    return v;
+}
+
+static void put64(unsigned char *p, unsigned long long v) {
+    for (int i = 7; i >= 0; i--) { p[i] = (unsigned char)(v & 255); v >>= 8; }
+}
+
+/* DEFINE DCOUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (#4770, register X45; IBM, EXEC CICS DEFINE COUNTER and DEFINE
+ * DCOUNTER): unsigned doublewords, each area passed with its length (0: omitted -- IBM's defaults MINIMUM zero, MAXIMUM a doubleword
+ * of X'FF', VALUE zero). INVREQ 407 when MAXIMUM is below MINIMUM, 406 when VALUE is below MINIMUM or above MAXIMUM + 1 (checked
+ * before 202, 403 / 404 first: the page gives no order), 202 for a duplicate. As CicsTask.defineDcounter. */
+int GGCDDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows);
+    if (vallen > 8 || lolen > 8 || hilen > 8) refuse("DEFINE DCOUNTER with a VALUE, MINIMUM or MAXIMUM that is not a doubleword");
+    unsigned long long v = vallen ? be64(val, vallen) : 0, mn = lolen ? be64(lo, lolen) : 0, mx = hilen ? be64(hi, hilen) : ~0ULL;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (mx < mn) {
+        c->resp = INVREQ;
+        c->resp2 = 407;
+    } else if (v < mn || (mx != ~0ULL && v > mx + 1)) {
+        c->resp = INVREQ;
+        c->resp2 = 406;
+    } else if (counter_find(rows, n, pool, want) >= 0) {
+        c->resp = INVREQ;
+        c->resp2 = 202;
+    } else if (n >= MAXCNT) {
+        refuse("DEFINE COUNTER past the stub's 64 counters");
+    } else {
+        snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
+        snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
+        rows[n].value = v;
+        rows[n].limited = 1;
+        rows[n].min = mn;
+        rows[n].max = mx;
+        counters_write(rows, n + 1);
+    }
+    return 0;
+}
+
+/* QUERY DCOUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (#4770, X45): the counter's value and limits, unsigned doublewords
+ * written big-endian into the areas given (length 0: not asked for); the value is unchanged. MINIMUM / MAXIMUM of a counter with no
+ * limits are refused. As CicsTask.queryDcounter. */
+int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    if ((vallen && vallen != 8) || (lolen && lolen != 8) || (hilen && hilen != 8))
+        refuse("QUERY DCOUNTER with a VALUE, MINIMUM or MAXIMUM that is not a doubleword");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        if ((lolen || hilen) && !rows[at].limited)
+            refuse("QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        if (vallen) put64(val, rows[at].value);
+        if (lolen) put64(lo, rows[at].min);
+        if (hilen) put64(hi, rows[at].max);
     }
     return 0;
 }
@@ -3360,7 +3486,7 @@ int GGCQCNT(gg_cics *c) {
     } else if (at < 0) {
         c->resp = INVREQ;
         c->resp2 = 201;
-    } else if (rows[at].value < -2147483647LL - 1 || rows[at].value > 2147483647LL) {
+    } else if (rows[at].value > 2147483647ULL) {
         refuse("QUERY COUNTER of a value beyond a fullword");
     } else {
         c->num = (int)rows[at].value;
@@ -3393,7 +3519,8 @@ int GGCDCNT(gg_cics *c) {
     } else {
         snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
         snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
-        rows[n].value = c->num;
+        rows[n].value = (unsigned long long)c->num;
+        rows[n].limited = 0;
         counters_write(rows, n + 1);
     }
     return 0;

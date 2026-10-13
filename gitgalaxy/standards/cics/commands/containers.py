@@ -9,7 +9,7 @@
 # ==============================================================================
 """#4270 slice 1 (#4575): PUT / GET / DELETE CONTAINER (CHANNEL), register X17; #4951: MOVE CONTAINER and the container
 browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), register X42; #5005: DELETE CHANNEL and QUERY CHANNEL, register
-X43."""
+X44."""
 
 from __future__ import annotations
 
@@ -272,7 +272,7 @@ DELETE_CHANNEL = Command(
     key="DELETE CHANNEL",
     ibm=ibm("EXEC CICS DELETE CHANNEL", "summary-delete-channel"),
     status="modelled",
-    register="X43",
+    register="X44",
     options={"CHANNEL": _NAME, **RESP_OPTIONS},  # deleting a channel deletes every container it holds
     groups=(required("CHANNEL", msg=NEEDS_ARGUMENT),),
     outcomes=(
@@ -285,7 +285,7 @@ DELETE_CHANNEL = Command(
         RuntimeRefusal(
             "the program's current channel: IBM gives CHANNELERR RESP2 4 (current), 5 (transaction channel) or 6 (not "
             "owned by the calling program), and a channel a program is passed is all of them, unranked",
-            "X43",
+            "X44",
             java="DELETE CHANNEL of the current channel",
             c="DELETE CHANNEL of the current channel",
         ),
@@ -298,7 +298,7 @@ QUERY_CHANNEL = Command(
     key="QUERY CHANNEL",
     ibm=ibm("EXEC CICS QUERY CHANNEL", "summary-query-channel"),
     status="modelled",
-    register="X43",
+    register="X44",
     options={
         "CHANNEL": _NAME,
         "CONTAINERCNT": Arg("area_out", width=4, binary=True),  # "a count of the number of containers", a fullword

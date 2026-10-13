@@ -147,6 +147,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X41 | CICS | WEB RETRIEVE DOCTOKEN(area) on the task that serves the stated request (http_request, as X37: unstated, refused) answers INVREQ RESP2 2 when no WEB SEND has been issued and NOTFND RESP2 1 when the last WEB SEND was not an ACTION(EVENTUAL) document send; every WEB SEND the runtimes accept is IMMEDIATE, so a send that happened is always NOTFND 1, and the NORMAL outcome (the 16-byte DOCTOKEN of the sent document) is never produced because WEB SEND refuses ACTION(EVENTUAL); refused: a retrieve after a WEB SEND that ended in a condition, every option but DOCTOKEN (it is required), a literal DOCTOKEN, an unstated request | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case: its SPEC has no WEB event; no estate program issues it) |
 | X42 | CICS | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | X43 | CICS | EXEC CICS LINK documents ROLLEDBACK, SYSIDERR and TERMERR beyond XCTL's conditions. The region never raises them (no remote system, no unit of work to roll back, no terminal link) and resp.CONDITION_ABEND has no abend code for them that is sourced from IBM, so a scenario cannot plan them on a LINK (equivalence_cics.fault_lines refuses by name) and a program that depends on one stays unproven. EIBRESP2 / RESP2 after a failed XCTL or LINK is the RESP2 its event carries (a planned fault's PGMIDERR 3, NOTAUTH 101 ...), no longer derived from the condition's name | REFUSED | no (unit-proven on CicsTask and the harness's fault_lines) |
+| X44 | CICS | DELETE CHANNEL (the channel and its containers go) and QUERY CHANNEL (CONTAINERCNT, the number of containers) with IBM's one condition, CHANNELERR RESP2 2; refused: deleting the program's current channel (IBM's RESP2 4 / 5 / 6 all fit it and it ranks none), a name that is blank or has an embedded blank, a channel an XCTL left behind; unreachable: CHANNELERR 3 (read-only). INQUIRE CONTAINER stays refused: IBM documents it only in its BTS form | ASSUMED (REFUSED where IBM is silent) | no (unit-proven on CicsTask and the stub C, which answer one step list alike; no cics-crucible case yet) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2211,6 +2212,38 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   program is not proven while a program it LINKs has holes. When IBM's abend pages are sourced, add them to `CONDITION_ABEND`,
   model the condition, and remove the refusal.
 - **Status:** REFUSED for the three conditions; the RESP2 fix is exact.
+
+### X44. DELETE CHANNEL and QUERY CHANNEL — ASSUMED, REFUSED where IBM is silent (#5005, sibling of #4951)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS DELETE CHANNEL and EXEC CICS QUERY CHANNEL:
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delete-channel and `summary-query-channel`). DELETE CHANNEL(name): the
+  channel (1 - 16 characters) is deleted, and "deleting the channel also deletes every container it holds". Its only condition is
+  CHANNELERR, with RESP2 2 (the channel could not be found), 3 (a read-only channel), 4 (the current channel), 5 (the transaction
+  channel) and 6 (a channel not owned by the calling program). QUERY CHANNEL: CHANNEL(name) is required; CONTAINERCNT(data-area)
+  "returns, as a fullword binary value, a count of the number of containers that are in the specified channel"; its only condition is
+  CHANNELERR RESP2 2 (the channel could not be found). CHANNELERR abends AEZV when unhandled (X17). Both sides model it: `ggcics.c`
+  GGCDELH / GGCQCHN and CicsTask deleteChannel / queryChannel; the spec entries are `standards/cics/commands/containers.py`.
+- **Assumed.** (1) A channel is found in the program's scope (X17): the channels it created and the one it was passed; a channel in
+  another program's scope is not found (CHANNELERR 2), so a LINKed program deleting or querying a channel its caller made but did
+  not pass gets CHANNELERR 2. (2) After a DELETE the channel is gone from the scope: a later GET / DELETE CONTAINER, QUERY or DELETE
+  CHANNEL naming it is CHANNELERR 2, and a PUT CONTAINER naming it makes a new, empty channel ("If the channel does not exist, it is
+  created", X17) that holds none of the old containers. (3) A channel emptied container by container still exists: QUERY CHANNEL
+  gives CONTAINERCNT 0, and DELETE CHANNEL succeeds. (4) CONTAINERCNT is set on NORMAL only; IBM does not say what it holds on
+  CHANNELERR (as FLENGTH, X17). (5) A browse (X42) of a channel that was then deleted is refused at its next GETNEXT, like any change to
+  the browsed channel.
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run time): any option
+  IBM's commands do not list; a missing CHANNEL (or, for QUERY, CONTAINERCNT); DELETE CHANNEL of the program's current channel (IBM's
+  RESP2 4 names the current channel, 5 the transaction channel and 6 a channel the program does not own, and a channel a program is
+  passed is the current one, is not its own, and for the task's first program is also the transaction channel: IBM ranks none, so
+  the port refuses instead of choosing); a channel an XCTL left behind and a blank / embedded-blank name (X17's refusals).
+  **Unreachable, so no outcome:** CHANNELERR 3 (no channel is read-only: CICS-defined channels are not modelled); 4, 5 and 6 as
+  separate outcomes (the refusal above covers every case they could apply to).
+- **INQUIRE CONTAINER** is still refused whole, as the BTS form: IBM's INQUIRE CONTAINER page documents only the BTS data-container
+  (ACTIVITYID / PROCESS / PROCESSTYPE / DATALENGTH / SET; ACTIVITYERR, PROCESSERR, CONTAINERERR 1), and BTS is out of scope. No IBM
+  page for a channel form was found; a channel container's length is `GET CONTAINER ... NODATA FLENGTH` (X17).
+- **Reached.** Unit proofs: `tests/cics_crucible/test_cics_runtimes.py` runs one 24-step scenario (counts, delete, the channel gone
+  and recreated, an emptied channel, a LINKed program's scope, every condition) on the stub and on CicsTask, which print the same
+  lines, and the refusals above on both; the translators' tests are in `tests/cobol_mainframe/test_det_translate.py` and
+  `test_equivalence_cics.py`. No cics-crucible case yet: a hand-traced case is a companion PR on the crucible.
 
 ## Language Environment
 

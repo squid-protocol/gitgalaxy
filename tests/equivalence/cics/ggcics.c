@@ -2071,7 +2071,7 @@ int GGCDELC(gg_cics *c) {
 }
 
 /* ---- #5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL); the same semantics as
- * CicsTask (register X43). The channel's name is GG-CHAN. */
+ * CicsTask (register X44). The channel's name is GG-CHAN. */
 
 /* DELETE CHANNEL: the channel and its containers go from the program's scope; CHANNELERR RESP2 2 for one not in scope. The
  * current channel is refused: IBM's RESP2 4 / 5 / 6 all fit a channel the program was passed, and it ranks none. */

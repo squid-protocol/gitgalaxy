@@ -87,7 +87,9 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
-    if first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005 (DELETE CONTAINER is above)
+    if (
+        first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts
+    ):  # #5005 (DELETE CONTAINER is above)
         return f"{first} CHANNEL"
     if first == "GETNEXT" and "CONTAINER" in opts:  # #4951: GETNEXT CONTAINER(area) BROWSETOKEN(token)
         return "GETNEXT CONTAINER"
@@ -1620,7 +1622,7 @@ class Cics:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
         channels. DELETE: the channel and its containers go. QUERY: CONTAINERCNT, a fullword, is set to the number of
         containers on NORMAL (not on a condition: IBM does not say). CHANNELERR RESP2 2 comes back through RESP / HANDLE
-        CONDITION (AEZV by default); what IBM leaves open is refused at run time (register X43)."""
+        CONDITION (AEZV by default); what IBM leaves open is refused at run time (register X44)."""
         r = self.g.tmpname("chan")
         chan = self.name(_arg(opts.get("CHANNEL")))
         if key == "DELETE CHANNEL":

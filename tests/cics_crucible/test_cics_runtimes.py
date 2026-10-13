@@ -1825,11 +1825,8 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, ste
 
 # ---- #5005: DELETE CHANNEL and QUERY CHANNEL -------------------------------------------------------------
 # One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS DELETE CHANNEL, QUERY
-# CHANNEL: CHANNELERR RESP2 2 for a channel not in scope); what IBM leaves open is refused (register X43).
-_CHAN_EXTERNS = (
-    "int GGCDELH(gg_cics *c); int GGCQCHN(gg_cics *c); int GGCDELC(gg_cics *c);\n"
-    "int GGCSYNC(gg_cics *c);"
-)
+# CHANNEL: CHANNELERR RESP2 2 for a channel not in scope); what IBM leaves open is refused (register X44).
+_CHAN_EXTERNS = "int GGCDELH(gg_cics *c); int GGCQCHN(gg_cics *c); int GGCDELC(gg_cics *c);\nint GGCSYNC(gg_cics *c);"
 _CHAN_HELPERS = r"""
 static void delch(const char *what, const char *chan) { blank(c.chan, 16, chan); GGCDELH(&c); say(what); }
 static void query(const char *what, const char *chan) {
@@ -1963,14 +1960,17 @@ def test_cics_task_deletes_and_queries_channels_as_the_stub_does(tmp_path):
             'put("CH1", "A", "a", "CHANNEL"); int t = start("s", "CH1"); delch("d", "CH1"); next("n", t);',
             "browsed channel changed during the browse",
         ),
-        ('put("CH2", "A", "a", "CHANNEL"); link_sub("CH2"); delch("d", "CH2");', "DELETE CHANNEL of the current channel"),
+        (
+            'put("CH2", "A", "a", "CHANNEL"); link_sub("CH2"); delch("d", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
         ('delch("d", " A");', "channel name"),
         ('query("q", " A");', "channel name"),
         ('delch("d", "");', "channel name"),
     ],
 )
 def test_the_stub_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
-    """#5005 (X43): the current channel (IBM's RESP2 4 / 5 / 6 all fit it, unranked), a browse of a channel that was deleted
+    """#5005 (X44): the current channel (IBM's RESP2 4 / 5 / 6 all fit it, unranked), a browse of a channel that was deleted
     and a blank or embedded-blank name are refused, never guessed."""
     exe = _stub(tmp_path, _chan_stub_main(steps))
     (tmp_path / "out").mkdir(exist_ok=True)
@@ -1988,14 +1988,17 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_p
             ' t.deleteChannel("CH1"); t.getNextContainer(k);',
             "browsed channel changed during the browse",
         ),
-        ('t.putContainer("CH2", "A", "a".getBytes(), 1, null, false); t.linkChannel("SUB", "CH2");', "DELETE CHANNEL of the current channel"),
+        (
+            't.putContainer("CH2", "A", "a".getBytes(), 1, null, false); t.linkChannel("SUB", "CH2");',
+            "DELETE CHANNEL of the current channel",
+        ),
         ('t.deleteChannel(" A");', "channel name"),
         ('t.queryChannel(" A");', "channel name"),
         ('t.deleteChannel("");', "channel name"),
     ],
 )
 def test_cics_task_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_path, steps, why):
-    """#5005 (X43): the same refusals as the stub's."""
+    """#5005 (X44): the same refusals as the stub's."""
     out = _cics_task(
         tmp_path,
         'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {\n'

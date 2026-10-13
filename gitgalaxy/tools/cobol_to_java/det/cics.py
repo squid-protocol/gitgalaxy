@@ -757,14 +757,17 @@ class Cics:
         return dto, length
 
     def in_dfhcommarea(self, text: str) -> bool:
-        """#4816: whether a COMMAREA operand lies inside the program's LINKAGE DFHCOMMAREA record."""
+        """#4816: whether a COMMAREA operand lies inside a LINKAGE 01 record. DFHCOMMAREA is the LINK caller's area; any
+        other LINKAGE record can be the same storage under another name (#4957: a CALLed subprogram's USING record --
+        SET ADDRESS OF forms never reach here, they are holes), so it is marked too and the runtime refuses it only
+        when the program was LINKed with a COMMAREA (X39)."""
         try:
             it = self.g.resolve(self.ref(text))
         except LookupError:  # an operand commarea_out handled without an item of its own: no caller's record
             return False
         while it.parent is not None:
             it = it.parent
-        return it.section == "LINKAGE" and it.name == "DFHCOMMAREA"
+        return it.section == "LINKAGE"
 
     def commarea_bytes(self, opts: dict, program: str | None = None) -> str:
         """#4806: the COMMAREA's bytes as its DTO spans them (a byte[] expression): passed beside the DTO, they are
@@ -952,7 +955,7 @@ class Cics:
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
                     f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
-            return out + self.outcome(opts, f"DetCics.resp({r})", f"DetCics.linkResp2({r})", ind)  # #4679
+            return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
@@ -1007,7 +1010,7 @@ class Cics:
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
-                    *self.outcome(opts, f"DetCics.resp({r})", f"DetCics.xctlResp2({r})", ind)])  # fmt: skip
+                    *self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):

@@ -32,6 +32,8 @@ URIMAP, DOCTOKEN, CONTAINER, SET, NOTRUNCATE, TOCONTAINER, ACTION, CLOSESTATUS, 
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
@@ -536,6 +538,130 @@ WEB_EXTRACT = Command(
     ),
 )
 
+# #4972: EXTRACT WEB is IBM's "synonym of WEB EXTRACT" (summary-extract-web: the same options, the same conditions); one
+# table, so one runtime call and one set of refusals. Its messages name the form the program wrote.
+EXTRACT_WEB = replace(
+    WEB_EXTRACT,
+    key="EXTRACT WEB",
+    ibm=ibm("EXEC CICS EXTRACT WEB", "summary-extract-web"),
+    groups=tuple(replace(g, msg=g.msg.replace("WEB EXTRACT", "EXTRACT WEB")) for g in WEB_EXTRACT.groups),
+)
+
+_TCPIP_IPV4 = RuntimeRefusal(
+    "an address that is not IPv4 dotted decimal (IPv6: CLNTADDR6NU / SRVRADDR6NU and the colon form are not modelled), "
+    "CLIENTADDRNU / SERVERADDRNU of an address that does not fit a signed fullword (IBM gives the unsigned value; a COBOL "
+    "fullword holds the signed one)",
+    "X38",
+    java="EXTRACT TCPIP address",
+    c="EXTRACT TCPIP address",
+)
+
+# the stated connection: whoever runs the task STATES it (`tcpip`), as the request is (X37)
+EXTRACT_TCPIP = Command(
+    key="EXTRACT TCPIP",
+    ibm=ibm("EXEC CICS EXTRACT TCPIP", "summary-extract-tcpip"),
+    status="modelled",
+    register="X38",
+    options={
+        "CLIENTADDR": Arg("area_out"),
+        "CADDRLENGTH": Arg("area_inout", binary=True),
+        "CLIENTADDRNU": Arg("area_out", width=4, binary=True),
+        "CLIENTNAME": Arg("area_out"),
+        "CNAMELENGTH": Arg("area_inout", binary=True),
+        "CLNTIPFAMILY": Arg("area_out", width=4, binary=True),
+        "SERVERADDR": Arg("area_out"),
+        "SADDRLENGTH": Arg("area_inout", binary=True),
+        "SERVERADDRNU": Arg("area_out", width=4, binary=True),
+        "SERVERNAME": Arg("area_out"),
+        "SNAMELENGTH": Arg("area_inout", binary=True),
+        "SRVRIPFAMILY": Arg("area_out", width=4, binary=True),
+        "PORTNUMNU": Arg("area_out", width=4, binary=True),
+        "SSLTYPE": Arg("area_out", width=4, binary=True),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "PORTNUMBER": Refusal("the port in character form: IBM does not say how its 5 characters are padded", "X38"),
+        "CLNTADDR6NU": Refusal("an IPv6 address is not modelled", "X38"),
+        "SRVRADDR6NU": Refusal("an IPv6 address is not modelled", "X38"),
+        "AUTHENTICATE": Refusal("the authentication the TCPIPSERVICE asks for is not stated by the connection", "X38"),
+        "TCPIPSERVICE": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+        "PRIVACY": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+        "MAXDATALEN": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+    },
+    default_refusal=Refusal(
+        "only CLIENTADDR / CADDRLENGTH, CLIENTADDRNU, CLIENTNAME / CNAMELENGTH, CLNTIPFAMILY, SERVERADDR / SADDRLENGTH, "
+        "SERVERADDRNU, SERVERNAME / SNAMELENGTH, SRVRIPFAMILY, PORTNUMNU and SSLTYPE are modelled",
+        "X38",
+    ),
+    groups=(
+        requires(("CADDRLENGTH",), ("CLIENTADDR",), msg="EXTRACT TCPIP CADDRLENGTH without CLIENTADDR"),
+        requires(("CNAMELENGTH",), ("CLIENTNAME",), msg="EXTRACT TCPIP CNAMELENGTH without CLIENTNAME"),
+        requires(("SADDRLENGTH",), ("SERVERADDR",), msg="EXTRACT TCPIP SADDRLENGTH without SERVERADDR"),
+        requires(("SNAMELENGTH",), ("SERVERNAME",), msg="EXTRACT TCPIP SNAMELENGTH without SERVERNAME"),
+    ),
+    outcomes=(
+        Outcome(
+            "NORMAL",
+            0,
+            "",
+            writes=(
+                "CLIENTADDR",
+                "CADDRLENGTH",
+                "CLIENTADDRNU",
+                "CLIENTNAME",
+                "CNAMELENGTH",
+                "CLNTIPFAMILY",
+                "SERVERADDR",
+                "SADDRLENGTH",
+                "SERVERADDRNU",
+                "SERVERNAME",
+                "SNAMELENGTH",
+                "SRVRIPFAMILY",
+                "PORTNUMNU",
+                "SSLTYPE",
+            ),
+        ),
+        Outcome(
+            "LENGERR",
+            1,
+            "CLIENTADDR, SERVERADDR, CLIENTNAME or SERVERNAME is given and its length option is missing or not above zero",
+            raised_by=("CADDRLENGTH", "CNAMELENGTH", "SADDRLENGTH", "SNAMELENGTH"),
+        ),
+        Outcome("LENGERR", 3, "CLIENTADDR is too small for the address", raised_by=("CADDRLENGTH",)),
+        Outcome("LENGERR", 4, "SERVERADDR is too small for the address", raised_by=("SADDRLENGTH",)),
+        Outcome("LENGERR", 6, "CLIENTNAME is too small for the name", raised_by=("CNAMELENGTH",)),
+        Outcome("LENGERR", 7, "SERVERNAME is too small for the name", raised_by=("SNAMELENGTH",)),
+    ),
+    facts=(
+        Fact(
+            "tcpip",
+            java="withTcpip",
+            env="GGCICS_TCPIP",
+            region_default=None,
+            options=("CLIENTADDR", "SERVERADDR", "PORTNUMNU", "SSLTYPE"),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the TCP/IP connection the task was started on is not stated for the task",
+            "X38",
+            java="the TCP/IP connection is not stated (withTcpip)",
+            c="the TCP/IP connection is not stated for this task",
+        ),
+        _TCPIP_IPV4,
+        RuntimeRefusal(
+            "a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7: IBM does not say what the length "
+            "option or the area then holds), a SERVERNAME the connection does not state, more than one condition at once",
+            "X38",
+            java="EXTRACT TCPIP",
+            c="EXTRACT TCPIP",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES, "X38", java="EXTRACT TCPIP length beyond its area", c="EXTRACT TCPIP length beyond its area"
+        ),
+    ),
+)
+
 WEB_RECEIVE = Command(
     key="WEB RECEIVE",
     ibm=ibm("EXEC CICS WEB RECEIVE (server)", "summary-web-receive-server"),
@@ -956,6 +1082,8 @@ COMMANDS = (
     WEB_PARSE_URL,
     WEB_SEND,
     WEB_EXTRACT,
+    EXTRACT_WEB,
+    EXTRACT_TCPIP,
     WEB_RECEIVE,
     WEB_READ_HTTPHEADER,
     WEB_WRITE_HTTPHEADER,

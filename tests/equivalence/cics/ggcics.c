@@ -2919,7 +2919,7 @@ static void dispatch_children(void) {
             setenv("GGCICS_CHILDPROG", program, 1);
             if (getenv("COB_TRACE_FILE")) setenv("COB_TRACE_FILE", trace, 1); /* (its own: the parent's stays open) */
             const char *gone[] = {"GGCICS_FACILITY", "GGCICS_STARTCODE", "GGCICS_ORIGIN", "GGCICS_UCTRANST",
-                                  "GGCICS_WEBREQ", "GGCICS_HTTP", "GGCICS_LU2", "GGCICS_URIMAPS", "GGCICS_DOCTEMPLATES"};
+                                  "GGCICS_WEBREQ", "GGCICS_TCPIP", "GGCICS_HTTP", "GGCICS_LU2", "GGCICS_URIMAPS", "GGCICS_DOCTEMPLATES"};
             for (size_t j = 0; j < sizeof gone / sizeof gone[0]; j++) unsetenv(gone[j]);
             execl("/proc/self/exe", "task", (char *)NULL);
             _exit(97);
@@ -4090,6 +4090,109 @@ int GGCWEXT(gg_cics *c, char *host, int hostcap, char *method, int methodcap, ch
     c->num = webreq.port;
     memset(c->name1, ' ', sizeof c->name1);
     memcpy(c->name1, webreq.scheme, strlen(webreq.scheme));
+    return 0;
+}
+
+/* ---- #4972: EXTRACT TCPIP, the connection the task was started on (IBM CICS TS, EXEC CICS EXTRACT TCPIP; register X38) ----
+ * The connection is the file $GGCICS_TCPIP names (unstated, EXTRACT TCPIP is refused): `T CLIENTADDR CLIENTNAMEHEX|-
+ * SERVERADDR SERVERNAMEHEX|- PORT SSLTYPE`, the names in hex ("-": the DNS knows none). As CicsTask.extractTcpip answers. */
+static struct { int loaded, port, hascname, hassname; char caddr[64], saddr[64], ssl[16], cname[WEB_TXT],
+                sname[WEB_TXT]; } tcpipc;
+
+static void tcpip_load(void) {
+    const char *env = getenv("GGCICS_TCPIP");
+    static char line[70000], a[8][33000];
+    FILE *f;
+    if (tcpipc.loaded) return;
+    if (!env || !(f = fopen(env, "r"))) refuse("the TCP/IP connection is not stated for this task");
+    while (fgets(line, sizeof line, f)) {
+        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s", a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+        if (k == 7 && strcmp(a[0], "T") == 0) {
+            snprintf(tcpipc.caddr, sizeof tcpipc.caddr, "%s", a[1]);
+            tcpipc.hascname = strcmp(a[2], "-") != 0;
+            web_unhex(a[2], tcpipc.cname, WEB_TXT);
+            snprintf(tcpipc.saddr, sizeof tcpipc.saddr, "%s", a[3]);
+            tcpipc.hassname = strcmp(a[4], "-") != 0;
+            web_unhex(a[4], tcpipc.sname, WEB_TXT);
+            tcpipc.port = atoi(a[5]);
+            snprintf(tcpipc.ssl, sizeof tcpipc.ssl, "%s", a[6]);
+        }
+    }
+    fclose(f);
+    tcpipc.loaded = 1;
+}
+
+/* An IPv4 address in dotted decimal as a number (-1: it is not one: four decimal parts 0-255, no leading zero). */
+static long ipv4_value(const char *s) {
+    long value = 0;
+    int parts = 0;
+    while (1) {
+        int n = 0, digits = 0;
+        if (*s == '0' && s[1] >= '0' && s[1] <= '9') return -1;
+        while (*s >= '0' && *s <= '9') {
+            n = n * 10 + (*s++ - '0');
+            if (++digits > 3) return -1;
+        }
+        if (digits == 0 || n > 255) return -1;
+        value = value * 256 + n;
+        parts++;
+        if (*s == '\0') break;
+        if (*s++ != '.') return -1;
+    }
+    return parts == 4 ? value : -1;
+}
+
+/* GG-LEN CADDRLENGTH, GG-HOURS CNAMELENGTH, GG-MINS SADDRLENGTH, GG-SECS SNAMELENGTH (each in, 0 when the option is missing;
+ * out: the piece's length); GG-FLAGS names A1 N1 A2 N2 (client address, client name, server address, server name given) and U1 U2 F1 F2 (a number asked
+ * for). The numbers come from GGCTCPN. */
+int GGCTCPX(gg_cics *c, char *caddr, int caddrcap, char *cname, int cnamecap, char *saddr, int saddrcap, char *sname,
+            int snamecap) {
+    char flags[81];
+    int ca, cn, sa, sn, cnu, snu, cf, sf, cl = c->len, nl = c->hours, sl = c->mins, ml = c->secs;
+    int badlength, toosmall;
+    long cnum, snum;
+    tcpip_load();
+    trim(c->flags, 40, flags);
+    ca = strstr(flags, "A1") != NULL;
+    cn = strstr(flags, "N1") != NULL;
+    sa = strstr(flags, "A2") != NULL;
+    sn = strstr(flags, "N2") != NULL;
+    cnu = strstr(flags, "U1") != NULL;
+    snu = strstr(flags, "U2") != NULL;
+    cf = strstr(flags, "F1") != NULL;
+    sf = strstr(flags, "F2") != NULL;
+    if ((ca && cl > caddrcap) || (cn && nl > cnamecap) || (sa && sl > saddrcap) || (sn && ml > snamecap))
+        refuse("EXTRACT TCPIP length beyond its area");
+    cnum = ipv4_value(tcpipc.caddr);
+    snum = ipv4_value(tcpipc.saddr);
+    if (((ca || cnu || cf) && cnum < 0) || ((sa || snu || sf) && snum < 0) || (cnu && cnum > 2147483647L)
+        || (snu && snum > 2147483647L)) refuse("EXTRACT TCPIP address");
+    if (sn && !tcpipc.hassname) refuse("EXTRACT TCPIP");
+    badlength = (ca && cl <= 0) || (cn && nl <= 0) || (sa && sl <= 0) || (sn && ml <= 0);
+    toosmall = (ca && cl > 0 && (int)strlen(tcpipc.caddr) > cl) || (cn && nl > 0 && (int)strlen(tcpipc.cname) > nl)
+               || (sa && sl > 0 && (int)strlen(tcpipc.saddr) > sl) || (sn && ml > 0 && (int)strlen(tcpipc.sname) > ml);
+    if (badlength && toosmall) refuse("EXTRACT TCPIP with more than one condition at once");
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (badlength) { c->resp = LENGERR; c->resp2 = 1; return 0; }
+    if (toosmall) refuse("EXTRACT TCPIP");
+    if (ca) { memcpy(caddr, tcpipc.caddr, strlen(tcpipc.caddr)); c->len = (int)strlen(tcpipc.caddr); }
+    if (cn) { memcpy(cname, tcpipc.cname, strlen(tcpipc.cname)); c->hours = (int)strlen(tcpipc.cname); }
+    if (sa) { memcpy(saddr, tcpipc.saddr, strlen(tcpipc.saddr)); c->mins = (int)strlen(tcpipc.saddr); }
+    if (sn) { memcpy(sname, tcpipc.sname, strlen(tcpipc.sname)); c->secs = (int)strlen(tcpipc.sname); }
+    return 0;
+}
+
+/* GG-FLAGS names one of CNU SNU PORT SSL; out: GG-NUM (the SSL type as its CVDA). Only after a NORMAL GGCTCPX. */
+int GGCTCPN(gg_cics *c) {
+    char flags[41];
+    tcpip_load();
+    trim(c->flags, 40, flags);
+    if (strcmp(flags, "CNU") == 0) c->num = (int)ipv4_value(tcpipc.caddr);
+    else if (strcmp(flags, "SNU") == 0) c->num = (int)ipv4_value(tcpipc.saddr);
+    else if (strcmp(flags, "PORT") == 0) c->num = tcpipc.port;
+    else c->num = strcmp(tcpipc.ssl, "SSL") == 0 ? 1030 : strcmp(tcpipc.ssl, "NOSSL") == 0 ? 1031
+                  : strcmp(tcpipc.ssl, "CLIENTAUTH") == 0 ? 1032 : 1205;
     return 0;
 }
 

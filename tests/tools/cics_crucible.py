@@ -1029,16 +1029,17 @@ class EquivalenceRunTest {
                     if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
                         end = "abend";
                     }
-                    if ("RETURN".equals(e.get("event")) && !e.containsKey("level") && e.get("commarea") != null) {
-                        if (answered != null) {  // #4965: the bytes lastAnswerBytes() answered for this RETURN
-                            copy.put("answer_bytes", java.util.Base64.getEncoder().encodeToString(answered));
-                        } else if (answeredByBytes && thrown == null) {
-                            // the RETURN passed a COMMAREA on, so the byte overload owes its bytes: without them the
-                            // proof would fall back to the DTO's and never see a facade that stopped assigning them
-                            thrown = "lastAnswerBytes() of " + program + " answered null for a RETURN that passes a COMMAREA";
-                        }
+                    if ("RETURN".equals(e.get("event")) && !e.containsKey("level") && e.get("commarea") != null
+                            && answered != null) {  // #4965: the bytes lastAnswerBytes() answered for this RETURN
+                        copy.put("answer_bytes", java.util.Base64.getEncoder().encodeToString(answered));
                     }
                     events.add(copy);
+                }
+                if (answeredByBytes && thrown == null && !java.util.Arrays.equals(answered, t.returnedBytes())) {
+                    // #4965 (as equivalence_cics.py): the accessor answers the bytes the task's RETURN passed on -- a
+                    // facade that stopped assigning them (answers null, or a previous task's) is not proven by the
+                    // DTO's bytes the comparison falls back to
+                    thrown = "lastAnswerBytes() of " + program + " is not the bytes its RETURN passes on";
                 }
                 if (thrown != null) {
                     events.add(error(program, thrown));

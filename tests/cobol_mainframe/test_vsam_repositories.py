@@ -565,3 +565,105 @@ def test_a_refused_symbolic_merge_keeps_the_batch_user_on_its_own_store(tmp_path
     assert "symbolic_candidate_rejected" in by["PROD.APP.ACCT.KSDS"]
     assert [u["kind"] for u in by["@PFX@.ACCT.KSDS"]["users"]] == ["batch"]
     assert [u["kind"] for u in by["PROD.APP.ACCT.KSDS"]["users"]] == ["cics"]
+
+
+# ---- #5034: a CALLed subprogram runs under its caller's step DDs (CardDemo CBSTM03B, called by CBSTM03A) ----------
+def _prog(name, body, select=None):
+    files = ""
+    if select:
+        files = (
+            "       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n"
+            f"           SELECT {select}-FILE ASSIGN TO {select}DD\n"
+            f"                  ORGANIZATION IS INDEXED ACCESS MODE IS RANDOM RECORD KEY IS {select}-ID.\n"
+            f"       DATA DIVISION.\n       FILE SECTION.\n       FD  {select}-FILE.\n"
+            f"       01  {select}-REC.\n           05 {select}-ID PIC X(8).\n           05 FILLER PIC X(30).\n"
+        )
+    return (
+        f"       IDENTIFICATION DIVISION.\n       PROGRAM-ID. {name}.\n{files}"
+        f"       WORKING-STORAGE SECTION.\n       01  WS-TARGET PIC X(8).\n"
+        f"       PROCEDURE DIVISION.\n{body}           GOBACK.\n"
+    )
+
+
+def _call_estate(tmp_path, jcl, programs):
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl"):
+        (repo / d).mkdir(parents=True)
+    for name, text in jcl.items():
+        (repo / "jcl" / f"{name}.jcl").write_text(text)
+    for name, text in programs.items():
+        (repo / "cbl" / f"{name}.cbl").write_text(text)
+    return load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+
+
+_DEFINE = (
+    "//DEF JOB\n//S1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+    "  DEFINE CLUSTER(NAME(APP.LEAF.KSDS) KEYS(8 0) RECORDSIZE(38 38) INDEXED)\n"
+    "  DEFINE CLUSTER(NAME(APP.OTHER.KSDS) KEYS(8 0) RECORDSIZE(38 38) INDEXED)\n/*\n"
+)
+_LEAF = _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CLOSE LEAF-FILE.\n", "LEAF")
+
+
+def _lineage(ir, program):
+    return sorted(
+        (e["job"].rsplit("/", 1)[-1] if e["job"] else None, e["dd_name"], e["dataset"])
+        for e in ir.dataset_lineage()
+        if e["program"].endswith(f"/{program}.cbl")
+    )
+
+
+def test_a_called_program_takes_its_callers_step_dds(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {
+            "TOP": _prog("TOP", "           CALL 'MID'.\n"),
+            "MID": _prog("MID", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]  # two CALLs down
+    (store,) = [s for s in ir.vsam_stores() if s["dataset"] == "APP.LEAF.KSDS"]
+    assert [(u["kind"], u["program"].rsplit("/", 1)[-1], u["dd"]) for u in store["users"]] == [
+        ("batch", "LEAF.cbl", "LEAFDD")
+    ]
+
+
+def test_a_call_cycle_terminates_and_binds_each_program_once(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {
+            "TOP": _prog("TOP", "           CALL 'LEAF'.\n"),
+            "LEAF": _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF"),
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+def test_a_dynamic_call_binds_nothing(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {"TOP": _prog("TOP", "           CALL WS-TARGET.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [(None, "LEAFDD", None)]  # the target is data: not followed
+
+
+def test_a_callee_run_by_two_jobs_keeps_both_bindings(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {
+            "DEF": _DEFINE,
+            "RUN1": "//RUN1 JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n",
+            "RUN2": "//RUN2 JOB\n//ST EXEC PGM=LEAF\n//LEAFDD DD DSN=APP.OTHER.KSDS,DISP=SHR\n",
+        },
+        {"TOP": _prog("TOP", "           CALL 'LEAF'.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [
+        ("RUN1.jcl", "LEAFDD", "APP.LEAF.KSDS"),
+        ("RUN2.jcl", "LEAFDD", "APP.OTHER.KSDS"),
+    ]
+    # one DD on two datasets: the repository stays refused by design
+    (v,) = [x for x in ir.vsam_files() if x["program"].endswith("/LEAF.cbl")]
+    assert v["datasets"] == ["APP.LEAF.KSDS", "APP.OTHER.KSDS"]

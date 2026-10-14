@@ -2667,6 +2667,7 @@ class Gen:
 
     def unstring(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
+        self.unstring_operands(d)
         delims = []
         for operand, every in d["delims"]:
             a = self.str_arg(operand)
@@ -2685,6 +2686,31 @@ class Gen:
         call = (f"Cobol.unstring({self.field_expr(d['src'])}, {ptr}, {tal}, java.util.List.of({', '.join(delims)}), "
                 f"CS, {', '.join(intos)})")  # fmt: skip
         return self.overflow(s, call, ind)
+
+    def unstring_operands(self, d: dict) -> None:
+        """Refuse an UNSTRING operand that is a numeric item other than an integer without a P (#5032, sibling of
+        string_sender): Enterprise COBOL 6.4 Language Reference, UNSTRING -- a numeric receiving item (INTO, COUNT IN,
+        POINTER, TALLYING IN) must be described as an integer without the symbol 'P' in its PICTURE, and the sending
+        item and the delimiters are not numeric. A numeric sender or delimiter is refused outright (IBM allows none;
+        never loosened). GnuCOBOL moves the stored bytes (register C11). Reference-modified items are alphanumeric."""
+        roles = [("sending item", d["src"], False)]
+        roles += [("DELIMITED BY item", op, False) for op, _every in d["delims"]]
+        for tgt, dl, cnt in d["intos"]:
+            roles += [("INTO item", tgt, True), ("DELIMITER IN item", dl, False), ("COUNT IN item", cnt, True)]
+        roles += [("POINTER item", d.get("pointer"), True), ("TALLYING item", d.get("tallying"), True)]
+        for role, e, integer_ok in roles:
+            if not isinstance(e, E.Ref) or e.refmod is not None:
+                continue
+            try:
+                it = self.resolve(e)
+            except Untranslatable:
+                continue
+            if it.category == "NUMERIC" and (not integer_ok or it.p_scaled or it.scale > 0):
+                raise Untranslatable(
+                    f"UNSTRING {role} {e.name}, PIC {it.pic}: "
+                    + ("a numeric item" if not integer_ok else "a numeric item with a P or a decimal place")
+                    + " is a compile error in Enterprise COBOL (Language Reference, UNSTRING; C11)"
+                )
 
     def string_sender(self, e) -> None:
         """Refuse a numeric STRING sender that is not an integer without a P (#4996): Enterprise COBOL 6.4 Language

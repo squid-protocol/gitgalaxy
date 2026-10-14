@@ -8,17 +8,17 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-13T10:48:16Z, harness `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946` |
-| inputs digest | `87ad736671df61d05fdfd202dd21ece3a27503220ab5a43c41faed049a199b5e` |
-| port | 1 files `e5e4f1217ea26c7b` |
+| proof | proven at 2026-10-13T21:55:31Z, harness `2ce3919edebb4167cb1b87f3192309927373113b+uncommitted` |
+| inputs digest | `055e93dfe3ec8d727204a874eae89e7d57ac493136372082bcae9b8b1a3b5796` |
+| port | 1 files `d74fb8c31991fa65` |
 | case | 1 files `41aab797f096a9ad` |
 | corpus | aws-mainframe-modernization-carddemo @ `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` `d0c4803872ec126e` |
 | differences |  `4f53cda18c2baa0c` |
 | options |  `253a366c52b35ad1` |
-| harness | 11 files `668a98300771b213` |
-| oracle | 23 files `5ae49d87e1774d72` |
-| generator | 77 files `b72b89e138657774` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:42d04bb08a2a` (matches pin: True) |
+| harness | 11 files `528efcb6c0ab703a` |
+| oracle | 24 files `dd307de969e69e0b` |
+| generator | 77 files `8b628a752a1ba008` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:d7e387df360c` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 2 |
 
 ## Proof outputs
@@ -79,10 +79,10 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | class | method | line | kind |
 |---|---|---|---|
-| CocrdlicService | `lastAnswerBytes` | 203 | left_as_generated |
-| CocrdlicService | `handleLink` | 1005 | left_as_generated |
-| CocrdlicService | `browseCarddat` | 1041 | left_as_generated |
-| CocrdlicService | `browseBackCarddat` | 1045 | left_as_generated |
+| CocrdlicService | `lastAnswerBytes` | 204 | left_as_generated |
+| CocrdlicService | `handleLink` | 1008 | left_as_generated |
+| CocrdlicService | `browseCarddat` | 1044 | left_as_generated |
+| CocrdlicService | `browseBackCarddat` | 1048 | left_as_generated |
 
 ## Uncovered branches
 

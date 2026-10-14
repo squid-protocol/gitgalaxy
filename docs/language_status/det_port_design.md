@@ -400,8 +400,15 @@ Only generator output, never a test case:
   UCTRANST (BNK1CCS, BNK1DCS). DFHVALUE(name) already translated in expressions (`MOVE DFHVALUE(..)`, comparisons) from
   IBM's CVDA table; it was missing on the stub side (now substituted) and as the operand of SET. DEEDIT edits the field
   in the region's page (`DetCics.deedit`, `GGCDEED`); UCTRANST is a stated fact (`withUctranst`, `$GGCICS_UCTRANST`).
-  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. Left for
-  slice 2: FORMATTIME YYDDD / DATE / MILLISECONDS, DELETEQ TS, DUMP, QUERY; INQUIRE of other resources stays refused.
+  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. INQUIRE of
+  other resources stays refused.
+- #4415 slice 2 (#4760): `DELETEQ TS`, `QUERY COUNTER` (QUERY DCOUNTER followed in #4770, QUERY CHANNEL in #5005),
+  INQUIRE ASSOCIATION origin data and RECEIVE MAP TERMINAL. Register X29.
+- #4415 slice 3 (#5040): FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and the binary forms (DAYCOUNT, DAYOFMONTH,
+  DAYOFWEEK, MONTHOFYEAR, YEAR, MILLISECONDS) run on both runtimes, proved equal on six instants under Java and
+  GnuCOBOL. Refused by name (register X46, IBM leaves them to the region's setup): FORMATTIME DATE / DATEFORM /
+  FULLDATE (the region's DATFORM) and DATESTRING / STRINGFORMAT / STRINGZONE, `DUMP TRANSACTION` (also the bare DUMP)
+  and `QUERY SECURITY` (no security manager in the region). Every #4415 member is now modelled or refused by name.
 - #4270 slice: `EXEC CICS RETURN ... IMMEDIATE` (9 CBSA programs) and `LINK ... SYNCONRETURN` (10). IMMEDIATE attaches
   TRANSID's task at once with the COMMAREA, ahead of the terminal's next input (`CicsTask.returnImmediate`, `GGCRETI`; the
   runner's `immediate` trigger); it can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11) and the program then goes on.
@@ -843,6 +850,13 @@ The combined method runs in the porting loop like any other backend, and every e
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
   X18) but is not proven: no case.
+- #5053: a COMMAREA no generated DTO types -- a DFHCOMMAREA that is no record (`PIC X(30)`), so the stub says `Object request` --
+  is no DTO class. It read as a missing `dto/contract/Object`, which made PCCONF's two `RETURN TRANSID COMMAREA(WS-STATE)` holes;
+  it is now untyped (`det/cics.py` `_typed`) and the record's own DTO carries it, bytes beside it. A program entered with
+  another program's DTO as its COMMAREA reads it through the DTO's layout (`DetCics.layoutBytes`, #4449) instead of ignoring it.
+  The four pc-return-immediate programs are committed det ports (`tests/cics_crucible/ports/pc-return-immediate`, no model).
+  PCCONF now translates whole but is not committed: its proof fails on RECEIVE MAP, which does not apply the field's DFHMDF
+  JUSTIFY (AMT is `JUSTIFY=(RIGHT,ZERO)`), and the generated screen model carries no JUSTIFY to apply.
 - **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`

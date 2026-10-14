@@ -387,6 +387,17 @@ def http_peers(case: dict[str, Any], sc: dict[str, Any]) -> list[dict[str, Any]]
     return peers
 
 
+def mapsets_env(case: dict[str, Any]) -> str:
+    """#4270 (X31) / #5076: the case's "maps" ({MAP: {"mapset": MAPSET}}, as a cics-crucible case states them) as the stub's
+    $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a SEND MAP / RECEIVE MAP for a map its mapset does not hold abends
+    ABM0 on the COBOL side as the det port's translation already does (BNK1CCS's CLEAR: SEND MAP('BNK1CCM'), the
+    mapset's name). Unstated, a mapset is not checked."""
+    held: dict[str, list[str]] = {}
+    for m, spec in sorted(case["maps"].items()):
+        held.setdefault(spec["mapset"], []).append(m)
+    return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
+
+
 def http_peers_cfg(peers: list[dict[str, Any]], enc: str) -> str:
     """#4767 (X35): the stub's $GGCICS_HTTP file (ggcics.c GGCWOPN): `P SCHEME HOSTHEX PORT URIMAP|- PATHHEX|-` per peer,
     then `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` per response, hex in the data's page."""
@@ -1225,7 +1236,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
         if "GENERIC" in opts and "KEYLENGTH" not in opts:
             raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
-        words = [w for w in ("UPDATE", "GTEQ", "GENERIC") if w in opts]  # UPDATE holds the record
+        # UPDATE holds the record; TOKEN (#5078, X52) implies it and holds it under a token of its own, GG-NUM out
+        words = [w for w in ("UPDATE", "TOKEN", "GTEQ", "GENERIC") if w in opts or (w == "UPDATE" and "TOKEN" in opts)]
+        if "TOKEN" in opts and not opts["TOKEN"]:
+            raise Unsupported("READ TOKEN needs a data area", ["READ TOKEN"])
         update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
         # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
         # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
@@ -1233,6 +1247,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         length = opts.get("LENGTH")
         settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
+        if "TOKEN" in opts:
+            after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
         return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
@@ -1256,7 +1272,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not (file and frm):
             raise Unsupported("REWRITE without FILE / FROM")
         length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
-        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
+        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds (GG-NUM in)
+            if not opts["TOKEN"]:
+                raise Unsupported("REWRITE TOKEN needs a value", ["REWRITE TOKEN"])
+            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
+                    + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"]) + _resp(opts, True, labels))  # fmt: skip
+        return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
         rba = "RBA" in opts
@@ -1301,6 +1322,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"DELETE {bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
+        if "TOKEN" in opts and "GENERIC" in opts:  # #5078 (X52)
+            raise Unsupported(_rule("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"), ["DELETE TOKEN"])
         if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
             for o in ("KEYLENGTH", "RIDFLD"):
                 if not opts.get(o):
@@ -1308,6 +1331,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
             return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
                     + _resp(opts, True, labels))  # fmt: skip
+        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds, no RIDFLD
+            if ridfld:
+                raise Unsupported(_rule("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"), ["DELETE TOKEN"])
+            if not opts["TOKEN"]:
+                raise Unsupported("DELETE TOKEN needs a value", ["DELETE TOKEN"])
+            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
+                    + _call("GGCDELT", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]) + _resp(opts, True, labels))  # fmt: skip
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
@@ -1315,6 +1345,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
+        _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        file = opts.get("FILE") or opts.get("DATASET")
+        if not opts.get("TOKEN"):
+            raise Unsupported("UNLOCK without TOKEN (the held record of a file: not modelled, #5079)", ["UNLOCK"])
+        return ([name(file, "GG-NAME1"), f"MOVE {opts['TOKEN']} TO GG-NUM"] + _call("GGCUNLK", [])
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb in ("ENQ", "DEQ"):
@@ -1328,18 +1365,20 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
-        if "COUNTER" in opts:  # the fullword form: its value, then +1
-            for o in ("INCREMENT", "WRAP"):
-                if o in opts:
-                    raise Unsupported(_rule("GET COUNTER", "requires", o), ["GET COUNTER"])
+        for o in ("VALUE", "INCREMENT"):
+            if opts.get(o) and _literal(opts[o]):
+                kind = "DCOUNTER" if "DCOUNTER" in opts else "COUNTER"
+                raise Unsupported(f"{kind} {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
+        if "COUNTER" in opts:  # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP
+            inc = opts.get("INCREMENT") or "GG-NAME2"
             return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                    + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                    + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
+                    + _call("GGCGCNT", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                                        f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
+                                        f"BY VALUE {1 if 'WRAP' in opts else 0}"])
                     + _resp(opts, True, labels))  # fmt: skip
         # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
         # not given, through GG-NAME2's 8 bytes)
-        for o in ("VALUE", "INCREMENT"):
-            if opts.get(o) and _literal(opts[o]):
-                raise Unsupported(f"GET DCOUNTER {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
         inc = opts.get("INCREMENT") or "GG-NAME2"
         return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                 + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
@@ -1355,15 +1394,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule("QUERY COUNTER", "one_of", "COUNTER"), ["QUERY COUNTER"])
-        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated
-            if o in opts and "DCOUNTER" not in opts:
-                raise Unsupported(_rule("QUERY COUNTER", "requires", o), ["QUERY COUNTER"])
         if "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords in 8-byte areas
             return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
                     + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
                     + _resp(opts, True, labels))  # fmt: skip
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                + _call("GGCQCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"))[1])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("DEFINE", "DELETE") and (
         {"COUNTER", "DCOUNTER"} & set(opts)
@@ -1371,9 +1407,6 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
-        for o in ("MINIMUM", "MAXIMUM"):  # the fullword form's limits are not stated; IBM: MINIMUM needs VALUE
-            if o in opts and "DCOUNTER" not in opts:
-                raise Unsupported(_rule(f"{verb} COUNTER", "requires", o), [f"{verb} COUNTER"])
         if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
             why = next(
                 g.msg for g in SPEC["DEFINE COUNTER"].groups if g.kind == "requires" and "VALUE" in (g.any_of or ())
@@ -1388,8 +1421,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
                 + _resp(opts, True, labels)
             )
-        return (head + [f"MOVE {opts.get('VALUE') or '0'} TO GG-NUM"] + _call("GGCDCNT", [])
-                + _resp(opts, True, labels))  # fmt: skip
+        staged, areas = _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"), ("VALUE", "MINIMUM", "MAXIMUM"))
+        return head + staged + _call("GGCDCNT", areas) + _resp(opts, True, labels)
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
@@ -1745,6 +1778,27 @@ def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list
             raise Unsupported(f"DCOUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
         out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
     return out
+
+
+def _counter_areas(
+    opts: dict[str, str | None], names: tuple[str, ...], literals: tuple[str, ...] = ()
+) -> tuple[list[str], list[str]]:
+    """#5039 (X50): the fullword areas of a COUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits,
+    with the lines that stage a numeric literal. A command that WRITES an area (QUERY) takes a data area only; DEFINE
+    reads its VALUE / MINIMUM / MAXIMUM (`literals`), so a decimal literal is staged big-endian in GG-FLAGS (the stub reads
+    the bytes as IBM's fullword binary), as before X50 gave it a literal VALUE through GG-NUM."""
+    out: list[str] = []
+    pre: list[str] = []
+    for n, o in enumerate(names):
+        v = opts.get(o)
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            if o not in literals or not re.fullmatch(r"[+-]?\d+", v):
+                raise Unsupported(f"COUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+            slot = f"GG-FLAGS({4 * n + 1}:4)"
+            pre.append(f"MOVE X'{int(v) & 0xFFFFFFFF:08X}' TO {slot}")
+            v = slot
+        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+    return pre, out
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -2554,19 +2608,63 @@ LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
 _FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
 
-# #4623: the duplicate-key conditions, by the file commands IBM documents them for (CICS TS, each command's
-# "Conditions") and the RESP2 IBM gives: DUPREC 150 on WRITE ("adding a record whose key already exists", which
-# includes a unique alternate key, UNIQUEKEY) and REWRITE (a UNIQUEKEY alternate key already in the upgrade set);
-# DUPKEY 140 on READ, READNEXT and READPREV ("a record is retrieved through a NONUNIQUEKEY alternate index and another
-# record with the same key follows"). DUPKEY is the one condition that is not a failure: the read delivers the record
-# and answers DUPKEY, so the stub and CicsTask.withFaults run the read and qualify its NORMAL (a read that finds no
-# record has no DUPKEY to give: the fault does not fire).
-DUP_KEY_FAULTS = {
-    "DUPREC": (("WRITE", "REWRITE"), 150),
-    "DUPKEY": (("READ", "READNEXT", "READPREV"), 140),
+# #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
+# IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
+# the raw pages of READ, READNEXT, READPREV, WRITE, REWRITE, DELETE, STARTBR, ENDBR). A condition is planned only on a
+# command IBM lists it for, with a RESP2 IBM gives it there and a local VSAM file can reach (the RLS, BDAM, data-table and
+# coupling-facility values are refused). One value: the default; several (INVREQ, LENGERR): the scenario names one.
+_BROWSE = ("READNEXT", "READPREV")
+_FILE_CMDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
+_READS = ("READ", *_BROWSE)
+FILE_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
+    "FILENOTFOUND": dict.fromkeys(_FILE_CMDS, (1,)),
+    "NOTAUTH": dict.fromkeys(_FILE_CMDS, (101,)),
+    # READNEXT / READPREV / REWRITE: IBM adds "the browse in progress is terminated", which neither runtime models (below)
+    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
+    "IOERR": dict.fromkeys(_FILE_CMDS, (120,)),
+    # remote files: planned like IOERR, an injection (the case states what the program sees, the region needs no remote
+    # system). SYSIDERR 130 "SYSID is neither the local system nor a known remote system, or the link is closed" (131 / 132
+    # are coupling-facility data tables); ISCINVREQ 70 "the remote system reported a failure that is no known condition"
+    "SYSIDERR": dict.fromkeys(_FILE_CMDS, (130,)),
+    "ISCINVREQ": dict.fromkeys(_FILE_CMDS, (70,)),
+    # NOTFND 80 (READ/READNEXT/READPREV/STARTBR: no record matches the search argument); REWRITE's 80 is the data-table
+    # case only, WRITE / ENDBR do not list it
+    "NOTFND": dict.fromkeys((*_READS, "STARTBR", "DELETE"), (80,)),
+    "ENDFILE": dict.fromkeys(_BROWSE, (90,)),
+    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
+    "NOTOPEN": dict.fromkeys(
+        ("READ", "WRITE", "DELETE", "STARTBR"), (60,)
+    ),  # not REWRITE / READNEXT / READPREV / ENDBR
+    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),  # READ's 100 is an RLS-only case
+    "LOCKED": dict.fromkeys((*_READS, "WRITE", "REWRITE", "DELETE"), (106,)),
+    "DUPKEY": dict.fromkeys(_READS, (140,)),  # #4623
+    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),  # #4623
+    "LENGERR": {
+        **dict.fromkeys(_READS, (10, 11, 13)),
+        **dict.fromkeys(("WRITE", "REWRITE"), (10, 12, 14)),
+    },
+    "INVREQ": {
+        "READ": (20, 25, 26, 28, 42),
+        "READNEXT": (20, 25, 26, 34, 37, 42),
+        "READPREV": (20, 24, 26, 37, 41),
+        "STARTBR": (20, 25, 26, 33, 42),
+        "ENDBR": (35,),
+        "WRITE": (20, 23, 26),
+        "REWRITE": (30, 47),
+        "DELETE": (20, 21, 22, 25, 26, 31, 42, 47),
+    },
 }
+# IBM lists these for file commands but they belong to data tables (LOADING, CHANGED, SUPPRESSED) and RLS (RECORDBUSY,
+# NOSUSPEND), which no case defines: refused by name (X49)
+FILE_FAULT_REFUSED = ("LOADING", "RECORDBUSY", "CHANGED", "SUPPRESSED")
 # IBM lists DUPKEY (RESP2 140) for DELETE too but does not say whether the record is deleted: refused by name (X48).
 DUP_KEY_REFUSED = {("DELETE", "DUPKEY"): "register X48"}
+FILE_FAULT_UNMODELLED = {
+    ("READNEXT", "ILLOGIC"),
+    ("READPREV", "ILLOGIC"),
+    ("REWRITE", "ILLOGIC"),
+}  # X49: ends the browse
+FILE_FAULT_COMMANDS = _FILE_CMDS
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -2576,6 +2674,42 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     if spec.get("append"):
         data += common._fixed(common._input_path(case, corpus, spec["append"]), reclen, enc)
     return data
+
+
+def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
+    """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
+    resp = f["resp"]
+    where = f"scenario {sc.get('name')}: fault {f}"
+    if (cmd, resp) in DUP_KEY_REFUSED:
+        raise Unsupported(
+            f"{where}: IBM lists {resp} for {cmd} but not whether the record is deleted ({DUP_KEY_REFUSED[(cmd, resp)]}, refused)"
+        )
+    if resp in FILE_FAULT_REFUSED:
+        raise Unsupported(
+            f"{where}: {resp} is IBM-documented for {cmd} but it is a data-table or RLS condition and no case defines either "
+            "(register X49, refused)"
+        )
+    if (cmd, resp) in FILE_FAULT_UNMODELLED:
+        raise Unsupported(
+            f"{where}: IBM's {resp} on {cmd} also terminates the browse in progress, which the runtimes do not model "
+            "(register X49, refused)"
+        )
+    cmds = FILE_FAULT_CONDITIONS.get(resp, {})
+    if cmd not in cmds:
+        listed = "/".join(cmds)
+        raise Unsupported(
+            f"{where}: IBM documents {resp} for {listed}, not {cmd}"
+            if listed
+            else f"{where}: {resp} is not a condition IBM lists for {cmd} (register X49, refused)"
+        )
+    ibm = cmds[cmd]
+    if resp2 == 0:  # not given
+        if len(ibm) > 1:
+            raise Unsupported(f"{where}: IBM gives {resp} on {cmd} RESP2 {'/'.join(map(str, ibm))}: name one")
+        return ibm[0]
+    if resp2 not in ibm:
+        raise Unsupported(f"{where}: IBM's {resp} on {cmd} has RESP2 {'/'.join(map(str, ibm))}, not {resp2}")
+    return resp2
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
@@ -2589,25 +2723,19 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
                 "and no abend code is sourced for it (register X43, refused)"
             )
-        if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
+        refused_file = (
+            cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
+        )  # named in X49, not just unknown
+        if cmd not in FAULT_COMMANDS or (f.get("resp") not in CICS_RESP and not refused_file):
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
             )
         resp2 = int(f.get("resp2", 0))
-        if (cmd, f["resp"]) in DUP_KEY_REFUSED:
-            raise Unsupported(
-                f"scenario {sc['name']}: fault {f}: IBM lists {f['resp']} for {cmd} but not whether the record is "
-                f"deleted ({DUP_KEY_REFUSED[(cmd, f['resp'])]}, refused)"
-            )
-        if f["resp"] in DUP_KEY_FAULTS:
-            cmds, ibm2 = DUP_KEY_FAULTS[f["resp"]]
-            if cmd not in cmds:
-                raise Unsupported(
-                    f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {'/'.join(cmds)}, not {cmd}"
-                )
-            if resp2 not in (0, ibm2):  # 0: not given
-                raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM's {f['resp']} has RESP2 {ibm2}, not {resp2}")
-            resp2 = ibm2
+        if cmd in FILE_FAULT_COMMANDS:
+            resp2 = _file_fault_resp2(sc, f, cmd, resp2)
+        elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
+            listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
+            raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
@@ -2688,8 +2816,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
-    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT)
-    for model in sorted(LE_MODELS.glob("*.c")) if subs or re.search(r"(?i)\bCALL\s+['\"]CEE", source) else []:
+    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
+    # task does, BNK1CCS -> CRECUST)
+    calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
+        re.search(r"(?i)\bCALL\s+['\"]CEE", common.read_program(case, corpus / extra["program_source"])[0])
+        for extra in case.get("programs", [])
+    )
+    for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
@@ -2849,6 +2982,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
+                      + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")

@@ -81,6 +81,7 @@ public class CocrdlicService {
 
     /** The program's working storage for one task (WS-MISC-STORAGE, CC-WORK-AREA, WS-THIS-PROGCOMMAREA, CARD-RECORD). */
     private static final class Ws {
+        int resp2;
         CarddemoCommarea cc = blankCommarea();
 
         // WS-THIS-PROGCOMMAREA
@@ -848,6 +849,7 @@ public class CocrdlicService {
             w.ridCardNum = x(b.key(), 16);
             cardRecordRepository.findById(b.key()).ifPresent(r -> takeCard(w, r));
         }
+        w.resp2 = b.resp2();  // EIBRESP2 of the browse command, shown by fileError
         return b.resp();
     }
 
@@ -858,6 +860,7 @@ public class CocrdlicService {
             w.ridCardNum = x(b.key(), 16);
             cardRecordRepository.findById(b.key()).ifPresent(r -> takeCard(w, r));
         }
+        w.resp2 = b.resp2();  // EIBRESP2 of the browse command, shown by fileError
         return b.resp();
     }
 
@@ -883,10 +886,10 @@ public class CocrdlicService {
     }
 
     /** The WHEN OTHER file-error text: WS-FILE-ERROR-MESSAGE moved to WS-ERROR-MSG (X(75), so the last 5 bytes are cut).
-     *  RESP2 is not available from the task's browse calls: 0 is shown. */
-    private static void fileError(Ws w, int resp) {
+     *  RESP2 is the browse command's (Ws.resp2). */
+    private static void fileError(Ws w, int resp) {  // RESP2 from w
         String msg = "File Error: " + x("READ", 8) + " on " + x("CARDDAT ", 9) + " returned RESP "
-                + x(digits(resp, 9), 10) + ",RESP2 " + x(digits(0, 9), 10) + x("", 5);
+                + x(digits(resp, 9), 10) + ",RESP2 " + x(digits(w.resp2, 9), 10) + x("", 5);
         w.errorMsg = x(msg, 75);
     }
 

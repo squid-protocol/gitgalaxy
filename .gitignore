@@ -123,6 +123,8 @@ museum_2/
 !docs/language_status/mutation_scores.json
 # #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
 !docs/language_status/cics_spec_status.json
+# #4711: the cobolrt rule catalogue (tests/tools/cobolrt_rules.py renders docs/language_status/cobolrt_rules.md from it)
+!docs/language_status/cobolrt_rules.json
 # #4601: the purchaser-facing evidence reports (burned estates only)
 !docs/language_status/evidence_report/*/report.json
 # #3315: hand-labelled thin-wrapper verdicts -- source data the wrapper probe scores against.
@@ -235,6 +237,7 @@ docs/language_status/evidence/
 # `generated` branch by .github/workflows/generated-docs.yml; PRs commit their sources only (they collided on the pages).
 docs/language_status/oracle_assumptions.md
 docs/language_status/cics_spec_status.md
+docs/language_status/cobolrt_rules.md
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed
 tests/equivalence/linuxx64_odbc_cli.tar.gz

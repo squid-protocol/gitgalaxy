@@ -730,14 +730,20 @@ def test_file_updates_translate_to_stub_calls():
     w = ec.translate_command("WRITE DATASET(F) FROM(REC) RIDFLD(K) RESP(X)")
     assert w[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCWRIT' USING GG-CICS"] and "    BY REFERENCE REC" in w
     rw = ec.translate_command("REWRITE FILE(F) FROM(REC) RESP(X) RESP2(Y)")
-    assert rw[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCREWR' USING GG-CICS"]
+    assert rw[:3] == [
+        "MOVE F TO GG-NAME1",
+        "MOVE SPACES TO GG-FLAGS",
+        "CALL 'GGCREWR' USING GG-CICS",
+    ]  # #5078: flags set
     assert ec.translate_command("SYNCPOINT")[:2] == ["MOVE SPACES TO GG-FLAGS", "CALL 'GGCSYNC' USING GG-CICS"]
     assert ec.translate_command("SYNCPOINT ROLLBACK")[0] == "MOVE 'ROLLBACK' TO GG-FLAGS"
     for bad in ("WRITE FILE(F) FROM(R) RIDFLD(K) MASSINSERT", "REWRITE FILE(F) FROM(R) SYSID(S)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
-    sc = {"faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOTOPEN"}]}
-    assert ec.fault_lines(sc) == ["REWRITE ACCTDAT 1 19 0"]
+    sc = {
+        "faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOSPACE"}]
+    }  # IBM's REWRITE lists no NOTOPEN (#5044)
+    assert ec.fault_lines(sc) == ["REWRITE ACCTDAT 1 18 100"]
 
 
 def test_a_tasks_files_are_compared_in_key_order():
@@ -1053,33 +1059,44 @@ def test_deleteq_ts_inquire_association_and_query_counter_become_stub_calls():
         ec.translate_command("INQUIRE ASSOCIATION(EIBTASKN) ODTASKID(WS-A)")
     q = ec.translate_command("QUERY COUNTER(WS-C) POOL(WS-P) VALUE(WS-V) RESP(R)")
     assert q[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCQCNT' USING GG-CICS"]
-    assert "    MOVE GG-NUM TO WS-V" in q
-    with pytest.raises(ec.Unsupported, match="MINIMUM"):
-        ec.translate_command("QUERY COUNTER(WS-C) VALUE(WS-V) MINIMUM(WS-M)")
+    assert q[3:9] == [
+        "    BY REFERENCE WS-V",
+        "    BY VALUE LENGTH OF WS-V",
+        "    BY REFERENCE GG-NAME2",
+        "    BY VALUE 0",
+        "    BY REFERENCE GG-NAME2",
+        "    BY VALUE 0",
+    ]
     with pytest.raises(ec.Unsupported, match="VALUE"):
         ec.translate_command("QUERY COUNTER(WS-C)")
     assert "MOVE GG-NAME1 TO" not in " ".join(ec.translate_command("RECEIVE MAP('M') MAPSET('S') INTO(WS-I) TERMINAL"))
 
 
 def test_define_and_delete_counter_become_stub_calls():
-    """#4270 (register X30): DEFINE COUNTER -> GGCDCNT (VALUE in GG-NUM, zero when omitted), DELETE COUNTER -> GGCXCNT;
-    MINIMUM / MAXIMUM on the fullword form and NOSUSPEND are refused by name; GET COUNTER takes RESP2. (#4770, X45: DCOUNTER
-    is the doubleword form: test_define_query_delete_dcounter_become_doubleword_stub_calls.)"""
+    """#4270 (register X30): DEFINE COUNTER -> GGCDCNT, DELETE COUNTER -> GGCXCNT;
+    NOSUSPEND is refused by name; GET COUNTER takes RESP2. (#4770, X45: DCOUNTER is the doubleword form; #5039, X50:
+    fullword limits.)"""
     d = ec.translate_command("DEFINE COUNTER(WS-C) POOL(WS-P) VALUE(WS-V) RESP(R) RESP2(R2)")
-    assert d[:4] == [
+    assert d[:3] == [
         "MOVE WS-C TO GG-QNAME",
         "MOVE WS-P TO GG-NAME1",
-        "MOVE WS-V TO GG-NUM",
         "CALL 'GGCDCNT' USING GG-CICS",
     ]
+    assert d[3:9] == [
+        "    BY REFERENCE WS-V",
+        "    BY VALUE LENGTH OF WS-V",
+        "    BY REFERENCE GG-NAME2",
+        "    BY VALUE 0",
+        "    BY REFERENCE GG-NAME2",
+        "    BY VALUE 0",
+    ]
     assert "MOVE GG-RESP2 TO R2" in d
-    assert "MOVE 0 TO GG-NUM" in ec.translate_command("DEFINE COUNTER(WS-C) RESP(R)")
+    assert ec.translate_command("DEFINE COUNTER(WS-C) RESP(R)").count("    BY VALUE 0") == 3
     x = ec.translate_command("DELETE COUNTER(WS-C) POOL(WS-P) RESP(R)")
     assert x[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCXCNT' USING GG-CICS"]
     for bad in (
         "DEFINE COUNTER(WS-C) MINIMUM(WS-M)",
         "DEFINE DCOUNTER(WS-C) MINIMUM(WS-M)",
-        "DEFINE COUNTER(WS-C) MAXIMUM(WS-M)",
         "DEFINE COUNTER(WS-C) NOSUSPEND",
         "DEFINE DCOUNTER(WS-C) NOSUSPEND",
         "DELETE COUNTER(WS-C) NOSUSPEND",
@@ -1396,9 +1413,7 @@ def test_get_dcounter_becomes_a_doubleword_stub_call():
     d = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) NOHANDLE")
     assert "MOVE X'0000000000000001' TO GG-NAME2" in d and "    BY REFERENCE GG-NAME2" in d
     assert "CALL 'GGCGCNT' USING GG-CICS" in ec.translate_command("GET COUNTER(WS-N) VALUE(WS-V) NOHANDLE")
-    for bad, why in (("GET COUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I)", "INCREMENT without DCOUNTER"),
-                     ("GET COUNTER(WS-N) VALUE(WS-V) WRAP", "WRAP without DCOUNTER"),
-                     ("GET DCOUNTER(WS-N) VALUE(WS-V) REDUCE", "maximum is not stated"),
+    for bad, why in (("GET DCOUNTER(WS-N) VALUE(WS-V) REDUCE", "maximum is not stated"),
                      ("GET DCOUNTER(WS-N) VALUE(WS-V) COMPAREMIN(WS-I)", "range check"),
                      ("GET DCOUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "rebuild"),
                      ("GET DCOUNTER(WS-N) VALUE('5')", "literal")):  # fmt: skip
@@ -1409,7 +1424,7 @@ def test_get_dcounter_becomes_a_doubleword_stub_call():
 def test_define_query_delete_dcounter_become_doubleword_stub_calls():
     """#4770 zECS (register X45): DEFINE DCOUNTER -> GGCDDCN with VALUE / MINIMUM / MAXIMUM each an 8-byte area by reference and
     its length (`BY VALUE 0`: omitted -- IBM's defaults), QUERY DCOUNTER -> GGCQDCN likewise, DELETE DCOUNTER -> GGCXCNT. A
-    literal, MINIMUM without VALUE, a fullword form's MINIMUM / MAXIMUM and both forms at once are refused by name."""
+    literal, MINIMUM without VALUE, and both forms at once are refused by name."""
     d = ec.translate_command("DEFINE DCOUNTER(WS-C) POOL(WS-P) VALUE(WS-V) MINIMUM(WS-LO) MAXIMUM(WS-HI) RESP(R)")
     assert d[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCDDCN' USING GG-CICS"]
     assert d[3:9] == ["    BY REFERENCE WS-V", "    BY VALUE LENGTH OF WS-V", "    BY REFERENCE WS-LO",
@@ -1424,11 +1439,49 @@ def test_define_query_delete_dcounter_become_doubleword_stub_calls():
     assert "CALL 'GGCXCNT' USING GG-CICS" in ec.translate_command("DELETE DCOUNTER(WS-C) NOHANDLE")
     for bad, why in (("DEFINE DCOUNTER(WS-C) VALUE(5)", "literal"), ("DEFINE DCOUNTER(WS-C) VALUE(WS-V) MAXIMUM('A')", "literal"),
                      ("DEFINE DCOUNTER(WS-C) MINIMUM(WS-V)", "MINIMUM without VALUE"),
-                     ("DEFINE COUNTER(WS-C) VALUE(WS-V) MAXIMUM(WS-V)", "MAXIMUM without DCOUNTER"),
                      ("DEFINE COUNTER(WS-C) DCOUNTER(WS-C)", "one of COUNTER and DCOUNTER"),
-                     ("QUERY COUNTER(WS-C) VALUE(WS-V) MINIMUM(WS-V)", "MINIMUM without DCOUNTER"),
                      ("QUERY DCOUNTER(WS-C)", "without VALUE"),
                      ("DELETE DCOUNTER(WS-C) NOSUSPEND", "NOSUSPEND")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=why):
+            ec.translate_command(bad)
+
+
+def test_define_query_counter_become_fullword_stub_calls():
+    """#5039 (register X50): DEFINE COUNTER -> GGCDCNT with VALUE / MINIMUM / MAXIMUM each a fullword area by reference and
+    its length (`BY VALUE 0`: omitted -- IBM's defaults), QUERY COUNTER -> GGCQCNT likewise, GET COUNTER -> GGCGCNT with
+    INCREMENT and WRAP. A literal, MINIMUM without VALUE, and NOSUSPEND are refused."""
+    d = ec.translate_command("DEFINE COUNTER(WS-C) POOL(WS-P) VALUE(WS-V) MINIMUM(WS-LO) MAXIMUM(WS-HI) RESP(R)")
+    assert d[:3] == ["MOVE WS-C TO GG-QNAME", "MOVE WS-P TO GG-NAME1", "CALL 'GGCDCNT' USING GG-CICS"]
+    assert d[3:9] == ["    BY REFERENCE WS-V", "    BY VALUE LENGTH OF WS-V", "    BY REFERENCE WS-LO",
+                      "    BY VALUE LENGTH OF WS-LO", "    BY REFERENCE WS-HI", "    BY VALUE LENGTH OF WS-HI"]  # fmt: skip
+    o = ec.translate_command("DEFINE COUNTER(WS-C) NOHANDLE")
+    assert o.count("    BY VALUE 0") == 3 and "GGCDDCN" not in "".join(o)
+    q = ec.translate_command("QUERY COUNTER(WS-C) VALUE(WS-V) MAXIMUM(WS-HI) RESP(R) RESP2(R2)")
+    at = q.index("CALL 'GGCQCNT' USING GG-CICS")
+    assert q[at + 1 : at + 7] == ["    BY REFERENCE WS-V", "    BY VALUE LENGTH OF WS-V", "    BY REFERENCE GG-NAME2",
+                                  "    BY VALUE 0", "    BY REFERENCE WS-HI", "    BY VALUE LENGTH OF WS-HI"]  # fmt: skip
+    assert "MOVE GG-RESP2 TO R2" in q
+    g = ec.translate_command("GET COUNTER(WS-N) VALUE(WS-V) INCREMENT(WS-I) WRAP NOHANDLE")
+    gat = g.index("CALL 'GGCGCNT' USING GG-CICS")
+    assert g[gat + 1 : gat + 6] == [
+        "    BY REFERENCE WS-V",
+        "    BY VALUE LENGTH OF WS-V",
+        "    BY REFERENCE WS-I",
+        "    BY VALUE LENGTH OF WS-I",
+        "    BY VALUE 1",
+    ]
+    # DEFINE reads its numbers, so a decimal literal is staged big-endian in GG-FLAGS (GenApp's LGSETUP defines VALUE(0))
+    lit = ec.translate_command("DEFINE COUNTER(WS-C) VALUE(5) MINIMUM(2) MAXIMUM(99)")
+    assert lit[2:5] == ["MOVE X'00000005' TO GG-FLAGS(1:4)", "MOVE X'00000002' TO GG-FLAGS(5:4)",
+                        "MOVE X'00000063' TO GG-FLAGS(9:4)"]  # fmt: skip
+    assert "    BY REFERENCE GG-FLAGS(5:4)" in lit and "    BY VALUE LENGTH OF GG-FLAGS(9:4)" in lit
+    assert "MOVE X'00000000' TO GG-FLAGS(1:4)" in ec.translate_command("DEFINE COUNTER(WS-C) VALUE(0)")
+    for bad, why in (("DEFINE COUNTER(WS-C) VALUE(WS-V) MAXIMUM('A')", "literal"),
+                     ("QUERY COUNTER(WS-C) VALUE(5)", "literal"),
+                     ("DEFINE COUNTER(WS-C) MINIMUM(WS-V)", "MINIMUM without VALUE"),
+                     ("DEFINE COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),
+                     ("QUERY COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),
+                     ("GET COUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "NOSUSPEND")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
@@ -2264,3 +2317,12 @@ def test_formattime_day_of_year_and_binary_forms_under_gnucobol_equal_the_java_r
         ["24/366", "2024/366", "24/31/12", "2024/31/12", 45656, 31, 2, 12, 2024, 7],
         ["00/061", "2000/061", "00/01/03", "2000/01/03", 36585, 1, 3, 3, 2000, 0],
     ]
+
+
+def test_a_cases_maps_are_stated_as_the_stubs_mapsets():
+    """#5076 (X31): a case's "maps" ({MAP: {"mapset": MAPSET}}, as the cics-crucible's) become the stub's
+    $GGCICS_MAPSETS, so BNK1CCS's CLEAR -- SEND MAP('BNK1CCM'), the mapset's name, a map it does not hold -- abends ABM0
+    on the COBOL side as it does in the det port. Several maps of one mapset are listed together, mapsets sorted."""
+    assert ec.mapsets_env({"maps": {"BNK1CC": {"mapset": "BNK1CCM"}}}) == "BNK1CCM=BNK1CC"
+    assert (ec.mapsets_env({"maps": {"B": {"mapset": "MSB"}, "A2": {"mapset": "MSA"}, "A1": {"mapset": "MSA"}}})
+            == "MSA=A1,A2;MSB=B")  # fmt: skip

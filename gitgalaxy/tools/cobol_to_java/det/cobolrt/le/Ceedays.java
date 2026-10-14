@@ -13,6 +13,7 @@ public final class Ceedays {
     private Ceedays() {
     }
 
+    // [rule RT-LE-CEEDAYS]
     public static void call(Field date, Field pic, Field lilian, Field fc) {
         byte[] db = date.storage().bytes;
         int d0 = date.offset();

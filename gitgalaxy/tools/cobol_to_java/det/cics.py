@@ -261,6 +261,12 @@ class Dto:
         return n
 
 
+def _typed(cls: str) -> str | None:
+    """#5053: the class a stub types a COMMAREA with, None when it types none: a DFHCOMMAREA that is no record (PIC X(30))
+    is `Object request`, and Object is no generated DTO (it read as a missing dto/contract class: a hole)."""
+    return None if cls == "Object" else cls
+
+
 class Generated:
     """What the generated project says about one program's CICS boundary."""
 
@@ -275,7 +281,7 @@ class Generated:
         m = re.search(r"public \w+ handleLink\((\w+) request\)", text) or re.search(
             r"handleTransaction\(String transid, (\w+) request\)", text
         )
-        return m.group(1) if m else None
+        return _typed(m.group(1)) if m else None
 
     def __init__(self, project: Path, stub: str):
         self.java = project / "src/main/java"
@@ -283,16 +289,16 @@ class Generated:
         self.contract = None
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
-            self.contract = m.group(1)
+            self.contract = _typed(m.group(1))
         else:  # a program only ever LINKed to (CBSA's): its COMMAREA is handleLink's
             m = re.search(r"public \w+ handleLink\((\w+) request\)", stub)
             if m:
-                self.contract = m.group(1)
+                self.contract = _typed(m.group(1))
         # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
         self.links = {mm.group(1).upper(): mm.group(2)
-                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)}  # fmt: skip
+                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
         self.xctl = {mm.group(1).upper(): mm.group(2)
-                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub)}  # fmt: skip
+                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
         self.files: dict[str, tuple[str, str, str | None]] = {}  # CICS file -> (repository, entity, findBy prop)
         self.inferred: list[str] = []
         self._map_files(stub, self.files)
@@ -846,10 +852,6 @@ class Cics:
                 raise CicsError(_msg("GET COUNTER", "required", "VALUE"))
             if ("COUNTER" in opts) == ("DCOUNTER" in opts):
                 raise CicsError(_msg("GET COUNTER", "one_of", "COUNTER"))
-            if "COUNTER" in opts:
-                for o in ("INCREMENT", "WRAP"):
-                    if o in opts:
-                        raise CicsError(_msg("GET COUNTER", "requires", o))
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
@@ -869,12 +871,9 @@ class Cics:
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
         if verb in ("DEFINE", "DELETE", "QUERY") and ("COUNTER" in opts or "DCOUNTER" in opts):
-            # #4770 (X45): the spec's groups, for the commands that now take both forms
+            # #4770 (X45), #5039 (X50): the spec's groups, for the commands that take both forms
             if ("COUNTER" in opts) == ("DCOUNTER" in opts):
                 raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
-            for o in ("MINIMUM", "MAXIMUM"):
-                if o in opts and "DCOUNTER" not in opts:
-                    raise CicsError(_msg(f"{verb} COUNTER", "requires", o))
             if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
                 raise CicsError(_requires("DEFINE COUNTER", "MINIMUM", "VALUE"))
         if verb in ("DEFINE", "DELETE") and (
@@ -892,10 +891,11 @@ class Cics:
                 lo = self.long_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0L"
                 hi = self.long_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "-1L"
                 call = f"task.defineDcounter({pool}, {nm}, {val}, {lo}, {hi})"
-            else:  # (VALUE omitted: IBM's initial value of zero)
-                call = (
-                    f"task.defineCounter({pool}, {nm}, {self.int_(_arg(opts['VALUE'])) if opts.get('VALUE') else '0'})"
-                )
+            else:  # #5039 (X50): fullword limits; IBM's defaults MINIMUM zero, MAXIMUM X'7FFFFFFF' (2147483647)
+                val = self.int_(_arg(opts["VALUE"])) if opts.get("VALUE") else "0"
+                lo = self.int_(_arg(opts["MINIMUM"])) if opts.get("MINIMUM") else "0"
+                hi = self.int_(_arg(opts["MAXIMUM"])) if opts.get("MAXIMUM") else "2147483647"
+                call = f"task.defineCounter({pool}, {nm}, {val}, {lo}, {hi})"
             return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if verb == "QUERY" and "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords
             v = self.g.tmpname("counter")
@@ -913,14 +913,20 @@ class Cics:
                         )
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]
-        if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): its value, unchanged; INVREQ RESP2 201 if none
+        if verb == "QUERY" and "COUNTER" in opts:  # #5039 (X50): value and limits, fullwords
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
-            return [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
-                    f"{ind}if ({v}[0] == 0) {{",
-                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v}[2])", False),
-                    f"{ind}}}",
-                    *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]  # fmt: skip
+            limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
+            lines = [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
+                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
+                if opts.get(o):
+                    lines.append(
+                        ind
+                        + "    "
+                        + self.g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({v}[{i}])", False)
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if "COUNTER" in opts or "DCOUNTER" in opts:
             # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
@@ -1070,7 +1076,7 @@ class Cics:
                     *self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
-        if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):
+        if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR", "UNLOCK"):
             return self.file_update(verb, opts, ind)
         if verb == "HANDLE ABEND":
             if "LABEL" in opts:
@@ -2373,7 +2379,7 @@ class Cics:
         n = self._keylength("READ", opts)
         rid = _arg(opts.get("RIDFLD"))
         gt = "true" if gteq else "false"
-        update = "true" if "UPDATE" in opts else "false"
+        update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
         if n is None:  # GTEQ on the full key: the file's
             name = self.constant(opts.get("DATASET") or opts.get("FILE"))
             if name is None:
@@ -2436,7 +2442,7 @@ class Cics:
         g = self.g
         r, rec = g.tmpname("read"), g.tmpname("rec")
         if verb == "READ":
-            fn = "readForUpdate" if "UPDATE" in opts else "read"
+            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"  # TOKEN: held by the token
             call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
             search = self._search(opts, file, st, rec)
             if search is not None:
@@ -2446,7 +2452,8 @@ class Cics:
                 f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                 f"{ind}if ({r}.record() != null) {{",
                 f"{ind}    DetCics.put({into}, {r}.record());",
-                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts else []),
+                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
+                *self.token_out(opts, file, st, r, f"{ind}    "),
                 f"{ind}}}",
             ]
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
@@ -2458,6 +2465,18 @@ class Cics:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
+    def token_out(self, opts: dict, file: str, st: str, r: str, ind: str) -> list[str]:
+        """#5078 (X52): READ ... UPDATE TOKEN(d) -- the record read is held under a token (CicsTask.holdToken) that is
+        stored into d, a fullword (IBM, EXEC CICS READ: "a unique identifier for this READ UPDATE request"; "If you
+        specify TOKEN it implies update"). The key held is the record's own, as the stub holds it."""
+        if "TOKEN" not in opts:
+            return []
+        if not opts["TOKEN"]:
+            raise CicsError("READ TOKEN needs a data area")
+        tok = self.g.tmpname("tok")
+        return [f"{ind}int {tok} = task.holdToken({file}, {st}.keyOf({r}.record()));",
+                f"{ind}{self.g.store_into(self.ref(_arg(opts['TOKEN'])), f'BigDecimal.valueOf({tok})', False)}"]  # fmt: skip
+
     def read_length(self, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str) -> list[str]:
         """#4436: READ ... INTO LENGTH(length). LENGTH's value is the most the program takes: the record goes INTO,
         truncated to it with LENGERR (22, RESP2 11) when longer, and LENGTH is set to the record's length (on NORMAL
@@ -2467,8 +2486,8 @@ class Cics:
         g = self.g
         r, rec = g.tmpname("read"), g.tmpname("rec")
         resp, resp2 = g.tmpname("resp"), g.tmpname("resp2")
-        update = "UPDATE" in opts
-        fn = "readForUpdate" if update else "read"
+        update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
+        fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
         call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
         search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
         if search is not None:
@@ -2481,8 +2500,9 @@ class Cics:
                f"{ind}if ({r}.record() != null) {{",
                f"{ind}    {resp} = DetCics.readInto({into}, {r}.record(), {self.int_(length)}, {str(update).lower()});",
                f"{ind}    {resp2} = {resp} == 22 ? 11 : 0;"]  # fmt: skip
-        if update:
+        if update and "TOKEN" not in opts:
             out.append(f"{ind}    heldKey.put({file}, {held});")  # (LENGERR on READ UPDATE: refused above)
+        out += self.token_out(opts, file, st, r, f"{ind}    ")
         if settable:
             set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
             out.append(f"{ind}    {set_back}")
@@ -2545,11 +2565,38 @@ class Cics:
                 f"{ind}}});"]  # fmt: skip
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
+    def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """#5078 (X52): REWRITE / DELETE / UNLOCK TOKEN(t) act on the record the READ UPDATE TOKEN that returned `t` holds
+        (IBM). A token matching none in use is INVREQ RESP2 47 (CicsTask.rewriteToken / deleteToken / unlockToken)."""
+        if not opts["TOKEN"]:
+            raise CicsError(f"{verb} TOKEN needs a value")
+        if verb == "DELETE" and opts.get("RIDFLD"):
+            raise CicsError(_msg("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"))
+        st = self.store(opts)
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        tok = self.int_(_arg(opts["TOKEN"]))
+        r = self.g.tmpname("resp")
+        if verb == "REWRITE":
+            rec = self.g.tmpname("rec")
+            out = [f"{ind}byte[] {rec} = {self.record_from(opts)};",
+                   f"{ind}int {r} = task.rewriteToken({file}, {tok}, {st}.keyOf({rec}), () -> {st}.store({rec}));"]  # fmt: skip
+        elif verb == "DELETE":
+            out = [f"{ind}int {r} = task.deleteToken({file}, {tok}, k -> {st}.remove(k));"]
+        else:  # UNLOCK
+            out = [f"{ind}int {r} = task.unlockToken({file}, {tok});"]
+        return out + self.outcome(opts, r, "task.resp2()", ind)
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
             return self.rba_browse(verb, opts, ind)
         if verb == "DELETE" and "GENERIC" in opts:  # #4771
+            if "TOKEN" in opts:
+                raise CicsError(_msg("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"))
             return self.delete_generic(opts, ind)
+        if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
+            return self.token_update(verb, opts, ind)
+        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
+            raise CicsError("UNLOCK without TOKEN: not modelled")
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

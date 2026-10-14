@@ -80,6 +80,7 @@ final class Zoned {
     }
 
     /** The item's digit positions and sign as libcob reads them; nothing in the storage changes. */
+    // [rule RT-NUM-NONDIGIT-GET-SIGN]
     static Raw get(Field f, Charset cs) {
         return get(f, cs, false);
     }
@@ -122,6 +123,7 @@ final class Zoned {
         d[start(f) + at] = Codec.by(out, cs);
     }
 
+    // [rule RT-NUM-NONDIGIT-REFUSED]
     private static UnsupportedOperationException refuse(String what) {
         return new UnsupportedOperationException(what + " a zoned item holding a non-digit is not modelled "
                 + "(IBM documents no result, register C11)");
@@ -153,6 +155,7 @@ final class Zoned {
 
     /** The value of a zoned item as an arithmetic operand (COMPUTE, ADD, ...), cob_decimal_set_display; PUT_SIGN
      *  follows. A digit-only item is read as ever. */
+    // [rule RT-NUM-NONDIGIT-ARITHMETIC]
     static BigDecimal operand(Field f, Charset cs) {
         Raw r = get(f, cs);
         if (!r.dirty) {
@@ -200,6 +203,7 @@ final class Zoned {
      *  byte that is no overpunch (a space too) 0 and nothing written back. Any other item (a leading or separate
      *  sign) goes through the decimal as an arithmetic operand does (a separate sign is rewritten). A digit-only
      *  item is read as ever. */
+    // [rule RT-NUM-NONDIGIT-COMPARE]
     static BigDecimal compareValue(Field f, Charset cs) {
         boolean numdisp = !f.signSeparate && !(f.signed && f.signLeading) && f.scale == 0;
         Raw r = get(f, cs, numdisp);
@@ -224,6 +228,7 @@ final class Zoned {
 
     /** MOVE of a zoned sender holding a non-digit to a zoned receiver (store_common_region): the digit bytes
      *  copied aligned on the decimal point. */
+    // [rule RT-NUM-NONDIGIT-MOVE]
     static void toZoned(Field from, Raw r, Field to, Charset cs) {
         byte[] d = to.st.bytes;
         int s = start(to);

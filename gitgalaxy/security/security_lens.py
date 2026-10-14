@@ -232,6 +232,11 @@ _DEAD_CODE_COMMAND = (
 )
 
 
+# #4987: whitespace inside a COBOL data item: blanks, or up to 3 line breaks (each optionally followed by a
+# 6-digit sequence area). Every newline alternative requires the newline itself, so nothing here backtracks.
+_COBOL_SEP = r"(?:[ \t]+|[ \t]*(?:\r?\n(?:\d{6})?[ \t]*){1,3})"
+
+
 class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
@@ -392,9 +397,22 @@ class SecurityLens:
                 r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
                 # #4548: a COBOL data item opens with a level number, 1-2 digits (`05 WS-PASSWORD ...`, `1 WS-PASSWORD ...`); without it
                 # the stem `KEY` matched English prose ("keyword value 'acs'" in a changelog).
-                r"\b\d{1,2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
+                # #4987: the name, PIC and VALUE may sit on different lines (a continuation line carries no level
+                # number), optionally behind a 6-digit sequence area. The level stays on the name's line; a level-88
+                # condition name is no credential, and a literal with a blank is a message (`INVALID-KEY VALUE 'Invalid key pressed'`).
+                r"\b(?!88\b)\d{1,2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
                 + COBOL_CREDENTIAL_ALTERNATION
-                + r")[A-Za-z0-9_-]*\b[ \t]+(?:IS[ \t]+)?(?:PIC[ \t]+[A-Za-z0-9\-\(\)]+[ \t]+)?VALUE[ \t]+['\"][^'\"]+['\"]|"
+                + r")[A-Za-z0-9_-]*\b"
+                + _COBOL_SEP
+                + r"(?:IS"
+                + _COBOL_SEP
+                + r")?(?:PIC"
+                + _COBOL_SEP
+                + r"[A-Za-z0-9\-\(\)]+"
+                + _COBOL_SEP
+                + r")?VALUE"
+                + _COBOL_SEP
+                + r"['\"][^'\"\s]+['\"]|"
                 r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"
                 r"\b(?:sk_live|rk_live)_[0-9a-zA-Z]{24,99}\b|"
                 r"\bghp_[0-9a-zA-Z]{36}\b|"

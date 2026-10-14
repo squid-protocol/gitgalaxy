@@ -58,6 +58,17 @@ _NAME_ONLY = {"DATASET": _FILE["DATASET"], "FILE": _FILE["FILE"]}
 _KEYLENGTH = Arg("value")
 _REMOTE: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE}
 _READ_REFUSED: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE, "SET": SET_POINTER}
+# #5078 (X52): IBM lets READNEXT / READPREV take UPDATE (and TOKEN) -- a browse for update, "valid only for files accessed in RLS mode"
+_BROWSE_UPDATE = Refusal(
+    "a browse for update (READNEXT / READPREV UPDATE [TOKEN]) is not modelled: the region has no RLS", "X52"
+)
+_TOKEN_IN = Arg("value")  # a fullword the READ UPDATE TOKEN returned
+_INVREQ_TOKEN = Outcome(
+    "INVREQ",
+    47,
+    "a token whose value cannot be matched against any token in use for an existing read for UPDATE",
+    raised_by=("TOKEN",),
+)
 _NORMAL = Outcome("NORMAL", 0, "")
 _NOTFND = Outcome("NOTFND", None, "the record is not found")
 _INVREQ_NO_BROWSE = Outcome("INVREQ", None, "no browse of the file was started")
@@ -84,6 +95,8 @@ READ = _file(
         "INTO": Arg("area_out"),
         "RIDFLD": Arg("area_in"),
         "UPDATE": Arg("flag"),
+        # #5078 (X52): "a unique identifier for this READ UPDATE request" (a fullword out); "If you specify TOKEN it implies update"
+        "TOKEN": Arg("area_out", width=4, binary=True),
         "EQUAL": Arg("flag"),  # READ's default
         # #4270: GTEQ / GENERIC (a KSDS by key; GenApp LGICVS01, LGIPVS01) -- see _READ_SEARCH below
         "GTEQ": Arg("flag"),
@@ -101,7 +114,7 @@ READ = _file(
         requires(("GENERIC",), ("KEYLENGTH",), msg="READ GENERIC without KEYLENGTH"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "TOKEN")),
         _NOTFND,
         # #4270: the GTEQ / GENERIC search states IBM's RESP2 (the full-key READ still records 0, until spec PR 6)
         Outcome(
@@ -125,6 +138,7 @@ READNEXT = _file(
     "READNEXT",
     "EXEC CICS READNEXT",
     "read",
+    register="X52",  # UPDATE / TOKEN refused (#5078)
     options={
         **_FILE,
         "INTO": Arg("area_out"),
@@ -133,7 +147,7 @@ READNEXT = _file(
         "LENGTH": Arg("value"),  # only INTO's own length (Cics._read_length)
         **RESP_OPTIONS,
     },
-    refused=_READ_REFUSED,
+    refused={**_READ_REFUSED, "UPDATE": _BROWSE_UPDATE, "TOKEN": _BROWSE_UPDATE},
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
         Outcome("ENDFILE", None, "the end of the file is reached"),
@@ -145,8 +159,9 @@ READPREV = _file(
     "READPREV",
     "EXEC CICS READPREV",
     "read",
+    register="X52",
     options=READNEXT.options,
-    refused=_READ_REFUSED,
+    refused=READNEXT.refused,
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
         Outcome("ENDFILE", None, "the start of the file is reached"),
@@ -199,9 +214,14 @@ REWRITE = _file(
     "REWRITE",
     "EXEC CICS REWRITE",
     "update",
-    options={**_NAME_ONLY, "FROM": Arg("area_in"), "LENGTH": Arg("value"), **RESP_OPTIONS},
+    options={**_NAME_ONLY, "FROM": Arg("area_in"), "LENGTH": Arg("value"), "TOKEN": _TOKEN_IN, **RESP_OPTIONS},
     refused=_REMOTE,
-    outcomes=(_NORMAL, Outcome("INVREQ", None, "no READ UPDATE holds a record of the file")),
+    outcomes=(
+        _NORMAL,
+        Outcome("INVREQ", None, "no READ UPDATE holds a record of the file"),
+        _INVREQ_TOKEN,
+    ),
+    register="X52",
 )
 
 # #4771 (zECS ZECS003): DELETE GENERIC (IBM, EXEC CICS DELETE): GENERIC "Specifies that the search key is a generic key
@@ -214,9 +234,18 @@ DELETE = _file(
     "EXEC CICS DELETE",
     "delete",
     register="X22",
-    options={**_FILE, "RIDFLD": Arg("area_in"), "KEYLENGTH": _KEYLENGTH, "GENERIC": Arg("flag"), **RESP_OPTIONS},
+    options={
+        **_FILE,
+        "RIDFLD": Arg("area_in"),
+        "KEYLENGTH": _KEYLENGTH,
+        "GENERIC": Arg("flag"),
+        "TOKEN": _TOKEN_IN,  # #5078 (X52): the record that READ UPDATE TOKEN returned the token for
+        **RESP_OPTIONS,
+    },
     refused=_REMOTE,
     groups=(
+        at_most_one("GENERIC", "TOKEN", msg="DELETE {} and {} together"),
+        at_most_one("RIDFLD", "TOKEN", msg="DELETE {} and {} together (IBM does not say)"),
         requires(("GENERIC",), ("KEYLENGTH",), msg="DELETE GENERIC without KEYLENGTH"),
         requires(("GENERIC",), ("RIDFLD",), msg="DELETE GENERIC without RIDFLD"),
     ),
@@ -230,6 +259,7 @@ DELETE = _file(
             raised_by=("GENERIC",),
         ),
         Outcome("INVREQ", None, "no RIDFLD, and no READ UPDATE holds a record"),
+        _INVREQ_TOKEN,
     ),
     runtime_refusals=(
         RuntimeRefusal(
@@ -240,4 +270,17 @@ DELETE = _file(
     ),
 )
 
-COMMANDS = (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE)
+# #5078 (X52), IBM CICS TS, EXEC CICS UNLOCK: releases the exclusive control a READ UPDATE took. TOKEN "associates the UNLOCK
+# with an earlier READ ... that used UPDATE"; a token matching none in use is INVREQ RESP2 47. UNLOCK without TOKEN (the
+# file's held record) is refused at translation, #5079.
+UNLOCK = _file(
+    "UNLOCK",
+    "EXEC CICS UNLOCK",
+    "unlock",
+    register="X52",
+    options={**_NAME_ONLY, "TOKEN": _TOKEN_IN, **RESP_OPTIONS},
+    refused=_REMOTE,
+    outcomes=(_NORMAL, _INVREQ_TOKEN),
+)
+
+COMMANDS = (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE, UNLOCK)

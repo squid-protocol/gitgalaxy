@@ -125,10 +125,6 @@ GET_COUNTER = Command(
     groups=(
         required("VALUE", msg="GET COUNTER without VALUE"),
         one_of("COUNTER", "DCOUNTER", msg="GET COUNTER needs one of COUNTER and DCOUNTER"),
-        requires(
-            ("INCREMENT",), ("DCOUNTER",), msg="GET COUNTER INCREMENT without DCOUNTER: only the doubleword form has it"
-        ),
-        requires(("WRAP",), ("DCOUNTER",), msg="GET COUNTER WRAP without DCOUNTER: only the doubleword form has it"),
     ),
     runtime_refusals=(
         RuntimeRefusal(
@@ -195,20 +191,10 @@ QUERY_COUNTER = Command(
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
     },
-    default_refusal=Refusal("only the counter's value is modelled (the region states no limits)", "X29"),
+    default_refusal=Refusal("only the counter's value and limits are modelled", "X29"),
     groups=(
         required("VALUE", msg="QUERY COUNTER without VALUE"),
         one_of("COUNTER", "DCOUNTER", msg="QUERY COUNTER needs one of COUNTER and DCOUNTER"),
-        requires(
-            ("MINIMUM",),
-            ("DCOUNTER",),
-            msg="QUERY COUNTER MINIMUM without DCOUNTER: the fullword form's limits are not stated",
-        ),
-        requires(
-            ("MAXIMUM",),
-            ("DCOUNTER",),
-            msg="QUERY COUNTER MAXIMUM without DCOUNTER: the fullword form's limits are not stated",
-        ),
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE", "MINIMUM", "MAXIMUM")),
@@ -228,6 +214,12 @@ QUERY_COUNTER = Command(
             "X45",
             java="QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
             c="QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
+        ),
+        RuntimeRefusal(
+            "QUERY COUNTER MINIMUM / MAXIMUM of a counter with no limits entry (a scenario's)",
+            "X50",
+            java="QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
+            c="QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state",
         ),
     ),
     state=("handle_table",),
@@ -255,21 +247,11 @@ DEFINE_COUNTER = Command(
         **_NOHANDLE,
     },
     default_refusal=Refusal(
-        "only a fullword counter with the default limits, or a doubleword counter, is modelled (the region states no others)",
+        "only the counter's name, pool, value and limits are modelled",
         "X30",
     ),
     groups=(
         one_of("COUNTER", "DCOUNTER", msg="DEFINE COUNTER needs one of COUNTER and DCOUNTER"),
-        requires(
-            ("MINIMUM",),
-            ("DCOUNTER",),
-            msg="DEFINE COUNTER MINIMUM without DCOUNTER: the fullword form's limits are not stated",
-        ),
-        requires(
-            ("MAXIMUM",),
-            ("DCOUNTER",),
-            msg="DEFINE COUNTER MAXIMUM without DCOUNTER: the fullword form's limits are not stated",
-        ),
         requires(("MINIMUM",), ("VALUE",), msg="DEFINE COUNTER MINIMUM without VALUE"),
     ),
     outcomes=(

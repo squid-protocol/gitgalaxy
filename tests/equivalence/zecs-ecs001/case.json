@@ -1,0 +1,582 @@
+{
+  "kind": "cics",
+  "corpus": "zecs",
+  "program": "ECS001",
+  "program_source": "Source/ECS001.cbl",
+  "copy_dirs": [],
+  "transid": "ECS1",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "linked": false,
+  "screens": {},
+  "urimaps": [
+    [
+      "ECS001",
+      "",
+      "/resources/ecs/walmart/cache/"
+    ]
+  ],
+  "scenarios": [
+    {
+      "name": "get",
+      "commarea": null,
+      "terminal": "ECS1 GET mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "value one\r%value two\r%"
+            }
+          ]
+        }
+      ],
+      "why": "GET mykey: A2000 splits line 1 into ECS1 / GET / the key (ECS-KEY-LEN its length), the path is the URIMAP's PATH plus the key, WEB CONVERSE GET, the body split at CR LF into TERM-LINES(2..): 'Command successfully processed.'"
+    },
+    {
+      "name": "get-lower-case",
+      "commarea": null,
+      "terminal": "ecs1 get mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "the command is upper-cased before the EVALUATE"
+    },
+    {
+      "name": "get-mixed-case",
+      "commarea": null,
+      "terminal": "ecs1 Get mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "'Get' upper-cased to GET"
+    },
+    {
+      "name": "get-empty-body",
+      "commarea": null,
+      "terminal": "ECS1 GET mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "a 200 with no body: no lines after the first"
+    },
+    {
+      "name": "get-one-line-no-crlf",
+      "commarea": null,
+      "terminal": "ECS1 GET mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "only line"
+            }
+          ]
+        }
+      ],
+      "why": "a body with no CR LF: UNSTRING takes it whole"
+    },
+    {
+      "name": "get-many-lines",
+      "commarea": null,
+      "terminal": "ECS1 GET k1",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/k1",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "line 1\r%line 2\r%line 3\r%line 4\r%line 5\r%line 6\r%line 7\r%line 8\r%line 9\r%line 10\r%line 11\r%line 12\r%line 13\r%line 14\r%line 15\r%line 16\r%line 17\r%line 18\r%line 19\r%line 20\r%line 21\r%line 22\r%line 23\r%line 24\r%line 25\r%line 26\r%line 27\r%line 28\r%line 29\r%line 30\r%"
+            }
+          ]
+        }
+      ],
+      "why": "30 body lines: only TERM-LINES(2..24) are filled"
+    },
+    {
+      "name": "get-long-key",
+      "commarea": null,
+      "terminal": "ECS1 GET kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "a key of 70 characters"
+    },
+    {
+      "name": "get-key-with-slash",
+      "commarea": null,
+      "terminal": "ECS1 GET a/b/c",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/a/b/c",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "a key holding slashes"
+    },
+    {
+      "name": "get-no-key",
+      "commarea": null,
+      "terminal": "ECS1 GET",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "no key typed: ECS-KEY-LEN zero, the request is for the bare path"
+    },
+    {
+      "name": "get-not-found",
+      "commarea": null,
+      "terminal": "ECS1 GET missing",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/missing",
+              "query": "",
+              "status": 404,
+              "statustext": "Not-Found",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "HTTP 404: A4000 'A4000: HTTP ERROR' with the code and status text"
+    },
+    {
+      "name": "get-server-error",
+      "commarea": null,
+      "terminal": "ECS1 GET boom",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/boom",
+              "query": "",
+              "status": 500,
+              "statustext": "Internal-Server-Error",
+              "mediatype": "text/plain",
+              "body": "oops\r%"
+            }
+          ]
+        }
+      ],
+      "why": "HTTP 500"
+    },
+    {
+      "name": "get-created",
+      "commarea": null,
+      "terminal": "ECS1 GET made",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/made",
+              "query": "",
+              "status": 201,
+              "statustext": "Created",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "any status other than 200 is an error, 201 too"
+    },
+    {
+      "name": "put",
+      "commarea": null,
+      "terminal": "ECS1 PUT mykey                                                                  ",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "PUT",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "PUT with no body lines: BODY-DATA-LEN 0 after the SUBTRACT, WEB CONVERSE PUT FROM"
+    },
+    {
+      "name": "put-one-line",
+      "commarea": null,
+      "terminal": "ECS1 PUT mykey                                                                  hello                                                                           ",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "PUT",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "PUT with one body line: STRINGed with CR LF into BODY-DATA"
+    },
+    {
+      "name": "put-three-lines",
+      "commarea": null,
+      "terminal": "ECS1 PUT mykey                                                                  line one                                                                                                                                                        line three                                                                      ",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "PUT",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "PUT with three lines around an empty one (skipped) and trailing blanks (trimmed)"
+    },
+    {
+      "name": "put-full-line",
+      "commarea": null,
+      "terminal": "ECS1 PUT mykey                                                                  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "PUT",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "a body line of all 80 characters"
+    },
+    {
+      "name": "put-conflict",
+      "commarea": null,
+      "terminal": "ECS1 PUT mykey                                                                  v                                                                               ",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "PUT",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 409,
+              "statustext": "Conflict",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "PUT answered 409"
+    },
+    {
+      "name": "del",
+      "commarea": null,
+      "terminal": "ECS1 DEL mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "DEL mykey: WEB CONVERSE DELETE"
+    },
+    {
+      "name": "del-not-found",
+      "commarea": null,
+      "terminal": "ECS1 DEL missing",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/resources/ecs/walmart/cache/missing",
+              "query": "",
+              "status": 404,
+              "statustext": "Not-Found",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "DEL answered 404"
+    },
+    {
+      "name": "invalid-command",
+      "commarea": null,
+      "terminal": "ECS1 POST mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": []
+        }
+      ],
+      "why": "POST is not GET, PUT or DEL: 'Invalid command option, expecting GET,PUT or DEL' and the task ends"
+    },
+    {
+      "name": "no-command",
+      "commarea": null,
+      "terminal": "ECS1",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": []
+        }
+      ],
+      "why": "only the transaction typed: the command is blank"
+    },
+    {
+      "name": "no-urimap-definition",
+      "commarea": null,
+      "terminal": "ECS1 GET mykey",
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs.example.com",
+          "port": 8080,
+          "urimap": "ECS001",
+          "path": "/resources/ecs/walmart/cache/",
+          "exchanges": [
+            {
+              "method": "GET",
+              "path": "/resources/ecs/walmart/cache/mykey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": "v\r%"
+            }
+          ]
+        }
+      ],
+      "why": "the region has no URIMAP ECS001: INQUIRE URIMAP is NOTFND -- 'A4000: INQUIRE_URIMAP ERROR:' with its RESP / RESP2",
+      "urimaps": [
+        [
+          "OTHER",
+          "",
+          "/resources/ecs/walmart/cache/"
+        ]
+      ]
+    }
+  ],
+  "notes": "zECS's sample terminal client (ECS001: 'Sample CICS program initiated via a terminal', Source/ECS001.cbl; not installed by zECS's CSD, so its transaction id ECS1 and its client URIMAP are STATED here, not zECS's). The operator types 'ECS1 <GET|PUT|DEL> <key>' on line 1 and, for PUT, the value on lines 2-24; the program RECEIVEs the 24x80 screen, maps the command to a WEB METHOD, INQUIREs the client URIMAP ECS001's PATH, WEB OPENs the connection through that URIMAP, WEB CONVERSEs one request on it (path + key; a PUT's FROM is the lines joined by X'0D25'), WEB CLOSEs, and SENDs the 24x80 screen back: 'Command successfully processed.' and the response lines, or the error line of the step that failed. The region's facts are stated on both sides: the URIMAP definitions (\"urimaps\", oracle_assumptions.md X32) and the HTTP server a CLIENT URIMAP reaches with each request's response (\"http_peers\", X35 -- the harness's server answers GET / PUT / DELETE by method, path and query, in order); the server host zecs.example.com:8080 and the path /resources/ecs/walmart/cache/ are this case's own. The line break X'0D25' is EBCDIC CR LF as the program's characters. Not reached (refused by name, so no scenario): a WEB CONVERSE request the server states no response to (X35, IBM leaves the failure open), a WEB OPEN of a server the run does not state (X35: 'WEB OPEN of a peer the run does not state: not modelled': IBM leaves the condition open), the RECEIVE and SEND failure branches and the WEB CLOSE failure branch (no fault can be injected on them). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

@@ -94,8 +94,8 @@ def test_a_normal_run_compares_the_return_code():
 
 def test_cics_scenarios_inject_named_conditions_as_dfhresp_numbers():
     sc = {"name": "s", "faults": [{"cmd": "READ", "file": "ACCTDAT", "resp": "IOERR"},
-                                  {"file": "CUSTDAT", "nth": "*", "resp": "NOTOPEN", "resp2": 7}]}  # fmt: skip
-    assert ec.fault_lines(sc) == ["READ ACCTDAT 1 17 0", "READ CUSTDAT * 19 7"]
+                                  {"file": "CUSTDAT", "nth": "*", "resp": "NOTOPEN", "resp2": 60}]}  # fmt: skip
+    assert ec.fault_lines(sc) == ["READ ACCTDAT 1 17 120", "READ CUSTDAT * 19 60"]  # IBM's RESP2 (#5044)
     assert ec.CICS_RESP["NOTFND"] == 13 and ec.CICS_RESP["DISABLED"] == 84
     with pytest.raises(ec.Unsupported):
         ec.fault_lines({"name": "s", "faults": [{"file": "X", "resp": "NOSUCHCONDITION"}]})

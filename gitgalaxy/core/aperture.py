@@ -206,15 +206,69 @@ _PUBLIC_ARMOR = re.compile(
 )
 
 
+# #4987: scan cap for a key/cert-named file, and the extensions whose binary (DER) form can be a public
+# certificate. `.p12` / `.pfx` (PKCS#12) always bundle a private key, so they never qualify.
+_PUBLIC_SCAN_CAP = 8 * 1024 * 1024
+_PUBLIC_SCAN_CHUNK = 1024 * 1024
+_PUBLIC_SCAN_OVERLAP = 64
+_DER_CERT_EXTENSIONS = frozenset({".cer", ".crt", ".der", ".p7b"})
+_PKCS7_SIGNED_DATA_OID = bytes.fromhex("06092a864886f70d010702")
+_PKCS12_OID = bytes.fromhex("2a864886f70d010c")  # 1.2.840.113549.1.12 (PKCS#12 and its bag types)
+
+
+def _der_seq_body(buf: bytes, pos: int) -> int | None:
+    """Offset just past the header of a DER SEQUENCE at `pos`, or None when it is not one."""
+    if pos + 2 > len(buf) or buf[pos] != 0x30:
+        return None
+    first = buf[pos + 1]
+    if first < 0x80:
+        return pos + 2
+    n = first & 0x7F
+    return pos + 2 + n if 1 <= n <= 4 and pos + 2 + n <= len(buf) else None
+
+
+def _is_der_public_certificate(head: bytes) -> bool:
+    """A binary X.509 certificate (SEQUENCE { SEQUENCE tbsCertificate ... }) or a PKCS#7 signedData bundle.
+    A PKCS#8 key opens SEQUENCE { INTEGER 0 ... } (encrypted: SEQUENCE { SEQUENCE { OID ... } ... }); a PKCS#12 carries OID 1.2.840.113549.1.12. Neither qualifies."""
+    if _PKCS12_OID in head:
+        return False
+    body = _der_seq_body(head, 0)
+    if body is None:
+        return False
+    if head.startswith(_PKCS7_SIGNED_DATA_OID, body):
+        return True
+    # tbsCertificate opens with the v3 `[0]` version (0xA0) or, for a v1 cert, the serial INTEGER (0x02). An
+    # encrypted PKCS#8 key is SEQUENCE { SEQUENCE { AlgorithmIdentifier OID ... } OCTET STRING }: its inner
+    # SEQUENCE opens with an OID (0x06), so it is not cleared.
+    inner = _der_seq_body(head, body)
+    return inner is not None and inner < len(head) and head[inner] in (0xA0, 0x02)
+
+
 def _is_public_key_material(path_obj: Path) -> bool:
-    """True when a key/cert-named file holds only public material (one bounded read, 64 KB cap; a larger
-    file stays a candidate, since a private block could sit past the read)."""
+    """True when a key/cert-named file holds only public material. The file is read in bounded chunks (8 MB
+    cap, overlapped so a marker cannot straddle a boundary): armor text counts only with no PRIVATE marker
+    anywhere. A cert-named binary DER file counts when it parses as a certificate. A file past the cap, or a
+    shape not recognised, stays a leak candidate (#4987)."""
     try:
         with open(path_obj, "rb") as fh:
-            head = fh.read(65537)
+            head = window = fh.read(_PUBLIC_SCAN_CHUNK)
+            total, armor = len(head), False
+            while True:
+                if b"PRIVATE" in window.upper():
+                    return False
+                armor = armor or bool(_PUBLIC_ARMOR.search(window))
+                chunk = fh.read(_PUBLIC_SCAN_CHUNK)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > _PUBLIC_SCAN_CAP:
+                    return False
+                window = window[-_PUBLIC_SCAN_OVERLAP:] + chunk
     except OSError:
         return False
-    return len(head) <= 65536 and bool(_PUBLIC_ARMOR.search(head)) and b"PRIVATE" not in head.upper()
+    if armor:
+        return True
+    return path_obj.suffix.lower() in _DER_CERT_EXTENSIONS and _is_der_public_certificate(head)
 
 
 class ApertureReason(str):

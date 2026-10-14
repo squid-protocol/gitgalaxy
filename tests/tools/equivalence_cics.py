@@ -2554,19 +2554,63 @@ LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
 _FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
 
-# #4623: the duplicate-key conditions, by the file commands IBM documents them for (CICS TS, each command's
-# "Conditions") and the RESP2 IBM gives: DUPREC 150 on WRITE ("adding a record whose key already exists", which
-# includes a unique alternate key, UNIQUEKEY) and REWRITE (a UNIQUEKEY alternate key already in the upgrade set);
-# DUPKEY 140 on READ, READNEXT and READPREV ("a record is retrieved through a NONUNIQUEKEY alternate index and another
-# record with the same key follows"). DUPKEY is the one condition that is not a failure: the read delivers the record
-# and answers DUPKEY, so the stub and CicsTask.withFaults run the read and qualify its NORMAL (a read that finds no
-# record has no DUPKEY to give: the fault does not fire).
-DUP_KEY_FAULTS = {
-    "DUPREC": (("WRITE", "REWRITE"), 150),
-    "DUPKEY": (("READ", "READNEXT", "READPREV"), 140),
+# #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
+# IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
+# the raw pages of READ, READNEXT, READPREV, WRITE, REWRITE, DELETE, STARTBR, ENDBR). A condition is planned only on a
+# command IBM lists it for, with a RESP2 IBM gives it there and a local VSAM file can reach (the RLS, BDAM, data-table and
+# coupling-facility values are refused). One value: the default; several (INVREQ, LENGERR): the scenario names one.
+_BROWSE = ("READNEXT", "READPREV")
+_FILE_CMDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
+_READS = ("READ", *_BROWSE)
+FILE_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
+    "FILENOTFOUND": dict.fromkeys(_FILE_CMDS, (1,)),
+    "NOTAUTH": dict.fromkeys(_FILE_CMDS, (101,)),
+    # READNEXT / READPREV / REWRITE: IBM adds "the browse in progress is terminated", which neither runtime models (below)
+    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
+    "IOERR": dict.fromkeys(_FILE_CMDS, (120,)),
+    # remote files: planned like IOERR, an injection (the case states what the program sees, the region needs no remote
+    # system). SYSIDERR 130 "SYSID is neither the local system nor a known remote system, or the link is closed" (131 / 132
+    # are coupling-facility data tables); ISCINVREQ 70 "the remote system reported a failure that is no known condition"
+    "SYSIDERR": dict.fromkeys(_FILE_CMDS, (130,)),
+    "ISCINVREQ": dict.fromkeys(_FILE_CMDS, (70,)),
+    # NOTFND 80 (READ/READNEXT/READPREV/STARTBR: no record matches the search argument); REWRITE's 80 is the data-table
+    # case only, WRITE / ENDBR do not list it
+    "NOTFND": dict.fromkeys((*_READS, "STARTBR", "DELETE"), (80,)),
+    "ENDFILE": dict.fromkeys(_BROWSE, (90,)),
+    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
+    "NOTOPEN": dict.fromkeys(
+        ("READ", "WRITE", "DELETE", "STARTBR"), (60,)
+    ),  # not REWRITE / READNEXT / READPREV / ENDBR
+    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),  # READ's 100 is an RLS-only case
+    "LOCKED": dict.fromkeys((*_READS, "WRITE", "REWRITE", "DELETE"), (106,)),
+    "DUPKEY": dict.fromkeys(_READS, (140,)),  # #4623
+    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),  # #4623
+    "LENGERR": {
+        **dict.fromkeys(_READS, (10, 11, 13)),
+        **dict.fromkeys(("WRITE", "REWRITE"), (10, 12, 14)),
+    },
+    "INVREQ": {
+        "READ": (20, 25, 26, 28, 42),
+        "READNEXT": (20, 25, 26, 34, 37, 42),
+        "READPREV": (20, 24, 26, 37, 41),
+        "STARTBR": (20, 25, 26, 33, 42),
+        "ENDBR": (35,),
+        "WRITE": (20, 23, 26),
+        "REWRITE": (30, 47),
+        "DELETE": (20, 21, 22, 25, 26, 31, 42, 47),
+    },
 }
+# IBM lists these for file commands but they belong to data tables (LOADING, CHANGED, SUPPRESSED) and RLS (RECORDBUSY,
+# NOSUSPEND), which no case defines: refused by name (X49)
+FILE_FAULT_REFUSED = ("LOADING", "RECORDBUSY", "CHANGED", "SUPPRESSED")
 # IBM lists DUPKEY (RESP2 140) for DELETE too but does not say whether the record is deleted: refused by name (X48).
 DUP_KEY_REFUSED = {("DELETE", "DUPKEY"): "register X48"}
+FILE_FAULT_UNMODELLED = {
+    ("READNEXT", "ILLOGIC"),
+    ("READPREV", "ILLOGIC"),
+    ("REWRITE", "ILLOGIC"),
+}  # X49: ends the browse
+FILE_FAULT_COMMANDS = _FILE_CMDS
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -2576,6 +2620,42 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     if spec.get("append"):
         data += common._fixed(common._input_path(case, corpus, spec["append"]), reclen, enc)
     return data
+
+
+def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
+    """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
+    resp = f["resp"]
+    where = f"scenario {sc.get('name')}: fault {f}"
+    if (cmd, resp) in DUP_KEY_REFUSED:
+        raise Unsupported(
+            f"{where}: IBM lists {resp} for {cmd} but not whether the record is deleted ({DUP_KEY_REFUSED[(cmd, resp)]}, refused)"
+        )
+    if resp in FILE_FAULT_REFUSED:
+        raise Unsupported(
+            f"{where}: {resp} is IBM-documented for {cmd} but it is a data-table or RLS condition and no case defines either "
+            "(register X49, refused)"
+        )
+    if (cmd, resp) in FILE_FAULT_UNMODELLED:
+        raise Unsupported(
+            f"{where}: IBM's {resp} on {cmd} also terminates the browse in progress, which the runtimes do not model "
+            "(register X49, refused)"
+        )
+    cmds = FILE_FAULT_CONDITIONS.get(resp, {})
+    if cmd not in cmds:
+        listed = "/".join(cmds)
+        raise Unsupported(
+            f"{where}: IBM documents {resp} for {listed}, not {cmd}"
+            if listed
+            else f"{where}: {resp} is not a condition IBM lists for {cmd} (register X49, refused)"
+        )
+    ibm = cmds[cmd]
+    if resp2 == 0:  # not given
+        if len(ibm) > 1:
+            raise Unsupported(f"{where}: IBM gives {resp} on {cmd} RESP2 {'/'.join(map(str, ibm))}: name one")
+        return ibm[0]
+    if resp2 not in ibm:
+        raise Unsupported(f"{where}: IBM's {resp} on {cmd} has RESP2 {'/'.join(map(str, ibm))}, not {resp2}")
+    return resp2
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
@@ -2589,25 +2669,19 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
                 "and no abend code is sourced for it (register X43, refused)"
             )
-        if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
+        refused_file = (
+            cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
+        )  # named in X49, not just unknown
+        if cmd not in FAULT_COMMANDS or (f.get("resp") not in CICS_RESP and not refused_file):
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
             )
         resp2 = int(f.get("resp2", 0))
-        if (cmd, f["resp"]) in DUP_KEY_REFUSED:
-            raise Unsupported(
-                f"scenario {sc['name']}: fault {f}: IBM lists {f['resp']} for {cmd} but not whether the record is "
-                f"deleted ({DUP_KEY_REFUSED[(cmd, f['resp'])]}, refused)"
-            )
-        if f["resp"] in DUP_KEY_FAULTS:
-            cmds, ibm2 = DUP_KEY_FAULTS[f["resp"]]
-            if cmd not in cmds:
-                raise Unsupported(
-                    f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {'/'.join(cmds)}, not {cmd}"
-                )
-            if resp2 not in (0, ibm2):  # 0: not given
-                raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM's {f['resp']} has RESP2 {ibm2}, not {resp2}")
-            resp2 = ibm2
+        if cmd in FILE_FAULT_COMMANDS:
+            resp2 = _file_fault_resp2(sc, f, cmd, resp2)
+        elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
+            listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
+            raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:

@@ -116,8 +116,9 @@ jobs:
           pip install -e ".[translator]"
 
       - name: Cache the pinned corpora (port diff)
+        id: corpora
         if: steps.plan.outputs.mode == 'ports'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
@@ -130,6 +131,16 @@ jobs:
           # exit 1 means "some port changed"; a crash leaves no check.json and the next step plans a full sweep
           PYTHONPATH="$PWD" python tests/tools/det_port.py check --work "$RUNNER_TEMP/portcheck" --base-ref origin/main \
             | tail -40 || true
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: steps.plan.outputs.mode == 'ports' && github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Plan from the port diff
         id: final
@@ -272,7 +283,8 @@ jobs:
             java-compile-m2-
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -282,6 +294,16 @@ jobs:
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       - name: Restore the newest measured durations (#4847)
         id: durations
@@ -414,7 +436,8 @@ jobs:
             java-compile-m2-
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -424,6 +447,16 @@ jobs:
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.

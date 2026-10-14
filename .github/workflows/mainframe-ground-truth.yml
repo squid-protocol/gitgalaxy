@@ -100,7 +100,8 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           # Clones only; scans are keyed by engine state inside the cache dir and
@@ -112,6 +113,16 @@ jobs:
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
       # also the only run that appends: the `--history` flag below).

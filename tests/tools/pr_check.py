@@ -173,6 +173,14 @@ def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603
 
 
+DRAFT_READY_NOTE = "was a draft: marked ready, not merged"
+
+
+def draft_marked_ready(errors: list[str]) -> bool:
+    """`merge`'s only non-failure return: the draft was marked ready and its CI starts (#5104). Not an error."""
+    return len(errors) == 1 and DRAFT_READY_NOTE in errors[0]
+
+
 def merge(res: dict[str, Any], run: Callable[[list[str]], subprocess.CompletedProcess[str]] | None = None) -> list[str]:
     """Squash-merge, pinned to the checked head SHA. A draft is marked ready and NOT merged (#5104): its heavy checks were
     skipped (a skip reads as green), so the merge waits for the CI that `ready_for_review` starts. Returns the errors."""
@@ -185,7 +193,7 @@ def merge(res: dict[str, Any], run: Callable[[list[str]], subprocess.CompletedPr
             r = run(["gh", "api", "graphql", "-f", f"query={q}", "-f", f"id={res['node_id']}"])
             if r.returncode:
                 return [f"could not mark #{n} ready: {r.stderr.strip()[:300]}"]
-        return [f"#{n} was a draft: marked ready, not merged. Its CI starts now; run --merge again when it is green"]
+        return [f"#{n} {DRAFT_READY_NOTE}. Its CI starts now; run --merge again when it is green"]
     r = run(["gh", "pr", "merge", n, "-R", REPO_SLUG, "--squash", "--match-head-commit", res["head_sha"]])
     return [f"gh pr merge failed: {(r.stderr or r.stdout).strip()[:300]}"] if r.returncode else []
 
@@ -205,7 +213,11 @@ def sync_pins(run: Callable[[list[str]], subprocess.CompletedProcess[str]] | Non
 def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("number", type=int)
-    ap.add_argument("--merge", action="store_true", help="mark ready + squash-merge, only when everything is green")
+    ap.add_argument(
+        "--merge",
+        action="store_true",
+        help="squash-merge, only when everything is green (a draft is only marked ready; run again when its CI is green)",
+    )
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--digest", action="store_true", help="also print each failed check's digest (ci_digest.py)")
     args = ap.parse_args(argv)

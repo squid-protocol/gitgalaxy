@@ -61,3 +61,19 @@ def test_ref_tag():
     assert cpp.ref_tag("v0.2.0 (94f2afcb)") == "v0.2.0"
     assert cpp.ref_tag("94f2afcbe6adfb88") == "94f2afcbe6adfb88"
     assert cpp.ref_tag(None) is None
+
+
+def test_tree_sha256_is_independent_of_the_platform_path_order(tmp_path):
+    """Windows sorts Paths case-insensitively ('cics/DetCics.java' before 'Cobol.java'); the hash must not."""
+    import hashlib
+
+    files = {"cobolrt/Cobol.java": b"a", "cobolrt/cics/DetCics.java": b"b", "Z.txt": b"c", "a.txt": b"d"}
+    for rel, data in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(data)
+    h = hashlib.sha256()
+    for rel in sorted(
+        files, key=lambda r: tuple(r.split("/"))
+    ):  # byte order of the parts: Z.txt, a.txt, cobolrt/Cobol..
+        h.update(rel.encode() + b"\0" + files[rel] + b"\0")
+    assert cpp.tree_sha256(tmp_path) == h.hexdigest()

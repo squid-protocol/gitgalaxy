@@ -228,7 +228,7 @@ The date / time services and COBDATFT, as the harness's C models do them.
 | RT-LE-CEEDATM | CEEDATM: Lilian seconds as a character timestamp by a picture string | `le-pr` CEEDATM: convert seconds to character timestamp | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEESECS | CEESECS: a character timestamp to Lilian seconds, its range checked (31 December 9999 23:59:59.999 the last) | `le-pr` CEESECS: convert timestamp to seconds | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEISEC | CEEISEC: year, month, day, hours, minutes, seconds, milliseconds to Lilian seconds, each checked | `le-pr` CEEISEC: convert integers to seconds | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
-| RT-LE-CEEDAYS | CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused | `le-pr` CEEDAYS: convert date to Lilian format | - | L1 (MATCHED / REFUSED) | MATCHED | uncalibrated |
+| RT-LE-CEEDAYS | CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused | `le-pr` CEEDAYS: convert date to Lilian format | - | L1 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEELOCT | CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form | `le-pr` CEELOCT: get current local date or time | - | L5 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-LE-COBDATFT | COBDATFT (CardDemo's assembler date routine): input type '2' to output type '2' modelled byte for byte; type '1' and the error path depend on the load module's literal pool: refused | `carddemo-cobdatft` COBDATFT.asm | - | A1 (MATCHED / REFUSED) | MATCHED | uncalibrated |
 

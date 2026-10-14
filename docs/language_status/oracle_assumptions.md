@@ -160,11 +160,11 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X50 | CICS | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | X51 | CICS | EXEC CICS RETURN TRANSID COMMAREA LENGTH and XCTL COMMAREA LENGTH hand the next task / the target LENGTH bytes (its EIBCALEN), every byte as it was; the det port passes the record's whole span beside its DTO (#4806, #4817), so CicsTask cuts those bytes at LENGTH (null: all; past the span: all of it), as the DTO's reading already is; a LINK's area is not cut (by address); a LENGTH past the DTO passes the COMMAREA as a byte[] (region EBCDIC), which a facade's handleTransaction answers as an Object by design | ASSUMED | no (unit-proven on CicsTask for RETURN, RETURN IMMEDIATE and XCTL, every LENGTH class: tests/cobol_mainframe/test_commarea_length_bytes_4817.py; no estate program differs by it: a conforming program never reads past EIBCALEN) |
 | X52 | CICS | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) | ASSUMED (REFUSED where IBM is silent) | unit-proven on CicsTask and the stub C over one scenario list (tests/cics_crucible/test_update_token_runtimes_5078.py: valid, invalid, reused, interleaved, wrong-file tokens); CBSA DELCUS (READ UPDATE TOKEN twice, DELETE TOKEN twice) translates whole (det_survey: 140 of 140 statements, compiles) |
-| L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
+| L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
-| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | no (CRECUST has no equivalence case: its Db2 estate and its credit-agency children are not a case yet; see X18, L5) |
-| L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | no (CBSA CRECUST, the only caller, has no equivalence case) |
+| L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | yes (cbsa-crecust, #4952) |
+| L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust, #4952) |
 | L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
@@ -2569,11 +2569,34 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ## Language Environment
 
-### L1. CEEDAYS — MATCHED where documented, REFUSED otherwise
-- **Modelled.** Pictures `YYYY-MM-DD` (and its `/` and `.` forms) only.
-- **Refused (exit 98).** A picture inside a longer field (CardDemo's `'YYYYMMDD  '`) and a numeric month outside
-  1–12, because IBM documents neither 2508 vs 2517 nor how trailing blanks are read.
-- COACTUPC's cursor placement after its date fields is unreached until z/OS settles it.
+### L1. CEEDAYS — MATCHED where documented, a blank picture tail ASSUMED, REFUSED otherwise
+- **What IBM documents** (Language Environment Programming Reference, "CEEDAYS -- Convert date to Lilian format"; the
+  ILE copy of the same service, https://www.ibm.com/docs/en/ssw_ibm_i_73/apis/CEEDAYS.htm, says the same): a date that
+  is not valid returns Lilian 0 and a nonzero feedback code; "After a valid date is parsed, remaining characters are
+  ignored"; the input may carry leading or trailing blanks.
+- **Modelled** (`tests/equivalence/le/ceedays.c`, `cobolrt/le/Ceedays.java`). Pictures made of `YYYY`, `MM`, `DD` in
+  any order, or `YYYY` and `DDD` (Julian), each token once, adjacent or each pair joined by one separator character
+  (`-`, `/` or `.`) used throughout. Feedback: 2507 date shorter than the picture's span, 2508 day not valid (a day
+  outside its month, 29 February of a year that is not a Gregorian leap year, a Julian day 0 or past 365 / 366),
+  2513 before 15 October 1582, 2520 non-numeric data or a separator that is not the picture's. The date past the span
+  is never read (IBM: remaining characters are ignored).
+- **Assumed (owner decision 2026-10-14).** The picture's own characters after its last token, **only when they are all
+  blanks**. IBM does not say how they are read; CardDemo pads picture and date to 10 (`'YYYYMMDD  '`), and a blank tail is
+  taken as ignored. The date past its span is IBM-documented ignored; the picture's tail is not, hence the narrow
+  assumption. The tail is read: every byte from the last token to the declared length must be a blank, and a byte that
+  lies past the picture item (a declared length that overruns it) is foreign storage, never trusted as a blank.
+- **Refused (exit 98).** A picture tail with any non-blank byte (`'YYYYMMDDX'`, `'YYYYMMDD00'`, a complete set of
+  tokens followed by more tokens) and a tail that overruns its item: CRECUST's `DATE-OF-BIRTH-FORMAT` is a halfword
+  length of 10 over the 8 bytes `'YYYYMMDD'`, so its 2 extra bytes are the storage that follows the item, which z/OS
+  would read as picture text. CRECUST's create-customer and born-in-the-future scenarios are refused by name, so
+  cbsa-crecust stays unproven (and BNK1CCS, which LINKs it); born-before-1601 ends before CEEDAYS. A numeric month outside 1–12 (2508 vs 2517: IBM documents CEE2517 for a month not recognized
+  but not what a numeric 13 is); a trailing blank on the part of the date the picture covers (whether it is 2507 or 2520, #4049;
+  a blank inside it is a non-numeric position, 2520, and date bytes past the span are ignored); `YY` (a century window), month names, eras, a null or blank picture, a repeated or
+  incomplete picture, a blank or mixed separator, `DDD` together with `MM` or `DD`.
+- **Broadened by #4952.** CardDemo's `'YYYYMMDD  '` (picture and date padded with blanks to 10) used to be refused as a
+  picture inside a longer field; it is modelled now (the span is read, the blank tail ignored), which is the assumption
+  above and nothing wider. The test table is `tests/cobol_mainframe/test_det_ceedays.py`.
+- COACTUPC's cursor placement after its date fields is unreached until z/OS settles the month-range case.
 
 ### L2. CEE3ABD — MATCHED
 - `ggabend.c` records `ABEND Unnnn`, and the Java side's CobolAbend gives the same.
@@ -2597,15 +2620,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   used only where the estate holds no CEEIGZCT of its own, and it refuses nothing else.
 - **What it declares.** One condition name, `88 CEE000 VALUE X'0000000000000000'`: the symbolic feedback code for
   "the service completed successfully", the first 8 bytes of a condition token (severity 0, message 0). CBSA CRECUST
-  copies it under `02 CONDITION-TOKEN-VALUE` of its 8-byte `FC` group and tests `IF NOT CEE000 OF FC` after its
+  copies it under `02 CONDITION-TOKEN-VALUE` (8 bytes: severity, message number, case / severity / control byte, facility ID) of its 12-byte `FC` group (the 8, then the 4-byte `I-S-INFO`) and tests `IF NOT CEE000 OF FC` after its
   CEEDAYS and CEELOCT calls. Every other CEE symbolic code stays undeclared: a program using one is refused by the
   engine as before (a stand-in is written only where the runtime behind a name is modelled).
 - **Assumed.** That CEE000 is the all-zero token. IBM documents the symbolic codes as the first 8 bytes of the
   token and CEE000 as severity 0 / message 0; the all-zero value is our reading, and it agrees with the 12 zero bytes
   our CEEDAYS model writes on success (L1). A COBOL group compared with a longer or shorter token would pad with
-  spaces; CRECUST's `FC` is exactly 8 bytes before its facility ID.
-- **Not modelled.** CEELOCT is modelled since #4884 (L5). CRECUST declares its `FC` as 8 bytes, while LE writes a 12-byte token (and our CEEDAYS model writes 12): a
-  possible overrun in the program itself, not examined here (no case).
+  spaces; the comparison is of CRECUST's 8-byte `CONDITION-TOKEN-VALUE`, the first 8 bytes of the token.
+- **Not modelled.** CEELOCT is modelled since #4884 (L5). CRECUST's `FC` is 12 bytes, the size of the token LE writes
+  (`CONDITION-TOKEN-VALUE` 8 + `I-S-INFO` 4: #4952 checked the translated layout, `Field.group(s_FC, 0, 12)`), so CEEDAYS and CEELOCT
+  overrun nothing; the earlier note that it was 8 bytes was a misreading of the 8-byte group inside it. Reached
+  by `cbsa-crecust`.
 - **IBM references.**
   - Using symbolic feedback codes: https://www.ibm.com/docs/SSLTBW_2.4.0/com.ibm.zos.v2r4.ceeam00/symfd.htm
   - Feedback code (the last parameter of every LE callable service):
@@ -2620,8 +2645,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   14 October 1582, a COMP-2) and a Gregorian string of the form YYYYMMDDHHMISS999.
 - **Modelled.** `tests/equivalence/le/ceeloct.c` (COBOL side, linked into every case like CEEDAYS) and
   `cobolrt/le/Ceeloct.java` (the port) read the case's pinned clock (`COB_CURRENT_DATE` / the run's
-  `FUNCTION CURRENT-DATE` text) and write the same values; the feedback code is 12 zero bytes (CRECUST's 8-byte `FC`
-  is overrun by 4, as under CEEDAYS, L4). Without a pinned clock the C model refuses (exit 98).
+  `FUNCTION CURRENT-DATE` text) and write the same values; the feedback code is 12 zero bytes (CRECUST's `FC` is 12
+  bytes, L4). Without a pinned clock the C model refuses (exit 98).
 - **Assumed.** (1) The local time is the pinned clock itself: the case's zone is the mainframe's. (2) output_seconds is
   `days x 86400 + time of day`, with the hundredths as a fraction. The Java side stores it by value in the item's own
   usage (HFP, C6), the C side as a native IEEE double; the byte patterns differ, which is why the translator passes

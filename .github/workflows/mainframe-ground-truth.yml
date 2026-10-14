@@ -69,8 +69,10 @@ jobs:
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
   # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest, of which one test,
-  # test_evidence_components.py::test_the_components_partition_each_input, is ~5.7 min by itself). It runs as 2 parts on
-  # 2 runners: part 1 the ledger gate + every other test, part 2 the evidence-components file. `ground-truth` below
+  # test_evidence_components.py::test_the_components_partition_each_input, is ~1.7-5.7 min by itself). It runs as 2 parts
+  # on 2 runners. Part 2 takes the two corpus-free files that are ~half the directory's test seconds (--durations=0 on
+  # the first split: test_det_nondigit_zoned.py 1480 s over 436 javac tests, test_evidence_components.py 257 s of 3476 s
+  # total); part 1 the ledger gate (which warms the corpus scans) + every other test. `ground-truth` below
   # stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
   ground-truth:
     needs: [tested-tree, ground-truth-part]
@@ -97,9 +99,9 @@ jobs:
       matrix:
         include:
           - group: 1
-            tests: "tests/cobol_mainframe/ --ignore=tests/cobol_mainframe/test_evidence_components.py"
+            tests: "tests/cobol_mainframe/ --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_det_nondigit_zoned.py"
           - group: 2
-            tests: "tests/cobol_mainframe/test_evidence_components.py"
+            tests: "tests/cobol_mainframe/test_evidence_components.py tests/cobol_mainframe/test_det_nondigit_zoned.py"
     timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -181,7 +183,7 @@ jobs:
           cd gitgalaxy
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
           # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
-          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=0 ${{ matrix.tests }}
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
 
       - name: Keep the history for the publish job
         if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')

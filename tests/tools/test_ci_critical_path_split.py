@@ -35,11 +35,14 @@ def test_the_parts_partition_tests_cobol_mainframe():
     include = part["strategy"]["matrix"]["include"]
     assert [i["group"] for i in include] == [1, 2]
     assert part["strategy"]["fail-fast"] is False
-    carved = "tests/cobol_mainframe/test_evidence_components.py"
-    assert (ROOT / carved).is_file()
+    carved = [
+        "tests/cobol_mainframe/test_evidence_components.py",
+        "tests/cobol_mainframe/test_det_nondigit_zoned.py",
+    ]
+    assert all((ROOT / f).is_file() for f in carved)
     rest, only = (i["tests"].split() for i in include)
-    assert rest == ["tests/cobol_mainframe/", f"--ignore={carved}"]
-    assert only == [carved]
+    assert rest == ["tests/cobol_mainframe/", *(f"--ignore={f}" for f in carved)]
+    assert only == carved
     run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
     pytest_line = next(ln for ln in run.splitlines() if "-m pytest" in ln)
     assert "${{ matrix.tests }}" in pytest_line and "tests/cobol_mainframe" not in pytest_line

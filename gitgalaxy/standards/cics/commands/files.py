@@ -276,7 +276,7 @@ DELETE = _file(
 UNLOCK = _file(
     "UNLOCK",
     "EXEC CICS UNLOCK",
-    "update",
+    "unlock",
     register="X52",
     options={**_NAME_ONLY, "TOKEN": _TOKEN_IN, **RESP_OPTIONS},
     refused=_REMOTE,

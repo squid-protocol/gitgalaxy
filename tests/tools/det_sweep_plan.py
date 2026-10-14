@@ -32,7 +32,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
-MAX_SHARDS = 20  # full sweep: runners (#4814: work-sized; a narrow plan starts one per PER_SHARD cases)
+MAX_SHARDS = 6  # full sweep: runners (#5135: 6 fat shards, ~10 min each, not 20 that queue behind the 20-job pool; a narrow plan starts one per PER_SHARD cases)
 PER_SHARD = 3  # narrow: about this many cases per runner
 # #4901: the Db2 cases run on their own runners (each starts IBM's Db2 container, minutes), in parallel with the shards
 DB2_MAX_SHARDS = 4  # a full sweep: as many as the nightly Evidence Refresh's Db2 job

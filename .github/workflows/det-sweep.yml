@@ -13,7 +13,7 @@ name: Det Sweep
 #
 # Fast (#4463 follow-up): three jobs. `plan` reads the diff: a pull request that touches only tests/equivalence/<case>/
 # proves just those cases (and the cases that take their ports); anything else, and every nightly, proves all
-# of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 20 runners (#4814: one per ~3 cases; a translator change is narrowed by its port diff)
+# of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 6 runners (#4814: one per ~3 cases, #5135: at most 6 so a run fits the 20-job pool; a translator change is narrowed by its port diff)
 # (proof_sweep.py --shard I/N, balanced by tests/equivalence/det_sweep_durations.json), each with the GnuCOBOL image
 # restored from cache. (A cache of the COBOL-side step outputs was tried and dropped: it saved no measurable time --
 # the Java build and the fault runs dominate a proof, not the COBOL step.)
@@ -412,7 +412,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.shards != '0') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # a shard is ~4 cases (#4814: up to 20 shards); a hang should fail, not hold a runner for 6 h
+    timeout-minutes: 30  # a full-sweep shard is ~18 cases, ~10-12 min (#5135: up to 6 shards); a hang should fail, not hold a runner for 6 h
     strategy:
       fail-fast: false
       matrix:
@@ -631,7 +631,7 @@ jobs:
             if [ -z "$found" ]; then echo "no shard reported a sweep.json"; rc=1; else
               extra=()  # the nightly writes the merged seconds to tests/equivalence/det_sweep_durations.json (#4847)
               if [ "$EVENT" = "schedule" ]; then extra=(--update-durations); fi
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" "${extra[@]}" | tee agg.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger "${extra[@]}" | tee agg.txt || rc=1
               {
                 echo "## Det sweep (merged)"
                 echo '```'
@@ -646,7 +646,7 @@ jobs:
             if [ "$DB2_CASES" != "all" ]; then expect="$DB2_CASES"; fi
             found=$(ls db2-shards/*/sweep.json db2-shards/sweep.json 2>/dev/null || true)  # one shard: no subdirectory (#5008)
             if [ -z "$found" ]; then echo "no Db2 shard reported a sweep.json"; rc=1; else
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" | tee agg-db2.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger | tee agg-db2.txt || rc=1
               {
                 echo "## Det sweep, Db2 cases (merged)"
                 echo '```'
@@ -656,6 +656,17 @@ jobs:
             fi
           fi
           exit $rc
+
+      # #5084: the aggregate re-recorded the ledger entries it re-checked (fingerprints included); the runner's copy is
+      # thrown away, so hand the rewritten files on for whoever commits them.
+      - name: Keep the re-recorded coverage ledger (#5084)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: det-sweep-ledger
+          path: tests/equivalence/det_sweep_coverage/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Stage the merged durations for the cache (nightly, #4847)
         if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'

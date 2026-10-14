@@ -975,6 +975,7 @@ _RESP_SAMPLES = {
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
+    "REWIND COUNTER": "REWIND COUNTER(KEY)", "UPDATE COUNTER": "UPDATE COUNTER(KEY) VALUE(7)",
     "DOCUMENT CREATE": "DOCUMENT CREATE DOCTOKEN(REC)",
     "DOCUMENT RETRIEVE": "DOCUMENT RETRIEVE DOCTOKEN(KEY) INTO(REC) MAXLENGTH(10) DATAONLY",
     "WEB OPEN": "WEB OPEN SESSTOKEN(KEY) URIMAP(REC)", "WEB CLOSE": "WEB CLOSE SESSTOKEN(KEY)",
@@ -1360,10 +1361,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
-    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value"),
-                     ("QUERY DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value")):  # fmt: skip
-        with pytest.raises(C.CicsError, match=why):
-            c.command(bad, "")
+    assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
+        "QUERY COUNTER(KEY) VALUE(REC)", ""
+    )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
     assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
@@ -1376,10 +1376,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     x = c.command("DELETE COUNTER(KEY) POOL('GENAPOOL') RESP(R)", "")
     assert x[0].startswith("int[] counter") and ".deleteCounter(" in x[0]
     for bad, why in (("DEFINE COUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
-                     ("DEFINE COUNTER(KEY) NOSUSPEND", "NOSUSPEND"),
                      ("DEFINE DCOUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
                      ("DEFINE DCOUNTER(KEY) COUNTER(KEY)", "one of COUNTER and DCOUNTER"),
-                     ("DELETE COUNTER(KEY) NOSUSPEND", "only the counter's name and pool")):  # fmt: skip
+                     ("DELETE COUNTER(KEY) VALUE(REC)", "only the counter's name and pool")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
     for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),
@@ -1727,12 +1726,10 @@ def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
     assert plain[0].count(",") == 1  # (pool, name: the default increment)
     assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)
-    for bad, why in (("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
-                     ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) REDUCE", "maximum is not stated"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMIN(R)", "range check"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMAX(R)", "range check"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "rebuild")):  # fmt: skip
+    for bad, why in (
+        ("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
+        ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
+    ):  # fmt: skip (REDUCE / COMPARE / NOSUSPEND: #5039, X53)
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

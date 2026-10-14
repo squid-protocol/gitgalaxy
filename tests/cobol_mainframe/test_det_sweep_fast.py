@@ -250,7 +250,7 @@ def test_db2_cases_are_not_planned_and_the_runner_count_follows_the_plan():
     assert p["db2_cases"] == ["dbcase"] and plan.db2_shards_for(p) == ["1/1"]  # #4901: the db2 job proves it
     assert plan.shards_for({"mode": "narrow", "cases": ["a"]}) == ["1/1"]
     assert plan.shards_for({"mode": "narrow", "cases": list("abcdefg")}) == ["1/3", "2/3", "3/3"]
-    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/20" for i in range(1, 21)]  # #4814
+    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/6" for i in range(1, 7)]  # #4814, #5135
 
 
 def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
@@ -404,3 +404,29 @@ def test_a_generator_class_a_port_names_moves_that_port(tmp_path):
     # a base translated before the snapshot existed has no generated/: only the port itself is compared
     shutil.rmtree(tmp_path / "base" / "a" / "generated")
     assert det_port.compare(tmp_path / "base", tmp_path / "new")[0]["status"] == "unchanged"
+
+
+def test_the_split_is_a_partition_whatever_the_plan_and_shard_count():
+    """#5135 / #5114: with every case in exactly one shard (the real 110 cases, durations known or not), a smaller
+    shard count cannot leave one unproved (`missing_cases`) or prove one twice."""
+    names = sorted(plan.case_dirs())
+    assert len(names) > plan.MAX_SHARDS * plan.PER_SHARD
+    recorded = ps.load_durations()
+    for durations in (recorded, {}, {n: float(i % 7) for i, n in enumerate(names)}):
+        for p in (
+            {"mode": "full", "cases": "all"},
+            {"mode": "narrow", "cases": names[:5]},
+            {"mode": "narrow", "cases": names},
+        ):
+            matrix = plan.shards_for(p)
+            assert len(matrix) <= plan.MAX_SHARDS
+            want = names if p["cases"] == "all" else p["cases"]
+            got = [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]
+            assert sorted(got) == sorted(want)  # none missing, none twice
+            assert got == [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]  # stable
+
+
+def test_a_full_sweep_plus_db2_fits_the_job_pool():
+    """#5135: a full run is shards + db2 jobs (+ plan + det), which must not exceed the 20-job pool."""
+    full = {"mode": "full", "cases": "all", "db2_cases": "all"}
+    assert len(plan.shards_for(full)) + len(plan.db2_shards_for(full)) + 2 <= 20

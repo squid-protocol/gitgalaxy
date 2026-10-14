@@ -5962,7 +5962,7 @@ def test_the_stub_defines_queries_and_wraps_a_fullword_counter(tmp_path):
         work.mkdir()
         (work / "out").mkdir()
         (work / "counters.cfg").write_text(_x50_seed(seed), encoding="ascii")
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         got = run.stdout.splitlines()
         if refusal is None:

@@ -247,8 +247,7 @@ jobs:
         run: |
           image=$(cd gitgalaxy/tests/tools && python -c "import equivalence_db2; print(equivalence_db2.IMAGE)")
           echo "Db2 image: $image"
-          # #5048: bounded retry (the registry hiccups); the digest stays the pin.
-          gitgalaxy/tests/tools/ci_retry.sh 4 15 -- docker pull -q "$image"
+          docker pull -q "$image"
           echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Re-sweep this shard's Db2 det ports for the coverage ledger (#4733)

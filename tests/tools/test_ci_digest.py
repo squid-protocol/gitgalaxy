@@ -106,9 +106,3 @@ def test_a_suite_part_and_the_prism_timing_test(monkeypatch):
     assert cd.triage("failure", "", ex["tests"]) == "real"
     monkeypatch.setattr(cd, "FLAKY", {"test_prism_suppression_regex_bomb"})
     assert cd.triage("failure", "", ex["tests"]) == "flake"
-
-
-def test_the_infrastructure_marker_of_ci_retry_and_the_db2_pull_triages_as_infra():  # #5048
-    marker = "::error::INFRASTRUCTURE (not a code defect): 'docker pull -q x' failed after 4 attempts (exit 1)"
-    assert cd.triage("failure", marker, []) == "infra"
-    assert cd.triage("failure", "FileNotFoundError: INFRASTRUCTURE (not a code defect): could not pull", []) == "infra"

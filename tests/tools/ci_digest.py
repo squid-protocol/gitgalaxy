@@ -74,8 +74,7 @@ INFRA_LOG = re.compile(r"runner has received a shutdown signal|lost communicatio
                        r"Error: The hosted runner|503 Service Unavailable|502 Bad Gateway|429 Too Many Requests|"
                        r"toomanyrequests|504 Gateway Time-out|http status: 504|Gateway Time-out|"
                        r"DownloadError.*Failed to fetch|Connection reset by peer|ECONNRESET|TLS handshake timeout|"
-                       r"Build container for action use|failed to solve: .*(registry|docker\.io)|"
-                       r"INFRASTRUCTURE \(not a code defect\)", re.I)  # fmt: skip
+                       r"Build container for action use|failed to solve: .*(registry|docker\.io)", re.I)  # fmt: skip
 ERROR = re.compile(r"##\[error\]|^(FAILED|ERROR) |Traceback \(most recent call last\)|AssertionError|\bFAIL\b|"
                    r"NOT PROVEN|error: |Error: ", re.I)  # fmt: skip
 ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")

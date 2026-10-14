@@ -65,6 +65,17 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
+## Changing the shepherd or label workflows
+
+- **Level-triggered.** Decide from the PR's current state on every pass, never from the event that woke you, and keep
+  every action idempotent: GitHub drops, delays and reorders events.
+- `labeled` / `unlabeled` events carry no `commit_id`; read the head from the PR.
+- A bot status label must never start CI.
+- A skipped required check counts as passing, so no trigger or filter may skip `det`.
+- Test on a real PR with replayed lag and overlapping runs, not only `test_shepherd_gh.py`.
+- The workflows run `main`'s code, so a fix to the shepherd itself is merged with the local
+  `tests/tools/box/ci_shepherd.py`. After it lands, restart any long-running local shepherd.
+
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges; since #4964 so do `fact-crosscheck`,

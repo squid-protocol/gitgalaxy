@@ -12,9 +12,10 @@ the COBOL run by GnuCOBOL. Read first:
 ## Environment
 
 ```sh
-cd /nvme-data/projects/gitgalaxy-worktrees/<worktree>
+PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}   # gitgalaxy-pr-worker.md Setup 1
+cd $PRIMARY/../gitgalaxy-worktrees/<worktree>
 PY=../porting-loop/.venv/bin/python             # the shared venv: an EDITABLE gitgalaxy install of another checkout
-export GITGALAXY_MAINFRAME_CORPORA=/nvme-data/projects/gitgalaxy/.mainframe_corpora
+export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER
 ```
 

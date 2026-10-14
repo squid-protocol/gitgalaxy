@@ -103,10 +103,17 @@ If `main` advances and causes merge conflicts in `tri_comparison_ledger.json`, `
 1. Check out the upstream version of the files to clear the conflict markers:
    `git checkout origin/main -- tests/golden_master_zero_dep_audit tests/golden_master_audit docs/self_scan/tri_comparison_chart.svg docs/self_scan/tri_comparison_ledger.json`
    * **CRITICAL LEDGER WARNING**: `tri_comparison_ledger.json` contains *manual annotations* (`status`, `verdict`, `credit_tools`). If you manually validated shapes on your branch, checking out `origin/main` will erase your validations! You MUST back up your manual changes (e.g. write a short Python script to re-apply them), check out `origin/main`, run your script to re-apply your verdicts, and *then* regenerate.
-2. Re-run the relevant regen scripts (`python3 tests/tools/update_golden_master.py --yes`, `crucible_check.py --update --yes`, `tri_comparison_chart.py --all --write`, etc.). The scripts will cleanly recalculate and overwrite the files using your latest code and the upstream's latest ledger baseline.
+2. Re-run the relevant regen scripts (`golden-lock.sh python tests/tools/crucible_check.py --update --yes`, `tri_comparison_chart.py --all --write`, etc.). The scripts will cleanly recalculate and overwrite the files using your latest code and the upstream's latest ledger baseline.
 3. After regenerating, run `python tests/tools/scope_check.py --expect <lang>` once more against `origin/main` (the ref you just merged) to confirm the freshly-regenerated fixture's ONLY real difference from current `main` is your own change -- catches a bad conflict resolution (e.g. accidentally keeping a stale hunk) that a clean regen run alone wouldn't necessarily surface, since regen always "succeeds" even if it baked in something wrong.
 
+4. **`merge=union` files show CONFLICTING on GitHub anyway.** GitHub ignores `merge=union` (`.gitattributes`:
+   `tests/unicode_gauntlet/baseline.txt`, `tests/cultural_gauntlet/baseline.txt`), so a PR touching them shows
+   CONFLICTING. Merge origin/main locally, then drop stale re-added lines by comparing with a non-updating
+   gauntlet run.
+
 ## 7. Continuous Integration Monitoring (Agentic)
+Claude PR workers: check CI once and follow `.claude/agents/gitgalaxy-pr-worker.md` ("After pushing"); the
+watch loop below is for interactive sessions.
 After pushing your branch and/or opening the PR, you MUST monitor the CI pipeline to ensure it passes.
 1. Run `gh run watch` in the background (e.g., using your `run_command` tool with `WaitMsBeforeAsync` set so it detaches to the background) -- Claude Code equivalent: `gh pr checks --watch` via the `Bash` tool with `run_in_background: true`.
 2. Do not wait in a polling loop. Once the background task finishes, the system will automatically wake you up with the results.
@@ -115,7 +122,7 @@ After pushing your branch and/or opening the PR, you MUST monitor the CI pipelin
 ## 8. Mainframe / COBOL Ground Truth Updates
 If you change AST parsing logic or mainframe record boundary definitions, the **Mainframe Ground Truth** and **Golden Crucible** CI checks will fail because the output shapes changed.
 1. Regenerate golden masters:
-   `LANGUAGE_CRUCIBLE_ALLOW_UNPINNED=1 python3 tests/tools/update_golden_master.py --yes`
+   `tests/tools/box/golden-lock.sh python tests/tools/crucible_check.py --update --yes` (both legs; never `update_golden_master.py`, never an unpinned crucible)
 2. Regenerate ground truth ledgers:
    `python3 tests/tools/ground_truth_ledger.py update` (Note: Ensure all corpora are fetched first using `python3 tests/tools/mainframe_corpus.py fetch`)
 3. **Hardcoded Completeness Counts**: If the parsing fix *improves* or alters the data flow, program call, or copybook extraction metrics, the `tests/cobol_mainframe/test_completeness.py` assertions will fail. You must open `test_completeness.py` and update the `PINNED` dictionary metrics for the affected corpus (e.g. `cics-genapp`, `dsf`) so the test expects the new count.

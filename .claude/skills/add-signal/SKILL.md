@@ -87,7 +87,9 @@ without `-x` and triage the tally instead.
    positive/negative case per live rule (`test_every_non_none_rule_has_a_simple_case`).
    Add the key to all six baselines, to the None-sets where the rule is `None`, cases where
    it is live, and move any re-homed construct's cases/separations/pathological rows to the
-   new owner. Then run `pytest tests/extraction/languages/ -q` in full.
+   new owner. Then run `pytest tests/extraction/languages/ -q` in full. If the new key GATES
+   extraction (read without a default), also declare it in `MOCK_LANG_DEFS`
+   (`tests/core_engine/test_detector.py`), or `test_detector_classification_and_wiring` fails.
 7. **Full audits.** `signal_contract_audit.py --ci`, `dead_key_audit.py`,
    `pytest tests/core_engine/` (parity + vector width), then the whole suite without `-x`.
    Known environmental reds in a zero-dep venv: the ML-gated `test_security_auditor` block
@@ -101,10 +103,10 @@ without `-x` and triage the tally instead.
    — never `--update` wholesale. Traversal: group keys are directory paths
    (`"solidity/openzeppelin"`), files live under `[group]["Files"][path]`, the per-file node
    is `"7. Structural Signatures (Net Mitigated Signals)"` keyed by the FRIENDLY name
-   (`"Auth Middleware"`, not `def_auth`), zeros already present. Serialize with
-   `json.dumps(d, indent=4, ensure_ascii=True)` — any other convention rewrites the 58MB
-   file (a 0.16.6-formatted dump shrank it 14MB; content-equal, diff-poisoned). Sanity: the
-   byte delta should be roughly the digits you changed. Dep-context mismatches
+   (`"Auth Middleware"`, not `def_auth`), zeros already present. The fixtures are a split
+   store (#3384): read and write them only through `tests/golden_store.py` (`load()` /
+   `write()`), never a hand-rolled `json.dumps`. Sanity: the diff should be roughly the
+   digits you changed. Dep-context mismatches
    (`Missing Dependencies/...`, `Zero-Dependency Mode Active`) are your local env, not drift.
 9. **CI formatting.** The zero-tolerance `ruff format --check` runs pinned `ruff==0.16.0`
    over `gitgalaxy/` ONLY (`tests/ruff_audit.py`'s `SCAN_ROOT`). The v6 venv's newer ruff

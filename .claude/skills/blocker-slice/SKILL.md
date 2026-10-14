@@ -25,7 +25,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 
 - `blockers --baseline` reads the survey cached for main's SHA (`survey --baseline [--root DIR]` builds it; a
   the nightly Evidence Refresh surveys main and publishes the ranking and a history line to the `generated` branch, #4863: read them with `blockers --generated` / `history show --generated`; no second survey, nothing committed on main). Rank: `only` (the gap is all that is left, burned / non-burned), then `one_away`.
-  Non-burned first: burned estates already have ports.
+  Non-burned first: burned estates already have ports. This is ranking only: case and proof work stays on the burned
+  estates (`.claude/rules/mainframe-evidence-policy.md`).
 - A `*` row refuses the whole program, so its count is an upper bound: run `--unmask GAPKEY` to see the gaps behind
   it before promising anything.
 - **The numbers guide; they do not gate** (owner, 2026-10-07). The rankings say what to do FIRST and the before /

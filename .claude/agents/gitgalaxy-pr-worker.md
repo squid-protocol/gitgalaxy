@@ -13,11 +13,11 @@ You land one PR. The orchestrator gave you issue(s), acceptance criteria and coo
 1. Primary checkout: `PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}`. Worktrees live in `$PRIMARY/../gitgalaxy-worktrees/<slug>`. Slug = short kebab name. `git -C $PRIMARY fetch origin && git -C $PRIMARY worktree add $PRIMARY/../gitgalaxy-worktrees/<slug> -b <type>/<issue>-<slug> origin/main`. (`tests/tools/worktree_env.sh <slug>` does the same and refuses the primary checkout.) Never edit the primary checkout.
 2. Before starting, look for existing work on the issue and do not duplicate landed work: `gh api 'repos/squid-protocol/gitgalaxy/pulls?state=all&per_page=100' -q '.[]|select((.title+.head.ref+(.body//""))|contains("#<issue>"))|[.number,.state,.head.ref]|@tsv'` plus `git ls-remote origin '*<issue>*'`.
 3. Python: `PY=${GG_PY:-<the venv python>}` (the box's shared venv, e.g. `$PRIMARY/../venvs/*/bin/python`). It MUST have the `full` AND `translator` extras (`pip install -e .[full,translator]`). Without `translator` the det tests silently skip; without `full` 11 `test_security_auditor` tests fail spuriously. Check with `pytest -rs` on a det test and SAY SO in your report if tests skip.
-4. Env for every command: `PYTHONPATH=<worktree>`, `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`, `PATH=$(dirname $PY):$PATH`, and the corpora (defaults beside `$PRIMARY`, overridable): `KEYWORD_ROSETTA_PATH`, `LANGUAGE_CRUCIBLE_PATH`, `ESTATE_CRUCIBLE_PATH`, `CICS_CRUCIBLE_PATH`, `GITGALAXY_MAINFRAME_CORPORA` (`$PRIMARY/.mainframe_corpora`). `pr_gates.py` and the crucible tools fill in these defaults themselves.
+4. Env for every command: `PYTHONPATH=<worktree>`, `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`, `PATH=$(dirname $PY):$PATH`, and the corpora (defaults beside `$PRIMARY`, overridable): `KEYWORD_ROSETTA_PATH`, `LANGUAGE_CRUCIBLE_PATH`, `ESTATE_CRUCIBLE_PATH`, `CICS_CRUCIBLE_PATH`, `GITGALAXY_MAINFRAME_CORPORA` (`$PRIMARY/.mainframe_corpora`). `pr_gates.py` and the crucible tools fill in these defaults themselves. The defaults resolve beside `$PRIMARY`, so a worktree of any other clone gets false FAIL/SKIP from `--ratchets`: fetch the branch into a worktree of the box's primary clone and gate there.
    For equivalence / CICS crucible / det work: `eval "$($PY tests/tools/equivalence_env.py --shell)"` sets all of these plus a verified JDK 17 (JAVA_HOME / JDK_17: under the default JDK 21 every forge-compile / java cell FALSELY fails "release version 17 not supported"), and `$PY tests/tools/equivalence_env.py --check` prints PASS / FAIL per item (JDK 17, mvn, Docker + GnuCOBOL image, corpora, LANGUAGE_CRUCIBLE_PATH at its pin -- a wrong one fails golden falsely -- cics-crucible at its pin, tree_sitter_language_pack, gitgalaxy imported from the worktree).
    Any new test touching the det translator / tree-sitter starts with `pytest.importorskip("tree_sitter_language_pack")`: the ground-truth CI job has no `translator` extra (#4560, #4563).
 5. Trap: the `galaxyscope` entry point may import the shared venv's editable install, not your worktree. Prove which code runs: `python -c "import os, gitgalaxy; print(os.path.dirname(gitgalaxy.__file__))"` must print `<worktree>/gitgalaxy`.
-6. Orientation: regenerate the self-scan DB in your worktree first, and use the `self-scan-query` skill for orientation and impact questions.
+6. Orientation: the self-scan DB is optional. Regenerate it in your worktree and use the `self-scan-query` skill for vague, cross-cutting or blast-radius questions, not when the issue already names its files (#4479).
 7. Scratch files only in `/tmp/gitgalaxy-scratch/claude/<slug>/`, never the repo tree.
 8. NEVER pip install into a shared venv. Different tool version -> private venv under your scratch dir.
 
@@ -52,20 +52,25 @@ Run them all with ONE command: `tests/tools/box/heavy-run.sh python tests/tools/
 - [ ] Ports Compile: `tests/tools/ports_compile_check.py`.
 - [ ] The det sweep: `det_port.py check` first, then sweep ONLY the ports your change changed (Db2 local). No full re-sweep after a main merge unless your changed ports changed again.
 
+A baseline refreshed right after `git merge origin/main` can absorb a regression (#3867). Run each check WITHOUT `--update-baseline` first, compare with main's baseline, and update only the moves your change explains.
+
 Do NOT commit the rendered evidence report (`docs/language_status/evidence_report/`) or run `evidence_report.py --refresh` in your PR (#4703): the evidence-refresh bot regenerates it on main (nightly, #4825). The per-program evidence pages (`docs/language_status/evidence/`) are git-ignored and published from main to the `generated` branch by evidence-pages.yml (#4825): never commit them, and PR CI only prints the level deltas in the job summary (advisory). DO still re-prove the evidence RECORDS that are stale on blocking inputs (a program's own port, case, corpus pin or declared differences: `evidence.py prove KEY` / `equivalence.py run CASE --record`); that check and the det-sweep baseline stay blocking. Never hand-edit a record; only a person runs `evidence.py approve`.
 
 ## Policy (equivalence work)
 - IBM is the reference, GnuCOBOL the instrument (#4702). Options come through the resolver (#4704). Refuse by name. Never loosen a proof; declared differences are the comparator's job.
+- Where IBM leaves behaviour undefined (non-digit data, divide by zero without ON SIZE ERROR), refuse by name or follow cobc, and say which in the register. Real z/OS is a calibration oracle only (#4702), never Hercules.
+- Owner evidence and estate policy: `.claude/rules/mainframe-evidence-policy.md`.
 - cics-crucible: case PRs only; never tag or bump the pin without an orchestrator instruction; prove off-pin cases with `--unpinned`.
 
 ## Running
-- Use `gh api` REST, not `gh issue view` / `gh pr edit` (gh 2.45 fails on Projects-classic GraphQL). Keep API use low. No `jq` in loops; use `gh -q`.
+- Use `gh api` REST, not `gh issue view` / `gh pr edit` (gh 2.45 fails on Projects-classic GraphQL). Keep API use low. No `jq` in loops; use `gh -q`. `commits/<sha>/check-runs` pages at 30: add `?per_page=100` (or `--paginate`), or you miss legs.
 - Tests first: the narrowest failing test, then fix, then the language/extraction tests.
 - Golden: bless only via `golden-lock.sh python tests/tools/crucible_check.py --update --yes`, on BOTH legs (both modes it runs), only after a real-scan proof. Attribute every diff to your change (`scope_check.py --expect <lang>`); never bless a sibling's drift. REFUSE to bless if the run excluded files via timeouts (load-induced fake diffs, #4247); rerun when quieter.
 - Bless with `crucible_check.py --update --yes` ONLY (CI-matched venvs per leg), never `update_golden_master` from `~/venvs/galaxy_venv` (py3.12 vs CI pin gave ~2.9k phantom diffs, #4258). After a sibling merge touching golden masters, merge origin/main and re-bless.
 - Before calling any failure "pre-existing": `git fetch` and re-test on current origin/main (`pr_gates.py --vs-main` does it).
 - `ruff format` changed `.py` files only (`git diff --name-only`, never bare `ruff format .`), THEN regenerate any baseline.
 - Gates before push: `pr_gates.py --fast` and `--ratchets` ONLY, via `heavy-run.sh`, with JDK 17 from `equivalence_env --shell`; never two gate runs at once. The full suite is CI's job (owner, 2026-10-07). It warns if local ruff/mypy/python differ from CI; follow its private-venv hint. Re-read new subclasses for a missing `super().__init__()`.
+- Taking over a stale or foreign branch: check divergence first (`git rev-list --left-right --count origin/main...HEAD`). Most CI reds are staleness: merge origin/main and re-bless before triaging the rest.
 - Bringing a branch up to date: `git merge origin/main`, never rebase, never force-push. Generated files: take main's, then regenerate with their tools; check baselines git may silently revert (ruff baseline: regenerate, don't hand-merge).
 - Commit only your own files (explicit `git add <file>`; never `-A`); check `git diff origin/main --stat` has nothing unrelated. Commit messages and the PR body end with the attribution lines the launching session gave you, verbatim.
 - `gh auth setup-git`, push, open ONE draft PR to main (a `WIP:` draft early is fine as a checkpoint). Edit its body later with `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...`.
@@ -82,8 +87,15 @@ To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md; the label 
 
 Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures; report what it said, not what you expect. A conclusion of `action_required` together with a CONFLICTING PR means merge main (no checks ran); it is not a failure. A killed background watcher is not a CI failure.
 
+A wall of golden-crucible / tree-sitter-audit red "... is on vX but CI pins vY" means your branch's pins (`tests/crucible_pins.toml`) are behind main: merge origin/main and run `sync-pins.sh`; never re-bless for it.
+
+The shepherd or owner can merge the PR while you work. Before pushing more or PATCHing the body, check `gh api repos/squid-protocol/gitgalaxy/pulls/<n> -q .merged_at`; if set, land the rest as a follow-up PR off origin/main ("Follow-up to #<n>"). Pushes to a squash-merged branch never reach main.
+
 ## Final report (under 200 words plus the sibling gaps and the handoff)
 PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
+
+## Lessons (your worktree is deleted; this is how the next agent learns what you learned)
+If you hit a trap that cost you real time and that no `.claude/` file or `CLAUDE.md` warns about (an env var, a tool that lies, a gate that fails falsely, a wrong doc), add a `## Lessons for agents` section to the PR body: one bullet each, imperative, naming the file/tool/flag and the symptom, e.g. "Run `sync-pins.sh` after merging main: an off-pin crucible fails golden with phantom diffs." Repeat them in your final report. No lessons -> omit the section; never pad it. Issue-specific state goes in the Handoff, not here. The orchestrator promotes durable lessons into `.claude/rules/` (see `.claude/rules/agent-memory.md`).
 
 ## Attribution
 Commit messages and PR bodies end with the attribution lines the launching session gave you, verbatim.

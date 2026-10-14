@@ -465,6 +465,190 @@
       "programs": []
     }
   },
+  "eras": {
+    "programs": {
+      "src/ASYNCPNT.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 18,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 23,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          },
+          {
+            "count": 10,
+            "era": 4,
+            "first_line": null,
+            "tell": "async"
+          }
+        ]
+      },
+      "src/CRDTCHK.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/CSSTATS2.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "async"
+          }
+        ]
+      },
+      "src/CSSTATUS.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/GETADDR.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 3,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/GETNAME.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/GETPOL.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "src/GETSPND.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "src/SEQPNT.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 28,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 19,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/UPDCSDB.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 7,
+        "none": 3
+      },
+      "mixed": 0,
+      "programs": 10,
+      "tells": {
+        "async": 2,
+        "channel-container": 7,
+        "resp": 7
+      }
+    }
+  },
   "intrinsic_functions": {
     "unknown": {
       "count": 0,

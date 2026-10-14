@@ -12,8 +12,31 @@ The Readiness Scanner uses `feature_inventory.py` to extract a deterministic JSO
 - **Intrinsic Functions**: `FUNCTION CURRENT-DATE` and similar calls
 - **Compile Options**: Semantic options resolved from JCL PARM and CBL/PROCESS cards
 - **Copybook Resolution Gaps**: Explicit tracking of missing copybooks
+- **Era tags** (#5117): per program, the CICS/COBOL era its source evidences (see below)
 
 Every category includes an explicit `unknown` bucket for constructs the parser refuses.
+
+## Era tags (#5117)
+`tests/tools/era_tags.py` tags each program from its own text with an era 0-4 and lists the tells it used, so an estate
+reads as "N programs show era-1 evidence" rather than a date. The inventory's `eras` section holds `programs` (per
+program: `era`, `earliest`, `mixed`, `tells` with count and first line) and an estate `summary` (programs per era,
+mixed, programs per tell).
+
+| Era | Tells |
+|---|---|
+| 0 | `DFHxx TYPE=` macro calls (assembler text), `DFHCSADS` / `DFHTCADS` |
+| 1 | BLL cells, `SERVICE RELOAD`, `HANDLE CONDITION/AID/ABEND`, `CBLTDLI` / `EXEC DLI`, `CBL LANGLVL(1)` |
+| 2 | `ADDRESS OF`, `SET ADDRESS`, `RESP/RESP2`, `EXEC SQL`, `LINK ... SYSID` (DPL), `CMPR2`, `LANGLVL(2)` |
+| 3 | `CALL 'MQxxx'`, EXCI (`DFHXCIS`), 3270 bridge (`DFHBRxxx`), LE callable services (`CALL 'CEExxxx'`) |
+| 4 | channels / containers, `EXEC CICS WEB` / SOAP, `JSON` / `XML PARSE|GENERATE`, `RUN TRANSID` / `FETCH`, named counters, `ARITH(EXTEND)` |
+
+A program's `era` is the latest era a tell reaches. Most tells are floors (RESP is written in every later era), so
+they only raise the era; the period-bound ones (macros, BLL, HANDLE CONDITION, DL/I, CMPR2, LANGLVL) set `earliest`,
+and a program whose period-bound tell is older than its era is `mixed` (layered code). `era: null` means no tell.
+Comments, string literals and columns 1-6 / 73-80 are not read; a program the parser refuses is still tagged (the tag
+reads the raw text); a tell inside a copybook is not seen. This only detects: parsing the macro tables (#5120) and
+refusing macro-level programs (#5121) are separate. The support matrix prints the distribution and the mixed programs
+per estate.
 
 ## How to Run
 Run against a single local estate directory to print the inventory:

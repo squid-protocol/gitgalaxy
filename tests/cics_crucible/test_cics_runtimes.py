@@ -5366,7 +5366,17 @@ def test_cics_task_reads_form_fields_query_parameters_and_browses_as_the_stub_do
 # D:ms (DELAY FOR MILLISECS), F:ANY|n:NOSUSPEND|WAIT|TIMEOUT:ms[:C] (FETCH ANY / CHILD n, C: CHANNEL), X:n (FREE CHILD
 # n), G:chan:cont (GET CONTAINER). A child's program is K<ms>[P][A][F]: DELAY ms, PUT CONTAINER R (its EIBTASKN) on its
 # channel, ABEND KIDA, a FETCH ANY (a command a child may not issue, R1). Each step prints one line.
-_KIDS = {"KA": "K2000P", "KB": "K1000P", "KC": "K1000A", "KD": "K500", "KF": "K0F", "KZ": "K1000"}
+# #5089: a child's program is K<ms> then, in order: P F A as above and the ops of a child that RUNs children of its
+# own -- a b c d z RUN KA KB KC KD KZ, e RUN KA CHANNEL(CH.1), i / j / x RUN KY2 / KY3 / KZ, u RUN of an undefined
+# transaction, w / n / t FETCH ANY WAIT / NOSUSPEND / TIMEOUT(500), r FETCH ANY WAIT CHANNEL then GET its CONTAINER R
+# and PUT it as G on the channel the child was handed, q FETCH CHILD of a token it did not start, f FREE CHILD of its
+# first child, M DELAY 1000.
+_KIDS = {
+    "KA": "K2000P", "KB": "K1000P", "KC": "K1000A", "KD": "K500", "KF": "K0F", "KZ": "K1000",
+    "KG": "K300a", "KH": "K100aw", "KI": "K0abww", "KJ": "K0er", "KU": "K0uw", "KV": "K0cw",
+    "KK": "K0abn", "KL": "K0at", "KM": "K0zMn", "KQ": "K0aq", "KR": "K0afn",
+    "KY1": "K0iw", "KY2": "K0jw", "KY3": "K0xw",
+}  # fmt: skip
 
 _SCHED_MAIN = r"""
 #include <stdio.h>
@@ -5393,12 +5403,36 @@ int main(int argc, char **argv) {
         memcpy(prog, c.name1, 8); prog[8] = 0;
         int ms = atoi(prog + 1);
         if (ms) delay_ms(ms);
-        if (strchr(prog, 'P')) {
-            const char *n = getenv("GGCICS_TASKN");
-            pad(c.flags, 40, ""); pad(c.qname, 16, "R"); c.len = (int)strlen(n); GGCPUTC(&c, (char *)n);
+        const char *q = prog + 1;
+        while (*q >= '0' && *q <= '9') q++;
+        for (; *q && *q != ' '; q++) {
+            char child[17] = "-               ";
+            const char *runs = "abcdzeixju";
+            const char *trs[] = {"KA", "KB", "KC", "KD", "KZ", "KA", "KY2", "KZ", "KY3", "NONE"};
+            const char *at = strchr(runs, *q);
+            if (at && *q) {
+                pad(c.name1, 8, trs[at - runs]); pad(c.flags, 40, *q == 'e' ? "CHANNEL" : "");
+                if (*q == 'e') pad(c.chan, 16, "CH.1");
+                GGCRUNT(&c, child);
+            } else if (*q == 'P') {
+                const char *n = getenv("GGCICS_TASKN");
+                pad(c.flags, 40, ""); pad(c.qname, 16, "R"); c.len = (int)strlen(n); GGCPUTC(&c, (char *)n);
+            } else if (*q == 'F' || *q == 'w') { pad(c.flags, 40, ""); c.num = 0; GGCFETCH(&c); }
+            else if (*q == 'n') { pad(c.flags, 40, "NOSUSPEND"); c.num = 0; GGCFETCH(&c); }
+            else if (*q == 't') { pad(c.flags, 40, "TIMEOUT"); c.num = 500; GGCFETCH(&c); }
+            else if (*q == 'q') { pad(c.flags, 40, "CHILD "); token(7, tok); memcpy(c.qname, tok, 16); GGCFETCH(&c); }
+            else if (*q == 'f') { token(1, tok); memcpy(c.qname, tok, 16); GGCFREE(&c); }
+            else if (*q == 'M') delay_ms(1000);
+            else if (*q == 'r') {
+                pad(c.flags, 40, " CHANNEL"); c.num = 0; GGCFETCH(&c);
+                if (c.resp == 0) {
+                    char reply[17]; memcpy(reply, c.chan, 16); reply[16] = 0;
+                    pad(c.flags, 40, "CHANNEL"); pad(c.chan, 16, reply); pad(c.qname, 16, "R"); c.len = 60; memset(buf, 0, sizeof buf);
+                    GGCGETC(&c, buf);
+                    pad(c.flags, 40, ""); pad(c.qname, 16, "G"); c.len = (int)strlen(buf); GGCPUTC(&c, buf);
+                }
+            } else if (*q == 'A') { pad(c.name1, 8, "KIDA"); pad(c.flags, 40, ""); GGCABND(&c); }
         }
-        if (strchr(prog, 'F')) { pad(c.flags, 40, ""); GGCFETCH(&c); }
-        if (strchr(prog, 'A')) { pad(c.name1, 8, "KIDA"); pad(c.flags, 40, ""); GGCABND(&c); }
         GGCEND(&c);
         return 0;
     }
@@ -5460,20 +5494,49 @@ _SCHED_JAVA = """
             }
 
             public void run(String p, CicsTask s) {
-                int ms = Integer.parseInt(p.substring(1).replaceAll("[A-Z]", ""));
+                int at = 1;
+                while (at < p.length() && Character.isDigit(p.charAt(at))) {
+                    at++;
+                }
+                int ms = Integer.parseInt(p.substring(1, at));
                 if (ms > 0) {
                     s.delay(CicsTask.delayMillis(null, null, null, null, Long.valueOf(ms)), "x");
                 }
-                if (p.contains("P")) {
-                    byte[] n = Long.toString(s.taskNumber()).getBytes();
-                    s.putContainer(null, "R", n, n.length, null, false);
-                }
-                if (p.contains("F")) {
-                    s.fetch(null, "WAIT", 0, false);
-                }
-                if (p.contains("A")) {
-                    s.abend("KIDA");
-                    return;
+                String runs = "abcdzeixju";
+                String[] trs = {"KA", "KB", "KC", "KD", "KZ", "KA", "KY2", "KZ", "KY3", "NONE"};
+                for (char op : p.substring(at).toCharArray()) {
+                    int r = runs.indexOf(op);
+                    if (r >= 0) {
+                        if (op == 'e') {
+                            s.runTransid(trs[r], "CH.1");
+                        } else {
+                            s.runTransid(trs[r]);
+                        }
+                    } else if (op == 'P') {
+                        byte[] n = Long.toString(s.taskNumber()).getBytes();
+                        s.putContainer(null, "R", n, n.length, null, false);
+                    } else if (op == 'F' || op == 'w') {
+                        s.fetch(null, "WAIT", 0, false);
+                    } else if (op == 'n') {
+                        s.fetch(null, "NOSUSPEND", 0, false);
+                    } else if (op == 't') {
+                        s.fetch(null, "TIMEOUT", 500, false);
+                    } else if (op == 'q') {
+                        s.fetch("GGCHILD000000007", "WAIT", 0, false);
+                    } else if (op == 'f') {
+                        s.freeChild("GGCHILD000000001");
+                    } else if (op == 'M') {
+                        s.delay(1000, "x");
+                    } else if (op == 'r') {
+                        CicsTask.FetchResult f = s.fetch(null, "WAIT", 0, true);
+                        if ("NORMAL".equals(f.resp())) {
+                            CicsTask.ContainerResult g = s.getContainer(f.channel(), "R", 60);
+                            s.putContainer(null, "G", g.data(), g.data().length, null, false);
+                        }
+                    } else if (op == 'A') {
+                        s.abend("KIDA");
+                        return;
+                    }
                 }
                 s.returnTransid(null, null);
             }
@@ -5514,9 +5577,28 @@ _SCHED_JAVA = """
         } catch (UnsupportedOperationException e) {
             System.out.println("REFUSED " + e.getMessage());
         }
+        java.util.function.BiConsumer<String, java.util.List<java.util.Map<String, Object>>>[] show = new java.util.function.BiConsumer[1];
+        show[0] = (ind, evs) -> {
+            for (java.util.Map<String, Object> e : evs) {
+                String k = (String) e.get("event");
+                if ("CHILD".equals(k)) {
+                    System.out.println(ind + "CHILD " + e.get("child") + " " + e.get("transid"));
+                    show[0].accept(ind + "  ", (java.util.List<java.util.Map<String, Object>>) e.get("events"));
+                } else if ("RUN".equals(k)) {
+                    System.out.println(ind + "RUN " + e.get("transid") + " " + e.get("resp"));
+                } else if ("FETCH".equals(k)) {
+                    System.out.println(ind + "FETCH " + e.get("resp") + "/" + e.get("resp2")
+                            + (e.get("child") == null ? "" : "/" + e.get("child") + "/" + e.get("compstatus") + "/"
+                            + (e.get("abcode") == null ? "-" : e.get("abcode"))));
+                } else if ("FREE-CHILD".equals(k)) {
+                    System.out.println(ind + "FREE-CHILD " + e.get("resp") + "/" + e.get("resp2"));
+                }
+            }
+        };
         for (java.util.Map<String, Object> e : t.events()) {
             if ("CHILD".equals(e.get("event"))) {
                 System.out.println("CHILD " + e.get("child") + " " + e.get("transid"));
+                show[0].accept("  ", (java.util.List<java.util.Map<String, Object>>) e.get("events"));
             }
         }"""
 
@@ -5545,9 +5627,27 @@ def _sched_stub(tmp_path: Path, steps: list[str]) -> list[str]:
         parts = [p.strip() or "-" for p in rest.split("/")]
         parts[0] = RESP_NAMES[int(parts[0])]
         out.append(f"{verb} {'/'.join(parts)}")
-    events = (work / "out" / "events.txt").read_text().splitlines() if (work / "out" / "events.txt").exists() else []
-    out += [f"CHILD {kv['child']} {kv['transid']}" for kv in (
-        dict(a.split("=", 1) for a in ln.split()[3:] if "=" in a) for ln in events if ln.split()[1] == "CHILD")]  # fmt: skip
+
+    def show(outdir: Path, ind: str, top: bool) -> None:
+        """The CHILD events of a task's out directory (and, nested, what each child did: RUN, FETCH, FREE CHILD)."""
+        path = outdir / "events.txt"
+        for ln in path.read_text().splitlines() if path.exists() else []:
+            parts = ln.split()
+            kv = dict(a.split("=", 1) for a in parts[2:] if "=" in a)
+            if parts[1] == "CHILD":
+                out.append(f"{ind}CHILD {kv['child']} {kv['transid']}")
+                show(outdir / kv["dir"] / "out", ind + "  ", False)
+            elif top:
+                continue
+            elif parts[1] == "RUN":
+                out.append(f"{ind}RUN {kv['transid']} {RESP_NAMES[int(kv['resp'])]}")
+            elif parts[1] == "FETCH":
+                tail = f"/{kv['child']}/{kv['compstatus']}/{kv['abcode']}" if "child" in kv else ""
+                out.append(f"{ind}FETCH {RESP_NAMES[int(kv['resp'])]}/{kv['resp2']}{tail}")
+            elif parts[1] == "FREE-CHILD":
+                out.append(f"{ind}FREE-CHILD {RESP_NAMES[int(kv['resp'])]}/{kv['resp2']}")
+
+    show(work / "out", "", True)
     return out
 
 
@@ -5636,8 +5736,11 @@ _SCHEDULES = {
         ["R:KZ", "F:ANY:TIMEOUT:1000"],
         ["R NORMAL/0/GGCHILD000000001", "REFUSED", "CHILD GGCHILD000000001 KZ"],
     ),
-    # R1: a dispatched child may not issue a command on a region resource (here a FETCH)
-    "child-fetch": (["R:KF", "D:10"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+    # #5089: a child's own FETCH concerns only the children it started (here none: INVREQ 52, recorded in its events)
+    "child-fetch": (
+        ["R:KF", "D:10"],
+        ["R NORMAL/0/GGCHILD000000001", "D NORMAL", "CHILD GGCHILD000000001 KF", "  FETCH INVREQ/52"],
+    ),
     # a second FETCH CHILD of a fetched child, FREE CHILD of one: refused (IBM does not say)
     "refetch": (
         ["R:KD", "F:1:WAIT", "F:1:WAIT"],
@@ -5650,6 +5753,146 @@ _SCHEDULES = {
     "dfh": (["R:KA:DFHTRANSACTION"], ["REFUSED"]),
     "timeout-range": (["R:KA", "F:ANY:TIMEOUT:4080001"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
     "no-program": (["R:KN", "D:1"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+    # ---- #5089 (X18): a RUN child that RUNs children of its own -------------------------------------------------
+    # a child that never waits ends with its children not run (a parent's rule, at every level)
+    "nested-unfetched": (
+        ["R:KG", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KG",
+            "  RUN KA NORMAL",
+        ],
+    ),
+    # its FETCH waits and dispatches the grandchild; the FETCH answers with the grandchild's token and status
+    "nested-fetch": (
+        ["R:KH", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KH",
+            "  RUN KA NORMAL",
+            "  CHILD GGCHILD000000001 KA",
+            "  FETCH NORMAL/0/GGCHILD000000001/NORMAL/-",
+        ],
+    ),
+    # two grandchildren: the first to complete (KB, 1000) is fetched first; the child completes at 2000 (KA), so
+    # FETCH ANY at the parent sees KB (1000) before KI (2000)
+    "nested-two": (
+        ["R:KI", "R:KB", "F:ANY:WAIT", "F:ANY:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "R NORMAL/0/GGCHILD000000002",
+            "F NORMAL/0/GGCHILD000000002/-/-/1016",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KI",
+            "  RUN KA NORMAL",
+            "  RUN KB NORMAL",
+            "  CHILD GGCHILD000000001 KA",
+            "  CHILD GGCHILD000000002 KB",
+            "  FETCH NORMAL/0/GGCHILD000000002/NORMAL/-",
+            "  FETCH NORMAL/0/GGCHILD000000001/NORMAL/-",
+            "CHILD GGCHILD000000002 KB",
+        ],
+    ),
+    # FETCH CHANNEL of a grandchild: the child reads its EIBTASKN (101 + 1) and leaves it for its parent
+    "nested-channel": (
+        ["P:CH.1:IN:x", "R:KJ:CH.1", "F:1:WAIT:C", "G:GGREPLY000000001:G", "G:GGREPLY000000001:IN"],
+        [
+            "P NORMAL",
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/GGREPLY000000001/-/1016",
+            "G NORMAL/102",
+            "G NORMAL/x",
+            "CHILD GGCHILD000000001 KJ",
+            "  RUN KA NORMAL",
+            "  CHILD GGCHILD000000001 KA",
+            "  FETCH NORMAL/0/GGCHILD000000001/NORMAL/-",
+        ],
+    ),
+    # failure paths of the grandchild level
+    "nested-transiderr": (
+        ["R:KU", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KU",
+            "  RUN NONE TRANSIDERR",
+            "  FETCH INVREQ/52",
+        ],
+    ),
+    "nested-abend": (
+        ["R:KV", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KV",
+            "  RUN KC NORMAL",
+            "  CHILD GGCHILD000000001 KC",
+            "  FETCH NORMAL/0/GGCHILD000000001/ABEND/KIDA",
+        ],
+    ),
+    "nested-nosuspend": (
+        ["R:KK", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KK",
+            "  RUN KA NORMAL",
+            "  RUN KB NORMAL",
+            "  FETCH NOTFINISHED/52",
+        ],
+    ),
+    "nested-timeout": (
+        ["R:KL", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KL",
+            "  RUN KA NORMAL",
+            "  CHILD GGCHILD000000001 KA",
+            "  FETCH NOTFINISHED/53",
+        ],
+    ),
+    "nested-tie": (["R:KM", "F:1:WAIT"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
+    # a token that is not one of this task's children (the parent's first token has the same text: tokens are per task)
+    "nested-foreign-token": (
+        ["R:KQ", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KQ",
+            "  RUN KA NORMAL",
+            "  FETCH INVREQ/50",
+        ],
+    ),
+    "nested-free": (
+        ["R:KR", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KR",
+            "  RUN KA NORMAL",
+            "  FREE-CHILD NORMAL/0",
+            "  FETCH NOTFND/1",
+        ],
+    ),
+    # depth: a child (1), a grandchild (2) and a great-grandchild (3) run; a RUN from level 3 is refused
+    "nested-depth": (
+        ["R:KY2", "F:1:WAIT"],
+        [
+            "R NORMAL/0/GGCHILD000000001",
+            "F NORMAL/0/GGCHILD000000001/-/-/1016",
+            "CHILD GGCHILD000000001 KY2",
+            "  RUN KY3 NORMAL",
+            "  CHILD GGCHILD000000001 KY3",
+            "    RUN KZ NORMAL",
+            "    CHILD GGCHILD000000001 KZ",
+            "    FETCH NORMAL/0/GGCHILD000000001/NORMAL/-",
+            "  FETCH NORMAL/0/GGCHILD000000001/NORMAL/-",
+        ],
+    ),
+    "nested-depth-cap": (["R:KY1", "F:1:WAIT"], ["R NORMAL/0/GGCHILD000000001", "REFUSED"]),
 }
 
 

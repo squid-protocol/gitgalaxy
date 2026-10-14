@@ -20,14 +20,15 @@ Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiti
 Rules, all in decide() (pure: a snapshot in, actions out):
   * a request label added by someone without write access is removed, with a comment (their label, not ours);
   * a new head (synchronize) removes shepherd:merge with a comment, so a commit nobody approved never merges by
-    label. The one exception is this module's own `gh pr update-branch` (it leaves a marker comment first). The
+    label. The one exception is a plain merge of main (a worker's, or one the bot made before #5134; the latter leaves
+    a marker pair). The
     drop sets shepherd:reapprove, which outlives the request labels, so a PR that lost its approval is findable
     (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10);
   * "Depends on #N" in the body blocks auto-merge until #N is merged;
   * an infra/flake failure is rerun up to INFRA_RERUNS times, RETRY_GAP seconds apart (the count is run_attempt
     of the run, kept by GitHub: no local state);
   * a real failure, a merge conflict or a red matrix gets ONE digest comment per head (marker in the comment);
-  * behind main and green on a labelled PR -> `gh pr update-branch`.
+  * behind main is NOT acted on: the bot never updates a branch to keep it current (#5134, option A).
 Nothing here checks out PR code: it reads PR metadata, check runs and job logs through the GitHub API only.
 Reused: pr_check (classify, paged, gh_api, merge conventions), ci_digest (triage and the digest text).
 """
@@ -207,8 +208,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     if s["matrix"] == "red":
         needs.append({"check": "full-suite matrix", "triage": "real"})
 
-    if req and HOLD not in labels and s["mergeable_state"] == "behind" and not s["failed"] and not s["pending"]:
-        acts.append({"op": "update_branch"})
+    # no update_branch: a green PR that is merely behind main is not pushed to (#5134). Each push restarts its CI, and
+    # a conflict, a main-caused failure or a re-bless is the worker's reason to merge main, not the bot's.
     if req and needs and not s["digest_posted"]:
         acts.append({"op": "comment", "body": f"<!-- shepherd-digest {sha} -->\n" + s["digest_text"]})
 
@@ -530,35 +531,6 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
                 ["gh", "run", "rerun", str(a["run_id"]), "--failed", "-R", REPO_SLUG],
                 f"rerun {a['check']} (run {a['run_id']})",
             )
-        elif op == "update_branch":
-            # the marker first: the synchronize this push causes then keeps the labels (see decide)
-            gh(
-                [
-                    "gh",
-                    "api",
-                    f"repos/{REPO_SLUG}/issues/{n}/comments",
-                    "-f",
-                    f"body=<!-- shepherd-update from={s['head_sha']} -->",
-                ],
-                "update marker",
-            )
-            gh(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG], "update-branch")
-            # the result marker, always (a failed update records to == from): gather carries approval through this pair
-            r = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
-            new = r.stdout.strip() if r.returncode == 0 else ""
-            if re.fullmatch(r"[0-9a-f]{40}", new):
-                gh(
-                    [
-                        "gh",
-                        "api",
-                        f"repos/{REPO_SLUG}/issues/{n}/comments",
-                        "-f",
-                        f"body=<!-- shepherd-update from={s['head_sha']} to={new} -->",
-                    ],
-                    "update result marker",
-                )
-            else:
-                log.append(f"#{n} update result marker: FAILED: could not read the new head")
     return log
 
 

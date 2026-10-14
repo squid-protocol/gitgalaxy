@@ -284,6 +284,7 @@ public class CicsTask {
     private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
     private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
     private boolean dispatched;                             // #4950: a child its parent's wait dispatched (root's)
+    private int depth;                                      // #5089: 0 for a task, its parent's + 1 for a RUN child (root's)
     private int replies;                                    // #4950: the reply channels FETCH CHANNEL named (root's)
     private final java.util.Set<String> ownWithData = new java.util.HashSet<>();  // #4270: own REQIDs with FROM
     private Map<String, LocalDateTime> unexpired = Map.of();
@@ -2493,9 +2494,9 @@ public class CicsTask {
      *  with a character IBM does not list is CHANNELERR RESP2 1 (handedChannel). */
     public RunResult runTransid(String transid, String channel) {
         CicsTask task = root();
-        if (task.dispatched) {
-            throw new UnsupportedOperationException("RUN TRANSID in a RUN TRANSID child task (a grandchild): not "
-                    + "modelled");
+        if (task.depth >= MAX_RUN_DEPTH) {  // #5089 (X18): a child may RUN children of its own, to a stated depth
+            throw new UnsupportedOperationException("RUN TRANSID in a RUN TRANSID child task " + MAX_RUN_DEPTH
+                    + " levels below a task (a great-great-grandchild): the depth the harness models ends here");
         }
         String name = channel == null ? null : handedChannel(channel);
         boolean badName = channel != null && name == null;
@@ -2597,8 +2598,13 @@ public class CicsTask {
         return null;
     }
 
-    // #4950: the events a dispatched child may record -- any other is a region resource or a terminal's (R1)
-    private static final java.util.Set<Object> CHILD_EVENTS = java.util.Set.of("RETURN", "ABEND", "LINK", "XCTL");
+    // #4950: the events a dispatched child may record -- any other is a region resource or a terminal's (R1). #5089:
+    // its own RUN / FETCH / FREE CHILD and the CHILD events of its own children concern only the tasks it started
+    private static final java.util.Set<Object> CHILD_EVENTS =
+            java.util.Set.of("RETURN", "ABEND", "LINK", "XCTL", "RUN", "FETCH", "FREE-CHILD", "CHILD");
+    /** #5089: how many generations below a task RUN children go: a child (1), its children (2), theirs (3); a RUN
+     *  one level further is refused. A bound the harness states (IBM states none), the same in the C stub. */
+    static final int MAX_RUN_DEPTH = 3;
 
     /** #4950 (X18, ASSUMED): this task waits (a DELAY, or a FETCH that waits): the RUN children not yet dispatched
      *  run now, in RUN order, each to its end before this task resumes (one quasi-reentrant TCB: a task keeps control
@@ -2626,6 +2632,7 @@ public class CicsTask {
             c.applid = task.applid;
             c.sysid = task.sysid;
             c.dispatched = true;
+            c.depth = task.depth + 1;
             if (k.channel != null) {
                 c.withChannel(copyOf(k.channel, k.channel.name));
             }

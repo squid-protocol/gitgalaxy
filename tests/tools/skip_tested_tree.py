@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """skip-tested-tree (#4935): skip a workflow's post-merge push run when the PR run already proved the same tree green.
 
-Used by the `tested-tree` job of every workflow triggered on both `pull_request` and a main `push` (mainframe-ground-truth,
-smoke-test, and the #4964 members: fact-crosscheck, estate-crucible, ports-compile, java-compile, cics-crucible,
-unicode-gauntlet, tree-sitter-accuracy-audit; stdlib only; reads run metadata through
-`gh api`, never checks out or runs PR code):
+Used by the `tested-tree` job of every workflow triggered on both `pull_request` and a main `push` whose push run is
+still needed (mainframe-ground-truth, smoke-test, java-compile; #5131 moved the other #4964 members to post-merge.yml's
+dispatch). The job runs on a main push only (#5129). Stdlib only; reads run metadata through `gh api`, never checks out
+or runs PR code:
 
     python tests/tools/skip_tested_tree.py <workflow-file.yml>      # env: GH_TOKEN, GITHUB_REPOSITORY, GITHUB_SHA,
                                                                      #      GITHUB_EVENT_NAME, GITHUB_REF, GITHUB_OUTPUT
@@ -25,9 +25,8 @@ run is skipped only when ALL of these hold:
 
 Fail-open: any API error, or anything unexpected, prints a reason and runs the workflow. A skipped run still concludes
 `success`, which is a true verdict: this exact tree passed the same workflow on the PR. Main Watch
-(tests/tools/main_watch.py) only counts success/failure conclusions, and the workflow keeps its other jobs (smoke-test's
-OS grid is not run on PRs and always runs), so a real red on main is still reported, and the nightly run still covers
-drift in the pinned inputs.
+(tests/tools/main_watch.py) only counts success/failure conclusions, so a real red on main is still reported, and the
+nightly run still covers drift in the pinned inputs.
 """
 
 from __future__ import annotations

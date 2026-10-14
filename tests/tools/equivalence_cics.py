@@ -2212,18 +2212,65 @@ def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | No
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
-def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+_INSTALL_SYMBOL = re.compile(r"@([A-Za-z0-9_#$-]+)@")
+
+
+def install_symbols(spec: Any) -> dict[str, str]:
+    """#5089: the install symbols a case states (`"install_symbols": {"values": {"ECS_HLQ": "ZECS", ...}, "why": ...}`),
+    as upper-case name -> value. zECS-style estates ship dataset names with placeholders (`@ecs_hlq@.ZCEXPIRE.
+    @environment@`) that an install job fills in; the harness never guesses them -- the case states each one, with
+    the reason (a deployment fact, as `csd` and `recovery` are). Absent: none. Anything else is refused by name."""
+    if spec is None:
+        return {}
+    values = spec.get("values") if isinstance(spec, dict) else None
+    if (
+        not isinstance(values, dict)
+        or not values
+        or not spec.get("why")
+        or set(spec) - {"values", "why"}
+        or not all(
+            isinstance(k, str) and re.fullmatch(r"[A-Za-z0-9_#$-]+", k)
+            and isinstance(v, str) and re.fullmatch(r"[A-Z0-9#$-]{1,8}(\.[A-Z0-9#$-]{1,8})*", v)
+            for k, v in values.items()
+        )
+    ):  # fmt: skip
+        raise Unsupported(
+            '"install_symbols": {"values": {SYMBOL: VALUE (a dataset qualifier, upper case)}, "why": ...}'
+        )
+    out = {k.upper(): v for k, v in values.items()}
+    if len(out) != len(values):
+        raise Unsupported(f'"install_symbols" states a symbol twice (names are not case-sensitive): {sorted(values)}')
+    return out
+
+
+def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
+    """#5089: `name` (upper-cased) with each `@SYMBOL@` the case states replaced; a symbol it does not state stays in
+    the name and is refused by the caller (never guessed)."""
+    return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
+
+
+def stub_files(
+    ir: Any,
+    program_file: str,
+    datasets: dict[str, Any] | None = None,
+    symbols: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
     """Each CICS file the program uses: {file, dsname, base (the cluster whose records it
     reads), key_offset, key_length, reclen, via}, from the engine's facts -- the CSD
     DEFINE FILE's DSNAME, then the IDCAMS DEFINE that keys it: a CLUSTER's KEYS, or a
     PATH -> its AIX's KEYS over the AIX's base cluster. Where the facts lack the KEYS or the
     RECORDSIZE (GenApp's adef121.jcl gives both inside the DATA(...) component), the case's
-    dataset may state them ("vsam": {"key_offset", "key_length", "reclen"}); the facts win."""
+    dataset may state them ("vsam": {"key_offset", "key_length", "reclen"}); the facts win.
+    #5089: `symbols` (install_symbols(case["install_symbols"])) resolve the `@NAME@` placeholders of a dataset name,
+    on the CSD and the IDCAMS side alike; a placeholder the case does not state is refused, never guessed. An IDCAMS
+    job the engine does not read as a define (zECS ships `ZCEXPIRE.idcams`, not JCL) is stated by the case's dataset
+    of the resolved name (`vsam`, with its KEYS and RECORDSIZE)."""
+    symbols = symbols or {}
     defines: dict[str, Any] = {}
     for f in ir.files.values():
         for d in f.vsam_defines:
             if d.name:
-                defines.setdefault(d.name.upper(), d)
+                defines.setdefault(substitute_install_symbols(d.name, symbols), d)
     out = []
     for e in ir.cics_file_lineage():
         if e["program"] != program_file:
@@ -2236,10 +2283,35 @@ def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = Non
             out.append(stated)
             continue
         dsn = defs[0]["dsname"].upper()
+        if symbols:
+            dsn = substitute_install_symbols(dsn, symbols)
+            if _INSTALL_SYMBOL.search(dsn):
+                raise Unsupported(
+                    f"CICS file {e['name']}: the dataset name {dsn} holds an install symbol the case does not state"
+                )
         d, via = defines.get(dsn), []
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
+        if d is None and symbols and dsn != defs[0]["dsname"].upper():
+            vsam = ((datasets or {}).get(dsn) or {}).get("vsam") or {}  # #5089: stated, with the install symbols
+            if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
+                "why"
+            ):
+                raise Unsupported(
+                    f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}; the case's dataset {dsn} states "
+                    "vsam {key_offset, key_length, reclen, why} (the IDCAMS job's KEYS and RECORDSIZE)"
+                )
+            if (defs[0].get("record_format") or "").upper() == "V" and vsam.get("variable") is not True:
+                raise Unsupported(  # the stub keeps fixed-length records: a V file is stood in for only when stated
+                    f"CICS file {e['name']}: {dsn} is a variable-length file (RECORDFORMAT(V)); the stub keeps fixed-"
+                    'length records, so the case\'s vsam must say "variable": true -- every record of the file is the '
+                    "one length the program writes and reads, stated as reclen (IBM returns each record at its own length)"
+                )
+            out.append({"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": vsam["key_offset"],
+                        "key_length": vsam["key_length"], "reclen": vsam["reclen"],
+                        "via": ["the case's install_symbols", "the case's vsam"]})  # fmt: skip
+            continue
         if d is None:  # #3656: the engine's candidate join of an IDCAMS name written with installation symbols
             st = next((x for x in ir.vsam_stores() if (x.get("dataset") or "").upper() == dsn and x.get("defined")
                        and (x.get("defined_by") or {}).get("match") == "symbolic"), None)  # fmt: skip
@@ -3263,6 +3335,42 @@ def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     return out
 
 
+def _cobol_retrieve(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#5089: a RETRIEVE the stub logged (GGCRTRV: `resp` by number, `len` the stored length -1 for none, `into` 1 with
+    INTO, the bytes copied in the event's blob, `rtransid` / `rtermid` / `queue` as hex of the name) as
+    CicsTask.retrieve records it: {resp, length, data, rtransid?, rtermid?, queue?}; the data compared as text in the
+    data's page, as START's FROM is (java_retrieve_as_compared)."""
+    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+    length = int(kv.get("len", "-1"))
+    out: dict[str, Any] = {"resp": resp, "length": None if length < 0 or kv.get("into") != "1" else length}
+    if kv.get("into") == "1" and length >= 0:
+        text = common._decode_text(data, enc)
+        out["data"] = f"<undecodable {data!r} in {enc}>" if text is None else text
+    else:
+        out["data"] = None
+    for key in ("rtransid", "rtermid", "queue"):
+        if key in kv:
+            out[key] = bytes.fromhex(kv[key]).decode("latin-1")
+    return out
+
+
+def java_retrieve_as_compared(e: dict[str, Any]) -> dict[str, Any]:
+    """#5089: CicsTask's RETRIEVE event as the comparison reads it: its data (bytes, base64 in the JSON) in the region's
+    page, as text (java_start_as_compared)."""
+    import base64
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    data = e.get("data")
+    if not isinstance(data, str):
+        return {**e, "data": None}
+    raw = base64.b64decode(data)
+    try:
+        return {**e, "data": raw.decode(REGION_PAGE)}
+    except UnicodeDecodeError:
+        return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
+
+
 def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     """#4270: CicsTask's START event as the comparison reads it: its FROM data (bytes, base64 in the JSON) in the
     region's page, as text (java_ts_as_compared)."""
@@ -3426,6 +3534,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
             if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
                 res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
+        elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
+            res.setdefault("retrieves", []).append(_cobol_retrieve(kv, data, enc))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
@@ -4575,6 +4685,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(java_read_as_compared(e))
             if e.get("event") == "START":  # #4270: the FROM data's bytes as text
                 e.update(java_start_as_compared(e))
+            if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
+                e.update(java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
@@ -4781,6 +4893,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     starts = iter(res.get("starts", []))  # #4270: START
+    retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
@@ -4817,6 +4930,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append(next(reads))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): CicsTask.start records it
             out.append({"event": "START", **next(starts)})
+        elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
+            out.append({"event": "RETRIEVE", **next(retrieves)})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -5298,9 +5413,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
     ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)
-    files = stub_files(ir, case["program_source"], case.get("datasets"))
+    symbols = install_symbols(case.get("install_symbols"))  # #5089: stated, never guessed
+    files = stub_files(ir, case["program_source"], case.get("datasets"), symbols)
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
-        files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))
+        files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"), symbols)
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
     case = equivalence_inputs.prepare_cics_case(case, corpus, files)  # #3804: generated files and scenarios
     # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run

@@ -7,7 +7,7 @@ Run by .github/workflows/main-watch.yml:
     python tests/tools/main_watch.py reconcile [--dry-run]    # every open ci-red-main issue, from the run list
 
 `event` reacts to one `workflow_run`. `reconcile` is the safety net for events GitHub never delivered: a run created
-with the repo GITHUB_TOKEN (post-merge.yml's dispatch of the Full Suite Gate) raises no `workflow_run` (#4859). For each
+with the repo GITHUB_TOKEN (post-merge.yml's dispatches) raises no `workflow_run` (#4859). For each
 open issue it looks at the latest completed, non-cancelled run of that workflow on main and comments or closes.
 
 Rules, all in decide() (pure: a snapshot in, actions out):

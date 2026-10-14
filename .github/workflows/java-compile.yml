@@ -69,8 +69,10 @@ jobs:
   # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
   # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
   # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

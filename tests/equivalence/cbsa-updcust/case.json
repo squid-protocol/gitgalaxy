@@ -281,6 +281,48 @@
      "why": "17 on the REWRITE -> fail code 3"
     }
    ]
+  },
+  {
+   "name": "title-invalid-keeps-program-sortcode",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "123456",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Captain Alan Smith",
+    "COMM-DOB": 1011990
+   },
+   "why": "#4628 (det-port mutants 9c33b8b48c, c818acfe9e): a failure path leaves the COMMAREA as A010 set it -- COMM-SCODE is the program's SORTCODE 987654, not the caller's 123456, and COMM-DOB is the caller's 01011990, unchanged"
+  },
+  {
+   "name": "name-leading-space-address-blank",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": " Mrs Carol Jones"
+   },
+   "why": "#4628 (det-port mutant 3fcfb87b0b): COMM-NAME(1:1) = ' ' with a name after it, and no address: both count as blank -> 'N' / '4', no REWRITE"
+  },
+  {
+   "name": "name-blank-address-leading-space",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-ADDR": " 8 Church Lane"
+   },
+   "why": "#4628 (det-port mutant 3029c8dea1): no name, and COMM-ADDR(1:1) = ' ' with an address after it: both count as blank -> 'N' / '4', no REWRITE"
+  },
+  {
+   "name": "success-refills-eye-keeps-fail-code",
+   "commarea": {
+    "COMM-EYE": "ABCD",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan Smith",
+    "COMM-UPD-FAIL-CD": "9"
+   },
+   "why": "#4628 (det-port mutants c6d8fdea62, 3b8f71ba84): on success COMM-EYE is refilled from the record ('CUST', not the caller's ABCD) and COMM-UPD-FAIL-CD, which only the failure paths write, keeps the caller's '9'"
   }
  ],
  "notes": "CBSA's update-customer service (UPDCUST, LINKed with the UPDCUST copybook's COMMAREA by the web / BMS front ends): the title (COMM-NAME's first word, UNSTRINGed into 9 bytes) must be one of Professor / Mr / Mrs / Miss / Ms / Dr / Drs / Lord / Sir / Lady / blank, else 'N' / 'T' and GOBACK; then READ FILE('CUSTOMER') UPDATE by the program's own sort code (SORTCODE copybook, 987654 -- COMM-SCODE is overwritten) and COMM-CUSTNO (NOTFND -> '1', any other condition -> '2'); name and address both blank (or starting with a space) -> '4' with no REWRITE; otherwise the non-blank one(s) replace the record's, REWRITE (failure -> '3'), the COMMAREA is refilled from the record and COMM-UPD-SUCCESS = 'Y'; RETURN. Every condition the program tests is exercised (NOTFND naturally, IOERR on the READ and on the REWRITE by fault injection), and every title WHEN. Each scenario's CUSTOMER file is compared after the task. Keys: DESIRED-CUST-KEY is PIC 9(6) + PIC 9(10); COMM-CUSTNO is PIC X(10), so letters could only reach the key through an alphanumeric-to-numeric MOVE of non-digits, which GnuCOBOL (the oracle) and Enterprise COBOL do not treat alike (GnuCOBOL turned '00000ABC12' into 0000000000 and '1' + 9 spaces into 0000000001, where z/OS keeps the bytes): those two scenarios were tried and dropped, so no key here mixes letters and digits. No browse, so no key order is exercised. The CICS file's DSNAME (CBSA.CICSBSA.CUSTOMER) is joined to the IDCAMS define @BANK_PREFIX@.CUSTOMER (KEYS(16 4), RECORDSIZE 259) by the engine's symbolic candidate join (#3656), the one the generated estate uses too. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): five customers of sort code 987654 (numbers 1-4 and 9999999999) and one of another sort code (123456/1), laid out as the CUSTOMER copybook. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

@@ -267,6 +267,78 @@
      "OPTIONI": "1"
     }
    }
+  },
+  {
+   "name": "pf4-invalid-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4628 (det-port mutant 1f7a04edf5: DFHPF3 read one byte on, at DFHPF4): PF4, the key beside PF3, takes WHEN OTHER -- the menu again with 'Invalid key pressed' -- not PF3's sign-off"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3,
+     "why": "PGMIDERR RESP2 3, the program could not be loaded: HANDLE CONDITION PGMIDERR goes to PGMIDERR-ERR-PARA"
+    }
+   ],
+   "why": "#4628 (det-port mutant 37a7b39c52): PF3's XCTL to the sign-on fails -- PGMIDERR-ERR-PARA sends the menu with 'This option is not installed ...' and RETURNs"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CU00",
+    "CDEMO-TO-PROGRAM": "COUSR00C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "7"
+    }
+   },
+   "why": "#4628 (det-port mutants d3b3731724, 4d2411a557, 99fffe64e0, 8c0ccb0f77, 9eef44928a, cbb2a2e3ca, fd1643d0ec): every COMMAREA field set; an invalid option re-sends the menu and the RETURN carries the COMMAREA back unchanged but for the fields the program sets"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6, zero or not numeric is refused. Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

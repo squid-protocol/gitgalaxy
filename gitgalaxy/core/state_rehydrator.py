@@ -743,8 +743,14 @@ class StateRehydrator:
                     "SELECT fd.file_path AS _fp, cr.resource_type, cr.resource_name AS name, "
                     'cr.group_name AS "group", cr.dsname, cr.ddname, cr.record_format, cr.key_length, '
                     "cr.record_size, cr.queue_type, cr.plan, cr.db2_entry, cr.transid, cr.program, "
-                    "cr.attributes, cr.line_number AS line "
-                    "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
+                    "cr.attributes, cr.line_number AS line, "
+                    # #5120: a pre-#5120 baseline has no provenance columns; its rows are CSD.
+                    + (
+                        "cr.source, cr.macro_table "
+                        if _has_column(cursor, "csd_resource_data", "source")
+                        else "NULL AS source, NULL AS macro_table "
+                    )
+                    + "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
                     lambda r: {
                         "resource_type": r["resource_type"],
@@ -762,6 +768,7 @@ class StateRehydrator:
                         "program": r["program"],
                         "attributes": r["attributes"],
                         "line": int(r["line"] or 0),
+                        **({"source": r["source"], "macro_table": r["macro_table"]} if r["source"] == "MACRO" else {}),
                     },
                 )
 

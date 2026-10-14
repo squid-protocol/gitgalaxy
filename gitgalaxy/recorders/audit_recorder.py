@@ -305,6 +305,8 @@ class AuditRecorder:
                     "Name": r.get("name"),
                     "Group": r.get("group"),
                     **{label: r[key] for key, label in labels if r.get(key) is not None},
+                    # #5120: provenance only for a macro-table row, so CSD rows are unchanged.
+                    **({"Source": "MACRO", "Macro Table": r.get("macro_table")} if r.get("source") == "MACRO" else {}),
                     "Attributes": r.get("attributes"),
                     "Line": r.get("line", 0),
                 }

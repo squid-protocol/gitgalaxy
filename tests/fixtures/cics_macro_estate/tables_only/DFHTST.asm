@@ -1,0 +1,10 @@
+* DFHTST: hand-written fixture (#5120), syntax per IBM DFHTST p.482-488
+* [CICS TS for OS/390 R3 Resource Definition Guide SC33-1684-30, ch.13]. No IBM table text or sample is reproduced.
+DFHTST   CSECT
+         DFHTST TYPE=INITIAL,SUFFIX=01
+         DFHTST TYPE=LOCAL,DATAID=(BANK,AUDT)
+         DFHTST TYPE=RECOVERY,DATAID=RCV
+         DFHTST TYPE=SECURITY,DATAID=SEC
+         DFHTST TYPE=REMOTE,DATAID=RMT,SYSIDNT=SYSB,RMTNAME=RXX
+         DFHTST TYPE=FINAL
+         END

@@ -84,6 +84,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # #3351-#3354: CICS resource operations (FILE/MAP/QUEUE/CONTAINER/CHANNEL) live in
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
+from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.compiler_options import compiler_options, effective
@@ -2645,6 +2646,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
+    #5120: hlasm also carries `csd_resources` from the DFHFCT / DFHPCT / DFHPPT /
+    DFHDCT / DFHTST macro tables, with `source` / `macro_table` provenance.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
     PROC calls, and each DSN DD's disposition and GDG generation (job_flow).
     """
@@ -2704,6 +2707,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": [],
             "transactions": [],
             "ims_gen": ims_gen_macros(code_stream),
+            # #5120: DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro tables, as CSD-shaped rows.
+            "csd_resources": cics_macro_table_resources(code_stream),
             "cics_resources": _cics_resources(stream, dc, "hlasm"),
             "cics_tasks": _cics_tasks(stream, dc, [], "hlasm"),
             "uow_handlers": _uow_handlers(stream, dc),

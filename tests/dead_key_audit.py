@@ -310,6 +310,25 @@ ALLOWLIST = {
             "TYPE",
         )
     },
+    # #5120: cics_macro_tables reads the operand keywords of an assembler macro statement
+    # through ims_gen._operands, which keys its dict by the keyword it parsed from the source
+    # text (`keyed[k.strip().upper()] = v`) -- a dynamic write, never a literal the walker traces.
+    **{
+        k: "CICS macro operand keyword, written via ims_gen._operands' dynamic keying (cics_macro_tables.py, #5120)"
+        for k in (
+            "DATAID",
+            "DESTID",
+            "DSCNAME",
+            "KEYLEN",
+            "LRECL",
+            "RECFORM",
+            "RECSIZE",
+            "RMTNAME",
+            "SUFFIX",
+            "SYSIDNT",
+            "TRIGLEV",
+        )
+    },
     # --- Generated code-page tables (#3816 part 3a) ---
     # ebcdic_dbcs.py reads gitgalaxy/core/ebcdic_dbcs/*.json, which tests/tools/gen_ebcdic_dbcs.py
     # writes from the JDK -- the writer lives outside gitgalaxy/, where the walker does not look.

@@ -229,33 +229,57 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _setup_lock(name: str):
+    """An exclusive flock held for the `with` block: the processes of a --jobs sweep start together on a fresh runner
+    (CI) and must not fetch the driver or build the image over each other (#5094)."""
+    import contextlib
+
+    try:
+        import fcntl
+    except ImportError:  # Windows: the Db2 sweep (Docker + Db2 container) only runs on Linux, so no lock is needed
+        return contextlib.nullcontext()
+
+    @contextlib.contextmanager
+    def held():
+        path = Path.home() / ".cache" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            yield
+
+    return held()
+
+
 def fetch_odbc_cli(dest: Path | None = None, pin: dict[str, str] | None = None) -> Path:
     """#4980: the driver tarball at `dest`, sha256-checked against the pin. A file already there that matches is kept
-    (the CI cache restores it); otherwise curl fetches it with retries. Any failure raises OdbcDownloadError."""
+    (the CI cache restores it); otherwise curl fetches it with retries. Any failure raises OdbcDownloadError.
+    #5094: one process fetches at a time (the others wait, then find the file) -- four sweep jobs sharing one `.part`
+    deleted each other's download and failed as "sha256 no file"."""
     dest = dest or ODBC_TARBALL
     pin = pin or odbc_pin()
     url, want = pin["url"], pin["sha256"]
-    if dest.is_file() and _sha256(dest) == want:
+    with _setup_lock("gitgalaxy-odbc-fetch.lock"):
+        if dest.is_file() and _sha256(dest) == want:
+            return dest
+        dest.unlink(missing_ok=True)
+        part = dest.with_name(dest.name + ".part")
+        part.unlink(missing_ok=True)
+        cmd = ["curl", "--fail", "--silent", "--show-error", "--location", "--retry", "5", "--retry-all-errors",
+               "--retry-delay", "5", "--connect-timeout", "30", "--max-time", "900", "--output", str(part), url]  # fmt: skip
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=1000)  # noqa: S603
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"curl did not run to completion ({exc})", url) from exc
+        if proc.returncode != 0:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"curl exited {proc.returncode} after retries: {proc.stderr.strip()[-300:]}", url)
+        got = _sha256(part) if part.is_file() else "no file"
+        if got != want:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"sha256 {got} is not the pinned {want}", url)
+        part.replace(dest)
         return dest
-    dest.unlink(missing_ok=True)
-    part = dest.with_name(dest.name + ".part")
-    part.unlink(missing_ok=True)
-    cmd = ["curl", "--fail", "--silent", "--show-error", "--location", "--retry", "5", "--retry-all-errors",
-           "--retry-delay", "5", "--connect-timeout", "30", "--max-time", "900", "--output", str(part), url]  # fmt: skip
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=1000)  # noqa: S603
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        part.unlink(missing_ok=True)
-        raise _odbc_fail(f"curl did not run to completion ({exc})", url) from exc
-    if proc.returncode != 0:
-        part.unlink(missing_ok=True)
-        raise _odbc_fail(f"curl exited {proc.returncode} after retries: {proc.stderr.strip()[-300:]}", url)
-    got = _sha256(part) if part.is_file() else "no file"
-    if got != want:
-        part.unlink(missing_ok=True)
-        raise _odbc_fail(f"sha256 {got} is not the pinned {want}", url)
-    part.replace(dest)
-    return dest
 
 
 PULL_ATTEMPTS = 4
@@ -287,8 +311,10 @@ def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float
 
 def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
-        fetch_odbc_cli()
-        common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
+        with _setup_lock("gitgalaxy-db2-image.lock"):  # #5094: one build; the others find the image
+            if not _docker("images", "-q", COBOL_IMAGE).strip():
+                fetch_odbc_cli()
+                common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
     import fcntl
 
     # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it

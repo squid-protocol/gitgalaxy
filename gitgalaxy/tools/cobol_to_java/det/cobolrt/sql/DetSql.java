@@ -70,6 +70,7 @@ public final class DetSql {
 
     /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`), each statement's
      *  executions counted afresh, each fault that fires appended to `log` (null: not logged). */
+    // [rule RT-SQL-FAULT-INJECTION]
     public static void withFaults(List<String> plan, java.nio.file.Path log) {
         FAULTS.clear();
         RUNS.clear();
@@ -126,6 +127,7 @@ public final class DetSql {
     }
 
     /** The SQLCA as a statement leaves it before its outcome: SQLCODE 0, no warning. */
+    // [rule RT-SQL-SQLCA]
     public static void reset(Field ca, Charset cs) {
         put(ca, 0, 8, "SQLCA", cs);
         putInt(ca, 8, 4, 136);
@@ -215,6 +217,7 @@ public final class DetSql {
 
     // ---- host variables into the statement ---------------------------------------------------------------
     /** A PIC X(n) host variable: CHAR(n), its n bytes. */
+    // [rule RT-SQL-HOST-VARIABLE-IN]
     public static String charIn(Field f, Charset cs) {
         return Cobol.text(f, cs);
     }
@@ -238,6 +241,7 @@ public final class DetSql {
 
     // ---- statements -----------------------------------------------------------------------------------------
     /** INSERT / UPDATE / DELETE: `searched` (an UPDATE or DELETE with a WHERE, or none) that changes no row is +100. */
+    // [rule RT-SQL-SEARCHED-NOT-FOUND]
     public static void update(Field ca, IntSupplier statement, boolean searched, Charset cs) {
         update(ca, null, statement, searched, cs);
     }
@@ -260,6 +264,7 @@ public final class DetSql {
     }
 
     /** SELECT INTO: the one row, or null (+100 no row, -811 more than one, or Db2's error). */
+    // [rule RT-SQL-SELECT-INTO]
     public static Map<String, Object> selectOne(Field ca, Supplier<Map<String, Object>> statement, Charset cs) {
         return selectOne(ca, null, statement, cs);
     }
@@ -287,6 +292,7 @@ public final class DetSql {
 
     /** A row's columns, in order, into the host variables (`kinds`: X, V, N per host variable; `indicators` null
      *  where none): false when an assignment failed (-304 / -305 set; the rest not assigned). */
+    // [rule RT-SQL-HOST-VARIABLE-OUT]
     public static boolean into(Field ca, Map<String, Object> row, String kinds, Field[] hosts, Field[] texts,
                                Field[] indicators, Charset cs) {
         Iterator<Object> values = row.entrySet().stream()  // GG_RID: the row id a positioned statement uses, no column
@@ -392,6 +398,7 @@ public final class DetSql {
 
     /** EXEC SQL COMMIT [WORK] at `at`: the unit of work committed (Db2's SQLCODE if it fails); every cursor not
      *  declared WITH HOLD closed, a held one left with no current row. */
+    // [rule RT-SQL-UNIT-OF-WORK]
     public static void commit(Field ca, String at, Charset cs) {
         reset(ca, cs);
         if (injected(ca, at, cs)) {
@@ -433,6 +440,7 @@ public final class DetSql {
     /** EXEC SQL SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT at `at`: `sql` as written, on the unit of
      *  work's connection, Db2 answering (-880: no such savepoint). The cursors are not touched: a savepoint is set ON
      *  ROLLBACK RETAIN CURSORS. Refused with no unit of work, as ROLLBACK is. */
+    // [rule RT-SQL-SAVEPOINT]
     public static void savepoint(Field ca, String at, String sql, Charset cs) {
         reset(ca, cs);
         if (injected(ca, at, cs)) {
@@ -455,6 +463,7 @@ public final class DetSql {
     private static final java.util.Set<String> HOLD = new java.util.HashSet<>();  // #4269: open cursors WITH HOLD
 
     /** OPEN: the cursor's query run with the host variables' values now (-502 when it is open). */
+    // [rule RT-SQL-CURSOR]
     public static void open(Field ca, String cursor, Supplier<List<Map<String, Object>>> query, Charset cs) {
         open(ca, null, cursor, query, cs);
     }
@@ -517,6 +526,7 @@ public final class DetSql {
     /** A positioned UPDATE / DELETE (WHERE CURRENT OF cursor): the generated method, given the current row's id
      *  (GG_RID, which the cursor's query returns). -501 when the cursor is not open, -508 when it has no current row
      *  (before its first FETCH, or after +100). */
+    // [rule RT-SQL-POSITIONED-UPDATE]
     public static void updateCurrent(Field ca, String cursor, java.util.function.Function<Object, Integer> statement,
                                      Charset cs) {
         updateCurrent(ca, null, cursor, statement, cs);

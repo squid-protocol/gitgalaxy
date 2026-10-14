@@ -239,10 +239,67 @@ def _ports(work: Path) -> dict[str, dict[str, str]]:
     return out
 
 
+def java_segments(text: str) -> list[tuple[str, str]]:
+    """Java source as [(kind, text)], kind "code", "comment" or "literal" (a string, text block or char literal, quotes
+    included), in order; joined they are the text. ValueError on an unterminated comment or literal."""
+    out: list[tuple[str, str]] = []
+    i, start, n = 0, 0, len(text)
+    while i < n:
+        c, two = text[i], text[i : i + 2]
+        if two in ("//", "/*") or c in "\"'":
+            if start < i:
+                out.append(("code", text[start:i]))
+            if two == "//":
+                j = text.find("\n", i)
+                j = n if j < 0 else j
+                kind = "comment"
+            elif two == "/*":
+                j = text.find("*/", i + 2)
+                if j < 0:
+                    raise ValueError("unterminated comment")
+                j += 2
+                kind = "comment"
+            else:
+                quote = '"""' if text.startswith('"""', i) else c
+                j = i + len(quote)
+                while not text.startswith(quote, j):
+                    if j >= n or (len(quote) == 1 and text[j] == "\n"):
+                        raise ValueError("unterminated literal")
+                    j += 2 if text[j] == "\\" else 1
+                j += len(quote)
+                kind = "literal"
+            out.append((kind, text[i:j]))
+            i = start = j
+        else:
+            i += 1
+    if start < n:
+        out.append(("code", text[start:]))
+    return out
+
+
+def java_code(text: str) -> str:
+    """Java source without its comments and with each run of whitespace outside a literal one space (#4711): what
+    javac compiles, so a comment-only edit -- a rule ID cited at its code site -- leaves it unchanged. The text itself
+    when it does not lex (an unterminated comment or literal), so such a change still counts."""
+    try:
+        segs = java_segments(text)
+    except ValueError:
+        return text
+    out, gap = [], []  # gap: the code and comments since the last literal, collapsed as one run
+    for k, t in segs + [("literal", "")]:
+        if k == "literal":
+            out += [re.sub(r"\s+", " ", "".join(gap)), t]
+            gap = []
+        else:
+            gap.append(" " if k == "comment" else t)
+    return "".join(out).strip()
+
+
 def compare(base: Path, new: Path) -> list[dict[str, Any]]:
     """Each case's port in `new` against `base`: unchanged, changed (the files and changed lines), new or gone.
     A runtime class (cobolrt/...) every port carries counts against a port only when its own code names that class
-    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it."""
+    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it. A runtime
+    class is compared as java_code (#4711): a change to its comments or layout alone moves no port."""
     import difflib
 
     a, b = _ports(base), _ports(new)
@@ -259,7 +316,7 @@ def compare(base: Path, new: Path) -> list[dict[str, Any]]:
             if rel.startswith("generated/") and not both:
                 continue
             x, y = a[case].get(rel, ""), b[case].get(rel, "")
-            if x == y:
+            if x == y or (rel.startswith("cobolrt/") and java_code(x) == java_code(y)):
                 continue
             if rel.startswith("cobolrt/") and not re.search(rf"\b{re.escape(Path(rel).stem)}\b", own):
                 continue  # a runtime class this port never names

@@ -54,6 +54,7 @@ public final class Cobol {
 
     /** TRUNC(STD) for binary items (high-order digits beyond the PICTURE lost; size error beyond the PICTURE).
      *  Default false: as GnuCOBOL `-std=ibm` behaves, a binary item holds what its bytes hold. */
+    // [rule RT-CBL-TRUNC-PER-PROGRAM]
     public static void setTruncBinary(boolean on) {
         Codec.truncBinary = on;
     }
@@ -83,6 +84,7 @@ public final class Cobol {
     /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
      *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
      *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
+    // [rule RT-CBL-NUMPROC-PER-PROGRAM]
     public static boolean swapNumprocPfd(boolean pfd) {
         boolean before = Codec.numprocPfd;
         Codec.numprocPfd = pfd;
@@ -124,6 +126,7 @@ public final class Cobol {
     }
 
     /** cob_decimal_add of two intermediates where either may be libcob's NaN (#4655): NaN in, NaN out. */
+    // [rule RT-CBL-ZERO-DIVISOR-NAN]
     public static BigDecimal add(BigDecimal a, BigDecimal b) {
         return isNan(a) ? a : isNan(b) ? nan(a) : a.add(b);
     }
@@ -148,6 +151,7 @@ public final class Cobol {
      *  quotient keeps 38 + max(a.scale - b.scale, 0) decimal places; a zero dividend is 0 of scale 0. The
      *  receiver's own truncation or ROUNDED then applies in store. A zero divisor makes the dividend NaN and raises
      *  the size error (#4655); a NaN operand gives NaN. */
+    // [rule RT-CBL-DIVIDE-INTERMEDIATE]
     public static BigDecimal divide(BigDecimal a, BigDecimal b) {
         if (isNan(a)) {
             return a;
@@ -169,6 +173,7 @@ public final class Cobol {
      *  `q` truncated to the first GIVING receiver's `scale` places -- not to its PICTURE's high-order digits, so a
      *  quotient too big for its receiver still gives the true remainder. A NaN quotient (a zero divisor) gives NaN:
      *  the remainder receiver unchanged (#4655). */
+    // [rule RT-CBL-DIVIDE-REMAINDER]
     public static BigDecimal remainder(BigDecimal a, BigDecimal q, BigDecimal b, int scale) {
         if (isNan(q)) {
             return q;
@@ -178,6 +183,7 @@ public final class Cobol {
 
     /** A division in an intrinsic function's argument (cob_intr_binop): a zero divisor gives 0, with the size
      *  error raised -- never NaN (#4655). */
+    // [rule RT-CBL-DIVIDE-IN-FUNCTION-ARGUMENT]
     public static BigDecimal divideIntr(BigDecimal a, BigDecimal b) {
         if (b.signum() == 0) {
             raiseSize();
@@ -190,6 +196,7 @@ public final class Cobol {
      *  libcob's cob_decimal_align does it where cobc -std=ibm emits it (the translator decides where, det/osvs.py).
      *  With more places than `scale` the low-order ones are dropped (toward zero); with fewer, libcob shifts the
      *  other way: the value loses as many low-order digits as it lacks places (579 aligned to 2 places is 500). */
+    // [rule RT-CBL-OSVS-INTERMEDIATE-ALIGN]
     public static BigDecimal align(BigDecimal d, int scale) {
         if (d.scale() > scale) {
             return d.setScale(scale, java.math.RoundingMode.DOWN);
@@ -216,6 +223,7 @@ public final class Cobol {
         }
 
         /** The program starts again (its initial state): the literal as written. */
+        // [rule RT-CBL-DECIMAL-CONSTANT-SCALE]
         public void reset() {
             v = initial;
         }
@@ -284,6 +292,7 @@ public final class Cobol {
      *  negative one through cob_decimal_div), else through double. 0 ** 0 is 1 with the size error raised; an
      *  exponent through double without a finite result (a negative base, an overflow) is NaN with the size error
      *  raised, as libcob's (#4655); a NaN operand gives NaN. */
+    // [rule RT-CBL-EXPONENTIATION]
     public static BigDecimal power(BigDecimal a, BigDecimal b) {
         if (isNan(a)) {
             return a;
@@ -318,6 +327,7 @@ public final class Cobol {
 
     // ------------------------------------------------------------------------------------------------ MOVE
 
+    // [rule RT-CBL-MOVE-SAME-ZONED-SHAPE]
     public static void move(Field from, Field to, Charset cs) {
         if (cat(to) == GROUP || from.kind != Field.Kind.NUMERIC_DISPLAY || from.st == to.st) {
             moveBytes(from, to, null, cs);
@@ -341,6 +351,7 @@ public final class Cobol {
                 && a.signSeparate == b.signSeparate && a.len == b.len && a.blankWhenZero == b.blankWhenZero;
     }
 
+    // [rule RT-CBL-MOVE-ELEMENTARY]
     private static void moveBytes(Field from, Field to, Zoned.Raw raw, Charset cs) {
         if (cat(to) == GROUP) {
             padCopy(from.raw(), to, false, cs);
@@ -383,6 +394,7 @@ public final class Cobol {
      *  positive, `!` is +1, X'FF' +0) and written back as an overpunch by {@link #move}. A SEPARATE sign other than
      *  + - space is refused by name. False, nothing done, when every digit position holds a digit (the ordinary
      *  MOVE). */
+    // [rule RT-CBL-MOVE-NONDIGIT-TO-BINARY]
     private static boolean nonDigitToBinary(Field from, Zoned.Raw raw, Field to, Charset cs) {
         if (!raw.dirty) return false;
         if (from.scale < 0 || from.scale > from.digits) {  // #4692: cobc hangs on a left-P sender, no rule for a right-P
@@ -412,6 +424,7 @@ public final class Cobol {
     /** A zoned sender holding a non-digit MOVEd to a zoned, packed or numeric-edited receiver, as the oracle does it
      *  (#4662, register C11; see {@link Zoned}). False: not one of those receivers (a binary item is
      *  nonDigitToBinary's, anything else the ordinary MOVE of the bytes). */
+    // [rule RT-CBL-MOVE-NONDIGIT]
     private static boolean moveNonDigit(Field from, Zoned.Raw raw, Field to, Charset cs) {
         if (from.scale < 0 || from.scale > from.digits || to.scale < 0) {  // #4692: a left-P sender too (cobc hangs on MOVE to binary)
             if (to.kind == Field.Kind.NUMERIC_DISPLAY || to.kind == Field.Kind.NUMERIC_PACKED
@@ -438,6 +451,7 @@ public final class Cobol {
         }
     }
 
+    // [rule RT-CBL-MOVE-NONDIGIT-SIGN-REFUSED]
     private static UnsupportedOperationException nonDigitSign() {
         return new UnsupportedOperationException("MOVE to a binary item of a signed zoned item whose sign byte is "
                 + "neither a digit, a sign nor a space (IBM documents no result, register C11) is not modelled");
@@ -447,6 +461,7 @@ public final class Cobol {
      *  precision; a float into a fixed-point or numeric-edited item rounded in the receiver's low-order position (9 /
      *  18 significant digits at most). Any other MOVE of a float (its bytes) is refused by name -- the translator
      *  refuses it first. */
+    // [rule RT-CBL-MOVE-FLOAT]
     private static void moveFloat(Field from, int fc, Field to, Charset cs) {
         if (to.kind == Field.Kind.NUMERIC_FLOAT && (fc == NUMERIC || fc == NUM_EDITED)) {
             Hfp.store(to, source(from, fc, cs).value());
@@ -463,6 +478,7 @@ public final class Cobol {
     }
 
     /** A hexadecimal literal X'hh..' (one latin-1 character per byte) as the text of exactly those bytes (#4698). */
+    // [rule RT-CBL-HEX-LITERAL-BYTES]
     public static String hex(String latin1, Charset cs) {
         return Lossless.hex(latin1, cs);
     }
@@ -486,6 +502,7 @@ public final class Cobol {
         return f;
     }
 
+    // [rule RT-CBL-MOVE-FIGURATIVE]
     public static void moveFigurative(Figurative fig, Field to, Charset cs) {
         byte b = figByte(fig, cs);
         switch (cat(to)) {
@@ -523,6 +540,7 @@ public final class Cobol {
     }
 
     /** MOVE ALL literal: the literal repeated to the receiver's size. */
+    // [rule RT-CBL-MOVE-ALL-LITERAL]
     public static void moveAll(String allLiteral, Field to, Charset cs) {
         byte[] lit = allLiteral.getBytes(cs);
         if (lit.length == 0) return;
@@ -541,6 +559,7 @@ public final class Cobol {
     }
 
     /** The sending item as the bytes an alphanumeric receiver gets. */
+    // [rule RT-CBL-MOVE-NUMERIC-TO-ALPHANUMERIC]
     private static byte[] sourceText(Field from, int fc, Charset cs) {
         if (fc != NUMERIC) return from.raw();
         if (from.kind == Field.Kind.NUMERIC_FLOAT) {
@@ -588,6 +607,7 @@ public final class Cobol {
     }
 
     /** The sending item's value as a number: numeric, de-edited, or an alphanumeric read as GnuCOBOL does. */
+    // [rule RT-CBL-MOVE-DEEDIT]
     private static Codec.Num source(Field from, int fc, Charset cs) {
         return source(from, fc, false, cs);
     }
@@ -629,6 +649,7 @@ public final class Cobol {
      * validation: a field of letters is 0, never an error. Characters after the receiver is full are never looked at. (A packed or binary receiver reads the whole text instead: any stray
      * character anywhere makes it zero -- parseAlnum.)
      */
+    // [rule RT-CBL-MOVE-ALPHANUMERIC-TO-NUMERIC]
     private static Codec.Num alnumToDisplay(byte[] raw, Field to, Charset cs) {
         int total = to.digits;
         int scale = to.scale;
@@ -749,6 +770,7 @@ public final class Cobol {
     // ------------------------------------------------------------------------------------------------ values
 
     /** A numeric item's value (numeric-edited: de-edited). */
+    // [rule RT-CBL-OPERAND-VALUE]
     public static BigDecimal num(Field f, Charset cs) {
         switch (cat(f)) {
             case NUMERIC: return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.operand(f, cs) : Codec.read(f, cs).value();
@@ -760,6 +782,7 @@ public final class Cobol {
     /** The operand of `ADD x TO y` / `SUBTRACT x FROM y` that cobc compiles as cob_add_int(y, cob_get_int(x)) (#4662,
      *  register C11): a zoned x of at most 9 digits read as an int -- a non-digit counts as its byte minus '0', none
      *  skipped --, y not a COMP / BINARY item under TRUNC(STD), no ROUNDED, no SIZE ERROR. Any other x as {@link #num}. */
+    // [rule RT-CBL-ADD-INT-OPERAND]
     public static BigDecimal intOperand(Field f, Charset cs, boolean binaryTarget) {
         if (binaryTarget && Codec.truncBinary) return num(f, cs);  // cobc: not optimized under TRUNC(STD), cob_add
         return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.intOperand(f, cs) : num(f, cs);
@@ -772,6 +795,7 @@ public final class Cobol {
      *  PI57769, but no source states what a non-digit digit position adds up to), and GnuCOBOL 3.1.2's answer
      *  (cob_add_int reads y through cob_decimal_set_display, a space -16, `A` 17) is a guess about z/OS. A digit-only
      *  y is read as ever. */
+    // [rule RT-CBL-RECEIVER-NONDIGIT-REFUSED]
     public static BigDecimal receiverNum(Field f, Charset cs) {
         if (f.kind == Field.Kind.NUMERIC_DISPLAY && Zoned.get(f, cs).dirty) {
             throw Zoned.refuseReceiver();
@@ -780,11 +804,13 @@ public final class Cobol {
     }
 
     /** A numeric item's value in a comparison (#4662): a zoned item holding a non-digit as the oracle compares it. */
+    // [rule RT-CBL-COMPARE-NONDIGIT]
     public static BigDecimal cmpNum(Field f, Charset cs) {
         return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.compareValue(f, cs) : num(f, cs);
     }
 
     /** The item's bytes as text. */
+    // [rule RT-CBL-ALPHANUMERIC-TEXT]
     public static String text(Field f, Charset cs) {
         return new String(f.st.bytes, f.off, f.len, cs);
     }
@@ -800,6 +826,7 @@ public final class Cobol {
 
     /** No ON SIZE ERROR: low-order digits beyond the scale dropped (or rounded half away from zero), high-order
      *  digits beyond the PICTURE lost; libcob's NaN (a zero divisor) leaves `to` unchanged (#4655). */
+    // [rule RT-CBL-STORE-RESULT]
     public static void store(Field to, BigDecimal value, boolean rounded, Charset cs) {
         if (isNan(value)) {
             return;
@@ -821,11 +848,13 @@ public final class Cobol {
      *  receiver takes the absolute value of the result (1 - 3 is 2), truncated at its bytes under COMP-5 or
      *  TRUNC(BIN) and to its PICTURE under TRUNC(STD) -- exactly {@link #store}. The oracle wraps there instead (1 - 3
      *  is 65534 in a halfword): a declared oracle-vs-IBM difference, not modelled. */
+    // [rule RT-CBL-UNSIGNED-BINARY-ABSOLUTE]
     public static void storeNative(Field to, BigDecimal value, Charset cs) {
         store(to, value, false, cs);
     }
 
     /** ON SIZE ERROR: true, `to` unchanged, when the value does not fit or is libcob's NaN (#4655). */
+    // [rule RT-CBL-SIZE-ERROR]
     public static boolean storeChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
         if (isNan(value)) {
             return true;
@@ -849,6 +878,7 @@ public final class Cobol {
      *  SMALLINT, S9(9) COMP to INTEGER, S9(18) COMP to BIGINT) and raises SQLCODE -304 only for a value outside that
      *  type (IBM Db2 for z/OS SQL Reference, "Assignments and comparisons": numeric assignment, SQLSTATE 22003); the
      *  COBOL side's num_store (tests/equivalence/db2/ggsql.c) does the same. A true return means -304. */
+    // [rule RT-CBL-HOST-VARIABLE-BINARY]
     public static boolean storeHostChecked(Field to, BigDecimal value, boolean rounded, Charset cs) {
         if (to.kind != Field.Kind.NUMERIC_BINARY) {
             return storeChecked(to, value, rounded, cs);
@@ -864,6 +894,7 @@ public final class Cobol {
 
     // ---------------------------------------------------------------------------------------------- compare
 
+    // [rule RT-CBL-COMPARE-NONNUMERIC]
     private static int cmpBytes(byte[] a, byte[] b, Charset cs) {
         byte sp = Codec.space(cs);
         int n = Math.max(a.length, b.length);
@@ -903,6 +934,7 @@ public final class Cobol {
      *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
      *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
      *  the generator refuses (register C13). Anything else (a group): its bytes. */
+    // [rule RT-CBL-COMPARE-NUMERIC-WITH-NONNUMERIC]
     private static byte[] operand(Field f, Field other, Charset cs) {
         if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
             return f.raw();
@@ -1043,6 +1075,7 @@ public final class Cobol {
         return cmpBytes(a.raw(), nonnumericLiteral.getBytes(cs), cs, coll);
     }
 
+    // [rule RT-CBL-COMPARE-NUMERIC]
     public static int compare(Field a, BigDecimal numericLiteral, Charset cs) {
         return compare(a, numericLiteral, cs, null);
     }
@@ -1059,6 +1092,7 @@ public final class Cobol {
 
     /** A comparand of a floating-point comparison (IBM: "in floating-point arithmetic if either comparand is a
      *  floating-point value"): a float as it is, a fixed-point item converted to long HFP. */
+    // [rule RT-CBL-COMPARE-FLOAT]
     private static BigDecimal floatOperand(Field f, Charset cs) {
         return f.kind == Field.Kind.NUMERIC_FLOAT ? num(f, cs) : Hfp.of(num(f, cs));
     }
@@ -1067,6 +1101,7 @@ public final class Cobol {
      *  literal, "Comparison of alphanumeric operands"): the literal repeated -- or cut -- to the length of the other
      *  operand, then compared byte by byte (no padding is left to do). A numeric item is compared as the
      *  nonnumeric operand it is against a nonnumeric literal. */
+    // [rule RT-CBL-COMPARE-ALL-LITERAL]
     public static int compareAll(Field a, String allLiteral, Charset cs) {
         return compareAll(a, allLiteral, cs, null);
     }
@@ -1084,6 +1119,7 @@ public final class Cobol {
         return b;
     }
 
+    // [rule RT-CBL-COMPARE-FIGURATIVE]
     public static int compareFigurative(Field a, Figurative f, Charset cs) {
         return compareFigurative(a, f, cs, null);
     }
@@ -1106,6 +1142,7 @@ public final class Cobol {
         return c >= '0' && c <= '9';
     }
 
+    // [rule RT-CBL-CLASS-NUMERIC]
     public static boolean isNumeric(Field f, Charset cs) {
         byte[] d = f.st.bytes;
         if (Codec.numprocPfd && f.signed && !f.signSeparate && isNumericSignF(f, cs)) {
@@ -1164,6 +1201,7 @@ public final class Cobol {
         return true;
     }
 
+    // [rule RT-CBL-CLASS-ALPHABETIC]
     public static boolean isAlphabetic(Field f, Charset cs) {
         return letters(f, cs, true, true);
     }
@@ -1184,6 +1222,7 @@ public final class Cobol {
      * zoned digits of its PICTURE (scale: no decimal point; signed: the last digit overpunched); an unsigned or
      * SIGN SEPARATE zoned item, a group, an alphanumeric or an edited item as libcob writes it.
      */
+    // [rule RT-CBL-DISPLAY-OPERAND]
     public static String displayText(Field f, Charset cs) {
         switch (f.kind) {
             case NUMERIC_FLOAT: // IBM: as external floating point -.9(8)E-99 (COMP-1) / -.9(17)E-99 (COMP-2)
@@ -1256,6 +1295,7 @@ public final class Cobol {
      * padded (only the bytes written change). `pointer` may be null (start at 1). Returns true on OVERFLOW (the
      * pointer is outside the receiver, or the data did not fit; what fits is transferred).
      */
+    // [rule RT-CBL-STRING]
     public static boolean string(Field into, Field pointer, Charset cs, StringPart... parts) {
         int off = 0;
         if (pointer != null) {
@@ -1337,6 +1377,7 @@ public final class Cobol {
      * tallying item is incremented by the number of receiving items filled. Returns true on OVERFLOW (the
      * pointer is outside the source, or source characters remain after the last INTO).
      */
+    // [rule RT-CBL-UNSTRING]
     public static boolean unstring(Field src, Field pointer, Field tallying, List<Delim> delims, Charset cs,
                                    Into... intos) {
         byte[] data = src.raw();
@@ -1460,6 +1501,7 @@ public final class Cobol {
      * TALLYING phrase, or the REPLACING phrase, the earlier clause takes the characters (libcob's mark array); the
      * two phrases are separate passes, as cobc emits them.
      */
+    // [rule RT-CBL-INSPECT]
     public static void inspect(Field target, Charset cs, Clause... clauses) {
         byte[] data = target.raw();
         int n = data.length;
@@ -1535,6 +1577,7 @@ public final class Cobol {
      *  the target sees the caller's storage from the area's first byte -- here up to the end of the caller's record
      *  (its 01 item's storage), never past it: z/OS would show the target whatever storage follows the record, which
      *  this port does not lay out, so those bytes are LOW-VALUES (docs/language_status/oracle_assumptions.md X10). */
+    // [rule RT-CBL-LINK-COMMAREA]
     public static Storage commarea(Field f, int size) {
         Storage w = new Storage(size);
         int n = Math.max(0, Math.min(size, f.storage().bytes.length - f.offset()));

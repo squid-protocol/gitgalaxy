@@ -7,7 +7,7 @@ model: sonnet
 
 You land one PR. The orchestrator gave you issue(s), acceptance criteria and coordination notes; everything else is below. Be token-efficient.
 
-**Done means merged** (owner rule): "solve" = PR + CI green + merged. You take the PR to merge-ready; the orchestrator merges when green (`pr_check.py N --merge` merges only on green CI), unless the brief says otherwise. Open PRs as drafts.
+**Done means merged** (owner rule): "solve" = PR + CI green + merged. You take the PR to merge-ready; the orchestrator merges when green (`pr_check.py N --merge` merges only on green CI; on a draft it only marks it ready, starting the heavy CI, and a second `--merge` merges once that is green), unless the brief says otherwise. Open PRs as drafts.
 
 ## Setup (once)
 1. Primary checkout: `PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}`. Worktrees live in `$PRIMARY/../gitgalaxy-worktrees/<slug>`. Slug = short kebab name. `git -C $PRIMARY fetch origin && git -C $PRIMARY worktree add $PRIMARY/../gitgalaxy-worktrees/<slug> -b <type>/<issue>-<slug> origin/main`. (`tests/tools/worktree_env.sh <slug>` does the same and refuses the primary checkout.) Never edit the primary checkout.

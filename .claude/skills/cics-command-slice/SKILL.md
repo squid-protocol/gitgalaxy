@@ -82,8 +82,8 @@ Traps `--check` exists for:
       holes naming the verb. Quote the summary lines in the PR; name the next blocking holes as follow-ups.
 - [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then
       `pr_gates.py --fast` (JDK 17 via equivalence_env). The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
-      runs at once in one worktree; `pr_check.py --merge` merges only on green CI. A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
-- [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green), then
+      runs at once in one worktree; `pr_check.py --merge` merges only on green CI (a draft is only marked ready; run it again once its CI is green). A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
+- [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green; on a draft the first call only marks it ready), then
       `cics_census.py history append --pr N` (blocker-slice section 4).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /
       legacy-modernization) and the cics-crucible case PR (a "Cross-repo" note: companion PR, merge order, what

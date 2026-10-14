@@ -6,7 +6,15 @@ from unittest.mock import patch
 import pytest
 
 from gitgalaxy.galaxyscope import Orchestrator
-from gitgalaxy.standards.stdlib_modules import _ALL, _CPYTHON, is_stdlib_module
+from gitgalaxy.standards.stdlib_modules import (
+    _ALL,
+    _CPYTHON,
+    _GO_STDLIB,
+    _NODE_CORE,
+    NO_REGISTRY_LANGS,
+    is_stdlib_module,
+    same_jvm_package,
+)
 
 CONFIG = {
     "LANGUAGE_DEFINITIONS": {},
@@ -181,3 +189,86 @@ def test_is_stdlib_module_dotted_and_extension():
     assert is_stdlib_module("os/path", ".pyi")
     assert not is_stdlib_module("os.path", ".rs")
     assert not is_stdlib_module("numpy", ".py")
+
+
+# ---- no-registry languages, JVM classes, Node core, Go stdlib (#4982 second half) --------------
+
+
+def _scan_lang(orphan, anchor, ext, lang):
+    scope, _ = _scan(_pair(orphan, anchor, ext), lang_ids={ext: lang})
+    return scope
+
+
+@pytest.mark.parametrize("lang", sorted(NO_REGISTRY_LANGS))
+@pytest.mark.parametrize(
+    ("orphan", "anchor"),
+    [("DSNC10/SDSNLOD2", "DSNC10/SDSNLOAD"), ("S001V0", "S001A0"), ("S001A1", "S001A0"), ("COPYBOOK1", "COPYBOOK")],
+)
+def test_no_registry_language_member_names_are_not_squats(lang, orphan, anchor):
+    assert _scan_lang(orphan, anchor, ".x1", lang).typosquat_hits == 0
+
+
+def test_registry_language_with_the_same_pair_still_fires():
+    assert _scan_lang("S001V0", "S001A0", ".py", "python").typosquat_hits == 1
+    assert _scan_lang("COPYBOOK1", "COPYBOOK", ".py", "python").typosquat_hits == 1
+
+
+@pytest.mark.parametrize("ext", [".java", ".groovy", ".gradle", ".kt", ".kts", ".scala"])
+@pytest.mark.parametrize(
+    ("orphan", "anchor"),
+    [
+        ("org/gradle/api/tasks/InputFiles", "org/gradle/api/tasks/InputFile"),
+        ("com/acme/model/Customers", "com/acme/model/Customer"),
+    ],
+)
+def test_jvm_classes_of_one_package_are_not_squats(ext, orphan, anchor):
+    scope, _ = _scan(_pair(orphan, anchor, ext))
+    assert scope.typosquat_hits == 0
+
+
+@pytest.mark.parametrize("ext", [".java", ".groovy", ".kt"])
+def test_jvm_package_typo_still_fires(ext):
+    scope, _ = _scan(_pair("org/apachee/commons/Lang", "org/apache/commons/Lang", ext))
+    assert scope.typosquat_hits == 1
+
+
+def test_same_package_rule_is_jvm_only():
+    scope, _ = _scan(_pair("org/gradle/api/tasks/InputFiles", "org/gradle/api/tasks/InputFile", ".js"))
+    assert scope.typosquat_hits == 1
+    assert not same_jvm_package("a/b/CC", "a/b/C", ".py")
+    assert same_jvm_package("a/b/CC", "a/b/C", ".java")
+    assert not same_jvm_package("a/b/CC", "a/x/C", ".java")
+
+
+@pytest.mark.parametrize("ext", [".js", ".mjs", ".cjs", ".ts", ".tsx"])
+@pytest.mark.parametrize("module", sorted(m for m in _NODE_CORE if len(m) >= 5))
+def test_every_node_core_module_is_exempt_as_a_suspect(ext, module):
+    scope, _ = _scan(_pair(module, _one_edit(module), ext))
+    assert scope.typosquat_hits == 0
+
+
+@pytest.mark.parametrize("token", ["node:fs", "node:test", "fs/promises", "stream/web", "path/posix"])
+def test_node_prefix_and_subpaths(token):
+    assert is_stdlib_module(token, ".ts")
+
+
+@pytest.mark.parametrize(("orphan", "anchor"), [("expresss", "express"), ("lodashs", "lodash")])
+def test_node_package_near_misses_still_fire(orphan, anchor):
+    scope, _ = _scan(_pair(orphan, anchor, ".js"))
+    assert _fired(scope)
+
+
+@pytest.mark.parametrize("module", sorted(m for m in _GO_STDLIB if len(m) >= 5))
+def test_every_go_stdlib_package_is_exempt_as_a_suspect(module):
+    scope, _ = _scan(_pair(module, _one_edit(module), ".go"))
+    assert scope.typosquat_hits == 0
+
+
+def test_go_stdlib_paths_and_third_party():
+    assert is_stdlib_module("net/http", ".go")
+    assert is_stdlib_module("encoding/json", ".go")
+    assert not is_stdlib_module("github.com/net/http", ".go")
+    assert not is_stdlib_module("golang.org/x/net", ".go")
+    assert not is_stdlib_module("net/http", ".py")
+    assert not is_stdlib_module("fs", ".go")
+    assert not is_stdlib_module("fmt", ".js")

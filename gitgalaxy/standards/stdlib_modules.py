@@ -309,15 +309,156 @@ _MICROPYTHON = frozenset(
     ]
 )
 
+_NODE_CORE = frozenset(
+    [
+        "assert",
+        "async_hooks",
+        "buffer",
+        "child_process",
+        "cluster",
+        "console",
+        "constants",
+        "crypto",
+        "dgram",
+        "diagnostics_channel",
+        "dns",
+        "domain",
+        "events",
+        "fs",
+        "http",
+        "http2",
+        "https",
+        "inspector",
+        "module",
+        "net",
+        "os",
+        "path",
+        "perf_hooks",
+        "process",
+        "punycode",
+        "querystring",
+        "readline",
+        "repl",
+        "stream",
+        "string_decoder",
+        "sys",
+        "test",
+        "timers",
+        "tls",
+        "trace_events",
+        "tty",
+        "url",
+        "util",
+        "v8",
+        "vm",
+        "wasi",
+        "worker_threads",
+        "zlib",
+        "sea",
+        "sqlite",
+    ]
+)
+
+_GO_STDLIB = frozenset(
+    [
+        "archive",
+        "bufio",
+        "builtin",
+        "bytes",
+        "cmp",
+        "compress",
+        "container",
+        "context",
+        "crypto",
+        "database",
+        "debug",
+        "embed",
+        "encoding",
+        "errors",
+        "expvar",
+        "flag",
+        "fmt",
+        "go",
+        "hash",
+        "html",
+        "image",
+        "index",
+        "io",
+        "iter",
+        "log",
+        "maps",
+        "math",
+        "mime",
+        "net",
+        "os",
+        "path",
+        "plugin",
+        "reflect",
+        "regexp",
+        "runtime",
+        "slices",
+        "sort",
+        "strconv",
+        "strings",
+        "structs",
+        "sync",
+        "syscall",
+        "testing",
+        "text",
+        "time",
+        "unicode",
+        "unique",
+        "unsafe",
+        "weak",
+    ]
+)
+
+JS_EXTENSIONS = (".js", ".mjs", ".cjs", ".jsx", ".ts", ".mts", ".cts", ".tsx")
+GO_EXTENSIONS = (".go",)
+
+# Languages whose imports name a dataset, include or copybook member the platform resolves, never a
+# registry package (#4982): `DSNC10/SDSNLOD2` ~ `DSNC10/SDSNLOAD` are two load libraries.
+NO_REGISTRY_LANGS = frozenset(
+    ["jcl", "pli", "cobol", "bms", "csd", "hlasm", "assembly", "agc_assembly", "easytrieve", "rexx", "db2_sql", "td"]
+)
+
+# Java-family sources import `package.Class`; the registry coordinate is the package.
+JVM_EXTENSIONS = (".java", ".groovy", ".gradle", ".kt", ".kts", ".scala")
+
 _ALL = _CPYTHON | _MICROPYTHON
 
 
-def is_stdlib_module(token: str, importer_ext: str = "") -> bool:
-    """True when `token` names a CPython / MicroPython stdlib module (top-level or dotted `os.path`/`os/path`).
+def is_no_registry_language(lang_id: str) -> bool:
+    """True when `lang_id` has no package registry its import tokens could be squatting."""
+    return str(lang_id).lower() in NO_REGISTRY_LANGS
 
-    Only a Python-family importer counts: another language's `time` or `array` token is not Python's.
+
+def same_jvm_package(a: str, b: str, importer_ext: str) -> bool:
+    """True when two JVM import tokens name different classes of ONE package (`org/x/InputFiles` / `org/x/InputFile`).
+
+    A mimic of a package differs in the package; two classes sharing one are siblings.
     """
-    if importer_ext.lower() not in PYTHON_EXTENSIONS:
+    if importer_ext.lower() not in JVM_EXTENSIONS:
         return False
-    t = token.strip().replace("\\", "/").replace(".", "/").split("/", 1)[0]
-    return t in _ALL
+    pa, _, ca = a.rpartition("/")
+    pb, _, cb = b.rpartition("/")
+    return bool(pa) and pa.lower() == pb.lower() and ca != cb
+
+
+def is_stdlib_module(token: str, importer_ext: str = "") -> bool:
+    """True when `token` names a stdlib module of the importer's language (CPython / MicroPython, Node core, Go).
+
+    Only that language's own importer counts: another language's `time` or `array` token is not Python's.
+    """
+    ext = importer_ext.lower()
+    t = token.strip().replace("\\", "/")
+    if ext in PYTHON_EXTENSIONS:
+        return t.replace(".", "/").split("/", 1)[0] in _ALL
+    if ext in JS_EXTENSIONS:
+        if t.startswith("node:"):
+            return True
+        return t.split("/", 1)[0] in _NODE_CORE
+    if ext in GO_EXTENSIONS:
+        first = t.split("/", 1)[0]
+        return "." not in first and first in _GO_STDLIB
+    return False

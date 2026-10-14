@@ -74,7 +74,7 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
-from gitgalaxy.standards.stdlib_modules import is_stdlib_module
+from gitgalaxy.standards.stdlib_modules import is_no_registry_language, is_stdlib_module, same_jvm_package
 from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
@@ -2962,6 +2962,9 @@ class Orchestrator:
                     # #4982: tokens that resolve to the project itself, not to a registry package.
                     if is_relative_path or _names_project_unit(radar_name, importer_ext, rel_path):
                         continue
+                    # #4982: a dataset / include / copybook member of a platform with no package registry.
+                    if is_no_registry_language(meta.get("lang_id", "")):
+                        continue
                     if radar_name not in external_imports_tally:
                         external_imports_tally[radar_name] = []
                     external_imports_tally[radar_name].append(rel_path)
@@ -3039,6 +3042,10 @@ class Orchestrator:
             for anchor_imp in sorted(candidates):
                 # 3. The Casing Shield (Developer typos, not malware)
                 if orphan_imp.lower() == anchor_imp.lower():
+                    continue
+
+                # #4982: two classes of one package (`...tasks/InputFiles` / `.../InputFile`) are not two packages.
+                if same_jvm_package(orphan_imp, anchor_imp, Path(rel_path).suffix):
                     continue
 
                 # #4547: `build-options` and `build_options` are one package under -/_

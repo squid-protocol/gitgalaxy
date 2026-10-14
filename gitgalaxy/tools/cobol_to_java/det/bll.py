@@ -38,8 +38,11 @@ REFUSED_PREFIX = "OS/VS COBOL BLL addressing"  # every refusal's first words (re
 # fullword binary integer (a pointer-lane program's SET(pointer) names a USAGE POINTER: never read here)
 _SERVICE = re.compile(r"\bSERVICE\s+(?:RELOAD|LABEL)\b", re.I)
 _SET_NAME = re.compile(r"\b(?:SET|DATAPOINTER)\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", re.I)
-_FULLWORD = re.compile(r"^\s*0?2\s+([A-Z0-9][A-Z0-9-]*)\s+PIC(?:TURE)?\s+(?:IS\s+)?S9\(0?8\)\s+(?:USAGE\s+(?:IS\s+)?)?"
-                       r"(?:COMP|COMP-4|BINARY|COMPUTATIONAL|COMPUTATIONAL-4)\b", re.I)
+_FULLWORD = re.compile(
+    r"^\s*0?2\s+([A-Z0-9][A-Z0-9-]*)\s+PIC(?:TURE)?\s+(?:IS\s+)?S9\(0?8\)\s+(?:USAGE\s+(?:IS\s+)?)?"
+    r"(?:COMP|COMP-4|BINARY|COMPUTATIONAL|COMPUTATIONAL-4)\b",
+    re.I,
+)
 _NAME = r"[A-Z0-9][A-Z0-9-]*"
 _WORD = re.compile(_NAME, re.I)
 _EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI|SQL)\b.*?\bEND-EXEC\b", re.I | re.S)
@@ -189,7 +192,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             o.group(1) in ("SET", "DATAPOINTER") and o.group(2) in cells.cells
             for a, b in execs
             for o in _OPTION.finditer(text, a, b)
-        )  # fmt: skip
+        )
     ):
         cells = None  # a list of fullwords and no evidence of BLL addressing: ordinary data, as in VS COBOL II
     linkage = {r.name.upper() for r in records if r.section == "LINKAGE" and r.level == 1}
@@ -219,7 +222,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
         cellset = set(cells.cells)
         for m in _ADD.finditer(text):
             a, b = m.group(1), m.group(2)
-            if in_exec(m.start()) or a not in cellset and b not in cellset:
+            if in_exec(m.start()) or (a not in cellset and b not in cellset):
                 continue
             ra, rb = cells.of.get(a), cells.of.get(b)
             if ra is None or rb is None or ra[0] != rb[0] or rb[1] != ra[1] + 1:
@@ -228,7 +231,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             found.append((m.start(), m.end(), "CONTINUE", ("extra", rb[0], b)))
         for m in _MOVE.finditer(text):
             a, b = m.group(1), m.group(2)
-            if in_exec(m.start()) or a not in cellset and b not in cellset:
+            if in_exec(m.start()) or (a not in cellset and b not in cellset):
                 continue
             where = f"line {lines[line_of(m.start())].line}"
             if a not in cellset or b not in cellset:
@@ -254,7 +257,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             for m in re.finditer(rf"(?<![A-Z0-9-]){re.escape(name)}(?![A-Z0-9-])", text):
                 if not any(s <= m.start() < e for s, e in spans):
                     raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number")
-        _paragraph_rule(lines, proc, starts, text, found, cells, line_of)
+        _paragraph_rule(lines, proc, starts, found, cells, line_of)
     if not found:
         return None
     # ---- the edits --------------------------------------------------------------------------------------------
@@ -282,12 +285,12 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
     return out
 
 
-def _paragraph_rule(lines, proc, starts, text, found, cells: Cells, line_of) -> None:
+def _paragraph_rule(lines, proc, starts, found, cells: Cells, line_of) -> None:
     """IBM: SERVICE RELOAD must follow every statement that changes a cell, and a long record's secondary cells are
     reset before it. A change with no SERVICE RELOAD of its record later in the same paragraph would be addressed
     again only at the next paragraph name (IBM's chained storage areas): refused, as is a reload too early."""
-    heads = [starts[k] for k, i in enumerate(proc) if k and _PARAGRAPH.match(lines[i].text)
-             and _PARAGRAPH.match(lines[i].text).group(1).upper() not in _ENDS]  # fmt: skip
+    heads = [starts[k] for k, i in enumerate(proc) if k and (m := _PARAGRAPH.match(lines[i].text))
+             and m.group(1).upper() not in _ENDS]  # fmt: skip
     events = sorted(found, key=lambda f: f[0])
     pending: dict[str, tuple[set[str], int]] = {}
 

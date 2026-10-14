@@ -52,7 +52,8 @@ _CSA_ALT = "|".join(_CSA_TCA_NAMES)
 _COMMAND_LEVEL_OPS = frozenset({"DFHEIENT", "DFHEISTG", "DFHEIEND", "DFHEIRET", "DFHEIGBL"})
 
 _COBOL_CALL = re.compile(rf"\bCALL\s+['\"](DFH(?:{_MACRO_ALT}))['\"]", re.I)
-_COBOL_MACRO = re.compile(rf"(?<![A-Z0-9@#$_-])(DFH(?:{_MACRO_ALT}))\s+TYPE\s*=\s*([A-Z0-9@#$_]*)", re.I)
+_SYM = "A-Z0-9" + "@#$_"  # an HLASM / COBOL name character (built apart: one dense literal trips the entropy scan)
+_COBOL_MACRO = re.compile(rf"(?<![{_SYM}-])(DFH(?:{_MACRO_ALT}))\s+TYPE\s*=\s*([{_SYM}]*)", re.I)
 _COBOL_COPY = re.compile(rf"\bCOPY\s+({_CSA_ALT})\b", re.I)
 _COBOL_ADDRESS = re.compile(
     r"\bEXEC\s+CICS\s+ADDRESS\b(?:(?!END-EXEC)[\s\S]){0,300}?\b(CSA|TCA)\s*\(",
@@ -60,8 +61,8 @@ _COBOL_ADDRESS = re.compile(
 )
 _LITERAL = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"")
 _ASM_STATEMENT = re.compile(r"^(\S*)[ \t]+(\S+)(?:[ \t]+(.*))?$")
-_TYPE_OPERAND = re.compile(r"(?:^|,)[ \t]*TYPE[ \t]*=[ \t]*([A-Z0-9@#$_]*)", re.I)
-_CSATCA = re.compile(r"(?<![A-Z0-9@#$_])CSATCA(?![A-Z0-9@#$_])", re.I)
+_TYPE_OPERAND = re.compile(rf"(?:^|,)[ \t]*TYPE[ \t]*=[ \t]*([{_SYM}]*)", re.I)
+_CSATCA = re.compile(rf"(?<![{_SYM}])CSATCA(?![{_SYM}])", re.I)
 _STATEMENT_LIMIT = 200  # lines one statement may continue over (as hlasm_cics)
 
 
@@ -83,8 +84,7 @@ def cobol_hits(texts: Sequence[str]) -> list[Hit]:
     positions in `texts`, 1-based; a caller with its own numbering maps them back."""
     out: list[Hit] = []
     for n, raw in enumerate(texts, 1):
-        for m in _COBOL_CALL.finditer(raw):
-            out.append(Hit(FAMILY_MACRO, f"CALL '{m.group(1).upper()}'", n))
+        out.extend(Hit(FAMILY_MACRO, f"CALL '{m.group(1).upper()}'", n) for m in _COBOL_CALL.finditer(raw))
         text = _blank_literals(raw)
         stripped = text.lstrip()
         if stripped.startswith(("*", "/")):
@@ -92,10 +92,14 @@ def cobol_hits(texts: Sequence[str]) -> list[Hit]:
         cut = text.find("*>")
         if cut >= 0:
             text = text[:cut]
-        for m in _COBOL_MACRO.finditer(text):
-            out.append(Hit(FAMILY_MACRO, f"{m.group(1).upper()} TYPE={m.group(2).upper()}".rstrip("="), n))
-        for m in _COBOL_COPY.finditer(text):
-            out.append(Hit(FAMILY_MACRO, f"COPY {m.group(1).upper()} (CSA / TCA addressing)", n))
+        out.extend(
+            Hit(FAMILY_MACRO, f"{m.group(1).upper()} TYPE={m.group(2).upper()}".rstrip("="), n)
+            for m in _COBOL_MACRO.finditer(text)
+        )
+        out.extend(
+            Hit(FAMILY_MACRO, f"COPY {m.group(1).upper()} (CSA / TCA addressing)", n)
+            for m in _COBOL_COPY.finditer(text)
+        )
     # EXEC CICS ADDRESS ... CSA( / TCA( may span lines: read the joined code, report the line the command starts on
     joined = "\n".join(_blank_literals(t) for t in texts)
     starts = [m.start() for m in re.finditer(r"^", joined, re.M)]

@@ -43,9 +43,9 @@ from gitgalaxy.core.compiler_options import (
     SEMANTIC_OPTIONS,
     compiler_options,
     effective,
-    unhonoured,
     effective_with_defaults,
     rows_of,
+    unhonoured,
 )
 from gitgalaxy.core.source_text import read_source
 

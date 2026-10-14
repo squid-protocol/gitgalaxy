@@ -1,0 +1,38 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-return-immediate",
+ "program": "PCIMML",
+ "attempt": 1,
+ "backend": "det",
+ "model": null,
+ "command": "python tests/tools/cics_case_ports.py <crucible>/cases/pseudo-conversational/pc-return-immediate --work W --forge --ports OUT (the deterministic translator, gitgalaxy/tools/cobol_to_java/det; no model)",
+ "proposed_at": "2026-10-14T01:13:43+00:00",
+ "notes": "#5053: the det translator's port, 7/7 statements, 0 holes; nothing edited by hand. The cobolrt runtime every det port needs is committed once, in PCIMMA's overlay (the overlays of a case are laid together).",
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-10-14T01:13:43+00:00",
+   "event": "proposed",
+   "attempt": 1
+  }
+ ],
+ "proof": {
+  "reproven": [
+   {
+    "at": "2026-10-14T01:14:27+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "link-level2": "1/1",
+     "synconreturn": "1/1"
+    },
+    "port_sha256": "02b169b4486143639e2c00f16da36ff429c9839193d30d0127c4dfc050a372f5",
+    "harness_commit": "62b657e0a9dec57eaa2637ee470b144e31297cc9",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMML --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
+   }
+  ]
+ }
+}

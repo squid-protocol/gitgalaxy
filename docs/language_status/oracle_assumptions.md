@@ -162,6 +162,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X52 | CICS | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key | ASSUMED (REFUSED where IBM is silent) | unit-proven on CicsTask and the stub C over one scenario list (tests/cics_crucible/test_update_token_runtimes_5078.py: valid, invalid, reused, interleaved, wrong-file tokens; test_unlock_held_5079.py: UNLOCK without TOKEN); CBSA DELCUS (READ UPDATE TOKEN twice, DELETE TOKEN twice) translates whole (det_survey: 140 of 140 statements, compiles) |
 | X53 | CICS | REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state | ASSUMED (REFUSED where IBM is silent) | no |
 | X54 | CICS | A DFHMDF field coded JUSTIFY=(RIGHT[,ZERO]) / (LEFT,ZERO) receives the operator's input right- or left-justified and filled with zeros or blanks, as BMS does; <f>L stays the length of the text typed. A field with no JUSTIFY is unchanged (left-justified, blank padded) | ASSUMED (where IBM is silent) | unit-proven on DetJustify.place over the whole operand class (tests/cobol_mainframe/test_det_receive_map_justify_5082.py); PCCONF (pc-wizard) RECEIVE MAP into a JUSTIFY=(RIGHT,ZERO) field |
+| X56 | CICS | An OS/VS COBOL program's BLL cell list (the LINKAGE 01 of fullwords after DFHCOMMAREA, a FILLER first, one cell per 4096 bytes of each following 01) is rewritten before translation as IBM's 'Converting to VS COBOL II' says: the cells become POINTERs (X47), SET(cell) stays SET(pointer), SERVICE RELOAD record becomes SET ADDRESS OF record TO its cell, a long record's ADD 4096 secondary cells go, MOVE cell TO cell is SET; the det port and the GnuCOBOL oracle run that one program. Refused whole by name (OS/VS COBOL BLL addressing: ...): a cell used as a number or moved to / from data, a cell changed with no SERVICE RELOAD of its record later in the paragraph (addressability through a paragraph name), a reload before a long record's secondary cells are reset, a secondary cell set any other way than ADD 4096, a cell as a command's data, SERVICE LABEL, SERVICE RELOAD of a non-LINKAGE item or of a record no cell addresses, DFHCOMMAREA after the list, a list in a COPY member | ASSUMED (REFUSED where IBM is silent) | yes, on a synthetic estate only (tests/cobol_mainframe/test_bll_cells_5119.py: a long record over two cells and a record aliased to it, proven against GnuCOBOL end to end; every refusal tested). No corpus program uses BLL cells; estate-crucible's era strata (#5118 S4-S6) are to carry the corpus cases |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2676,6 +2677,61 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   data stream, so a null or `X'00'` in a field (BMS's erase-input convention) is not modelled.
 - **Not modelled.** The default of a NUM field with no JUSTIFY (the crucible runner right-justifies and zero-fills it; the det port and
   the equivalence oracle leave it as typed, as before: not this entry's class, #5082 sibling); JUSTIFY on SEND MAP output; PICIN / PICOUT conversion; GRPNAME / OCCURS fields' per-occurrence JUSTIFY.
+
+### X56. OS/VS COBOL BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's conversion to VS COBOL II — ASSUMED, REFUSED where IBM is silent (#5119, era 1)
+- **What IBM documents** (CICS/MVS 2.1.2 Application Programmer's Reference, SC33-0512-1, March 1991, chapter 1.4, "Base locator for
+  linkage (BLL)", pp. 21-23). "The parameter list must be defined as the first parameter to the program unless a communication area is
+  being passed to the program, in which case the DFHCOMMAREA definition must precede it." "The first 02-level data name (that is,
+  FILLER) is set up by CICS to provide addressability to the other fields in the parameter list. The other data names are known as BLL
+  cells ... There is a one-to-one correspondence between the 02-level data names of the parameter list definition and the 01-level data
+  definitions in the linkage section." "If a BLL cell is named in the SET option of a CICS command, subsequent reference to the
+  corresponding data definition name will address the storage supplied by CICS." Large areas: "If an area greater than 4096 bytes is
+  defined ... in the linkage section, additional statements may be required ... `ADD 4096 FRPTR GIVING FRPTR1` ... the usual one-to-one
+  correspondence of BLL cells to the data areas is not maintained"; "No additional BLL cell is required if DFHCOMMAREA itself is larger
+  than 4096 bytes." SERVICE RELOAD: it "must be used following each statement that modifies addressability to an area defined in the
+  linkage section, that is, whenever the contents of a BLL cell is changed in any way"; "after a locate-mode input operation, the SERVICE
+  RELOAD statement must be issued ... If areas larger than 4096 bytes are being addressed, the secondary BLL cells must first be reset
+  before the SERVICE RELOAD statement is executed"; "If an address is moved into a BLL cell, addressability must be established in the
+  same way, for example: `MOVE B-POINTER TO A-POINTER SERVICE RELOAD A-DATA.`" Chained areas: a paragraph name after the statement that
+  changes a cell "causes the compiler to generate code to reestablish addressability"; without it the record still addresses the area
+  it addressed before. ADDRESS (p. 51): "If an ADDRESS command is included in a COBOL program that is to be compiled using the optimization
+  feature, it must be followed by SERVICE RELOAD statements to reload the BLL cell being used."
+- **IBM's conversion** (same book, "Converting to VS COBOL II", p. 29, and Figure 3, p. 26): "1. Remove, from the linkage section, the
+  entire structure defining BLL cells and the FILLER field ... 3. Change every SET(BLL cell) option in CICS commands to SET(ADDRESS OF
+  A-DATA) or SET(A-POINTER) where ... A-POINTER is defined with the USAGE IS POINTER clause. 4. Remove all SERVICE RELOAD statements. 5.
+  Remove all program statements required in OS/VS COBOL to address structures in the linkage section longer than 4K bytes. A typical
+  statement is: ADD 4096, D-PTR1 GIVING D-PTR2." VS COBOL II ignores a SERVICE RELOAD it is given (p. 24).
+- **What the translator does** (`gitgalaxy/tools/cobol_to_java/det/bll.py`, run on the program's lines before det's own reading,
+  `program._translate`, and on its text before the oracle's, `tests/tools/equivalence_cics.translate`). It applies that conversion in the
+  SET(A-POINTER) form, keeping IBM's timing: the cells become POINTERs in WORKING-STORAGE (the record's base cells; the FILLER and the
+  secondary cells go), `SERVICE RELOAD record` becomes `SET ADDRESS OF record TO cell` at the same place (so the record is addressed anew
+  exactly where the program reloads it, and before that addresses what it addressed before, as IBM's compiler does), `SERVICE RELOAD` of
+  the list itself or of DFHCOMMAREA, or in a program with no cell list, is nothing (`CONTINUE`), `ADD 4096 cell GIVING next-cell` is
+  nothing, `MOVE cell TO cell` is `SET cell TO cell`. A pointer-lane program then (X47: GETMAIN SET, SET ADDRESS OF; DetCics / CicsTask in
+  the port, the stub's GGCGETM and GnuCOBOL's own SET ADDRESS OF in the oracle), so no runtime changes.
+- **Assumed.** (1) A program is a BLL program when its first LINKAGE 01 (its second, after DFHCOMMAREA) is a group of 4-byte binary
+  integers led by a FILLER, and the program has a SERVICE RELOAD or names one of those fullwords in a SET or DATAPOINTER option; a list
+  with no such evidence is ordinary data (the VS COBOL II reading of the same text). (2) A record past the last cell has no cell (IBM
+  says nothing of too few cells); a SERVICE RELOAD of it is refused. (3) The secondary cells are checked where the record is reloaded in
+  the paragraph that changed its base cell: IBM's "must first be reset". A reload in a paragraph that did not change the base (a HANDLE
+  CONDITION exit's "SERVICE RELOAD statements ... at the start of the paragraph") takes the record whole from the base cell, as a program
+  that reset its secondary cells earlier gets. (4) A cell's value is a handle, as X47's pointer's: SERVICE RELOAD of a record whose cell
+  holds no address is refused at run time ("SET ADDRESS OF a null or unknown pointer"), where IBM's record would address storage that is
+  not the program's.
+- **Refused by name**, the whole program, every message "OS/VS COBOL BLL addressing: ...: not modelled": a cell used as a number (any
+  mention but the idioms above: IBM's chained areas `MOVE NEXTAREA TO USERPTR` move an address held in data into a cell, which a handle
+  does not model); `MOVE` between a cell and a data item or into several items; a cell changed (SET option, MOVE) with no SERVICE RELOAD
+  of its record later in the same paragraph (IBM re-addresses it at the next paragraph name; the lowering does not model that point);
+  a reload before a long record's secondary cells are reset; a secondary cell set by a command or a MOVE (only ADD 4096 sets one); `ADD
+  4096` into a cell that is not the next secondary cell of the same record; a cell as a command's data (any option but SET, DATAPOINTER
+  and ADDRESS's); `SERVICE LABEL` (the CICS translator's output, not source); `SERVICE RELOAD` of an item that is not a LINKAGE 01, or of
+  a LINKAGE record no cell addresses; DFHCOMMAREA after the list (IBM: it must precede it); a level-77 / REDEFINES record among the
+  addressed ones; a cell list, or a statement the lowering changes, in a COPY member. Commands the pointer lane refuses for a POINTER
+  stay refused for a cell, under their own reasons: READ / READNEXT / READPREV SET, RECEIVE SET(pointer), RETRIEVE SET, READQ TS SET,
+  LOAD SET (#5042), ADDRESS CWA / TWA / TCTUA / EIB / CSA (EXEC CICS ADDRESS is refused whole).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven end to end on a synthetic estate (a long record over two cells,
+  written past 4096 bytes and aliased by a second record through MOVE cell TO cell: GnuCOBOL and the det port SEND the same hand-traced
+  text). No corpus program uses BLL cells yet, so no port moves.
 
 ## Language Environment
 

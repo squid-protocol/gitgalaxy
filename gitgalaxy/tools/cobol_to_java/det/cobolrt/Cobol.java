@@ -542,7 +542,6 @@ public final class Cobol {
         }
     }
 
-    /** The sending item as the bytes an alphanumeric receiver gets. */
     /** #5032: a signed zoned sender whose sign byte is no digit, overpunch, sign or space (`!`, X'FF'), MOVEd to an
      *  alphanumeric item. IBM treats the sender as an unsigned integer and documents no result for an invalid sign
      *  (C11, undefined data); GnuCOBOL turns the byte into a digit, the bytes were copied before. Refused by name. */
@@ -561,6 +560,7 @@ public final class Cobol {
         }
     }
 
+    /** The sending item as the bytes an alphanumeric receiver gets. */
     private static byte[] sourceText(Field from, int fc, Charset cs) {
         if (fc != NUMERIC) return from.raw();
         if (from.kind == Field.Kind.NUMERIC_FLOAT) {

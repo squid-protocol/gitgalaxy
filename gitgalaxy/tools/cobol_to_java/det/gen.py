@@ -2688,28 +2688,50 @@ class Gen:
         return self.overflow(s, call, ind)
 
     def unstring_operands(self, d: dict) -> None:
-        """Refuse an UNSTRING operand that is a numeric item other than an integer without a P (#5032, sibling of
-        string_sender): Enterprise COBOL 6.4 Language Reference, UNSTRING -- a numeric receiving item (INTO, COUNT IN,
-        POINTER, TALLYING IN) must be described as an integer without the symbol 'P' in its PICTURE, and the sending
-        item and the delimiters are not numeric. A numeric sender or delimiter is refused outright (IBM allows none;
-        never loosened). GnuCOBOL moves the stored bytes (register C11). Reference-modified items are alphanumeric."""
-        roles = [("sending item", d["src"], False)]
-        roles += [("DELIMITED BY item", op, False) for op, _every in d["delims"]]
+        """Refuse the numeric UNSTRING operands the port does not model (#5032, sibling of string_sender), each by name.
+        What Enterprise COBOL 6.4 (Language Reference, UNSTRING) rejects: a numeric INTO item with the symbol 'P', and
+        a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P. The port's own CONSERVATIVE choice,
+        not an IBM compile error (REFUSED / ASSUMED, register C11): a numeric sending or DELIMITED BY item, and a
+        decimal (no P) INTO item, whose bytes GnuCOBOL moves and the port does not model. Reference-modified items are
+        alphanumeric."""
+        roles = [("sending item", d["src"], "not_numeric")]
+        roles += [("DELIMITED BY item", op, "not_numeric") for op, _every in d["delims"]]
         for tgt, dl, cnt in d["intos"]:
-            roles += [("INTO item", tgt, True), ("DELIMITER IN item", dl, False), ("COUNT IN item", cnt, True)]
-        roles += [("POINTER item", d.get("pointer"), True), ("TALLYING item", d.get("tallying"), True)]
-        for role, e, integer_ok in roles:
+            roles += [
+                ("INTO item", tgt, "into"),
+                ("DELIMITER IN item", dl, "not_numeric"),
+                ("COUNT IN item", cnt, "int"),
+            ]
+        roles += [("POINTER item", d.get("pointer"), "int"), ("TALLYING item", d.get("tallying"), "int")]
+        for role, e, rule in roles:
             if not isinstance(e, E.Ref) or e.refmod is not None:
                 continue
             try:
                 it = self.resolve(e)
             except Untranslatable:
                 continue
-            if it.category == "NUMERIC" and (not integer_ok or it.p_scaled or it.scale > 0):
+            if it.category != "NUMERIC":
+                continue
+            what = f"UNSTRING {role} {e.name}, PIC {it.pic}: "
+            if rule == "int" and (it.p_scaled or it.scale > 0):
                 raise Untranslatable(
-                    f"UNSTRING {role} {e.name}, PIC {it.pic}: "
-                    + ("a numeric item" if not integer_ok else "a numeric item with a P or a decimal place")
-                    + " is a compile error in Enterprise COBOL (Language Reference, UNSTRING; C11)"
+                    what + "must be an integer without a P: a compile error in Enterprise COBOL (Language Reference, "
+                    "UNSTRING; C11)"
+                )
+            if rule == "into" and it.p_scaled:
+                raise Untranslatable(
+                    what + "a numeric INTO item may not have a P: a compile error in Enterprise COBOL (Language "
+                    "Reference, UNSTRING; C11)"
+                )
+            if rule == "into" and it.scale > 0:
+                raise Untranslatable(
+                    what + "a decimal numeric INTO item is not modelled (the port's conservative choice, not an IBM "
+                    "compile error; C11)"
+                )
+            if rule == "not_numeric":
+                raise Untranslatable(
+                    what + "a numeric item here is not modelled (the port's conservative choice, not an IBM rule "
+                    "verified against the Language Reference; C11)"
                 )
 
     def string_sender(self, e) -> None:

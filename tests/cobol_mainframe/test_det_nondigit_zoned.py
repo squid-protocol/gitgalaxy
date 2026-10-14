@@ -553,6 +553,20 @@ def test_an_unstring_numeric_operand_that_ibm_rejects_is_refused_by_name(decls, 
     assert len(holes) == 1 and f"UNSTRING {hole}" in holes[0] and "C11" in holes[0], holes
 
 
+@pytest.mark.parametrize(("decls", "op", "ibm"), [
+    ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO V", True),
+    ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY ',' INTO V", False),
+    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", False),
+    ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V", True),
+])  # fmt: skip
+def test_an_unstring_refusal_names_whose_rule_it_is(decls, op, ibm, tmp_path):
+    """A P in an INTO item and a non-integer COUNT / POINTER / TALLYING item are IBM's rules; a decimal INTO item and
+    a numeric sender are the port's conservative choice and must not be called an IBM compile error."""
+    pytest.importorskip("tree_sitter_language_pack")
+    (hole,) = _holes(_sprogram(decls, op), tmp_path)
+    assert ("compile error in Enterprise COBOL" in hole) == ibm, hole
+
+
 @pytest.mark.parametrize(("decls", "op"), UNSTRING_GOOD)
 def test_an_unstring_integer_receiver_or_reference_modified_operand_is_translated(decls, op, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")

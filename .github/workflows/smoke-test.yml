@@ -174,7 +174,8 @@ jobs:
           store=()
           if [ "$EVENT" = "schedule" ]; then store=(--store-durations --clean-durations); fi
           # --timeout: a hung test fails by name, not as a job timeout (see full-suite-gate.yml, #4840)
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --splits 3 --group "$GROUP" "${store[@]}"
+          # #5162: test_evidence_components.py (~226 s) is run by mainframe-ground-truth.yml (all of tests/cobol_mainframe/)
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --group "$GROUP" "${store[@]}"
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()

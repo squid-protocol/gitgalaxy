@@ -138,11 +138,21 @@ def _files_at(commit: str) -> tuple[str, ...] | None:
     return None if out is None else tuple(sorted(p for p in out.split("\0") if p))
 
 
-def _match(files: tuple[str, ...], patterns: list[str], exclude: list[str]) -> list[str]:
-    def hit(p: str, pats: list[str]) -> bool:
-        return any(p == pat or fnmatch.fnmatchcase(p, pat) for pat in pats)
+@functools.lru_cache(maxsize=4096)
+def _match_cached(files: tuple[str, ...], patterns: tuple[str, ...], exclude: tuple[str, ...]) -> tuple[str, ...]:
+    def matcher(pats: tuple[str, ...]) -> Any:
+        exact = frozenset(pats)  # a path equal to the pattern matches even when it holds glob characters
+        rx = re.compile("|".join(fnmatch.translate(p) for p in pats)).match if pats else None
+        return lambda p: p in exact or (rx is not None and rx(p) is not None)
 
-    return [p for p in files if hit(p, patterns) and not hit(p, exclude)]
+    hit, skip = matcher(patterns), matcher(exclude)
+    return tuple(p for p in files if hit(p) and not skip(p))
+
+
+def _match(files: tuple[str, ...], patterns: list[str], exclude: list[str]) -> list[str]:
+    """The files a spec's patterns select (fnmatchcase or equal), minus its excludes. One compiled alternation per list
+    and the result memoised per (files, spec): a ledger check asks for every case's specs over the same file list."""
+    return list(_match_cached(tuple(files), tuple(patterns), tuple(exclude)))
 
 
 def tree_sha256(paths: list[str], read: Any = None) -> str:

@@ -180,6 +180,7 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
+      # #5048: the pull is retried (bounded); a final failure is only logged here, the harness pulls again (pull_image).
       # The registry pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest
       # (#4733), pulled by that name so the harness starts the container from it.
       - name: Pull the pinned Db2 image in the background (#4733, #4901)
@@ -188,7 +189,7 @@ jobs:
           echo "Db2 image: $image"
           echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
           date +%s > "$RUNNER_TEMP/t0"
-          setsid nohup bash -c "docker pull -q '$image' && date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
+          setsid nohup gitgalaxy/tests/tools/ci_retry.sh 4 15 -- bash -c "docker pull -q '$image' && date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0

@@ -18,8 +18,11 @@ NOT_ON_PR = {  # jobs that cannot start on a pull_request event (their own `if` 
     ("generated-docs.yml", "publish"),
     ("gitgalaxy.yml", "full-report"),
     ("mainframe-ground-truth.yml", "publish-history"),
-    ("smoke-test.yml", "smoke-test"),
     ("smoke-test.yml", "full-suite-durations"),
+    # #5129: the post-merge tested-tree gate runs on a main push only
+    ("smoke-test.yml", "tested-tree"),
+    ("mainframe-ground-truth.yml", "tested-tree"),
+    ("java-compile.yml", "tested-tree"),
 }
 MARK = "github.event.pull_request.draft"
 NON_PR = "github.event_name != 'pull_request'"
@@ -79,7 +82,7 @@ def test_cheap_audits_run_on_drafts(name):
 def test_allowlisted_non_pr_jobs_really_exclude_pull_requests():
     for name, job in NOT_ON_PR:
         cond = str(_load(WORKFLOWS / name)["jobs"][job].get("if") or "")
-        assert cond and ("pull_request'" in cond or "schedule" in cond), (name, job)
+        assert cond and ("pull_request'" in cond or "schedule" in cond or "event_name == 'push'" in cond), (name, job)
 
 
 def test_pull_request_target_workflows_are_untouched():

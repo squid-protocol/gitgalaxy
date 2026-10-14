@@ -112,7 +112,7 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
     # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
     proc = subprocess.run(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(classes), "t.cics.Main"],  # noqa: S603, S607
                           capture_output=True, check=True)  # fmt: skip
-    return proc.stdout.decode("utf-8", errors="replace")
+    return proc.stdout.decode("utf-8")
 
 
 @needs_javac

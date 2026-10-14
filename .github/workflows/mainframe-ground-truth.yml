@@ -181,7 +181,7 @@ jobs:
           cd gitgalaxy
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
           # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
-          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=0 ${{ matrix.tests }}
 
       - name: Keep the history for the publish job
         if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')

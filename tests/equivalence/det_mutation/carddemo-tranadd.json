@@ -5,23 +5,24 @@
  "case": "carddemo-tranadd",
  "entry": {
   "program": "COTRN02C",
-  "commit": "06737d18720ce03b6e6e5745d07069e1f6e5e5ca+uncommitted",
+  "commit": "c46b2f14e0944d33203053b77854982ab876a56c",
   "date": "2026-10-14",
   "mode": "fast",
   "seed": 0,
   "mutants": 2429,
   "out_of_scope": 35,
   "chosen": 150,
-  "coverage": "proven on 55 scenarios, covering 18/18 paragraphs and 72/75 branches",
+  "coverage": "proven on 58 scenarios, covering 18/18 paragraphs and 72/75 branches",
   "counts": {
-   "killed": 89,
+   "killed": 92,
    "timeout": 0,
-   "survived": 59,
+   "survived": 56,
    "stillborn": 2,
    "error": 0,
    "pending": 0
   },
   "killed": [
+   "08fdfdf1a4",
    "095b5f2c9d",
    "0f2ee4e60c",
    "11858d5ec6",
@@ -34,6 +35,7 @@
    "22964e01d2",
    "283cdb8051",
    "2cccf8a8fe",
+   "2d6479e41b",
    "3246c5852b",
    "3485043783",
    "3531eae69a",
@@ -74,6 +76,7 @@
    "7ce446d800",
    "7dfcfc04ba",
    "7ef1ab8884",
+   "8207ee0465",
    "82a178110c",
    "82a990277f",
    "86ae813f1a",
@@ -164,14 +167,6 @@
     "line": 244,
     "before": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 40, false);",
     "after": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 41, false);"
-   },
-   {
-    "id": "2d6479e41b",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 292,
-    "before": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 78, false);",
-    "after": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 79, false);"
    },
    {
     "id": "79bf9bce88",
@@ -390,14 +385,6 @@
     "after": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 219).bytes);"
    },
    {
-    "id": "8207ee0465",
-    "op": "COR",
-    "file": "service/Cotrn02cService.java",
-    "line": 1058,
-    "before": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {",
-    "after": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) && (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {"
-   },
-   {
     "id": "61d39ce142",
     "op": "LIT",
     "file": "service/Cotrn02cService.java",
@@ -420,14 +407,6 @@
     "line": 1202,
     "before": "perform(7, 7);",
     "after": "perform(7, 8);"
-   },
-   {
-    "id": "08fdfdf1a4",
-    "op": "COR",
-    "file": "service/Cotrn02cService.java",
-    "line": 1283,
-    "before": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) || (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
-    "after": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) && (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {"
    },
    {
     "id": "1b19bd11d1",
@@ -593,7 +572,7 @@
   "inputs": {
    "port": "81ed11df73f251a78fb9d76f0e4ed66936854b553405a97edb153c1c267b456e",
    "generator": "29e99c8b11b26552055a2c5fc23f14efb8fffe066f3e0da00be5d37b7f50d48d",
-   "case": "a2c9aa150699b5057a373bc5f54b4be2a82adde5eee98133c817bbc2c2014f49",
+   "case": "ba53bab16daa0651e4c1d0e544d342b6d5f8da9c043e1ece484c7a09f5f0de13",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "8c096eeb5e4c536b39ecd69af12272ce117f8c31c4193b0dc0998db223b6722c",
    "oracle": "f054b77bdd3358f2547f424743f1d86c5448565fe7ffa577dd3b9ad91b74d850"

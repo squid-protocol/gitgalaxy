@@ -110,15 +110,6 @@
    "reason": "TITLE02I as 41 bytes: COTRN02C never references TITLE02I; it is written only by RECEIVE's DetCics.typed when the terminal returns TITLE02, where the 41st byte (a space) lands on CURTIMEL's high byte (the O-side filler), which only SEND MAP's cursor test (CURTIMEL = -1) reads, and X'20..' is never -1."
   },
   {
-   "id": "2d6479e41b",
-   "op": "CON",
-   "line": 292,
-   "before": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 78, false);",
-   "after": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 79, false);",
-   "verdict": "case-gap",
-   "reason": "ERRMSGI is written only by RECEIVE's DetCics.typed when the terminal returns ERRMSG (ASKIP,BRT,FSET, so a real terminal does). At 79 bytes the copy overruns the 555-byte COTRN2AI (offset 477 + 79), an ArrayIndexOutOfBoundsException. Add \"ERRMSGI\": \"Invalid key pressed. Please see below...\" to invalid-key-header-fields-sent-back's receive."
-  },
-  {
    "id": "79bf9bce88",
    "op": "CON",
    "line": 296,
@@ -389,15 +380,6 @@
    "reason": "This is the RETURN at the end of MAIN-PARA: every branch before it ends in SEND-TRNADD-SCREEN (which ends with its own EXEC CICS RETURN) or in RETURN-TO-PREV-SCREEN's XCTL (transfers or abends), so control never reaches it."
   },
   {
-   "id": "8207ee0465",
-   "op": "COR",
-   "line": 1058,
-   "before": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {",
-   "after": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) && (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {",
-   "verdict": "case-gap",
-   "reason": "PROCESS-ENTER-KEY's EVALUATE CONFIRMI WHEN 'N' / 'n' / SPACES / LOW-VALUES: `&&` makes a lowercase 'n' (and typed spaces) fall to WHEN OTHER ('Invalid value...') instead of 'Confirm to add this transaction...'. The case covers 'N' and an absent CONFIRMI (LOW-VALUES) only. Add a scenario with CONFIRMI \"n\"."
-  },
-  {
    "id": "61d39ce142",
    "op": "LIT",
    "line": 1087,
@@ -423,15 +405,6 @@
    "after": "perform(7, 8);",
    "verdict": "equivalent",
    "reason": "PERFORM SEND-TRNADD-SCREEN THRU RECEIVE-TRNADD-SCREEN: SEND-TRNADD-SCREEN ends with EXEC CICS RETURN, so the range end is never reached"
-  },
-  {
-   "id": "08fdfdf1a4",
-   "op": "COR",
-   "line": 1283,
-   "before": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) || (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
-   "after": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) && (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
-   "verdict": "case-gap",
-   "reason": "Amount format EVALUATE: `&&` between the (2:8) NOT NUMERIC and (10:1) NOT = '.' WHENs accepts an amount that breaks only one of them. Add a scenario with a valid sign and TRNAMTI \"+0000X123.45\" (only (2:8) bad) or \"+00000123,45\" (only the point bad): the original answers 'Amount should be in format -99999999.99'."
   },
   {
    "id": "1b19bd11d1",

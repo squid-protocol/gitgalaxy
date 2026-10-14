@@ -389,15 +389,6 @@
    "reason": "fill_CarddemoCommarea writes DFHCOMMAREA back into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN and equivalence_cics.linked_result drops the COMMAREA event; the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA, a separate record."
   },
   {
-   "id": "2a193f7f94",
-   "op": "NEG",
-   "line": 473,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "case-gap",
-   "reason": "caWhole() runs only for a task with exactCommarea (a scenario stating commarea_length), and none does. Add an ENTER scenario with commarea_length 100 (user-signs-on's credentials): the negated test skips the restore, so caBack's fill_ reads past the 100-byte array (PastFrom, no RETURN event) and the next task's initialState overruns it."
-  },
-  {
    "id": "200f1f3b56",
    "op": "DEL",
    "line": 494,
@@ -603,24 +594,6 @@
    "after": "return 2;",
    "verdict": "unreachable",
    "reason": "MAIN-PARA's `return 1` follows `if (true) throw new Goback()` (its EXEC CICS RETURN), which is thrown first; the statement never runs."
-  },
-  {
-   "id": "f61f2537c3",
-   "op": "LIT",
-   "line": 835,
-   "before": "DetCics.typed(f46_TITLE01I, f41_TITLE01L, typed2.get(\"TITLE01\"), CS);",
-   "after": "DetCics.typed(f46_TITLE01I, f41_TITLE01L, typed2.get(\"XITLE01\"), CS);",
-   "verdict": "case-gap",
-   "reason": "RECEIVE's typed-field copy for TITLE01 / ERRMSG runs only when the scenario's receive names that field; none does (only USERIDI / PASSWDI). A 3270 returns every FSET field, so add an ENTER scenario receiving TRNNAMEI, TITLE01I and ERRMSGI together with USERIDI / PASSWDI: the mutated key reads null and DetCics.typed throws NullPointerException."
-  },
-  {
-   "id": "bc352d122b",
-   "op": "LIT",
-   "line": 862,
-   "before": "DetCics.typed(f100_ERRMSGI, f95_ERRMSGL, typed2.get(\"ERRMSG\"), CS);",
-   "after": "DetCics.typed(f100_ERRMSGI, f95_ERRMSGL, typed2.get(\"XRRMSG\"), CS);",
-   "verdict": "case-gap",
-   "reason": "RECEIVE's typed-field copy for TITLE01 / ERRMSG runs only when the scenario's receive names that field; none does (only USERIDI / PASSWDI). A 3270 returns every FSET field, so add an ENTER scenario receiving TRNNAMEI, TITLE01I and ERRMSGI together with USERIDI / PASSWDI: the mutated key reads null and DetCics.typed throws NullPointerException."
   },
   {
    "id": "73836bbdc8",

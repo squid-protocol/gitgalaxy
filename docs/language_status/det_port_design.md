@@ -850,6 +850,13 @@ The combined method runs in the porting loop like any other backend, and every e
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
   X18) but is not proven: no case.
+- #5053: a COMMAREA no generated DTO types -- a DFHCOMMAREA that is no record (`PIC X(30)`), so the stub says `Object request` --
+  is no DTO class. It read as a missing `dto/contract/Object`, which made PCCONF's two `RETURN TRANSID COMMAREA(WS-STATE)` holes;
+  it is now untyped (`det/cics.py` `_typed`) and the record's own DTO carries it, bytes beside it. A program entered with
+  another program's DTO as its COMMAREA reads it through the DTO's layout (`DetCics.layoutBytes`, #4449) instead of ignoring it.
+  The four pc-return-immediate programs are committed det ports (`tests/cics_crucible/ports/pc-return-immediate`, no model).
+  PCCONF now translates whole but is not committed: its proof fails on RECEIVE MAP, which does not apply the field's DFHMDF
+  JUSTIFY (AMT is `JUSTIFY=(RIGHT,ZERO)`), and the generated screen model carries no JUSTIFY to apply.
 - **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`

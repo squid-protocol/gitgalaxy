@@ -36,8 +36,9 @@ def test_a_generated_dto_still_types_every_boundary(tmp_path):
     assert g.links == {"OTHER": TYPED} and g.xctl == {"OTHER": TYPED}
 
 
-@pytest.mark.parametrize("sig", ["public X handleLink(Object request)",
-                                 "public X handleTransaction(String transid, Object request)"])
+@pytest.mark.parametrize(
+    "sig", ["public X handleLink(Object request)", "public X handleTransaction(String transid, Object request)"]
+)
 def test_a_target_taking_object_has_no_contract(tmp_path, sig):
     svc = tmp_path / "src/main/java/p/service"
     svc.mkdir(parents=True)

@@ -103,6 +103,8 @@ def test_cobol_secret_item_across_continuation_lines(text):
         "       WS-PASSWORD\n           PIC X(8) VALUE 'hunter22'.\n",  # no level number at all
         "       05 WS-PASSWORD\n\n\n\n\n           VALUE 'hunter22'.\n",  # more than 3 line breaks
         "       05 WS-PASSWORD\n           PIC X(8).\n       05 WS-FLAG PIC X VALUE 'Y'.\n",  # VALUE of a later item
+        "       88 PROMPT-FOR-SEARCH-KEYS VALUE\n           'Enter or update id'.\n",  # level-88 condition name
+        "       05 CCDA-MSG-INVALID-KEY PIC X(50) VALUE\n           'Invalid key pressed.'.\n",  # a message, not a secret
     ],
 )
 def test_cobol_secret_negatives(text):

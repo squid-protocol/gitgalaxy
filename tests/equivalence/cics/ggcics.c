@@ -400,10 +400,10 @@ static void keyed_on_esds(const char *verb, const char *want) {
 }
 
 /* The record number (0-based) whose key is `key`, or -1. */
-static long find_key(const char *path, int reclen, int keyoff, int klen, const char *key) {
+static long long find_key(const char *path, int reclen, int keyoff, int klen, const char *key) {
     FILE *data = fopen(path, "rb");
     char *rec = malloc((size_t)reclen);
-    long at = -1, i = 0;
+    long long at = -1, i = 0;
     while (data && rec && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen) {
         if (memcmp(rec + keyoff, key, (size_t)klen) == 0) { at = i; break; }
         i++;
@@ -473,7 +473,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     } else if (!held_key(want, key, klen)) {
         c->resp = INVREQ;
     } else {
-        long at = find_key(path, reclen, keyoff, klen, key);
+        long long at = find_key(path, reclen, keyoff, klen, key);
         if (at < 0) {
             c->resp = NOTFND;
         } else {
@@ -482,7 +482,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
             memset(rec, ' ', (size_t)reclen);
             memcpy(rec, from, (size_t)(fromlen < reclen ? fromlen : reclen));
             FILE *data = fopen(path, "r+b");
-            if (data && rec && fseek(data, at * (long)reclen, SEEK_SET) == 0) fwrite(rec, 1, (size_t)reclen, data);
+            if (data && rec && fseek(data, (long)(at * reclen), SEEK_SET) == 0) fwrite(rec, 1, (size_t)reclen, data);
             if (data) fclose(data);
             free(rec);
             release(want);
@@ -531,22 +531,22 @@ int GGCSYNC(gg_cics *c) {
  * Stops as not modelled: a negative LENGTH; a record moved past INTO (intolen: the storage after INTO, which GnuCOBOL
  * lays out unlike IBM's compiler, oracle_assumptions.md X6); LENGERR on READ UPDATE (IBM does not say whether the
  * record is then held). */
-static char *load_records(const char *path, int reclen, long *n);
+static char *load_records(const char *path, int reclen, long long *n);
 /* #4270 READ GTEQ / GENERIC (GG-FLAGS 'GTEQ' / 'GENERIC'; oracle_assumptions.md X22), IBM, EXEC CICS READ: GENERIC --
  * "the search key is a generic key whose length is specified in the KEYLENGTH option" (keylen); GTEQ -- "if the search
  * for a record that has the same key (complete or generic) as that specified in the RIDFLD option is unsuccessful,
  * the first record that has a greater key is retrieved". Of the records whose key's first `cmp` bytes equal RIDFLD's
  * (or, GTEQ, are greater), the first in key order (the browse's byte order); -1 when none: NOTFND, RESP2 80. A GENERIC
  * KEYLENGTH not shorter than the key (INVREQ RESP2 25) or not above zero (42; zero undocumented) stops the run. */
-static long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
-                        int keylen, char **all) {
+static long long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
+                             int keylen, char **all) {
     int gteq = strstr(c->flags, "GTEQ") != NULL, generic = strstr(c->flags, "GENERIC") != NULL;
     if (generic && (keylen >= klen || keylen <= 0))
         refuse("READ GENERIC KEYLENGTH not shorter than the key or not above zero");
     int cmp = generic ? keylen : klen;
-    long n, best = -1;
+    long long n, best = -1;
     *all = load_records(path, reclen, &n);
-    for (long i = 0; *all && i < n; i++) {
+    for (long long i = 0; *all && i < n; i++) {
         int d = memcmp(*all + i * reclen + keyoff, ridfld, (size_t)cmp);
         if (d < 0 || (d > 0 && !gteq)) continue;
         if (best < 0 || memcmp(*all + i * reclen + keyoff, *all + best * reclen + keyoff, (size_t)klen) < 0) best = i;
@@ -581,7 +581,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
             c->resp = NOTFND;
             int search = strstr(c->flags, "GTEQ") || strstr(c->flags, "GENERIC");
             char *found = NULL;
-            long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
+            long long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
             if (search && at < 0) c->resp2 = 80;
             FILE *data = search ? NULL : fopen(path, "rb");
             char *rec = malloc((size_t)reclen);
@@ -636,7 +636,7 @@ static struct {
     char name[9];
     int active, equal, last, dir, have_last, rba;
     char start[256], lastkey[256];
-    unsigned long rstart, rlast;  /* an RBA browse (#4213): the STARTBR's RBA, the last RBA read */
+    unsigned long long rstart, rlast;  /* an RBA browse (#4213): the STARTBR's RBA, the last RBA read */
 } br[MAX_FILES];
 
 static int browse_slot(const char *file, int create) {
@@ -654,25 +654,25 @@ static int all_ff(const char *key, int len) {
 }
 
 /* The file's records; `*n` of them, each `reclen` bytes (the caller frees). */
-static char *load_records(const char *path, int reclen, long *n) {
+static char *load_records(const char *path, int reclen, long long *n) {
     FILE *data = fopen(path, "rb");
     char *all = NULL;
     *n = 0;
     if (!data) return NULL;
     fseek(data, 0, SEEK_END);
-    long size = ftell(data);
+    long long size = ftell(data);
     fseek(data, 0, SEEK_SET);
     all = malloc((size_t)(size > 0 ? size : 1));
-    if (all) *n = (long)fread(all, 1, (size_t)size, data) / reclen;
+    if (all) *n = (long long)fread(all, 1, (size_t)size, data) / reclen;
     fclose(data);
     return all;
 }
 
 /* The record whose key is the least key > `key` (strict), >= (or_equal), or the greatest < `key` (below); -1 when
  * none. With `exact`, only a record whose key equals `key`. */
-static long pick(const char *all, long n, int reclen, int keyoff, int klen, const char *key, int mode) {
-    long best = -1;
-    for (long i = 0; i < n; i++) {
+static long long pick(const char *all, long long n, int reclen, int keyoff, int klen, const char *key, int mode) {
+    long long best = -1;
+    for (long long i = 0; i < n; i++) {
         int c = memcmp(all + i * reclen + keyoff, key, (size_t)klen);
         const char *bk = best >= 0 ? all + best * reclen + keyoff : NULL;
         if (mode == 0 && c == 0) return i;                                                      /* exact */
@@ -683,9 +683,9 @@ static long pick(const char *all, long n, int reclen, int keyoff, int klen, cons
     return best;
 }
 
-static long pick_last(const char *all, long n, int reclen, int keyoff, int klen) {
-    long best = -1;
-    for (long i = 0; i < n; i++) {
+static long long pick_last(const char *all, long long n, int reclen, int keyoff, int klen) {
+    long long best = -1;
+    for (long long i = 0; i < n; i++) {
         if (best < 0 || memcmp(all + i * reclen + keyoff, all + best * reclen + keyoff, (size_t)klen) > 0) best = i;
     }
     return best;
@@ -703,34 +703,34 @@ static long pick_last(const char *all, long n, int reclen, int keyoff, int klen)
  * X13); RIDFLD a fullword, big-endian. The browse moves as the keyed one above does, in RBA order. Refused by name: an
  * RBA that addresses no record (IBM does not say whether VSAM answers NOTFND, INVREQ or ILLOGIC), RBA on a file that
  * is not an ESDS (a KSDS by RBA), a keyed browse of an ESDS, and a browse that mixes RBA and key commands. */
-static unsigned long rba_get(const char *rid) {
+static unsigned long long rba_get(const char *rid) {
     const unsigned char *u = (const unsigned char *)rid;
-    return ((unsigned long)u[0] << 24) | ((unsigned long)u[1] << 16) | ((unsigned long)u[2] << 8) | u[3];
+    return ((unsigned long long)u[0] << 24) | ((unsigned long long)u[1] << 16) | ((unsigned long long)u[2] << 8) | u[3];
 }
 
-static void rba_put(char *rid, unsigned long v) {
+static void rba_put(char *rid, unsigned long long v) {
     rid[0] = (char)((v >> 24) & 0xFF);
     rid[1] = (char)((v >> 16) & 0xFF);
     rid[2] = (char)((v >> 8) & 0xFF);
     rid[3] = (char)(v & 0xFF);
 }
 
-#define RBA_END 0xFFFFFFFFUL
+#define RBA_END 0xFFFFFFFFULL
 
 /* The record (0-based) at `rba`; refused when no record starts there. */
-static long rba_record(const char *verb, const char *want, unsigned long rba, int reclen, long n) {
+static long long rba_record(const char *verb, const char *want, unsigned long long rba, int reclen, long long n) {
     char why[120];
-    if (rba % (unsigned long)reclen == 0 && rba / (unsigned long)reclen < (unsigned long)n) {
-        return (long)(rba / (unsigned long)reclen);
+    if (rba % (unsigned long long)reclen == 0 && rba / (unsigned long long)reclen < (unsigned long long)n) {
+        return (long long)(rba / (unsigned long long)reclen);
     }
-    snprintf(why, sizeof why, "%s RBA %lu on %s: no record starts there", verb, rba, want);
+    snprintf(why, sizeof why, "%s RBA %llu on %s: no record starts there", verb, rba, want);
     refuse(why);
     return -1;
 }
 
-static void rba_event(const char *verb, const char *file, unsigned long rba, int resp) {
+static void rba_event(const char *verb, const char *file, unsigned long long rba, int resp) {
     char ev[120];
-    snprintf(ev, sizeof ev, "%s file=%s rba=%lu resp=%d", verb, file, rba, resp);
+    snprintf(ev, sizeof ev, "%s file=%s rba=%llu resp=%d", verb, file, rba, resp);
     event(ev, NULL, 0);
 }
 
@@ -743,12 +743,12 @@ static int rba_startbr(gg_cics *c, const char *want, const char *path, int recle
     }
     if (keylen < 4) refuse("an RBA RIDFLD shorter than a fullword");
     int s = browse_slot(want, 1);
-    unsigned long rba = rba_get(ridfld);
+    unsigned long long rba = rba_get(ridfld);
     if (s >= 0 && br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 33;
     } else {
-        long n;
+        long long n;
         char *all = load_records(path, reclen, &n);
         free(all);
         if (rba != RBA_END) rba_record("STARTBR", want, rba, reclen, n);
@@ -770,13 +770,13 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
                     int keylen, char *into, int intolen) {
     const char *verb = dir > 0 ? "READNEXT" : "READPREV";
     if (keylen < 4) refuse("an RBA RIDFLD shorter than a fullword");
-    unsigned long rba = rba_get(ridfld), was = br[s].have_last ? br[s].rlast : br[s].rstart;
+    unsigned long long rba = rba_get(ridfld), was = br[s].have_last ? br[s].rlast : br[s].rstart;
     int changed = rba != was;
-    long n, at;
+    long long n, at;
     char *all = load_records(path, reclen, &n);
     if (dir > 0) {
         if (br[s].dir == 0 && !br[s].last && !changed) at = rba_record(verb, want, rba, reclen, n);
-        else if (br[s].dir == 1 && !changed) at = (long)(rba / (unsigned long)reclen) + 1;
+        else if (br[s].dir == 1 && !changed) at = (long long)(rba / (unsigned long long)reclen) + 1;
         else if (rba == RBA_END) at = -1;
         else at = rba_record(verb, want, rba, reclen, n);
         if (at >= n) at = -1;
@@ -784,7 +784,7 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
         if (at < 0) c->resp2 = 90;
     } else {
         if (rba == RBA_END && (br[s].dir == 0 || changed)) at = n - 1;
-        else if (br[s].dir == -1 && !changed) at = (long)(rba / (unsigned long)reclen) - 1;
+        else if (br[s].dir == -1 && !changed) at = (long long)(rba / (unsigned long long)reclen) - 1;
         else at = rba_record(verb, want, rba, reclen, n);
         c->resp = at < 0 ? ENDFILE : NORMAL;
         if (at < 0) c->resp2 = 90;
@@ -792,7 +792,7 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
     if (at >= 0) {
         const char *rec = all + at * reclen;
         memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
-        rba = (unsigned long)at * (unsigned long)reclen;
+        rba = (unsigned long long)at * (unsigned long long)reclen;
         rba_put(ridfld, rba);
         br[s].rlast = rba;
         br[s].have_last = 1;
@@ -833,9 +833,9 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
         memset(key, 0, sizeof key);
         memcpy(key, ridfld, (size_t)len);
         int equal = strstr(c->flags, "EQUAL") != NULL, last = all_ff(key, len);
-        long n;
+        long long n;
         char *all = load_records(path, reclen, &n);
-        long at = last ? 0 : pick(all, n, reclen, keyoff, klen, key, equal ? 0 : 1);
+        long long at = last ? 0 : pick(all, n, reclen, keyoff, klen, key, equal ? 0 : 1);
         free(all);
         if (at < 0) {
             c->resp = NOTFND;
@@ -887,7 +887,7 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
         memcpy(key, ridfld, (size_t)len);
         const char *was = br[s].have_last ? br[s].lastkey : br[s].start;
         int changed = memcmp(key, was, (size_t)klen) != 0;
-        long n, at;
+        long long n, at;
         char *all = load_records(path, reclen, &n);
         if (dir > 0) {
             if (br[s].dir == 0 && !br[s].last && !changed) at = pick(all, n, reclen, keyoff, klen, key, br[s].equal ? 0 : 1);
@@ -983,13 +983,13 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     } else {
         memcpy(key, ridfld, (size_t)(keylen < klen ? keylen : klen));
     }
-    long n;
+    long long n;
     char *all = load_records(path, reclen, &n);
     if (strstr(c->flags, "GENERIC")) { /* #4771 (X22): every record whose key starts with the KEYLENGTH-byte generic key */
-        long gone = 0;
+        long long gone = 0;
         uow_save(path);
         FILE *data = fopen(path, "wb");
-        for (long i = 0; data && i < n; i++) {
+        for (long long i = 0; data && i < n; i++) {
             if (memcmp(all + i * reclen + keyoff, key, (size_t)keylen) == 0) gone++;
             else fwrite(all + i * reclen, 1, (size_t)reclen, data);
         }
@@ -1000,7 +1000,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, key, keylen, c->resp);
         return 0;
     }
-    long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
+    long long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
     if (by_hold && s < 0) {
         c->resp = INVREQ;
     } else if (at < 0) {
@@ -1009,7 +1009,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     } else {
         uow_save(path);
         FILE *data = fopen(path, "wb");
-        for (long i = 0; data && i < n; i++) if (i != at) fwrite(all + i * reclen, 1, (size_t)reclen, data);
+        for (long long i = 0; data && i < n; i++) if (i != at) fwrite(all + i * reclen, 1, (size_t)reclen, data);
         if (data) fclose(data);
         if (by_hold) release(want);
         c->resp = NORMAL;
@@ -1792,11 +1792,11 @@ static int program_defined(const char *program) {
 int GGCTASKN(gg_cics *c) {
     const char *env = getenv("GGCICS_TASKN");
     char *end = NULL;
-    long n = 0;
+    long long n = 0;
     c->resp = NORMAL;
     c->resp2 = 0;
     if (env) {
-        n = strtol(env, &end, 10);
+        n = strtoll(env, &end, 10);
         if (!env[0] || *end || n < 0 || n > 9999999) refuse("EIBTASKN: $GGCICS_TASKN is not a task number");
     }
     c->num = (int)n;
@@ -1931,7 +1931,7 @@ int GGCLRET(gg_cics *c) {
  * (#4270, X24) the containers a task leaves on its first program's current channel are compared at its end. */
 #define MAX_CHANNELS 64
 #define MAX_CONTAINERS 64
-typedef struct { char name[17]; int bit; char *data; int len; int used; long order; } gg_container; /* order: creation order (#4951) */
+typedef struct { char name[17]; int bit; char *data; int len; int used; long long order; } gg_container; /* order: creation order (#4951) */
 typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; int shape; } gg_channel; /* shape: containers added + removed (#4951) */
 static gg_channel chans[MAX_CHANNELS];
 static int nchans = 0;
@@ -1998,7 +1998,7 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
     return levels[lvl].cur;
 }
 
-static long container_seq = 0;
+static long long container_seq = 0;
 
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
     gg_container *free_slot = NULL;
@@ -2219,7 +2219,7 @@ int GGCSBRC(gg_cics *c) {
     b->owner = levels[lvl].gen;
     b->chan = ch;
     b->shape = chans[ch - 1].shape;
-    long last = 0; /* the names, in creation order: each time the oldest after the last taken */
+    long long last = 0; /* the names, in creation order: each time the oldest after the last taken */
     for (;;) {
         gg_container *best = NULL;
         for (int i = 0; i < MAX_CONTAINERS; i++) {
@@ -2642,11 +2642,11 @@ int GGCSTRT(gg_cics *c, char *from) {
         }
         if (reused < 0) {
             char path[4096], line[128], word[64];
-            long ex;
+            long long ex;
             snprintf(path, sizeof path, "%s/requests.cfg", dir_in());
             FILE *f = fopen(path, "r");
             while (f && reused < 0 && fgets(line, sizeof line, f)) {
-                if (sscanf(line, "%63s %ld", word, &ex) == 2 && strcmp(word, reqid) == 0 && ex > now) reused = 0;
+                if (sscanf(line, "%63s %lld", word, &ex) == 2 && strcmp(word, reqid) == 0 && ex > now) reused = 0;
             }
             if (f) fclose(f);
         }
@@ -3190,7 +3190,7 @@ int GGCFREE(gg_cics *c) {
  * when none matches ("fails to match an unexpired interval control command"). */
 int GGCCNCL(gg_cics *c) {
     char reqid[17], path[4096], line[128], word[64], ev[96];
-    long expires;
+    long long expires;
     time_t now = now_epoch();
     int found = 0, fresp, fresp2;
     trim(c->qname, 8, reqid);
@@ -3209,7 +3209,7 @@ int GGCCNCL(gg_cics *c) {
     snprintf(path, sizeof path, "%s/requests.cfg", dir_in());
     FILE *f = found ? NULL : fopen(path, "r");
     while (f && !found && fgets(line, sizeof line, f)) {
-        if (sscanf(line, "%63s %ld", word, &expires) == 2 && strcmp(word, reqid) == 0 && expires > now) found = 1;
+        if (sscanf(line, "%63s %lld", word, &expires) == 2 && strcmp(word, reqid) == 0 && expires > now) found = 1;
     }
     if (f) fclose(f);
     c->resp = found ? NORMAL : NOTFND;
@@ -4545,13 +4545,13 @@ static void *blk_new(size_t n, int kind) {
  * above 65520, an INITIMG that is not one byte. */
 int GGCGETM(gg_cics *c, void **slot, char *img, int imglen) {
     char flags[41];
-    long n = c->num;
+    long long n = c->num;
     trim(c->flags, 40, flags);
     if (imglen != 1) refuse("GETMAIN INITIMG is not one byte");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (n < 1) { c->resp = LENGERR; c->resp2 = 1; *slot = NULL; return 0; }
-    if (n > 268435456L || (strcmp(flags, "SHORT") == 0 && n > 65520)) refuse("GETMAIN length beyond the limit");
+    if (n > 268435456LL || (strcmp(flags, "SHORT") == 0 && n > 65520)) refuse("GETMAIN length beyond the limit");
     *slot = blk_new((size_t)n, BLK_GETMAIN);
     memset(*slot, (unsigned char)img[0], (size_t)n);
     return 0;

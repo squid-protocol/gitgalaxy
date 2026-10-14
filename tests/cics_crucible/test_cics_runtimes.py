@@ -1288,6 +1288,10 @@ def test_the_stub_browses_an_esds_by_rba_as_cics_does(tmp_path):
     [
         (["S:2"], "STARTBR RBA 2 on F: no record starts there"),  # mid-record: IBM does not say what happens
         (["S:12"], "STARTBR RBA 12 on F: no record starts there"),  # past the end of the data
+        (
+            ["S:3000000000"],
+            "STARTBR RBA 3000000000 on F: no record starts there",
+        ),  # #5055: RBA above 2^31 (32-bit signed wrap)
         (["S:0", "N", "N:6"], "READNEXT RBA 6 on F: no record starts there"),
         (["s:0"], "STARTBR by key on F, an ESDS"),  # an ESDS browse is by RBA (or through a path)
         (["K:0"], "STARTBR RBA on K, not an ESDS"),  # a KSDS by RBA: not modelled
@@ -5741,3 +5745,32 @@ def test_cics_task_transfer_resp2_for_natural_faults_and_success(tmp_path):
         new CicsTask("CA02", "ENTER", null, null).withPrograms(programs).run("CAXA");""",
     )
     assert out.splitlines() == ["LENGERR 11", "PGMIDERR 1", "NORMAL 0", "LENGERR 11", "PGMIDERR 1", "NORMAL 0"]
+
+
+def test_the_stub_holds_file_offsets_records_and_timestamps_in_64_bits():
+    """`long` is 32 bits on Windows (LLP64): record counts, file offsets (RBA), and interval control
+    timestamps can exceed 2^31. The stub runtime must hold them in 64-bit types (long long / unsigned long long)
+    so 32-bit truncation or sign wrapping does not occur on Windows (#5012, #5055)."""
+    text = STUB.read_text(encoding="utf-8")
+    # RBA browse and offset handling
+    assert re.search(r"unsigned long long\s+rstart,\s*rlast;", text)
+    assert re.search(r"static unsigned long long\s+rba_get\(", text)
+    assert re.search(r"static void\s+rba_put\(char \*rid,\s*unsigned long long\s+v\)", text)
+    assert re.search(r"static long long\s+rba_record\(", text)
+    assert re.search(r"#define\s+RBA_END\s+0xFFFFFFFFULL", text)
+    assert re.search(r'snprintf\(why,\s*sizeof why,\s*"%s RBA %llu on %s: no record starts there"', text)
+    assert re.search(r'snprintf\(ev,\s*sizeof ev,\s*"%s file=%s rba=%llu resp=%d"', text)
+    # Record counts and sizes
+    assert re.search(r"static char \*load_records\(const char \*path,\s*int reclen,\s*long long \*n\)", text)
+    assert re.search(r"static long long\s+pick\(const char \*all,\s*long long n,", text)
+    assert re.search(r"static long long\s+pick_last\(const char \*all,\s*long long n,", text)
+    assert re.search(r"static long long\s+read_search\(", text)
+    assert re.search(r"long long\s+size\s*=\s*ftell\(data\);", text)
+    # Container ordering and sequence
+    assert re.search(r"long long\s+order;\s*}\s*gg_container;", text)
+    assert re.search(r"static long long\s+container_seq\s*=\s*0;", text)
+    # Timestamps in requests.cfg (GGCSTRT, GGCCNCL)
+    assert re.search(r"long long\s+ex;", text)
+    assert re.search(r'sscanf\(line,\s*"%63s %lld",\s*word,\s*&ex\)', text)
+    assert re.search(r"long long\s+expires;", text)
+    assert re.search(r'sscanf\(line,\s*"%63s %lld",\s*word,\s*&expires\)', text)

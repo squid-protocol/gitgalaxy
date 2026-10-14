@@ -54,15 +54,16 @@ def _stub(tmp_path: Path, main: str) -> Path:
     return exe
 
 
+def _stub_base_env() -> dict[str, str]:
+    """What a stub needs to start: Windows wants its own PATH (the MinGW runtime) and SYSTEMROOT (#5055)."""
+    if os.name == "nt":
+        return {k: os.environ[k] for k in ("PATH", "SYSTEMROOT") if k in os.environ}
+    return {"PATH": "/usr/bin:/bin"}
+
+
 def _run_stub(exe: Path, work: Path, *args: str) -> list[str]:
     (work / "out").mkdir(parents=True, exist_ok=True)
-    # Windows needs its own PATH (the MinGW runtime) and SYSTEMROOT to start a process at all
-    base = (
-        {k: os.environ[k] for k in ("PATH", "SYSTEMROOT") if k in os.environ}
-        if os.name == "nt"
-        else {"PATH": "/usr/bin:/bin"}
-    )
-    env = {**base, "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
     proc = subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     return proc.stdout.splitlines()
 
@@ -1113,7 +1114,7 @@ def test_the_stub_delete_generic_deletes_every_record_with_the_generic_key(tmp_p
     assert _run_stub(exe, tmp_path, "2", "2", "10", "4") == [
         "2 resp=0 resp2=0", "2 resp=13 resp2=80", "10 resp=0 resp2=0", "4 resp=13 resp2=80"]  # fmt: skip
     assert (tmp_path / "f.dat").read_bytes() == b"300d"
-    refused = subprocess.run([str(exe), "300"], env={"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path),
+    refused = subprocess.run([str(exe), "300"], env={**_stub_base_env(), "GGCICS_DIR": str(tmp_path),
                                                      "GGCICS_OUT": str(tmp_path / "out")},
                              capture_output=True, text=True, check=False)  # noqa: S603  # fmt: skip
     assert refused.returncode == 98 and "DELETE GENERIC KEYLENGTH" in refused.stdout
@@ -1288,6 +1289,10 @@ def test_the_stub_browses_an_esds_by_rba_as_cics_does(tmp_path):
     [
         (["S:2"], "STARTBR RBA 2 on F: no record starts there"),  # mid-record: IBM does not say what happens
         (["S:12"], "STARTBR RBA 12 on F: no record starts there"),  # past the end of the data
+        (
+            ["S:3000000000"],
+            "STARTBR RBA 3000000000 on F: no record starts there",
+        ),  # #5055: RBA above 2^31 (32-bit signed wrap)
         (["S:0", "N", "N:6"], "READNEXT RBA 6 on F: no record starts there"),
         (["s:0"], "STARTBR by key on F, an ESDS"),  # an ESDS browse is by RBA (or through a path)
         (["K:0"], "STARTBR RBA on K, not an ESDS"),  # a KSDS by RBA: not modelled
@@ -1299,7 +1304,7 @@ def test_the_stub_refuses_an_rba_it_cannot_vouch_for(tmp_path, ops, why):
     _rba_files(tmp_path)
     exe = _stub(tmp_path, _RBA_MAIN)
     (tmp_path / "out").mkdir()
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     proc = subprocess.run([str(exe), *ops], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert proc.returncode == 98
     assert proc.stdout.splitlines()[-1] == f"{why}: not modelled"
@@ -1809,7 +1814,7 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
     )
     exe = _stub(tmp_path, main)
     (tmp_path / "out").mkdir(exist_ok=True)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert proc.returncode != 0 and why in proc.stderr + proc.stdout
 
@@ -2006,7 +2011,7 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_delete_and_query_channel(tmp_p
     and a blank or embedded-blank name are refused, never guessed."""
     exe = _stub(tmp_path, _chan_stub_main(steps))
     (tmp_path / "out").mkdir(exist_ok=True)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     proc = subprocess.run([str(exe)], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert proc.returncode != 0 and why in proc.stderr + proc.stdout
 
@@ -2479,7 +2484,7 @@ def test_the_stub_deleteq_ts_inquire_association_and_query_counter(tmp_path):
     (ts / hexname / "next").write_text("1\n", encoding="ascii")
 
     def run(env, *args, check=True):
-        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path), **env}
+        base = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path), **env}
         return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
 
     with_ts = {"GGCICS_TS": str(ts)}
@@ -2513,7 +2518,7 @@ def test_the_stub_defines_gets_and_deletes_named_counters(tmp_path):
     exe = _stub(tmp_path, _X29_MAIN)
 
     def run(*args, check=True):
-        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)}
+        base = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)}
         return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
 
     assert run("gcnt", "GENACNT", "GENAPOOL").stdout.strip() == "16/201/0"  # (IBM lists no NOTFND)
@@ -2657,7 +2662,7 @@ def test_the_stub_inquire_urimap_browse_and_write_operator(tmp_path):
     cfg.write_text("ZCEXAMPL ZC01 /zecs/*\nZCPLAIN - /plain\n", encoding="ascii")
 
     def run(*args, env=None, check=True):
-        base = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+        base = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
                 "GGCICS_URIMAPS": str(cfg), **(env or {})}  # fmt: skip
         (tmp_path / "out").mkdir(exist_ok=True)
         return subprocess.run([str(exe), *args], env=base, capture_output=True, text=True, check=check)  # noqa: S603
@@ -2678,7 +2683,7 @@ def test_the_stub_inquire_urimap_browse_and_write_operator(tmp_path):
     assert run("START", "NEXT", "END").stdout.splitlines() == ["START 0/0", "NEXT 83/2", "END 0/0"]
     unstated = subprocess.run(
         [str(exe), "START"],
-        env={"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)},
+        env={**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path)},
         capture_output=True,
         text=True,
         check=False,
@@ -2779,7 +2784,7 @@ def test_the_stub_inquire_urimap_direct_and_program_status(tmp_path):
     exe = _stub(tmp_path, _X34_MAIN)
     (tmp_path / "urimaps.cfg").write_text("ZCEXAMPL ZC01 /zecs/*\nZCPLAIN - /plain\n", encoding="ascii")
     (tmp_path / "programs.cfg").write_text("ZECS001\n", encoding="ascii")
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
            "GGCICS_URIMAPS": str(tmp_path / "urimaps.cfg")}  # fmt: skip
     (tmp_path / "out").mkdir()
     out = subprocess.run([str(exe), "uri", "ZCPLAIN", "uri", "ZCEXAMPL", "uri", "ZCNONE", "uri", "zcplain",
@@ -2893,7 +2898,7 @@ def test_the_stub_document_create_and_retrieve(tmp_path):
     )
 
     def run(*args, templates=True, check=True):
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
         if templates:
             env["GGCICS_DOCTEMPLATES"] = str(cfg)
         (tmp_path / "out").mkdir(exist_ok=True)
@@ -3340,7 +3345,7 @@ def test_the_stub_web_open_converse_close(tmp_path):
     exe = _stub(tmp_path, _X35_MAIN)
     cfg = tmp_path / "http.cfg"
     _x35_cfg(cfg)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
            "GGCICS_HTTP": str(cfg)}  # fmt: skip
     (tmp_path / "out").mkdir()
     out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
@@ -3568,7 +3573,7 @@ def test_the_stub_web_parse_url(tmp_path):
     path and query string (still escaped) with their lengths; INVREQ 28 for a URL that is none, INVREQ 65 for a bad escape;
     what IBM leaves open is refused."""
     exe = _stub(tmp_path, _X36_MAIN)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     (tmp_path / "out").mkdir()
     out = subprocess.run([str(exe), *_X36_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     assert out.stdout.splitlines() == _X36_EXPECTED
@@ -3756,17 +3761,17 @@ def test_the_stub_web_send(tmp_path):
     for n, (steps, answers, events) in enumerate(_X37_CASES):
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
         assert run.stdout.splitlines() == answers, steps
         assert _x37_stub_events(out) == events, steps
     for n, (steps, why) in enumerate(_X37_REFUSED):
         out = tmp_path / f"refused{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
     unstated = subprocess.run([str(exe), "x 1 - 2 - - - 0"], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout
 
@@ -4059,7 +4064,7 @@ def test_the_stub_serves_the_stated_request(tmp_path):
         req.write_text(_x38_cfg(fixture), encoding="ascii")
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if (
             len(answers) == 1
@@ -4072,7 +4077,7 @@ def test_the_stub_serves_the_stated_request(tmp_path):
         else:
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
         assert _x38_stub_events(out) == events, steps
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
     for step in ("ext 20 - - - -", "rcv 5 0", "rdh A 1 24", "wrh A 1 v 1", "rtv"):
         unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
@@ -4286,7 +4291,7 @@ def test_the_stub_hands_out_task_storage_through_pointers(tmp_path):
         req.write_text(_x38_cfg(fixture), encoding="ascii")
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if answers[-1].split()[0] in _X47_STEPS + ("gm", "fm", "rs", "rd"):
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
@@ -4411,7 +4416,7 @@ def test_the_stub_gets_a_doubleword_counter_with_an_increment(tmp_path):
     characters; an INCREMENT not above zero and a counter that would pass 4294967295 (the maximum the run does not state) are
     refused."""
     exe = _stub(tmp_path, _X30_MAIN)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     cfg = tmp_path / "counters.cfg"
     for steps, answers in _X30_CASES:
         cfg.write_text("- ZC01_ZECS 41\n- BIGCNT 4294967294\n- TOP 4294967295\n", encoding="ascii")
@@ -4619,7 +4624,7 @@ def test_the_stub_defines_queries_and_wraps_a_doubleword_counter(tmp_path):
         work.mkdir()
         (work / "out").mkdir()
         (work / "counters.cfg").write_text(_x45_seed(seed), encoding="ascii")
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         got = run.stdout.splitlines()
         if refusal is None:
@@ -4753,7 +4758,7 @@ def test_the_stub_sends_a_document(tmp_path):
     for n, (steps, answers, bodies) in enumerate(_X37_DOC_CASES):
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
         assert run.stdout.splitlines() == answers, steps
         got = _x37_stub_events(out)
@@ -4761,7 +4766,7 @@ def test_the_stub_sends_a_document(tmp_path):
     for n, (steps, why) in enumerate(_X37_DOC_REFUSED):
         out = tmp_path / f"refused{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
 
@@ -4955,7 +4960,7 @@ def test_the_stub_defers_a_web_send_and_retrieves_its_document(tmp_path):
     for n, (steps, answers, events) in enumerate(_X41_CASES):
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if events:
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (steps, run.stdout)
@@ -5267,14 +5272,14 @@ def test_the_stub_reads_form_fields_query_parameters_and_browses(tmp_path):
         req.write_text(_x38_cfg(fixture), encoding="ascii")
         out = tmp_path / f"out{n}"
         out.mkdir()
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if _x4940_refused(answers):
             assert run.returncode == 98 and answers[-1] + ": not modelled" in run.stdout, (fixture, steps, run.stdout)
             assert run.stdout.splitlines()[:-1] == answers[:-1], (fixture, steps, run.stdout)
         else:
             assert run.returncode == 0 and run.stdout.splitlines() == answers, (fixture, steps, run.stdout)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out0")}
     for step in ("rdf a 1 24", "rdq a 1 24", "sbr f", "sbr h", "rnx f 16 30", "ebr q"):
         unstated = subprocess.run([str(exe), step], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert unstated.returncode == 98 and "HTTP request is not stated" in unstated.stdout, step
@@ -5526,7 +5531,7 @@ def _sched_stub(tmp_path: Path, steps: list[str]) -> list[str]:
     (work / "childprogs.cfg").write_text("".join(f"{t} {p}\n" for t, p in _KIDS.items()))
     (work / "transactions.cfg").write_text("".join(f"{t}\n" for t in [*_KIDS, "KN"]))
     (work / "eib.in").write_text("GTPA DFHENTER 0126285 0103015     \n")
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out"),
+    env = {**_stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out"),
            "EIBIN": str(work / "eib.in"), "GGCICS_TASKN": "100"}  # fmt: skip
     proc = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
     assert proc.returncode in (0, 98), proc.stdout + proc.stderr
@@ -5762,6 +5767,41 @@ def test_cics_task_transfer_resp2_for_natural_faults_and_success(tmp_path):
     assert out.splitlines() == ["LENGERR 11", "PGMIDERR 1", "NORMAL 0", "LENGERR 11", "PGMIDERR 1", "NORMAL 0"]
 
 
+def test_the_stub_holds_file_offsets_records_and_timestamps_in_64_bits():
+    """`long` is 32 bits on Windows (LLP64): record counts, file offsets (RBA), and interval control
+    timestamps can exceed 2^31. The stub runtime must hold them in 64-bit types (long long / unsigned long long)
+    so 32-bit truncation or sign wrapping does not occur on Windows (#5012, #5055)."""
+    text = STUB.read_text(encoding="utf-8")
+    # RBA browse and offset handling
+    assert re.search(r"unsigned long long\s+rstart,\s*rlast;", text)
+    assert re.search(r"static unsigned long long\s+rba_get\(", text)
+    assert re.search(r"static void\s+rba_put\(char \*rid,\s*unsigned long long\s+v\)", text)
+    assert re.search(r"static long long\s+rba_record\(", text)
+    assert re.search(r"#define\s+RBA_END\s+0xFFFFFFFFULL", text)
+    assert re.search(r'snprintf\(why,\s*sizeof why,\s*"%s RBA %llu on %s: no record starts there"', text)
+    assert re.search(r'snprintf\(ev,\s*sizeof ev,\s*"%s file=%s rba=%llu resp=%d"', text)
+    # Record counts and sizes
+    assert re.search(r"static char \*load_records\(const char \*path,\s*int reclen,\s*long long \*n\)", text)
+    assert re.search(r"static long long\s+pick\(const char \*all,\s*long long n,", text)
+    assert re.search(r"static long long\s+pick_last\(const char \*all,\s*long long n,", text)
+    assert re.search(r"static long long\s+read_search\(", text)
+    assert re.search(r"long long\s+size\s*=\s*ftell\(data\);", text)
+    # Container ordering and sequence
+    assert re.search(r"long long\s+order;\s*}\s*gg_container;", text)
+    assert re.search(r"static long long\s+container_seq\s*=\s*0;", text)
+    # Timestamps in requests.cfg (GGCSTRT, GGCCNCL)
+    assert re.search(r"long long\s+ex;", text)
+    assert re.search(r'sscanf\(line,\s*"%63s %lld",\s*word,\s*&ex\)', text)
+    assert re.search(r"long long\s+expires;", text)
+    assert re.search(r'sscanf\(line,\s*"%63s %lld",\s*word,\s*&expires\)', text)
+
+
+def test_no_stub_runs_with_a_posix_only_env():
+    """A stub started with a literal POSIX PATH and no SYSTEMROOT cannot start on Windows (#5055): every env
+    comes from `_stub_base_env()`, so the one literal lives in that helper."""
+    assert len(re.findall(r'"PATH":\s*"/usr/bin:/bin"', Path(__file__).read_text(encoding="utf-8"))) == 1
+
+
 # ---- #5039 (register X50): DEFINE / QUERY COUNTER with MINIMUM and MAXIMUM, GET COUNTER INCREMENT [WRAP] at the limits --
 # a scenario: (the counters stated before, the steps, what both runtimes answer, the refusal the last step ends in). A step:
 # "def NAME POOL VALUE MIN MAX" ("-": omitted), "get NAME POOL INC WRAP", "qry NAME POOL LIMITS", "del NAME POOL". Answer:
@@ -5922,7 +5962,7 @@ def test_the_stub_defines_queries_and_wraps_a_fullword_counter(tmp_path):
         work.mkdir()
         (work / "out").mkdir()
         (work / "counters.cfg").write_text(_x50_seed(seed), encoding="ascii")
-        env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
+        env = {**_stub_base_env(), "GGCICS_DIR": str(work), "GGCICS_OUT": str(work / "out")}
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         got = run.stdout.splitlines()
         if refusal is None:
@@ -6072,7 +6112,7 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_container_names(tmp_path, step
     rank are refused, never guessed."""
     exe = _stub(tmp_path, _name_stub('op("OK", "CH1", "CHANNEL", 1); GGCPUTC(&c, "x");\n' + steps))
     (tmp_path / "out").mkdir(exist_ok=True)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     proc = subprocess.run([str(exe)], env=env, capture_output=True, encoding="latin-1", check=False)  # noqa: S603
     assert proc.returncode == 98 and why in proc.stderr + proc.stdout, proc.stdout
 

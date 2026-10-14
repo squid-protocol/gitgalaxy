@@ -6294,9 +6294,7 @@ def test_cics_task_sends_a_container_as_the_stub_does(tmp_path):
                 put = f't.putContainer("CH", "{"CX" if w[0] == "chmiss" else "CN"}", {data}, {2 if w[0] != "chempty" else 0}, {typ}, false); '
             chan = "null" if w[0] == "nocur" else '"ZZ"' if w[0] == "nochan" else '"CH"'
             media = "null" if w[1] == "-" else '"' + w[1].ljust(56) + '"'
-            lines.append(
-                f'{put}send(t, {chan}, {media}, {w[2]}, {-1 if w[3] == "-" else w[3]}, {w[4]});'
-            )
+            lines.append(f"{put}send(t, {chan}, {media}, {w[2]}, {-1 if w[3] == '-' else w[3]}, {w[4]});")
         return "\n".join(lines)
 
     helpers = """

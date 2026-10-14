@@ -1433,7 +1433,9 @@ def test_web_send_is_the_response_to_the_stated_request():
         ", 1, 0, CS);"
     )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
     ct = c.command("WEB SEND CONTAINER(KEY) CHANNEL(REC) MEDIATYPE(REC) ACTION(R2) SRVCONVERT NOHANDLE", "")
-    assert ".webSendContainer(REC.strip(), KEY.strip(), Cobol.text(" in ct[0] and ct[0].endswith(", 1, CS);")  # (#5037 X37: a container's data)
+    assert ".webSendContainer(REC.strip(), KEY.strip(), Cobol.text(" in ct[0] and ct[0].endswith(
+        ", 1, CS);"
+    )  # (#5037 X37: a container's data)
     cc = c.command("WEB SEND CONTAINER(KEY) ACTION(R2) NOHANDLE", "")
     assert ".webSendContainer(null, " in cc[0]  # (no CHANNEL: the current channel)
     ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")

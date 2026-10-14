@@ -1213,7 +1213,9 @@ def test_web_send_becomes_a_stub_call():
                       "MOVE 0 TO GG-MINS", "MOVE 'MEDIA CHANNEL' TO GG-FLAGS", "MOVE WS-K TO GG-QNAME"]  # fmt: skip
     assert ct[7] == "MOVE WS-C TO GG-CHAN" and "CALL 'GGCWSCT' USING GG-CICS" in ct  # (#5037 X37: a container's data)
     cn = ec.translate_command("WEB SEND CONTAINER(WS-K) ACTION(WS-A) NOHANDLE")
-    assert "MOVE 'CHANNEL' TO GG-FLAGS" not in cn and "MOVE SPACES TO GG-FLAGS" in cn  # (no CHANNEL: the current channel)
+    assert (
+        "MOVE 'CHANNEL' TO GG-FLAGS" not in cn and "MOVE SPACES TO GG-FLAGS" in cn
+    )  # (no CHANNEL: the current channel)
     d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
     assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip

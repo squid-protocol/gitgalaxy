@@ -853,7 +853,18 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
     if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
         raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "CONTAINER", "CHANNEL", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    for o in (
+        "FROMLENGTH",
+        "DOCTOKEN",
+        "CONTAINER",
+        "CHANNEL",
+        "MEDIATYPE",
+        "ACTION",
+        "DOCSTATUS",
+        "STATUSCODE",
+        "STATUSTEXT",
+        "STATUSLEN",
+    ):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):

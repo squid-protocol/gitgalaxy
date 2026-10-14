@@ -415,10 +415,22 @@ WEB_SEND = Command(
             "The document has not been created, or has been deleted, or the name is incorrectly specified",
             raised_by=("DOCTOKEN",),
         ),
-        Outcome("CONTAINERERR", 2, "The container specified by the CONTAINER option could not be found", raised_by=("CONTAINER",)),
-        Outcome("CHANNELERR", 2, "The channel specified by the CHANNEL option could not be found", raised_by=("CHANNEL",)),
+        Outcome(
+            "CONTAINERERR",
+            2,
+            "The container specified by the CONTAINER option could not be found",
+            raised_by=("CONTAINER",),
+        ),
+        Outcome(
+            "CHANNELERR", 2, "The channel specified by the CHANNEL option could not be found", raised_by=("CHANNEL",)
+        ),
         Outcome("INVREQ", 145, "Channel was not specified, and there is no current channel", raised_by=("CONTAINER",)),
-        Outcome("INVREQ", 150, "Conversion requested, but data to be sent is in a DATATYPE BIT container", raised_by=("CONTAINER",)),
+        Outcome(
+            "INVREQ",
+            150,
+            "Conversion requested, but data to be sent is in a DATATYPE BIT container",
+            raised_by=("CONTAINER",),
+        ),
         Outcome("INVREQ", 11, "Action code invalid", raised_by=("ACTION",)),
         Outcome("INVREQ", 143, "The DOCSTATUS value specified is invalid", raised_by=("DOCSTATUS",)),
         Outcome("INVREQ", 72, "Status code does not support a message body", raised_by=("STATUSCODE",)),

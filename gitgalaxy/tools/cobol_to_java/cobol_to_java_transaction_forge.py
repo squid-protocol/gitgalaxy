@@ -4494,8 +4494,19 @@ public class CicsTask {
     public void returnTransid(String transid, Object commarea, Integer length, byte[] area) {
         returnTransid(transid, commarea, length);
         if (level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
+    }
+
+    /** #4817: the bytes a RETURN / XCTL COMMAREA passes on: a copy of the first LENGTH of `area` (null LENGTH: all of
+     *  it). IBM passes LENGTH bytes -- the next task's EIBCALEN -- so a record longer than its LENGTH does not carry
+     *  its tail across; the DTO's reading (`returned`) is cut at LENGTH the same way. A LINK is not cut: its area is
+     *  passed by address, so the callee's storage is the caller's, tail included. */
+    private static byte[] areaOf(byte[] area, Integer length) {
+        if (area == null) {
+            return null;
+        }
+        return java.util.Arrays.copyOf(area, length == null ? area.length : Math.max(0, Math.min(length, area.length)));
     }
 
     /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
@@ -4541,12 +4552,16 @@ public class CicsTask {
     public int[] returnImmediate(String transid, Object commarea, Integer length, byte[] area) {
         int[] resps = returnImmediate(transid, commarea, length);
         if (resps[0] == 0 && level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
         return resps;
     }
 
-    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
+    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy: the first LENGTH of the bytes the program passed beside its
+     *  DTO, in its storage page's charset (what the next task takes through linkArea). Null when a RETURN passed none
+     *  beside its COMMAREA -- a LENGTH past the DTO passes the COMMAREA itself as a byte[] in the region's EBCDIC
+     *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
+     *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
     }
@@ -4562,7 +4577,8 @@ public class CicsTask {
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }
-        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName();
+        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName()
+                + (area instanceof byte[] ? " (a LENGTH past its DTO passes the COMMAREA's bytes: answer it as Object)" : "");
         java.lang.reflect.Method to;
         java.lang.reflect.Method from;
         try {
@@ -4718,7 +4734,7 @@ public class CicsTask {
     public String xctl(String program, Object commarea, Integer length, byte[] area) {
         String resp = xctl(program, commarea, length, (Channel) null);
         if ("NORMAL".equals(resp)) {
-            xctlArea = area;
+            xctlArea = areaOf(area, length);
         }
         return resp;
     }

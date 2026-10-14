@@ -2001,11 +2001,12 @@
   {
    "id": "RT-CICS-XCTL-COMMAREA-LENGTH",
    "family": "CICS",
-   "title": "XCTL COMMAREA(area) LENGTH(n) past the target's DFHCOMMAREA: n bytes travel (EIBCALEN = n), the ones the DTO cannot carry as the region's EBCDIC bytes",
+   "title": "XCTL COMMAREA(area) LENGTH(n) past the target's DFHCOMMAREA: n bytes travel (EIBCALEN = n), the ones the DTO cannot carry as the region's EBCDIC bytes; another program's DTO as its layout's bytes, a class with no layout refused",
    "methods": [
     "commareaOut",
     "commareaBytes",
-    "commareaIn"
+    "commareaIn",
+    "layoutBytes"
    ],
    "ibm": {
     "doc": "cics-apr",

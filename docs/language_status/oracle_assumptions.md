@@ -671,6 +671,27 @@ instrument). Rows for the other options of #4706 follow in its later slices.
   A digit-only P item's value is cobc's on every arithmetic / compare / MOVE read, and a P item's reference-modified
   and right-P MOVE-to-alphanumeric bytes are cobc's (`nondigit_zoned_p_expected.txt`, 260 cobc-measured cases; a left-P
   MOVE to binary is left out, cobc hangs on it even digit-only).
+- **The rest of the non-integer / non-digit sender class (#5032)**, against the Enterprise COBOL for z/OS 6.4 Language
+  Reference. Where IBM rejects or documents no result, the port refuses by name rather than model cobc:
+  - **MOVE of a noninteger numeric item to a NATIONAL or national-edited item -- REFUSED (already, at the source).**
+    Table 51 marks it invalid, and the translator refuses every national item (PIC N / G, USAGE NATIONAL / DISPLAY-1,
+    an N / G / U literal) before generation (#4462, #4664), so no sender shape, noninteger or not, reaches a national
+    receiver. Tested over `9V99`, `S9V99`, `VPP99`, `SVPP99`, `99PP`, `9(3)` x six national declarations
+    (`test_det_nondigit_zoned.py`).
+  - **UNSTRING -- REFUSED (translation hole), two different grounds (`Gen.unstring_operands`).** IBM's rules
+    (Language Reference, UNSTRING): a numeric `INTO` item may not have the symbol 'P', and a `COUNT IN` / `POINTER` /
+    `TALLYING IN` item must be an integer without a P; the port refuses a violation as IBM does. It does NOT require an
+    integer `INTO` item. The port's own CONSERVATIVE choice (REFUSED by name, ASSUMED, not an IBM compile error; the
+    Language Reference was not available to check it): a numeric sending item or `DELIMITED BY` / `DELIMITER IN`
+    item, and a decimal (no P) numeric `INTO` item, are not modelled -- GnuCOBOL moves their stored bytes and the port
+    does not translate either. An integer numeric `INTO` item and a reference-modified operand (alphanumeric) are
+    translated as before.
+  - **A signed zoned sender whose sign byte is no sign (`!` X'21', X'FF'), MOVEd to an alphanumeric or
+    alphanumeric-edited item -- REFUSED at run time.** IBM treats the sender as an unsigned integer and documents no
+    result for an invalid sign (undefined data, as above); cobc turns the byte into a digit (`GET_SIGN` /
+    `PUT_SIGN`), the port used to copy it. `Cobol.refuseUndefinedSign` refuses a sign byte that is not a digit, an
+    overpunch (`{` `A`-`I` `}` `J`-`R`) or a space, and a separate sign that is not `+` `-` or a space, the same
+    set the MOVE-to-binary refusal uses (`nonDigitSign`). Every other sign byte moves as ever.
 
 ### C12. FUNCTION RANDOM — the numbers DIFFER from z/OS, the interface ASSUMED; refused where IBM does not allow the seed
 - **IBM** (Enterprise COBOL 6.4 Language Reference, RANDOM,

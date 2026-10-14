@@ -34,14 +34,18 @@ from typing import Any
 _ABBREVIATIONS = {
     "AR": "ARITH", "BUF": "BUFSIZE", "C": "COMPILE", "CP": "CODEPAGE", "CURR": "CURRENCY", "D": "DECK",
     "DEF": "DEFINE", "DP": "DATEPROC", "DS": "DISPSIGN", "DTR": "DIAGTRUNC", "DU": "DUMP", "DYN": "DYNAM",
-    "EX": "EXIT", "EXP": "EXPORTALL", "F": "FLAG", "FSRT": "FASTSRT", "IC": "INITCHECK", "LANG": "LANGUAGE",
+    "EX": "EXIT", "EXP": "EXPORTALL", "F": "FLAG", "FSRT": "FASTSRT", "IC": "INITCHECK", "INVD": "INVDATA", "LANG": "LANGUAGE",
     "LC": "LINECOUNT", "MD": "MDECK", "NC": "NUMCHECK", "NS": "NSYMBOL", "NUM": "NUMBER", "OBJ": "OBJECT",
     "OFF": "OFFSET", "OPT": "OPTIMIZE", "OUT": "OUTDD", "PC": "PARMCHECK", "PGMN": "PGMNAME", "Q": "QUOTE",
     "S": "SOURCE", "SEQ": "SEQUENCE", "SERV": "SERVICE", "SO": "STGOPT", "SQLC": "SQLCCSID", "SSR": "SSRANGE",
     "TERM": "TERMINAL", "WD": "WORD", "X": "XREF", "XP": "XMLPARSE", "YW": "YEARWINDOW", "ZD": "ZONEDATA",
 }  # fmt: skip
 # Sub-option abbreviations that change no meaning but would otherwise read differently.
-_VALUE_ABBREVIATIONS = {"ARITH": {"C": "COMPAT", "E": "EXTEND"}}
+_VALUE_ABBREVIATIONS = {
+    "ARITH": {"C": "COMPAT", "E": "EXTEND"},
+    "DISPSIGN": {"C": "COMPAT", "S": "SEP"},
+    "NSYMBOL": {"NAT": "NATIONAL"},
+}
 _CARD = re.compile(r"^(?:[0-9]{6})?[ \t]*(CBL|PROCESS)(?=[ \t,]|$)", re.I)
 _PROGRAM_END = re.compile(r"(?<![A-Z0-9-])END[ \t]+PROGRAM\b", re.I)
 _NAME = re.compile(r"[A-Z][A-Z0-9-]*", re.I)
@@ -173,3 +177,77 @@ def effective_with_defaults(options: Any, source_text: str = "") -> dict[str, st
     for option, default in DEFAULTS.items():
         eff.setdefault(option, default)
     return eff
+
+
+# ---- the options that change results and are not SEMANTIC_OPTIONS (#4706) -------------------------------------------------
+# One row per option the table of docs/language_status/register/C5.md lists. `policy` says what a value the harness cannot
+# honour becomes: "refuse" (UnsupportedOption by name, nothing is proven) or "declare" (proven under `applied`, a declared
+# difference in the evidence record, as TRUNC(OPT) before the det stop); None: the option changes no defined result.
+# `honoured` lists the values (upper case) the proof runs as IBM does; a "flag" option (SSRANGE ...) is honoured when off.
+# Citations are Enterprise COBOL for z/OS 6.x Programming Guide, "Compiler options" (the option's own section).
+OPTION_TABLE: dict[str, dict[str, Any]] = {
+    "ZONEDATA": {"kind": "value", "default": "PFD", "honoured": ("PFD",), "policy": "refuse",
+                 "reason": "ZONEDATA(NOPFD|MIG) defines what invalid zone bits / digits do in MOVE, compare and arithmetic "
+                           "(APAR PI57769); no source states the results, and GnuCOBOL's are a guess"},
+    "INVDATA": {"kind": "flag", "default": "NOINVDATA", "honoured": (), "policy": "refuse",
+                "reason": "INVDATA (INVD(FNC|NOFNC,CS|NOCS)) supersedes ZONEDATA: it defines what invalid DISPLAY / "
+                          "PACKED-DECIMAL data does; the harness models none of it"},
+    "CODEPAGE": {"kind": "value", "default": "1140", "honoured": ("1140", "37"), "policy": "declare",
+                 "reason": "CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, "
+                           "collating, national <-> alphanumeric); the proof runs data in the case's data_encoding"},
+    "NSYMBOL": {"kind": "value", "default": "NATIONAL", "honoured": ("NATIONAL",), "policy": "refuse",
+                "reason": "NSYMBOL(DBCS) makes N literals and PIC N DBCS, not national; national / DBCS text is refused "
+                          "by name already (#4272)"},
+    "DISPSIGN": {"kind": "value", "default": "COMPAT", "honoured": ("COMPAT",), "policy": "refuse",
+                 "reason": "DISPSIGN(SEP) changes how DISPLAY shows a signed numeric item; the harness models COMPAT only"},
+    "FLOAT": {"kind": "value", "default": "HEX", "honoured": ("HEX", "S390"), "policy": "refuse",
+              "reason": "FLOAT(NATIVE) is IEEE binary floating point; the det port models IBM hexadecimal floating point "
+                        "(register C6)"},
+    "AFP": {"kind": "value", "default": "NOVOLATILE", "honoured": None, "policy": None,
+            "reason": "AFP only decides which floating-point registers the code uses, not a defined result"},
+    "SSRANGE": {"kind": "flag", "default": "NOSSRANGE", "honoured": (), "policy": "declare", "applied": "NOSSRANGE",
+                "reason": "SSRANGE aborts the run on an out-of-range subscript / reference modification; a run with none "
+                          "computes as NOSSRANGE, and an out-of-range one is undefined under NOSSRANGE"},
+    "NUMCHECK": {"kind": "flag", "default": "NONUMCHECK", "honoured": (), "policy": "declare", "applied": "NONUMCHECK",
+                 "reason": "NUMCHECK aborts or messages on invalid numeric data in a sending item; a run with none "
+                           "computes as NONUMCHECK"},
+    "INITCHECK": {"kind": "flag", "default": "NOINITCHECK", "honoured": None, "policy": None,
+                  "reason": "INITCHECK only warns at compile time about uninitialised items: no run result changes"},
+    "OPTIMIZE": {"kind": "value", "default": "0", "honoured": None, "policy": None,
+                 "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result"},
+}  # fmt: skip
+# Options of SEMANTIC_OPTIONS: the oracle's cobc flags (equivalence_common.COBC_OPTIONS) decide them, not this table.
+COBC_DECIDED_OPTIONS = ("ARITH", "INTDATE", "NUMPROC", "TRUNC")
+
+
+def result_option_state(eff: dict[str, str | None], option: str) -> str | None:
+    """The value of a OPTION_TABLE option in `eff` (effective_with_defaults), as the table compares it: a "value"
+    option's value, upper case (its default when unnamed); a "flag" option's text when on (`SSRANGE(ZLEN)`), else None."""
+    row = OPTION_TABLE[option]
+    if row["kind"] == "flag":
+        if option not in eff:
+            return None
+        return f"{option}({eff[option]})" if eff[option] not in (None, "") else option
+    return str(eff.get(option) or row["default"]).strip().upper()
+
+
+def unhonoured(eff: dict[str, str | None], code_page: str | None = None) -> list[dict[str, Any]]:
+    """The OPTION_TABLE in force (`eff`: effective_with_defaults) whose value the harness cannot honour, in table order:
+    [{option, declared, policy, applied, note}] -- `policy` "refuse" or "declare". `code_page` is the CCSID of the
+    case's data (None: not a CCSID page); CODEPAGE(n) is honoured only for the IBM default or that CCSID."""
+    out = []
+    for option, row in OPTION_TABLE.items():
+        state = result_option_state(eff, option)
+        if row["policy"] is None or state is None:
+            continue
+        if row["kind"] == "value" and (state in row["honoured"] or (option == "CODEPAGE" and state == code_page)):
+            continue
+        if option == "CODEPAGE":
+            applied = (
+                f"data in code page {code_page}" if code_page else "data in the case's data_encoding (no CCSID page)"
+            )
+        else:
+            applied = row.get("applied") or row["default"]
+        out.append({"option": option, "declared": state, "policy": row["policy"], "applied": applied,
+                    "note": f"{state if row['kind'] == 'flag' else f'{option}({state})'}: {row['reason']}"})  # fmt: skip
+    return out

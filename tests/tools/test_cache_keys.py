@@ -164,3 +164,60 @@ def test_java_compile_gradle_cache_is_hash_keyed_not_setup_gradles_own():
     assert deps, "the gradle cache moved out of java-compile.yml"
     for s in deps:
         assert "hashFiles" in _key(s) and not SHA_OK.search(_key(s)), _key(s)
+
+
+# --- #5024: the pinned-corpora cache (mainframe-corpora-<hash>) ----------------------------------------------------------
+# Same mechanism as #4968: a combined actions/cache step saves under the PR's own ref, so a PR that edits corpora.json left
+# a copy per PR that nothing else could read. On a pull_request workflow it must be a restore plus a main-only save.
+CORPORA_KEY = "mainframe-corpora-"
+# workflow -> why its combined step may stay (never triggered by a pull_request, so no per-PR copies)
+CORPORA_EXEMPT = {
+    "blocker-baseline.yml": "workflow_dispatch only",
+    "evidence-refresh.yml": "nightly schedule + workflow_dispatch only",
+}
+
+
+def _triggers(wf):
+    import yaml
+
+    doc = yaml.safe_load((WORKFLOWS / wf).read_text(encoding="utf-8"))
+    return set(doc.get(True) or doc.get("on") or {})  # PyYAML reads the bare key `on` as True
+
+
+def _corpora_steps():
+    return [(wf, k, s) for wf, k, s in _cache_steps() if CORPORA_KEY in _key(s)]
+
+
+def test_the_corpora_sweep_sees_every_step():
+    steps = _corpora_steps()
+    assert len(steps) >= 19, "expected restore+save pairs and the exempt steps; found %d" % len(steps)
+    assert {wf for wf, _, _ in steps} >= {"java-compile.yml", "det-sweep.yml", *CORPORA_EXEMPT}
+
+
+def test_corpora_exemptions_are_real_and_never_pull_request_triggered():
+    in_use = {wf for wf, _, _ in _corpora_steps()}
+    for wf, why in CORPORA_EXEMPT.items():
+        assert wf in in_use, f"{wf} no longer caches the corpora; remove it from CORPORA_EXEMPT ({why})"
+        assert "pull_request" not in _triggers(wf), f"{wf} is pull_request-triggered now; split its cache ({why})"
+
+
+def test_pull_request_workflows_never_use_a_combined_corpora_cache():
+    bad = [wf for wf, k, _ in _corpora_steps() if k == "both" and wf not in CORPORA_EXEMPT]
+    assert not bad, f"{sorted(set(bad))}: use actions/cache/restore + a main-only actions/cache/save (#5024)"
+
+
+def test_every_corpora_save_skips_pull_requests_and_pairs_with_a_restore():
+    steps = [(wf, k, s) for wf, k, s in _corpora_steps() if wf not in CORPORA_EXEMPT]
+    saves = [(wf, s) for wf, k, s in steps if k == "save"]
+    restores = [(wf, s) for wf, k, s in steps if k == "restore"]
+    assert saves and len(saves) == len(restores), (len(saves), len(restores))
+    for wf, s in saves:
+        assert "github.event_name != 'pull_request'" in s, f"{wf}: the corpora save must not run on a pull request"
+        assert "steps.corpora.outputs.cache-hit != 'true'" in s, f"{wf}: save only on a miss (a hit already exists)"
+        assert "continue-on-error: true" in s, f"{wf}: a lost save race must not fail the job"
+    for wf, s in restores:
+        assert re.search(r"\bid:\s*corpora\b", s), f"{wf}: the corpora restore needs `id: corpora` for the save's guard"
+    # each restore's key is saved again verbatim, in the same workflow (det-sweep has three such jobs)
+    assert sorted((wf, _key(s).strip()) for wf, s in saves) == sorted((wf, _key(s).strip()) for wf, s in restores)
+    for wf, s in saves:
+        assert re.search(r"path:\s*\.mainframe_corpora\s*$", s, re.M), f"{wf}: save path"

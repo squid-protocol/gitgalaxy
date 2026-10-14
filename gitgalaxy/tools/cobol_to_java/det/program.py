@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.aperture import DET_PORT_MARKER
+from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -562,6 +563,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
     lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
+    # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
+    lines = B.lower(lines, str(program))
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)

@@ -1995,9 +1995,17 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         i = j + 1
 
 
-def translate(source: str) -> tuple[str, bool]:
+def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
-    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
+    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
+    program's BLL cells and SERVICE RELOAD are lowered first, as the det translator lowers them (det/bll.py; its
+    COPY members found in `copy_dirs`), so GnuCOBOL runs the program the port was translated from."""
+    from gitgalaxy.tools.cobol_to_java.det import bll
+
+    try:
+        source = bll.lower_text(source, copy_dirs or [])
+    except bll.Refused as e:
+        raise Unsupported(str(e), ["BLL cells"]) from None
     lines = source.splitlines()
     if any(
         len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines
@@ -2947,7 +2955,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
-    text, has_commarea = translate(source)
+    text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
@@ -3015,7 +3023,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             what = " ".join(_CHILD_STATIC.search(x_source).group(0).split()[1:]).upper()
             raise Unsupported(f"{extra['program']}: a RUN TRANSID child's {what} (a region resource): its order "
                               "against its parent's and its siblings' commands is not modelled", ["RUN TRANSID"])  # fmt: skip
-        x_translated, x_ca = translate(x_source)
+        x_translated, x_ca = translate(x_source, [src])
         name = extra["program"].upper()
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")

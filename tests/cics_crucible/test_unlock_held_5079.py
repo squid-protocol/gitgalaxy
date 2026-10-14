@@ -1,7 +1,7 @@
 """#5079 (register X52): UNLOCK without TOKEN releases the file's tokenless READ UPDATE hold (IBM, CICS TS 6.x, EXEC CICS
 UNLOCK: "releases exclusive control of a record in a file that was acquired by a previous READ UPDATE"), run on the stub
-(ggcics.c) and on CicsTask over one scenario list. A REWRITE after the UNLOCK is INVREQ
-(RESP2 recorded 0, like every tokenless file INVREQ). IBM: an UNLOCK that matches no tokenless READ UPDATE (or WRITE
+(ggcics.c) and on CicsTask over one scenario list. A REWRITE after the UNLOCK is INVREQ RESP2 30 (#5092)
+(no hold to rewrite). IBM: an UNLOCK that matches no tokenless READ UPDATE (or WRITE
 MASSINSERT, not modelled) "takes no action and a NORMAL response is returned". A record held under a token is not the tokenless hold."""
 
 import sys
@@ -20,7 +20,7 @@ _WANT = [
     "N:F:0 resp=0 resp2=0",  # nothing held: no action, NORMAL (IBM)
     "H:F:100 resp=0 resp2=0",
     "N:F:0 resp=0 resp2=0",  # released ...
-    "T:F:100 resp=16 resp2=0",  # ... so a REWRITE finds nothing held
+    "T:F:100 resp=16 resp2=30",  # ... so a REWRITE finds nothing held (INVREQ RESP2 30, #5092)
     "N:F:0 resp=0 resp2=0",  # and a second UNLOCK is NORMAL too
     "H:F:200 resp=0 resp2=0",
     "H:G:900 resp=0 resp2=0",

@@ -160,6 +160,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X50 | CICS | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | X51 | CICS | EXEC CICS RETURN TRANSID COMMAREA LENGTH and XCTL COMMAREA LENGTH hand the next task / the target LENGTH bytes (its EIBCALEN), every byte as it was; the det port passes the record's whole span beside its DTO (#4806, #4817), so CicsTask cuts those bytes at LENGTH (null: all; past the span: all of it), as the DTO's reading already is; a LINK's area is not cut (by address); a LENGTH past the DTO passes the COMMAREA as a byte[] (region EBCDIC), which a facade's handleTransaction answers as an Object by design | ASSUMED | no (unit-proven on CicsTask for RETURN, RETURN IMMEDIATE and XCTL, every LENGTH class: tests/cobol_mainframe/test_commarea_length_bytes_4817.py; no estate program differs by it: a conforming program never reads past EIBCALEN) |
 | X52 | CICS | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) | ASSUMED (REFUSED where IBM is silent) | unit-proven on CicsTask and the stub C over one scenario list (tests/cics_crucible/test_update_token_runtimes_5078.py: valid, invalid, reused, interleaved, wrong-file tokens); CBSA DELCUS (READ UPDATE TOKEN twice, DELETE TOKEN twice) translates whole (det_survey: 140 of 140 statements, compiles) |
+| X53 | CICS | REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state | ASSUMED (REFUSED where IBM is silent) | no |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1791,7 +1792,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `GGCGCNT`), and INVREQ 403 / 404 for a pool / counter name outside IBM's characters, as DEFINE does; QUERY COUNTER likewise.
   **No proven case moved**: no cics-crucible case, equivalence case or committed port used GET COUNTER (only a translator unit
   sample), so no verdict changed; hc-named-counters is the first that does, and it proves INVREQ RESP2 201. GET COUNTER's
-  other options (REDUCE, COMPAREMIN / COMPAREMAX, NOSUSPEND) stay refused by name.
+  other options (REDUCE, COMPAREMIN / COMPAREMAX, NOSUSPEND) are X53's since #5039.
 - **GET DCOUNTER INCREMENT [WRAP]** (#4767, zECS ZECS001; same page, "summary-get-counter-get-dcounter"). "VALUE returns the current
   number ... the counter is incremented after the current number has been assigned"; INCREMENT "the amount to add; the default is 1";
   DCOUNTER's value is "a doubleword unsigned binary"; WRAP: "if the counter is at its limit, the server resets it to its minimum
@@ -1803,8 +1804,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   maximum the page leaves open) and an INCREMENT not above zero (the page gives it no meaning; the doubleword is unsigned) are
   REFUSED at run time. (2) A stated counter is one number whichever form names it (ASSUMED: IBM does not say whether a COUNTER and a
   DCOUNTER of one name are the same counter). (3) The INCREMENT is a data area (an 8-byte unsigned binary in zECS); a literal is
-  refused by the stub translator, and INCREMENT / WRAP on the fullword form COUNTER are refused. REFUSED by name: REDUCE, COMPAREMIN,
-  COMPAREMAX, NOSUSPEND. Unit-proven on both runtimes line for line (tests/cics_crucible/test_cics_runtimes.py) and both translators;
+  refused by the stub translator, and INCREMENT / WRAP on the fullword form COUNTER are refused. REDUCE, COMPAREMIN, COMPAREMAX and
+  NOSUSPEND: X53 (#5039). Unit-proven on both runtimes line for line (tests/cics_crucible/test_cics_runtimes.py) and both translators;
   no case runs it yet (zECS ZECS001's 4000-GET-COUNTER does, after its CALL ZUIDSTCK, which the corpus does not ship).
 - **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
   command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
@@ -2377,7 +2378,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   MINIMUM / MAXIMUM stay refused. (5) A COUNTER and a DCOUNTER of one name are one counter (ASSUMED, X30): IBM says to "access a
   counter with the same command set that defined it" and states nothing for a mismatch. (6) The order of 407 / 406 / 202 (above).
   (7) VALUE / MINIMUM / MAXIMUM are data areas in the stub translator (a literal is refused); the det translator takes literals too.
-- **Refused by name, unchanged:** DEFINE COUNTER's MINIMUM / MAXIMUM, NOSUSPEND, GET's REDUCE / COMPAREMIN / COMPAREMAX / NOSUSPEND.
+- **Since #5039:** DEFINE COUNTER's MINIMUM / MAXIMUM are X50's, GET's REDUCE / COMPAREMIN / COMPAREMAX and NOSUSPEND are X53's.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
   (tests/cics_crucible/test_cics_runtimes.py `_X45_CASES`) and both translators; no case runs it yet (zECS ZECSNC is assembler, its
   DEFINE DCOUNTER / ZECS001's GET DCOUNTER are not in a COBOL case the corpus ships whole).
@@ -2522,7 +2523,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   QUERY COUNTER MINIMUM / MAXIMUM of it is REFUSED ("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state").
   (5) A COUNTER and a DCOUNTER of one name are one counter (ASSUMED, X30 / X45). (6) The order of 407 / 406 / 202 (above).
   (7) VALUE / MINIMUM / MAXIMUM of DEFINE COUNTER may be decimal literals in both translators (the stub translator stages one big-endian in GG-FLAGS); QUERY COUNTER writes them, so the stub translator takes data areas only.
-- **Refused by name, unchanged:** REWIND, UPDATE, GET's REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND on DEFINE / GET / QUERY / UPDATE / REWIND / DELETE.
+- **Since #5039 (X53):** REWIND, UPDATE, GET's REDUCE / COMPAREMIN / COMPAREMAX and NOSUSPEND are modelled or refused by name in X53.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
   (tests/cics_crucible/test_cics_runtimes.py `_X50_CASES`) and both translators.
 
@@ -2568,6 +2569,42 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   RIDFLD (IBM does not say which record goes) or GENERIC; a REWRITE TOKEN whose FROM has another key than the held record's; READ UPDATE TOKEN
   with LENGTH shorter than the record (LENGERR: whether the record is then held is unsaid, as X6); UNLOCK without TOKEN (releasing the file's
   tokenless hold, #5079); more than 64 records held under tokens at once (the stub's table).
+
+### X53. REWIND / UPDATE COUNTER and DCOUNTER, GET REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND on the named-counter commands — ASSUMED, REFUSED where IBM is silent (#5039)
+- **What IBM says** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewind-counter-rewind-dcounter,
+  ...summary-update-counter-update-dcounter, ...summary-get-counter-get-dcounter). REWIND: "resets a named counter that has reached its
+  limit" to its defined minimum; INCREMENT is "used to check whether the counter can be reset ... the server applies it before testing the
+  counter-at-limit condition"; SUPPRESSED RESP2 102 "the counter hasn't reached its limit, even after applying any specified increment";
+  INVREQ 406 "the INCREMENT value exceeds the counter's total range ((maximum - minimum) + 1)". UPDATE: VALUE "the new number to set as the
+  current value"; INVREQ 406 "the VALUE is invalid. It is below the minimum, or above the maximum plus 1"; SUPPRESSED RESP2 103 "the current
+  value of the named counter is not within the range specified by the COMPAREMAX and COMPAREMIN parameters". GET: REDUCE "the server may
+  reduce the increment, and the request succeeds with the current value set to the maximum plus 1"; COMPAREMIN "returns the current value
+  if it is equal to or greater than this value", COMPAREMAX "less than or equal"; "when COMPAREMAX is less than COMPAREMIN, the value is
+  in range if it satisfies either comparison"; SUPPRESSED RESP2 103 for a value outside the range. NOSUSPEND (all six commands): without
+  it a request "retries until success" during a coupling-facility structure rebuild; with it BUSY (128) RESP2 500.
+- **Modelled** (`CicsTask.rewindCounter` / `updateCounter` / `getCounter(.., reduce, cmpMin, cmpMax, fullword)`, the stub's `GGCRCNT` /
+  `GGCRDCN` / `GGCUCNT` / `GGCUDCN` / `GGCGCNX` / `GGCGDCX`, the det translator and `equivalence_cics.py`): the counters of X30 / X45 / X50.
+  A counter has reached its limit at MAXIMUM + 1 (where a GET leaves it). REWIND with no INCREMENT (or 1): at the limit it becomes its
+  minimum, below it SUPPRESSED 102. UPDATE to a value from MINIMUM to MAXIMUM + 1. GET REDUCE: the value handed out, the counter MAXIMUM + 1.
+  GET COMPARE tests the value handed out, a value out of range is SUPPRESSED 103 and the counter is unchanged (ASSUMED: IBM does not say
+  whether it advances); it also tests a counter a scenario states (no limits entry). 201 / 403 / 404 as GET; a counter name is checked
+  before the counter's existence, which before 406 (ASSUMED: the pages give no order).
+- **What IBM leaves open, and what we do.** (1) UPDATE COMPAREMIN / COMPAREMAX: the options text compares "the current value to assign" (the
+  new VALUE), SUPPRESSED 103 names "the current value of the named counter": REFUSED by name at translation. (2) REWIND INCREMENT above 1
+  (within the range): how the limit test applies it is not stated; REFUSED at run time (1 and the default are modelled; an INCREMENT beyond
+  the range is IBM's stated 406; zero has no meaning: REFUSED). (3) REDUCE with WRAP: which acts when the increment overshoots is not stated:
+  REFUSED. (4) REDUCE, or COMPAREMIN / COMPAREMAX, on a counter already at MAXIMUM + 1: whether SUPPRESSED 101 or 103 comes first, and
+  what REDUCE does with nothing left to reduce, is not stated: REFUSED (WRAP and plain GET at the limit are as X45 / X50). (5) The signed
+  reading of a negative fullword VALUE or compare value (the open point of X30): REFUSED for COUNTER (a DCOUNTER holds it as a huge
+  unsigned number: 406 / out of range). (6) REWIND / UPDATE of a counter with no limits entry (a scenario's): the limit it tests is not
+  stated by the run: REFUSED. (7) NOSUSPEND: BUSY needs a coupling facility; this region has one task and no structure, so the option is
+  accepted and ignored (ASSUMED); BUSY RESP2 500 and the 301-311 server errors are never returned. (8) The stub translator takes data
+  areas only for REWIND INCREMENT, UPDATE VALUE and the compare bounds (the det translator takes literals). (9) INCREMENT beyond MAXIMUM -
+  MINIMUM on GET stays X50's refusal (IBM's 406 boundary there is (maximum - minimum) + 1; the narrower refusal is kept).
+- **Refused by name:** UPDATE COMPAREMIN / COMPAREMAX; BUSY RESP2 500; the rest above, each with its own message (spec `task.py`).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario, once as COUNTER and
+  once as DCOUNTER (tests/cics_crucible/test_counter_ops_runtimes_5039.py) and both translators
+  (tests/cobol_mainframe/test_counter_ops_translate_5039.py). No corpus program runs these commands yet.
 
 ## Language Environment
 

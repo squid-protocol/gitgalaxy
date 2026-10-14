@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 90 full, 2 engine-only, 163 name-only.
+**255 entries:** 92 full, 2 engine-only, 161 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -78,10 +78,12 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | ENQ | full | yes (9 options) | yes | — | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |
-| GET COUNTER | full | yes (9 options, 4 refused by name) | yes | X30, X45 | — | 2 (2 / 0) | — |
-| QUERY COUNTER | full | yes (9 options) | yes | X29, X45, X50 | — | 1 (1 / 0) | — |
-| DEFINE COUNTER | full | yes (9 options) | yes | X30 | — | 1 (1 / 0) | — |
-| DELETE COUNTER | full | yes (6 options) | yes | X30 | — | 1 (1 / 0) | — |
+| GET COUNTER | full | yes (13 options) | yes | X30, X45, X53 | — | 2 (2 / 0) | — |
+| QUERY COUNTER | full | yes (10 options) | yes | X29, X45, X50 | — | 1 (1 / 0) | — |
+| DEFINE COUNTER | full | yes (10 options) | yes | X30 | — | 1 (1 / 0) | — |
+| DELETE COUNTER | full | yes (7 options) | yes | X30 | — | 1 (1 / 0) | — |
+| REWIND COUNTER | full | yes (8 options) | yes | X30, X53 | — | 0 | — |
+| UPDATE COUNTER | full | yes (8 options, 2 refused by name) | yes | X30, X53 | — | 0 | — |
 | ASKTIME | full | yes (2 options) | yes | — | — | 55 (54 / 1) | — |
 | FORMATTIME | full | yes (23 options, 6 refused by name) | yes | X46 | — | 56 (55 / 1) | — |
 | INQUIRE PROGRAM | full | yes (5 options) | yes | X34 | — | 2 (2 / 0) | — |
@@ -127,7 +129,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-162 more name-only entries no census program uses.
+160 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

@@ -5878,7 +5878,7 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_container_names(tmp_path, step
     rank are refused, never guessed."""
     exe = _stub(tmp_path, _name_stub('op("OK", "CH1", "CHANNEL", 1); GGCPUTC(&c, "x");\n' + steps))
     (tmp_path / "out").mkdir(exist_ok=True)
-    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     proc = subprocess.run([str(exe)], env=env, capture_output=True, encoding="latin-1", check=False)  # noqa: S603
     assert proc.returncode == 98 and why in proc.stderr + proc.stdout, proc.stdout
 

@@ -9,7 +9,8 @@
 Per queued PR, each pass (tests/tools/pr_check.py for the state, tests/tools/ci_digest.py for the failures):
   merged / closed         leaves the queue
   waits on --after PR     skipped until that one merged
-  green + mergeable       `pr_check.merge` (marks ready, squash-merges pinned to the checked head); a merge that moved
+  green + mergeable       `pr_check.merge` (a draft is only marked ready, merged on a later pass once its CI is green; else squash-merges pinned
+                          to the checked head); a merge that moved
                           the crucible pin syncs the shared checkouts, as `pr_check.py --merge` does
   checks pending          waits
   behind main, no failed/pending checks  `gh pr update-branch`, ONCE per head SHA (#4790): the push restarts
@@ -157,6 +158,9 @@ def _pass_one(
     sha = res["head_sha"]
     if res["ready"]:
         errors = pr_check.merge(res, run)
+        if pr_check.draft_marked_ready(errors):
+            did.append(f"#{n} was a draft: marked ready; its CI starts, a later pass merges")
+            return
         if errors:
             did.append(f"#{n} merge failed: {'; '.join(errors)}")
             return
@@ -192,7 +196,9 @@ def _pass_one(
             and all(reruns_used_up(state, n, sha, f"rerun:{f['check']}", INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
         errors = pr_check.merge(res, run)
         names = ", ".join(f["check"] for f in d["failed"])
-        if errors:
+        if pr_check.draft_marked_ready(errors):
+            did.append(f"#{n} was a draft: marked ready; its CI starts, a later pass decides")
+        elif errors:
             did.append(f"#{n} merge failed: {'; '.join(errors)}")
         else:
             state["queue"].remove(n)

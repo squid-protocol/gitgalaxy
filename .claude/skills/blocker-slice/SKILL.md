@@ -86,7 +86,7 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 ## 4. After it lands
 
 - `pr_check.py N` before merging (CI, mergeability, the ratchet files a PR must touch); `pr_check.py N --merge`
-  squash-merges only when green. Drafts first; the merge is the orchestrator's call.
+  squash-merges only when green; a draft is only marked ready by the first call and merged by a second once its CI is green. Drafts first; the merge is the orchestrator's call.
 - The purchaser-facing evidence report (#4601, `docs/language_status/evidence_report/`) reads the det-sweep and
   crucible baselines, `cics_spec_status.json`, the cases, the evidence records and `oracle_assumptions.md`: a PR that
   changes one does NOT commit the rendered report (#4703): the evidence-refresh bot regenerates it on main and PR CI

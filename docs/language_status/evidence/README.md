@@ -49,5 +49,9 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [HXEXT](crucible-hx-extended-cursor-HXEXT.md) | crucible:hx-extended-cursor/HXEXT | crucible | proven, unapproved |  | 3 | 3/3 / 6/6 | 16/23 / 16/19 | 0 | - |
 | [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 14/24 / 14/14 | 0 | - |
 | [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | proven, unapproved |  | 4 | 4/4 / 9/9 | 14/22 / 14/15 | 0 | - |
+| [PCIMMA](crucible-pc-return-immediate-PCIMMA.md) | crucible:pc-return-immediate/PCIMMA | crucible | not-proven | 2 ported_unproven methods (in_PcimmaWsCa, runProgram) | 4 | 6/6 / 4/5 | - | 2 | - |
+| [PCIMMB](crucible-pc-return-immediate-PCIMMB.md) | crucible:pc-return-immediate/PCIMMB | crucible | not-proven | 1 ported_unproven method (runProgram) | 1 | 2/2 / 2/2 | - | 1 | - |
+| [PCIMML](crucible-pc-return-immediate-PCIMML.md) | crucible:pc-return-immediate/PCIMML | crucible | not-proven | 2 ported_unproven methods (out_PcimmlDfhcommarea, runProgram) | 2 | 1/1 / 2/2 | - | 2 | - |
+| [PCIMMS](crucible-pc-return-immediate-PCIMMS.md) | crucible:pc-return-immediate/PCIMMS | crucible | not-proven | 1 ported_unproven method (runProgram) | 1 | 1/1 / 0/0 | - | 1 | - |
 | [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | proven, unapproved |  | 5 | 5/5 / 14/14 | 14/23 / 14/17 | 0 | - |
 | [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | proven, unapproved |  | 6 | 5/5 / 10/10 | 11/21 / 11/16 | 0 | - |

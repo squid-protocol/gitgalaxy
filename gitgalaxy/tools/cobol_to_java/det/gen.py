@@ -440,7 +440,7 @@ class Gen:
 
     def osvs_length(self, e: E.LengthOf) -> int:
         it = self.resolve(e.ref)
-        return it.size * it.occurs
+        return it.size if e.ref.subscripts else it.size * it.occurs  # #5076: TERM-LINES(1) is one element, not the table
 
     @contextlib.contextmanager
     def osvs_plan(self, plan: dict):
@@ -1035,7 +1035,7 @@ class Gen:
             return f"Cobol.align({v}, {p[1]})" if p is not None else v
         if isinstance(e, E.LengthOf):
             it = self.resolve(e.ref)
-            return f"BigDecimal.valueOf({it.size * it.occurs})"
+            return f"BigDecimal.valueOf({it.size if e.ref.subscripts else it.size * it.occurs})"  # #5076: an element
         if isinstance(e, E.Func):
             return self.func(e)
         raise Untranslatable(f"expression {type(e).__name__}")

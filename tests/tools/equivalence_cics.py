@@ -387,6 +387,17 @@ def http_peers(case: dict[str, Any], sc: dict[str, Any]) -> list[dict[str, Any]]
     return peers
 
 
+def mapsets_env(case: dict[str, Any]) -> str:
+    """#4270 (X31) / #5076: the case's "maps" ({MAP: {"mapset": MAPSET}}, as a cics-crucible case states them) as the stub's
+    $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a SEND MAP / RECEIVE MAP for a map its mapset does not hold abends
+    ABM0 on the COBOL side as the det port's translation already does (BNK1CCS's CLEAR: SEND MAP('BNK1CCM'), the
+    mapset's name). Unstated, a mapset is not checked."""
+    held: dict[str, list[str]] = {}
+    for m, spec in sorted(case["maps"].items()):
+        held.setdefault(spec["mapset"], []).append(m)
+    return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
+
+
 def http_peers_cfg(peers: list[dict[str, Any]], enc: str) -> str:
     """#4767 (X35): the stub's $GGCICS_HTTP file (ggcics.c GGCWOPN): `P SCHEME HOSTHEX PORT URIMAP|- PATHHEX|-` per peer,
     then `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` per response, hex in the data's page."""
@@ -2762,8 +2773,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
-    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT)
-    for model in sorted(LE_MODELS.glob("*.c")) if subs or re.search(r"(?i)\bCALL\s+['\"]CEE", source) else []:
+    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
+    # task does, BNK1CCS -> CRECUST)
+    calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
+        re.search(r"(?i)\bCALL\s+['\"]CEE", common.read_program(case, corpus / extra["program_source"])[0])
+        for extra in case.get("programs", [])
+    )
+    for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
@@ -2923,6 +2939,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
+                      + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")

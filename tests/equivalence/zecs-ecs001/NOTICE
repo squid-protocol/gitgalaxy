@@ -1,0 +1,11 @@
+zECS (z/OS Enterprise Caching Service)
+https://github.com/walmartlabs/zECS
+Authors: Randy Frerking and Rich Jackson (Walmart Technology)
+
+Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
+licence file). The program under test, Source/ECS001.cbl, is zECS's, used
+unmodified from the corpus.
+
+The transaction id, the client URIMAP (ECS001, its path), the HTTP server and
+its responses the scenarios state are written for this case: zECS's CSD does
+not install ECS001. The scenarios in case.json are written for this case.

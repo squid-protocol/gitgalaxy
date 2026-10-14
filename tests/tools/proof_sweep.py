@@ -126,16 +126,35 @@ def det_cases(skip_db2: bool = False, only_db2: bool = False) -> list[str]:
     )
 
 
+# What a re-proof of the same case may legitimately differ in: how long it took.
+_TIMING_FIELDS = frozenset({"seconds"})
+
+
 def merge_sweeps(dirs: list[Path]) -> dict[str, dict[str, dict]]:
-    """The union of the `sweep.json` of each directory (a shard's work directory, or an artifact's)."""
+    """The union of the `sweep.json` of each directory (a shard's work directory, or an artifact's).
+
+    A case in two shards is normal when the shards split on different durations files (each restores the newest
+    nightly's cache when it starts, and a queue can put a cache save between two shards, #5107): the copies are
+    accepted when they agree on everything but the timing, and the first is kept. Copies that disagree are a real
+    conflict and raise. A case no shard proved is `missing_cases`' business, not this function's."""
     merged: dict[str, dict[str, dict]] = {}
+    where: dict[tuple[str, str], Path] = {}
     for d in dirs:
         f = d / "sweep.json" if d.is_dir() else d
         for sweep, cases in json.loads(f.read_text(encoding="utf-8")).items():
             for case, r in cases.items():
-                if case in merged.setdefault(sweep, {}):
-                    raise ValueError(f"{sweep} {case}: in two shards ({f})")
-                merged[sweep][case] = r
+                seen = merged.setdefault(sweep, {})
+                if case in seen:
+                    old = seen[case]
+                    diff = sorted(k for k in set(old) | set(r) if k not in _TIMING_FIELDS and old.get(k) != r.get(k))
+                    if diff:
+                        raise ValueError(
+                            f"{sweep} {case}: in two shards with conflicting results "
+                            f"({where[sweep, case]}, {f}): {', '.join(diff)}"
+                        )
+                    continue
+                seen[case] = r
+                where[sweep, case] = f
     return merged
 
 

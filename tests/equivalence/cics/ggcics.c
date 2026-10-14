@@ -1069,7 +1069,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
 }
 
 /* UNLOCK FILE(name1) TOKEN(GG-NUM) (#5078, X52): releases the record a READ UPDATE TOKEN holds; INVREQ RESP2 47 for a
- * token matching none in use. #5079: without TOKEN (GG-FLAGS blank) it releases the file's tokenless hold, INVREQ when none. */
+ * token matching none in use. #5079: without TOKEN (GG-FLAGS blank) it releases the file's tokenless hold; none held: no action, NORMAL (IBM). */
 int GGCUNLK(gg_cics *c) {
     char want[9], path[3000];
     int reclen, keyoff, klen;
@@ -1080,10 +1080,8 @@ int GGCUNLK(gg_cics *c) {
         return 0;
     }
     if (!strstr(c->flags, "TOKEN")) {
-        int has = 0;
-        for (int i = 0; i < MAX_FILES; i++) if (held[i].name[0] && strcmp(held[i].name, want) == 0) has = 1;
-        if (has) release(want);
-        c->resp = has ? NORMAL : INVREQ;
+        release(want);
+        c->resp = NORMAL;
         return 0;
     }
     int ti = token_find(c->num, want);

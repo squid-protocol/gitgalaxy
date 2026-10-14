@@ -272,8 +272,8 @@ DELETE = _file(
 
 # #5078 (X52), IBM CICS TS, EXEC CICS UNLOCK: releases the exclusive control a READ UPDATE took. TOKEN "associates the UNLOCK
 # with an earlier READ ... that used UPDATE"; a token matching none in use is INVREQ RESP2 47. UNLOCK without TOKEN (the
-# file's held record, #5079) releases the tokenless hold of the file; with none held it is INVREQ (RESP2 recorded 0, as
-# for a tokenless REWRITE / DELETE: ASSUMED, IBM states none).
+# file's held record, #5079) releases the tokenless hold of the file; IBM: with none held "no action is taken and a NORMAL
+# response is returned". The WRITE MASSINSERT a tokenless UNLOCK may also match is not modelled (WRITE has no MASSINSERT option: refused).
 UNLOCK = _file(
     "UNLOCK",
     "EXEC CICS UNLOCK",
@@ -281,7 +281,7 @@ UNLOCK = _file(
     register="X52",
     options={**_NAME_ONLY, "TOKEN": _TOKEN_IN, **RESP_OPTIONS},
     refused=_REMOTE,
-    outcomes=(_NORMAL, Outcome("INVREQ", None, "no READ UPDATE holds a record of the file"), _INVREQ_TOKEN),
+    outcomes=(_NORMAL, _INVREQ_TOKEN),
 )
 
 COMMANDS = (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE, UNLOCK)

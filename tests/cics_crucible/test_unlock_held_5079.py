@@ -1,7 +1,8 @@
 """#5079 (register X52): UNLOCK without TOKEN releases the file's tokenless READ UPDATE hold (IBM, CICS TS 6.x, EXEC CICS
 UNLOCK: "releases exclusive control of a record in a file that was acquired by a previous READ UPDATE"), run on the stub
-(ggcics.c) and on CicsTask over one scenario list. A REWRITE after the UNLOCK, or an UNLOCK with nothing held, is INVREQ
-(RESP2 recorded 0, like every tokenless file INVREQ: ASSUMED). A record held under a token is not the tokenless hold."""
+(ggcics.c) and on CicsTask over one scenario list. A REWRITE after the UNLOCK is INVREQ
+(RESP2 recorded 0, like every tokenless file INVREQ). IBM: an UNLOCK that matches no tokenless READ UPDATE (or WRITE
+MASSINSERT, not modelled) "takes no action and a NORMAL response is returned". A record held under a token is not the tokenless hold."""
 
 import sys
 from pathlib import Path
@@ -16,11 +17,11 @@ _OPS = (
     "R:F:210", "N:F:0", "U:F:1", "H:F:999", "N:F:0", "H:F:100", "S:F:0", "N:F:0", "H:F:100", "N:F:0", "H:F:100",
 )  # fmt: skip
 _WANT = [
-    "N:F:0 resp=16 resp2=0",  # nothing held
+    "N:F:0 resp=0 resp2=0",  # nothing held: no action, NORMAL (IBM)
     "H:F:100 resp=0 resp2=0",
     "N:F:0 resp=0 resp2=0",  # released ...
     "T:F:100 resp=16 resp2=0",  # ... so a REWRITE finds nothing held
-    "N:F:0 resp=16 resp2=0",  # and a second UNLOCK too
+    "N:F:0 resp=0 resp2=0",  # and a second UNLOCK is NORMAL too
     "H:F:200 resp=0 resp2=0",
     "H:G:900 resp=0 resp2=0",
     "N:G:0 resp=0 resp2=0",  # another file's UNLOCK leaves F's hold
@@ -28,13 +29,13 @@ _WANT = [
     "H:F:300 resp=0 resp2=0",
     "N:F:0 resp=0 resp2=0",  # unlocked as it was
     "R:F:210 resp=0 resp2=0 tok=1",
-    "N:F:0 resp=16 resp2=0",  # a token hold is not the file's tokenless hold
+    "N:F:0 resp=0 resp2=0",  # a token hold is not the file's tokenless hold
     "U:F:1 resp=0 resp2=0",
     "H:F:999 resp=13 resp2=0",  # NOTFND holds nothing
-    "N:F:0 resp=16 resp2=0",
+    "N:F:0 resp=0 resp2=0",
     "H:F:100 resp=0 resp2=0",
     "S:F:0 resp=0 resp2=0",  # a SYNCPOINT ends the hold
-    "N:F:0 resp=16 resp2=0",
+    "N:F:0 resp=0 resp2=0",
     "H:F:100 resp=0 resp2=0",
     "N:F:0 resp=0 resp2=0",
     "H:F:100 resp=0 resp2=0",  # the record can be read for update again

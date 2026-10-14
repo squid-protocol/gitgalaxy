@@ -3879,9 +3879,10 @@ public class CicsTask {
         return done(0, 0);
     }
 
-    /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds (INVREQ, 16, when none). */
+    /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds; none held: no action, NORMAL (IBM). */
     public int unlockHeld(String file) {
-        return root().held.remove(file) ? done(0, 0) : done(16, 0);
+        root().held.remove(file);
+        return done(0, 0);
     }
 
     /** UNLOCK FILE(file) TOKEN(token): releases the record the token holds, unchanged (IBM, EXEC CICS UNLOCK). */

@@ -49,6 +49,13 @@ def test_the_stub_rewrites_deletes_and_unlocks_by_token():
     ]
 
 
+def test_write_massinsert_is_refused_by_name():  # #5079: the other thing a tokenless UNLOCK may match (IBM)
+    with pytest.raises(ec.Unsupported):
+        ec.translate_command("WRITE FILE('F') FROM(REC) RIDFLD(K) MASSINSERT")
+    with pytest.raises(C.CicsError):
+        _LenCics().command("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) MASSINSERT", "")
+
+
 def test_unlock_without_a_token_releases_the_files_hold_on_the_stub_and_the_det_port():  # #5079
     ul = ec.translate_command("UNLOCK FILE('F') RESP(R)")
     assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCUNLK' USING GG-CICS"]

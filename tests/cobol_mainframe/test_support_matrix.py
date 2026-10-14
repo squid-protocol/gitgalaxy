@@ -174,6 +174,17 @@ def test_system_copybooks_are_a_configuration_gap_and_mq_is_not_provable(bare):
     assert "IBM MQ" in apis and "P4.cbl" in apis and "P6.cbl" not in apis
 
 
+def test_an_unowned_entry_is_an_acceptance_gap(rmap):
+    unowned = {**rmap, "entries": [{"id": "x", "match": "ZZZ", "_re": re.compile("ZZZ")}, *rmap["entries"]]}
+    api = {**rmap, "entries": [{"id": "y", "match": "ZZZ", "_re": re.compile("ZZZ"), "charter": "ims",
+                                "api": {"name": "Y", "issue": None}}, *rmap["entries"]]}  # fmt: skip
+    for m in (unowned, api):
+        e = sm.build_estate("synthetic", INVENTORY, REPORT, m, None)
+        assert e["needs_issue"] == [m["entries"][0]["id"]]
+        assert e["refusals"][m["entries"][0]["id"]]["label"] == sm.NEEDS_ISSUE
+        assert "Acceptance gap (#4724)" in "\n".join(sm.render_estate(e))
+
+
 def test_an_unmapped_refusal_is_shown_not_dropped(bare):
     assert bare["unmapped"] == {"CALL CALL ZZZUNKNOWN": ["P3.cbl"]}
     assert "UNMAPPED" in "\n".join(sm.render_estate(bare))
@@ -221,8 +232,8 @@ def committed_texts():
 
 
 def test_every_burned_refusal_and_hole_maps_to_exactly_one_entry(rmap):
-    """#4724 acceptance: every refusal maps to an issue, an agreed refusal family, a system library -- or to an entry
-    that says it needs an issue. A new text (an evidence refresh) fails here until refusal_map.json names it."""
+    """#4724 acceptance: every refusal maps to exactly one entry. A new text (an evidence refresh) fails here until
+    refusal_map.json names it, with its owner (test_every_refusal_map_entry_has_an_owner)."""
     bad = [
         (estate, program, text, [e["id"] for e in sm.classify(text, rmap)])
         for estate, program, text in committed_texts()
@@ -240,10 +251,20 @@ def test_refusal_map_entries_are_well_formed(rmap):
     ids = [e["id"] for e in rmap["entries"]]
     assert len(ids) == len(set(ids))
     for e in rmap["entries"]:
-        assert e.get("issue") or e.get("charter") or e.get("system_library") or e.get("note"), e["id"]
         assert e.get("charter") in (None, *rmap["charter"]), e["id"]
         for f in e.get("features", []):
             assert re.fullmatch(r"[a-z_]+: \S.*", f) and f.split(": ")[0] in categories, (e["id"], f)
+
+
+def test_every_refusal_map_entry_has_an_owner(rmap):
+    """#4724 acceptance: no entry is left at "needs an issue" -- each names an issue, an agreed refusal family or a
+    system library, and an unmodelled API it names has its issue."""
+    assert [e["id"] for e in rmap["entries"] if not sm.owned(e)] == []
+
+
+def test_no_burned_estate_has_an_unowned_refusal():
+    for estate, m in sm.build()["estates"].items():
+        assert (m["needs_issue"], m["unmapped"]) == ([], {}), estate
 
 
 def test_burned_estates_are_the_inventory_fixtures():

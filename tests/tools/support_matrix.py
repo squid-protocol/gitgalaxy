@@ -105,6 +105,17 @@ def classify(text: str, rmap: dict[str, Any]) -> list[dict[str, Any]]:
     return [e for e in rmap["entries"] if e["_re"].search(text)]
 
 
+NEEDS_ISSUE = "needs an issue"
+
+
+def owned(e: dict[str, Any]) -> bool:
+    """#4724 acceptance: an entry maps to an issue, an agreed refusal family or a system library, and an unmodelled
+    API it names has its issue."""
+    return bool(e.get("issue") or e.get("charter") or e.get("system_library")) and (
+        not e.get("api") or bool(e["api"].get("issue"))
+    )
+
+
 def entry_label(e: dict[str, Any] | None, rmap: dict[str, Any]) -> str:
     if e is None:
         return "UNMAPPED: add it to refusal_map.json"
@@ -115,7 +126,7 @@ def entry_label(e: dict[str, Any] | None, rmap: dict[str, Any]) -> str:
         parts.append(f"agreed refusal ({rmap['charter'][e['charter']]})")
     if e.get("issue"):
         parts.append(f"#{e['issue']}")
-    return ", ".join(parts) or "needs an issue"
+    return ", ".join(parts) if owned(e) else NEEDS_ISSUE
 
 
 def load_catalogue(path: Path | None) -> dict[str, Any] | None:
@@ -303,6 +314,7 @@ def build_estate(
         "features": features,
         "refusals": dict(sorted(refusals.items())),
         "unmapped": {k: sorted(v) for k, v in sorted(unmapped.items())},
+        "needs_issue": sorted(k for k, r in refusals.items() if r["label"] == NEEDS_ISSUE),
         "unknown": unknown,
     }
 
@@ -373,6 +385,12 @@ def render_estate(m: dict[str, Any]) -> list[str]:
             )
         for text, ps in m["unmapped"].items():
             L.append(f"| UNMAPPED | add it to refusal_map.json | {_cell(_progs(ps))} | {_cell(text)} |")
+    if m["unmapped"] or m["needs_issue"]:
+        L += [
+            "",
+            "**Acceptance gap (#4724): every refusal maps to an issue or an agreed refusal.** Unowned: "
+            + ", ".join([*m["needs_issue"], *(f"`{t}`" for t in m["unmapped"])]),
+        ]
     syslib = {k: r for k, r in m["refusals"].items() if r["system_library"]}
     L += ["", "### System copybooks (a configuration fix, not a translator limit)", ""]
     if not syslib:

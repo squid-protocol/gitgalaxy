@@ -2,7 +2,7 @@
   "format": "refusal-map/1",
   "about": [
     "#4724: what each translate-only refusal or hole of the det translator is, for the support matrix (tests/tools/support_matrix.py). A text is a burned evidence report's translation `refused` or one of its `holes` (cics_census.py survey); a missing copybook of the feature inventory reads as `missing copybook NAME`. Exactly one entry's `match` (a regex, searched) must hit each text: tests/cobol_mainframe/test_support_matrix.py checks every one in the committed reports.",
-    "An entry carries at least one of: `issue` (the issue that owns the gap), `charter` (an agreed refusal family of definition_of_done.md, keyed in `charter` below), `system_library` (a COPY member of the customer's own IBM product libraries: a configuration fix, not a translator limit, #4724 design point 2). An entry with none is `needs an issue` and is listed so in the matrix. `api` names a runtime API the program calls that is not modelled: a program that reaches it translates but cannot be proven (design point 3). `features` are the inventory features (`category: key`) the refusal is about."
+    "An entry carries at least one of: `issue` (the issue that owns the gap), `charter` (an agreed refusal family of definition_of_done.md, keyed in `charter` below), `system_library` (a COPY member of the customer's own IBM product libraries: a configuration fix, not a translator limit, #4724 design point 2). An entry with none -- or whose `api` has no issue -- is `needs an issue`: the matrix flags it as an acceptance gap of #4724 and test_support_matrix.py fails. `api` names a runtime API the program calls that is not modelled: a program that reaches it translates but cannot be proven (design point 3). `features` are the inventory features (`category: key`) the refusal is about."
   ],
   "charter": {
     "idms": "IDMS",
@@ -19,7 +19,10 @@
       "id": "mq-copybooks",
       "match": "^missing copybook CMQ",
       "system_library": "SCSQCOBC (IBM MQ)",
-      "api": {"name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)", "issue": 4892},
+      "api": {
+        "name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)",
+        "issue": 4892
+      },
       "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The program then calls MQI, which the runtime does not model (#4892, #4514): translates, not provable."
     },
     {
@@ -40,12 +43,34 @@
       "match": "EXEC DLI|\\bCBLTDLI\\b|DLITCBL|\\bDIB[A-Z0-9-]*: no such item",
       "charter": "ims",
       "issue": 4893,
-      "features": ["statements: ENTRY"]
+      "features": [
+        "statements: ENTRY"
+      ]
     },
-    {"id": "idms", "match": "IDMS", "charter": "idms", "issue": 4532},
-    {"id": "national-text", "match": "(?i)national|DBCS", "charter": "national", "issue": 4272},
-    {"id": "source-defect", "match": "^source defect", "charter": "source-defect", "issue": 4462},
-    {"id": "not-cobol", "match": "not a COBOL program", "charter": "not-cobol", "issue": 4462},
+    {
+      "id": "idms",
+      "match": "IDMS",
+      "charter": "idms",
+      "issue": 4532
+    },
+    {
+      "id": "national-text",
+      "match": "(?i)national|DBCS",
+      "charter": "national",
+      "issue": 4272
+    },
+    {
+      "id": "source-defect",
+      "match": "^source defect",
+      "charter": "source-defect",
+      "issue": 4462
+    },
+    {
+      "id": "not-cobol",
+      "match": "not a COBOL program",
+      "charter": "not-cobol",
+      "issue": 4462
+    },
     {
       "id": "record-key-outside-record",
       "match": "is not defined in a record of file",
@@ -57,7 +82,9 @@
       "id": "alter",
       "match": "\\bALTER not modelled",
       "charter": "cobol-unmodelled",
-      "features": ["statements: ALTER"]
+      "features": [
+        "statements: ALTER"
+      ]
     },
     {
       "id": "float-exponentiation",
@@ -66,7 +93,14 @@
       "issue": 4271,
       "note": "IBM's run-time routine is not documented bit for bit (register C6)."
     },
-    {"id": "function-annuity", "match": "FUNCTION ANNUITY", "issue": 4271, "features": ["intrinsic_functions: ANNUITY"]},
+    {
+      "id": "function-annuity",
+      "match": "FUNCTION ANNUITY",
+      "issue": 4271,
+      "features": [
+        "intrinsic_functions: ANNUITY"
+      ]
+    },
     {
       "id": "dsntiac",
       "match": "DSNTIAC",
@@ -78,38 +112,61 @@
       "id": "pointers",
       "match": "SET ADDRESS OF|NULL: pointers are not modelled|WEB RECEIVE SET: option not modelled",
       "issue": 5042,
-      "features": ["statements: SET-POINTER", "statements: SET-NULL", "cics_options: WEB RECEIVE: SET"]
+      "features": [
+        "statements: SET-POINTER",
+        "statements: SET-NULL",
+        "cics_options: WEB RECEIVE: SET"
+      ]
     },
     {
       "id": "getmain-freemain",
       "match": "EXEC CICS (?:GETMAIN|FREEMAIN) not modelled",
       "issue": 4771,
-      "features": ["cics_commands: GETMAIN", "cics_commands: FREEMAIN"]
+      "features": [
+        "cics_commands: GETMAIN",
+        "cics_commands: FREEMAIN"
+      ]
     },
-    {"id": "zuidstck", "match": "CALL ZUIDSTCK", "issue": 4771},
+    {
+      "id": "zuidstck",
+      "match": "CALL ZUIDSTCK",
+      "issue": 4771
+    },
     {
       "id": "container-browse",
       "match": "EXEC CICS (?:STARTBROWSE CONTAINER|GETNEXT|ENDBROWSE CONTAINER) not modelled",
       "issue": 4951,
-      "features": ["cics_commands: STARTBROWSE CONTAINER", "cics_commands: GETNEXT"]
+      "features": [
+        "cics_commands: STARTBROWSE CONTAINER",
+        "cics_commands: GETNEXT"
+      ]
     },
     {
       "id": "container-options",
       "match": "(?:GET|PUT) CONTAINER (?:SET|FROMCCSID|INTOCCSID)",
       "issue": 5005,
-      "features": ["cics_options: GET: SET", "cics_options: GET: INTOCCSID", "cics_options: PUT: FROMCCSID"]
+      "features": [
+        "cics_options: GET: SET",
+        "cics_options: GET: INTOCCSID",
+        "cics_options: PUT: FROMCCSID"
+      ]
     },
     {
       "id": "async-fetch-wait",
       "match": "FETCH without NOSUSPEND",
       "issue": 4950,
-      "features": ["cics_commands: FETCH"]
+      "features": [
+        "cics_commands: FETCH"
+      ]
     },
     {
       "id": "update-token",
       "match": "(?:READ|DELETE|REWRITE|UNLOCK) TOKEN: option not modelled",
       "issue": 5078,
-      "features": ["cics_options: READ: TOKEN", "cics_options: DELETE: TOKEN"],
+      "features": [
+        "cics_options: READ: TOKEN",
+        "cics_options: DELETE: TOKEN"
+      ],
       "note": "Modelled since #5090; a report surveyed before it still shows the refusal until the evidence refresh."
     },
     {
@@ -121,45 +178,60 @@
     {
       "id": "le-condition-handling",
       "match": "^CALL CALL CEEHDL[RU]\\b",
-      "api": {"name": "LE condition handling (CEEHDLR / CEEHDLU)", "issue": null},
-      "note": "Registering a user condition handler: no model, no issue yet."
+      "api": {
+        "name": "LE condition handling (CEEHDLR / CEEHDLU)",
+        "issue": 5106
+      },
+      "note": "Registering a user condition handler: no model.",
+      "issue": 5106
     },
     {
       "id": "multi-program-call",
       "match": "^CALL CALL EPSCSMR[A-Z]\\b",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRX / ...): the translator takes the first program only. No issue yet (engine side: #4447, #4404)."
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRX / ...): the translator takes the first program only. Engine side: #4447, #4404.",
+      "issue": 5106
     },
     {
       "id": "site-routine",
       "match": "^CALL CALL MVSWAIT\\b",
-      "note": "A site routine no estate holds (CardDemo COBSWAIT): no program, no model, no issue yet."
+      "note": "A site routine no estate holds (CardDemo COBSWAIT): no program, no model.",
+      "issue": 5106
     },
     {
       "id": "accept-sysin",
       "match": "ACCEPT FROM SYSIN",
-      "features": ["statements: ACCEPT"],
-      "note": "ACCEPT FROM SYSIN (a batch input stream): no model, no issue yet."
+      "features": [
+        "statements: ACCEPT"
+      ],
+      "note": "ACCEPT FROM SYSIN (a batch input stream): no model.",
+      "issue": 5106
     },
     {
       "id": "procedure-pointer",
       "match": "SET TO ENTRY: procedure / function pointers",
-      "note": "Procedure / function pointers: no model, no issue yet (#5042 is the data-pointer lane)."
+      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
+      "issue": 5106
     },
     {
       "id": "soap",
       "match": "SOAPFAULT",
-      "features": ["cics_commands: SOAPFAULT CREATE"],
-      "note": "CICS web services (SOAP / WS-Addressing): no model, no issue yet (WEB #4767 and DOCUMENT #4769 are the HTTP side)."
+      "features": [
+        "cics_commands: SOAPFAULT CREATE"
+      ],
+      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side).",
+      "issue": 5106
     },
     {
       "id": "dto-property",
       "match": "a property the port cannot convert",
-      "note": "A COMMAREA DTO property the CICS port cannot map to bytes (an OCCURS table as List<String>): no issue yet."
+      "note": "A COMMAREA DTO property the CICS port cannot map to bytes (an OCCURS table as List<String>).",
+      "issue": 5106
     },
     {
       "id": "unbound-file",
       "match": "no repository for this file in the generated project",
-      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case. No issue yet."
+      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case.",
+      "issue": 5106
     }
   ]
 }

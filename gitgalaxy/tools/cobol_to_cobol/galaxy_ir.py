@@ -523,6 +523,10 @@ class EngineCsdResource:
     program: str | None
     attributes: str | None
     line: int
+    # #5120: where the definition came from -- "CSD" (a deck) or "MACRO" (an assembled
+    # DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST table, `macro_table` naming it).
+    source: str = "CSD"
+    macro_table: str | None = None
 
 
 @dataclass
@@ -1233,6 +1237,107 @@ class GalaxyIR:
             for r in f.csd_resources
             if want is None or r.resource_type == want
         ]
+
+    # #5120: the lifted fields two definitions of one resource can disagree on.
+    _RESOURCE_COMPARED = (
+        "dsname",
+        "ddname",
+        "record_format",
+        "key_length",
+        "record_size",
+        "queue_type",
+        "plan",
+        "db2_entry",
+        "program",
+        "transid",
+    )
+
+    def resource_map(self) -> list:
+        """One entry per (resource_type, name) merging every CSD deck and macro table (#5120).
+
+        `definitions` lists each defining statement with its provenance (`source`
+        "CSD" | "MACRO", `macro_table`, `defined_in`, `line`); `sources` is the sorted
+        set of sources. `merged` holds each lifted field's value when every
+        definition that states it agrees -- and None where they disagree: no source
+        silently wins, the disagreement is in `resource_conflicts`. A field a
+        definition does not state (a macro table with no RECSIZE) never conflicts.
+        """
+        grouped: dict[tuple[str, str], list] = {}
+        for r in self.csd_resources():
+            grouped.setdefault((r["resource_type"], r["name"]), []).append(r)
+        out = []
+        for (rtype, name), defs in sorted(grouped.items()):
+            merged: dict[str, Any] = {}
+            for fld in self._RESOURCE_COMPARED:
+                values = {d[fld] for d in defs if d.get(fld) is not None}
+                merged[fld] = next(iter(values)) if len(values) == 1 else None
+            out.append(
+                {
+                    "resource_type": rtype,
+                    "name": name,
+                    "sources": sorted({d.get("source") or "CSD" for d in defs}),
+                    "merged": merged,
+                    "definitions": [
+                        {
+                            "source": d.get("source") or "CSD",
+                            "macro_table": d.get("macro_table"),
+                            "defined_in": d["defined_in"],
+                            "line": d["line"],
+                            **{fld: d.get(fld) for fld in self._RESOURCE_COMPARED},
+                            "group": d.get("group"),
+                        }
+                        for d in defs
+                    ],
+                }
+            )
+        return out
+
+    def resource_conflicts(self) -> list:
+        """Where the definitions of one resource disagree, named (#5120).
+
+        `kind` "attribute": two definitions state different values for `field`
+        (`values`: each distinct value with the definitions that state it). `kind`
+        "only_in": the repository defines resources through both a CSD and macro
+        tables, and this resource appears in just one of them (`only_in` names it).
+        Nothing is resolved: CICS installs whichever is loaded last, which the
+        source tree cannot say.
+        """
+        entries = self.resource_map()
+        out: list = []
+        for e in entries:
+            for fld in self._RESOURCE_COMPARED:
+                by_value: dict[Any, list] = {}
+                for d in e["definitions"]:
+                    if d[fld] is not None:
+                        by_value.setdefault(d[fld], []).append(
+                            {k: d[k] for k in ("source", "macro_table", "defined_in", "line")}
+                        )
+                if len(by_value) > 1:
+                    out.append(
+                        {
+                            "kind": "attribute",
+                            "resource_type": e["resource_type"],
+                            "name": e["name"],
+                            "field": fld,
+                            "values": [{"value": v, "defined": by_value[v]} for v in sorted(by_value, key=str)],
+                        }
+                    )
+        seen = {s for e in entries for s in e["sources"]}
+        if {"CSD", "MACRO"} <= seen:
+            out.extend(
+                {
+                    "kind": "only_in",
+                    "resource_type": e["resource_type"],
+                    "name": e["name"],
+                    "only_in": e["sources"][0],
+                    "defined": [
+                        {k: d[k] for k in ("source", "macro_table", "defined_in", "line")} for d in e["definitions"]
+                    ],
+                }
+                for e in entries
+                if len(e["sources"]) == 1
+            )
+        return out
 
     def _bindings_by_dataset(self) -> dict[str, list]:
         """Joinable dataset name (member/generation suffix dropped) -> its JCL DD bindings."""
@@ -6331,8 +6436,9 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         if _has_table(cur, "csd_resource_data"):
             for row in cur.execute(
                 "SELECT file_id, resource_type, resource_name, group_name, dsname, ddname, record_format, "
-                "key_length, record_size, queue_type, plan, db2_entry, transid, program, attributes, line_number "
-                "FROM csd_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                "key_length, record_size, queue_type, plan, db2_entry, transid, program, attributes, line_number, "
+                + ("source, macro_table " if _has_column(cur, "csd_resource_data", "source") else "NULL, NULL ")
+                + "FROM csd_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
                 if row[0] not in by_id:
@@ -6354,6 +6460,8 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                         program=row[13],
                         attributes=row[14],
                         line=int(row[15] or 0),
+                        source=row[16] or "CSD",
+                        macro_table=row[17],
                     )
                 )
         # #3351-#3354: CICS resource operations. A pre-channel database has no such

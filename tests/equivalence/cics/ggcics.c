@@ -122,10 +122,11 @@ static const char *current_program(void);
 static void refuse(const char *what);
 
 /* #4950 (X18, R1): a RUN TRANSID child its parent's wait dispatched ($GGCICS_CHILDOF) records only the end of its
- * task and the programs it runs; any other event is a region resource's or a terminal's, whose order against its
+ * task and the programs it runs -- and (#5089) its own RUN / FETCH / FREE CHILD and the CHILD of its own children,
+ * which concern only the tasks it started; any other event is a region resource's or a terminal's, whose order against its
  * parent's and its siblings' commands is not modelled. */
 static void child_may(const char *line, int verb) {
-    static const char *const ok[] = {"RETURN", "ABEND", "LINK", "XCTL"};
+    static const char *const ok[] = {"RETURN", "ABEND", "LINK", "XCTL", "RUN", "FETCH", "FREE-CHILD", "CHILD"};
     char msg[160];
     if (!getenv("GGCICS_CHILDOF")) return;
     for (size_t i = 0; i < sizeof ok / sizeof ok[0]; i++)
@@ -2974,6 +2975,12 @@ int GGCRTRV(gg_cics *c, char *into) {
  * never waits ends with it not run -- as CicsTask.runTransid has it. The token's bytes are the harness's own (IBM does
  * not document them), the same on both sides. */
 #define MAX_KIDS 64
+#define MAX_RUN_DEPTH 3 /* #5089: generations below a task RUN children go (CicsTask.MAX_RUN_DEPTH) */
+/* #5089: 0 for a task, its parent's + 1 for a RUN child ($GGCICS_DEPTH, set by the parent's dispatch) */
+static int run_depth(void) {
+    const char *d = getenv("GGCICS_DEPTH");
+    return d ? atoi(d) : 0;
+}
 typedef struct {
     char token[17], transid[9], abcode[5];
     int number, dispatched, fetched, freed, abended;
@@ -3025,7 +3032,9 @@ int GGCRUNT(gg_cics *c, char *child) {
     char transid[9], ev[96], token[17], name[17], dir[4096], path[4200];
     int bad = 0;
     trim(c->name1, 8, transid);
-    if (getenv("GGCICS_CHILDOF")) refuse("RUN TRANSID in a RUN TRANSID child task (a grandchild)");
+    if (run_depth() >= MAX_RUN_DEPTH) /* #5089 (X18): a child may RUN children of its own, to a stated depth */
+        refuse("RUN TRANSID in a RUN TRANSID child task 3 levels below a task (a great-great-grandchild): the depth the "
+               "harness models ends here");
     if (strstr(c->flags, "CHANNEL")) bad = !handed_channel(c, name);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -3101,6 +3110,7 @@ static void dispatch_children(void) {
         copy_cfg("region.cfg", dir);
         copy_cfg("programs.cfg", dir);
         copy_cfg("transactions.cfg", dir);
+        copy_cfg("childprogs.cfg", dir); /* #5089: the child's own children run the case's programs too */
         snprintf(path, sizeof path, "%s/eib.in", dir);
         FILE *f = fopen(path, "w");
         FILE *e = NULL;
@@ -3127,6 +3137,8 @@ static void dispatch_children(void) {
             setenv("GGCICS_TASKN", num, 1);
             setenv("GGCICS_RUNCHILD", "1", 1);
             setenv("GGCICS_CHILDOF", "1", 1);
+            snprintf(num, sizeof num, "%d", run_depth() + 1);
+            setenv("GGCICS_DEPTH", num, 1);
             setenv("GGCICS_CHILDPROG", program, 1);
             if (getenv("COB_TRACE_FILE")) setenv("COB_TRACE_FILE", trace, 1); /* (its own: the parent's stays open) */
             const char *gone[] = {"GGCICS_FACILITY", "GGCICS_STARTCODE", "GGCICS_ORIGIN", "GGCICS_UCTRANST",

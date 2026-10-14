@@ -1236,7 +1236,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
         if "GENERIC" in opts and "KEYLENGTH" not in opts:
             raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
-        words = [w for w in ("UPDATE", "GTEQ", "GENERIC") if w in opts]  # UPDATE holds the record
+        # UPDATE holds the record; TOKEN (#5078, X52) implies it and holds it under a token of its own, GG-NUM out
+        words = [w for w in ("UPDATE", "TOKEN", "GTEQ", "GENERIC") if w in opts or (w == "UPDATE" and "TOKEN" in opts)]
+        if "TOKEN" in opts and not opts["TOKEN"]:
+            raise Unsupported("READ TOKEN needs a data area", ["READ TOKEN"])
         update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
         # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
         # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
@@ -1244,6 +1247,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         length = opts.get("LENGTH")
         settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
+        if "TOKEN" in opts:
+            after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
         return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
@@ -1267,7 +1272,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not (file and frm):
             raise Unsupported("REWRITE without FILE / FROM")
         length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
-        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
+        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds (GG-NUM in)
+            if not opts["TOKEN"]:
+                raise Unsupported("REWRITE TOKEN needs a value", ["REWRITE TOKEN"])
+            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
+                    + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"]) + _resp(opts, True, labels))  # fmt: skip
+        return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
         rba = "RBA" in opts
@@ -1312,6 +1322,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"DELETE {bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
+        if "TOKEN" in opts and "GENERIC" in opts:  # #5078 (X52)
+            raise Unsupported(_rule("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"), ["DELETE TOKEN"])
         if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
             for o in ("KEYLENGTH", "RIDFLD"):
                 if not opts.get(o):
@@ -1319,6 +1331,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
             return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
                     + _resp(opts, True, labels))  # fmt: skip
+        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds, no RIDFLD
+            if ridfld:
+                raise Unsupported(_rule("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"), ["DELETE TOKEN"])
+            if not opts["TOKEN"]:
+                raise Unsupported("DELETE TOKEN needs a value", ["DELETE TOKEN"])
+            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
+                    + _call("GGCDELT", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]) + _resp(opts, True, labels))  # fmt: skip
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
@@ -1326,6 +1345,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
+        _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        file = opts.get("FILE") or opts.get("DATASET")
+        if not opts.get("TOKEN"):
+            raise Unsupported("UNLOCK without TOKEN (the held record of a file: not modelled, #5079)", ["UNLOCK"])
+        return ([name(file, "GG-NAME1"), f"MOVE {opts['TOKEN']} TO GG-NUM"] + _call("GGCUNLK", [])
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb in ("ENQ", "DEQ"):

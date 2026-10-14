@@ -1414,8 +1414,10 @@ class Cics:
         FROMLENGTH, MEDIATYPE's text, ACTION's value (0 when absent), STATUSCODE (-1), STATUSTEXT's text with STATUSLEN
         (-1: the whole area, ASSUMED) and the conversion flag; the response is recorded as WEB-SEND. Every option the
         spec entry does not model is refused by name (check_options)."""
-        if ("FROM" in opts) == ("DOCTOKEN" in opts):
+        if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
             raise CicsError(_msg(key, "one_of", "FROM"))
+        if "CHANNEL" in opts and "CONTAINER" not in opts:
+            raise CicsError(_requires(key, "CHANNEL", "CONTAINER"))
         if "FROM" in opts and "FROMLENGTH" not in opts:
             raise CicsError(_requires(key, "FROM", "FROMLENGTH"))
         if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -1435,6 +1437,12 @@ class Cics:
 
         conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
         r = self.g.tmpname("web")
+        if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data
+            chan = self.name(_arg(opts["CHANNEL"])) if "CHANNEL" in opts else "null"
+            call = (f"task.webSendContainer({chan}, {self.name(_arg(opts['CONTAINER']))}, {text('MEDIATYPE')}, "
+                    f"{num('ACTION', '0')}, {num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, "
+                    f"{conv}, CS)")  # fmt: skip
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                     f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "

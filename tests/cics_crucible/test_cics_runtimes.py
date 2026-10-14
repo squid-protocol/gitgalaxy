@@ -6185,3 +6185,152 @@ def test_cics_task_refuses_what_ibm_leaves_open_on_container_names(tmp_path, ste
         'System.out.println("refused: " + e.getMessage());\n}',
     )
     assert out.startswith("refused: ") and why in out, out
+
+
+# ---- #5037 (register X37): WEB SEND CONTAINER / CHANNEL ------------------------------------------------------------------------
+# a step a line: KIND MEDIATYPE|- ACTION STATUSCODE|- CONV. KIND: chtext / chbit / chempty (CH's container CN holding "ab" CHAR, "ab"
+# BIT, nothing; sent with CHANNEL(CH)), chmiss (CH holds only CX), nochan (CHANNEL(ZZ), a channel nobody made), nocur (no
+# CHANNEL, no current channel). What both runtimes answer and the WEB-SEND body they record.
+_X37_CT_CASES = [  # (steps, answers, bodies of the events)
+    (["chtext - 2 - 0"], ["send 0/0"], ["ab"]),
+    (["chtext text/plain 2 200 1"], ["send 0/0"], ["ab"]),
+    (["chtext - 3 - 0"], ["send 0/0"], ["ab"]),
+    (["chtext - 0 - 0"], ["send 0/0"], ["ab"]),
+    (["chtext - 2 204 0"], ["send 16/72"], []),
+    (["chtext - 7 - 0"], ["send 16/11"], []),
+    (["chbit text/plain 2 - 1"], ["send 16/150"], []),
+    (["chmiss - 2 - 0"], ["send 110/2"], []),
+    (["nochan - 2 - 0"], ["send 122/2"], []),
+    (["nocur - 2 - 0"], ["send 16/145"], []),
+]
+_X37_CT_REFUSED = [
+    (["chbit - 2 - 0"], "WEB SEND of a DATATYPE BIT container"),
+    (["chempty - 2 - 0"], "WEB SEND of an empty container"),
+    (["chmiss - 7 - 0"], "WEB SEND with more than one condition at once"),
+    (["chtext - 2 99 0"], "STATUSCODE outside 100-599"),
+    (["chtext application/json 2 - 1"], "SRVCONVERT on a media type that is not text/*"),
+    (["chtext - 2 - 0", "chtext - 2 - 0"], "WEB SEND after a response was sent"),
+]
+
+_X37_CT_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCPUTC(gg_cics *c, char *from);
+int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap);
+int GGCEND(gg_cics *c);
+static gg_cics c;
+static void set(char *dst, int n, const char *v) { memset(dst, ' ', (size_t)n); memcpy(dst, v, strlen(v)); }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *w[5], media[56], flags[40] = "";
+        int k = 0, chan = 1;
+        for (char *t = strtok(argv[i], " "); t && k < 5; t = strtok(NULL, " ")) w[k++] = t;
+        memset(media, ' ', 56);
+        if (strcmp(w[0], "nochan") == 0 || strcmp(w[0], "nocur") == 0) {
+            chan = strcmp(w[0], "nochan") == 0;
+        } else {
+            set(c.qname, 16, strcmp(w[0], "chmiss") == 0 ? "CX" : "CN");
+            set(c.chan, 16, "CH");
+            set(c.flags, 40, strcmp(w[0], "chbit") == 0 ? "CHANNEL BIT" : "CHANNEL CHAR");
+            c.len = strcmp(w[0], "chempty") == 0 ? 0 : 2;
+            GGCPUTC(&c, "ab");
+        }
+        set(c.qname, 16, "CN");
+        set(c.chan, 16, strcmp(w[0], "nochan") == 0 ? "ZZ" : "CH");
+        if (strcmp(w[1], "-") != 0) { strcat(flags, "MEDIA "); memcpy(media, w[1], strlen(w[1])); }
+        if (chan) strcat(flags, "CHANNEL");
+        c.item = atoi(w[2]);
+        c.num = strcmp(w[3], "-") == 0 ? -1 : atoi(w[3]);
+        c.hours = -1;
+        c.mins = atoi(w[4]);
+        set(c.flags, 40, flags);
+        GGCWSCT(&c, media, 56, "", 0);
+        printf("send %d/%d\n", c.resp, c.resp2);
+    }
+    GGCEND(&c);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_sends_a_container(tmp_path):
+    """#5037 (register X37), IBM WEB SEND CONTAINER [CHANNEL] (server): the container's data is the response body, recorded as
+    WEB-SEND; CONTAINERERR 2, CHANNELERR 2, INVREQ 145 and 150 as IBM lists them; an empty or BIT container is refused."""
+    exe = _stub(tmp_path, _X37_CT_MAIN)
+    req = tmp_path / "webreq.cfg"
+    req.write_text("R HTTP 7A656373 80 PUT 2F6B -\n", encoding="ascii")
+    for n, (steps, answers, bodies) in enumerate(_X37_CT_CASES):
+        out = tmp_path / f"out{n}"
+        out.mkdir()
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+        assert run.stdout.splitlines() == answers, steps
+        got = _x37_stub_events(out)
+        assert [g[3] for g in got if g[0] in (200, 204)] == bodies, steps
+    for n, (steps, why) in enumerate(_X37_CT_REFUSED):
+        out = tmp_path / f"refused{n}"
+        out.mkdir()
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_sends_a_container_as_the_stub_does(tmp_path):
+    """#5037 (X37): CicsTask.webSendContainer answers the steps above as the stub does and refuses what it refuses."""
+
+    def java(steps: list[str]) -> str:
+        lines = []
+        for st in steps:
+            w = st.split(" ")
+            put = ""
+            if w[0] not in ("nochan", "nocur"):
+                data = '"ab".getBytes()' if w[0] != "chempty" else "new byte[0]"
+                typ = '"BIT"' if w[0] == "chbit" else '"CHAR"'
+                put = f't.putContainer("CH", "{"CX" if w[0] == "chmiss" else "CN"}", {data}, {2 if w[0] != "chempty" else 0}, {typ}, false); '
+            chan = "null" if w[0] == "nocur" else '"ZZ"' if w[0] == "nochan" else '"CH"'
+            media = "null" if w[1] == "-" else '"' + w[1].ljust(56) + '"'
+            lines.append(
+                f'{put}send(t, {chan}, {media}, {w[2]}, {-1 if w[3] == "-" else w[3]}, {w[4]});'
+            )
+        return "\n".join(lines)
+
+    helpers = """
+    static void send(CicsTask t, String chan, String media, int action, int status, int conv) {
+        int[] r = t.webSendContainer(chan, "CN", media, action, status, null, -1, conv, java.nio.charset.StandardCharsets.ISO_8859_1);
+        System.out.println("send " + r[0] + "/" + r[1]);
+    }
+    static CicsTask task() {
+        return new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTP", "zecs", 80,
+                "PUT", "HTTP/1.1", "/k", "", java.util.List.of(), null, null));
+    }
+    static void events(CicsTask t) {
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-SEND")) System.out.println("ev " + e.get("body"));
+        }
+    }
+"""
+    parts = [
+        "{ CicsTask t = task();\n" + java(steps) + '\nevents(t); System.out.println("--"); }'
+        for steps, _a, _b in _X37_CT_CASES
+    ]
+    for steps, _why in _X37_CT_REFUSED:
+        parts.append(
+            "{ CicsTask t = task(); try {\n" + java(steps) + '\nSystem.out.println("not refused"); }'
+            " catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); } }"
+        )
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, answers, bodies in _X37_CT_CASES:
+        end = lines.index("--", pos)
+        assert lines[pos:end] == answers + [f"ev {b}" for b in bodies], (steps, lines[pos:end])
+        pos = end + 1
+    refusals = [ln for ln in lines[pos:] if not ln.startswith("send ")]
+    assert len(refusals) == len(_X37_CT_REFUSED)
+    for got, (_steps, why) in zip(refusals, _X37_CT_REFUSED):
+        assert why in got and got.endswith(": not modelled"), (got, why)

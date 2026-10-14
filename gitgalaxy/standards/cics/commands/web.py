@@ -357,6 +357,8 @@ WEB_SEND = Command(
         "FROM": Arg("area_in"),
         "FROMLENGTH": Arg("value"),
         "DOCTOKEN": Arg("area_in", width=16),
+        "CONTAINER": Arg("name", width=16),  # #5037: the response body is a container's data
+        "CHANNEL": Arg("name", width=16),  # omitted: the current channel
         "MEDIATYPE": Arg("area_in", width=56),
         "ACTION": Arg("cvda"),
         "DOCSTATUS": Arg("cvda"),
@@ -368,9 +370,11 @@ WEB_SEND = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "CONTAINER": Refusal("a container as the response body is not modelled", "X37"),
-        "CHANNEL": Refusal("a container as the response body is not modelled", "X37"),
-        "CHUNKING": Refusal("a chunked response is not modelled", "X37"),
+        "CHUNKING": Refusal(
+            "a chunked response is not modelled: it is a sequence of sends (CHUNKYES ... CHUNKEND) with IBM's own error "
+            "responses (AWBP abend, RESP2 77 / 89-95) and no stated rule for the body the client sees",
+            "X37",
+        ),
         "CHARACTERSET": Refusal(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
@@ -384,7 +388,7 @@ WEB_SEND = Command(
         "LENGTH": Refusal("LENGTH is kept for upgrade only (STATUSLEN replaces it): not modelled", "X37"),
     },
     default_refusal=Refusal(
-        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, DOCSTATUS, STATUSCODE, STATUSTEXT / STATUSLEN and "
+        "only FROM / FROMLENGTH, DOCTOKEN or CONTAINER / CHANNEL, MEDIATYPE, ACTION, DOCSTATUS, STATUSCODE, STATUSTEXT / STATUSLEN and "
         "SRVCONVERT / NOSRVCONVERT are modelled",
         "X37",
     ),
@@ -392,8 +396,11 @@ WEB_SEND = Command(
         one_of(
             "FROM",
             "DOCTOKEN",
-            msg="WEB SEND needs one of FROM and DOCTOKEN: only a response body from the program's area or a document is modelled",
+            "CONTAINER",
+            msg="WEB SEND needs exactly one of FROM, DOCTOKEN and CONTAINER: only a response body from the program's area, "
+            "a document or a container is modelled (IBM does not say what two bodies mean)",
         ),
+        requires(("CHANNEL",), ("CONTAINER",), msg="WEB SEND CHANNEL without CONTAINER"),
         requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH"),
         requires(("FROMLENGTH",), ("FROM",), msg="WEB SEND FROMLENGTH without FROM"),
         requires(("STATUSLEN",), ("STATUSTEXT",), msg="WEB SEND STATUSLEN without STATUSTEXT"),
@@ -408,6 +415,10 @@ WEB_SEND = Command(
             "The document has not been created, or has been deleted, or the name is incorrectly specified",
             raised_by=("DOCTOKEN",),
         ),
+        Outcome("CONTAINERERR", 2, "The container specified by the CONTAINER option could not be found", raised_by=("CONTAINER",)),
+        Outcome("CHANNELERR", 2, "The channel specified by the CHANNEL option could not be found", raised_by=("CHANNEL",)),
+        Outcome("INVREQ", 145, "Channel was not specified, and there is no current channel", raised_by=("CONTAINER",)),
+        Outcome("INVREQ", 150, "Conversion requested, but data to be sent is in a DATATYPE BIT container", raised_by=("CONTAINER",)),
         Outcome("INVREQ", 11, "Action code invalid", raised_by=("ACTION",)),
         Outcome("INVREQ", 143, "The DOCSTATUS value specified is invalid", raised_by=("DOCSTATUS",)),
         Outcome("INVREQ", 72, "Status code does not support a message body", raised_by=("STATUSCODE",)),
@@ -441,6 +452,18 @@ WEB_SEND = Command(
             "X37",
             java="WEB SEND",
             c="WEB SEND",
+        ),
+        RuntimeRefusal(
+            "a container as the response body that is empty (IBM does not say what an empty body is)",
+            "X37",
+            java="WEB SEND of an empty container",
+            c="WEB SEND of an empty container",
+        ),
+        RuntimeRefusal(
+            "a DATATYPE BIT container sent without conversion (non-text bytes are not compared as text)",
+            "X37",
+            java="WEB SEND of a DATATYPE BIT container",
+            c="WEB SEND of a DATATYPE BIT container",
         ),
         RuntimeRefusal(
             "a length past its area (FROMLENGTH, STATUSLEN): CICS reads the storage that follows it, which GnuCOBOL lays out "

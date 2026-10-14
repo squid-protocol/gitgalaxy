@@ -839,8 +839,10 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
     key = "WEB SEND"
     _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if ("FROM" in opts) == ("DOCTOKEN" in opts):
+    if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
         raise Unsupported(_rule(key, "one_of", "FROM"), [key])
+    if "CHANNEL" in opts and "CONTAINER" not in opts:
+        raise Unsupported(_web_requires(key, "CHANNEL", "CONTAINER"), [key])
     if "FROM" in opts and "FROMLENGTH" not in opts:
         raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
     if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -851,14 +853,14 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
     if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
         raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    for o in ("FROMLENGTH", "DOCTOKEN", "CONTAINER", "CHANNEL", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
         if opts.get(o) and _literal(opts[o]):
             raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
-    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
+    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT"), ("CHANNEL", "CHANNEL")) if o in opts]
     lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
@@ -868,6 +870,15 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
         args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data (GG-QNAME its name, GG-CHAN its channel)
+        lines.append(f"MOVE {opts['CONTAINER']} TO GG-QNAME")
+        if "CHANNEL" in opts:
+            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
+        args = []
+        for o in ("MEDIATYPE", "STATUSTEXT"):
+            area = opts.get(o) or "GG-QNAME"
+            args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+        return lines + _call("GGCWSCT", args) + _resp(opts, True, labels)
     # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
     return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 

@@ -2,6 +2,7 @@ name: GitGalaxy Smoke Tests
 
 on:
   pull_request:  # #4825: full-suite / smoke-test are required checks -- they run on every PR
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
   # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
   push:
@@ -37,7 +38,7 @@ jobs:
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
     needs: [tested-tree, full-suite-part]
-    if: always()
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -53,6 +54,7 @@ jobs:
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
   tested-tree:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -147,7 +149,7 @@ jobs:
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
     needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4935: not again for a tree the PR run proved
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

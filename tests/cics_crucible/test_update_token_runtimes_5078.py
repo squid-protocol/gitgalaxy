@@ -4,8 +4,7 @@
 IBM: TOKEN on READ is "a unique identifier for this READ UPDATE request ... for use in associating a subsequent REWRITE or
 DELETE (or UNLOCK) request with the record returned"; "If you specify TOKEN it implies update". A REWRITE / DELETE / UNLOCK
 TOKEN "whose value cannot be matched against any token in use for an existing read for UPDATE" is INVREQ, RESP2 47. A
-REWRITE without a token, with no READ UPDATE without a token before it, is INVREQ (30, which the runtimes record as 0 like
-every file INVREQ before it). The token's value is IBM's to choose: ASSUMED, the task's 1, 2, 3, ... in both runtimes."""
+REWRITE without a token, with no READ UPDATE without a token before it, is INVREQ (RESP2 30, #5092). The token's value is IBM's to choose: ASSUMED, the task's 1, 2, 3, ... in both runtimes."""
 
 import subprocess
 import sys
@@ -35,7 +34,7 @@ _WANT = [
     "D:F:3 resp=16 resp2=47",  # nothing left to delete by it
     "R:F:999 resp=13 resp2=0 tok=0",  # NOTFND: no token issued
     "R:F:210 resp=0 resp2=0 tok=4",
-    "T:F:210 resp=16 resp2=0",  # a record held by a token is not the file's tokenless hold
+    "T:F:210 resp=16 resp2=30",  # a record held by a token is not the file's tokenless hold
     "W:F:4:210 resp=0 resp2=0",
     "R:G:900 resp=0 resp2=0 tok=5",
     "U:F:5 resp=16 resp2=47",  # file G's token, FILE(F)
@@ -82,6 +81,7 @@ int main(int argc, char **argv) {
             c.num = tok;
             GGCDELT(&c, c.flags, 0);
         } else {
+            memcpy(c.flags, "TOKEN", 5);
             c.num = tok;
             GGCUNLK(&c);
         }

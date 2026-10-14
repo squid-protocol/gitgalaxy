@@ -19,7 +19,7 @@ class Gh:
         self.prs, self.runs, self.calls = {}, {}, []
 
     def pr(self, n, sha="a" * 40, state="open", mergeable=True, mstate="clean", runs=()):
-        self.prs[n] = {"number": n, "title": f"pr {n}", "state": state, "merged": state == "merged", "draft": True,
+        self.prs[n] = {"number": n, "title": f"pr {n}", "state": state, "merged": state == "merged", "draft": False,
                        "head": {"sha": sha}, "node_id": f"N{n}", "mergeable": mergeable, "mergeable_state": mstate}  # fmt: skip
         self.runs[sha] = [{"id": i, "name": name, "status": "completed" if c else "in_progress", "conclusion": c,
                            "app": {"slug": "github-actions"}} for i, (name, c) in enumerate(runs, 1)]  # fmt: skip

@@ -60,6 +60,12 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   `cics_spec_status.json`. A spec PR adds its row to `SPEC_PRS_DONE` there.
 - The det-sweep coverage ledger is one file per case, `tests/equivalence/det_sweep_coverage/<case>.json` (#4789):
   `det_coverage_ledger.py update <sweep DIR>` rewrites only the files of the cases that sweep ran.
+  (#5084) An entry also holds `linked`: the counts of the programs the case LINKs / CALLs (coverage.json `linked`), which
+  proof_blockers judges per callee, and a caller is not proven while a callee has holes. A swept case whose entry is
+  stale on harness / oracle is only a warning in CI. `proof_sweep.py --aggregate --record-ledger` re-records the entries it
+  re-checked (`--strict-ledger` fails on a stale one, for a local pre-push check), but CI does not pass it yet (wiring it into
+  `det-sweep.yml` is a separate owner-approved follow-up, #5084): until then the nightly Evidence Refresh `update` or a local
+  `det_coverage_ledger.py update <sweep DIR>` re-records entries.
 - Then the `cics-command-slice` checklist: both runtimes, the hand-traced crucible case, proofs, X-register entry.
 
 ## 3. Honest refusals (the patterns that made programs whole without guessing)

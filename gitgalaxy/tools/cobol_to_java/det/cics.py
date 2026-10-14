@@ -864,7 +864,12 @@ class Cics:
             # #4770 (X45): INCREMENT is an unsigned doubleword and WRAP acts at a DEFINE DCOUNTER counter's maximum; the VALUE
             # of a doubleword counter is unsigned too (a 64-bit value past 2**63 is not a negative number)
             inc = f", {self.long_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
-            if "WRAP" in opts:
+            if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
+                # #5039 (X53): REDUCE, COMPAREMIN / COMPAREMAX (the bounds the value handed out must meet; null: not given)
+                bound = lambda o: f"Long.valueOf({self.long_(_arg(opts[o]))})" if opts.get(o) else "null"  # noqa: E731
+                inc = (f"{inc or ', 1L'}, {'true' if 'WRAP' in opts else 'false'}, {'true' if 'REDUCE' in opts else 'false'}, "
+                       f"{bound('COMPAREMIN')}, {bound('COMPAREMAX')}, {'true' if 'COUNTER' in opts else 'false'}")  # fmt: skip
+            elif "WRAP" in opts:
                 inc = f"{inc or ', 1L'}, true"
             val = (
                 f"new BigDecimal(Long.toUnsignedString({v}[2]))"
@@ -933,8 +938,23 @@ class Cics:
                         + self.g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({v}[{i}])", False)
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
+        if verb in ("REWIND", "UPDATE") and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # #5039 (X53): the spec's groups, then CicsTask.rewindCounter / updateCounter
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
+            if verb == "REWIND":
+                inc = self.long_(_arg(opts["INCREMENT"])) if opts.get("INCREMENT") else "1L"
+                call = f"task.rewindCounter({pool}, {nm}, {inc})"
+            else:
+                if not opts.get("VALUE"):
+                    raise CicsError(_msg("UPDATE COUNTER", "required", "VALUE"))
+                call = f"task.updateCounter({pool}, {nm}, {self.long_(_arg(opts['VALUE']))}, {'true' if 'COUNTER' in opts else 'false'})"
+            return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if "COUNTER" in opts or "DCOUNTER" in opts:
-            # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
+            # any other named-counter command: not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
@@ -2605,8 +2625,10 @@ class Cics:
             return self.delete_generic(opts, ind)
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
-            raise CicsError("UNLOCK without TOKEN: not modelled")
+        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
+            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+            r = self.g.tmpname("resp")
+            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

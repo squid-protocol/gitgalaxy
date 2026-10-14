@@ -84,8 +84,9 @@ jobs:
 
       # The runner's preinstalled node is enough; the version is pinned so the
       # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
+      # #5048: bounded retry, INFRASTRUCTURE marker (the comment sits above the command: a trailing one is read as packages)
       - name: Install the TypeScript checker (call-resolution reference)
-        run: gitgalaxy/tests/tools/ci_retry.sh 4 10 -- npm install --global "typescript@6.0.2"  # #5048: bounded retry, INFRASTRUCTURE marker
+        run: gitgalaxy/tests/tools/ci_retry.sh 4 10 -- npm install --global "typescript@6.0.2"
 
       # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
       # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are

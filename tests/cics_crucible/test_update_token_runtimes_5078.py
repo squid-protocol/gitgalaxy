@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
             c.num = tok;
             GGCDELT(&c, c.flags, 0);
         } else {
+            memcpy(c.flags, "TOKEN", 5);
             c.num = tok;
             GGCUNLK(&c);
         }

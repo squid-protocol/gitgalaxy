@@ -333,3 +333,16 @@ def test_a_bll_program_is_proven_against_gnucobol(tmp_path):
     assert proc.returncode == 0 and report.get("proven") is True, proc.stdout[-4000:] + proc.stderr[-3000:]
     events = report["outputs"]["long-record"]["cobol"]
     assert [e["text"] for e in events if e.get("event") == "SEND-TEXT"] == [SENT]
+
+
+def test_only_a_program_with_bll_evidence_is_read_by_the_lowering():
+    """The lowering reads a program only for a SERVICE statement or a SET / DATAPOINTER naming a declared fullword: a
+    pointer-lane program (#4771's, SET(pointer) on USAGE POINTER items) or a fragment never reaches its parser."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    from test_pointer_lane_4771 import PROGRAM as POINTER_PROGRAM
+
+    assert not B.needed(POINTER_PROGRAM.splitlines())
+    assert not B.needed(["           EXEC CICS GETMAIN64 SET(P) FLENGTH(10) END-EXEC."])
+    assert B.needed(PROGRAM.splitlines())
+    assert B.needed(["    SERVICE RELOAD X."])
+    assert B.lower_text(POINTER_PROGRAM, []) == POINTER_PROGRAM

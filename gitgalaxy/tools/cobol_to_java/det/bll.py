@@ -34,8 +34,12 @@ from gitgalaxy.tools.cobol_to_java.det.source import Line, _outside_literals, ex
 CELL_SPAN = 4096  # each BLL cell addresses this many bytes of its record (IBM, "Bll and large storage areas")
 REFUSED_PREFIX = "OS/VS COBOL BLL addressing"  # every refusal's first words (refusal_map.json: bll-cells)
 
-# a program the lowering need not read: no SERVICE statement and no SET(name) option that is not ADDRESS OF
-_PRECHECK = re.compile(r"\bSERVICE\s+(?:RELOAD|LABEL)\b|\bSET\s*\(\s*(?!ADDRESS\b)[A-Z]", re.I)
+# a program the lowering must read: a SERVICE statement, or a SET / DATAPOINTER option naming an item declared as a
+# fullword binary integer (a pointer-lane program's SET(pointer) names a USAGE POINTER: never read here)
+_SERVICE = re.compile(r"\bSERVICE\s+(?:RELOAD|LABEL)\b", re.I)
+_SET_NAME = re.compile(r"\b(?:SET|DATAPOINTER)\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", re.I)
+_FULLWORD = re.compile(r"^\s*0?2\s+([A-Z0-9][A-Z0-9-]*)\s+PIC(?:TURE)?\s+(?:IS\s+)?S9\(0?8\)\s+(?:USAGE\s+(?:IS\s+)?)?"
+                       r"(?:COMP|COMP-4|BINARY|COMPUTATIONAL|COMPUTATIONAL-4)\b", re.I)
 _NAME = r"[A-Z0-9][A-Z0-9-]*"
 _WORD = re.compile(_NAME, re.I)
 _EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI|SQL)\b.*?\bEND-EXEC\b", re.I | re.S)
@@ -89,7 +93,10 @@ class Cells:
 
 def needed(texts: list[str]) -> bool:
     """Whether the lowering must read the program at all (a cheap test of its text)."""
-    return any(_PRECHECK.search(t) for t in texts)
+    if any(_SERVICE.search(t) for t in texts):
+        return True
+    named = {m.group(1).upper() for t in texts for m in _SET_NAME.finditer(t)}
+    return bool(named) and any(m and m.group(1).upper() in named for m in map(_FULLWORD.match, texts))
 
 
 def _mask(text: str) -> str:
@@ -377,7 +384,7 @@ def lower_text(source: str, dirs: list[Path]) -> str:
     """The equivalence oracle's lowering of a fixed-form program's text (COPY members found in `dirs`), so GnuCOBOL runs
     the program the det port was translated from: unchanged when it needs none. Raises Refused."""
     raw = source.splitlines()
-    if not needed(raw):
+    if not needed([r[7:72] if len(r) > 6 and r[6] not in "*/" else "" for r in raw]):
         return source
     own = "<program>"
     lines = expand(logical_lines(raw, own), list(dirs))

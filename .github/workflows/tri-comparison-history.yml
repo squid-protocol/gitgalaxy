@@ -92,8 +92,8 @@ jobs:
       # main instead of just failing a single PR check.
       - name: Install universal-ctags and verify it's the real thing
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y universal-ctags
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo apt-get -o Acquire::Retries=5 install -y universal-ctags
           if ! ctags --version | grep -q "Universal Ctags"; then
             echo "::error::ctags on PATH is not Universal Ctags -- refusing to write a silently-degraded chart/ledger."
             ctags --version || true

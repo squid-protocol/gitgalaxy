@@ -413,3 +413,24 @@ def test_reaches_sarif_end_to_end(tmp_path):
     )
     assert where == [(".gitlab-ci.yml", 2), ("Dockerfile", 2), ("ci.sh", 3), ("ci.yml", 7), ("ci.yml", 8)], hits
     assert {r["id"] for r in sarif["runs"][0]["tool"]["driver"]["rules"]} >= {"GG-SAST-UNPINNED_INSTALL"}
+
+
+@pytest.mark.parametrize(
+    ("workflow", "needles"),
+    [
+        (
+            "tri-comparison-audit.yml",
+            ["apt-get -o Acquire::Retries=5 update", "apt-get -o Acquire::Retries=5 install -y universal-ctags"],
+        ),
+        (
+            "tri-comparison-history.yml",
+            ["apt-get -o Acquire::Retries=5 update", "apt-get -o Acquire::Retries=5 install -y universal-ctags"],
+        ),
+        ("graph-accuracy-audit.yml", ['--fetch-retries=5 "typescript@6.0.2"', "INFRASTRUCTURE"]),
+    ],
+)
+def test_workflow_network_fetches_retry(workflow, needles):
+    """#5048: an apt/npm fetch in these workflows retries, and keeps its pin."""
+    text = (ROOT / ".github" / "workflows" / workflow).read_text()
+    for needle in needles:
+        assert needle in text, needle

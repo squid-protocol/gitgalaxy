@@ -85,7 +85,14 @@ jobs:
       # The runner's preinstalled node is enough; the version is pinned so the
       # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
       - name: Install the TypeScript checker (call-resolution reference)
-        run: npm install --global "typescript@6.0.2"
+        run: |
+          for attempt in 1 2 3; do
+            npm install --global --fetch-retries=5 "typescript@6.0.2" && exit 0
+            echo "typescript fetch attempt ${attempt} failed; retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::INFRASTRUCTURE: could not fetch typescript@6.0.2 from the npm registry after 3 attempts (not a code defect)."
+          exit 1
 
       # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
       # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are

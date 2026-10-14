@@ -47,6 +47,51 @@ DOCKER_STEP_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
 )
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
+
+# #5048: `docker build` fetches the digest-pinned base and runs apt, so a registry or mirror hiccup fails it
+BUILD_ATTEMPTS = 4
+BUILD_BACKOFF = 15  # seconds; doubles each attempt
+BUILD_TIMEOUT = 1800
+_TRANSIENT = re.compile(
+    r"TLS handshake timeout|connection (reset|refused|timed out)|i/o timeout|no such host|"
+    r"temporary failure|could not resolve|failed to fetch|unexpected eof|\bEOF\b|"
+    r"\b50[0-4]\b|too many requests|toomanyrequests|net/http|failed to do request|"
+    r"unable to connect|network is unreachable",
+    re.IGNORECASE,
+)  # fmt: skip
+
+
+class DockerBuildInfraError(RuntimeError):
+    """#5048: `docker build` kept failing on the network (registry, mirror) -- infrastructure, not our code."""
+
+
+def docker_build(
+    *args: str, attempts: int = BUILD_ATTEMPTS, backoff: float = BUILD_BACKOFF, timeout: int = BUILD_TIMEOUT
+) -> None:
+    """`docker build <args>`, retried when it fails on the network. Any other failure (a Dockerfile defect, the cobc
+    version check) raises at once with docker's output, unretried and not called infrastructure. The pins are the
+    Dockerfile's: a retry can only fetch the same bytes."""
+    last = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            proc = subprocess.run(["docker", "build", *args], capture_output=True, text=True, check=False,  # noqa: S603, S607
+                                  timeout=timeout)  # fmt: skip
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            last = str(exc).strip()[-300:] or type(exc).__name__
+        else:
+            if proc.returncode == 0:
+                return
+            last = (proc.stderr.strip() or proc.stdout.strip())[-600:]
+            if not _TRANSIENT.search(last):
+                raise RuntimeError(f"docker build failed: {last}")
+        if attempt < attempts:
+            time.sleep(backoff * 2 ** (attempt - 1))
+    raise DockerBuildInfraError(
+        f"INFRASTRUCTURE (not a code defect): docker build failed on the network after {attempts} attempts: "
+        f"{last[-300:]}. Re-run; the base image digest and package pins are deliberate."
+    )
+
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 _register_ebcdic()  # #3816: cp277 / cp278 / ... resolve in every decode and encode below
 

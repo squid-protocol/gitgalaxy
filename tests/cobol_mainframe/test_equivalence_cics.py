@@ -934,6 +934,113 @@ def test_a_case_states_an_esds_the_estate_does_not_define():
             ec.stub_files(_NoDefineIR(), "p.cbl", {"EPSMORTF": {"csd": wrong}})
 
 
+class _SymbolicIR:
+    """An estate whose CSD names a file with install symbols and whose IDCAMS job the engine does not read as a define
+    (zECS: ZCEXPIRE.idcams is not JCL), as `record_format` says."""
+
+    files: dict = {}
+
+    def __init__(self, dsname="@ECS_HLQ@.ZCEXPIRE.@ENVIRONMENT@", record_format="V"):
+        self.dsname, self.record_format = dsname, record_format
+
+    @staticmethod
+    def vsam_stores():
+        return []
+
+    def cics_file_lineage(self):
+        return [{"program": "p.cbl", "name": "ZCEXPIRE", "definitions": [
+            {"file": "ZCEXPIRE", "dsname": self.dsname, "record_format": self.record_format}]}]  # fmt: skip
+
+
+_SYMBOLS = {"values": {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST"}, "why": "this install"}
+_VSAM = {"key_offset": 0, "key_length": 4, "reclen": 70, "variable": True, "why": "ZCEXPIRE.idcams KEYS(4 0)"}
+
+
+def test_install_symbols_are_stated_by_the_case_never_guessed():
+    """#5089: `@NAME@` placeholders in a dataset name resolve only to what the case's install_symbols state (names are
+    not case-sensitive); the stated file keeps the resolved name; anything unstated or malformed is refused."""
+    symbols = ec.install_symbols(_SYMBOLS)
+    assert symbols == {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST"}
+    assert ec.install_symbols(None) == {}
+    assert ec.substitute_install_symbols("@ecs_hlq@.ZCEXPIRE.@environment@", symbols) == "ZECS.ZCEXPIRE.TEST"
+    assert ec.substitute_install_symbols("@ECS_HLQ@.@OTHER@", symbols) == "ZECS.@OTHER@"  # left: refused by the caller
+    assert ec.substitute_install_symbols("PLAIN.NAME", symbols) == "PLAIN.NAME"
+    assert ec.substitute_install_symbols("@A@.@A@", {"A": "X"}) == "X.X"  # every occurrence
+    assert ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}}, symbols) == [
+        {
+            "file": "ZCEXPIRE",
+            "dsname": "ZECS.ZCEXPIRE.TEST",
+            "base": "ZECS.ZCEXPIRE.TEST",
+            "key_offset": 0,
+            "key_length": 4,
+            "reclen": 70,
+            "via": ["the case's install_symbols", "the case's vsam"],
+        }  # fmt: skip
+    ]
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"values": {"ECS_HLQ": "ZECS"}},  # no why
+        {"values": {"ECS_HLQ": "ZECS"}, "why": ""},
+        {"values": {}, "why": "x"},
+        {"values": {"ECS_HLQ": "zecs"}, "why": "x"},  # not upper case
+        {"values": {"ECS_HLQ": 3}, "why": "x"},
+        {"values": {"ECS HLQ": "ZECS"}, "why": "x"},
+        {"values": {"A": "X", "a": "Y"}, "why": "x"},  # twice
+        {"values": {"A": "X"}, "why": "x", "extra": 1},
+        ["ECS_HLQ"],
+        {"ECS_HLQ": "ZECS"},  # the values are one level down
+    ],
+)
+def test_malformed_install_symbols_are_refused(bad):
+    with pytest.raises(ec.Unsupported):
+        ec.install_symbols(bad)
+
+
+def test_an_unstated_install_symbol_or_a_missing_vsam_is_refused():
+    """#5089: a symbol the case does not state, no stated KEYS / RECORDSIZE, a V file not acknowledged as stood in for
+    by a fixed record length -- each stops the case by name; a stale key (a symbol no name uses) is not an error."""
+    only_hlq = ec.install_symbols({"values": {"ECS_HLQ": "ZECS"}, "why": "x"})
+    with pytest.raises(ec.Unsupported, match="install symbol the case does not state"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}}, only_hlq)
+    symbols = ec.install_symbols(_SYMBOLS)
+    for datasets in ({}, {"ZECS.ZCEXPIRE.TEST": {}}, {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "why": ""}}},
+                     {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "reclen": "70"}}},
+                     {"ZECS.ZCEXPIRE.TEST": {"vsam": {k: v for k, v in _VSAM.items() if k != "key_length"}}}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+            ec.stub_files(_SymbolicIR(), "p.cbl", datasets, symbols)
+    with pytest.raises(ec.Unsupported, match="variable-length"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "variable": False}}}, symbols)
+    fixed = ec.stub_files(_SymbolicIR(record_format="F"), "p.cbl",
+                          {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "variable": False}}}, symbols)  # fmt: skip
+    assert fixed[0]["reclen"] == 70
+    # no symbols stated: the name stays symbolic and is refused as before (the engine's candidate join is separate)
+    with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}})
+    # a name with no symbols at all is not touched by the stated ones
+    with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+        ec.stub_files(_SymbolicIR(dsname="PLAIN.ZCEXPIRE"), "p.cbl", {"PLAIN.ZCEXPIRE": {"vsam": _VSAM}}, symbols)
+
+
+def test_a_retrieve_is_compared_as_the_task_records_it():
+    """#5089: RETRIEVE's resp, length and data (INTO) and the RTRANSID / RTERMID / QUEUE it returned, from the stub's
+    log and from CicsTask's event -- ENDDATA, a NORMAL record, a LENGERR truncation and a RETRIEVE with no INTO."""
+    import base64
+
+    assert ec._cobol_retrieve({"resp": "29", "len": "-1", "copied": "0", "into": "1"}, b"", "cp037") == {
+        "resp": "ENDDATA", "length": None, "data": None}  # fmt: skip
+    got = ec._cobol_retrieve({"resp": "0", "len": "3", "copied": "3", "into": "1", "rtransid": "5a583031"}, b"abc",
+                             "ascii")  # fmt: skip
+    assert got == {"resp": "NORMAL", "length": 3, "data": "abc", "rtransid": "ZX01"}
+    assert ec._cobol_retrieve({"resp": "22", "len": "9", "copied": "2", "into": "1"}, b"ab", "ascii")["length"] == 9
+    assert ec._cobol_retrieve({"resp": "0", "len": "0", "copied": "0", "into": "0"}, b"", "ascii")["length"] is None
+    java = {"event": "RETRIEVE", "resp": "NORMAL", "length": 3, "data": base64.b64encode(b"\xc1\xc2\xc3").decode()}
+    assert ec.java_retrieve_as_compared(java)["data"] == "ABC"  # the region's EBCDIC page
+    assert ec.java_retrieve_as_compared({"resp": "ENDDATA", "data": None})["data"] is None
+
+
 def test_an_esds_is_compared_in_arrival_order():
     """#4213: an ESDS has no key -- its records' order is their RBAs, so it is data and is compared as it is."""
     files = [{"base": "LOG", "reclen": 2, "key_offset": 0, "key_length": 0, "organization": "ESDS"}]

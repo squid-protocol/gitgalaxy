@@ -99,7 +99,9 @@ def test_main_watch_checks_out_main_only_and_has_reconcile():
 def test_post_merge_dispatches_with_the_pat():
     wf = read("post-merge.yml")
     assert "DISPATCH_TOKEN: ${{ secrets.AUTOMATION_PAT }}" in wf
-    assert 'GH_TOKEN="${DISPATCH_TOKEN:-$GH_TOKEN}" gh workflow run' in wf
+    assert "run: python3 tests/tools/post_merge_dispatch.py" in wf  # #5136: the dispatch rule moved into the script
+    script = (REPO / "tests" / "tools" / "post_merge_dispatch.py").read_text(encoding="utf-8")
+    assert 'GH_TOKEN=os.environ.get("DISPATCH_TOKEN")' in script and '"gh", "workflow", "run"' in script
 
 
 def test_a_cancelled_leg_says_how_long_it_ran():

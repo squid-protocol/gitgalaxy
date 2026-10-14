@@ -363,7 +363,7 @@ def test_a_caller_is_not_proven_while_a_callee_has_holes():
     main = pb.Run("equivalence", "c")
     pb.judge_equivalence(main, {}, _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)}), True)
     assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
-    assert main.detail[next(iter(main.gaps))] == "1/3 paragraphs, 0/0 branches"
+    assert main.detail[next(iter(main.gaps))] == "1/3 paragraphs"
     clean = pb.Run("equivalence", "c")
     pb.judge_equivalence(clean, {}, _sweep_row({"SUBP": _counts(2, 2)}), True)
     assert clean.gaps == set()
@@ -378,3 +378,12 @@ def test_the_ledger_reading_carries_the_linked_counts():
     callee = pb.Run("equivalence", "c", role="linked", program="HOLEY")
     pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading})
     assert callee.gaps == {"coverage: live paragraphs no scenario runs"}
+
+
+def test_a_callee_with_only_branch_holes_is_a_branch_gap_with_branches_on():
+    row = _sweep_row({"SUBP": {"paragraphs": {"covered": 2, "live": 2}, "branches": {"covered": 1, "total": 2}}})
+    on, off = pb.Run("equivalence", "c"), pb.Run("equivalence", "c")
+    pb.judge_equivalence(on, {}, row, True)
+    pb.judge_equivalence(off, {}, row, False)
+    assert on.gaps == {"coverage: LINKed program SUBP has branch outcomes no scenario runs"}
+    assert off.gaps == set()

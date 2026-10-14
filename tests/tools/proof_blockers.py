@@ -289,13 +289,15 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
             coverage_gaps(run, linked_cov(mine), branches)
         return
     for name, mine in sorted(counts.items()):  # a caller is not proven while a callee has holes (owner rule, #5084)
-        short = linked_cov(mine)
-        if short[0] < short[1] or (branches and short[2] < short[3]):
+        pc, pl, bc, bt = linked_cov(mine)
+        if pc < pl:
             g = f"coverage: LINKed program {name} has live paragraphs no scenario runs"
             run.gaps.add(g)
-            run.detail[g] = f"{short[0]}/{short[1]} paragraphs" + (
-                f", {short[2]}/{short[3]} branches" if branches else ""
-            )
+            run.detail[g] = f"{pc}/{pl} paragraphs"
+        if branches and bc < bt:
+            g = f"coverage: LINKed program {name} has branch outcomes no scenario runs"
+            run.gaps.add(g)
+            run.detail[g] = f"{bc}/{bt} branches"
     cov = coverage_of(row.get("coverage", "")) if row else None
     uncovered = row.get("uncovered") if cov else None
     checked = uncovered is not None  # a sweep that kept no uncovered list cannot show a claim holds

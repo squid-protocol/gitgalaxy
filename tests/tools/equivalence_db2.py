@@ -288,7 +288,7 @@ def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float
 def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         fetch_odbc_cli()
-        _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
+        common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
     import fcntl
 
     # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it

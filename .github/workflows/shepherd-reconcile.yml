@@ -1,7 +1,7 @@
 name: CI shepherd (reconcile)
 
 # #4847 item 3: the passes that need no label event -- a required check finished on a labelled PR (rerun infra/flake failures,
-# post the one digest per head, update a behind branch, enable auto-merge once the matrix is green), a cron for
+# post the one digest per head, enable auto-merge once the matrix is green), a cron for
 # the reruns' 15-minute gap, and a manual run (`ensure_labels: true` creates or refreshes the label set first).
 # Logic: tests/tools/shepherd_gh.py. Like shepherd-event.yml, it checks out main only and never runs PR code.
 

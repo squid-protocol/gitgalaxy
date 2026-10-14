@@ -2175,6 +2175,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CICS-BMS-JUSTIFY",
+   "family": "CICS",
+   "title": "RECEIVE MAP into a DFHMDF JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) field: the typed text placed at the justified end, the rest filled with blanks or zeros; <f>L the length typed",
+   "methods": [
+    "typedJustified"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RECEIVE MAP, DFHMDF JUSTIFY"
+   },
+   "options": [],
+   "register": [
+    "X54"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-CURRENT-DATE",
    "family": "CICS",
    "title": "FUNCTION CURRENT-DATE in a CICS task: the task's clock, the region's zone (UTC)",

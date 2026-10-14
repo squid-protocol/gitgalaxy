@@ -3504,10 +3504,11 @@ public class CicsTask {
         return new long[] {0, 0, v, lim == null ? 0 : lim[0], lim == null ? 0 : lim[1]};
     }
 
-    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30): {RESP, RESP2} -- the counter created with VALUE (the caller
-     *  passes zero when it is omitted: IBM's initial value); INVREQ 202 when one of that name exists, 403 / 404 for a name
-     *  outside IBM's rules. A VALUE below zero is refused (IBM does not state how the default minimum reads signed). */
-    public int[] defineCounter(String pool, String name, int value) {
+    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30, #5039, X50): {RESP, RESP2} -- fullwords: the caller passes
+     *  MINIMUM 0, MAXIMUM 2147483647 (X'7FFFFFFF', IBM's defaults) and VALUE 0 for what the command omits. INVREQ 407
+     *  when MAXIMUM is below MINIMUM or beyond X'7FFFFFFF', 406 when VALUE is below MINIMUM or above MAXIMUM + 1,
+     *  202 for a duplicate, 403 / 404 for a name outside IBM's rules. A VALUE or MINIMUM below zero is refused. */
+    public int[] defineCounter(String pool, String name, long value, long min, long max) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new int[] {16, bad};
@@ -3515,13 +3516,27 @@ public class CicsTask {
         if (value < 0) {
             throw refused("DEFINE COUNTER with a VALUE below zero");
         }
-        java.util.Map<String, Long> all = root().counters;
+        if (min < 0) {
+            throw refused("DEFINE COUNTER with a MINIMUM below zero");
+        }
+        if (max < min || max > 2147483647L) {
+            return new int[] {16, 407};
+        }
+        if (value < min || value > max + 1) {
+            return new int[] {16, 406};
+        }
+        CicsTask r = root();
         String key = counterKey(pool, name);
-        if (all.containsKey(key)) {
+        if (r.counters.containsKey(key)) {
             return new int[] {16, 202};
         }
-        all.put(key, (long) value);
+        r.counters.put(key, value);
+        r.counterLimits.put(key, new long[] {min, max});
         return new int[] {0, 0};
+    }
+
+    public int[] defineCounter(String pool, String name, int value) {
+        return defineCounter(pool, name, (long) value, 0L, 2147483647L);
     }
 
     /** DELETE COUNTER (IBM CICS TS, DELETE COUNTER; X30): {RESP, RESP2} -- INVREQ 201 "Named counter not found"
@@ -3536,23 +3551,33 @@ public class CicsTask {
         return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
     }
 
-    /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER): {RESP, RESP2, value} -- the named counter's current value, which stays;
-     *  INVREQ (16) RESP2 201 "Named counter not found", 403 / 404 for a name outside IBM's rules. The region's counters
-     *  are fullwords: one beyond it (IBM's LENGERR) is refused. */
-    public int[] queryCounter(String pool, String name) {
+    /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER; #4415 slice 2, X29; #5039, X50): {RESP, RESP2, value, minimum, maximum} --
+     *  the counter's value, which stays, and its limits (fullwords). `limits`: the command asks for MINIMUM or MAXIMUM, which a
+     *  counter with no limits entry has none the run states for: refused. */
+    public int[] queryCounter(String pool, String name, boolean limits) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
-            return new int[] {16, bad, 0};
+            return new int[] {16, bad, 0, 0, 0};
         }
-        java.util.Map<String, Long> all = root().counters;
-        Long v = all.get(counterKey(pool, name));
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
         if (v == null) {
-            return new int[] {16, 201, 0};
+            return new int[] {16, 201, 0, 0, 0};
         }
-        if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) {
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null && limits) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        }
+        if (v < 0 || v > 2147483647L) {
             throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
         }
-        return new int[] {0, 0, v.intValue()};
+        return new int[] {0, 0, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+    }
+
+    public int[] queryCounter(String pool, String name) {
+        int[] r = queryCounter(pool, name, false);
+        return new int[] {r[0], r[1], r[2]};
     }
 
     /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
@@ -4469,8 +4494,19 @@ public class CicsTask {
     public void returnTransid(String transid, Object commarea, Integer length, byte[] area) {
         returnTransid(transid, commarea, length);
         if (level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
+    }
+
+    /** #4817: the bytes a RETURN / XCTL COMMAREA passes on: a copy of the first LENGTH of `area` (null LENGTH: all of
+     *  it). IBM passes LENGTH bytes -- the next task's EIBCALEN -- so a record longer than its LENGTH does not carry
+     *  its tail across; the DTO's reading (`returned`) is cut at LENGTH the same way. A LINK is not cut: its area is
+     *  passed by address, so the callee's storage is the caller's, tail included. */
+    private static byte[] areaOf(byte[] area, Integer length) {
+        if (area == null) {
+            return null;
+        }
+        return java.util.Arrays.copyOf(area, length == null ? area.length : Math.max(0, Math.min(length, area.length)));
     }
 
     /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
@@ -4516,12 +4552,16 @@ public class CicsTask {
     public int[] returnImmediate(String transid, Object commarea, Integer length, byte[] area) {
         int[] resps = returnImmediate(transid, commarea, length);
         if (resps[0] == 0 && level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
         return resps;
     }
 
-    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
+    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy: the first LENGTH of the bytes the program passed beside its
+     *  DTO, in its storage page's charset (what the next task takes through linkArea). Null when a RETURN passed none
+     *  beside its COMMAREA -- a LENGTH past the DTO passes the COMMAREA itself as a byte[] in the region's EBCDIC
+     *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
+     *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
     }
@@ -4537,7 +4577,8 @@ public class CicsTask {
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }
-        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName();
+        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName()
+                + (area instanceof byte[] ? " (a LENGTH past its DTO passes the COMMAREA's bytes: answer it as Object)" : "");
         java.lang.reflect.Method to;
         java.lang.reflect.Method from;
         try {
@@ -4693,7 +4734,7 @@ public class CicsTask {
     public String xctl(String program, Object commarea, Integer length, byte[] area) {
         String resp = xctl(program, commarea, length, (Channel) null);
         if ("NORMAL".equals(resp)) {
-            xctlArea = area;
+            xctlArea = areaOf(area, length);
         }
         return resp;
     }

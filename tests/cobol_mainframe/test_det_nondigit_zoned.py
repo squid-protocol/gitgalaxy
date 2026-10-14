@@ -494,6 +494,116 @@ def test_the_p_expected_lines_are_cobcs(case, tmp_path):
     assert _esc(_pcobc(case, tmp_path)) == _pexpected()[_pkey(case)]
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# #5032: siblings of #4996. A numeric item that is not a plain integer (or holds a bad sign byte) read by a
+# non-arithmetic statement: MOVE to a national receiver, UNSTRING operands, a bad sign byte MOVEd to alphanumeric.
+# ---------------------------------------------------------------------------------------------------------------
+def _sprogram(decls: str, op: str, data: bytes = b"12") -> str:
+    lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+             "       WORKING-STORAGE SECTION.", "       01 R PIC X(4).", *[f"       {x}" for x in decls.split("\n")],
+             "       01 X PIC X(8).", "       01 Y PIC X(8).", "       01 CT PIC 9(4).", "       01 PT PIC 9(4).",
+             "       PROCEDURE DIVISION.", f"           MOVE X'{data.hex().upper()}' TO R", f"           {op}",
+             "           GOBACK.", ""]  # fmt: skip
+    return "\n".join(lines)
+
+
+@pytest.mark.parametrize("pic", ["PIC 9V99", "PIC S9V99", "PIC VPP99", "PIC SVPP99", "PIC 99PP", "PIC 9(3)"])
+@pytest.mark.parametrize("receiver", ["PIC N(4)", "PIC G(4)", "PIC X(4) USAGE NATIONAL", "PIC N(4) USAGE NATIONAL",
+                                      "PIC X(4) USAGE DISPLAY-1", "PIC N(2)BN(2)"])  # fmt: skip
+def test_a_move_to_a_national_receiver_is_refused_by_name_whatever_the_sender(pic, receiver, tmp_path):
+    """Table 51 makes a noninteger numeric to NATIONAL invalid; the translator refuses every national item at the
+    source (#4462 / #4664), so no sender shape reaches a national receiver (the integer ones included)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.layout import LayoutError
+
+    src = _sprogram(f"01 V {pic}.\n01 NR {receiver}.", "MOVE V TO NR")
+    (tmp_path / "NDB.cbl").write_text(src)
+    (tmp_path / "project").mkdir()
+    with pytest.raises(LayoutError, match="national / DBCS"):
+        P.translate(tmp_path / "NDB.cbl", [], "public class NdbService {\n}\n", "p", None, tmp_path / "project")
+
+
+UNSTRING_BAD = [  # (declarations, operation, what the hole names)
+    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", "sending item V"),
+    ("01 V PIC 9V99.", "UNSTRING V DELIMITED BY ',' INTO X", "sending item V"),
+    ("01 V PIC 99PP.", "UNSTRING V DELIMITED BY ',' INTO X", "sending item V"),
+    ("01 V PIC 9(2).", "UNSTRING R DELIMITED BY V INTO X", "DELIMITED BY item V"),
+    ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ALL V INTO X", "DELIMITED BY item V"),
+    ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY ',' INTO V", "INTO item V"),
+    ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO V", "INTO item V"),
+    ("01 V PIC SVPP99.", "UNSTRING R DELIMITED BY ',' INTO X COUNT IN V", "COUNT IN item V"),
+    ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V", "POINTER item V"),
+    ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO X TALLYING IN V", "TALLYING item V"),
+]  # fmt: skip
+UNSTRING_GOOD = [
+    ("01 V PIC 9(4).", "UNSTRING R DELIMITED BY ',' INTO V"),
+    ("01 V PIC 9(4).", "UNSTRING R DELIMITED BY ',' INTO X COUNT IN V"),
+    ("01 V PIC 9(4).", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V"),
+    ("01 V PIC 9(4).", "UNSTRING R DELIMITED BY ',' INTO X TALLYING IN V"),
+    ("01 V PIC 99PP.", "UNSTRING V(1:2) DELIMITED BY ',' INTO X"),
+    ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY V(1:1) INTO X"),
+]  # fmt: skip
+
+
+@pytest.mark.parametrize(("decls", "op", "hole"), UNSTRING_BAD)
+def test_an_unstring_numeric_operand_that_ibm_rejects_is_refused_by_name(decls, op, hole, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _holes(_sprogram(decls, op), tmp_path)
+    assert len(holes) == 1 and f"UNSTRING {hole}" in holes[0] and "C11" in holes[0], holes
+
+
+@pytest.mark.parametrize(("decls", "op", "ibm"), [
+    ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO V", True),
+    ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY ',' INTO V", False),
+    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", False),
+    ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V", True),
+])  # fmt: skip
+def test_an_unstring_refusal_names_whose_rule_it_is(decls, op, ibm, tmp_path):
+    """A P in an INTO item and a non-integer COUNT / POINTER / TALLYING item are IBM's rules; a decimal INTO item and
+    a numeric sender are the port's conservative choice and must not be called an IBM compile error."""
+    pytest.importorskip("tree_sitter_language_pack")
+    (hole,) = _holes(_sprogram(decls, op), tmp_path)
+    assert ("compile error in Enterprise COBOL" in hole) == ibm, hole
+
+
+@pytest.mark.parametrize(("decls", "op"), UNSTRING_GOOD)
+def test_an_unstring_integer_receiver_or_reference_modified_operand_is_translated(decls, op, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    assert _holes(_sprogram(decls, op), tmp_path) == []
+
+
+SIGN_CASES = [  # (PICTURE, bytes, refused)
+    *[("PIC S9(4)", d, bad) for d, bad in [(b"123!", True), (b"123\xff", True), (b"123x", True), (b"1234", False),
+                                         (b"123}", False), (b"123J", False), (b"123 ", False), (b"!123", False)]],
+    *[("PIC S9(4) SIGN LEADING", d, bad) for d, bad in [(b"!123", True), (b"\xff123", True), (b"1234", False),
+                                                       (b"}123", False), (b"{123", False), (b" 123", False)]],
+    *[("PIC S9(4) SIGN TRAILING SEPARATE", d, bad) for d, bad in [(b"1234!", True), (b"1234\xff", True),
+                                                                 (b"1234+", False), (b"1234-", False)]],
+    *[("PIC S9(4) SIGN LEADING SEPARATE", d, bad) for d, bad in [(b"!1234", True), (b"+1234", False),
+                                                                (b"-1234", False)]],
+]  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("target", ["X", "XB"])
+@pytest.mark.parametrize(("pic", "data", "bad"), SIGN_CASES)
+def test_a_bad_sign_byte_moved_to_alphanumeric_is_refused_by_name_and_a_good_one_is_not(
+    pic, data, bad, target, tmp_path
+):
+    """IBM defines no result for a sign byte that is no sign (C11, undefined data), and cobc rewrites it to a digit:
+    refused at run time; a digit, an overpunch, a space and a separate + / - are moved as ever. Only the sign
+    position counts (a `!` in a digit position of a signed item is the unsigned rule's, not this one)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = _sprogram(f"01 S REDEFINES R {pic}.\n01 XB PIC X(8) JUSTIFIED RIGHT.", f"MOVE S TO {target}", data)
+    src = src.replace("01 R PIC X(4).", f"01 R PIC X({len(data)}).")
+    run = _det(src, tmp_path, "STD")
+    if bad:
+        assert run.returncode != 0 and "register C11" in run.stderr and "sign byte" in run.stderr, run.stderr
+    else:
+        assert run.returncode == 0, run.stderr
+
+
 if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the receiver file) from cobc
     import tempfile
 

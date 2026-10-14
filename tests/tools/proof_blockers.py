@@ -15,7 +15,10 @@ one or more gap classes:
   scenario differs: KIND   a sweep proved the case's det port unequal: KIND is the first diff's event and field root
                            (`RETURN commarea`), or `java side failed`; a crucible java-ported cell in
                            tests/cics_crucible/baseline.json with its reason, specifics stripped
-  not proven in CI: Db2    a Db2 case: CI's det-sweep runs --skip-db2, so only a local sweep (--sweep) proves it
+  not proven in CI: Db2    a Db2 case with no sweep row and no readable det-sweep ledger entry (#5075: the Db2
+                           lanes -- det-sweep's `db2` job, #4901, and the nightly Evidence Refresh `db2` job, #4733 --
+                           write an entry only for a case their sweep proved, #4758; a case / corpus change since makes
+                           it unreadable)
   no det port (crucible)   its crucible case runs the COBOL, but no det port of it is committed
   coverage: ...            the proof leaves live paragraphs (and with --branches, branch outcomes) no scenario runs:
                            translated code no proof judged. The outcomes a case states no input can reach
@@ -29,9 +32,12 @@ one or more gap classes:
 
 Verdicts come from, in order: the sweeps given with --sweep (`proof_sweep.py --det-only --work DIR`: DIR/sweep.json,
 and DIR/det/<case>/proof/report.json for the diff kind), else main's CI ratchet -- a non-Db2 case not in
-det_sweep_baseline.json is proven, because CI's det-sweep fails on any that is not. Coverage comes from the sweep's
-coverage line, else the committed det-sweep ledger (tests/equivalence/det_sweep_coverage/<case>.json, det_coverage_ledger.py: while
-its fingerprints match the tree), else the case's evidence record (the COBOL side's coverage of the same
+det_sweep_baseline.json is proven, because CI's det-sweep fails on any that is not; a Db2 case not in it is proven
+when its det-sweep ledger entry is readable (the Db2 lanes' recorded verdict, above). Coverage comes from the sweep's
+coverage line, else the committed det-sweep ledger (tests/equivalence/det_sweep_coverage/<case>.json,
+det_coverage_ledger.py) while no BLOCKING input (case, corpus) changed -- #5075: an entry stale on harness / oracle
+only is the last measurement (#4730), whose counts CI's det-sweep compares exactly on every sweep of the case; such
+entries are counted in the report's sources -- else the case's evidence record (the COBOL side's coverage of the same
 scenarios). Crucible programs (a surveyed corpus named *crucible*, path cases/<trap>/<case>/src/<PROGRAM>.cbl) take their verdicts from
 tests/cics_crucible/{baseline,coverage}.json and the ports under tests/cics_crucible/ports.
 
@@ -104,6 +110,8 @@ class Run:
     gaps: set[str] = field(default_factory=set)
     detail: dict[str, str] = field(default_factory=dict)  # gap -> a longer note (the baseline's why, the diff)
     infeasible: list[str] = field(default_factory=list)  # #4602: stated infeasible outcomes taken out of the total
+    verdict: str = ""  # #5075: "ledger" when the det verdict is the det-sweep ledger's (a Db2 case, no sweep row)
+    stale_coverage: list[str] = field(default_factory=list)  # #5075: the ledger inputs changed since its coverage
 
 
 def _norm(path: str) -> str:
@@ -154,6 +162,37 @@ def coverage_of(line: str) -> tuple[int, int, int, int] | None:
     return tuple(int(x) for x in m.groups()) if m else None  # type: ignore[return-value]
 
 
+def ledger_readings(cases: list[str] | None = None, cases_dir: Path = CASES) -> dict[str, Any]:
+    """#5075: case -> its det-sweep ledger entry as a reader may take it (det_coverage_ledger.last_coverage):
+    [paragraphs covered, live, branches covered, total] while current; {"coverage": [...], "stale_inputs": [...],
+    "stale_since": sha|None} while stale on SCHEDULED inputs only (harness / oracle: the last measurement, #4730);
+    None for no entry or a BLOCKING change (case, corpus: it describes another program). An entry exists only while
+    the last sweep of its case proved it (#4758), so a readable one is also the case's det verdict."""
+    import det_coverage_ledger as dcl
+
+    if cases_dir != CASES:  # a fixture tree: fingerprints are the repo's
+        return {}
+    ledger = dcl.load()
+    out: dict[str, Any] = {}
+    for case in sorted(ledger) if cases is None else cases:
+        last = dcl.last_coverage(case, ledger)
+        if last is None or last["blocking"]:
+            out[case] = None
+        elif not last["stale_inputs"]:
+            out[case] = list(last["coverage"])
+        else:
+            out[case] = {"coverage": list(last["coverage"]), "stale_inputs": list(last["stale_inputs"]),
+                         "stale_since": last["measured_at"]}  # fmt: skip
+    return out
+
+
+def reading_coverage(reading: Any) -> tuple[tuple[int, int, int, int] | None, list[str]]:
+    """A ledger reading (ledger_readings) -> (its coverage, the inputs it is stale on)."""
+    if isinstance(reading, dict):
+        return tuple(reading["coverage"]), list(reading.get("stale_inputs") or [])  # type: ignore[return-value]
+    return (tuple(reading), []) if reading else (None, [])  # type: ignore[return-value]
+
+
 def ledger_coverage(case: str, cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:
     """The det sweep's coverage of the case from the committed ledger (det_coverage_ledger.py), while it is fresh."""
     import det_coverage_ledger as dcl
@@ -190,9 +229,12 @@ def diff_kind(report: str | None) -> str:
 
 
 def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps: dict[str, dict[str, Any]],
-                      branches: bool, cases_dir: Path = CASES) -> None:  # fmt: skip
-    """Fill run.gaps for an equivalence case's det port."""
+                      branches: bool, cases_dir: Path = CASES, ledger: dict[str, Any] | None = None) -> None:  # fmt: skip
+    """Fill run.gaps for an equivalence case's det port. `ledger`: ledger_readings() (#5075), read for a Db2 case's
+    verdict and for coverage; None (evidence_report, which applies its own measured ledger) reads only a current
+    entry's coverage and leaves every Db2 case with no sweep row "not proven in CI"."""
     row = sweeps.get(run.case)
+    reading = (ledger or {}).get(run.case)
     base = det_baseline.get(run.case)
     if row is not None and not row.get("proved"):
         if base is not None:
@@ -207,7 +249,10 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         run.gaps.add(g)
         run.detail[g] = base.get("why", "")
     elif row is None and run.db2:
-        run.gaps.add("not proven in CI: Db2 case (det-sweep runs --skip-db2)")
+        if reading is None:
+            run.gaps.add("not proven in CI: Db2 case (no sweep row, no readable det-sweep ledger entry)")
+        else:
+            run.verdict = "ledger"
     if row is not None:
         t, _, s = str(row.get("translated", "")).partition("/")
         if t.isdigit() and s.isdigit() and int(t) < int(s):
@@ -221,8 +266,11 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
     cov = coverage_of(row.get("coverage", "")) if row else None
     uncovered = row.get("uncovered") if cov else None
     checked = uncovered is not None  # a sweep that kept no uncovered list cannot show a claim holds
-    if cov is None:
-        cov, checked = ledger_coverage(run.case, cases_dir), True  # counts only: CI's det-sweep checks the claims
+    if cov is None:  # counts only: CI's det-sweep checks the claims
+        if ledger is None:
+            cov, checked = ledger_coverage(run.case, cases_dir), True
+        else:
+            (cov, run.stale_coverage), checked = reading_coverage(reading), True
     if cov is None:
         cov, uncovered = evidence_coverage(run.case, cases_dir), evidence_uncovered(run.case, cases_dir)
         checked = uncovered is not None
@@ -400,14 +448,18 @@ def read_text(roots: list[Path], corpus: str, program: str) -> str | None:
 def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path], *, only_cics: bool = True,
                    sweeps: dict[str, dict[str, Any]] | None = None, branches: bool = False,
                    cases_dir: Path = CASES, crucible_dir: Path = CRUCIBLE,
-                   det_baseline: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:  # fmt: skip
-    """The proof-level ranking over the WHOLE programs of a survey (`rows`: cics_census.load_surveys)."""
+                   det_baseline: dict[str, dict[str, Any]] | None = None,
+                   ledger: dict[str, Any] | None = None) -> dict[str, Any]:  # fmt: skip
+    """The proof-level ranking over the WHOLE programs of a survey (`rows`: cics_census.load_surveys). `ledger`:
+    ledger_readings() of the cases (default: the committed ledger, read once)."""
     sweeps = sweeps or {}
     det_baseline = load_det_baseline() if det_baseline is None else det_baseline
     eq = equivalence_runs(cases_dir)
+    if ledger is None:
+        ledger = ledger_readings(sorted({r.case for v in eq.values() for r in v}), cases_dir)
     for runs in eq.values():
         for r in runs:
-            judge_equivalence(r, det_baseline, sweeps, branches, cases_dir)
+            judge_equivalence(r, det_baseline, sweeps, branches, cases_dir, ledger)
     cru = crucible_runs(crucible_dir, branches) if (crucible_dir / "baseline.json").is_file() else {}
     burned = cc.burned_names()
     progs: dict[tuple[str, str], tuple[bool, set[str]]] = {}
@@ -426,15 +478,20 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
         progs[key] = (cc.is_burned(key[0], burned), gaps)
         subjects[key] = {"case": run.case if run else None, "kind": run.kind if run else None,
                          "detail": {g: run.detail[g] for g in gaps if run and g in run.detail},
-                         "infeasible": list(run.infeasible) if run else []}  # fmt: skip
+                         "infeasible": list(run.infeasible) if run else [],
+                         "verdict": run.verdict if run and run.kind == "equivalence" else "",
+                         "stale_coverage": list(run.stale_coverage) if run and run.kind == "equivalence" else []}  # fmt: skip
     estate = {k: v for k, v in progs.items() if not is_crucible(k[0])}
     res = rank(estate)
     res["crucible"] = rank({k: v for k, v in progs.items() if is_crucible(k[0])})
     res["scope"] = "programs with an EXEC CICS command" if only_cics else "every surveyed program"
     res["not_cics"] = skipped_not_cics
     res["unreadable"] = unreadable
+    mains = {r.case: r for v in eq.values() for r in v if r.role == "program"}
     res["sources"] = {"sweeps": len(sweeps), "equivalence_cases": len({r.case for v in eq.values() for r in v}),
-                      "crucible_programs": len(cru)}  # fmt: skip
+                      "crucible_programs": len(cru),
+                      "ledger_verdicts": sorted(c for c, r in mains.items() if r.verdict == "ledger"),
+                      "stale_ledger_coverage": sorted(c for c, r in mains.items() if r.stale_coverage)}  # fmt: skip
     res["programs"] = [
         {"corpus": k[0], "program": k[1], "burned": b, "gaps": sorted(g), **subjects[k]}
         for k, (b, g) in sorted(progs.items(), key=lambda kv: (len(kv[1][1]), kv[1][0], kv[0]))
@@ -462,6 +519,13 @@ def print_report(res: dict[str, Any], top: int, label: str) -> None:
     print(f"sources: {src['sweeps']} swept cases, {src['equivalence_cases']} equivalence cases, "
           f"{src['crucible_programs']} crucible programs" + ("" if src["sweeps"] else
           "; no --sweep: non-Db2 cases outside det_sweep_baseline.json taken as proven by main's CI ratchet"))  # fmt: skip
+    if src.get("ledger_verdicts"):
+        print(
+            f"Db2 cases proven by the det-sweep ledger (the Db2 lanes' last sweep, #4758): {len(src['ledger_verdicts'])}"
+        )
+    if src.get("stale_ledger_coverage"):
+        print(f"cases whose coverage is the ledger's last measurement, stale on harness / oracle only (#4730): "
+              f"{len(src['stale_ledger_coverage'])}")  # fmt: skip
     if res.get("unreadable"):
         print(f"programs whose source was not found (facts not read): {res['unreadable']}")
     print()

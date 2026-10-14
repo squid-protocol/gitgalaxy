@@ -29,7 +29,8 @@
 # The resolver applies `applied_value`, and lists the difference in `deviations` wherever it still shows in the
 # program's final options, so no proof silently claims the estate's option.
 #
-# Slice 1 of #4704 (NUMPROC / TRUNC / ARITH / INTDATE, the options equivalence_common already honours).
+# Slice 1 of #4704 (NUMPROC / TRUNC / ARITH / INTDATE, the options equivalence_common already honours); #4706 adds
+# `unhonoured()`: the other result-changing options (compiler_options.OPTION_TABLE) refused by name or declared.
 # ==============================================================================
 import json
 import re
@@ -44,6 +45,7 @@ from gitgalaxy.core.compiler_options import (
     effective,
     effective_with_defaults,
     rows_of,
+    unhonoured,
 )
 from gitgalaxy.core.source_text import read_source
 
@@ -130,6 +132,13 @@ class EffectiveOptions:
             for o in sorted(want)
             if o in SEMANTIC_OPTIONS and str(want[o]).upper() != str(applied.get(o)).upper()
         ]
+
+    def unhonoured(self, source_text: str = "", code_page: str | None = None) -> list[dict[str, str | None]]:
+        """The result-changing options outside SEMANTIC_OPTIONS (ZONEDATA, CODEPAGE, SSRANGE ... #4706) whose final value
+        the harness cannot honour: each is {option, declared, policy, applied, note, source}, `policy` "refuse" (the
+        proof stops by name) or "declare" (proven under `applied`, a declared difference). `code_page`: the CCSID of the
+        case's data, which is what CODEPAGE(n) is honoured against."""
+        return [{**u, "source": self.sources.get(u["option"])} for u in unhonoured(self.values(source_text), code_page)]
 
     def semantic(self, source_text: str = "") -> dict[str, str]:
         v = self.values(source_text)

@@ -1369,27 +1369,48 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
-        for o in ("VALUE", "INCREMENT"):
-            if opts.get(o) and _literal(opts[o]):
+        for o in ("VALUE", "INCREMENT", "COMPAREMIN", "COMPAREMAX"):
+            # (#5039: a bound is read from its bytes, so a number written in place is no area either)
+            if opts.get(o) and (_literal(opts[o]) or (o.startswith("COMPARE") and re.fullmatch(r"[+-]?\d+", opts[o]))):
                 kind = "DCOUNTER" if "DCOUNTER" in opts else "COUNTER"
                 raise Unsupported(f"{kind} {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
-        if "COUNTER" in opts:  # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP
-            inc = opts.get("INCREMENT") or "GG-NAME2"
-            return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                    + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
-                    + _call("GGCGCNT", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                        f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
-                                        f"BY VALUE {1 if 'WRAP' in opts else 0}"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
-        # not given, through GG-NAME2's 8 bytes)
+        full = "COUNTER" in opts  # #5039 (X50): the fullword form
         inc = opts.get("INCREMENT") or "GG-NAME2"
-        return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
-                + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
-                                    f"BY VALUE {1 if 'WRAP' in opts else 0}"])  # #4770 (X45): WRAP acts at DEFINE DCOUNTER's limits
-                + _resp(opts, True, labels))  # fmt: skip
+        head = ([name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"]))  # fmt: skip
+        areas = [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                 f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}", f"BY VALUE {1 if 'WRAP' in opts else 0}"]  # fmt: skip
+        if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
+            # #5039 (X53): REDUCE and the bounds (an area each, length 0: not given)
+            areas.append(f"BY VALUE {1 if 'REDUCE' in opts else 0}")
+            for o in ("COMPAREMIN", "COMPAREMAX"):
+                v = opts.get(o)
+                areas += (
+                    [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+                )
+            return head + _call("GGCGCNX" if full else "GGCGDCX", areas) + _resp(opts, True, labels)
+        # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP; #4767 (X30): GET DCOUNTER, the doubleword form: the stub
+        # writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when not given, through GG-NAME2's 8 bytes); #4770 (X45): WRAP
+        # acts at DEFINE DCOUNTER's limits
+        return head + _call("GGCGCNT" if full else "GGCGDCN", areas) + _resp(opts, True, labels)
+    if verb in ("REWIND", "UPDATE") and {"COUNTER", "DCOUNTER"} & set(opts):  # #5039 (X53): REWIND / UPDATE COUNTER
+        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        full = "COUNTER" in opts
+        o = "INCREMENT" if verb == "REWIND" else "VALUE"
+        v = opts.get(o)
+        if verb == "UPDATE" and not v:
+            raise Unsupported(_rule("UPDATE COUNTER", "required", "VALUE"), ["UPDATE COUNTER"])
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(
+                f"{'COUNTER' if full else 'DCOUNTER'} {o} as a literal: a data area is the COBOL form",
+                [f"{verb} COUNTER"],
+            )
+        fn = {"REWIND": ("GGCRCNT", "GGCRDCN"), "UPDATE": ("GGCUCNT", "GGCUDCN")}[verb][0 if full else 1]
+        areas = [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+        return head + _call(fn, areas) + _resp(opts, True, labels)
     if verb == "QUERY" and (
         "COUNTER" in opts or "DCOUNTER" in opts
     ):  # #4415 slice 2 (X29): a named counter's value, unchanged

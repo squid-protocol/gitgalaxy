@@ -105,6 +105,7 @@ class Run:
     kind: str  # "equivalence" | "crucible"
     case: str
     role: str = "program"  # "program" | "linked"
+    program: str = ""  # #5084: a linked run's PROGRAM name (its counts are the case's `linked` entry of that name)
     db2: bool = False
     region: bool = False
     gaps: set[str] = field(default_factory=set)
@@ -131,7 +132,14 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
         )
         for extra in case.get("programs", []):  # LINKed programs: det_port.py translates them the same way
             out[(case["corpus"], _norm(extra["program_source"]))].append(
-                Run("equivalence", f.parent.name, role="linked", db2=db2, region=region)
+                Run(
+                    "equivalence",
+                    f.parent.name,
+                    role="linked",
+                    db2=db2,
+                    region=region,
+                    program=str(extra.get("program", "")).upper(),
+                )
             )
     return out
 
@@ -178,12 +186,24 @@ def ledger_readings(cases: list[str] | None = None, cases_dir: Path = CASES) -> 
         last = dcl.last_coverage(case, ledger)
         if last is None or last["blocking"]:
             out[case] = None
-        elif not last["stale_inputs"]:
+        elif not last["stale_inputs"] and not last.get("linked"):
             out[case] = list(last["coverage"])
-        else:
+        else:  # #5084: a dict also carries the LINKed programs' counts
             out[case] = {"coverage": list(last["coverage"]), "stale_inputs": list(last["stale_inputs"]),
-                         "stale_since": last["measured_at"]}  # fmt: skip
+                         "stale_since": last["measured_at"], **({"linked": last["linked"]} if last.get("linked") else {})}  # fmt: skip
     return out
+
+
+def linked_cov(counts: dict[str, Any]) -> tuple[int, int, int, int]:
+    p, b = counts["paragraphs"], counts["branches"]
+    return p["covered"], p["live"], b["covered"], b["total"]
+
+
+def linked_counts_of(row: dict[str, Any] | None, reading: Any) -> dict[str, Any]:
+    """#5084: the LINKed / CALLed programs' counts of a case: the sweep row's (this run), else the ledger reading's."""
+    if row and row.get("linked"):
+        return dict(row["linked"])
+    return dict(reading.get("linked") or {}) if isinstance(reading, dict) else {}
 
 
 def reading_coverage(reading: Any) -> tuple[tuple[int, int, int, int] | None, list[str]]:
@@ -257,12 +277,25 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         t, _, s = str(row.get("translated", "")).partition("/")
         if t.isdigit() and s.isdigit() and int(t) < int(s):
             run.gaps.add("holes in the case's det port")
-    if run.role == "linked":  # the coverage tools measure the case's program_source only (#4270): never inherit it
-        run.gaps.add(LINKED_NOT_MEASURED)
-        run.detail[LINKED_NOT_MEASURED] = (
-            "the case's coverage line is its main program's; the LINKed program has no count of its own"
-        )
+    counts = linked_counts_of(row, reading)  # #5084: {PROGRAM: counts} of the programs the case LINKs / CALLs
+    if run.role == "linked":  # the case's coverage line is its main program's (#4270): never inherit it
+        mine = counts.get(run.program)
+        if mine is None:
+            run.gaps.add(LINKED_NOT_MEASURED)
+            run.detail[LINKED_NOT_MEASURED] = (
+                "the case's coverage line is its main program's; the LINKed program has no count of its own"
+            )
+        else:
+            coverage_gaps(run, linked_cov(mine), branches)
         return
+    for name, mine in sorted(counts.items()):  # a caller is not proven while a callee has holes (owner rule, #5084)
+        short = linked_cov(mine)
+        if short[0] < short[1] or (branches and short[2] < short[3]):
+            g = f"coverage: LINKed program {name} has live paragraphs no scenario runs"
+            run.gaps.add(g)
+            run.detail[g] = f"{short[0]}/{short[1]} paragraphs" + (
+                f", {short[2]}/{short[3]} branches" if branches else ""
+            )
     cov = coverage_of(row.get("coverage", "")) if row else None
     uncovered = row.get("uncovered") if cov else None
     checked = uncovered is not None  # a sweep that kept no uncovered list cannot show a claim holds

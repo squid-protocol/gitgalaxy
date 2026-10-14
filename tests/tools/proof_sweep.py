@@ -169,8 +169,19 @@ def det_sweep(
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
-                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
+                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
+                            "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
+
+
+def _linked(path: Path) -> dict[str, Any]:
+    """#5084: the coverage counts of the programs the case LINKs / CALLs ({} when none, or none measured)."""
+    import det_coverage_ledger as ledger
+
+    try:
+        return ledger.linked_counts(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return {}
 
 
 def _uncovered(path: Path) -> list[str] | None:
@@ -340,7 +351,7 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
     ):  # CI: the coverage ledger must hold what the sweep covered
         import det_coverage_ledger as ledger
 
-        ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())
+        ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load(), recheck=True)
         problems += ledger_problems
         for w in ledger_warnings:
             print(f"warning: {w}")

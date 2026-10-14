@@ -335,3 +335,46 @@ def test_ledger_readings_maps_last_coverage(monkeypatch):
     assert (
         pb.ledger_readings(cases_dir=Path("/elsewhere")) == {}
     )  # a fixture tree: the repo's fingerprints do not apply
+
+
+# ---- #5084: the LINKed programs' coverage ----------------------------------------------------------------------
+def _counts(pc, pl):
+    return {"paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": 0, "total": 0}}
+
+
+def _sweep_row(linked):
+    return {"c": {"proved": True, "translated": "2/2", "uncovered": [], "linked": linked,
+                  "coverage": "proven on 3 scenarios, covering 5/5 paragraphs and 9/9 branches"}}  # fmt: skip
+
+
+def test_a_linked_program_is_judged_from_its_own_counts():
+    sweeps = _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)})
+    whole = pb.Run("equivalence", "c", role="linked", program="SUBP")
+    holey = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    unmeasured = pb.Run("equivalence", "c", role="linked", program="OTHER")
+    for run in (whole, holey, unmeasured):
+        pb.judge_equivalence(run, {}, sweeps, True)
+    assert whole.gaps == set()
+    assert holey.gaps == {"coverage: live paragraphs no scenario runs"}
+    assert unmeasured.gaps == {pb.LINKED_NOT_MEASURED}
+
+
+def test_a_caller_is_not_proven_while_a_callee_has_holes():
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)}), True)
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    assert main.detail[next(iter(main.gaps))] == "1/3 paragraphs, 0/0 branches"
+    clean = pb.Run("equivalence", "c")
+    pb.judge_equivalence(clean, {}, _sweep_row({"SUBP": _counts(2, 2)}), True)
+    assert clean.gaps == set()
+
+
+def test_the_ledger_reading_carries_the_linked_counts():
+    reading = {"coverage": [5, 5, 9, 9], "stale_inputs": ["harness"], "stale_since": None,
+               "linked": {"HOLEY": _counts(1, 3)}}  # fmt: skip
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, {}, True, ledger={"c": reading})
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    callee = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading})
+    assert callee.gaps == {"coverage: live paragraphs no scenario runs"}

@@ -789,11 +789,29 @@ def measure_files(source: Path, traces: list[Path], compiled: Path | None = None
     return run_coverage(source, orig, comp, traces, (compiled or source).name, copybooks, encoding)
 
 
-def write_run_coverage(out: Path, **kw: Any) -> dict[str, Any] | None:
+def linked_coverage(extras: list[dict[str, Any]], traces: list[Path], copybooks: Path | None = None,
+                    encoding: str | None = None) -> dict[str, Any]:  # fmt: skip
+    """#5084: the coverage of the programs a case's main program LINKs / CALLs, over the same traces (-ftraceall names
+    every program's events): {PROGRAM: summary | {"error"}}. An `extras` item: name, source (path), original (text),
+    compiled (text the harness compiled), compiled_name (its file's basename)."""
+    out: dict[str, Any] = {}
+    for x in extras:
+        try:
+            out[x["name"]] = run_coverage(x["source"], x["original"], x["compiled"], traces, x["compiled_name"],
+                                          copybooks, encoding)  # fmt: skip
+        except Exception as e:  # noqa: BLE001 -- recorded as unknown, never fatal to the harness's run
+            out[x["name"]] = {"error": f"{type(e).__name__}: {e}"}
+    return out
+
+
+def write_run_coverage(out: Path, extras: list[dict[str, Any]] | None = None, **kw: Any) -> dict[str, Any] | None:
     """run_coverage into `out` (coverage.json) for a harness that must not fail on it: an error is written and
-    printed, and the run goes on (the proof is the outputs; coverage only says how much it proves)."""
+    printed, and the run goes on (the proof is the outputs; coverage only says how much it proves). `extras`
+    (#5084): the LINKed / CALLed programs, measured too (linked_coverage) under the file's `linked` key."""
     try:
         s: dict[str, Any] = run_coverage(**kw)
+        if extras:
+            s["linked"] = linked_coverage(extras, kw["traces"], kw.get("copybooks"), kw.get("encoding"))
     except Exception as e:  # noqa: BLE001 -- reported, never fatal to the harness's run
         s = {"error": f"{type(e).__name__}: {e}"}
         print(f"COBOL coverage not measured: {s['error']}", file=sys.stderr)

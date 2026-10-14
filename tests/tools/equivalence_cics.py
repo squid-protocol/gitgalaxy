@@ -2811,11 +2811,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
     subs = []
+    linked_programs_cov: list[dict[str, Any]] = []  # #5084: each program the task CALLs / LINKs, for its coverage
     for rel in case.get("subprograms", []):
         sub_text, _ = common.read_program(case, corpus / rel)
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
+        linked_programs_cov.append({"name": name, "source": corpus / rel, "original": sub_text,
+                                    "compiled": common.compile_options(case, sub_text)[0],
+                                    "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
     calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
@@ -2859,6 +2863,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")
         linked[name] = x_ca
+        linked_programs_cov.append({"name": name, "source": corpus / extra["program_source"], "original": x_text,
+                                    "compiled": x_translated, "compiled_name": f"{name}.cbl"})  # fmt: skip
     if case_child_programs(case):  # #4950: a RUN TRANSID child runs its program through the dispatcher
         (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea, True), encoding="ascii")
     if "CALL 'GGCRUN'" in text or linked:  # a LINK: the level's dispatcher, running the case's other programs
@@ -3028,9 +3034,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
 
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     def coverage(names: list[str]) -> None:  # (again after the Java side, without tasks it could not judge: #4173)
-        cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
-                               compiled=text, traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
-                               compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+        cov.write_run_coverage(work / "coverage.json", extras=linked_programs_cov, source=corpus / case["program_source"],
+                               original=program, compiled=text, copybooks=corpus, encoding=staged,
+                               traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
+                               compiled_name="PROGRAM.cbl")  # fmt: skip
 
     coverage([sc["name"] for sc in kept])
     RECOVER[str(work)] = coverage

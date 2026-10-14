@@ -72,7 +72,7 @@ def test_skip_ledger_check_leaves_the_ledger_out_of_the_aggregate_ratchet(monkey
     import det_coverage_ledger as ledger
 
     calls = []
-    monkeypatch.setattr(ledger, "check", lambda det, led: calls.append(1) or (["ledger problem"], []))
+    monkeypatch.setattr(ledger, "check", lambda det, led, **kw: calls.append(1) or (["ledger problem"], []))
     monkeypatch.setattr(ps, "verdict", lambda results, base: [])
     results = {"det": {}}
     ns = dict(aggregate=[Path(".")], no_ratchet=False, update_baseline=False)

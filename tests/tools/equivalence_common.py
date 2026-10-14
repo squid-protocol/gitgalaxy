@@ -363,21 +363,34 @@ def comp5_layout_guard(src: Path) -> None:
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 
+def data_ccsid(case: dict[str, Any]) -> str | None:
+    """#4706: the CCSID of the case's record bytes (`data_encoding` cp037 -> "37", cp1140 -> "1140"), or None when the
+    code page is not an IBM CCSID page (the default, Latin-1): what CODEPAGE(n) is honoured against."""
+    m = re.fullmatch(r"(?:cp|ibm)0*(\d+)", codecs.lookup(data_encoding(case)).name)
+    return m.group(1) if m else None
+
+
 def option_differences(case: dict[str, Any], source: str, port_dir: Path | None) -> list[dict[str, Any]]:
     """#4706: the options the proof of `port_dir` (None: the generated service) cannot claim, as declared differences
     for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
     binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
-    for conforming values, but nothing guarantees a scenario stays conforming."""
-    trunc = str(effective_with_defaults(effective_options(case).layers, source).get("TRUNC") or "").upper()
-    if trunc != "OPT":
-        return []
+    for conforming values, but nothing guarantees a scenario stays conforming. The OPTION_TABLE options a proof can only run
+    as their default (SSRANGE, NUMCHECK, a CODEPAGE the data is not in) are declared the same way; the refused ones
+    never reach here (compile_options raises)."""
+    opts = effective_options(case)
+    out = [
+        {"kind": "option", "option": u["option"], "declared": u["declared"], "applied": u["applied"], "note": u["note"]}
+        for u in opts.unhonoured(source, data_ccsid(case))
+        if u["policy"] == "declare"
+    ]
+    trunc = str(effective_with_defaults(opts.layers, source).get("TRUNC") or "").upper()
     services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
-    if any(TRUNC_OPT_STOP in read_source(p).text for p in services):
-        return []
-    return [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
-             "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's "
-                     "runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result "
-                     "only while every binary value fits its PICTURE (#4706)"}]  # fmt: skip
+    if trunc == "OPT" and not any(TRUNC_OPT_STOP in read_source(p).text for p in services):
+        out.insert(0, {"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
+                       "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det "
+                               "port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- "
+                               "IBM's OPT result only while every binary value fits its PICTURE (#4706)"})  # fmt: skip
+    return out
 
 
 def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
@@ -401,6 +414,9 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
             raise UnsupportedOption(f"{option}({value}): GnuCOBOL 3.1 has no equivalent, so the case cannot be proven")
         if flag:
             flags.append(flag)
+    for u in effective_options(case).unhonoured(source, data_ccsid(case)):  # #4706: the other result-changing options
+        if u["policy"] == "refuse":
+            raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags

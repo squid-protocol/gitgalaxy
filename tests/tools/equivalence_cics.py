@@ -1348,10 +1348,14 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
         _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         file = opts.get("FILE") or opts.get("DATASET")
-        if not opts.get("TOKEN"):
-            raise Unsupported("UNLOCK without TOKEN (the held record of a file: not modelled, #5079)", ["UNLOCK"])
-        return ([name(file, "GG-NAME1"), f"MOVE {opts['TOKEN']} TO GG-NUM"] + _call("GGCUNLK", [])
-                + _resp(opts, True, labels))  # fmt: skip
+        token = (
+            [f"MOVE {opts['TOKEN']} TO GG-NUM", "MOVE 'TOKEN' TO GG-FLAGS"]
+            if opts.get("TOKEN")
+            else ["MOVE SPACES TO GG-FLAGS"]
+        )
+        return (
+            [name(file, "GG-NAME1"), *token] + _call("GGCUNLK", []) + _resp(opts, True, labels)
+        )  # #5079: no TOKEN, the file's hold
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb in ("ENQ", "DEQ"):
@@ -2832,11 +2836,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
     subs = []
+    linked_programs_cov: list[dict[str, Any]] = []  # #5084: each program the task CALLs / LINKs, for its coverage
     for rel in case.get("subprograms", []):
         sub_text, _ = common.read_program(case, corpus / rel)
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
+        linked_programs_cov.append({"name": name, "source": corpus / rel, "original": sub_text,
+                                    "compiled": common.compile_options(case, sub_text)[0],
+                                    "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
     calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
@@ -2880,6 +2888,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")
         linked[name] = x_ca
+        linked_programs_cov.append({"name": name, "source": corpus / extra["program_source"], "original": x_text,
+                                    "compiled": x_translated, "compiled_name": f"{name}.cbl"})  # fmt: skip
     if case_child_programs(case):  # #4950: a RUN TRANSID child runs its program through the dispatcher
         (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea, True), encoding="ascii")
     if "CALL 'GGCRUN'" in text or linked:  # a LINK: the level's dispatcher, running the case's other programs
@@ -3049,9 +3059,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
 
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     def coverage(names: list[str]) -> None:  # (again after the Java side, without tasks it could not judge: #4173)
-        cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
-                               compiled=text, traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
-                               compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+        cov.write_run_coverage(work / "coverage.json", extras=linked_programs_cov, source=corpus / case["program_source"],
+                               original=program, compiled=text, copybooks=corpus, encoding=staged,
+                               traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
+                               compiled_name="PROGRAM.cbl")  # fmt: skip
 
     coverage([sc["name"] for sc in kept])
     RECOVER[str(work)] = coverage

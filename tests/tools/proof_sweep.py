@@ -169,8 +169,19 @@ def det_sweep(
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
-                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
+                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
+                            "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
+
+
+def _linked(path: Path) -> dict[str, Any]:
+    """#5084: the coverage counts of the programs the case LINKs / CALLs ({} when none, or none measured)."""
+    import det_coverage_ledger as ledger
+
+    try:
+        return ledger.linked_counts(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return {}
 
 
 def _uncovered(path: Path) -> list[str] | None:
@@ -260,6 +271,12 @@ def main() -> int:
     ap.add_argument("--skip-ledger-check", action="store_true",
                     help="with --aggregate: leave out the check of the sweep against the committed coverage ledger (#4744: "
                     "Evidence Refresh merges its shards, then rewrites the ledger from them, as its one-runner sweep did)")  # fmt: skip
+    ap.add_argument("--strict-ledger", action="store_true",
+                    help="with --aggregate: an entry of a swept, proven case that is stale on harness / oracle fails (#5084). Off in CI: "
+                    "a PR that changes the harness would strand every det-sweep until its ledger is re-recorded")  # fmt: skip
+    ap.add_argument("--record-ledger", action="store_true",
+                    help="with --aggregate: after the check, rewrite the coverage ledger's entries from this sweep (#5084: the "
+                    "counts were just re-checked, so their fingerprints are re-recorded; det_coverage_ledger.py update does the same)")  # fmt: skip
     ap.add_argument(
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )
@@ -340,10 +357,15 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
     ):  # CI: the coverage ledger must hold what the sweep covered
         import det_coverage_ledger as ledger
 
-        ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())
+        ledger_problems, ledger_warnings = ledger.check(
+            results["det"], ledger.load(), recheck=bool(getattr(args, "strict_ledger", False))
+        )
         problems += ledger_problems
         for w in ledger_warnings:
             print(f"warning: {w}")
+        if getattr(args, "record_ledger", False) and not ledger_problems:  # #5084: re-record what the sweep re-checked
+            changed = ledger.write(ledger.build(results["det"], ledger.load()))
+            print(f"ledger: {len(changed)} entr{'y' if len(changed) == 1 else 'ies'} re-recorded from this sweep")
     if "det" in results:  # #4602: a stated infeasible outcome the proof reached refutes the statement
         import infeasible_outcomes
 

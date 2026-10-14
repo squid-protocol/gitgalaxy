@@ -34,7 +34,7 @@ name: Det Sweep
 on:
   pull_request:  # #4825: no path filter -- `det` is a required check; det_sweep_plan.py proves nothing (mode none)
     branches: [main]  # when no changed file is a det input (DET_INPUTS), so a docs-only PR passes `det` in about a minute
-    types: [opened, synchronize, reopened]  # no label events: any label change (the shepherd's status labels too) had
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: not on a draft; no label events: any label change (the shepherd's status labels too) had
     # cancelled the running sweep and failed the required `det` check (#4854). shepherd:full is read live by the plan
     # step, and the shepherd reruns the latest sweep when a maintainer adds it (tests/tools/shepherd_gh.py)
   schedule:
@@ -50,6 +50,7 @@ concurrency:
 
 jobs:
   plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     name: plan
     runs-on: ubuntu-latest
     permissions:
@@ -161,7 +162,7 @@ jobs:
   db2:
     name: db2 ${{ matrix.shard }}
     needs: plan
-    if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 18  # measured: a 9-10 case shard took 8.5-11.7 min from job start (full run, #4901)
     strategy:
@@ -386,7 +387,7 @@ jobs:
   shard:
     name: shard ${{ matrix.shard }}
     needs: plan
-    if: needs.plan.outputs.shards != '0'
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.shards != '0') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30  # a shard is ~4 cases (#4814: up to 20 shards); a hang should fail, not hold a runner for 6 h
     strategy:
@@ -539,7 +540,7 @@ jobs:
   # that now proves fails -- and a case with no result (a shard that died before reporting) fails.
   det:
     needs: [plan, shard, db2]
-    if: always()
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

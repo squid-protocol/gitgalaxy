@@ -2615,8 +2615,10 @@ class Cics:
             return self.delete_generic(opts, ind)
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
-            raise CicsError("UNLOCK without TOKEN: not modelled")
+        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
+            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+            r = self.g.tmpname("resp")
+            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

@@ -369,8 +369,8 @@ def test_our_own_pipelines_are_clean(path):
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
     ".github/workflows/full-suite-gate.yml": {(161, "brew")},
-    ".github/workflows/smoke-test.yml": {(110, "brew")},
-    ".github/workflows/tri-comparison-audit.yml": {(88, "apt")},
+    ".github/workflows/smoke-test.yml": {(112, "brew")},
+    ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
 }
 

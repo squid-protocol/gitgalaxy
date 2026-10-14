@@ -70,7 +70,7 @@ jobs:
     needs: tested-tree
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
@@ -149,7 +149,7 @@ jobs:
         run: |
           cd gitgalaxy
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
-          PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/
 
       - name: Keep the history for the publish job
         if: github.event_name == 'push' || github.event_name == 'schedule'

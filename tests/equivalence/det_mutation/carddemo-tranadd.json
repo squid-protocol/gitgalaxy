@@ -1,0 +1,629 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "carddemo-tranadd",
+ "entry": {
+  "program": "COTRN02C",
+  "commit": "06737d18720ce03b6e6e5745d07069e1f6e5e5ca+uncommitted",
+  "date": "2026-10-14",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 2429,
+  "out_of_scope": 35,
+  "chosen": 150,
+  "coverage": "proven on 55 scenarios, covering 18/18 paragraphs and 72/75 branches",
+  "counts": {
+   "killed": 89,
+   "timeout": 0,
+   "survived": 59,
+   "stillborn": 2,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "095b5f2c9d",
+   "0f2ee4e60c",
+   "11858d5ec6",
+   "17c94fa5c6",
+   "180b627779",
+   "1811e1920a",
+   "1af8eef4f6",
+   "1b8d5d65ca",
+   "1be04b8732",
+   "22964e01d2",
+   "283cdb8051",
+   "2cccf8a8fe",
+   "3246c5852b",
+   "3485043783",
+   "3531eae69a",
+   "3606760ac5",
+   "38f7019056",
+   "397ab6f180",
+   "3a3c0ddc09",
+   "3bacebb7f0",
+   "3c3891d134",
+   "3d9ef6aa0a",
+   "3ea384a50b",
+   "3f27d61e1d",
+   "3f70446056",
+   "4836da8994",
+   "4b95f21897",
+   "517a9e894a",
+   "56482342f1",
+   "570645f3ab",
+   "5d17aab8f0",
+   "5d20c007dc",
+   "5de1c2d7a5",
+   "5f1ac43bbd",
+   "5f9657e401",
+   "5fc8410232",
+   "60a5f48668",
+   "62a076b32c",
+   "63c9828e24",
+   "660170859e",
+   "69181fd7f5",
+   "6d7b8a66a8",
+   "6ef87df1c0",
+   "72c886af47",
+   "74414cf28a",
+   "75bb4872f8",
+   "765b616751",
+   "770e9fe76b",
+   "78836569e9",
+   "7ce446d800",
+   "7dfcfc04ba",
+   "7ef1ab8884",
+   "82a178110c",
+   "82a990277f",
+   "86ae813f1a",
+   "8ac295571f",
+   "8e6cd463c8",
+   "911db75170",
+   "9312721b09",
+   "953f395175",
+   "9bcdb3530c",
+   "9eb8b9f9e9",
+   "a0e1fc06d1",
+   "a20020c672",
+   "aa5632a82e",
+   "ac2634f34e",
+   "b04248e9fd",
+   "b3fe1d3c89",
+   "b4dd7499ed",
+   "b6a6b0c467",
+   "b721e3217b",
+   "ba254c166a",
+   "c1722d0d6a",
+   "c61dc391da",
+   "c663eac071",
+   "c699c0c3dc",
+   "c6f213d74e",
+   "ca53b51e83",
+   "d1402a9b34",
+   "d4e9383558",
+   "da172393ad",
+   "de3b59e366",
+   "df15dce451",
+   "dfa0dddad6",
+   "e072777f19",
+   "e9bf606840",
+   "eecf5169a5",
+   "ef42b9107e",
+   "ef93dfcf10"
+  ],
+  "stillborn": [
+   "35ac4be126",
+   "b74bb6eb86"
+  ],
+  "survived": [
+   {
+    "id": "8f630b5096",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 54,
+    "before": "\"Q09UUk4wMkNDVDAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUUkFOU0FDVEFDQ1REQVQgQ0NYUkVGICBDWEFDQUlYIE4AAAAAAAAAAE4gICAgICAgICAgICAwMC8wMC8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMFlZWVktTU0tREQ=\"));",
+    "after": "\"X09UUk4wMkNDVDAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUUkFOU0FDVEFDQ1REQVQgQ0NYUkVGICBDWEFDQUlYIE4AAAAAAAAAAE4gICAgICAgICAgICAwMC8wMC8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMFlZWVktTU0tREQ=\"));"
+   },
+   {
+    "id": "0a62d0890d",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 92,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "c7a84e59fa",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 129,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "1fc3648964",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 146,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "62b8024deb",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 178,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "e41a797a1e",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 244,
+    "before": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 40, false);",
+    "after": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 41, false);"
+   },
+   {
+    "id": "2d6479e41b",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 292,
+    "before": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 78, false);",
+    "after": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 79, false);"
+   },
+   {
+    "id": "79bf9bce88",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 296,
+    "before": "private final Field f193_TRNNAMEO = Field.alphanumeric(s_COTRN2AI, 19, 4, false);",
+    "after": "private final Field f193_TRNNAMEO = Field.alphanumeric(s_COTRN2AI, 19, 5, false);"
+   },
+   {
+    "id": "c3f8957330",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 345,
+    "before": "private final Field f291_MCITYC = Field.alphanumeric(s_COTRN2AI, 416, 1, false);",
+    "after": "private final Field f291_MCITYC = Field.alphanumeric(s_COTRN2AI, 416, 2, false);"
+   },
+   {
+    "id": "d2a5fecf8a",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 411,
+    "before": "private final Field f417_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+    "after": "private final Field f417_DFHPF11 = Field.alphanumeric(s_DFHAID, 23, 1, false);"
+   },
+   {
+    "id": "453bc1b8db",
+    "op": "NEG",
+    "file": "service/Cotrn02cService.java",
+    "line": 492,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "4a34617660",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 492,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "ef3aaa4756",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 504,
+    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+    "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");"
+   },
+   {
+    "id": "fe65b018ca",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 519,
+    "before": "java.util.Map.entry(\"SEND-TRNADD-SCREEN\", 7),",
+    "after": "java.util.Map.entry(\"XEND-TRNADD-SCREEN\", 7),"
+   },
+   {
+    "id": "16c910664c",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 522,
+    "before": "java.util.Map.entry(\"ADD-TRANSACTION\", 4),",
+    "after": "java.util.Map.entry(\"ADD-TRANSACTION\", 5),"
+   },
+   {
+    "id": "d7ad539309",
+    "op": "NEG",
+    "file": "service/Cotrn02cService.java",
+    "line": 544,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "7f9bdc8fff",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 551,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "fa7785f2ac",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 627,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "e1f72b004d",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 663,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "6136ffa8e2",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 690,
+    "before": "f377_ACCT_ACTIVE_STATUS = \" \";",
+    "after": "f377_ACCT_ACTIVE_STATUS = \"X\";"
+   },
+   {
+    "id": "1cb37d4933",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 724,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "4f6d68a684",
+    "op": "AOR",
+    "file": "service/Cotrn02cService.java",
+    "line": 731,
+    "before": "Cobol.store(f503_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f503_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "38d432f8ef",
+    "op": "AOR",
+    "file": "service/Cotrn02cService.java",
+    "line": 732,
+    "before": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f502_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "1fe9456663",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 792,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "9d8495fb8d",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 794,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };"
+   },
+   {
+    "id": "8bebacb3a6",
+    "op": "AOR",
+    "file": "service/Cotrn02cService.java",
+    "line": 794,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
+   },
+   {
+    "id": "002ebea6c4",
+    "op": "COR",
+    "file": "service/Cotrn02cService.java",
+    "line": 797,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "ff1b8d2fe8",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 797,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "b35e20231b",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 802,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "8ecef10a52",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 818,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
+   },
+   {
+    "id": "a891e8a416",
+    "op": "AOR",
+    "file": "service/Cotrn02cService.java",
+    "line": 928,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "0f5ef5bca1",
+    "op": "NEG",
+    "file": "service/Cotrn02cService.java",
+    "line": 929,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "c7913f3e9f",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 975,
+    "before": "f9_WS_ERR_FLG = \"N\";",
+    "after": "f9_WS_ERR_FLG = \"X\";"
+   },
+   {
+    "id": "b21b2e38bd",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 1043,
+    "before": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 218).bytes);",
+    "after": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 219).bytes);"
+   },
+   {
+    "id": "8207ee0465",
+    "op": "COR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1058,
+    "before": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f179_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f179_CONFIRMI, \"n\", CS) == 0) && (Cobol.compareFigurative(f179_CONFIRMI, Figurative.SPACES, CS) == 0) || (Cobol.compareFigurative(f179_CONFIRMI, Figurative.LOW_VALUES, CS) == 0)) {"
+   },
+   {
+    "id": "61d39ce142",
+    "op": "LIT",
+    "file": "service/Cotrn02cService.java",
+    "line": 1087,
+    "before": "f9_WS_ERR_FLG = \"Y\";",
+    "after": "f9_WS_ERR_FLG = \"X\";"
+   },
+   {
+    "id": "a59ce1cb80",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 1148,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f137_TRNAMTI, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f137_TRNAMTI, CS); */"
+   },
+   {
+    "id": "13c14bbddc",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 1202,
+    "before": "perform(7, 7);",
+    "after": "perform(7, 8);"
+   },
+   {
+    "id": "08fdfdf1a4",
+    "op": "COR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1283,
+    "before": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) || (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {",
+    "after": "if (((!(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"-\", CS) == 0) && !(Cobol.compare(f137_TRNAMTI.ref(1, Integer.valueOf(1)), \"+\", CS) == 0))) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(2, Integer.valueOf(8)), CS))) && (!(Cobol.compare(f137_TRNAMTI.ref(10, Integer.valueOf(1)), \".\", CS) == 0)) || (!(Cobol.isNumeric(f137_TRNAMTI.ref(11, Integer.valueOf(2)), CS)))) {"
+   },
+   {
+    "id": "1b19bd11d1",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 1323,
+    "before": "f18_WS_TRAN_AMT_N = Cobol.zoned(Hfp.fixedStore(v3, 2, false), 11, 2, true, false, CS);",
+    "after": "f18_WS_TRAN_AMT_N = Cobol.zoned(Hfp.fixedStore(v3, 2, false), 12, 2, true, false, CS);"
+   },
+   {
+    "id": "c6d873704f",
+    "op": "COR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1514,
+    "before": "if ((Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
+    "after": "if ((Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f34_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {"
+   },
+   {
+    "id": "160c7f6834",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1529,
+    "before": "if (DetCics.resp(xr15) != 0) {",
+    "after": "if (DetCics.resp(xr15) == 0) {"
+   },
+   {
+    "id": "8435768c9b",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1593,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "8a7f437c44",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 1608,
+    "before": "java.util.Arrays.fill(f58_COTRN2AI.storage().bytes, f58_COTRN2AI.offset(), f58_COTRN2AI.offset() + f58_COTRN2AI.length(), (byte) 0);",
+    "after": "/* java.util.Arrays.fill(f58_COTRN2AI.storage().bytes, f58_COTRN2AI.offset(), f58_COTRN2AI.offset() + f58_COTRN2AI.length(), (byte) 0); */"
+   },
+   {
+    "id": "187381f179",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 1675,
+    "before": "Cobol.store(f531_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f531_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "2d340dec52",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 1794,
+    "before": "Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp26), false, CS);",
+    "after": "/* Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp26), false, CS); */"
+   },
+   {
+    "id": "bd69316cca",
+    "op": "DEL",
+    "file": "service/Cotrn02cService.java",
+    "line": 1833,
+    "before": "Cobol.store(f530_EIBRESP, BigDecimal.valueOf(read27.resp()), false, CS);",
+    "after": "/* Cobol.store(f530_EIBRESP, BigDecimal.valueOf(read27.resp()), false, CS); */"
+   },
+   {
+    "id": "158af78af5",
+    "op": "CON",
+    "file": "service/Cotrn02cService.java",
+    "line": 1855,
+    "before": "return 14;",
+    "after": "return 15;"
+   },
+   {
+    "id": "d292008b21",
+    "op": "NEG",
+    "file": "service/Cotrn02cService.java",
+    "line": 1866,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "86c8aa6928",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1866,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "5078c927a9",
+    "op": "ROR",
+    "file": "service/Cotrn02cService.java",
+    "line": 1866,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "b74b73e66c",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 106,
+    "before": "System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length); */"
+   },
+   {
+    "id": "cf0e71bd55",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 107,
+    "before": "System.arraycopy(IMAGE_s_LS_DATE_FORMAT, 0, s_LS_DATE_FORMAT.bytes, 0, IMAGE_s_LS_DATE_FORMAT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LS_DATE_FORMAT, 0, s_LS_DATE_FORMAT.bytes, 0, IMAGE_s_LS_DATE_FORMAT.length); */"
+   },
+   {
+    "id": "75bc6b82bd",
+    "op": "DEL",
+    "file": "service/CsutldtcService.java",
+    "line": 131,
+    "before": "this.callAreas = areas;",
+    "after": "/* this.callAreas = areas; */"
+   },
+   {
+    "id": "5023dc2954",
+    "op": "CON",
+    "file": "service/CsutldtcService.java",
+    "line": 206,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "0f97137c64",
+    "op": "AOR",
+    "file": "service/CsutldtcService.java",
+    "line": 239,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "669f14f956",
+    "op": "NEG",
+    "file": "service/CsutldtcService.java",
+    "line": 321,
+    "before": "} else if ((isFcInvalidEra())) {",
+    "after": "} else if (!((isFcInvalidEra()))) {"
+   },
+   {
+    "id": "a8c774b5cb",
+    "op": "LIT",
+    "file": "service/CsutldtcService.java",
+    "line": 365,
+    "before": "private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\321Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\321Y\\303\\305\\305\", CS), CS) == 0; }"
+   },
+   {
+    "id": "07ec920763",
+    "op": "ROR",
+    "file": "service/CsutldtcService.java",
+    "line": 365,
+    "before": "private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\321Y\\303\\305\\305\", CS), CS) == 0; }",
+    "after": "private boolean isFcUnsuppRange() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\321Y\\303\\305\\305\", CS), CS) != 0; }"
+   }
+  ],
+  "inputs": {
+   "port": "81ed11df73f251a78fb9d76f0e4ed66936854b553405a97edb153c1c267b456e",
+   "generator": "29e99c8b11b26552055a2c5fc23f14efb8fffe066f3e0da00be5d37b7f50d48d",
+   "case": "a2c9aa150699b5057a373bc5f54b4be2a82adde5eee98133c817bbc2c2014f49",
+   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+   "harness": "8c096eeb5e4c536b39ecd69af12272ce117f8c31c4193b0dc0998db223b6722c",
+   "oracle": "f054b77bdd3358f2547f424743f1d86c5448565fe7ffa577dd3b9ad91b74d850"
+  },
+  "components": {
+   "generator": {
+    "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
+    "generator:core": "6c703cc6862b070c861aad5a2833a19491ec6d79424056be7b0430f0f39f4030",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "f342b2791c388ce038d25fcc4d285fdab165c2ba3e2ac757a5d24950b0b9c60b",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dyncall": "91756ab4ddd843a8c1458f52120b6ef33c723d5bff23edc943be62de7bd534d7",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "8772d439868bc242d12aeb13e6411dd33c7469ad5fd57db4a63735c229bcba87",
+    "generator:det/gen": "e6b78bb0655c8ff03826b7d97bb374f4448d901d7eb63b7967115be62c3a3488",
+    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/layout": "3abfcf3ebbf97035153f7b39920bfbac174528f5da2394370aaee19d4da09e77",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "a2fc7b9b0e321e9a7d9eff099ad998d7cdafcce3cd0f93775f8cf5350649b7e0",
+    "generator:det/stmt": "362bd933bf4b616d9a7156902be95eddfe40365c9d7fd6b51942aed240059ff5"
+   },
+   "harness": {
+    "harness:cics": "5735c9ea38ff29619a0b284596c2310edf45295dc1e2bd58980b4f940204d124",
+    "harness:core": "b4df7e23b53fda43ad19137bc3b0246f4b92cb747aafaef23e908ec5e5feb85d"
+   },
+   "oracle": {
+    "oracle:cics-stub": "4f0d7c6f54af9d7bff1737dc1f5c39777a2f2463ce553bd79e2170eca91f2194",
+    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
+    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+   }
+  }
+ }
+}

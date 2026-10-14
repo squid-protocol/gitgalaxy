@@ -179,7 +179,7 @@ public class Cousr00cService {
         boolean sendErase = true;
         boolean ended;
         int respCd;
-        int reasCd;   // RESP2 is not exposed by CicsTask's browse calls: stays 0
+        int reasCd;   // EIBRESP2 of the last file command (CicsTask.resp2 / Browsed.resp2)
         int idx;
         String secUsrId = CobolRecords.fit("", 8, cs);
         SecUserData secUser = SecUserData.fromRecord(CobolRecords.blank(80, cs), cs);
@@ -588,6 +588,7 @@ public class Cousr00cService {
         // ---- STARTBR-USER-SEC-FILE ----
         void startbrUserSecFile() {
             respCd = task.startbr(FILE, ridfld(), false, () -> new TreeSet<>(usrsec().keySet()));
+            reasCd = task.resp2();
             if (respCd == 0) {
                 return;
             } else if (respCd == 13) {
@@ -613,6 +614,7 @@ public class Cousr00cService {
 
         void browsed(CicsTask.Browsed b, String eofMessage) {
             respCd = b.resp();
+            reasCd = b.resp2();
             if (b.normal()) {
                 SecUserData u = usrsec().get(b.key());
                 if (u != null) {

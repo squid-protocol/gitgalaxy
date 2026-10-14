@@ -426,9 +426,9 @@ public class Cousr03cService {
 
         // DELETE-USER-SEC-FILE
         private void deleteUserSecFile() {
-            // DELETE without RIDFLD: the record the READ UPDATE holds. CicsTask gives no RESP2 for it: 0 is shown.
+            // DELETE without RIDFLD: the record the READ UPDATE holds.
             resp = task.deleteHeld(WS_USRSEC_FILE, () -> deleteUsrsec(secUser.getSecUsrId()));
-            reas = 0;
+            reas = task.resp2();
             switch (resp) {
                 case 0:   // DFHRESP(NORMAL)
                     initializeAllFields();

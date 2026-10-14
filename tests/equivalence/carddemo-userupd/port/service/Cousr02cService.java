@@ -413,8 +413,7 @@ public class Cousr02cService {
     private void updateUserSecFile(Ws w, CicsTask task) {
         SecUserData toSave = w.sec;
         w.respCd = task.rewrite(USRSEC, () -> rewriteUsrsec(toSave));
-        // TODO: CicsTask.rewrite does not expose RESP2; WS-REAS-CD is taken as 0.
-        w.reasCd = 0;
+        w.reasCd = task.resp2();  // EIBRESP2 of the REWRITE: a planned fault's is IBM's (#5044)
         if (w.respCd == 0) {
             w.message = spaces(80);
             w.errmsgColor = DFHGREEN;

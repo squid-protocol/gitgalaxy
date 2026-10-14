@@ -60,8 +60,8 @@ def test_dupkey_on_delete_is_refused_by_name_and_other_commands_are_not_read_by_
         with pytest.raises(ec.Unsupported):
             ec.fault_lines({"name": "s", "faults": [{"cmd": cmd, "program": "P", "queue": "Q", "transid": "T",
                                                      "reqid": "R", "file": "F", "resp": "DUPKEY"}]})  # fmt: skip
-    # the other conditions keep their own rules: no RESP2 is invented for them
-    assert ec.fault_lines(_plan("READ", "NOTFND")) == ["READ XREF 1 13 0"]
+    # the other file conditions have their own per-command table (#5044, test_file_fault_conditions.py): IBM's RESP2 80
+    assert ec.fault_lines(_plan("READ", "NOTFND")) == ["READ XREF 1 13 80"]
 
 
 @pytest.mark.parametrize("path", ("equivalence/carddemo-billpay/case.json", "equivalence/carddemo-tranadd/case.json"))

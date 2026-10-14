@@ -14,9 +14,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | forge-compile | 26 | 0 | 0 | 26 |
 | cobol-stub | 108 | 0 | 0 | 108 |
 | java | 0 | 108 | 0 | 108 |
-| java-ported | 44 | 64 | 0 | 108 |
-| java-facade | 44 | 64 | 0 | 108 |
-| **all** | **248** | **236** | **0** | **484** |
+| java-ported | 48 | 60 | 0 | 108 |
+| java-facade | 48 | 60 | 0 | 108 |
+| **all** | **256** | **228** | **0** | **484** |
 
 ## By trap and case
 
@@ -48,7 +48,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | hex-attributes | `hx-attr-bytes` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| pseudo-conversational | `pc-return-immediate` | pass | pass | 4 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
+| pseudo-conversational | `pc-return-immediate` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | pseudo-conversational | `pc-wizard` | pass | pass | 6 / 6 | 0 / 6 | 6 / 6 | 6 / 6 |
 
 ## COBOL coverage
@@ -97,10 +97,10 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hx-extended-cursor` | HXEXT | 3 | 3/3 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 3/3 paragraphs and 6/6 branches |
 | `pc-aid-menu` | PCDETL | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches |
 | `pc-aid-menu` | PCMENU | 4 | 4/4 | 9/9 | 2/2 | 0 | proven on 4 scenarios, covering 4/4 paragraphs and 9/9 branches |
-| `pc-return-immediate` | PCIMMA | 4 | 6/6 | 4/5 | 0/0 | 0 | proven on 0 scenarios, covering 0/6 paragraphs and 0/5 branches |
-| `pc-return-immediate` | PCIMMB | 1 | 2/2 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/2 branches |
-| `pc-return-immediate` | PCIMML | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
-| `pc-return-immediate` | PCIMMS | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
+| `pc-return-immediate` | PCIMMA | 4 | 6/6 | 4/5 | 0/0 | 0 | proven on 4 scenarios, covering 6/6 paragraphs and 4/5 branches |
+| `pc-return-immediate` | PCIMMB | 1 | 2/2 | 2/2 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/2 branches |
+| `pc-return-immediate` | PCIMML | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `pc-return-immediate` | PCIMMS | 1 | 1/1 | 0/0 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches |
 | `pc-wizard` | PCCONF | 5 | 5/5 | 14/14 | 0/0 | 0 | proven on 5 scenarios, covering 5/5 paragraphs and 14/14 branches |
 | `pc-wizard` | PCWIZ | 6 | 5/5 | 10/10 | 0/0 | 0 | proven on 6 scenarios, covering 5/5 paragraphs and 10/10 branches |
 
@@ -159,8 +159,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | side | reason | cells |
 |---|---|---|
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 108 |
-| java-ported | not ported | 64 |
-| java-facade | not ported | 64 |
+| java-ported | not ported | 60 |
+| java-facade | not ported | 60 |
 
 ## Every cell that does not pass
 
@@ -385,17 +385,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-return-immediate/immediate/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-immediate/immediate/java-facade` | fail | no port of any of its programs |
-| `pc-return-immediate/immediate/java-ported` | fail | no port of any of its programs |
 | `pc-return-immediate/link-level2/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-immediate/link-level2/java-facade` | fail | no port of any of its programs |
-| `pc-return-immediate/link-level2/java-ported` | fail | no port of any of its programs |
 | `pc-return-immediate/no-terminal/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-immediate/no-terminal/java-facade` | fail | no port of any of its programs |
-| `pc-return-immediate/no-terminal/java-ported` | fail | no port of any of its programs |
 | `pc-return-immediate/synconreturn/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-immediate/synconreturn/java-facade` | fail | no port of any of its programs |
-| `pc-return-immediate/synconreturn/java-ported` | fail | no port of any of its programs |
 | `pc-wizard/back-and-fix/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-wizard/back-clear-keeps-amount/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-wizard/cancel-first-screen/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |

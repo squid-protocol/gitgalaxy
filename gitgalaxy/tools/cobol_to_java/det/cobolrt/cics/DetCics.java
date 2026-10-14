@@ -272,6 +272,17 @@ public final class DetCics {
         return new String(area, cs).getBytes(EBCDIC);
     }
 
+    /** #5053: the bytes of a COMMAREA that came as another program's DTO: its layout (toCommarea, #4449), in the record
+     *  charset -- this port's page. A class with no layout is refused, never guessed. */
+    public static byte[] layoutBytes(Object dto) {
+        try {
+            return (byte[]) dto.getClass().getMethod("toCommarea").invoke(dto);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            throw new IllegalStateException("the COMMAREA is a " + dto.getClass().getName()
+                    + ", which this program does not take and no layout converts (#5053)", e);
+        }
+    }
+
     /** #4501: the bytes of a COMMAREA commareaOut passed, in the receiving program's storage charset. */
     public static byte[] commareaIn(byte[] ebcdic, Charset cs) {
         return new String(ebcdic, EBCDIC).getBytes(cs);

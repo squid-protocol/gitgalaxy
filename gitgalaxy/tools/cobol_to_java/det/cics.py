@@ -407,6 +407,12 @@ class Generated:
         text = self._file("dto/screen", cls).read_text(encoding="utf-8")
         return re.findall(r'values\.put\("([A-Z0-9-]+)",', text)
 
+    def screen_justify(self, cls: str) -> dict[str, str]:
+        """#5082: a named field's DFHMDF JUSTIFY ("RIGHT", "RIGHT,ZERO", "LEFT,ZERO" ...), read off the screen class's
+        LAYOUT (cobol_to_java_screen_forge: `new ScreenField(name, ..., occurs, justify)`); a field without one is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        return dict(re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, "([A-Z,]+)"\)\)?[,;]?\s*$', text, re.M))
+
 
 def item_for(leaf: Leaf) -> L.Item:
     usage = {"COMP": "BINARY", "COMP-4": "BINARY", "BINARY": "BINARY", "COMP-3": "PACKED", "PACKED-DECIMAL": "PACKED",
@@ -2285,13 +2291,17 @@ class Cics:
                f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
+        justify = self.gp.screen_justify(cls)
         for name in self.gp.screen_fields(cls):
             i = self.symbolic(m, "I", name, into.name)
             ln = self.symbolic(m, "L", name, into.name)
             if i is None:
                 continue
             out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
-            out.append(f"{ind}        DetCics.typed({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS);")
+            # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
+            tail = f", {G_jstr(justify[name])}" if name in justify else ""
+            call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)
@@ -2615,8 +2625,10 @@ class Cics:
             return self.delete_generic(opts, ind)
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
-            raise CicsError("UNLOCK without TOKEN: not modelled")
+        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
+            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+            r = self.g.tmpname("resp")
+            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

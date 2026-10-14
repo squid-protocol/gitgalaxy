@@ -28,7 +28,9 @@ record that holds them is stale on that input only when a component it uses chan
 #4731) keeps the whole-input comparison. `migrate` adds them where that is sound; `evidence_history.py replay` measures.
 
 Unproven methods (#4255, owner decision Q7): proof_reach sorts the methods no proof runs into stubs, left as
-generated, and ported_unproven (behaviour the port added that no proof runs). PORTED_UNPROVEN_POLICY = "block": a
+generated, det_helper (#5082: a det translator's own helper -- runProgram, the in_X / out_X codecs ... -- in a file
+marked as a det port; proven by the cells that reach its class) and ported_unproven (behaviour the port added that no
+proof runs). PORTED_UNPROVEN_POLICY = "block": a
 record with any ported_unproven method is NOT proven. "report" (the other value) keeps them as counts only. Stubs and
 left-as-generated methods are always counts only.
 
@@ -706,7 +708,7 @@ def _generated_originals(work: Path | None) -> list[Path]:
 
 
 def reach_section(t: Target, work: Path | None = None, entries: Iterable[str] = ()) -> dict[str, Any]:
-    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its three kinds. `entries`:
+    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its four kinds (#5082: det_helper). `entries`:
     the methods the proof also drove the program through (a batch case's entry runs), roots beside PROOF_ROOTS."""
     from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: PLC0415 -- the engine's, only when a record is made
 
@@ -718,9 +720,13 @@ def reach_section(t: Target, work: Path | None = None, entries: Iterable[str] = 
     unproven = []
     for cls, r in sorted(report.items()):
         for m in r["unproven"]:
-            kind = "stub" if m["stub"] else "left_as_generated" if m["generated"] else "ported_unproven"
+            kind = ("stub" if m["stub"] else "left_as_generated" if m["generated"]
+                    else "det_helper" if m["det_helper"] else "ported_unproven")  # fmt: skip
             unproven.append({"class": cls, "method": m["method"], "line": m["line"], "kind": kind})
-    counts = {k: sum(1 for m in unproven if m["kind"] == k) for k in ("stub", "left_as_generated", "ported_unproven")}
+    counts = {
+        k: sum(1 for m in unproven if m["kind"] == k)
+        for k in ("stub", "left_as_generated", "det_helper", "ported_unproven")
+    }
     return {"entry_points": sorted({root for r in report.values() for root in r["roots"]}),
             "unproven": unproven, "counts": counts,
             "generated_compared": bool(generated),  # False: "left as generated" could not be told from "ported"
@@ -1007,7 +1013,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
         parts.append(f"Proven through **{' / '.join(r['entry_points']) or '(no entry point)'}** only; "
                      f"**{k['ported_unproven']} ported method(s) that no proof runs**"
                      + (f" ({', '.join(ported)})" if ported else "")
-                     + f", {k['left_as_generated']} left as generated, {k['stub']} stubs.")  # fmt: skip
+                     + f", {k['left_as_generated']} left as generated, {k.get('det_helper', 0)} det helpers (proven by the cells "
+                     f"that reach their class), {k['stub']} stubs.")  # fmt: skip
     tail = f"Status: **{st['status']}**"
     if st["reasons"]:
         tail += " (" + "; ".join(st["reasons"]) + ")"
@@ -1215,7 +1222,7 @@ def validate(rec: dict[str, Any]) -> list[str]:
     r = rec.get("reach")
     if r is not None:
         for m in r.get("unproven", []):
-            if m.get("kind") not in ("stub", "left_as_generated", "ported_unproven"):
+            if m.get("kind") not in ("stub", "left_as_generated", "det_helper", "ported_unproven"):
                 errs.append(f"reach.unproven kind {m.get('kind')!r}")
     if not isinstance(rec.get("differences"), list):
         errs.append("differences is not a list")

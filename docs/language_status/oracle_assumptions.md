@@ -161,6 +161,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X51 | CICS | EXEC CICS RETURN TRANSID COMMAREA LENGTH and XCTL COMMAREA LENGTH hand the next task / the target LENGTH bytes (its EIBCALEN), every byte as it was; the det port passes the record's whole span beside its DTO (#4806, #4817), so CicsTask cuts those bytes at LENGTH (null: all; past the span: all of it), as the DTO's reading already is; a LINK's area is not cut (by address); a LENGTH past the DTO passes the COMMAREA as a byte[] (region EBCDIC), which a facade's handleTransaction answers as an Object by design | ASSUMED | no (unit-proven on CicsTask for RETURN, RETURN IMMEDIATE and XCTL, every LENGTH class: tests/cobol_mainframe/test_commarea_length_bytes_4817.py; no estate program differs by it: a conforming program never reads past EIBCALEN) |
 | X52 | CICS | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key | ASSUMED (REFUSED where IBM is silent) | unit-proven on CicsTask and the stub C over one scenario list (tests/cics_crucible/test_update_token_runtimes_5078.py: valid, invalid, reused, interleaved, wrong-file tokens; test_unlock_held_5079.py: UNLOCK without TOKEN); CBSA DELCUS (READ UPDATE TOKEN twice, DELETE TOKEN twice) translates whole (det_survey: 140 of 140 statements, compiles) |
 | X53 | CICS | REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state | ASSUMED (REFUSED where IBM is silent) | no |
+| X54 | CICS | A DFHMDF field coded JUSTIFY=(RIGHT[,ZERO]) / (LEFT,ZERO) receives the operator's input right- or left-justified and filled with zeros or blanks, as BMS does; <f>L stays the length of the text typed. A field with no JUSTIFY is unchanged (left-justified, blank padded) | ASSUMED (where IBM is silent) | unit-proven on DetJustify.place over the whole operand class (tests/cobol_mainframe/test_det_receive_map_justify_5082.py); PCCONF (pc-wizard) RECEIVE MAP into a JUSTIFY=(RIGHT,ZERO) field |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2610,6 +2611,28 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario, once as COUNTER and
   once as DCOUNTER (tests/cics_crucible/test_counter_ops_runtimes_5039.py) and both translators
   (tests/cobol_mainframe/test_counter_ops_translate_5039.py). No corpus program runs these commands yet.
+
+### X54. RECEIVE MAP into a DFHMDF JUSTIFY field: right-justified, zero or blank filled — ASSUMED (#5082)
+- **What IBM documents** (CICS TS 6.x, DFHMDF, https://www.ibm.com/docs/en/cics-ts/6.x?topic=dfhmdf-macro-bms-field-definition ;
+  RECEIVE MAP, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map). JUSTIFY=([LEFT|RIGHT][,BLANK|ZERO]) "specifies the
+  type of justification (RIGHT or LEFT) and the fill character (BLANK or ZERO) for input data"; LEFT and BLANK are the defaults. It
+  applies to the data BMS maps into the input field of the symbolic map on RECEIVE MAP (and to the data typed into the field on the
+  terminal in the same way), not to SEND MAP output.
+- **Modelled.** The text typed (without its trailing blanks) is placed at the right (RIGHT) or left (LEFT) end of the `<f>I` field,
+  the rest filled with ZERO's `0` or blank; `<f>L` is the length of the text typed. Translator: `Cics.receive_map` reads the field's
+  JUSTIFY off the generated screen's LAYOUT (`ScreenField.justify`, from the DFHMDF operand) and emits `DetJustify.place`;
+  a field with no JUSTIFY still goes through `DetCics.typed`, so no existing port moves.
+- **The oracle models it too** (`tests/tools/equivalence_cics.py` `map_input` / `bms_justify` / `justified`): the GnuCOBOL side's
+  RECEIVE MAP input area is what BMS leaves in a field the corpus's BMS source says JUSTIFY (the engine's own reading of the
+  DFHMDF, `ScreenField.justify`'s source), the length the text typed's. Without it the instrument handed the program the text
+  left-justified and every port that is right read as differing (GenApp LGTESTP2 / LGTESTP4, `ENP2LIF` JUSTIFY=(RIGHT,ZERO)).
+  The cics-crucible runner already justified its input (`cics_bms.received_value`).
+- **Assumed.** (1) ZERO with LEFT fills trailing positions with `0` (IBM states the fill character, not the side it lands on for
+  LEFT). (2) Text longer than the field is cut from the end the justification starts from (RIGHT keeps its last bytes). (3) The
+  length is that of the text typed, before justification. (4) Input arriving through the CICS stub is the typed text, not a 3270
+  data stream, so a null or `X'00'` in a field (BMS's erase-input convention) is not modelled.
+- **Not modelled.** The default of a NUM field with no JUSTIFY (the crucible runner right-justifies and zero-fills it; the det port and
+  the equivalence oracle leave it as typed, as before: not this entry's class, #5082 sibling); JUSTIFY on SEND MAP output; PICIN / PICOUT conversion; GRPNAME / OCCURS fields' per-occurrence JUSTIFY.
 
 ## Language Environment
 

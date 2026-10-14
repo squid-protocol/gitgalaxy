@@ -3743,6 +3743,9 @@ public class CicsTask {
 
     /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
     public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        if (root().held.contains(file)) {
+            return new FileRead<>(16, 28, null);  // #5092: a second READ UPDATE without a token, nothing released between
+        }
         FileRead<T> r = read(file, lookup);
         if (r.normal()) {
             root().held.add(file);
@@ -3755,6 +3758,9 @@ public class CicsTask {
      *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
      *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
     public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
+        if (update && root().held.contains(file)) {
+            return new FileRead<>(16, 28, null);  // #5092
+        }
         int[] planned = root().injected("READ", file);
         if (planned != null) {
             return new FileRead<>(planned[0], planned[1], null);
@@ -3792,7 +3798,7 @@ public class CicsTask {
             return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return done(16, 0);
+            return done(16, 30);  // #5092: no READ UPDATE without a token before it
         }
         store.run();
         return done(0, 0);
@@ -3819,7 +3825,7 @@ public class CicsTask {
             return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return done(16, 0);
+            return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
         }
         remove.run();
         return done(0, 0);

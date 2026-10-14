@@ -299,6 +299,11 @@ static int held_key(const char *file, const char *key, int klen) {
     return 0;
 }
 
+static int has_hold(const char *file) {  /* #5092: a tokenless READ UPDATE holds a record of the file */
+    for (int i = 0; i < MAX_FILES; i++) if (held[i].name[0] && strcmp(held[i].name, file) == 0) return 1;
+    return 0;
+}
+
 /* #5078 (X52): READ UPDATE TOKEN(d) holds a record under a token of its own (IBM, EXEC CICS READ: "a unique identifier
  * for this READ UPDATE request ... for use in associating a subsequent REWRITE or DELETE (or UNLOCK) request with the
  * record returned"), however many are held, on any file. The ids count from 1 per task (their value is IBM's to choose:
@@ -504,6 +509,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     } else if (strstr(c->flags, "TOKEN") ? token_find(c->num, want) < 0 : !held_key(want, key, klen)) {
         c->resp = INVREQ;
         if (strstr(c->flags, "TOKEN")) c->resp2 = 47;
+        else if (!has_hold(want)) c->resp2 = 30;  /* #5092: no READ UPDATE without a token before it (a held record of another key: unsaid, 0) */
     } else if (strstr(c->flags, "TOKEN") && (tokens[token_find(c->num, want)].klen != klen
                                               || memcmp(tokens[token_find(c->num, want)].key, key, (size_t)klen) != 0)) {
         refuse("REWRITE TOKEN FROM: a key other than the held record's");
@@ -596,6 +602,11 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     trim(c->name1, 8, want);
     c->resp = FILENOTFOUND;
     c->resp2 = 0;
+    if (strstr(c->flags, "UPDATE") && !strstr(c->flags, "TOKEN") && has_hold(want)) {
+        c->resp = INVREQ;  /* #5092: a second READ UPDATE without a token, nothing released between */
+        c->resp2 = 28;
+        return 0;
+    }
     if (injected("READ", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
@@ -1051,6 +1062,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     long long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
     if (by_hold && s < 0) {
         c->resp = INVREQ;
+        c->resp2 = 31;  /* #5092: no RIDFLD and no READ UPDATE without a token before it */
     } else if (at < 0) {
         c->resp = NOTFND;
         c->resp2 = 80;

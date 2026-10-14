@@ -186,6 +186,25 @@ def _texts(row: dict[str, Any]) -> list[str]:
     return ([t["refused"]] if t.get("refused") else []) + list(t.get("holes") or [])
 
 
+def _eras(inventory: dict[str, Any]) -> dict[str, Any] | None:
+    """#5117: the estate's era distribution, its mixed programs and the programs behind each era (None: an inventory
+    from before era tags). Each program lists the tells its tag used."""
+    e = inventory.get("eras")
+    if not e:
+        return None
+    progs = e["programs"]
+    return {
+        "summary": e["summary"],
+        "mixed": {
+            p: [t["tell"] + f" (era {t['era']})" for t in v["tells"]] for p, v in sorted(progs.items()) if v["mixed"]
+        },
+        "programs": {
+            era: sorted(p for p, v in progs.items() if str(v["era"] if v["era"] is not None else "none") == era)
+            for era in ("0", "1", "2", "3", "4", "none")
+        },
+    }
+
+
 def build_estate(
     estate: str,
     inventory: dict[str, Any],
@@ -212,7 +231,7 @@ def build_estate(
 
     features = []
     for category in sorted(inventory):
-        if category in (GAPS, "unparsed_programs"):
+        if category in (GAPS, "unparsed_programs", "eras"):
             continue
         for key, v in sorted(inventory[category].items()):
             if key == "unknown":
@@ -299,7 +318,7 @@ def build_estate(
         "buckets": {
             c: {"count": v["unknown"]["count"], "programs": v["unknown"]["programs"]}
             for c, v in sorted(inventory.items())
-            if c != "unparsed_programs" and v.get("unknown", {}).get("count")
+            if c not in ("unparsed_programs", "eras") and v.get("unknown", {}).get("count")
         },
         "unparsed_programs": inventory.get("unparsed_programs", []),
         "sequence_fragments": [f["feature"] for f in features if f["sequence_fragment"]],
@@ -314,6 +333,7 @@ def build_estate(
         "features": features,
         "refusals": dict(sorted(refusals.items())),
         "unmapped": {k: sorted(v) for k, v in sorted(unmapped.items())},
+        "eras": _eras(inventory),
         "needs_issue": sorted(k for k, r in refusals.items() if r["label"] == NEEDS_ISSUE),
         "unknown": unknown,
     }
@@ -350,6 +370,29 @@ def _progs(ps: list[str], n: int = 4) -> str:
     return ", ".join(names[:n]) + (f" (+{len(names) - n})" if len(names) > n else "")
 
 
+def render_eras(e: dict[str, Any] | None) -> list[str]:
+    """#5117: the era section -- programs per era with the tells that placed them, and the mixed programs."""
+    if not e:
+        return []
+    s = e["summary"]
+    L = ["", "### Era (from the source's own tells, not dates)", ""]
+    L.append(
+        f"{s['programs']} programs; {s['mixed']} mixed (tells from more than one era: layered code). A program's era "
+        "is the latest era any of its tells reaches; none = no tell."
+    )
+    L += ["", "| era | programs | share | examples |", "|---|---|---|---|"]
+    for era, n in s["by_era"].items():
+        share = f"{100 * n / s['programs']:.0f}%" if s["programs"] else "-"
+        L.append(f"| {era} | {n} | {share} | {_progs(e['programs'][era])} |")
+    L += ["", "Tells used (programs): " + (", ".join(f"{k} {v}" for k, v in s["tells"].items()) or "none") + ".", ""]
+    if e["mixed"]:
+        L += ["Mixed programs:", ""]
+        L += [f"- {p}: {', '.join(t)}" for p, t in list(e["mixed"].items())[:20]]
+        if len(e["mixed"]) > 20:
+            L.append(f"- ... and {len(e['mixed']) - 20} more (see `--json`)")
+    return L
+
+
 def render_estate(m: dict[str, Any]) -> list[str]:
     L = [f"## {m['estate']}", ""]
     L.append(
@@ -359,6 +402,7 @@ def render_estate(m: dict[str, Any]) -> list[str]:
     )
     L += ["", "| status | features |", "|---|---|"]
     L += [f"| {s} | {n} |" for s, n in m["counts"].items()]
+    L += render_eras(m.get("eras"))
     L += ["", "### Features", ""]
     L += [
         "| feature | programs | status | best level | proving cases | rules (worst status; register caveats) | not yet met (charter section 5) |",

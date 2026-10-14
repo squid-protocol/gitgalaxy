@@ -119,24 +119,6 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
-   "id": "6550490c03",
-   "op": "CON",
-   "line": 222,
-   "before": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);",
-   "after": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 24, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; TITLE01L (23-24) and the byte after it (TITLE01F) are low-values either way, and SEND MAP's cursor test (L = -1) is false for both"
-  },
-  {
-   "id": "1832f2bbde",
-   "op": "CON",
-   "line": 246,
-   "before": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 303, 4, 0, true, false);",
-   "after": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 304, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; OPTN004L (303-304) and the byte after it are low-values either way, and SEND MAP's cursor test (L = -1) is false for both"
-  },
-  {
    "id": "ea17f638a5",
    "op": "CON",
    "line": 247,
@@ -585,15 +567,6 @@
    "after": "if (to < 0) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
-  },
-  {
-   "id": "6311acc336",
-   "op": "LIT",
-   "line": 1105,
-   "before": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed7.get(\"OPTN009\"), CS);",
-   "after": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed7.get(\"XPTN009\"), CS);",
-   "verdict": "case-gap",
-   "reason": "The typed branch for OPTN009 runs only when a scenario's receive supplies OPTN009I (OPTN009 is ASKIP,FSET, so a real terminal returns it); none does, so the renamed lookup is never taken. A scenario with receive {\"COADM1A\": {\"OPTIONI\": \"1\", \"OPTN009I\": \"9. Spare\"}} would make the mutant's get(\"XPTN009\") null and DetCics.typed throw NullPointerException."
   },
   {
    "id": "4fcdbabacd",

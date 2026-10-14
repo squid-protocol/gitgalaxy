@@ -18,8 +18,8 @@ A label added by someone without write access is removed by the bot, with a comm
 **A label is bound to the head it was approved on.** When a maintainer with write access adds `shepherd:merge`, the
 bot's own account writes an approval marker naming the head that was labelled (from the event). Only the bot's
 markers count; anyone can post a comment. If the head later moves (new commits, a force-push), the label is removed,
-whatever noticed. The one exception is the bot's own `gh pr update-branch` (behind main): the bot leaves a marker pair
-before and after it, and the approval carries over only through that pair and a first-parent check. With no approval
+whatever noticed. The one exception is a merge of main: a plain merge that brought in nothing but main's changes, or a pre-#5134 bot `update-branch` (a marker pair
+before and after it, checked with a first-parent test), carries the approval over. With no approval
 marker yet (the labelled run did not happen, or was dropped), the bot does nothing and says so in its log: re-add the
 label.
 
@@ -44,7 +44,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Other rules
 
 - **Depends on #N.** A PR whose body says `Depends on #N` does not auto-merge until #N is merged.
-- **Behind main.** A labelled PR that is behind and green gets `gh pr update-branch` from the bot.
+- **Behind main.** Nothing updates a branch just because it is behind (#5134, owner decision 2026-10-14): every push to a ready PR costs one full CI run (superseded-SHA runs were 27% of CI minutes). Workers merge main only when the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. Main Watch (`ci-red-main`) is the backstop for a bad combination. The classic branch-protection `strict: true` is cleared by the owner by hand; while it is set, GitHub reports a green PR as `behind` and `pr_check` refuses it. Merge-main commits per PR are measured for 3 days after this merged.
 - **Infra reruns.** Only a failed job of an infra or flake kind is rerun, and only three times per run.
 - **Permissions.** The request labels are honoured only from collaborators with `write`, `maintain` or `admin`.
 

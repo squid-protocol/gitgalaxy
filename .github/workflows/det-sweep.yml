@@ -158,6 +158,31 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # #5048: the durations every shard and Db2 shard balances by, chosen ONCE here (the newest measured ones, else the
+      # committed file) and handed on as an artifact: shards that restored different files cut different slices.
+      - name: Restore the newest measured durations (#4847)
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-durations-
+
+      - name: Choose the durations for every shard
+        run: |
+          if [ -n "${{ steps.durations.outputs.cache-matched-key }}" ]; then
+            cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+          fi
+
+      - name: Hand the durations to the shards (#5048)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: det-durations
+          path: tests/equivalence/det_sweep_durations.json
+          if-no-files-found: error
+          retention-days: 1
+
   # #4901: the Db2 cases the plan moves, on runners of their own, in parallel with the shards.
   db2:
     name: db2 ${{ matrix.shard }}
@@ -307,18 +332,16 @@ jobs:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
-      - name: Restore the newest measured durations (#4847)
-        id: durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
+      # miss made its slices differ from its neighbours' and a case was proven in two shards).
+      - name: Download the plan's durations (#5048)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          path: durations-cache
-          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-durations-
+          name: det-durations
+          path: durations-plan
 
-      - name: Balance by the restored durations (else the committed file)
-        if: steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+      - name: Balance by the plan's durations
+        run: cp durations-plan/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
 
       # The databases are only used once the start is done: a case that picked a database the background start was still
       # creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated). Lazy creation
@@ -480,18 +503,16 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
 
-      - name: Restore the newest measured durations (#4847)
-        id: durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
+      # miss made its slices differ from its neighbours' and a case was proven in two shards).
+      - name: Download the plan's durations (#5048)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          path: durations-cache
-          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-durations-
+          name: det-durations
+          path: durations-plan
 
-      - name: Balance by the restored durations (else the committed file)
-        if: steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+      - name: Balance by the plan's durations
+        run: cp durations-plan/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
 
       - name: Re-prove this shard's det ports (no Db2)
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's

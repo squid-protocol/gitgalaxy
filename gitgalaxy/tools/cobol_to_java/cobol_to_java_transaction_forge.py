@@ -3676,26 +3676,26 @@ public class CicsTask {
     public int write(String file, boolean exists, Runnable store) {
         int[] planned = root().injected("WRITE", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);  // #5044: the plan's RESP2 (IBM's), as the stub's WRITE sets it
         }
         if (exists) {
-            return 14;
+            return done(14, 0);
         }
         store.run();
-        return 0;
+        return done(0, 0);
     }
 
     /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
     public int rewrite(String file, Runnable store) {
         int[] planned = root().injected("REWRITE", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return 16;
+            return done(16, 0);
         }
         store.run();
-        return 0;
+        return done(0, 0);
     }
 
     /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
@@ -3716,13 +3716,13 @@ public class CicsTask {
     public int deleteHeld(String file, Runnable remove) {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
-            return planned[0];
+            return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return 16;
+            return done(16, 0);
         }
         remove.run();
-        return 0;
+        return done(0, 0);
     }
 
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it

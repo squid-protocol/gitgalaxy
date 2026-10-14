@@ -790,7 +790,7 @@ public class Cotrn02cService {
             if (resp == 13) {
                 fail("Transaction ID NOT found...", "ACTIDIN");
             } else {
-                displayResp(resp, 0);
+                displayResp(resp, task.resp2());
                 fail("Unable to lookup Transaction...", "ACTIDIN");
             }
         }
@@ -807,7 +807,7 @@ public class Cotrn02cService {
             } else if (b.resp() == 20) {
                 tran.setTranId("0".repeat(16));   // MOVE ZEROS TO TRAN-ID
             } else {
-                displayResp(b.resp(), 0);
+                displayResp(b.resp(), b.resp2());
                 fail("Unable to lookup Transaction...", "ACTIDIN");
             }
         }
@@ -834,7 +834,7 @@ public class Cotrn02cService {
             } else if (resp == 14 || resp == 15) {   // DUPREC / DUPKEY
                 fail("Tran ID already exist...", "ACTIDIN");
             } else {
-                displayResp(resp, 0);
+                displayResp(resp, task.resp2());
                 fail("Unable to Add Transaction...", "ACTIDIN");
             }
         }

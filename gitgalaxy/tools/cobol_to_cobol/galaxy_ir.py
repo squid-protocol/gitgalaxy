@@ -1026,6 +1026,23 @@ class GalaxyIR:
             for call in f.calls:
                 if call.verb == "EXEC PGM" and call.resolves_to:
                     runners.setdefault(call.resolves_to, []).append((f.file_path, None))
+        # #5034: a statically CALLed subprogram runs in its caller's step, under that step's DDs (CardDemo CBSTM03B,
+        # called by CBSTM03A): every job that runs a program also runs what it CALLs, however deep. A CALL through a
+        # data item (no `resolves_to`) is not followed.
+        callees: dict[str, set] = {}
+        for f in self.files.values():
+            for call in f.calls:
+                if call.verb == "CALL" and call.resolves_to:
+                    callees.setdefault(f.file_path, set()).add(call.resolves_to)
+        for prog, runs in list(runners.items()):
+            seen, todo = {prog}, [prog]
+            while todo:
+                for callee in sorted(callees.get(todo.pop(), ())):
+                    if callee not in seen:
+                        seen.add(callee)
+                        todo.append(callee)
+                        known = runners.setdefault(callee, [])
+                        known.extend(r for r in runs if r not in known)
 
         out = []
         for f in sorted(self.files.values(), key=lambda x: x.file_path):

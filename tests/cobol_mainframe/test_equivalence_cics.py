@@ -1464,7 +1464,14 @@ def test_define_query_counter_become_fullword_stub_calls():
         "    BY VALUE LENGTH OF WS-I",
         "    BY VALUE 1",
     ]
-    for bad, why in (("DEFINE COUNTER(WS-C) VALUE(5)", "literal"), ("DEFINE COUNTER(WS-C) VALUE(WS-V) MAXIMUM('A')", "literal"),
+    # DEFINE reads its numbers, so a decimal literal is staged big-endian in GG-FLAGS (GenApp's LGSETUP defines VALUE(0))
+    lit = ec.translate_command("DEFINE COUNTER(WS-C) VALUE(5) MINIMUM(2) MAXIMUM(99)")
+    assert lit[2:5] == ["MOVE X'00000005' TO GG-FLAGS(1:4)", "MOVE X'00000002' TO GG-FLAGS(5:4)",
+                        "MOVE X'00000063' TO GG-FLAGS(9:4)"]  # fmt: skip
+    assert "    BY REFERENCE GG-FLAGS(5:4)" in lit and "    BY VALUE LENGTH OF GG-FLAGS(9:4)" in lit
+    assert "MOVE X'00000000' TO GG-FLAGS(1:4)" in ec.translate_command("DEFINE COUNTER(WS-C) VALUE(0)")
+    for bad, why in (("DEFINE COUNTER(WS-C) VALUE(WS-V) MAXIMUM('A')", "literal"),
+                     ("QUERY COUNTER(WS-C) VALUE(5)", "literal"),
                      ("DEFINE COUNTER(WS-C) MINIMUM(WS-V)", "MINIMUM without VALUE"),
                      ("DEFINE COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),
                      ("QUERY COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),

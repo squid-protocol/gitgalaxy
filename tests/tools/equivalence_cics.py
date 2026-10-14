@@ -1362,7 +1362,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                     + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
                     + _resp(opts, True, labels))  # fmt: skip
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCQCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                + _call("GGCQCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"))[1])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("DEFINE", "DELETE") and (
         {"COUNTER", "DCOUNTER"} & set(opts)
@@ -1384,9 +1384,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
                 + _resp(opts, True, labels)
             )
-        return (
-            head + _call("GGCDCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"))) + _resp(opts, True, labels)
-        )
+        staged, areas = _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"), ("VALUE", "MINIMUM", "MAXIMUM"))
+        return head + staged + _call("GGCDCNT", areas) + _resp(opts, True, labels)
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
@@ -1744,16 +1743,25 @@ def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list
     return out
 
 
-def _counter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list[str]:
-    """#5039 (X50): the fullword areas of a COUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits;
-    a literal is refused (the stub reads and writes the area's bytes: a data area is the COBOL form)."""
+def _counter_areas(
+    opts: dict[str, str | None], names: tuple[str, ...], literals: tuple[str, ...] = ()
+) -> tuple[list[str], list[str]]:
+    """#5039 (X50): the fullword areas of a COUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits,
+    with the lines that stage a numeric literal. A command that WRITES an area (QUERY) takes a data area only; DEFINE
+    reads its VALUE / MINIMUM / MAXIMUM (`literals`), so a decimal literal is staged big-endian in GG-FLAGS (the stub reads
+    the bytes as IBM's fullword binary), as before X50 gave it a literal VALUE through GG-NUM."""
     out: list[str] = []
-    for o in names:
+    pre: list[str] = []
+    for n, o in enumerate(names):
         v = opts.get(o)
         if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
-            raise Unsupported(f"COUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+            if o not in literals or not re.fullmatch(r"[+-]?\d+", v):
+                raise Unsupported(f"COUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+            slot = f"GG-FLAGS({4 * n + 1}:4)"
+            pre.append(f"MOVE X'{int(v) & 0xFFFFFFFF:08X}' TO {slot}")
+            v = slot
         out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
-    return out
+    return pre, out
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:

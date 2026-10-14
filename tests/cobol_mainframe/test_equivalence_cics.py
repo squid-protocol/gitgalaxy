@@ -736,7 +736,9 @@ def test_file_updates_translate_to_stub_calls():
     for bad in ("WRITE FILE(F) FROM(R) RIDFLD(K) MASSINSERT", "REWRITE FILE(F) FROM(R) SYSID(S)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
-    sc = {"faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOSPACE"}]}  # IBM's REWRITE lists no NOTOPEN (#5044)
+    sc = {
+        "faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOSPACE"}]
+    }  # IBM's REWRITE lists no NOTOPEN (#5044)
     assert ec.fault_lines(sc) == ["REWRITE ACCTDAT 1 18 100"]
 
 
@@ -2311,3 +2313,12 @@ def test_formattime_day_of_year_and_binary_forms_under_gnucobol_equal_the_java_r
         ["24/366", "2024/366", "24/31/12", "2024/31/12", 45656, 31, 2, 12, 2024, 7],
         ["00/061", "2000/061", "00/01/03", "2000/01/03", 36585, 1, 3, 3, 2000, 0],
     ]
+
+
+def test_a_cases_maps_are_stated_as_the_stubs_mapsets():
+    """#5076 (X31): a case's "maps" ({MAP: {"mapset": MAPSET}}, as the cics-crucible's) become the stub's
+    $GGCICS_MAPSETS, so BNK1CCS's CLEAR -- SEND MAP('BNK1CCM'), the mapset's name, a map it does not hold -- abends ABM0
+    on the COBOL side as it does in the det port. Several maps of one mapset are listed together, mapsets sorted."""
+    assert ec.mapsets_env({"maps": {"BNK1CC": {"mapset": "BNK1CCM"}}}) == "BNK1CCM=BNK1CC"
+    assert (ec.mapsets_env({"maps": {"B": {"mapset": "MSB"}, "A2": {"mapset": "MSA"}, "A1": {"mapset": "MSA"}}})
+            == "MSA=A1,A2;MSB=B")  # fmt: skip

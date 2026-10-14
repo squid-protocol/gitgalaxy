@@ -49,7 +49,8 @@ The practical rules that follow:
 - **Judge per-worker CPU, not only wall on your box.** cProfile `tottime` on the changed
   function, or the `--file-speed` phase totals (cumulative worker CPU), are the signal that
   survives across hardware. Report them alongside wall, and say which machine the wall figure
-  came from.
+  came from. Caveat: cProfile charges C-level regex time to the Python caller, so use it to
+  locate a hotspot, then size it with `tests/tools/phase_ab.py` phase totals.
 - **Don't dismiss a CPU reduction just because it is sub-noise on the wall here.** If cProfile
   shows the work genuinely shrank and the output is byte-identical, it is a real, portable
   improvement — frame it as such, scoped to where it helps.

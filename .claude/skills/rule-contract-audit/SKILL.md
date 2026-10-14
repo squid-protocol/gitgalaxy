@@ -63,16 +63,18 @@ runs each one*. The orchestrator's own checklist is at the end of this file.
 
 ```sh
 # 0. worktrees -- never edit the primary checkout, never measure against it (it lags main)
-cd ~/nyx_projects/gitgalaxy && git fetch -q origin
+PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}   # gitgalaxy-pr-worker.md Setup 1
+LC_TAG=$(python3 $PRIMARY/tests/tools/crucible_pins.py get language)   # the pinned crucible tag
+cd $PRIMARY && git fetch -q origin
 git worktree add ../gitgalaxy-worktrees/fix-<N> -b fix/<N>-<signal>-contract origin/main
-cd ~/nyx_projects/keyword-rosetta && git fetch -q origin
+cd $PRIMARY/../keyword-rosetta && git fetch -q origin
 git worktree add ../keyword-rosetta-worktrees/rebless-<N> -b rebless/gitgalaxy-<N>-<signal> origin/main
-cd ~/nyx_projects/language-crucible && git worktree add --detach ../language-crucible-worktrees/v1.2.0 v1.2.0   # once; a CLEAN corpus
-cd ~/nyx_projects/gitgalaxy-worktrees/fix-<N>
+cd $PRIMARY/../language-crucible && git worktree add --detach ../language-crucible-worktrees/$LC_TAG $LC_TAG   # once; a CLEAN corpus
+cd $PRIMARY/../gitgalaxy-worktrees/fix-<N>
 export PYTHONPATH=$PWD GITGALAXY_PATH=$PWD                                  # shadows the .venv's editable install
-export LANGUAGE_CRUCIBLE_PATH=~/nyx_projects/language-crucible-worktrees/v1.2.0
-export KEYWORD_ROSETTA_PATH=~/nyx_projects/keyword-rosetta-worktrees/rebless-<N>
-PY=~/nyx_projects/gitgalaxy/.venv/bin/python
+export LANGUAGE_CRUCIBLE_PATH=$PRIMARY/../language-crucible-worktrees/$LC_TAG
+export KEYWORD_ROSETTA_PATH=$PRIMARY/../keyword-rosetta-worktrees/rebless-<N>
+PY=${GG_PY:-$PRIMARY/.venv/bin/python}
 ```
 
 ## Phase 0 -- read before writing (primary sources, no memory)
@@ -142,7 +144,7 @@ Then:
 $PY tests/tools/rule_probe.py <signal> all --samples 8 --json /tmp/<signal>-after.json > /tmp/<signal>-after.txt   # background
 $PY tests/tools/rule_probe.py <signal> all --compare /tmp/<signal>-before.json /tmp/<signal>-after.json           # the table rows
 $PY -m pytest tests/extraction/languages -q -p no:cacheprovider 2>&1 | grep -E "^FAILED|passed"                  # background, ~1 min
-PATH=~/nyx_projects/gitgalaxy/.venv/bin:$PATH $PY tests/tools/rosetta_audit.py --corpus $KEYWORD_ROSETTA_PATH --allow-regressions   # background, ~3 min
+PATH=$(dirname $PY):$PATH $PY tests/tools/rosetta_audit.py --corpus $KEYWORD_ROSETTA_PATH --allow-regressions   # background, ~3 min
 ```
 
 **A registry declaration that is not a regex needs an end-to-end check before anything else

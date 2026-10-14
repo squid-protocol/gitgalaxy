@@ -23,6 +23,9 @@ follows `docs/_score_contract_template.md`, which mirrors its sections.
 tests/tools/worktree_env.sh score-<N> --corpus     # prints the five exports; eval them
 ```
 
+Never drop `--corpus` (or point `KEYWORD_ROSETTA_PATH` at a keyword-rosetta worktree at origin/main yourself):
+without it `KEYWORD_ROSETTA_PATH` is the stale primary corpus checkout (43 phantom regressions).
+
 ### Phase 0 -- decomposition before opinion (scout runs, orchestrator reads digests)
 ```sh
 $PY tests/tools/audit_score_inputs.py <metric> --corpus $KEYWORD_ROSETTA_PATH/data --summary

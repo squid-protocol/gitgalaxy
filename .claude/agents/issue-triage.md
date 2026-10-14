@@ -28,7 +28,10 @@ re-derive context.
    their blast radius; confirm exact lines with grep/Read. Put the file, function and callers in
    the issue body. (Experiment #4479: fixers gained nothing from the DB once an issue already
    named its files, so the payoff is here, at filing time.)
-5. Apply labels (type, area, `priority: ...`) **and the current milestone** to every issue you file.
+5. Apply labels (type, area, `priority: ...`) **and the current milestone** to every issue you file. Any COBOL
+   (`.cbl` / `.cob` / `.cpy`) or JCL (`.jcl` / `.prc`) bug gets `priority: high` however rare (owner, 2026-08-30);
+   note the rarity in the body. Milestone titles are cited verbatim by `.claude/skills/callgraph-*` and
+   `callgraph-triage-scout.md` (#14): renaming a milestone means updating them.
 
 ## Class sweep: name the family, list the siblings
 
@@ -49,8 +52,8 @@ DOCUMENT family was missing too, and the owner had to argue for the siblings sep
    evidence (file:line, survey row, test)`. "Out of scope" needs a reason.
 9. **Scope the issue to the class.** Members that share one mechanism (one handler, one table, one rule) go in THIS
    issue's acceptance: "every member of the DOCUMENT family translates or is refused by name". Members that need a
-   different mechanism get their own issue, filed now, each linking the others ("Siblings: #a, #b"). Search for
-   duplicates per member before filing.
+   different mechanism go into ONE "Siblings of #X: <class>" issue with the class table as a checklist, or are added
+   to an existing open one; never one issue per member (owner, 2026-10-12). Search for duplicates before filing.
 
 ## Issue shape
 

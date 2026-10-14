@@ -29,6 +29,10 @@ a language-specific quirk.
    `tests/extraction/tools/verify_candidates.py` before adding it to a test file -- never guess
    whether a payload matches. A failing verification is a finding to triage (real bug vs.
    unrealistic payload), not an automatic fix.
+   A passing func_start / class_start regex test does not prove the STORED name:
+   `detector._extract_name` re-tokenizes the match (an ASCII charset truncated Nordic names,
+   #3520). Assert names through extraction (`StructuralExtractor(...).splice(...)`), not the
+   regex alone.
 5. **Fix real bugs with the full discipline**: ReDoS scaling check on any quantifier change,
    `python tests/tools/audit_check.py` (add `--regenerate` for pure line-shifts), then
    `pytest tests/extraction/languages/test_<lang>.py`. If the fix touches `language_standards/`,

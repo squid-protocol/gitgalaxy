@@ -47,6 +47,18 @@ discipline: only commit files relevant to the change at hand (never a broad `git
 `main..HEAD` doesn't carry unrelated in-progress work before committing, and run the relevant
 baseline-gated audits / `crucible_check.py` before pushing anything that touches parsing logic.
 
+- `.gitignore` ignores `*.json` repo-wide: a new committed JSON (data, a baseline, generated package
+  data) needs a `!path` whitelist line like the existing ones, or `git add -f`. Confirm with
+  `git ls-files <path>` before pushing.
+- A PR merged into a stacked base branch (not main) never fires its `Closes #N`: close those issues
+  when the stack lands, or say so. Stacked PRs run few CI checks until retargeted to main.
+- Text with backticks (PR bodies, commit messages, rulings) goes through a quoted heredoc
+  (`<<'EOF'`) or a file, never an unquoted heredoc or a double-quoted `-c` string.
+- Third-party code, papers or tools: follow `docs/research/third-party-material-policy.md` (ideas
+  only, never their code; stop and ask the owner on anything legally questionable).
+- Agent knowledge (lessons, traps, owner policy) lives in the repo, not personal memory:
+  `.claude/rules/agent-memory.md`.
+
 ## Scratch files & working directory
 
 Throwaway scripts, reproduction cases, one-off debug output, and generated test artifacts that
@@ -89,6 +101,11 @@ SQLite), `gitgalaxy/standards/` (the per-language rule registry + `gitgalaxy_con
 config), `gitgalaxy/tools/` (standalone DevSecOps/legacy-migration CLIs built on top of core).
 Each of those directories has its own `README.md` — read the relevant one before working deep
 inside it rather than re-deriving the architecture from source.
+
+The archetype brains (`analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL`, the file model and
+`gitgalaxy/standards/archetype_brains/*.json`) are not golden-neutral at any level: the golden
+audit records the function-archetype distribution and the repo composition archetype. Swapping a
+brain, or changing `SIGNAL_SCHEMA`, means a golden re-bless with the drift attributed to it.
 
 ## Using GitGalaxy's self-scan output for orientation (token efficiency)
 
@@ -184,6 +201,12 @@ few minutes this way, instead of hours of pure static reading):
   standalone repro script — the census requires git-tracked files (see `census-requires-git-
   tracked` in a corpus's own deviation ledger if one exists), so scan the real corpus checkout,
   not an ad hoc copy.
+- detector.py has two paths: function boundaries read `_build_brace_safe_stream` (literals,
+  comments and dead `#if 0` branches blanked); rule counts (`coding_analysis`) run on the raw
+  segment (dead branches blanked by `_blank_dead_preproc_branches`). A fix must shield both, keep
+  masking length-preserving, and never blank live directive lines in the count path.
+- Suspected scan non-determinism: rerun with `GALAXYSCOPE_MAX_WORKERS=1` (serial extraction)
+  before assuming a race (#2988).
 
 ## Adding or hardening a language's structural signatures
 
@@ -228,6 +251,10 @@ conflict on rebase. `--regenerate` only auto-accepts an *edited* baselined line 
 pairs one-for-one with a now-stale entry of the same file/code/message); a new finding, or a new
 duplicate of a baselined line (next `#occurrence`), still fails. Human-readable output still
 prints each finding's current line number.
+
+Don't write module-level optional-import fallbacks (`try: import yaml` / `except ImportError: yaml
+= None`): a local mypy with `types-PyYAML` passes, but CI's mypy env (`tests/requirements-mypy.txt`)
+has no stubs and fails. Import lazily inside the function.
 
 ### Mainframe ground-truth ledger
 
@@ -296,6 +323,17 @@ under `tests/extraction/languages/` for the working pattern. Before pushing a ne
 this kind of import, verify it by running plain `pytest <file>` (not `python -m pytest`) from an
 unrelated working directory — that reproduces CI's actual invocation style locally instead of on
 a wasted CI round-trip.
+
+- Never `os.environ.setdefault` / assign scan env vars (e.g. `GITGALAXY_DISABLE_GIT_HISTORY`) at
+  import time or process-wide in a module tests import: it leaks across the pytest session (it
+  broke `test_chronometer`). Use a save/restore context manager.
+- A `tests/tools` script inserts REPO_ROOT on `sys.path` BEFORE any `from gitgalaxy` import
+  (`# noqa: E402`); otherwise a shared venv's editable install of another checkout runs silently.
+- Python 3.10 is the floor (`requires-python = ">=3.10"`, ruff `target-version = "py310"`, the CI
+  matrix). A local 3.12 hides newer syntax (an f-string reusing its quote inside `{}`, `except*`,
+  `tomllib`): `ruff check <changed files>` before pushing.
+- Evidence-report tests assert only the case under test, never counts from committed reports. Use
+  `db2_fixture(..., isolate=True)` (`tests/tools/test_evidence_report.py`) for single-route Db2 tests.
 
 ## The Differential Scan (PR protocol for engine/regex changes)
 

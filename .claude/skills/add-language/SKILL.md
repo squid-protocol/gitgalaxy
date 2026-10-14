@@ -55,7 +55,11 @@ test picks its fixture from the env it runs in) — and the crucible test invoke
    are future red CI runs; fix them all before running anything slower.
 3. **Smoke the rules by hand** (~1 min): a realistic snippet through each headline rule with
    `finditer`, and `StructuralExtractor(...).splice(...)` for the extraction shape. Cheaper
-   than a test suite and catches regex arithmetic immediately.
+   than a test suite and catches regex arithmetic immediately. Always capture the parameter
+   list in a group in `args`: a groupless rule falls into detector.py's whitespace-split
+   fallback (flat `avg_func_args`). Compare signals per file with named units
+   (`struct_func_start` vs `function_count`), never by matching lines
+   (`function_data.start_line` is not the func_start match line).
 4. **Rosetta shell + `--report`** (~30s, the best semantic oracle in the pipeline): author
    `data/<lang>/` per SPEC.md in the corpus worktree, commit (the census only walks tracked
    files), then `python tools/verify_language.py <lang> --report --engine <engine-worktree>`.
@@ -71,9 +75,15 @@ test picks its fixture from the env it runs in) — and the crucible test invoke
    CI round-trip the local run would have cost 5 seconds.
 5. **Strict suite** (Step 4's separate adversarial pass) + `pytest tests/extraction -q`.
 6. **Golden crucible**, both envs; explain every diff by name (`golden_diff.deep_compare`,
-   never the truncated pytest message) before `update_golden_master.py --yes`, once per env.
-   Regenerate fixtures only once, immediately after a fresh rebase onto origin/main —
+   never the truncated pytest message) before blessing with
+   `golden-lock.sh python tests/tools/crucible_check.py --update --yes` (both legs).
+   Regenerate fixtures only once, immediately after merging origin/main (never rebase) —
    fixtures conflict as a unit, so mid-flight main movement means regenerate-again.
+6b. **Tri-comparison chart**: a language with no tree-sitter grammar goes into
+   `_GG_ONLY_LANGS` in `tests/tools/tri_comparison_chart.py` (`language_addition_audit.py`
+   doesn't check it). Run `--all --write`, then revert the ledger's `last_reconciled_at` churn.
+   `docs/self_scan/manual_verification.json`'s `total` must equal the live found-count or the
+   chart falls back to 0/N; re-verify it after a crucible pin bump.
 7. **Docs** (`language-status` skill → `docs/language_status/<lang>.md` + index row), then
    the full default suite ONCE (diff its failures against the known pre-existing local set
    before touching anything — on #2503 exactly one of 13 was real, the export-family pin

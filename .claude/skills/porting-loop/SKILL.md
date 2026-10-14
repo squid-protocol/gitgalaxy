@@ -12,7 +12,7 @@ rules below: `docs/language_status/porting_loop.md` (read it first).
 
 ```sh
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=$JAVA_HOME/bin:$PATH        # the default JDK 21 has no javac
-export GITGALAXY_MAINFRAME_CORPORA=/nvme-data/projects/gitgalaxy/.mainframe_corpora  # the pinned corpora cache
+export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}  # the pinned corpora cache ($PRIMARY: gitgalaxy-pr-worker.md Setup 1)
 python tests/tools/porting_loop.py run carddemo-trnrpt --work <scratch>/loop-trnrpt --attempts 4 [--faults all]
 ```
 

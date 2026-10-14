@@ -217,7 +217,7 @@ debt you deliberately carry (or you fixed findings), regenerate with `python tes
 To avoid common startup friction and CI failures, keep the following rules in mind:
 
 ### Git Worktrees
-This repository heavily utilizes `git worktree` for active feature development (e.g., `/nvme-data/projects/gitgalaxy-worktrees/`). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, check `git worktree list` first rather than assuming the branch doesn't exist.
+This repository heavily utilizes `git worktree` for active feature development (`gitgalaxy-worktrees/` beside the primary checkout). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, check `git worktree list` first rather than assuming the branch doesn't exist.
 
 ### CI/CD Triage & Pipeline Manager Subagent
 For CI/CD triage and Dependabot management, do not try to guess the pipeline status manually. Leverage the pipeline-manager agent instructions located in `.claude/agents/pipeline-manager.md`. Use this exact subagent prompt schema when investigating failing GitHub Actions runs or stale Dependabot PRs.

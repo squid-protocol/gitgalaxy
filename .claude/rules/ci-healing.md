@@ -2,6 +2,8 @@
 description: "Instructions for automated CI monitoring and self-healing"
 globs: "*"
 ---
+**Antigravity (agy) sessions only; Claude workers follow `.claude/agents/gitgalaxy-pr-worker.md`.**
+
 # CI Monitoring and Self-Healing Directive
 
 **CRITICAL INSTRUCTION: Never push code and forget about it.**

@@ -45,7 +45,11 @@ def test_merge_label_by_writer_marks_ready_and_enables_auto_merge():
     acts = sg.decide(
         snap(draft=True, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
     )
-    assert kinds(acts) == ["ready", "automerge"]
+    # #5104: a draft is only marked ready; auto-merge waits until the ready_for_review runs exist
+    assert kinds(acts) == ["ready"]
+    acts = sg.decide(
+        snap(draft=False, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
+    )
     assert by_op(acts, "automerge")[0] == {"op": "automerge", "on": True, "sha": SHA}
 
 
@@ -258,7 +262,7 @@ class Gh:
             "number": 7,
             "state": "open",
             "merged": False,
-            "draft": True,
+            "draft": False,
             "auto_merge": None,
             "head": {"sha": SHA, "ref": "fix/x", "repo": {"full_name": "squid-protocol/gitgalaxy"}},
             "labels": [{"name": sg.MERGE}],
@@ -443,11 +447,18 @@ def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
 
 
 def test_gather_and_process_for_a_labelled_event_marks_ready_and_enables_auto_merge():
+    # #5104: a draft's heavy checks are skipped (green); the first pass only marks it ready, the next enables auto-merge
     gh = Gh()
+    gh.pr["draft"] = True
     gh.dep_state = "closed"  # #6 merged: no block
     lines = sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
-    assert lines == ["#7 ready for review: ok", "#7 auto-merge on: ok"]
-    assert any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
+    assert lines == ["#7 ready for review: ok"]
+    assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.cmds)
+    gh.pr["draft"] = False  # what `gh pr ready` did
+    gh.cmds.clear()
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert lines == ["#7 auto-merge on: ok"]
+    assert not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
     merge = next(c for c in gh.cmds if c[:3] == ["gh", "pr", "merge"])
     assert "--auto" in merge and "--match-head-commit" in merge and merge[merge.index("--match-head-commit") + 1] == SHA
     assert f"repos/squid-protocol/gitgalaxy/collaborators/joe/permission" in gh.calls

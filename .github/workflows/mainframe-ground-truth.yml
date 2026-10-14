@@ -23,6 +23,7 @@ name: Mainframe Ground Truth
 
 on:
   pull_request:  # #4825: a required check -- runs on every PR
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
   push:
     branches: [main]
@@ -42,6 +43,7 @@ jobs:
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
   tested-tree:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -66,7 +68,7 @@ jobs:
 
   ground-truth:
     needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

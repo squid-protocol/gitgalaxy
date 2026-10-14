@@ -18,6 +18,7 @@ name: Generated Docs
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     paths:
       - "docs/language_status/register/**"
       - "docs/language_status/cics_spec_status.json"
@@ -48,6 +49,7 @@ concurrency:
 
 jobs:
   render:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

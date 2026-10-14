@@ -65,6 +65,18 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 The local shepherd still works from a maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
+## Draft PRs skip the heavy workflows (#5104)
+
+The runner pool on a public repository is shared (about 20 concurrent jobs), and every push to a draft PR used to start the
+full set of PR workflows: churn workers push WIP to their drafts about every 30 minutes, so approved PRs waited behind runs nobody
+needed yet. Now every heavy `pull_request` workflow lists `ready_for_review` in its `types` and every job carries
+`github.event_name != 'pull_request' || github.event.pull_request.draft == false`, so a draft starts only the cheap audits
+(`ruff-audit`, `mypy-audit`, `small-audits`, `answer-key-guard`). Marking the PR ready (what the shepherd does on `shepherd:merge`)
+starts the full set. A skipped job reads as green to a required check, so the shepherd only marks a draft ready in that pass and
+enables auto-merge in a later one, and `pr_check.py --merge` marks a draft ready without merging it. A draft cannot be merged,
+so no unreviewed code merges. `pull_request_target` (the shepherd's label events) is unchanged. `tests/core_engine/test_workflow_draft_gate.py`
+fails when a heavy PR workflow lacks the condition; its allowlist is the cheap audits.
+
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml` and `smoke-test.yml` run on the PR and again when it merges; since #4964 so do `fact-crosscheck`,

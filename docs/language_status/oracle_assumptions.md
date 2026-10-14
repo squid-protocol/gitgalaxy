@@ -159,6 +159,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X49 | CICS | The equivalence harness's `faults` on a file command (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE) take a condition only where IBM lists it for that command, and carry IBM's RESP2 (given, or the default when IBM gives one; INVREQ and LENGERR have several, so the scenario names one); an unlisted command / condition pair, a RESP2 IBM does not give, the data-table and RLS conditions (LOADING, RECORDBUSY, CHANGED, SUPPRESSED) and ILLOGIC on READNEXT / READPREV / REWRITE (IBM also ends the browse, not modelled) are refused by name | ASSUMED (REFUSED where IBM is silent) | no (an injection: the reference region's logs do not hold these conditions; the planned form is proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults reading the same plan: tests/cics_crucible/test_file_fault_conditions.py, tests/cobol_mainframe/test_equivalence_cics.py) |
 | X50 | CICS | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused | ASSUMED (REFUSED where IBM is silent) | no |
 | X51 | CICS | EXEC CICS RETURN TRANSID COMMAREA LENGTH and XCTL COMMAREA LENGTH hand the next task / the target LENGTH bytes (its EIBCALEN), every byte as it was; the det port passes the record's whole span beside its DTO (#4806, #4817), so CicsTask cuts those bytes at LENGTH (null: all; past the span: all of it), as the DTO's reading already is; a LINK's area is not cut (by address); a LENGTH past the DTO passes the COMMAREA as a byte[] (region EBCDIC), which a facade's handleTransaction answers as an Object by design | ASSUMED | no (unit-proven on CicsTask for RETURN, RETURN IMMEDIATE and XCTL, every LENGTH class: tests/cobol_mainframe/test_commarea_length_bytes_4817.py; no estate program differs by it: a conforming program never reads past EIBCALEN) |
+| X52 | CICS | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) | ASSUMED (REFUSED where IBM is silent) | unit-proven on CicsTask and the stub C over one scenario list (tests/cics_crucible/test_update_token_runtimes_5078.py: valid, invalid, reused, interleaved, wrong-file tokens); CBSA DELCUS (READ UPDATE TOKEN twice, DELETE TOKEN twice) translates whole (det_survey: 140 of 140 statements, compiles) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2521,6 +2522,32 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `handleTransaction` answers it as an `Object` (it has no DTO type for it), `returned(Dto.class)` refuses it by name, and
   `returnedBytes()` is null (the bytes are the answer itself) (#4695).
 - **Status:** ASSUMED. The oracle's (GnuCOBOL) storage past the LENGTH of a copied COMMAREA is not IBM's either; no program may rely on it.
+
+### X52. File update TOKEN: READ UPDATE TOKEN / REWRITE TOKEN / DELETE TOKEN / UNLOCK TOKEN — ASSUMED, REFUSED where IBM is silent (#5078)
+- **What IBM documents** (CICS TS 6.x, EXEC CICS READ, REWRITE, DELETE, UNLOCK:
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read, `summary-rewrite`, `summary-delete`, `summary-unlock`). READ TOKEN(data-area):
+  "a unique identifier for this READ UPDATE request ... for use in associating a subsequent REWRITE or DELETE (or UNLOCK) request with the
+  record returned on this READ UPDATE request"; "If you specify TOKEN it implies update". REWRITE and UNLOCK TOKEN: "a unique request
+  identifier ... used to associate it with a previous READ, READNEXT, or READPREV command that specified UPDATE"; DELETE TOKEN: "the value
+  to use is the value returned in the TOKEN held by the earlier READ UPDATE ... request". INVREQ RESP2 47 on all three: "a token whose value
+  cannot be matched against any token in use for an existing read for UPDATE". A tokenless REWRITE with no tokenless READ UPDATE before it is
+  INVREQ RESP2 30, a tokenless DELETE without RIDFLD INVREQ RESP2 31, a second tokenless READ UPDATE on the file without an intervening
+  REWRITE, DELETE, UNLOCK or SYNCPOINT INVREQ RESP2 28 (the runtimes record 0 for these three, as for every file INVREQ before RESP2 was stated;
+  not this entry's class). Both sides model it: `ggcics.c` GGCREAD / GGCREWR / GGCDELT / GGCUNLK and CicsTask holdToken / rewriteToken /
+  deleteToken / unlockToken; the spec entries are `standards/cics/commands/files.py`.
+- **Assumed.** (1) The token's value: IBM calls it "a unique identifier" and says nothing of its value, so the runtimes issue the task's
+  1, 2, 3, ... (never 0); a program that displays or computes on the token sees that value, not the one z/OS gives. (2) Several records can be
+  held at once, on one file or on several, each under its own token (IBM's point of TOKEN); the file's tokenless hold is separate: a tokenless
+  REWRITE or DELETE does not act on a record held under a token (INVREQ), and a REWRITE / DELETE TOKEN does not act on the tokenless hold.
+  (3) A token is spent by the REWRITE, DELETE or UNLOCK that uses it; using it again, or a token of another file's record, is INVREQ RESP2 47
+  (IBM lists 47 for a value that "cannot be matched against any token in use"; another file's token is such a value here). (4) A SYNCPOINT
+  (and a ROLLBACK) ends every hold and every token. (5) A READ UPDATE TOKEN that is not NORMAL (NOTFND ...) issues no token and leaves the
+  program's field as it was. (6) UPDATE is implied by TOKEN, so READ TOKEN alone holds the record.
+- **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run time): READNEXT and READPREV
+  UPDATE [TOKEN] (IBM allows a browse for update only on files accessed in RLS mode, which the region has none of); DELETE with TOKEN and
+  RIDFLD (IBM does not say which record goes) or GENERIC; a REWRITE TOKEN whose FROM has another key than the held record's; READ UPDATE TOKEN
+  with LENGTH shorter than the record (LENGERR: whether the record is then held is unsaid, as X6); UNLOCK without TOKEN (releasing the file's
+  tokenless hold, #5079); more than 64 records held under tokens at once (the stub's table).
 
 ## Language Environment
 

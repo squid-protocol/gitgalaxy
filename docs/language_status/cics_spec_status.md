@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 89 full, 2 engine-only, 164 name-only.
+**255 entries:** 90 full, 2 engine-only, 163 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -46,14 +46,15 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | FREE CHILD | full | yes (4 options) | yes | X18 | — | 0 | — |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
-| READ | full | yes (16 options, 2 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
-| READNEXT | full | yes (12 options, 2 refused by name) | yes | — | — | 4 (4 / 0) | — |
-| READPREV | full | yes (12 options, 2 refused by name) | yes | — | — | 6 (6 / 0) | — |
+| READ | full | yes (17 options, 2 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
+| READNEXT | full | yes (12 options, 4 refused by name) | yes | X52 | — | 4 (4 / 0) | — |
+| READPREV | full | yes (12 options, 4 refused by name) | yes | X52 | — | 6 (6 / 0) | — |
 | STARTBR | full | yes (12 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |
 | ENDBR | full | yes (5 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |
 | WRITE | full | yes (12 options, 1 refused by name) | yes | — | — | 10 (9 / 1) | — |
-| REWRITE | full | yes (7 options, 1 refused by name) | yes | — | — | 11 (10 / 1) | — |
-| DELETE | full | yes (11 options, 1 refused by name) | yes | X22 | — | 6 (6 / 0) | — |
+| REWRITE | full | yes (8 options, 1 refused by name) | yes | X52 | — | 11 (10 / 1) | — |
+| DELETE | full | yes (12 options, 1 refused by name) | yes | X22 | — | 6 (6 / 0) | — |
+| UNLOCK | full | yes (6 options, 1 refused by name) | yes | X52 | — | 0 | — |
 | SEND MAP | full | yes (22 options, 1 refused by name) | yes | X31 | — | 46 (37 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | X31 | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
@@ -126,7 +127,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-163 more name-only entries no census program uses.
+162 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

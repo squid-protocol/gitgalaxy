@@ -5,18 +5,18 @@
  "case": "carddemo-adminmenu",
  "entry": {
   "program": "COADM01C",
-  "commit": "5ca9cac67b10465197e2dcd5db3372d82b408824",
+  "commit": "f56f7410cf62dc15c5dbf409b492b0066a13eda2",
   "date": "2026-10-14",
   "mode": "fast",
   "seed": 0,
   "mutants": 1370,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 19 scenarios, covering 8/8 paragraphs and 20/26 branches",
+  "coverage": "proven on 20 scenarios, covering 8/8 paragraphs and 20/26 branches",
   "counts": {
-   "killed": 77,
+   "killed": 80,
    "timeout": 0,
-   "survived": 68,
+   "survived": 65,
    "stillborn": 5,
    "error": 0,
    "pending": 0
@@ -30,6 +30,7 @@
    "08563fbae2",
    "0a7a205e48",
    "10c0c980c5",
+   "1832f2bbde",
    "1c1672f150",
    "1c31364452",
    "1e96bdbd77",
@@ -55,6 +56,8 @@
    "59da659391",
    "5a5f8f68ee",
    "5baad6b085",
+   "6311acc336",
+   "6550490c03",
    "67f1893a0b",
    "6845ad2007",
    "6f2e196da1",
@@ -203,22 +206,6 @@
     "line": 171,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-   },
-   {
-    "id": "6550490c03",
-    "op": "CON",
-    "file": "service/Coadm01cService.java",
-    "line": 222,
-    "before": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);",
-    "after": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 24, 4, 0, true, false);"
-   },
-   {
-    "id": "1832f2bbde",
-    "op": "CON",
-    "file": "service/Coadm01cService.java",
-    "line": 246,
-    "before": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 303, 4, 0, true, false);",
-    "after": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 304, 4, 0, true, false);"
    },
    {
     "id": "ea17f638a5",
@@ -621,14 +608,6 @@
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "6311acc336",
-    "op": "LIT",
-    "file": "service/Coadm01cService.java",
-    "line": 1105,
-    "before": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed7.get(\"OPTN009\"), CS);",
-    "after": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed7.get(\"XPTN009\"), CS);"
-   },
-   {
     "id": "4fcdbabacd",
     "op": "NEG",
     "file": "service/Coadm01cService.java",
@@ -656,7 +635,7 @@
   "inputs": {
    "port": "d328a4c8d0f5a53bd208cd69beef2823c6dd2042c8176008c292ebfd1f999754",
    "generator": "29e99c8b11b26552055a2c5fc23f14efb8fffe066f3e0da00be5d37b7f50d48d",
-   "case": "71b21bf6c4ddb1862b408fe7bdd3f495a05944ac86064859da2c845963b01332",
+   "case": "d4e18c66d935c9b81b9cd4f8abff1ebb7f84af09f82b0205dad3a4b3b74c1b8a",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "8c096eeb5e4c536b39ecd69af12272ce117f8c31c4193b0dc0998db223b6722c",
    "oracle": "f054b77bdd3358f2547f424743f1d86c5448565fe7ffa577dd3b9ad91b74d850"

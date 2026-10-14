@@ -159,7 +159,6 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
         elif op == "DFHTST" and kind in _TST_TYPES:
             # DATAID=(PFX1,PFX2) names several prefixes: one TSMODEL row each.
             raw = (keyed.get("DATAID") or "").strip()
-            for prefix in [p.strip("() '\"").upper() for p in raw.split(",")]:
-                if prefix:
-                    rows.append(_row("TSMODEL", prefix, table, line, text))
+            prefixes = [p.strip("() '\"").upper() for p in raw.split(",")]
+            rows.extend(_row("TSMODEL", prefix, table, line, text) for prefix in prefixes if prefix)
     return rows

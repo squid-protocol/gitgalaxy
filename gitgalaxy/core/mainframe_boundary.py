@@ -84,6 +84,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # #3351-#3354: CICS resource operations (FILE/MAP/QUEUE/CONTAINER/CHANNEL) live in
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
+from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.compiler_options import compiler_options, effective
@@ -93,7 +94,6 @@ from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
-from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.jcl_runners import runner_targets

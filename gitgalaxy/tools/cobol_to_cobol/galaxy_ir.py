@@ -1324,20 +1324,19 @@ class GalaxyIR:
                     )
         seen = {s for e in entries for s in e["sources"]}
         if {"CSD", "MACRO"} <= seen:
-            for e in entries:
-                if len(e["sources"]) == 1:
-                    out.append(
-                        {
-                            "kind": "only_in",
-                            "resource_type": e["resource_type"],
-                            "name": e["name"],
-                            "only_in": e["sources"][0],
-                            "defined": [
-                                {k: d[k] for k in ("source", "macro_table", "defined_in", "line")}
-                                for d in e["definitions"]
-                            ],
-                        }
-                    )
+            out.extend(
+                {
+                    "kind": "only_in",
+                    "resource_type": e["resource_type"],
+                    "name": e["name"],
+                    "only_in": e["sources"][0],
+                    "defined": [
+                        {k: d[k] for k in ("source", "macro_table", "defined_in", "line")} for d in e["definitions"]
+                    ],
+                }
+                for e in entries
+                if len(e["sources"]) == 1
+            )
         return out
 
     def _bindings_by_dataset(self) -> dict[str, list]:

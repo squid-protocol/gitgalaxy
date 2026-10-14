@@ -138,6 +138,7 @@ READNEXT = _file(
     "READNEXT",
     "EXEC CICS READNEXT",
     "read",
+    register="X52",  # UPDATE / TOKEN refused (#5078)
     options={
         **_FILE,
         "INTO": Arg("area_out"),
@@ -158,6 +159,7 @@ READPREV = _file(
     "READPREV",
     "EXEC CICS READPREV",
     "read",
+    register="X52",
     options=READNEXT.options,
     refused=READNEXT.refused,
     outcomes=(

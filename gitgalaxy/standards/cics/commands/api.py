@@ -195,9 +195,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("VERIFY PASSWORD", None, _SECURITY),
     ("VERIFY PHRASE", None, _SECURITY),
     ("VERIFY TOKEN", None, _SECURITY),
-    # named counters other than GET / QUERY / DEFINE / DELETE COUNTER
-    ("REWIND COUNTER", "rewind-counter-rewind-dcounter", COUNTER),
-    ("UPDATE COUNTER", "update-counter-update-dcounter", COUNTER),
     # documents
     ("DOCUMENT DELETE", None, _DOCUMENT),
     ("DOCUMENT INSERT", None, _DOCUMENT),

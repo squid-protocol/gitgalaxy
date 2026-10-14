@@ -41,13 +41,26 @@ def test_the_stub_rewrites_deletes_and_unlocks_by_token():
         "CALL 'GGCDELT' USING GG-CICS",
     ]
     ul = ec.translate_command("UNLOCK FILE('F') TOKEN(T)")
-    assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE T TO GG-NUM", "CALL 'GGCUNLK' USING GG-CICS"]
+    assert ul[:4] == [
+        "MOVE 'F' TO GG-NAME1",
+        "MOVE T TO GG-NUM",
+        "MOVE 'TOKEN' TO GG-FLAGS",
+        "CALL 'GGCUNLK' USING GG-CICS",
+    ]
+
+
+def test_unlock_without_a_token_releases_the_files_hold_on_the_stub_and_the_det_port():  # #5079
+    ul = ec.translate_command("UNLOCK FILE('F') RESP(R)")
+    assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCUNLK' USING GG-CICS"]
+    ul = ec.translate_command("UNLOCK DATASET('F')")
+    assert ul[:3] == ["MOVE 'F' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCUNLK' USING GG-CICS"]
+    for text in ("UNLOCK FILE('KSDS') RESP(R)", "UNLOCK DATASET('KSDS')"):
+        assert any("task.unlockHeld('KSDS'.strip())" in x for x in _LenCics().command(text, ""))
 
 
 @pytest.mark.parametrize(
     "text",
     [
-        "UNLOCK FILE('F')",  # the file's held record: #5079
         "DELETE FILE('F') RIDFLD(K) TOKEN(T)",  # IBM does not say which record goes
         "DELETE FILE('F') RIDFLD(K) KEYLENGTH(2) GENERIC TOKEN(T)",
         "READNEXT FILE('F') INTO(R) RIDFLD(K) UPDATE TOKEN(T)",  # a browse for update: RLS only
@@ -93,7 +106,6 @@ def test_the_det_port_rewrites_deletes_and_unlocks_by_token():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("UNLOCK FILE('KSDS')", "UNLOCK without TOKEN"),
         ("DELETE FILE('KSDS') RIDFLD(KEY) TOKEN(TK)", "together"),
         ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(2) GENERIC TOKEN(TK)", "together"),
         ("READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) UPDATE TOKEN(TK)", "RLS"),

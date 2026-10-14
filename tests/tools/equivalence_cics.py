@@ -1348,10 +1348,14 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
         _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         file = opts.get("FILE") or opts.get("DATASET")
-        if not opts.get("TOKEN"):
-            raise Unsupported("UNLOCK without TOKEN (the held record of a file: not modelled, #5079)", ["UNLOCK"])
-        return ([name(file, "GG-NAME1"), f"MOVE {opts['TOKEN']} TO GG-NUM"] + _call("GGCUNLK", [])
-                + _resp(opts, True, labels))  # fmt: skip
+        token = (
+            [f"MOVE {opts['TOKEN']} TO GG-NUM", "MOVE 'TOKEN' TO GG-FLAGS"]
+            if opts.get("TOKEN")
+            else ["MOVE SPACES TO GG-FLAGS"]
+        )
+        return (
+            [name(file, "GG-NAME1"), *token] + _call("GGCUNLK", []) + _resp(opts, True, labels)
+        )  # #5079: no TOKEN, the file's hold
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb in ("ENQ", "DEQ"):

@@ -41,16 +41,18 @@ def _entry(ir, rtype, name):
 
 def test_tables_only_estate_produces_every_resource_type_with_provenance(tables_only):
     entries = {(e["resource_type"], e["name"]): e for e in tables_only.resource_map()}
-    assert {t for t, _ in entries} == {"FILE", "TRANSACTION", "PROGRAM", "TDQUEUE", "TSMODEL"}
+    assert {t for t, _ in entries} == {"FILE", "TRANSACTION", "PROGRAM", "MAPSET", "PARTITIONSET", "TDQUEUE", "TSMODEL"}
     acct = entries[("FILE", "ACCTDAT")]
     assert acct["sources"] == ["MACRO"]
     (d,) = acct["definitions"]
-    assert (d["macro_table"], d["defined_in"], d["line"]) == ("DFHFCT01", "DFHFCT.asm", 4)
-    assert acct["merged"]["dsname"] == "BANK.ACCT.KSDS" and acct["merged"]["key_length"] == 11
+    assert (d["macro_table"], d["defined_in"], d["line"]) == ("DFHFCT01", "DFHFCT.asm", 5)
+    assert acct["merged"]["dsname"] == "BANK.ACCT.DAM" and acct["merged"]["key_length"] == 11
     audt = entries[("TDQUEUE", "AUDT")]["merged"]
-    assert (audt["ddname"], audt["dsname"], audt["queue_type"]) == ("AUDITDD", "BANK.AUDIT.LOG", "EXTRA")
+    assert (audt["ddname"], audt["dsname"], audt["queue_type"]) == ("AUDITDD", None, "EXTRA")  # SDSCI has no DSNAME
+    assert entries[("TDQUEUE", "CSSL")]["merged"]["transid"] == "CSML"
+    assert ("FILE", "RMTFIL") in entries and ("MAPSET", "BANKMAP") in entries
     assert entries[("TRANSACTION", "BA01")]["merged"]["program"] == "BANKINQ"
-    assert {n for t, n in entries if t == "TSMODEL"} == {"BANK", "AUDT"}
+    assert {n for t, n in entries if t == "TSMODEL"} == {"BANK", "AUDT", "RCV", "SEC", "RMT"}
 
 
 def test_tables_only_estate_has_no_conflicts(tables_only):
@@ -59,7 +61,7 @@ def test_tables_only_estate_has_no_conflicts(tables_only):
 
 def test_a_macro_file_joins_dataset_lineage_like_a_csd_file(tables_only):
     files = {f["file"]: f for f in tables_only.cics_file_datasets()}
-    assert files["ACCTDAT"]["dsname"] == "BANK.ACCT.KSDS"
+    assert files["ACCTDAT"]["dsname"] == "BANK.ACCT.DAM"
     assert files["ACCTDAT"]["defined_in"] == "DFHFCT.asm"
 
 
@@ -67,20 +69,27 @@ def test_macro_and_csd_definitions_merge_into_one_entry(both):
     acct = _entry(both, "FILE", "ACCTDAT")
     assert acct["sources"] == ["CSD", "MACRO"]
     assert sorted(d["source"] for d in acct["definitions"]) == ["CSD", "MACRO"]
-    assert acct["merged"]["dsname"] == "BANK.ACCT.KSDS"  # they agree
+    assert acct["merged"]["dsname"] == "BANK.ACCT.DAM"  # they agree
+    assert _entry(both, "MAPSET", "BANKMAP")["sources"] == ["CSD", "MACRO"]
     assert {d["defined_in"] for d in acct["definitions"]} == {"DFHFCT.asm", "REGION.csd"}
-    # TDQUEUE AUDT: the macro SDSCI and the CSD DEFINE state the same ddname / dsname.
-    assert _entry(both, "TDQUEUE", "AUDT")["merged"]["ddname"] == "AUDITDD"
+    # TDQUEUE AUDT: the macro EXTRA+SDSCI and the CSD DEFINE state the same ddname, format and size.
+    audt = _entry(both, "TDQUEUE", "AUDT")["merged"]
+    assert (audt["ddname"], audt["record_format"]) == ("AUDITDD", "VARIABLE")
 
 
 def test_conflicts_are_named_with_both_sides_and_their_provenance(both):
     attr = {
         (c["resource_type"], c["name"], c["field"]): c for c in both.resource_conflicts() if c["kind"] == "attribute"
     }
-    assert set(attr) == {("FILE", "CUSTDAT", "dsname"), ("TRANSACTION", "BA02", "program")}
+    assert set(attr) == {
+        ("FILE", "CUSTDAT", "dsname"),
+        ("TRANSACTION", "BA02", "program"),
+        ("TDQUEUE", "CSSL", "transid"),
+    }
     c = attr[("FILE", "CUSTDAT", "dsname")]
     seen = {(v["value"], v["defined"][0]["source"], v["defined"][0]["defined_in"]) for v in c["values"]}
-    assert seen == {("BANK.CUST.KSDS", "MACRO", "DFHFCT.asm"), ("BANK.CUST.OTHER", "CSD", "REGION.csd")}
+    assert seen == {("BANK.CUST.DAM", "MACRO", "DFHFCT.asm"), ("BANK.CUST.OTHER", "CSD", "REGION.csd")}
+    assert {v["value"] for v in attr[("TDQUEUE", "CSSL", "transid")]["values"]} == {"CSML", "CSMT"}
     assert _entry(both, "FILE", "CUSTDAT")["merged"]["dsname"] is None  # no silent winner
     assert {v["value"] for v in attr[("TRANSACTION", "BA02", "program")]["values"]} == {"BANKUPD", "BANKXFR"}
 

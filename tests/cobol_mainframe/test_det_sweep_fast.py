@@ -63,8 +63,77 @@ def test_merge_names_a_case_with_no_result(tmp_path):
     assert sorted(merged["det"]) == ["a", "b", "c"]
     assert ps.missing_cases(merged, ["a", "b", "c"]) == []
     assert ps.missing_cases(merged, ["a", "z"]) == ["det z: no result (its shard did not report)"]
-    with pytest.raises(ValueError, match="in two shards"):
-        ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])
+    assert sorted(ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])["det"]) == [
+        "a",
+        "b",
+    ]  # a repeat is not a conflict (#5107)
+
+
+def _shard_file(tmp_path, name, sweeps):
+    d = tmp_path / name
+    d.mkdir()
+    (d / "sweep.json").write_text(json.dumps(sweeps), encoding="utf-8")
+    return d
+
+
+_ROW = {
+    "proved": True,
+    "coverage": "9/10",
+    "called_holes": 0,
+    "translated": "10/10",
+    "seconds": 1.0,
+    "uncovered": [],
+    "linked": [],
+}
+
+
+def test_a_case_in_two_shards_with_the_same_result_merges_once(tmp_path):
+    """#5107: two shards that split on different durations both prove a case; only the timing differs."""
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}, "model": {"m": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, "seconds": 99.0}}, "model": {"m": _ROW}})
+    merged = ps.merge_sweeps([a, b])
+    assert merged == {"det": {"x": _ROW}, "model": {"m": _ROW}}  # the first copy is kept, in every sweep
+
+
+@pytest.mark.parametrize(
+    ("field", "other"),
+    [
+        ("proved", False),
+        ("coverage", "5/10"),
+        ("called_holes", 2),
+        ("translated", "9/10"),
+        ("uncovered", ["L1"]),
+        ("linked", ["P"]),
+        ("brand_new_field", 1),
+    ],
+)
+def test_a_case_in_two_shards_with_different_results_still_fails(tmp_path, field, other):
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, field: other}}})
+    with pytest.raises(ValueError, match=rf"det x: in two shards with conflicting results.*{field}"):
+        ps.merge_sweeps([a, b])
+
+
+def test_shards_split_on_different_durations_merge_and_a_gap_is_still_named(tmp_path):
+    """The #5107 scenario: shard 3 split on a newer durations file than shards 1 and 2, so it re-proves shard 1's cases
+    and the cases only it should have run are never proven. The merge accepts the repeat; missing_cases names the gap."""
+    cases = [f"c{i}" for i in range(9)]
+    early = {c: float(i + 1) for i, c in enumerate(cases)}
+    late = {c: float(9 - i) for i, c in enumerate(cases)}
+    runs = [
+        ps.shard_cases(cases, (1, 3), early),
+        ps.shard_cases(cases, (2, 3), early),
+        ps.shard_cases(cases, (3, 3), late),
+    ]
+    proved = sorted(set(sum(runs, [])))
+    assert len(sum(runs, [])) > len(proved)  # the premise: two shards proved a case
+    files = [_shard_file(tmp_path, str(i), {"det": {c: _ROW for c in run}}) for i, run in enumerate(runs)]
+    merged = ps.merge_sweeps(files)
+    assert sorted(merged["det"]) == proved
+    assert ps.missing_cases(merged, cases) == [
+        f"det {c}: no result (its shard did not report)" for c in cases if c not in proved
+    ]
+    assert ps.missing_cases(merged, proved) == []
 
 
 # ---- the plan ----------------------------------------------------------------------------------------------

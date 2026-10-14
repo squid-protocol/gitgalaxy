@@ -186,11 +186,28 @@ def ledger_readings(cases: list[str] | None = None, cases_dir: Path = CASES) -> 
         last = dcl.last_coverage(case, ledger)
         if last is None or last["blocking"]:
             out[case] = None
-        elif not last["stale_inputs"] and not last.get("linked"):
+        elif not last["stale_inputs"]:
             out[case] = list(last["coverage"])
-        else:  # #5084: a dict also carries the LINKed programs' counts
+        else:
             out[case] = {"coverage": list(last["coverage"]), "stale_inputs": list(last["stale_inputs"]),
-                         "stale_since": last["measured_at"], **({"linked": last["linked"]} if last.get("linked") else {})}  # fmt: skip
+                         "stale_since": last["measured_at"]}  # fmt: skip
+    return out
+
+
+def ledger_linked(cases: list[str] | None = None, cases_dir: Path = CASES) -> dict[str, dict[str, Any]]:
+    """#5084: case -> the LINKed / CALLed programs' counts of its ledger entry ({PROGRAM: counts}), apart from the
+    reading (ledger_readings) so a current entry stays a list: fresh and stale are told apart by the reading's shape
+    alone. Cases with no entry, a BLOCKING change (it describes another program) or no counts are left out."""
+    import det_coverage_ledger as dcl
+
+    if cases_dir != CASES:
+        return {}
+    ledger = dcl.load()
+    out: dict[str, dict[str, Any]] = {}
+    for case in sorted(ledger) if cases is None else cases:
+        last = dcl.last_coverage(case, ledger)
+        if last is not None and not last["blocking"] and last.get("linked"):
+            out[case] = dict(last["linked"])
     return out
 
 
@@ -199,11 +216,11 @@ def linked_cov(counts: dict[str, Any]) -> tuple[int, int, int, int]:
     return p["covered"], p["live"], b["covered"], b["total"]
 
 
-def linked_counts_of(row: dict[str, Any] | None, reading: Any) -> dict[str, Any]:
-    """#5084: the LINKed / CALLed programs' counts of a case: the sweep row's (this run), else the ledger reading's."""
+def linked_counts_of(row: dict[str, Any] | None, from_ledger: dict[str, Any] | None) -> dict[str, Any]:
+    """#5084: the LINKed / CALLed programs' counts of a case: the sweep row's (this run), else the ledger's (ledger_linked)."""
     if row and row.get("linked"):
         return dict(row["linked"])
-    return dict(reading.get("linked") or {}) if isinstance(reading, dict) else {}
+    return dict(from_ledger or {})
 
 
 def reading_coverage(reading: Any) -> tuple[tuple[int, int, int, int] | None, list[str]]:
@@ -249,7 +266,8 @@ def diff_kind(report: str | None) -> str:
 
 
 def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps: dict[str, dict[str, Any]],
-                      branches: bool, cases_dir: Path = CASES, ledger: dict[str, Any] | None = None) -> None:  # fmt: skip
+                      branches: bool, cases_dir: Path = CASES, ledger: dict[str, Any] | None = None,
+                      linked_ledger: dict[str, dict[str, Any]] | None = None) -> None:  # fmt: skip
     """Fill run.gaps for an equivalence case's det port. `ledger`: ledger_readings() (#5075), read for a Db2 case's
     verdict and for coverage; None (evidence_report, which applies its own measured ledger) reads only a current
     entry's coverage and leaves every Db2 case with no sweep row "not proven in CI"."""
@@ -277,7 +295,9 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
         t, _, s = str(row.get("translated", "")).partition("/")
         if t.isdigit() and s.isdigit() and int(t) < int(s):
             run.gaps.add("holes in the case's det port")
-    counts = linked_counts_of(row, reading)  # #5084: {PROGRAM: counts} of the programs the case LINKs / CALLs
+    counts = linked_counts_of(
+        row, (linked_ledger or {}).get(run.case)
+    )  # #5084: {PROGRAM: counts} of the programs the case LINKs / CALLs
     if run.role == "linked":  # the case's coverage line is its main program's (#4270): never inherit it
         mine = counts.get(run.program)
         if mine is None:
@@ -492,9 +512,10 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
     eq = equivalence_runs(cases_dir)
     if ledger is None:
         ledger = ledger_readings(sorted({r.case for v in eq.values() for r in v}), cases_dir)
+    linked_ledger = ledger_linked(sorted({r.case for v in eq.values() for r in v}), cases_dir)
     for runs in eq.values():
         for r in runs:
-            judge_equivalence(r, det_baseline, sweeps, branches, cases_dir, ledger)
+            judge_equivalence(r, det_baseline, sweeps, branches, cases_dir, ledger, linked_ledger)
     cru = crucible_runs(crucible_dir, branches) if (crucible_dir / "baseline.json").is_file() else {}
     burned = cc.burned_names()
     progs: dict[tuple[str, str], tuple[bool, set[str]]] = {}

@@ -370,13 +370,12 @@ def test_a_caller_is_not_proven_while_a_callee_has_holes():
 
 
 def test_the_ledger_reading_carries_the_linked_counts():
-    reading = {"coverage": [5, 5, 9, 9], "stale_inputs": ["harness"], "stale_since": None,
-               "linked": {"HOLEY": _counts(1, 3)}}  # fmt: skip
+    reading, linked = [5, 5, 9, 9], {"c": {"HOLEY": _counts(1, 3)}}
     main = pb.Run("equivalence", "c")
-    pb.judge_equivalence(main, {}, {}, True, ledger={"c": reading})
+    pb.judge_equivalence(main, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
     assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
     callee = pb.Run("equivalence", "c", role="linked", program="HOLEY")
-    pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading})
+    pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
     assert callee.gaps == {"coverage: live paragraphs no scenario runs"}
 
 
@@ -387,3 +386,19 @@ def test_a_callee_with_only_branch_holes_is_a_branch_gap_with_branches_on():
     pb.judge_equivalence(off, {}, row, False)
     assert on.gaps == {"coverage: LINKed program SUBP has branch outcomes no scenario runs"}
     assert off.gaps == set()
+
+
+def test_a_fresh_entry_with_linked_counts_is_still_a_current_reading(monkeypatch):
+    """#5084: the LINKed counts travel apart from the reading, so a current entry stays a list (no stale_since)."""
+    import det_coverage_ledger as dcl
+
+    entry = {"scenarios": 3, "paragraphs": {"covered": 5, "live": 5}, "branches": {"covered": 9, "total": 9},
+             "inputs": {}, "measured_at": "abc", "linked": {"HOLEY": _counts(1, 3)}}  # fmt: skip
+    monkeypatch.setattr(dcl, "load", lambda directory=None: {"c": entry})
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": [],
+                        "blocking": False, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_readings(["c"]) == {"c": [5, 5, 9, 9]}
+    assert pb.ledger_linked(["c"]) == {"c": {"HOLEY": _counts(1, 3)}}
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": ["harness"],
+                        "blocking": True, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_linked(["c"]) == {}

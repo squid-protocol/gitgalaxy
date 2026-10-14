@@ -179,8 +179,10 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "approve", "sha": sha, "by": "carried from the bot's update"})
     want = MERGE in labels and not blocked
     if want and s["draft"]:
+        # #5104: a draft head's heavy checks were skipped, and a skip reads as green. Auto-merge waits for the next pass,
+        # after ready_for_review has started the real runs (shepherd-reconcile fires when they finish).
         acts.append({"op": "ready"})
-    if want and not s["auto_merge"]:
+    elif want and not s["auto_merge"]:
         acts.append({"op": "automerge", "on": True, "sha": sha})
     elif not want and s["auto_merge"] and (dropped or s.get("removed") == MERGE or req):
         acts.append({"op": "automerge", "on": False})

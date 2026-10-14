@@ -804,9 +804,10 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
     eq = pb.equivalence_runs()
     sweeps = {c: {**s, "report": None} for c, s in swept.items()}
     det_base = pb.load_det_baseline()
+    linked = pb.ledger_linked(sorted({r.case for runs in eq.values() for r in runs}))  # #5084: callees' counts
     for runs in eq.values():
         for run in runs:
-            pb.judge_equivalence(run, det_base, sweeps, True)
+            pb.judge_equivalence(run, det_base, sweeps, True, linked_ledger=linked)
     ledgered = ledger_verdicts(eq, ledger)
     data = css.load_data()
     ctx = {

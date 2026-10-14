@@ -65,7 +65,7 @@ An estate is done when all of the following hold:
 
 ## 5. What "supported" means for a feature (for the readiness scanner, #4723 / #4724)
 
-A COBOL / CICS / SQL feature is **supported** only if all four hold, and the scanner prints which are missing:
+A COBOL / CICS / SQL feature is **supported** only if all four hold, and the scanner prints which are missing (`tests/tools/support_matrix.py`, per burned estate, #4724):
 
 1. **Modelled:** the translator and runtime implement it (not a hole, not refused).
 2. **In the rule catalogue:** it has an entry with an ID, IBM reference, option dependencies and register status (#4711, **planned**; until it exists this condition cannot be checked and the scanner says "not yet catalogued").

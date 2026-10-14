@@ -18,8 +18,10 @@ failure. Anything queued or in progress is pending.
 Files are listed with flags on the ones a reviewer must look at: ratchet, baseline, golden, evidence and ledger
 paths, and tests/crucible_pins.toml (a pin bump belongs in its own PR).
 
---merge marks a draft ready and squash-merges only when: the PR is open, GitHub says it is mergeable (not dirty /
+--merge squash-merges only when: the PR is open, GitHub says it is mergeable (not dirty /
 behind / blocked), no check failed and none is pending. Otherwise it exits 1 with the reasons and merges nothing.
+A draft is only marked ready, never merged in the same call (#5104): a draft head's heavy workflows are skipped, and a
+skipped check reads as green, so its CI starts on `ready_for_review` and a second `--merge` merges once that is green.
 """
 
 from __future__ import annotations
@@ -172,7 +174,8 @@ def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
 
 
 def merge(res: dict[str, Any], run: Callable[[list[str]], subprocess.CompletedProcess[str]] | None = None) -> list[str]:
-    """Mark ready (when draft) and squash-merge, pinned to the checked head SHA. Returns the errors (empty: merged)."""
+    """Squash-merge, pinned to the checked head SHA. A draft is marked ready and NOT merged (#5104): its heavy checks were
+    skipped (a skip reads as green), so the merge waits for the CI that `ready_for_review` starts. Returns the errors."""
     run = run or _run
     n = str(res["number"])
     if res["draft"]:
@@ -182,6 +185,7 @@ def merge(res: dict[str, Any], run: Callable[[list[str]], subprocess.CompletedPr
             r = run(["gh", "api", "graphql", "-f", f"query={q}", "-f", f"id={res['node_id']}"])
             if r.returncode:
                 return [f"could not mark #{n} ready: {r.stderr.strip()[:300]}"]
+        return [f"#{n} was a draft: marked ready, not merged. Its CI starts now; run --merge again when it is green"]
     r = run(["gh", "pr", "merge", n, "-R", REPO_SLUG, "--squash", "--match-head-commit", res["head_sha"]])
     return [f"gh pr merge failed: {(r.stderr or r.stdout).strip()[:300]}"] if r.returncode else []
 

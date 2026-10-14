@@ -269,3 +269,43 @@ def test_an_unchanged_sweep_touches_no_case_file(monkeypatch, tmp_path):
     monkeypatch.setattr(dcl, "_head", lambda: "second")
     changed = dcl.write(dcl.build(det, dcl.load(d)), d)
     assert changed == [] and dcl.load(d)[CASE]["measured_at"] == "first"
+
+
+# ---- #5084: LINKed-program counts, and a re-checked entry's fingerprints ------------------------------------------
+LINKED = {"SUBP": {"paragraphs": {"covered": 1, "live": 2}, "branches": {"covered": 0, "total": 0}}}
+
+
+def _cj(linked):
+    return {"paragraphs": {"covered": 1, "live": 1}, "branches": {"covered": 0, "total": 0},
+            "linked": {"SUBP": {"paragraphs": {"covered": 1, "live": 2, "dead": []},
+                                "branches": {"covered": 0, "total": 0}}, **linked}}  # fmt: skip
+
+
+def test_linked_counts_leaves_out_a_program_that_could_not_be_measured():
+    assert dcl.linked_counts(_cj({"BAD": {"error": "x"}})) == LINKED
+    assert dcl.linked_counts({}) == {} and dcl.linked_counts(None) == {}
+
+
+def test_build_records_the_linked_counts_and_check_compares_them(monkeypatch):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    det = {CASE: {"proved": True, "coverage": LINE, "linked": LINKED}}
+    built = dcl.build(det, {CASE: entry()})  # an old entry without them is rewritten
+    assert built[CASE]["linked"] == LINKED and dcl.last_coverage(CASE, built)["linked"] == LINKED
+    assert dcl.check(det, built) == ([], [])
+    problems, warnings = dcl.check(det, {CASE: entry()})
+    assert not problems and "no LINKed-program counts" in warnings[0]
+    moved = {SUB: {**v, "paragraphs": {"covered": 2, "live": 2}} for SUB, v in LINKED.items()}
+    problems, _ = dcl.check(det, {CASE: entry(linked=moved)})
+    assert "LINKed programs' coverage moved" in problems[0]
+
+
+def test_a_rechecked_sweep_makes_a_stale_harness_fingerprint_a_problem(monkeypatch):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: {**FP, "harness": "new"})
+    det = {CASE: {"proved": True, "coverage": LINE}}
+    old = {CASE: entry()}
+    problems, warnings = dcl.check(det, old)  # scheduled / bot runs: a warning
+    assert not problems and "harness" in warnings[0]
+    problems, _ = dcl.check(det, old, recheck=True)  # a PR's sweep re-checked the counts: re-record
+    assert "stale (harness changed)" in problems[0] and "det_coverage_ledger.py update" in problems[0]
+    built = dcl.build(det, old)
+    assert dcl.check(det, built, recheck=True) == ([], [])

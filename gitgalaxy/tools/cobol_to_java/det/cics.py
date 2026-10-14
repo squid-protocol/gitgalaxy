@@ -2280,8 +2280,8 @@ class Cics:
             out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
             # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
             tail = f", {G_jstr(justify[name])}" if name in justify else ""
-            call = "typedJustified" if name in justify else "typed"
-            out.append(f"{ind}        DetCics.{call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
+            call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)

@@ -551,30 +551,6 @@ public final class DetCics {
         }
     }
 
-    /** RECEIVE MAP into a field whose DFHMDF says JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) (#5082): the typed text (without
-     *  its trailing blanks) placed at the left or right end of the field and the rest filled with blanks or zeros
-     *  (LEFT leaves the fill after the text, RIGHT before it); <f>L is the length of the text typed, as for a field
-     *  with no JUSTIFY. Text longer than the field is cut to it from the end the justification starts from. */
-    // [rule RT-CICS-BMS-JUSTIFY]
-    public static void typedJustified(Field input, Field len, String text, Charset cs, String justify) {
-        boolean right = justify.contains("RIGHT");
-        byte fill = (justify.contains("ZERO") ? "0" : " ").getBytes(cs)[0];
-        String typed = text.stripTrailing();
-        byte[] t = typed.getBytes(cs);
-        byte[] area = new byte[input.length()];
-        Arrays.fill(area, fill);
-        int n = Math.min(t.length, area.length);
-        if (right) {
-            System.arraycopy(t, t.length - n, area, area.length - n, n);
-        } else {
-            System.arraycopy(t, 0, area, 0, n);
-        }
-        put(input, area);
-        if (len != null) {
-            Cobol.store(len, BigDecimal.valueOf(typed.length()), false, cs);
-        }
-    }
-
     /** FUNCTION CURRENT-DATE from the task's clock: YYYYMMDDHHMMSShh and the UTC offset (the region's zone,
      *  as MainframeClock's default: UTC). */
     // [rule RT-CICS-CURRENT-DATE]

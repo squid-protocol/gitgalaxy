@@ -167,7 +167,8 @@
    "prefix": "CICS",
    "title": "EXEC CICS data movement",
    "files": [
-    "cics/DetCics.java"
+    "cics/DetCics.java",
+    "cics/DetJustify.java"
    ],
    "done": true,
    "about": "What a det port does around a CICS command: the bytes it passes and receives. The command semantics (conditions, RESP2) are the CICS stub's (CicsTask), outside the runtime.",
@@ -2179,7 +2180,7 @@
    "family": "CICS",
    "title": "RECEIVE MAP into a DFHMDF JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) field: the typed text placed at the justified end, the rest filled with blanks or zeros; <f>L the length typed",
    "methods": [
-    "typedJustified"
+    "place"
    ],
    "ibm": {
     "doc": "cics-apr",

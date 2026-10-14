@@ -2,7 +2,7 @@
 "the type of justification (RIGHT or LEFT) and the fill character (BLANK or ZERO) for input data"; LEFT and BLANK the defaults).
 
 Three layers, each over the whole operand class: the forge writes the operand into `ScreenField.justify`; `Cics.receive_map`
-reads it back off the screen and calls `DetCics.typedJustified` only for a field that has one (every other field keeps
+reads it back off the screen and calls `DetJustify.place` only for a field that has one (every other field keeps
 `DetCics.typed`, so no existing port moves); and the runtime (DetCics, compiled and run) places the text.
 """
 
@@ -127,7 +127,7 @@ def test_the_runtime_places_the_text_for_the_whole_operand_class(tmp_path):
 import java.nio.charset.Charset;
 import t.cobolrt.Field;
 import t.cobolrt.Storage;
-import t.cobolrt.cics.DetCics;
+import t.cobolrt.cics.DetJustify;
 public class Main {
     static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
     public static void main(String[] a) {
@@ -140,7 +140,7 @@ public class Main {
         for (String[] c : cases) {
             int w = Integer.parseInt(c[1]);
             Field in = rec(w), len = Field.zoned(new Storage(3), 0, 3, 0, false, false, false);
-            DetCics.typedJustified(in, len, c[2], cs, c[0]);
+            DetJustify.place(in, len, c[2], cs, c[0]);
             System.out.println("[" + new String(in.storage().bytes, cs) + "] " + Cobol_num(len, cs));
         }
     }

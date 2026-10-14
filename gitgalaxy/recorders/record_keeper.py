@@ -1791,9 +1791,14 @@ class RecordKeeper:
                 program TEXT,
                 attributes TEXT,
                 line_number INTEGER,
+                source TEXT,
+                macro_table TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+        # #5120: provenance -- CSD or an assembled macro table (DFHFCT ...). A
+        # pre-#5120 database gets the columns healed in; its rows read as CSD.
+        _ensure_columns(cursor, "csd_resource_data", ["source TEXT", "macro_table TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_csd_resource_file_id ON csd_resource_data(file_id);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_csd_resource_name ON csd_resource_data(resource_type, resource_name);"
@@ -3122,6 +3127,8 @@ class RecordKeeper:
                 "program",
                 "attributes",
                 "line_number",
+                "source",
+                "macro_table",
             ),
             "csd_resources",
             lambda r: (
@@ -3140,6 +3147,8 @@ class RecordKeeper:
                 r.get("program"),
                 r.get("attributes"),
                 int(r.get("line", 0) or 0),
+                r.get("source") or "CSD",
+                r.get("macro_table"),
             ),
         )
 

@@ -503,7 +503,7 @@ def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str
     build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
     (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
     try:
-        subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+        subprocess.run([str(java_bin / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
                         str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True,
                        timeout=JAVAC_RUNNER_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
@@ -537,8 +537,8 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
     runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
     full = os.pathsep.join([*classpath, str(launcher), str(runner)])
     try:
-        return subprocess.run([str(java_bin / "java"), *split_argline(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
-                              cwd=project, env=shell, capture_output=True, text=True, check=False,
+        return subprocess.run([str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *split_argline(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+                              cwd=project, env=shell, capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVA_DIRECT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         return subprocess.CompletedProcess(
@@ -593,8 +593,8 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
     try:
-        proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
-                              env=env, capture_output=True, text=True, check=False,
+        proc = subprocess.run([javac, "-encoding", "UTF-8", *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+                              env=env, capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_OVERLAY_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         errors = [f"[ERROR] javac timed out after {JAVAC_OVERLAY_TIMEOUT}s compiling overlay"]

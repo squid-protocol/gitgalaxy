@@ -219,9 +219,9 @@ def test_cictask_refuses_exactly_the_callers_area_across_the_class(tmp_path):
                                         encoding="utf-8")  # fmt: skip
     (root / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("__PACKAGE__", "com.acme"), encoding="utf-8")
     (root / "Main.java").write_text(MAIN, encoding="utf-8")
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, root.glob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, root.glob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr[:3000]
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "com.acme.cics.Main"],  # noqa: S603
-                         capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "com.acme.cics.Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == EXPECTED

@@ -86,7 +86,7 @@ def test_text_fields_keep_their_byte_width(tmp_path):
         check=True,
     )  # fmt: skip
     run = subprocess.run(
-        ["java", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "out"), "t.Probe"],
+        ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "out"), "t.Probe"],
         capture_output=True,
         encoding="utf-8",
         check=True,

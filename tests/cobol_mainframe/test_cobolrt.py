@@ -1032,12 +1032,21 @@ def runs(tmp_path_factory):
         [str(JAVA_BIN / "javac"), "-encoding", "UTF-8", "-d", str(classes), *files],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=False,
     )
     assert javac.returncode == 0, javac.stderr[:4000]
     (work / "init.txt").write_text("\n".join(f"{k} {v}" for k, v in init.items()) + "\n", encoding="latin-1")
     java = subprocess.run(  # noqa: S603
-        [str(JAVA_BIN / "java"), "-cp", str(classes), f"{PKG}.Main", str(work / "init.txt")],
+        [
+            str(JAVA_BIN / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(classes),
+            f"{PKG}.Main",
+            str(work / "init.txt"),
+        ],
         capture_output=True,
         check=False,
     )

@@ -216,9 +216,9 @@ def _port_run(work: Path, name: str, src: str) -> str:
     (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ "
                                       f"new {PKG}.service.{r.service}({ctor}).runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *[str(f) for f in srcdir.rglob("*.java")]],  # noqa: S603
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *[str(f) for f in srcdir.rglob("*.java")]],  # noqa: S603
                    check=True)  # fmt: skip
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=True, encoding="utf-8",  # noqa: S603
                           check=True).stdout  # fmt: skip
 
 

@@ -1183,7 +1183,48 @@ public class CicsTask {
             throw refused("WEB SEND length beyond its area");
         }
         return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv, false,
-                null, 0);
+                null, 0, null);
+    }
+
+    /** WEB SEND CONTAINER(container) [CHANNEL(channel)] [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area)
+     *  [STATUSLEN(n)]] [SRVCONVERT | NOSRVCONVERT] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body
+     *  is the container's data as it is now, recorded as WEB-SEND. IBM: "If the CONTAINER option is specified, CHANNEL is
+     *  optional" (omitted: the current channel); CONTAINERERR RESP2 2 (container not found), CHANNELERR RESP2 2 (channel not
+     *  found), INVREQ RESP2 145 (no CHANNEL and no current channel), INVREQ RESP2 150 (conversion requested of a DATATYPE BIT
+     *  container). Refused: an empty container, and a BIT container sent as it is (IBM does not say what an empty body
+     *  is, and a body of bytes is not compared as text); `cs` is the program's character set. */
+    public int[] webSendContainer(String channel, String container, String mediaType, int action, int status,
+                                  String statusText, int statusLength, int conv, java.nio.charset.Charset cs) {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        if (r.webSent) {
+            throw refused("WEB SEND after a response was sent");
+        }
+        if ((statusText != null && statusLength == 0) || statusLength < -1) {
+            throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+        }
+        if (statusText != null && statusLength > statusText.length()) {
+            throw refused("WEB SEND length beyond its area");
+        }
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        int[] pre = null;
+        Container k = null;
+        if (ch == null) {
+            pre = channel == null ? new int[] {16, 145} : new int[] {122, 2};
+        } else if ((k = ch.containers.get(name)) == null) {
+            pre = new int[] {110, 2};
+        } else if (conv != 0 && k.bit) {
+            pre = new int[] {16, 150};
+        } else if (k.data.length == 0) {
+            throw refused("WEB SEND of an empty container");
+        } else if (k.bit) {
+            throw refused("WEB SEND of a DATATYPE BIT container");
+        }
+        return webSendBody(pre != null ? "" : new String(k.data, cs), mediaType, action, status, statusText, statusLength,
+                conv, false, null, 0, pre);
     }
 
     /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
@@ -1209,13 +1250,13 @@ public class CicsTask {
         }
         r.webDocToken = doctoken.stripTrailing();
         return webSendBody(doc == null ? "" : new String(doc, cs), mediaType, action, status,
-                statusText, statusLength, conv, true, doc, docStatus);
+                statusText, statusLength, conv, true, doc, docStatus, null);
     }
 
     private String webDocToken;  // (the token webSendDocument is sending: webSendBody deletes its document on DOCDELETE)
 
     private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
-                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus) {
+                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus, int[] pre) {
         CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
@@ -1232,6 +1273,9 @@ public class CicsTask {
             throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (pre != null) {
+            c.add(pre);  // a container send's own conditions (CONTAINERERR / CHANNELERR / INVREQ 145 / 150)
+        }
         if (ofDocument && doc == null) {
             c.add(new int[] {13, 1});  // the document has not been created, or has been deleted, or the name is wrong
         }
@@ -3417,6 +3461,18 @@ public class CicsTask {
      *  are not stated), is refused; so is a counter that would pass a doubleword. A counter with no limits entry is as
      *  before: WRAP changes nothing and one that would pass 4294967295 is refused. */
     public long[] getCounter(String pool, String name, long increment, boolean wrap) {
+        return getCounter(pool, name, increment, wrap, false, null, null, false);
+    }
+
+    /** GET COUNTER / DCOUNTER ... [REDUCE] [COMPAREMIN(n)] [COMPAREMAX(m)] (#5039, X53): as above, with IBM's REDUCE ("the
+     *  server may reduce the increment, and the request succeeds with the current value set to the maximum plus 1": an
+     *  INCREMENT that would carry the counter past MAXIMUM + 1 leaves it at MAXIMUM + 1) and the value handed out compared with
+     *  the bounds: both given and COMPAREMAX below COMPAREMIN, in range when it meets either; out of range is SUPPRESSED (72)
+     *  RESP2 103 and the counter is unchanged (ASSUMED: IBM does not say). `fullword`: a COUNTER, whose compare values are
+     *  signed fullwords (a negative one is refused). Refused: REDUCE with WRAP, REDUCE or a compare at a counter already at its
+     *  limit (101 or 103 first, REDUCE with nothing left to reduce: not stated). */
+    public long[] getCounter(String pool, String name, long increment, boolean wrap, boolean reduce, Long cmpMin, Long cmpMax,
+            boolean fullword) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new long[] {16, bad, 0};
@@ -3431,7 +3487,16 @@ public class CicsTask {
             return new long[] {16, 201, 0};
         }
         long[] lim = r.counterLimits.get(key);
+        if (reduce && wrap) {
+            throw refused("GET COUNTER with both REDUCE and WRAP");
+        }
+        if ((cmpMin != null && cmpMin < 0 && fullword) || (cmpMax != null && cmpMax < 0 && fullword)) {
+            throw refused("GET COUNTER COMPAREMIN / COMPAREMAX below zero");
+        }
         if (lim == null) {
+            if (!counterInRange(v, cmpMin, cmpMax)) {
+                return new long[] {72, 103, 0};
+            }
             if (increment < 0 || v + increment > 4294967295L) {
                 throw refused(increment < 0 ? "GET COUNTER past a doubleword" : "GET COUNTER past 4294967295: the counter's maximum is not stated");
             }
@@ -3443,21 +3508,105 @@ public class CicsTask {
             throw refused("GET COUNTER with an INCREMENT beyond the counter's range");
         }
         if (max != -1L && Long.compareUnsigned(v, max) > 0) {  // at its limit: the counter is MAXIMUM + 1
+            if (reduce) {
+                throw refused("GET COUNTER REDUCE at a counter already at its limit");
+            }
+            if (cmpMin != null || cmpMax != null) {
+                throw refused("GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit");
+            }
             if (!wrap) {
                 return new long[] {72, 101, 0};
             }
             r.counters.put(key, min + increment);
             return new long[] {0, 0, min};
         }
+        if (!counterInRange(v, cmpMin, cmpMax)) {
+            return new long[] {72, 103, 0};
+        }
         long next = v + increment;
         if (Long.compareUnsigned(next, v) < 0) {
             throw refused("GET COUNTER past a doubleword");
         }
         if (Long.compareUnsigned(next, max) > 0 && Long.compareUnsigned(next - max, 1) > 0) {
-            throw refused("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+            if (!reduce) {
+                throw refused("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+            }
+            next = max + 1;
         }
         r.counters.put(key, next);
         return new long[] {0, 0, v};
+    }
+
+    /** Whether the value a GET hands out meets COMPAREMIN / COMPAREMAX (null: not given): at or above the one, at or below the
+     *  other; with COMPAREMAX below COMPAREMIN, either (IBM). */
+    private static boolean counterInRange(long v, Long cmpMin, Long cmpMax) {
+        boolean geMin = cmpMin == null || Long.compareUnsigned(v, cmpMin) >= 0;
+        boolean leMax = cmpMax == null || Long.compareUnsigned(v, cmpMax) <= 0;
+        return cmpMin != null && cmpMax != null && Long.compareUnsigned(cmpMax, cmpMin) < 0 ? geMin || leMax : geMin && leMax;
+    }
+
+    /** REWIND COUNTER / DCOUNTER [INCREMENT(n)] (IBM CICS TS, REWIND COUNTER and REWIND DCOUNTER; #5039, X53): {RESP, RESP2}.
+     *  "Resets a named counter that has reached its limit" to its minimum; SUPPRESSED (72) RESP2 102 for one that has not.
+     *  A counter has reached its limit at MAXIMUM + 1 (where a GET leaves it). INVREQ 406 for an INCREMENT beyond (maximum -
+     *  minimum) + 1 (stated), 201 / 403 / 404 as GET. Refused: an INCREMENT of zero or above 1 within the range (how the limit
+     *  test applies it is not stated), a counter with no limits entry. */
+    public int[] rewindCounter(String pool, String name, long increment) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (increment == 0) {
+            throw refused("REWIND COUNTER with an INCREMENT not above zero");
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
+        if (v == null) {
+            return new int[] {16, 201};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null) {
+            throw refused("REWIND COUNTER of a counter whose limits the run does not state");
+        }
+        long min = lim[0], max = lim[1], range = max - min + 1;  // (0: a full doubleword, which no INCREMENT exceeds)
+        if (range != 0 && Long.compareUnsigned(increment, range) > 0) {
+            return new int[] {16, 406};
+        }
+        if (increment != 1) {
+            throw refused("REWIND COUNTER with an INCREMENT above 1");
+        }
+        if (max == -1L || Long.compareUnsigned(v, max) <= 0) {
+            return new int[] {72, 102};
+        }
+        r.counters.put(key, min);
+        return new int[] {0, 0};
+    }
+
+    /** UPDATE COUNTER / DCOUNTER VALUE(n) (IBM CICS TS, UPDATE COUNTER and UPDATE DCOUNTER; #5039, X53): {RESP, RESP2} -- the
+     *  new current value. INVREQ 406 for a VALUE below MINIMUM or above MAXIMUM + 1, 201 / 403 / 404 as GET. `fullword` (a
+     *  COUNTER): a VALUE below zero is refused, as DEFINE's; a counter with no limits entry is refused. */
+    public int[] updateCounter(String pool, String name, long value, boolean fullword) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (fullword && value < 0) {
+            throw refused("UPDATE COUNTER with a VALUE below zero");
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        if (r.counters.get(key) == null) {
+            return new int[] {16, 201};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null) {
+            throw refused("UPDATE COUNTER of a counter whose limits the run does not state");
+        }
+        if (Long.compareUnsigned(value, lim[0]) < 0 || (lim[1] != -1L && Long.compareUnsigned(value, lim[1] + 1) > 0)) {
+            return new int[] {16, 406};
+        }
+        r.counters.put(key, value);
+        return new int[] {0, 0};
     }
 
     /** DEFINE DCOUNTER (IBM CICS TS, DEFINE COUNTER and DEFINE DCOUNTER; #4770, X45): {RESP, RESP2} -- unsigned doublewords:
@@ -3743,6 +3892,9 @@ public class CicsTask {
 
     /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
     public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        if (root().held.contains(file)) {
+            return new FileRead<>(16, 28, null);  // #5092: a second READ UPDATE without a token, nothing released between
+        }
         FileRead<T> r = read(file, lookup);
         if (r.normal()) {
             root().held.add(file);
@@ -3755,6 +3907,9 @@ public class CicsTask {
      *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
      *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
     public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
+        if (update && root().held.contains(file)) {
+            return new FileRead<>(16, 28, null);  // #5092
+        }
         int[] planned = root().injected("READ", file);
         if (planned != null) {
             return new FileRead<>(planned[0], planned[1], null);
@@ -3792,7 +3947,7 @@ public class CicsTask {
             return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return done(16, 0);
+            return done(16, 30);  // #5092: no READ UPDATE without a token before it
         }
         store.run();
         return done(0, 0);
@@ -3819,7 +3974,7 @@ public class CicsTask {
             return done(planned[0], planned[1]);  // #5044
         }
         if (!root().held.remove(file)) {
-            return done(16, 0);
+            return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
         }
         remove.run();
         return done(0, 0);
@@ -3876,6 +4031,12 @@ public class CicsTask {
             return done(16, 47);
         }
         remove.accept((byte[]) t[1]);
+        return done(0, 0);
+    }
+
+    /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds; none held: no action, NORMAL (IBM). */
+    public int unlockHeld(String file) {
+        root().held.remove(file);
         return done(0, 0);
     }
 

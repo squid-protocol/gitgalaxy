@@ -17,7 +17,7 @@ def run(name, conclusion, i, status="completed"):
 
 def fake_api(pr=None, runs=(), statuses=(), files=()):
     calls = []
-    pr = {"number": 7, "title": "t", "state": "open", "merged": False, "draft": True, "mergeable": True,
+    pr = {"number": 7, "title": "t", "state": "open", "merged": False, "draft": False, "mergeable": True,
           "mergeable_state": "clean", "node_id": "PR_x", "head": {"sha": SHA}, **(pr or {})}  # fmt: skip
 
     def api(path):
@@ -64,7 +64,7 @@ def test_files_are_flagged():
 
 
 def test_green_pr_is_ready_in_four_calls():
-    api = fake_api(runs=[run("ruff-audit", "success", 1)],
+    api = fake_api(pr={"draft": True}, runs=[run("ruff-audit", "success", 1)],
                    files=[{"filename": "tests/crucible_pins.toml", "status": "modified", "additions": 1, "deletions": 1}])  # fmt: skip
     res = pc.check(7, api)
     assert res["ready"] and res["draft"] and res["head_sha"] == SHA
@@ -98,7 +98,7 @@ def test_merge_only_when_green(capsys, monkeypatch):
     assert "not merging #7" in capsys.readouterr().err
     green = fake_api(runs=[run("det", "success", 1)])
     assert pc.main(["7", "--merge"], api=green) == 0
-    assert [a[:3] for a in seen] == [["gh", "pr", "ready"], ["gh", "pr", "merge"]]
+    assert [a[:3] for a in seen] == [["gh", "pr", "merge"]]
     assert "merged #7" in capsys.readouterr().out
 
 
@@ -136,9 +136,15 @@ def test_merge_marks_ready_then_squashes_pinned_to_the_head():
         seen.append(argv)
         return subprocess.CompletedProcess(argv, 0, "", "")
 
-    assert pc.merge({"number": 7, "draft": True, "head_sha": SHA, "node_id": "PR_x"}, ok) == []
-    assert seen[0][:3] == ["gh", "pr", "ready"]
-    assert seen[1][:3] == ["gh", "pr", "merge"] and "--squash" in seen[1] and SHA in seen[1]
+    # #5104: a draft is marked ready and NOT merged (its skipped checks read as green)
+    errs = pc.merge({"number": 7, "draft": True, "head_sha": SHA, "node_id": "PR_x"}, ok)
+    assert len(errs) == 1 and "not merged" in errs[0] and pc.draft_marked_ready(errs)
+    assert not pc.draft_marked_ready([]) and not pc.draft_marked_ready(["gh pr merge failed: x"])
+    assert [a[:3] for a in seen] == [["gh", "pr", "ready"]]
+
+    seen.clear()
+    assert pc.merge({"number": 7, "draft": False, "head_sha": SHA, "node_id": "PR_x"}, ok) == []
+    assert seen[0][:3] == ["gh", "pr", "merge"] and "--squash" in seen[0] and SHA in seen[0]
 
     seen.clear()
 
@@ -146,5 +152,14 @@ def test_merge_marks_ready_then_squashes_pinned_to_the_head():
         seen.append(argv)
         return subprocess.CompletedProcess(argv, 1 if argv[:3] == ["gh", "pr", "ready"] else 0, "", "graphql error")
 
-    assert pc.merge({"number": 7, "draft": True, "head_sha": SHA, "node_id": "PR_x"}, ready_fails) == []
+    assert len(pc.merge({"number": 7, "draft": True, "head_sha": SHA, "node_id": "PR_x"}, ready_fails)) == 1
     assert seen[1][:3] == ["gh", "api", "graphql"] and "id=PR_x" in seen[1]  # the mutation directly
+
+
+def test_main_merge_on_a_draft_only_marks_it_ready(monkeypatch):
+    # #5104: a draft's heavy checks are skipped (green), so --merge must not merge it in the same call
+    seen = []
+    monkeypatch.setattr(pc, "_run", lambda argv: seen.append(argv) or subprocess.CompletedProcess(argv, 0, "", ""))
+    api = fake_api(pr={"draft": True}, runs=[run("ruff-audit", "success", 1)])
+    assert pc.main(["7", "--merge"], api=api) == 1
+    assert [a[:3] for a in seen] == [["gh", "pr", "ready"]]

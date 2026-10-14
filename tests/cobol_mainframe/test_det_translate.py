@@ -975,6 +975,7 @@ _RESP_SAMPLES = {
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
+    "REWIND COUNTER": "REWIND COUNTER(KEY)", "UPDATE COUNTER": "UPDATE COUNTER(KEY) VALUE(7)",
     "DOCUMENT CREATE": "DOCUMENT CREATE DOCTOKEN(REC)",
     "DOCUMENT RETRIEVE": "DOCUMENT RETRIEVE DOCTOKEN(KEY) INTO(REC) MAXLENGTH(10) DATAONLY",
     "WEB OPEN": "WEB OPEN SESSTOKEN(KEY) URIMAP(REC)", "WEB CLOSE": "WEB CLOSE SESSTOKEN(KEY)",
@@ -1360,10 +1361,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
-    for bad, why in (("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value"),
-                     ("QUERY DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "only the counter's value")):  # fmt: skip
-        with pytest.raises(C.CicsError, match=why):
-            c.command(bad, "")
+    assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
+        "QUERY COUNTER(KEY) VALUE(REC)", ""
+    )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
     assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
@@ -1376,10 +1376,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     x = c.command("DELETE COUNTER(KEY) POOL('GENAPOOL') RESP(R)", "")
     assert x[0].startswith("int[] counter") and ".deleteCounter(" in x[0]
     for bad, why in (("DEFINE COUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
-                     ("DEFINE COUNTER(KEY) NOSUSPEND", "NOSUSPEND"),
                      ("DEFINE DCOUNTER(KEY) MINIMUM(0)", "MINIMUM without VALUE"),
                      ("DEFINE DCOUNTER(KEY) COUNTER(KEY)", "one of COUNTER and DCOUNTER"),
-                     ("DELETE COUNTER(KEY) NOSUSPEND", "only the counter's name and pool")):  # fmt: skip
+                     ("DELETE COUNTER(KEY) VALUE(REC)", "only the counter's name and pool")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
     for bad, why in (("INQUIRE ASSOCIATION(KEY) ODAPPLID(REC)", "only the task's own number, EIBTASKN"),
@@ -1433,10 +1432,16 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
         ", 1, 0, CS);"
     )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ct = c.command("WEB SEND CONTAINER(KEY) CHANNEL(REC) MEDIATYPE(REC) ACTION(R2) SRVCONVERT NOHANDLE", "")
+    assert ".webSendContainer(REC.strip(), KEY.strip(), Cobol.text(" in ct[0] and ct[0].endswith(
+        ", 1, CS);"
+    )  # (#5037 X37: a container's data)
+    cc = c.command("WEB SEND CONTAINER(KEY) ACTION(R2) NOHANDLE", "")
+    assert ".webSendContainer(null, " in cc[0]  # (no CHANNEL: the current channel)
     ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
     assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
-    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs exactly one of FROM"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
@@ -1445,7 +1450,16 @@ def test_web_send_is_the_response_to_the_stated_request():
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) FROM(REC) FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND CONTAINER(KEY) DOCTOKEN(KEY)", "needs exactly one of FROM"),
+                     ("WEB SEND CHANNEL(KEY) FROM(REC) FROMLENGTH(R)", "CHANNEL without CONTAINER"),
+                     ("WEB SEND CONTAINER(KEY) CHUNKING(R)", "chunked response"),
+                     ("WEB SEND CONTAINER(KEY) HOSTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLNTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) LENGTH(R)", "LENGTH is kept for upgrade only")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 
@@ -1727,12 +1741,10 @@ def test_get_dcounter_takes_an_increment_and_refuses_what_it_does_not_model():
     plain = c.command("GET DCOUNTER(KEY) VALUE(REC) NOHANDLE", "")
     assert plain[0].count(",") == 1  # (pool, name: the default increment)
     assert c.command("GET COUNTER(KEY) VALUE(REC)", "")[0].count(",") == 1  # (the fullword form as before)
-    for bad, why in (("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
-                     ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) REDUCE", "maximum is not stated"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMIN(R)", "range check"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) COMPAREMAX(R)", "range check"),
-                     ("GET DCOUNTER(KEY) VALUE(REC) NOSUSPEND", "rebuild")):  # fmt: skip
+    for bad, why in (
+        ("GET DCOUNTER(KEY) INCREMENT(R)", "without VALUE"),
+        ("GET DCOUNTER(KEY) COUNTER(KEY) VALUE(REC)", "one of COUNTER and DCOUNTER"),
+    ):  # fmt: skip (REDUCE / COMPARE / NOSUSPEND: #5039, X53)
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

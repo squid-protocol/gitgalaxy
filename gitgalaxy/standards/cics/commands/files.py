@@ -124,6 +124,13 @@ READ = _file(
             raised_by=("GTEQ", "GENERIC"),
         ),
         Outcome("LENGERR", 11, "the record is longer than LENGTH: truncated", writes=("INTO", "LENGTH")),
+        # #5092 (X52): IBM, EXEC CICS READ: a READ UPDATE without TOKEN on a file with an earlier one not yet released
+        Outcome(
+            "INVREQ",
+            28,
+            "a READ UPDATE without TOKEN while an earlier one on the file has had no REWRITE, DELETE, UNLOCK or SYNCPOINT",
+            raised_by=("UPDATE",),
+        ),
     ),
     runtime_refusals=(
         # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; the
@@ -218,7 +225,7 @@ REWRITE = _file(
     refused=_REMOTE,
     outcomes=(
         _NORMAL,
-        Outcome("INVREQ", None, "no READ UPDATE holds a record of the file"),
+        Outcome("INVREQ", 30, "no READ UPDATE without a token holds a record of the file"),
         _INVREQ_TOKEN,
     ),
     register="X52",
@@ -258,7 +265,7 @@ DELETE = _file(
             "An attempt to delete a record based on the search argument provided is unsuccessful",
             raised_by=("GENERIC",),
         ),
-        Outcome("INVREQ", None, "no RIDFLD, and no READ UPDATE holds a record"),
+        Outcome("INVREQ", 31, "no RIDFLD, and no READ UPDATE without a token holds a record"),
         _INVREQ_TOKEN,
     ),
     runtime_refusals=(
@@ -272,7 +279,8 @@ DELETE = _file(
 
 # #5078 (X52), IBM CICS TS, EXEC CICS UNLOCK: releases the exclusive control a READ UPDATE took. TOKEN "associates the UNLOCK
 # with an earlier READ ... that used UPDATE"; a token matching none in use is INVREQ RESP2 47. UNLOCK without TOKEN (the
-# file's held record) is refused at translation, #5079.
+# file's held record, #5079) releases the tokenless hold of the file; IBM: with none held "no action is taken and a NORMAL
+# response is returned". The WRITE MASSINSERT a tokenless UNLOCK may also match is not modelled (WRITE has no MASSINSERT option: refused).
 UNLOCK = _file(
     "UNLOCK",
     "EXEC CICS UNLOCK",

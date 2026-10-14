@@ -171,6 +171,47 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}
 
 
+def test_eib_names_match_whole_words_outside_literals_and_comments():
+    """#5077: the whole input class of a name that is not a read -- a literal's text, a hyphenated or underscored
+    user name that starts with an EIB field, a comment line, a VALUE clause -- against the real reads."""
+    for src in (
+        fixed("    01  MSG PIC X(8) VALUE 'EIBFN: '.", '    DISPLAY "EIBRCODE=".'),
+        fixed("    01  EIBRCODE-NICE PIC X.", "    MOVE 1 TO EIBFN-X", "    MOVE 1 TO WS-EIBFN"),
+        fixed("    01  EIBFN_COPY PIC X."),
+        "000100*    MOVE EIBFN TO X\n000200/   MOVE EIBRCODE TO X\n",
+    ):
+        assert pb.facts_needed(src)["eib"] == set(), src
+    real = fixed("    MOVE EIBFN TO A", "    MOVE EIBRCODE TO B", "    IF EIBERR = 1 DISPLAY 'EIBDS'.",
+                 "    MOVE EIBRCODE(1:1) TO C", "    MOVE 'EIBAID' TO D")  # fmt: skip
+    assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBRCODE", "EIBERR"}
+    assert pb.facts_needed(fixed("    MOVE 'A' TO X EIBDS."))["eib"] == {"EIBDS"}
+
+
+def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
+    """#5077: STARTCODE is stated by a case's (or every scenario's) "startcode"; a case that leaves one scenario
+    without it, or states none, keeps the gap. USERID stays a gap either way."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", startcode="TD", scenarios=list(sc))
+    case(cases, "each", "k", "src/e.cbl", scenarios=[{**x, "startcode": "S"} for x in sc])
+    case(cases, "part", "k", "src/p.cbl", scenarios=[{"name": "a", "startcode": "TD"}, {"name": "b"}])
+    case(cases, "none", "k", "src/n.cbl", scenarios=list(sc))
+    case(cases, "noscen", "k", "src/s.cbl", startcode="TD")
+    runs = pb.equivalence_runs(cases)
+    stated = {c: runs[("k", f"src/{f}.cbl")][0].startcode for c, f in
+              (("top", "t"), ("each", "e"), ("part", "p"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
+    assert stated == {"top": True, "each": True, "part": False, "none": False, "noscen": False}
+    facts = {"eib": set(), "assign_task": {"STARTCODE", "USERID"}, "assign_region": set()}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", startcode=True)) == {
+        "fact: ASSIGN USERID (no equivalence case states it)"
+    }
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {
+        "fact: ASSIGN USERID (no equivalence case states it)",
+        "fact: ASSIGN STARTCODE (no equivalence case states it)",
+    }
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k", startcode=True)) == set()  # the runner states both
+
+
 def test_facts_are_names_only():
     f = pb.facts_needed(fixed("    MOVE EIBTASKN TO A", "    MOVE EIBCALEN TO B",
                               "    EXEC CICS ASSIGN SYSID(S) SCRNHT(H) END-EXEC."))  # fmt: skip
@@ -335,3 +376,70 @@ def test_ledger_readings_maps_last_coverage(monkeypatch):
     assert (
         pb.ledger_readings(cases_dir=Path("/elsewhere")) == {}
     )  # a fixture tree: the repo's fingerprints do not apply
+
+
+# ---- #5084: the LINKed programs' coverage ----------------------------------------------------------------------
+def _counts(pc, pl):
+    return {"paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": 0, "total": 0}}
+
+
+def _sweep_row(linked):
+    return {"c": {"proved": True, "translated": "2/2", "uncovered": [], "linked": linked,
+                  "coverage": "proven on 3 scenarios, covering 5/5 paragraphs and 9/9 branches"}}  # fmt: skip
+
+
+def test_a_linked_program_is_judged_from_its_own_counts():
+    sweeps = _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)})
+    whole = pb.Run("equivalence", "c", role="linked", program="SUBP")
+    holey = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    unmeasured = pb.Run("equivalence", "c", role="linked", program="OTHER")
+    for run in (whole, holey, unmeasured):
+        pb.judge_equivalence(run, {}, sweeps, True)
+    assert whole.gaps == set()
+    assert holey.gaps == {"coverage: live paragraphs no scenario runs"}
+    assert unmeasured.gaps == {pb.LINKED_NOT_MEASURED}
+
+
+def test_a_caller_is_not_proven_while_a_callee_has_holes():
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)}), True)
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    assert main.detail[next(iter(main.gaps))] == "1/3 paragraphs"
+    clean = pb.Run("equivalence", "c")
+    pb.judge_equivalence(clean, {}, _sweep_row({"SUBP": _counts(2, 2)}), True)
+    assert clean.gaps == set()
+
+
+def test_the_ledger_reading_carries_the_linked_counts():
+    reading, linked = [5, 5, 9, 9], {"c": {"HOLEY": _counts(1, 3)}}
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    callee = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
+    assert callee.gaps == {"coverage: live paragraphs no scenario runs"}
+
+
+def test_a_callee_with_only_branch_holes_is_a_branch_gap_with_branches_on():
+    row = _sweep_row({"SUBP": {"paragraphs": {"covered": 2, "live": 2}, "branches": {"covered": 1, "total": 2}}})
+    on, off = pb.Run("equivalence", "c"), pb.Run("equivalence", "c")
+    pb.judge_equivalence(on, {}, row, True)
+    pb.judge_equivalence(off, {}, row, False)
+    assert on.gaps == {"coverage: LINKed program SUBP has branch outcomes no scenario runs"}
+    assert off.gaps == set()
+
+
+def test_a_fresh_entry_with_linked_counts_is_still_a_current_reading(monkeypatch):
+    """#5084: the LINKed counts travel apart from the reading, so a current entry stays a list (no stale_since)."""
+    import det_coverage_ledger as dcl
+
+    entry = {"scenarios": 3, "paragraphs": {"covered": 5, "live": 5}, "branches": {"covered": 9, "total": 9},
+             "inputs": {}, "measured_at": "abc", "linked": {"HOLEY": _counts(1, 3)}}  # fmt: skip
+    monkeypatch.setattr(dcl, "load", lambda directory=None: {"c": entry})
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": [],
+                        "blocking": False, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_readings(["c"]) == {"c": [5, 5, 9, 9]}
+    assert pb.ledger_linked(["c"]) == {"c": {"HOLEY": _counts(1, 3)}}
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": ["harness"],
+                        "blocking": True, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_linked(["c"]) == {}

@@ -37,3 +37,21 @@ The inventory conforms to a JSON schema (`tests/tools/feature_inventory.schema.j
 
 ## Differences with cics_census.py
 There is a minor discrepancy in CICS command totals (e.g., 233 vs 240 for CardDemo) between `feature_inventory.py` and `cics_census.py`. This occurs because `feature_inventory.py` relies on deep AST parsing (which resolves copybooks and drops syntactically invalid commands into the unknown bucket) and uses a raw regex fallback for fully unparsable programs, whereas `cics_census.py` strictly uses a regex over `fixed_format_text` (which strips comments and handles continuations) for all programs.
+
+## Support matrix (#4724)
+`tests/tools/support_matrix.py` joins each burned estate's inventory fixture with its evidence report
+(`docs/language_status/evidence_report/<estate>/report.json`: each program's level, proving case, and translate-only
+refusal or holes), the rule catalogue (`docs/language_status/cobolrt_rules.json`, #4711; "not yet catalogued" while it
+is absent) and `docs/language_status/refusal_map.json` (each refusal or hole text: its issue, its agreed refusal family
+in [definition_of_done.md](definition_of_done.md), or the IBM product library a missing copybook belongs to). It reads
+committed files only: no corpus, no scan.
+```bash
+python tests/tools/support_matrix.py [ESTATE ...] [--json] [--catalogue PATH] [--out FILE]
+```
+Each feature is **supported and proven** (a program using it is at L2 or above), **supported, unproven** (translated,
+no refusal names it, no proof), **refused by name**, or **unknown / never seen** (only programs refused whole use it),
+with the conditions of "supported" (charter section 5) it does not meet yet. Per estate it also lists the refusals
+with their owners, the missing system copybooks (a configuration fix: name SCSQCOBC / SCEESAMP), the runtime APIs a
+program calls that are not modelled (MQ: translates, not provable), and what is unknown, for triage.
+`tests/cobol_mainframe/test_support_matrix.py` fails when a refusal or hole of a committed report matches no entry of
+`refusal_map.json` (or more than one): a new one after an evidence refresh is added there with its owner.

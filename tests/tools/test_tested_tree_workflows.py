@@ -47,6 +47,9 @@ def load(name):
     return doc
 
 
+DRAFT_ONLY = "github.event_name != 'pull_request' || github.event.pull_request.draft == false"
+
+
 @pytest.mark.parametrize("name", GATED)
 def test_gate_is_wired(name):
     doc = load(name)
@@ -54,14 +57,17 @@ def test_gate_is_wired(name):
     runs = [s.get("run", "") for s in gate["steps"]]
     assert f"python tests/tools/skip_tested_tree.py {name}.yml" in runs  # the gate asks about ITS OWN workflow
     assert gate["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "read"}
-    assert "if" not in gate  # the gate always runs, so the workflow always concludes success or failure for Main Watch
+    # the gate always runs outside a draft PR, so the workflow always concludes success or failure for Main Watch;
+    # #5104: on a draft PR it is skipped with everything else (the heavy jobs carry the same draft condition)
+    assert gate.get("if", DRAFT_ONLY).strip() in (DRAFT_ONLY, "${{ " + DRAFT_ONLY + " }}")
     heavy = [j for k, j in doc["jobs"].items() if k != "tested-tree" and "tested-tree" in str(j.get("needs", ""))]
     assert heavy, "no job waits on tested-tree"
     # smoke-test's `full-suite` aggregator (if: always(), #4961) waits on the gate too and judges the skip itself
-    gated = [j for j in heavy if j.get("if") != "always()"]
+    gated = [j for j in heavy if not str(j.get("if")).startswith("${{ always()")]
     assert gated
     for job in gated:
         assert "needs.tested-tree.outputs.skip != 'true'" in job["if"]
+        assert "github.event.pull_request.draft == false" in job["if"]  # #5104: a skipped gate must not start it
         assert "!cancelled()" in job["if"]  # a gate crash leaves skip empty: the heavy job runs
 
 

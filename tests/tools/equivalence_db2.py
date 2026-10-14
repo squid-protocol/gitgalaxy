@@ -258,10 +258,37 @@ def fetch_odbc_cli(dest: Path | None = None, pin: dict[str, str] | None = None) 
     return dest
 
 
+PULL_ATTEMPTS = 4
+PULL_BACKOFF = 15  # seconds; doubles each attempt
+
+
+class Db2ImagePullError(RuntimeError):
+    """#5048: the digest-pinned Db2 image could not be pulled -- infrastructure (registry or network), not our code."""
+
+
+def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float = PULL_BACKOFF) -> None:
+    """#5048: `docker pull` of the pinned image, retried (the registry and the network hiccup). The digest stays the
+    pin: only the same bytes can come back. Nothing happens when the image is already on this host."""
+    if _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
+        return
+    last = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            _docker("pull", "-q", image, timeout=1800)
+            return
+        except (RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
+            last = str(exc).strip()[-300:] or type(exc).__name__
+            if attempt < attempts:
+                time.sleep(backoff * 2 ** (attempt - 1))
+    raise Db2ImagePullError(f"INFRASTRUCTURE (not a code defect): could not pull the pinned Db2 image {image} after "
+                            f"{attempts} attempts: {last}. Re-run; the digest pin is deliberate, do not replace it "
+                            "with a tag.")  # fmt: skip
+
+
 def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         fetch_odbc_cli()
-        _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
+        common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
     import fcntl
 
     # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it
@@ -277,6 +304,7 @@ def _ensure_container() -> None:
         if state == "false":
             _docker("start", CONTAINER)
         elif state != "true":
+            pull_image()
             _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
                     "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
                     "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",

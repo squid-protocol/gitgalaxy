@@ -18,8 +18,8 @@ class Gh:
     def __init__(self):
         self.prs, self.runs, self.calls = {}, {}, []
 
-    def pr(self, n, sha="a" * 40, state="open", mergeable=True, mstate="clean", runs=()):
-        self.prs[n] = {"number": n, "title": f"pr {n}", "state": state, "merged": state == "merged", "draft": True,
+    def pr(self, n, sha="a" * 40, state="open", mergeable=True, mstate="clean", runs=(), draft=False):
+        self.prs[n] = {"number": n, "title": f"pr {n}", "state": state, "merged": state == "merged", "draft": draft,
                        "head": {"sha": sha}, "node_id": f"N{n}", "mergeable": mergeable, "mergeable_state": mstate}  # fmt: skip
         self.runs[sha] = [{"id": i, "name": name, "status": "completed" if c else "in_progress", "conclusion": c,
                            "app": {"slug": "github-actions"}} for i, (name, c) in enumerate(runs, 1)]  # fmt: skip
@@ -66,6 +66,27 @@ def test_green_pr_is_merged_and_leaves_the_queue():
     did = step(gh, state)
     assert any("MERGED" in d for d in did) and state["queue"] == []
     assert ["gh", "pr", "merge"] == gh.calls[-1][:3]
+
+
+def test_green_draft_is_marked_ready_not_reported_as_a_failed_merge():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, draft=True, runs=[("ruff-audit", "success")])
+    did = step(gh, state)
+    assert any("marked ready" in d for d in did) and not any("merge failed" in d for d in did)
+    assert state["queue"] == [1]  # stays queued: a later pass merges once its CI is green
+    assert [c[:3] for c in gh.calls] == [["gh", "pr", "ready"]]
+    gh.prs[1]["draft"] = False  # the next pass sees it ready
+    did = step(gh, state)
+    assert any("MERGED" in d for d in did) and state["queue"] == []
+    assert ["gh", "pr", "merge"] == gh.calls[-1][:3]
+
+
+def test_a_draft_that_cannot_be_marked_ready_still_reports_failure():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, draft=True, runs=[("ruff-audit", "success")])
+    gh.run = lambda argv: subprocess.CompletedProcess(argv, 1, "", "boom")
+    did = step(gh, state)
+    assert any("merge failed" in d for d in did) and state["queue"] == [1]
 
 
 def test_pending_pr_waits_and_merged_pr_leaves():

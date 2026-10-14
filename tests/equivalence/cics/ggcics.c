@@ -299,6 +299,11 @@ static int held_key(const char *file, const char *key, int klen) {
     return 0;
 }
 
+static int has_hold(const char *file) {  /* #5092: a tokenless READ UPDATE holds a record of the file */
+    for (int i = 0; i < MAX_FILES; i++) if (held[i].name[0] && strcmp(held[i].name, file) == 0) return 1;
+    return 0;
+}
+
 /* #5078 (X52): READ UPDATE TOKEN(d) holds a record under a token of its own (IBM, EXEC CICS READ: "a unique identifier
  * for this READ UPDATE request ... for use in associating a subsequent REWRITE or DELETE (or UNLOCK) request with the
  * record returned"), however many are held, on any file. The ids count from 1 per task (their value is IBM's to choose:
@@ -504,6 +509,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     } else if (strstr(c->flags, "TOKEN") ? token_find(c->num, want) < 0 : !held_key(want, key, klen)) {
         c->resp = INVREQ;
         if (strstr(c->flags, "TOKEN")) c->resp2 = 47;
+        else if (!has_hold(want)) c->resp2 = 30;  /* #5092: no READ UPDATE without a token before it (a held record of another key: unsaid, 0) */
     } else if (strstr(c->flags, "TOKEN") && (tokens[token_find(c->num, want)].klen != klen
                                               || memcmp(tokens[token_find(c->num, want)].key, key, (size_t)klen) != 0)) {
         refuse("REWRITE TOKEN FROM: a key other than the held record's");
@@ -596,6 +602,11 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     trim(c->name1, 8, want);
     c->resp = FILENOTFOUND;
     c->resp2 = 0;
+    if (strstr(c->flags, "UPDATE") && !strstr(c->flags, "TOKEN") && has_hold(want)) {
+        c->resp = INVREQ;  /* #5092: a second READ UPDATE without a token, nothing released between */
+        c->resp2 = 28;
+        return 0;
+    }
     if (injected("READ", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
@@ -1051,6 +1062,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     long long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
     if (by_hold && s < 0) {
         c->resp = INVREQ;
+        c->resp2 = 31;  /* #5092: no RIDFLD and no READ UPDATE without a token before it */
     } else if (at < 0) {
         c->resp = NOTFND;
         c->resp2 = 80;
@@ -1069,7 +1081,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
 }
 
 /* UNLOCK FILE(name1) TOKEN(GG-NUM) (#5078, X52): releases the record a READ UPDATE TOKEN holds; INVREQ RESP2 47 for a
- * token matching none in use. UNLOCK without TOKEN is not modelled (translate refuses it). */
+ * token matching none in use. #5079: without TOKEN (GG-FLAGS blank) it releases the file's tokenless hold; none held: no action, NORMAL (IBM). */
 int GGCUNLK(gg_cics *c) {
     char want[9], path[3000];
     int reclen, keyoff, klen;
@@ -1077,6 +1089,11 @@ int GGCUNLK(gg_cics *c) {
     c->resp2 = 0;
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        return 0;
+    }
+    if (!strstr(c->flags, "TOKEN")) {
+        release(want);
+        c->resp = NORMAL;
         return 0;
     }
     int ti = token_find(c->num, want);
@@ -3420,15 +3437,24 @@ static void counter_names(gg_cics *c, char *want, char *pool, char *shown) {
     if (!pool[0]) strcpy(pool, "-");
 }
 
-/* One GET of the counter at rows[at] (as CicsTask.getCounter(pool, name, increment, wrap)): the value it hands back in *out and
- * the counter `incr` more; 1 (SUPPRESSED RESP2 101, the counter unchanged) for a DEFINE DCOUNTER counter at its limit without
- * WRAP. #4770 (X45): such a counter has the limits it was given (unsigned doublewords): at its limit (MAXIMUM + 1) WRAP
- * "resets the current value ... equal to the minimum value" and the GET returns that; an INCREMENT beyond MAXIMUM - MINIMUM, or
- * past MAXIMUM + 1 (IBM's 406 / REDUCE boundaries are not stated), and a counter past a doubleword are refused. A counter with
- * no limits has none the run states: WRAP changes nothing and one past 4294967295 is refused, as before. */
-static int counter_step(counter_row *r, unsigned long long incr, int wrap, unsigned long long *out) {
+/* #5039 (X53): the value a GET hands out meets COMPAREMIN / COMPAREMAX (`has_*`: given): at or above the one, at or below the
+ * other, either when COMPAREMAX is below COMPAREMIN. As CicsTask.counterInRange. */
+static int counter_in_range(unsigned long long v, int has_min, unsigned long long cmin, int has_max, unsigned long long cmax) {
+    int ge = !has_min || v >= cmin, le = !has_max || v <= cmax;
+    return has_min && has_max && cmax < cmin ? (ge || le) : (ge && le);
+}
+
+/* GET with #5039 (X53)'s REDUCE ("the request succeeds with the current value set to the maximum plus 1": an INCREMENT that would
+ * carry the counter past MAXIMUM + 1 leaves it there) and COMPAREMIN / COMPAREMAX (2: SUPPRESSED RESP2 103, the counter unchanged).
+ * Refused, as CicsTask.getCounter: REDUCE with WRAP, REDUCE or a compare at a counter already at its limit, a negative compare
+ * value of a fullword counter (`full`). */
+static int counter_step_x(counter_row *r, unsigned long long incr, int wrap, int reduce, int has_min, unsigned long long cmin,
+                          int has_max, unsigned long long cmax, int full, unsigned long long *out) {
     unsigned long long v = r->value, next;
+    if (reduce && wrap) refuse("GET COUNTER with both REDUCE and WRAP");
+    if (full && ((has_min && ((cmin >> 31) & 1)) || (has_max && ((cmax >> 31) & 1)))) refuse("GET COUNTER COMPAREMIN / COMPAREMAX below zero");
     if (!r->limited) {
+        if (!counter_in_range(v, has_min, cmin, has_max, cmax)) return 2;
         if (incr > 4294967295ULL || v + incr > 4294967295ULL) refuse("GET COUNTER past 4294967295: the counter's maximum is not stated");
         *out = v;
         r->value = v + incr;
@@ -3436,17 +3462,33 @@ static int counter_step(counter_row *r, unsigned long long incr, int wrap, unsig
     }
     if (incr > r->max - r->min) refuse("GET COUNTER with an INCREMENT beyond the counter's range");
     if (r->max != ~0ULL && v > r->max) { /* at its limit: the counter is MAXIMUM + 1 */
+        if (reduce) refuse("GET COUNTER REDUCE at a counter already at its limit");
+        if (has_min || has_max) refuse("GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit");
         if (!wrap) return 1;
         *out = r->min;
         r->value = r->min + incr;
         return 0;
     }
+    if (!counter_in_range(v, has_min, cmin, has_max, cmax)) return 2;
     next = v + incr;
     if (next < v) refuse("GET COUNTER past a doubleword");
-    if (next > r->max && next - r->max > 1) refuse("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+    if (next > r->max && next - r->max > 1) {
+        if (!reduce) refuse("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+        next = r->max + 1;
+    }
     *out = v;
     r->value = next;
     return 0;
+}
+
+/* One GET of the counter at rows[at] (as CicsTask.getCounter(pool, name, increment, wrap)): the value it hands back in *out and
+ * the counter `incr` more; 1 (SUPPRESSED RESP2 101, the counter unchanged) for a DEFINE DCOUNTER counter at its limit without
+ * WRAP. #4770 (X45): such a counter has the limits it was given (unsigned doublewords): at its limit (MAXIMUM + 1) WRAP
+ * "resets the current value ... equal to the minimum value" and the GET returns that; an INCREMENT beyond MAXIMUM - MINIMUM, or
+ * past MAXIMUM + 1 (IBM's 406 / REDUCE boundaries are not stated), and a counter past a doubleword are refused. A counter with
+ * no limits has none the run states: WRAP changes nothing and one past 4294967295 is refused, as before. */
+static int counter_step(counter_row *r, unsigned long long incr, int wrap, unsigned long long *out) {
+    return counter_step_x(r, incr, wrap, 0, 0, 0, 0, 0, 0, out);
 }
 
 static void put32(unsigned char *p, unsigned long long v) {
@@ -3536,6 +3578,141 @@ static unsigned long long be64(const unsigned char *p, int len) {
 static void put64(unsigned char *p, unsigned long long v) {
     for (int i = 7; i >= 0; i--) { p[i] = (unsigned char)(v & 255); v >>= 8; }
 }
+
+/* GET COUNTER / DCOUNTER with REDUCE, COMPAREMIN, COMPAREMAX (#5039, register X53; IBM, EXEC CICS GET COUNTER and GET DCOUNTER):
+ * as GGCGCNT / GGCGDCN with `reduce` and the bounds, each an area of the counter's width (length 0: not given). SUPPRESSED RESP2 103
+ * when the value handed out is out of range. As CicsTask.getCounter(pool, name, increment, wrap, reduce, cmpMin, cmpMax, fullword). */
+static int get_counter_x(gg_cics *c, int width, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap, int reduce,
+                         unsigned char *cmin, int cminlen, unsigned char *cmax, int cmaxlen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    if (width == 4 && inclen == 8 && be64(inc, 8) <= 4294967295ULL) {
+        inc += 4;
+        inclen = 4;
+    }
+    if (inclen > width || valuelen != width || cminlen > width || cmaxlen > width) refuse("GET COUNTER with a VALUE, INCREMENT or compare value that is not the counter's width");
+    unsigned long long incr = be64(inc, inclen);
+    if (incr == 0) refuse("GET COUNTER with an INCREMENT not above zero");
+    int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+    } else if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+    } else {
+        unsigned long long v;
+        int st = counter_step_x(&rows[at], incr, wrap, reduce, cminlen > 0, be64(cmin, cminlen), cmaxlen > 0, be64(cmax, cmaxlen), width == 4, &v);
+        if (st) {
+            c->resp = SUPPRESSED;
+            c->resp2 = st == 1 ? 101 : 103;
+            return 0;
+        }
+        for (int i = width - 1; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
+        counters_write(rows, n);
+    }
+    return 0;
+}
+
+int GGCGCNX(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap, int reduce,
+            unsigned char *cmin, int cminlen, unsigned char *cmax, int cmaxlen) {
+    return get_counter_x(c, 4, value, valuelen, inc, inclen, wrap, reduce, cmin, cminlen, cmax, cmaxlen);
+}
+
+int GGCGDCX(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap, int reduce,
+            unsigned char *cmin, int cminlen, unsigned char *cmax, int cmaxlen) {
+    return get_counter_x(c, 8, value, valuelen, inc, inclen, wrap, reduce, cmin, cminlen, cmax, cmaxlen);
+}
+
+/* REWIND COUNTER / DCOUNTER(qname) POOL(name1) INCREMENT(inc) (#5039, X53; IBM, EXEC CICS REWIND COUNTER and REWIND DCOUNTER): a
+ * counter that has reached its limit (MAXIMUM + 1, where a GET leaves it) is reset to its minimum; SUPPRESSED RESP2 102 for one
+ * that has not; INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; 201 / 403 / 404. `inc` length 0: INCREMENT omitted (1).
+ * Refused, as CicsTask.rewindCounter: an INCREMENT of zero or above 1 within the range, a counter with no limits. */
+static int rewind_counter(gg_cics *c, int width, unsigned char *inc, int inclen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    if (inclen > width) refuse("REWIND COUNTER with an INCREMENT that is not the counter's width");
+    unsigned long long incr = inclen ? be64(inc, inclen) : 1;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        return 0;
+    }
+    if (incr == 0) refuse("REWIND COUNTER with an INCREMENT not above zero");
+    int n = counters_read(rows), at = counter_find(rows, n, pool, want);
+    if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+        return 0;
+    }
+    counter_row *r = &rows[at];
+    if (!r->limited) refuse("REWIND COUNTER of a counter whose limits the run does not state");
+    unsigned long long range = r->max - r->min + 1; /* 0: a full doubleword, which no INCREMENT exceeds */
+    if (range != 0 && incr > range) {
+        c->resp = INVREQ;
+        c->resp2 = 406;
+        return 0;
+    }
+    if (incr != 1) refuse("REWIND COUNTER with an INCREMENT above 1");
+    if (r->max == ~0ULL || r->value <= r->max) {
+        c->resp = SUPPRESSED;
+        c->resp2 = 102;
+        return 0;
+    }
+    r->value = r->min;
+    counters_write(rows, n);
+    return 0;
+}
+
+int GGCRCNT(gg_cics *c, unsigned char *inc, int inclen) { return rewind_counter(c, 4, inc, inclen); }
+int GGCRDCN(gg_cics *c, unsigned char *inc, int inclen) { return rewind_counter(c, 8, inc, inclen); }
+
+/* UPDATE COUNTER / DCOUNTER(qname) POOL(name1) VALUE(val) (#5039, X53; IBM, EXEC CICS UPDATE COUNTER and UPDATE DCOUNTER): the new
+ * current value; INVREQ 406 for a VALUE below MINIMUM or above MAXIMUM + 1; 201 / 403 / 404. Refused, as CicsTask.updateCounter: a
+ * negative fullword VALUE, a counter with no limits. */
+static int update_counter(gg_cics *c, int width, unsigned char *val, int vallen) {
+    char want[17], pool[9], shown[9];
+    counter_row rows[MAXCNT];
+    counter_names(c, want, pool, shown);
+    int bad = counter_name_resp2(shown, want);
+    if (vallen != width) refuse("UPDATE COUNTER with a VALUE that is not the counter's width");
+    unsigned long long value = be64(val, vallen);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        return 0;
+    }
+    if (width == 4 && ((value >> 31) & 1)) refuse("UPDATE COUNTER with a VALUE below zero");
+    int n = counters_read(rows), at = counter_find(rows, n, pool, want);
+    if (at < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 201;
+        return 0;
+    }
+    counter_row *r = &rows[at];
+    if (!r->limited) refuse("UPDATE COUNTER of a counter whose limits the run does not state");
+    if (value < r->min || (r->max != ~0ULL && value > r->max + 1)) {
+        c->resp = INVREQ;
+        c->resp2 = 406;
+        return 0;
+    }
+    r->value = value;
+    counters_write(rows, n);
+    return 0;
+}
+
+int GGCUCNT(gg_cics *c, unsigned char *val, int vallen) { return update_counter(c, 4, val, vallen); }
+int GGCUDCN(gg_cics *c, unsigned char *val, int vallen) { return update_counter(c, 8, val, vallen); }
 
 /* DEFINE DCOUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (#4770, register X45; IBM, EXEC CICS DEFINE COUNTER and DEFINE
  * DCOUNTER): unsigned doublewords, each area passed with its length (0: omitted -- IBM's defaults MINIMUM zero, MAXIMUM a doubleword
@@ -4307,7 +4484,7 @@ static void web_flush(void) {
 }
 
 static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap,
-                         int ofdoc, int doc_i, int docstatus) {
+                         int ofdoc, int doc_i, int docstatus, int pre, int pre2) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
     int eventual, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
@@ -4330,6 +4507,7 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (pre) { c->resp = pre; c->resp2 = pre2; conds++; } /* a container send's own conditions */
     if (ofdoc && doc_i < 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
     if (ofdoc && docstatus != 0 && docstatus != 295 && docstatus != 296) { c->resp = INVREQ; c->resp2 = 143; conds++; }
@@ -4379,7 +4557,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0);
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0, 0, 0);
 }
 
 /* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
@@ -4405,7 +4583,34 @@ int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *
     if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
     if (i == ndocs || doc_dead[i]) i = -1; /* NOTFND 1: not created, deleted or wrongly named (IBM lists one RESP2) */
     return web_send_body(c, i < 0 ? "" : (const char *)docs[i], i < 0 ? 0 : doc_len[i], media, mediacap, stext, stextcap, 1,
-                         i, c->secs);
+                         i, c->secs, 0, 0);
+}
+
+/* WEB SEND CONTAINER(GG-QNAME) [CHANNEL(GG-CHAN)] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body is
+ * the container's data as it is now. CONTAINERERR RESP2 2, CHANNELERR RESP2 2, INVREQ RESP2 145 (no CHANNEL, no current
+ * channel), INVREQ RESP2 150 (conversion of a BIT container); an empty container and a BIT container sent as it is are refused.
+ * As CicsTask.webSendContainer. */
+int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], name[17];
+    int sl = c->hours, hast, ch, pre = 0, pre2 = 0;
+    gg_container *k = NULL;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 145);
+    if (!ch) { pre = c->resp; pre2 = c->resp2; }
+    else if (!(k = container_named(&chans[ch - 1], name, 0))) { pre = CONTAINERERR; pre2 = 2; }
+    else if (c->mins != 0 && k->bit) { pre = INVREQ; pre2 = 150; }
+    else if (k->len == 0) refuse("WEB SEND of an empty container");
+    else if (k->bit) refuse("WEB SEND of a DATATYPE BIT container");
+    return web_send_body(c, pre ? "" : k->data, pre ? 0 : k->len, media, mediacap, stext, stextcap, 0, -1, 0, pre, pre2);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ

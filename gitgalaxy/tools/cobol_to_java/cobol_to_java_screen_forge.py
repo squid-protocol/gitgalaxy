@@ -31,6 +31,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -68,6 +69,16 @@ def _color(f: dict) -> str | None:
         if key.upper() == "COLOR" and value:
             return value.upper()
     return None
+
+
+_JUSTIFY = re.compile(r"(?:^|,)\s*JUSTIFY\s*=\s*(\([^)]*\)|[A-Za-z]+)", re.I)
+
+
+def _justify(f: dict) -> str | None:
+    """DFHMDF JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) as 'RIGHT,ZERO' (parentheses and blanks dropped, upper case); None
+    when the field has none. `attributes` keeps the operand as written, parenthesised comma and all."""
+    m = _JUSTIFY.search(f.get("attributes") or "")
+    return re.sub(r"[()\s]", "", m.group(1)).upper() or None if m else None
 
 
 @dataclass
@@ -196,10 +207,12 @@ class ScreenForge:
  * `name` is null for a screen literal (a label, which never reaches the symbolic map); `line` / `column`
  * are POS=(line,column) -- the attribute byte, so the data starts one column after it; `input` is
  * ATTRB=UNPROT, `numeric` ATTRB=NUM, `bright` BRT, `dark` DRK, `cursor` IC; `initial` the INITIAL text;
- * `occurs` the OCCURS count (1 without one).
+ * `occurs` the OCCURS count (1 without one); `justify` the DFHMDF JUSTIFY operand as "RIGHT", "RIGHT,ZERO",
+ * "LEFT,ZERO" ... (null without one): how BMS places the operator's input in the field (#5082).
  */
 public record ScreenField(String name, int line, int column, int length, boolean input, boolean numeric,
-                          boolean bright, boolean dark, boolean cursor, String initial, String color, int occurs) {{
+                          boolean bright, boolean dark, boolean cursor, String initial, String color, int occurs,
+                          String justify) {{
 }}
 """
         cell_src = f"""package {pkg};
@@ -313,7 +326,8 @@ public interface ScreenModel {{
                 f"            new ScreenField({_jstr(f.get('name'))}, {int(f.get('pos_line') or 0)}, "
                 f"{int(f.get('pos_column') or 0)}, {int(f.get('length') or 0)}, {str('UNPROT' in a).lower()}, "
                 f"{str('NUM' in a).lower()}, {str('BRT' in a).lower()}, {str('DRK' in a).lower()}, "
-                f"{str('IC' in a).lower()}, {_jstr(f.get('initial'))}, {_jstr(_color(f))}, {int(f.get('occurs') or 1)})"
+                f"{str('IC' in a).lower()}, {_jstr(f.get('initial'))}, {_jstr(_color(f))}, {int(f.get('occurs') or 1)}, "
+                f"{_jstr(_justify(f))})"
             )
         java.append(",\n".join(rows) + ");\n")
         for p in s.props:

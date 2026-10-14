@@ -407,6 +407,12 @@ class Generated:
         text = self._file("dto/screen", cls).read_text(encoding="utf-8")
         return re.findall(r'values\.put\("([A-Z0-9-]+)",', text)
 
+    def screen_justify(self, cls: str) -> dict[str, str]:
+        """#5082: a named field's DFHMDF JUSTIFY ("RIGHT", "RIGHT,ZERO", "LEFT,ZERO" ...), read off the screen class's
+        LAYOUT (cobol_to_java_screen_forge: `new ScreenField(name, ..., occurs, justify)`); a field without one is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        return dict(re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, "([A-Z,]+)"\)\)?[,;]?\s*$', text, re.M))
+
 
 def item_for(leaf: Leaf) -> L.Item:
     usage = {"COMP": "BINARY", "COMP-4": "BINARY", "BINARY": "BINARY", "COMP-3": "PACKED", "PACKED-DECIMAL": "PACKED",
@@ -858,7 +864,12 @@ class Cics:
             # #4770 (X45): INCREMENT is an unsigned doubleword and WRAP acts at a DEFINE DCOUNTER counter's maximum; the VALUE
             # of a doubleword counter is unsigned too (a 64-bit value past 2**63 is not a negative number)
             inc = f", {self.long_(_arg(opts['INCREMENT']))}" if opts.get("INCREMENT") else ""
-            if "WRAP" in opts:
+            if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
+                # #5039 (X53): REDUCE, COMPAREMIN / COMPAREMAX (the bounds the value handed out must meet; null: not given)
+                bound = lambda o: f"Long.valueOf({self.long_(_arg(opts[o]))})" if opts.get(o) else "null"  # noqa: E731
+                inc = (f"{inc or ', 1L'}, {'true' if 'WRAP' in opts else 'false'}, {'true' if 'REDUCE' in opts else 'false'}, "
+                       f"{bound('COMPAREMIN')}, {bound('COMPAREMAX')}, {'true' if 'COUNTER' in opts else 'false'}")  # fmt: skip
+            elif "WRAP" in opts:
                 inc = f"{inc or ', 1L'}, true"
             val = (
                 f"new BigDecimal(Long.toUnsignedString({v}[2]))"
@@ -927,8 +938,23 @@ class Cics:
                         + self.g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({v}[{i}])", False)
                     )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
+        if verb in ("REWIND", "UPDATE") and ("COUNTER" in opts or "DCOUNTER" in opts):
+            # #5039 (X53): the spec's groups, then CicsTask.rewindCounter / updateCounter
+            if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+                raise CicsError(_msg(f"{verb} COUNTER", "one_of", "COUNTER"))
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            nm = self.name(_arg(opts.get("COUNTER") or opts["DCOUNTER"]))
+            if verb == "REWIND":
+                inc = self.long_(_arg(opts["INCREMENT"])) if opts.get("INCREMENT") else "1L"
+                call = f"task.rewindCounter({pool}, {nm}, {inc})"
+            else:
+                if not opts.get("VALUE"):
+                    raise CicsError(_msg("UPDATE COUNTER", "required", "VALUE"))
+                call = f"task.updateCounter({pool}, {nm}, {self.long_(_arg(opts['VALUE']))}, {'true' if 'COUNTER' in opts else 'false'})"
+            return [f"{ind}int[] {v} = {call};", *self.outcome(opts, f"{v}[0]", f"{v}[1]", ind)]
         if "COUNTER" in opts or "DCOUNTER" in opts:
-            # the other named-counter commands (REWIND / UPDATE COUNTER, DCOUNTER): not modelled
+            # any other named-counter command: not modelled
             raise CicsError(f"{verb} COUNTER: {COUNTER}")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
@@ -1388,8 +1414,10 @@ class Cics:
         FROMLENGTH, MEDIATYPE's text, ACTION's value (0 when absent), STATUSCODE (-1), STATUSTEXT's text with STATUSLEN
         (-1: the whole area, ASSUMED) and the conversion flag; the response is recorded as WEB-SEND. Every option the
         spec entry does not model is refused by name (check_options)."""
-        if ("FROM" in opts) == ("DOCTOKEN" in opts):
+        if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
             raise CicsError(_msg(key, "one_of", "FROM"))
+        if "CHANNEL" in opts and "CONTAINER" not in opts:
+            raise CicsError(_requires(key, "CHANNEL", "CONTAINER"))
         if "FROM" in opts and "FROMLENGTH" not in opts:
             raise CicsError(_requires(key, "FROM", "FROMLENGTH"))
         if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -1409,6 +1437,12 @@ class Cics:
 
         conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
         r = self.g.tmpname("web")
+        if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data
+            chan = self.name(_arg(opts["CHANNEL"])) if "CHANNEL" in opts else "null"
+            call = (f"task.webSendContainer({chan}, {self.name(_arg(opts['CONTAINER']))}, {text('MEDIATYPE')}, "
+                    f"{num('ACTION', '0')}, {num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, "
+                    f"{conv}, CS)")  # fmt: skip
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                     f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
@@ -2265,13 +2299,17 @@ class Cics:
                f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
+        justify = self.gp.screen_justify(cls)
         for name in self.gp.screen_fields(cls):
             i = self.symbolic(m, "I", name, into.name)
             ln = self.symbolic(m, "L", name, into.name)
             if i is None:
                 continue
             out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
-            out.append(f"{ind}        DetCics.typed({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS);")
+            # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
+            tail = f", {G_jstr(justify[name])}" if name in justify else ""
+            call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)
@@ -2595,8 +2633,10 @@ class Cics:
             return self.delete_generic(opts, ind)
         if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
             return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
-            raise CicsError("UNLOCK without TOKEN: not modelled")
+        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
+            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+            r = self.g.tmpname("resp")
+            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

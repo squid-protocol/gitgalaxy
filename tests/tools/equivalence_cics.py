@@ -24,6 +24,7 @@ so the Java side can be compared field by field (see equivalence_java).
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 import shutil
@@ -838,8 +839,10 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
     key = "WEB SEND"
     _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if ("FROM" in opts) == ("DOCTOKEN" in opts):
+    if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
         raise Unsupported(_rule(key, "one_of", "FROM"), [key])
+    if "CHANNEL" in opts and "CONTAINER" not in opts:
+        raise Unsupported(_web_requires(key, "CHANNEL", "CONTAINER"), [key])
     if "FROM" in opts and "FROMLENGTH" not in opts:
         raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
     if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -850,14 +853,25 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
     if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
         raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "DOCSTATUS", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    for o in (
+        "FROMLENGTH",
+        "DOCTOKEN",
+        "CONTAINER",
+        "CHANNEL",
+        "MEDIATYPE",
+        "ACTION",
+        "DOCSTATUS",
+        "STATUSCODE",
+        "STATUSTEXT",
+        "STATUSLEN",
+    ):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
         if opts.get(o) and _literal(opts[o]):
             raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
-    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
+    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT"), ("CHANNEL", "CHANNEL")) if o in opts]
     lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
@@ -867,6 +881,15 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
         args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data (GG-QNAME its name, GG-CHAN its channel)
+        lines.append(f"MOVE {opts['CONTAINER']} TO GG-QNAME")
+        if "CHANNEL" in opts:
+            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
+        args = []
+        for o in ("MEDIATYPE", "STATUSTEXT"):
+            area = opts.get(o) or "GG-QNAME"
+            args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+        return lines + _call("GGCWSCT", args) + _resp(opts, True, labels)
     # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
     return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 
@@ -1348,10 +1371,14 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
         _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         file = opts.get("FILE") or opts.get("DATASET")
-        if not opts.get("TOKEN"):
-            raise Unsupported("UNLOCK without TOKEN (the held record of a file: not modelled, #5079)", ["UNLOCK"])
-        return ([name(file, "GG-NAME1"), f"MOVE {opts['TOKEN']} TO GG-NUM"] + _call("GGCUNLK", [])
-                + _resp(opts, True, labels))  # fmt: skip
+        token = (
+            [f"MOVE {opts['TOKEN']} TO GG-NUM", "MOVE 'TOKEN' TO GG-FLAGS"]
+            if opts.get("TOKEN")
+            else ["MOVE SPACES TO GG-FLAGS"]
+        )
+        return (
+            [name(file, "GG-NAME1"), *token] + _call("GGCUNLK", []) + _resp(opts, True, labels)
+        )  # #5079: no TOKEN, the file's hold
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb in ("ENQ", "DEQ"):
@@ -1365,27 +1392,48 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
-        for o in ("VALUE", "INCREMENT"):
-            if opts.get(o) and _literal(opts[o]):
+        for o in ("VALUE", "INCREMENT", "COMPAREMIN", "COMPAREMAX"):
+            # (#5039: a bound is read from its bytes, so a number written in place is no area either)
+            if opts.get(o) and (_literal(opts[o]) or (o.startswith("COMPARE") and re.fullmatch(r"[+-]?\d+", opts[o]))):
                 kind = "DCOUNTER" if "DCOUNTER" in opts else "COUNTER"
                 raise Unsupported(f"{kind} {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
-        if "COUNTER" in opts:  # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP
-            inc = opts.get("INCREMENT") or "GG-NAME2"
-            return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                    + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
-                    + _call("GGCGCNT", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                        f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
-                                        f"BY VALUE {1 if 'WRAP' in opts else 0}"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
-        # not given, through GG-NAME2's 8 bytes)
+        full = "COUNTER" in opts  # #5039 (X50): the fullword form
         inc = opts.get("INCREMENT") or "GG-NAME2"
-        return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
-                + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}",
-                                    f"BY VALUE {1 if 'WRAP' in opts else 0}"])  # #4770 (X45): WRAP acts at DEFINE DCOUNTER's limits
-                + _resp(opts, True, labels))  # fmt: skip
+        head = ([name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"]))  # fmt: skip
+        areas = [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                 f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}", f"BY VALUE {1 if 'WRAP' in opts else 0}"]  # fmt: skip
+        if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
+            # #5039 (X53): REDUCE and the bounds (an area each, length 0: not given)
+            areas.append(f"BY VALUE {1 if 'REDUCE' in opts else 0}")
+            for o in ("COMPAREMIN", "COMPAREMAX"):
+                v = opts.get(o)
+                areas += (
+                    [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+                )
+            return head + _call("GGCGCNX" if full else "GGCGDCX", areas) + _resp(opts, True, labels)
+        # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP; #4767 (X30): GET DCOUNTER, the doubleword form: the stub
+        # writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when not given, through GG-NAME2's 8 bytes); #4770 (X45): WRAP
+        # acts at DEFINE DCOUNTER's limits
+        return head + _call("GGCGCNT" if full else "GGCGDCN", areas) + _resp(opts, True, labels)
+    if verb in ("REWIND", "UPDATE") and {"COUNTER", "DCOUNTER"} & set(opts):  # #5039 (X53): REWIND / UPDATE COUNTER
+        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        full = "COUNTER" in opts
+        o = "INCREMENT" if verb == "REWIND" else "VALUE"
+        v = opts.get(o)
+        if verb == "UPDATE" and not v:
+            raise Unsupported(_rule("UPDATE COUNTER", "required", "VALUE"), ["UPDATE COUNTER"])
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(
+                f"{'COUNTER' if full else 'DCOUNTER'} {o} as a literal: a data area is the COBOL form",
+                [f"{verb} COUNTER"],
+            )
+        fn = {"REWIND": ("GGCRCNT", "GGCRDCN"), "UPDATE": ("GGCUCNT", "GGCUDCN")}[verb][0 if full else 1]
+        areas = [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+        return head + _call(fn, areas) + _resp(opts, True, labels)
     if verb == "QUERY" and (
         "COUNTER" in opts or "DCOUNTER" in opts
     ):  # #4415 slice 2 (X29): a named counter's value, unchanged
@@ -2340,12 +2388,49 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     return out
 
 
-def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING) -> bytes:
+def justified(text: str, width: int, justify: str) -> str:
+    """#5082 (X54): what BMS leaves in an input field whose DFHMDF says JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) (IBM CICS TS,
+    DFHMDF): the text typed, without its trailing blanks, at the left or right end of the field, the rest filled with
+    blanks or zeros. The DFHMDF's JUSTIFY only: a field with none is the text as typed, as before."""
+    typed = text.rstrip(" ")
+    fill = "0" if "ZERO" in justify else " "
+    if "RIGHT" in justify:
+        return typed[-width:].rjust(width, fill)
+    return typed[:width].ljust(width, fill)
+
+
+@functools.lru_cache(maxsize=256)
+def bms_justify(corpus: Path, map_name: str) -> dict[str, str]:
+    """{symbolic input field (<name>I): its DFHMDF JUSTIFY, "RIGHT,ZERO"} of a map, from the corpus's BMS sources (the
+    engine's own reading of them, gitgalaxy.core.bms_screen_fields); a map with no JUSTIFY field gives {}."""
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _justify
+
+    out: dict[str, str] = {}
+    for p in sorted(corpus.rglob("*.bms")):
+        if ".git" in p.parts:
+            continue
+        rows = bms_screen_fields(read_source(p).text)
+        maps = {r["ordinal"] for r in rows if r["kind"] == "map" and (r["name"] or "").upper() == map_name.upper()}
+        for r in rows:
+            if r["kind"] == "field" and r["parent_ordinal"] in maps and r["name"] and _justify(r):
+                out[r["name"].upper() + "I"] = _justify(r)
+    return out
+
+
+def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING,
+              justify: dict[str, str] | None = None) -> bytes:  # fmt: skip
     """A RECEIVE MAP input area: nulls everywhere, and for each field the user typed in
-    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L)."""
+    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L). `justify` (#5082): the fields whose DFHMDF
+    says JUSTIFY, by symbolic name: their data is as BMS justifies it; the length is that of the text typed."""
     typed: dict[str, Any] = {}
+    width = {f["name"]: f["bytes"] for f in fields}
     for field, text in values.items():
-        typed[field] = text.encode(enc)  # what was typed, whatever the field's PICIN
+        placed = (
+            justified(text, width[field], justify[field]) if justify and field in justify and field in width else text
+        )
+        typed[field] = placed.encode(enc)  # what was typed, whatever the field's PICIN
         typed[field[:-1] + "L"] = len(text.rstrip())
     return encode_record(fields, typed, b"\x00", enc)
 
@@ -2811,11 +2896,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
     subs = []
+    linked_programs_cov: list[dict[str, Any]] = []  # #5084: each program the task CALLs / LINKs, for its coverage
     for rel in case.get("subprograms", []):
         sub_text, _ = common.read_program(case, corpus / rel)
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
+        linked_programs_cov.append({"name": name, "source": corpus / rel, "original": sub_text,
+                                    "compiled": common.compile_options(case, sub_text)[0],
+                                    "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
     calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
@@ -2859,6 +2948,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")
         linked[name] = x_ca
+        linked_programs_cov.append({"name": name, "source": corpus / extra["program_source"], "original": x_text,
+                                    "compiled": x_translated, "compiled_name": f"{name}.cbl"})  # fmt: skip
     if case_child_programs(case):  # #4950: a RUN TRANSID child runs its program through the dispatcher
         (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea, True), encoding="ascii")
     if "CALL 'GGCRUN'" in text or linked:  # a LINK: the level's dispatcher, running the case's other programs
@@ -2940,7 +3031,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             for i, item in enumerate(items, 1):
                 (qdir / f"{i:06d}.bin").write_bytes(item.encode(enc))
         for m, typed in (sc.get("receive") or {}).items():
-            (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
+            (d / f"receive_{m}.bin").write_bytes(
+                map_input(screen_fields(corpus, case, m, "input"), typed, enc, bms_justify(corpus, m))
+            )
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
@@ -3028,9 +3121,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
 
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     def coverage(names: list[str]) -> None:  # (again after the Java side, without tasks it could not judge: #4173)
-        cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
-                               compiled=text, traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
-                               compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+        cov.write_run_coverage(work / "coverage.json", extras=linked_programs_cov, source=corpus / case["program_source"],
+                               original=program, compiled=text, copybooks=corpus, encoding=staged,
+                               traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
+                               compiled_name="PROGRAM.cbl")  # fmt: skip
 
     coverage([sc["name"] for sc in kept])
     RECOVER[str(work)] = coverage

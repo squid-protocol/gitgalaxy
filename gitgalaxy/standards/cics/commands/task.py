@@ -112,15 +112,15 @@ GET_COUNTER = Command(
         "VALUE": Arg("area_out"),
         "INCREMENT": Arg("area_in", binary=True),
         "WRAP": Arg("flag"),
+        "REDUCE": Arg("flag"),  # X53: at MAXIMUM + 1 the increment shrinks to what is left
+        "COMPAREMIN": Arg(
+            "area_in", binary=True
+        ),  # X53: SUPPRESSED RESP2 103 when the value handed out is out of range
+        "COMPAREMAX": Arg("area_in", binary=True),
+        "NOSUSPEND": Arg("flag"),  # X53: one task, no coupling-facility structure: BUSY RESP2 500 cannot occur
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
-    },
-    refused={
-        "REDUCE": Refusal("the increment shrunk at the counter's maximum: the maximum is not stated", "X30"),
-        "COMPAREMIN": Refusal("a range check on the counter's value (SUPPRESSED RESP2 103) is not modelled", "X30"),
-        "COMPAREMAX": Refusal("a range check on the counter's value (SUPPRESSED RESP2 103) is not modelled", "X30"),
-        "NOSUSPEND": Refusal("a coupling-facility structure rebuild (BUSY RESP2 500) is not modelled", "X30"),
     },
     groups=(
         required("VALUE", msg="GET COUNTER without VALUE"),
@@ -153,6 +153,30 @@ GET_COUNTER = Command(
             c="GET COUNTER with an INCREMENT past MAXIMUM + 1",
         ),
         RuntimeRefusal(
+            "REDUCE together with WRAP: IBM does not say which acts when the increment overshoots",
+            "X53",
+            java="GET COUNTER with both REDUCE and WRAP",
+            c="GET COUNTER with both REDUCE and WRAP",
+        ),
+        RuntimeRefusal(
+            "REDUCE at a counter already at MAXIMUM + 1: IBM's page leaves open whether it is SUPPRESSED 101 or reduced to nothing",
+            "X53",
+            java="GET COUNTER REDUCE at a counter already at its limit",
+            c="GET COUNTER REDUCE at a counter already at its limit",
+        ),
+        RuntimeRefusal(
+            "COMPAREMIN / COMPAREMAX at a counter already at MAXIMUM + 1: which of SUPPRESSED 101 and 103 comes first is not stated",
+            "X53",
+            java="GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit",
+            c="GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit",
+        ),
+        RuntimeRefusal(
+            "a COMPAREMIN / COMPAREMAX below zero: the signed reading of a negative counter value is not stated",
+            "X53",
+            java="GET COUNTER COMPAREMIN / COMPAREMAX below zero",
+            c="GET COUNTER COMPAREMIN / COMPAREMAX below zero",
+        ),
+        RuntimeRefusal(
             "a counter that would pass a doubleword",
             "X45",
             java="GET COUNTER past a doubleword",
@@ -164,6 +188,7 @@ GET_COUNTER = Command(
         Outcome("NORMAL", 0, "", writes=("VALUE",)),
         # X45: a DEFINE DCOUNTER counter at its limit without WRAP: "the current number is not changed"
         Outcome("SUPPRESSED", 101, "Counter at its limit: no numbers are available until a REWIND or WRAP"),
+        Outcome("SUPPRESSED", 103, "The current value is outside the COMPAREMIN / COMPAREMAX range"),
         Outcome("INVREQ", 201, "Named counter not found"),
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
         Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
@@ -187,6 +212,7 @@ QUERY_COUNTER = Command(
         "VALUE": Arg("area_out"),
         "MINIMUM": Arg("area_out"),  # X45: a DEFINE DCOUNTER counter's limits, doubleword unsigned
         "MAXIMUM": Arg("area_out"),
+        "NOSUSPEND": Arg("flag"),  # X53
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
@@ -242,6 +268,7 @@ DEFINE_COUNTER = Command(
         "VALUE": Arg("value"),
         "MINIMUM": Arg("value"),  # X45: DCOUNTER only (doubleword unsigned); IBM: MINIMUM needs VALUE
         "MAXIMUM": Arg("value"),
+        "NOSUSPEND": Arg("flag"),  # X53
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
@@ -288,6 +315,7 @@ DELETE_COUNTER = Command(
         "COUNTER": Arg("name", width=16),
         "DCOUNTER": Arg("name", width=16),  # X45: the one store holds both forms
         "POOL": Arg("name", width=8),
+        "NOSUSPEND": Arg("flag"),  # X53
         "RESP": RESP_OPTIONS["RESP"],
         "RESP2": RESP_OPTIONS["RESP2"],
         **_NOHANDLE,
@@ -300,6 +328,121 @@ DELETE_COUNTER = Command(
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
     ),
     runtime_refusals=(
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+# #5039 (register X53): REWIND / UPDATE COUNTER and DCOUNTER. IBM (EXEC CICS REWIND COUNTER and REWIND DCOUNTER): resets a
+# counter "that has reached its limit" to its minimum; SUPPRESSED RESP2 102 when it has not, INVREQ 406 for an INCREMENT beyond
+# (maximum - minimum) + 1, 201 / 403 / 404 as GET. (EXEC CICS UPDATE COUNTER and UPDATE DCOUNTER): VALUE the new current value;
+# INVREQ 406 below the minimum or above the maximum plus 1. UPDATE's COMPAREMIN / COMPAREMAX are refused by name: the page
+# tests "the current value to assign" in the options and "the current value of the named counter" in SUPPRESSED 103.
+REWIND_COUNTER = Command(
+    key="REWIND COUNTER",
+    ibm=ibm("EXEC CICS REWIND COUNTER and REWIND DCOUNTER", "summary-rewind-counter-rewind-dcounter"),
+    status="modelled",
+    register="X53",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "INCREMENT": Arg("area_in", binary=True),
+        "NOSUSPEND": Arg("flag"),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    groups=(one_of("COUNTER", "DCOUNTER", msg="REWIND COUNTER needs one of COUNTER and DCOUNTER"),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("SUPPRESSED", 102, "The counter has not reached its limit"),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 406, "INCREMENT exceeds the counter's total range"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "an INCREMENT not above zero (IBM gives it no meaning)",
+            "X53",
+            java="REWIND COUNTER with an INCREMENT not above zero",
+            c="REWIND COUNTER with an INCREMENT not above zero",
+        ),
+        RuntimeRefusal(
+            "an INCREMENT above 1 within the counter's range: how IBM's limit test applies it is not stated",
+            "X53",
+            java="REWIND COUNTER with an INCREMENT above 1",
+            c="REWIND COUNTER with an INCREMENT above 1",
+        ),
+        RuntimeRefusal(
+            "a counter with no limits entry (a scenario's): its limit, which REWIND tests, is not stated by the run",
+            "X53",
+            java="REWIND COUNTER of a counter whose limits the run does not state",
+            c="REWIND COUNTER of a counter whose limits the run does not state",
+        ),
+        RuntimeRefusal(
+            "a counter name of blanks only: IBM states the character rules, not an empty name",
+            "X30",
+            java="a named counter with a blank name",
+            c="a named counter with a blank name",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+UPDATE_COUNTER = Command(
+    key="UPDATE COUNTER",
+    ibm=ibm("EXEC CICS UPDATE COUNTER and UPDATE DCOUNTER", "summary-update-counter-update-dcounter"),
+    status="modelled",
+    register="X53",
+    options={
+        "COUNTER": Arg("name", width=16),
+        "DCOUNTER": Arg("name", width=16),
+        "POOL": Arg("name", width=8),
+        "VALUE": Arg("value"),
+        "NOSUSPEND": Arg("flag"),
+        "RESP": RESP_OPTIONS["RESP"],
+        "RESP2": RESP_OPTIONS["RESP2"],
+        **_NOHANDLE,
+    },
+    refused={
+        "COMPAREMIN": Refusal(
+            "IBM does not say whether the range tests the new VALUE or the counter's current value", "X53"
+        ),
+        "COMPAREMAX": Refusal(
+            "IBM does not say whether the range tests the new VALUE or the counter's current value", "X53"
+        ),
+    },
+    groups=(
+        required("VALUE", msg="UPDATE COUNTER without VALUE"),
+        one_of("COUNTER", "DCOUNTER", msg="UPDATE COUNTER needs one of COUNTER and DCOUNTER"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 201, "Named counter not found"),
+        Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
+        Outcome("INVREQ", 406, "VALUE is invalid (below the minimum, or above the maximum plus 1)"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a VALUE below zero: IBM does not state how a negative number reads against the unsigned store",
+            "X53",
+            java="UPDATE COUNTER with a VALUE below zero",
+            c="UPDATE COUNTER with a VALUE below zero",
+        ),
+        RuntimeRefusal(
+            "a counter with no limits entry (a scenario's): the range the VALUE must lie in is not stated by the run",
+            "X53",
+            java="UPDATE COUNTER of a counter whose limits the run does not state",
+            c="UPDATE COUNTER of a counter whose limits the run does not state",
+        ),
         RuntimeRefusal(
             "a counter name of blanks only: IBM states the character rules, not an empty name",
             "X30",
@@ -637,6 +780,8 @@ COMMANDS = (
     QUERY_COUNTER,
     DEFINE_COUNTER,
     DELETE_COUNTER,
+    REWIND_COUNTER,
+    UPDATE_COUNTER,
     ASKTIME,
     FORMATTIME,
     INQUIRE_PROGRAM,

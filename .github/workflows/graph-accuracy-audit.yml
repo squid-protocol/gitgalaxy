@@ -20,6 +20,7 @@ name: Graph Accuracy Audit
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
     paths:
@@ -53,6 +54,7 @@ concurrency:
 
 jobs:
   graph-accuracy-audit:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -82,8 +84,9 @@ jobs:
 
       # The runner's preinstalled node is enough; the version is pinned so the
       # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
+      # #5048: bounded retry, INFRASTRUCTURE marker (the comment sits above the command: a trailing one is read as packages)
       - name: Install the TypeScript checker (call-resolution reference)
-        run: npm install --global "typescript@6.0.2"
+        run: gitgalaxy/tests/tools/ci_retry.sh 4 10 -- npm install --global "typescript@6.0.2"
 
       # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
       # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are

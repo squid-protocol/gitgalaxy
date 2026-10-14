@@ -269,6 +269,42 @@
     }
    ],
    "why": "#4628 (det-port mutants bce63609d8, 6d05a11617): a user's XCTL to COMEN01C fails -- the task abends"
+  },
+  {
+   "name": "short-commarea-wrong-password",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "commarea_length": 100,
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "NOTMYPWD"
+    }
+   },
+   "why": "#4628 (det-port mutant 2a193f7f94): the caller passed only the first 100 bytes of CARDDEMO-COMMAREA (EIBCALEN 100, X23); COSGN00C never reads DFHCOMMAREA, so it answers as wrong-password does -- the RETURN's COMMAREA is its own"
+  },
+  {
+   "name": "receive-every-fset-field",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "TRNNAMEI": "CC00",
+     "TITLE01I": "AWS Mainframe Modernization",
+     "USERIDI": "USER0001",
+     "PASSWDI": "NOTMYPWD",
+     "ERRMSGI": "Wrong Password. Try again ..."
+    }
+   },
+   "why": "#4628 (det-port mutants f61f2537c3, bc352d122b): a real 3270 sends back every FSET field (COSGN00.bms: TRNNAME, TITLE01, ERRMSG are ASKIP,FSET) with the ones the operator typed; COSGN00C reads only USERIDI / PASSWDI, so the answer is wrong-password's"
   }
  ],
  "notes": "CardDemo's sign-on (transaction CC00, program COSGN00C): the screen shows the region's APPLID and SYSID (EXEC CICS ASSIGN); ENTER upper-cases the user id and password, reads the user security record and XCTLs an administrator to COADM01C and a user to COMEN01C; a wrong password, an unknown id or an empty field shows the screen again; PF3 says goodbye in plain text. The region's identity is a deployment fact CardDemo does not fix: CARDDEMO / CICA here are illustrative values the case states, given alike to both sides. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

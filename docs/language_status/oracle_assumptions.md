@@ -373,13 +373,31 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 ### Compile options: the table (#4706)
 One row per option that can change a result: (1) does it change results; (2) can cobc honour it; (3) what the det
 port does; (4) otherwise refused by name or a declared difference (#4702: IBM is the reference, GnuCOBOL the
-instrument). Rows for the other options of #4706 follow in its later slices.
+instrument). The rows below are rendered by one table in code (`compiler_options.OPTION_TABLE`; `estate_options.EffectiveOptions.unhonoured`): the estate's PARM, installation defaults and CBL cards are resolved against it, so an option the harness cannot honour is no longer merely recorded. Citations: Enterprise COBOL for z/OS 6.x Programming Guide, "Compiler options", the option's own section; the defaults are those the 6.4 page lists (FLOAT's default is not on it: HEX is what register C6 models).
 
 | option | (1) changes results? | (2) cobc | (3) det port | (4) otherwise | register |
 |---|---|---|---|---|---|
 | `TRUNC(STD)` (IBM default) | yes: a binary receiver keeps its PICTURE's digits | `-fbinary-truncate` | `Cobol.swapTruncBinary(true)` | -- | C1 |
 | `TRUNC(BIN)` | yes: a binary receiver keeps its bytes | `-fnotrunc` | `Cobol.swapTruncBinary(false)` | -- | C1 |
 | `TRUNC(OPT)` | only for a binary value past its PICTURE, where IBM's result is unpredictable; conforming values compute as STD | `-fbinary-truncate` (STD: equal for conforming values) | STD, plus `Cobol.swapTruncOpt(true)`: a value past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name ("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable") | a port without the stop (model, generated) is proven as STD: a declared difference (`option_differences`) | C1, C5 |
+| `ARITH(COMPAT)` / `ARITH(EXTEND)` | yes: EXTEND widens intermediates to 31 digits | none for EXTEND | none | `ARITH(EXTEND)` refused by name (`COBC_OPTIONS`) | C5 |
+| `INTDATE(ANSI)` / `INTDATE(LILIAN)` | yes: day 1 of INTEGER-OF-DATE moves from 1601-01-01 to 1582-10-15 | none for LILIAN | none | `INTDATE(LILIAN)` refused by name (`COBC_OPTIONS`) | C5 |
+| `NUMPROC(NOPFD\|PFD\|MIG)` | only for a sign that is not preferred | none needed | PFD refuses a non-preferred sign (`Codec.numprocPfd`) | MIG compiles as NOPFD from Enterprise COBOL 5 (`numproc_mig`) | C5 |
+| `ZONEDATA(PFD)` (IBM default) | no for valid zone bits (an invalid one is refused by C11) | none needed | refuses a non-digit zoned operand | -- | C11 |
+| `ZONEDATA(NOPFD\|MIG)` | yes: defines what invalid zone bits / digits do in MOVE, compare and arithmetic (APAR PI57769) | none | none | refused by name | C5 |
+| `INVDATA` (default `NOINVDATA`) | yes: supersedes ZONEDATA, defines what invalid DISPLAY / PACKED-DECIMAL data does | none | none | any `INVDATA` refused by name (its sub-option semantics are not read here; owner decision if ever needed) | C5 |
+| `CODEPAGE(ccsid)` (default 1140) | yes: compile-time and runtime character conversion (literals, collating, national) | none: the oracle runs the data in the case's `data_encoding` | the same data code page | honoured for 1140 / 37 (the IBM default, as every proof assumes) or the CCSID of the case's `data_encoding`; any other (GenApp's `CODEPAGE(285)`) is a declared difference | C5 |
+| `NSYMBOL(NATIONAL)` (IBM default) | only for PIC N | none needed | national text refused (#4272) | -- | C5 |
+| `NSYMBOL(DBCS)` | yes: N literals / PIC N are DBCS | none | none | refused by name | C5 |
+| `DISPSIGN(COMPAT)` (IBM default) | no | none needed | -- | -- | C5 |
+| `DISPSIGN(SEP)` | yes: DISPLAY of a signed numeric item | none | none | refused by name | C5 |
+| `FLOAT(HEX)` / `S390` | the det port models hexadecimal floating point | none needed | HFP (`Hfp`) | -- | C6 |
+| `FLOAT(NATIVE)` | yes: IEEE binary floating point | none | none | refused by name | C6 |
+| `AFP(VOLATILE\|NOVOLATILE)` | no: which floating-point registers the code uses | none needed | -- | recorded only | C5 |
+| `NOSSRANGE` (IBM default) / `SSRANGE` | only on an out-of-range subscript or reference modification: undefined under NOSSRANGE, an abend under SSRANGE | none (no check) | no check | `SSRANGE` is proven as NOSSRANGE: a declared difference, so a run with no violation is IBM's | C5 |
+| `NONUMCHECK` (IBM default) / `NUMCHECK` | only on invalid numeric data in a sending item (message or abend under NUMCHECK) | none | none | `NUMCHECK` is proven as NONUMCHECK: a declared difference | C5 |
+| `NOINITCHECK` (IBM default) / `INITCHECK` | no: compile-time warnings for uninitialised items | none needed | -- | recorded only | C5 |
+| `OPTIMIZE(0\|1\|2\|STD\|FULL)` | no for defined behaviour: run time and storage | none needed | -- | recorded only (CBSA's `OPT` = `OPTIMIZE(1)`) | C5 |
 
 ### C6. Floating point — MODELLED in the det runtime as HFP (#4271 slice 1); the oracle DIFFERS
 - **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a sign bit, a 7-bit characteristic

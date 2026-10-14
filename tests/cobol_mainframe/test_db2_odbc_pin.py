@@ -144,6 +144,9 @@ def test_curl_missing_or_hanging_is_infrastructure_too(tmp_path, monkeypatch):
 # --- #5094: the sweep's parallel jobs share one fetch --------------------------------------------------------------
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="the fetch lock is a no-op without fcntl (the Db2 sweep is Linux-only)"
+)
 def test_concurrent_fetches_download_once_and_all_succeed(tmp_path, monkeypatch):
     """#5094: four --jobs processes starting on a fresh runner each fetched into the same `.part` and deleted each
     other's file ("sha256 no file"). One fetch runs at a time; the rest find the verified file."""

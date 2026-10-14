@@ -233,7 +233,11 @@ def _setup_lock(name: str):
     """An exclusive flock held for the `with` block: the processes of a --jobs sweep start together on a fresh runner
     (CI) and must not fetch the driver or build the image over each other (#5094)."""
     import contextlib
-    import fcntl
+
+    try:
+        import fcntl
+    except ImportError:  # Windows: the Db2 sweep (Docker + Db2 container) only runs on Linux, so no lock is needed
+        return contextlib.nullcontext()
 
     @contextlib.contextmanager
     def held():

@@ -158,6 +158,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X48 | CICS | The equivalence harness's `faults` take DUPKEY (RESP 15, RESP2 140) on READ / READNEXT / READPREV, where the read runs and delivers its record (INTO, and RIDFLD for a browse, and a READ UPDATE's hold) and answers DUPKEY; DUPREC (14, RESP2 150) on WRITE / REWRITE, where nothing is written; any other command / condition pair of the two, a wrong RESP2, and DUPKEY on DELETE are refused by name | ASSUMED (REFUSED where IBM is silent) | no (the reference region has no alternate index path to read through; proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults against each other: tests/cobol_mainframe/test_equivalence_cics.py, tests/cics_crucible/test_cics_runtimes.py) |
 | X49 | CICS | The equivalence harness's `faults` on a file command (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE) take a condition only where IBM lists it for that command, and carry IBM's RESP2 (given, or the default when IBM gives one; INVREQ and LENGERR have several, so the scenario names one); an unlisted command / condition pair, a RESP2 IBM does not give, the data-table and RLS conditions (LOADING, RECORDBUSY, CHANGED, SUPPRESSED) and ILLOGIC on READNEXT / READPREV / REWRITE (IBM also ends the browse, not modelled) are refused by name | ASSUMED (REFUSED where IBM is silent) | no (an injection: the reference region's logs do not hold these conditions; the planned form is proved on both sides by the stub (tests/equivalence/cics/ggcics.c) and CicsTask.withFaults reading the same plan: tests/cics_crucible/test_file_fault_conditions.py, tests/cobol_mainframe/test_equivalence_cics.py) |
 | X50 | CICS | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused | ASSUMED (REFUSED where IBM is silent) | no |
+| X51 | CICS | EXEC CICS RETURN TRANSID COMMAREA LENGTH and XCTL COMMAREA LENGTH hand the next task / the target LENGTH bytes (its EIBCALEN), every byte as it was; the det port passes the record's whole span beside its DTO (#4806, #4817), so CicsTask cuts those bytes at LENGTH (null: all; past the span: all of it), as the DTO's reading already is; a LINK's area is not cut (by address); a LENGTH past the DTO passes the COMMAREA as a byte[] (region EBCDIC), which a facade's handleTransaction answers as an Object by design | ASSUMED | no (unit-proven on CicsTask for RETURN, RETURN IMMEDIATE and XCTL, every LENGTH class: tests/cobol_mainframe/test_commarea_length_bytes_4817.py; no estate program differs by it: a conforming program never reads past EIBCALEN) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2503,6 +2504,21 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Refused by name, unchanged:** REWIND, UPDATE, GET's REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND on DEFINE / GET / QUERY / UPDATE / REWIND / DELETE.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven on both runtimes scenario for scenario
   (tests/cics_crucible/test_cics_runtimes.py `_X50_CASES`) and both translators.
+
+### X51. A RETURN or XCTL COMMAREA passes LENGTH bytes, a LINK's is passed by address — the det port cuts the bytes it passes beside the DTO at LENGTH (#4817, #4695)
+- **What.** The det port keeps the bytes of a COMMAREA beside its DTO so a numeric DISPLAY field holding spaces, or a byte no DTO
+  decodes, reaches the next task as it was (#4806 XCTL / LINK, #4817 RETURN TRANSID). Those bytes are the record's whole span;
+  the command's LENGTH can be shorter.
+- **IBM.** EXEC CICS RETURN (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) and EXEC CICS XCTL
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-xctl): COMMAREA names the data area passed on and LENGTH its length;
+  the receiving program's EIBCALEN is that length, so what it may address is LENGTH bytes. The pages say nothing of the bytes
+  of a longer record past LENGTH: a program must not read them (the entry treats the cut as the model, ASSUMED, not as IBM text).
+- **What we do.** `CicsTask.returnTransid` / `returnImmediate` / `xctl` keep `min(LENGTH, bytes)` of the bytes passed (a copy); a
+  null LENGTH keeps all of them. A LINK passes its area by address (#4806), so the callee's storage is the caller's, tail included:
+  not cut. A RETURN whose LENGTH is past the DTO passes the COMMAREA as a `byte[]` in the region's EBCDIC (#4679): the facade's
+  `handleTransaction` answers it as an `Object` (it has no DTO type for it), `returned(Dto.class)` refuses it by name, and
+  `returnedBytes()` is null (the bytes are the answer itself) (#4695).
+- **Status:** ASSUMED. The oracle's (GnuCOBOL) storage past the LENGTH of a copied COMMAREA is not IBM's either; no program may rely on it.
 
 ## Language Environment
 

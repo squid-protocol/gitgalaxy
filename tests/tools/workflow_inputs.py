@@ -33,31 +33,7 @@ SCRIPT = re.compile(r"\bpython3?\s+(?:-[A-Za-z]\s+\S+\s+)*((?:gitgalaxy/)?(?:tes
 # (workflow file, input) -> why it is deliberately not a trigger
 ALLOW: dict[tuple[str, str], str] = {
     (
-        "cics-crucible.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
-        "estate-crucible.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
-        "fact-crosscheck.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
         "java-compile.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
-        "ports-compile.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
-        "tree-sitter-accuracy-audit.yml",
-        "tests/tools/skip_tested_tree.py",
-    ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
-    (
-        "unicode-gauntlet.yml",
         "tests/tools/skip_tested_tree.py",
     ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
 }

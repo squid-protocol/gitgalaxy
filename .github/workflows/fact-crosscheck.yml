@@ -40,27 +40,10 @@ on:
       - ".github/workflows/fact-crosscheck.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       - "!**/*.md"
-  push:
-    branches: [main]
-    paths:
-      - "gitgalaxy/**"
-      - "pyproject.toml"
-      - "tests/tools/fact_crosscheck.py"
-      - "tests/tools/referees/translator_adapter.py"
-      - "tests/tools/referees/engine_adapter.py"
-      - "tests/tools/referees/facts.py"
-      - "tests/tools/referees/estate_key.py"
-      - "tests/tools/cobol_answer_key.py"
-      - "tests/tools/mainframe_corpus.py"
-      - "tests/tools/estate_crucible.py"
-      - "tests/_estate_crucible_pin.py"
-      - "tests/crucible_pins.toml"
-      - "tests/cobol_mainframe/fact_crosscheck_ledger.json"
-      - "tests/cobol_mainframe/corpora.json"
-      - "tests/cobol_mainframe/answer_key/**"
-      - "tests/equivalence/*/case.json"
-      - ".github/workflows/fact-crosscheck.yml"
-      - "!**/*.md"
+  # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
+  # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
+  schedule:
+    - cron: "7 6 * * *"  # nightly (#5136)
   workflow_dispatch:
 
 permissions:
@@ -71,36 +54,8 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
-  # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
-  # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
-  tested-tree:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-      pull-requests: read
-    outputs:
-      skip: ${{ steps.decide.outputs.skip }}
-    steps:
-      - name: Checkout the gate script
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/tools/skip_tested_tree.py
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Decide
-        id: decide
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python tests/tools/skip_tested_tree.py fact-crosscheck.yml
-
   crosscheck:
-    needs: tested-tree
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 12  # install + 7 corpus scans + the crucible scan + ~10 s of comparison; a hang should fail fast
     env:

@@ -13,6 +13,7 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
+from gitgalaxy.core import cics_macro_level as ML  # noqa: E402
 from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa: E402
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db  # noqa: E402
@@ -41,6 +42,13 @@ def inventory_template():
 def count_item(inv, category, key, prog_rel):
     inv[category][key]["count"] += 1
     inv[category][key]["programs"].add(prog_rel)
+
+
+def count_refusal_family(inv, family, prog_rel):
+    """#5121: a program of a family refused by name (macro-level CICS, CICS Assembler). The category exists only once
+    an estate has one (never an empty `refusal_families`), so an estate without any keeps its fixture byte for byte."""
+    inv.setdefault("refusal_families", defaultdict(lambda: {"count": 0, "programs": set()}))
+    count_item(inv, "refusal_families", family, prog_rel)
 
 
 def count_unknown(inv, category, prog_rel):
@@ -196,6 +204,13 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
 
     try:
         lines = S.program_lines(prog, estate_copy_dirs, engine_copies)
+    except S.MacroLevelCics as e:  # #5121: refused by name, before COPY expansion; not parsed as COBOL with holes
+        for m in re.finditer(r"(macro-level CICS|CICS Assembler) not supported", str(e)):
+            count_refusal_family(inv, m.group(1), rel_prog)
+        inv["unparsed_programs"].append(
+            {"program": rel_prog, "reason": type(e).__name__ + " - " + _portable(str(e), estate_dir)}
+        )
+        return
     except S.CopyNotFound as e:
         count_item(inv, "copybook_resolution_gaps", _copy_not_found(e), rel_prog)
         inv["unparsed_programs"].append({"program": rel_prog, "reason": f"CopyNotFound: {_copy_not_found(e)}"})
@@ -300,6 +315,19 @@ def scan_estate(estate_dir: Path, db_dir: Path) -> dict:
         ]
     )
 
+    # #5121: assembler members (CICS Assembler, macro-level CICS); a macro TABLE source (DFHFCT ...) has no hit
+    for asm in sorted(
+        p
+        for p in estate_dir.rglob("*")
+        if p.is_file() and p.suffix.lower() in ML.ASSEMBLER_SUFFIXES and ".git" not in p.parts
+    ):
+        try:
+            hits = ML.assembler_hits(read_source(asm).text.splitlines())
+        except Exception:
+            continue
+        for family in ML.families(hits):
+            count_refusal_family(inv, family, str(asm.relative_to(estate_dir)).replace("\\", "/"))
+
     bms = db_dir / "bms"
     bms.mkdir(exist_ok=True)
     S.bms_copybooks(
@@ -348,7 +376,7 @@ def main():
             for cat in data:
                 if cat == "unparsed_programs":
                     continue
-                if "unknown" not in data[cat]:
+                if "unknown" not in data[cat] and cat != "refusal_families":
                     raise ValueError
                 for k in data[cat]:
                     if "count" not in data[cat][k]:

@@ -1,0 +1,5 @@
+CMDASM   DFHEIENT CODEREG=(12),DATAREG=(13)
+         EXEC CICS RETURN
+         DFHEIRET
+         DFHEISTG
+         END

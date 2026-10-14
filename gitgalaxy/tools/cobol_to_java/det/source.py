@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from gitgalaxy.core import cics_macro_level as ML
 from gitgalaxy.core.cobol_source_format import ispf_screen
 from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
@@ -56,6 +57,7 @@ UNMASKABLE = {
     "several-programs": "several programs in one source (several_programs): read as one",
     "unmodelled": "national / DBCS text, IDMS, a decimal-point literal under "
     "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
+    "cics-macro-level": "macro-level CICS (DFHxx TYPE= macro calls, CSA / TCA addressing, #5121): read as COBOL with holes",
     "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
 }
 _unmasked: frozenset[str] = frozenset()
@@ -83,13 +85,28 @@ def unmasked(check: str) -> bool:
 def refusal(lines: list[Line]) -> str | None:
     """#4462: why the program is refused whole before the parser (unmodelled, several_programs, cut_literal), or None.
     A check a survey switched off (survey_unmask) is skipped."""
-    for check, why in (("unmodelled", unmodelled), ("several-programs", several_programs),
+    for check, why in (("unmodelled", unmodelled), ("cics-macro-level", macro_level), ("several-programs", several_programs),
                        ("cut-literal", cut_literal)):  # fmt: skip
         if not unmasked(check):
             msg = why(lines)
             if msg:
                 return msg
     return None
+
+
+class MacroLevelCics(ValueError):
+    """#5121: the source is a macro-level CICS program (DFHxx TYPE= macro calls, CSA / TCA addressing) or a CICS
+    Assembler program: refused by name, in the family gitgalaxy.core.cics_macro_level names. Not translated."""
+
+
+def macro_level(lines: list[Line]) -> str | None:
+    """#5121: why `lines` is a macro-level CICS program (the first piece of evidence, by name), or None. Command-level
+    `EXEC CICS`, DFHRESP and the macro TABLES are no evidence (gitgalaxy/core/cics_macro_level.py)."""
+    hits = ML.cobol_hits([ln.text for ln in lines])
+    if not hits:
+        return None
+    ln = lines[hits[0].line - 1]
+    return ML.refusal_text(ML.Hit(hits[0].family, hits[0].what, ln.line), Path(ln.file).name)
 
 
 class NotCobol(ValueError):
@@ -815,11 +832,27 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     names: set[str] = set()
     raw = _raw_lines(program, engine)
     check_cobol(raw, str(program))
-    out = expand(logical_lines(raw, str(program)), [program.parent, *dirs],
+    own = logical_lines(raw, str(program))
+    # #5121: named before COPY expansion, so a macro-level program's missing DFHCSADS / DFHTCADS is not `missing copybook`
+    why = None if unmasked("cics-macro-level") else assembler_refusal(raw, str(program)) or macro_level(own)
+    if why:
+        raise MacroLevelCics(why)
+    out = expand(own, [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)
     return out
+
+
+def assembler_refusal(raw: list[str], file: str) -> str | None:
+    """#5121: why a file that is no COBOL program (no PROGRAM-ID, no DIVISION) but a CICS Assembler program is refused, or None."""
+    if any(re.search(r"\bPROGRAM-ID\b|\bDIVISION\b", t, re.I) for t in raw):  # (a COBOL member: no assembler)
+        return None
+    hits = ML.assembler_hits(raw)
+    # a bare `EXEC CICS` is also what a COBOL member's text looks like: it counts only in an assembler file
+    if Path(file).suffix.lower() not in ML.ASSEMBLER_SUFFIXES:
+        hits = [h for h in hits if h.what != "EXEC CICS"]
+    return ML.refusal_text(hits[0], Path(file).name) if hits else None
 
 
 class UnitRefused(ValueError):

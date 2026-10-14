@@ -56,6 +56,7 @@ PROVEN, UNPROVEN, REFUSED, UNKNOWN = (
 )
 STATUSES = (PROVEN, UNPROVEN, REFUSED, UNKNOWN)
 PROVEN_LEVELS = ("L2", "L3", "L4", "L5")
+FAMILIES = "refusal_families"  # #5121: programs refused by name by family (macro-level CICS, CICS Assembler)
 GAPS = "copybook_resolution_gaps"  # not features: read as `missing copybook NAME` refusals
 RULE_ORDER = ("MATCHED", "ASSUMED", "DIFFERS", "REFUSED")  # worst last
 SEQUENCE_FRAGMENT = re.compile(r"\b\d{6,8}\b")  # a key holding a sequence-area number (columns 1-6 / 73-80)
@@ -210,9 +211,16 @@ def build_estate(
             if (text, found[0] if len(found) == 1 else None) not in hits[p]:
                 hits[p].append((text, found[0] if len(found) == 1 else None))
 
+    for key, v in inventory.get(FAMILIES, {}).items():  # read as `<family> not supported`, like a gap
+        text = f"{key} not supported"
+        found = classify(text, rmap)
+        for p in v["programs"]:
+            if (text, found[0] if len(found) == 1 else None) not in hits[p]:
+                hits[p].append((text, found[0] if len(found) == 1 else None))
+
     features = []
     for category in sorted(inventory):
-        if category in (GAPS, "unparsed_programs"):
+        if category in (GAPS, FAMILIES, "unparsed_programs"):
             continue
         for key, v in sorted(inventory[category].items()):
             if key == "unknown":

@@ -1599,6 +1599,15 @@
       "programs": []
     }
   },
+  "refusal_families": {
+    "CICS Assembler": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS002.asm",
+        "Source/ZECSNC.asm"
+      ]
+    }
+  },
   "sql_forms": {
     "unknown": {
       "count": 0,

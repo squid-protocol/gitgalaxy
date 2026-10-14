@@ -1,16 +1,14 @@
 {
  "programs": 104,
  "non_burned": 0,
- "whole": 95,
+ "whole": 96,
  "whole_non_burned": 0,
- "refused": 3,
+ "refused": 4,
  "histogram": {
-  "0": 95,
-  "1": 4,
-  "2": 1,
+  "0": 96,
+  "1": 5,
   "3": 2,
-  "5": 1,
-  "14": 1
+  "13": 1
  },
  "gaps": [
   {
@@ -53,30 +51,17 @@
    "refuses_program": true
   },
   {
-   "gap": "EXEC CICS DELETE TOKEN",
-   "only": 0,
-   "only_burned": 0,
+   "gap": "refused: ValueError: a second N group named FILLER: its items cannot be told apart",
+   "only": 1,
+   "only_burned": 1,
    "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
+   "one_away": 0,
+   "one_away_burned": 0,
    "one_away_non_burned": 0,
    "touched": 1,
    "touched_burned": 1,
    "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "EXEC CICS READ TOKEN",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 1,
-   "one_away_burned": 1,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
+   "refuses_program": true
   },
   {
    "gap": "<name>: no such item",
@@ -105,19 +90,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS GETMAIN",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "EXEC DLI",
    "only": 0,
    "only_burned": 0,
@@ -131,20 +103,7 @@
    "refuses_program": false
   },
   {
-   "gap": "SET ADDRESS OF",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "<name> SET ADDRESS OF",
+   "gap": "<name> ADDRESS OF <name>: not a LINKAGE N record",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,
@@ -222,19 +181,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS FREEMAIN",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "EXEC CICS GET CONTAINER SET",
    "only": 0,
    "only_burned": 0,
@@ -249,6 +195,19 @@
   },
   {
    "gap": "EXEC CICS GET CONTAINER SET INTOCCSID",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 0,
+   "one_away_burned": 0,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,
@@ -287,19 +246,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS WEB RECEIVE SET",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "IF condition: NULL: pointers are not modelled",
    "only": 0,
    "only_burned": 0,
@@ -314,19 +260,6 @@
   },
   {
    "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "ZUIDSTCK: no program of that name with a CALL entry in the estate",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,

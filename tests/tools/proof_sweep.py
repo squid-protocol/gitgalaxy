@@ -273,11 +273,10 @@ def main() -> int:
                     "Evidence Refresh merges its shards, then rewrites the ledger from them, as its one-runner sweep did)")  # fmt: skip
     ap.add_argument("--strict-ledger", action="store_true",
                     help="with --aggregate: an entry of a swept, proven case that is stale on harness / oracle fails (#5084). Off in CI: "
-                    "CI cannot commit, and a PR that changes the harness would strand every det-sweep until its ledger is re-recorded")  # fmt: skip
+                    "a PR that changes the harness would strand every det-sweep until its ledger is re-recorded")  # fmt: skip
     ap.add_argument("--record-ledger", action="store_true",
                     help="with --aggregate: after the check, rewrite the coverage ledger's entries from this sweep (#5084: the "
-                    "counts were just re-checked, so their fingerprints are re-recorded; det_coverage_ledger.py update does the same). "
-                    "CI keeps the files as the det-sweep-ledger artifact")  # fmt: skip
+                    "counts were just re-checked, so their fingerprints are re-recorded; det_coverage_ledger.py update does the same)")  # fmt: skip
     ap.add_argument(
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )

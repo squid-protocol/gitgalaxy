@@ -82,8 +82,8 @@ def test_skip_ledger_check_leaves_the_ledger_out_of_the_aggregate_ratchet(monkey
 
 
 def test_the_ledger_is_re_recorded_not_failed_on_stale_fingerprints(monkeypatch, capsys):
-    """#5084: a harness PR leaves every entry stale on harness / oracle. CI's sweep must not fail on that (it cannot
-    commit); it re-records the entries it re-checked (--record-ledger), and fails on them only when asked (--strict-ledger)."""
+    """#5084: a harness PR leaves every entry stale on harness / oracle. the sweep must not fail on that by default; it re-records
+    the entries it re-checked when asked (--record-ledger), and fails on stale ones only when asked (--strict-ledger)."""
     import argparse
 
     import det_coverage_ledger as ledger

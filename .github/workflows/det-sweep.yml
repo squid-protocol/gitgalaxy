@@ -608,7 +608,7 @@ jobs:
             if [ -z "$found" ]; then echo "no shard reported a sweep.json"; rc=1; else
               extra=()  # the nightly writes the merged seconds to tests/equivalence/det_sweep_durations.json (#4847)
               if [ "$EVENT" = "schedule" ]; then extra=(--update-durations); fi
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger "${extra[@]}" | tee agg.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" "${extra[@]}" | tee agg.txt || rc=1
               {
                 echo "## Det sweep (merged)"
                 echo '```'
@@ -623,7 +623,7 @@ jobs:
             if [ "$DB2_CASES" != "all" ]; then expect="$DB2_CASES"; fi
             found=$(ls db2-shards/*/sweep.json db2-shards/sweep.json 2>/dev/null || true)  # one shard: no subdirectory (#5008)
             if [ -z "$found" ]; then echo "no Db2 shard reported a sweep.json"; rc=1; else
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger | tee agg-db2.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" | tee agg-db2.txt || rc=1
               {
                 echo "## Det sweep, Db2 cases (merged)"
                 echo '```'
@@ -633,18 +633,6 @@ jobs:
             fi
           fi
           exit $rc
-
-      # #5084: the coverage ledger entries the sweep re-recorded (fingerprints of a changed harness / oracle). CI cannot commit
-      # them: download this artifact into tests/equivalence/det_sweep_coverage/ (or run det_coverage_ledger.py update), else the
-      # nightly Evidence Refresh commits them to main.
-      - name: Keep the re-recorded ledger entries
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: det-sweep-ledger
-          path: tests/equivalence/det_sweep_coverage/*.json
-          if-no-files-found: ignore
-          retention-days: 7
 
       - name: Stage the merged durations for the cache (nightly, #4847)
         if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'

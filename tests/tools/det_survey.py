@@ -175,7 +175,7 @@ def compile_port(row: dict[str, Any], work: Path, runtime: Path, cp: str) -> Non
     files = [str(p) for p in src.rglob("*.java")] + [str(p) for p in runtime.rglob("*.java")]
     try:
         res = subprocess.run([str(Path(jdk()) / "bin/javac"), "-nowarn", "-encoding", "UTF-8", "--release", "17",  # noqa: S603
-                              "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True,
+                              "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True, encoding="utf-8",
                              check=False, timeout=JAVAC_PORT_TIMEOUT)  # fmt: skip
         row["compiles"] = res.returncode == 0
         if res.returncode:

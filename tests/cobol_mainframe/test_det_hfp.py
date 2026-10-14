@@ -233,9 +233,11 @@ def test_the_runtime_is_the_model_bit_for_bit(tmp_path):
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     want = _model_lines()
     assert len(got) == len(want)
     bad = [f"java  {g}\nmodel {w}" for g, w in zip(got, want, strict=False) if g != w]  # reason: length may differ
@@ -345,9 +347,11 @@ def test_numval_is_a_long_hfp_operand_and_refuses_what_ibm_does_not_describe(tmp
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
 
     def model(v: str) -> str:
         x = H.of(F(Decimal(v)))
@@ -423,9 +427,11 @@ def test_numval_in_a_fixed_point_store_rounds_as_ibms_float_to_fixed_move(tmp_pa
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert got[:4] == ["12.500", "-0.375", "42", "1024.50"][:0] + ["12.50", "-0.375", "42", "1024.50"]
     # 0.1 is 0.0999... in long HFP (4019999999999999): truncation would give 0.09, the rounding 0.10
     assert got[4] == "0.10" and got[5] == "0.10" and got[6] == "123.45" and got[7] == "12.34", got

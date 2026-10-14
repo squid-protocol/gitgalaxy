@@ -34,61 +34,135 @@ JAVA_SUBPROCESS_TEST_FILES = [
 ]
 
 
+SUBPROCESS_FUNCS = {"run", "Popen", "check_output", "check_call"}
+JAVA_NAMES = {"java", "javac", "java_bin", "javac_bin", "JAVA_BIN", "_JDK"}
+
+
+def _launcher_kind(node: ast.expr) -> str | None:
+    """ "java" / "javac" when `node` names the launcher: the bare "java", `str(jdk / "java")`,
+    `jdk / "bin" / "javac"`, or a variable called java / javac (#5128: the resolved-JDK forms)."""
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "str" and node.args:
+        return _launcher_kind(node.args[0])
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "tool":
+        last = node.args[-1] if node.args else None  # dp.tool(None, "java")
+        return _launcher_kind(last) if last is not None else None
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        name = node.value.replace("\\", "/").rsplit("/", 1)[-1]
+        return name if name in ("java", "javac") else None
+    if isinstance(node, ast.Name):
+        return node.id if node.id in ("java", "javac") else None
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        return _launcher_kind(node.right)
+    return None
+
+
+def _is_tool_call(node: ast.expr) -> bool:
+    return isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "tool"
+
+
+def _java_calls(source: str) -> list[tuple[ast.expr, str, list[str]]]:
+    """Every subprocess call in `source` that starts a java/javac: (call, kind, the constant argv strings)."""
+    found = []
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not node.args:
+            continue
+        func = node.func
+        if not (
+            isinstance(func, ast.Attribute)
+            and func.attr in SUBPROCESS_FUNCS
+            and isinstance(func.value, ast.Name)
+            and func.value.id == "subprocess"
+        ):
+            continue
+        argv = node.args[0]
+        if not isinstance(argv, (ast.List, ast.Tuple)) or not argv.elts:
+            continue
+        kind = _launcher_kind(argv.elts[0])
+        if kind:
+            strings = [e.value for e in argv.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+            found.append((node, kind, strings))
+    # argv built into a variable and handed to a wrapper: `argv = [dp.tool(None, "java"), ...]; dp.run(argv)`
+    for node in ast.walk(tree):
+        if isinstance(node, ast.List) and node.elts and _is_tool_call(node.elts[0]):
+            kind = _launcher_kind(node.elts[0])
+            if kind and not any(c is node for c, _, _ in found):
+                strings = [e.value for e in node.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+                found.append((node, kind, strings))
+    return found
+
+
+def _violations(source: str, label: str) -> list[str]:
+    bad = []
+    for node, kind, strings in _java_calls(source):
+        where = f"{label}:{node.lineno}"
+        if kind == "javac":
+            if "-encoding" not in strings or strings[
+                strings.index("-encoding") + 1 : strings.index("-encoding") + 2
+            ] != ["UTF-8"]:
+                bad.append(f"{where}: javac missing '-encoding UTF-8'")
+        else:
+            for flag in ("-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8"):
+                if flag not in strings:
+                    bad.append(f"{where}: java missing {flag}")
+        kw = {k.arg: k.value for k in getattr(node, "keywords", []) if k.arg}
+        text = kw.get("text")
+        if text is not None and "encoding" not in kw and not (isinstance(text, ast.Constant) and text.value is False):
+            bad.append(
+                f"{where}: java/javac uses text= without encoding='utf-8'; capture bytes and decode, or pass encoding"
+            )
+    return bad
+
+
+def _scanned_files() -> list[Path]:
+    return sorted(p for p in (REPO_ROOT / "tests").rglob("*.py") if p.name != Path(__file__).name)
+
+
 @pytest.mark.parametrize("rel_path", JAVA_SUBPROCESS_TEST_FILES)
 def test_java_subprocess_helpers_specify_utf8_flags(rel_path: str):
-    """Ensure all test helpers invoking java/javac specify UTF-8 encoding flags."""
+    """The files named in the list above run java/javac, and every call is UTF-8 safe."""
     path = REPO_ROOT / rel_path
     assert path.is_file(), f"Missing test file: {path}"
-    content = path.read_text(encoding="utf-8")
-    tree = ast.parse(content, filename=str(path))
+    source = path.read_text(encoding="utf-8")
+    assert _java_calls(source), f"{rel_path}: no java/javac subprocess call found (guard went blind)"
+    assert not _violations(source, rel_path)
 
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call):
-            continue
-        # match subprocess.run(...)
-        is_subp_run = (
-            isinstance(node.func, ast.Attribute)
-            and node.func.attr == "run"
-            and isinstance(node.func.value, ast.Name)
-            and node.func.value.id == "subprocess"
-        )
-        if not is_subp_run or not node.args:
-            continue
 
-        first_arg = node.args[0]
-        if not isinstance(first_arg, (ast.List, ast.Tuple)):
-            continue
+def test_no_java_subprocess_in_tests_decodes_with_locale_charset():
+    """Whole class (#5128): bare, `str(jdk / "java")`, `jdk / "bin" / "java"`, `_JDK`, `java_bin` and variable forms."""
+    bad = []
+    for path in _scanned_files():
+        bad += _violations(path.read_text(encoding="utf-8"), path.relative_to(REPO_ROOT).as_posix())
+    assert not bad, "\n".join(bad)
 
-        cmd_strings = []
-        for elt in first_arg.elts:
-            if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
-                cmd_strings.append(elt.value)
-            elif isinstance(elt, ast.Name):
-                cmd_strings.append(elt.id)
 
-        # check javac calls
-        if any("javac" in s for s in cmd_strings[:1]):
-            assert "-encoding" in cmd_strings, f"{rel_path}:{node.lineno}: javac missing '-encoding'"
-            enc_idx = cmd_strings.index("-encoding")
-            assert enc_idx + 1 < len(cmd_strings) and cmd_strings[enc_idx + 1].upper() == "UTF-8", (
-                f"{rel_path}:{node.lineno}: javac encoding must be UTF-8"
-            )
+@pytest.mark.parametrize(
+    "source",
+    [
+        'subprocess.run([str(jdk / "javac"), "-d", "out", "A.java"])',
+        'subprocess.run([str(_JDK / "java"), "-cp", "out", "A"], capture_output=True, text=True, encoding="utf-8")',
+        'subprocess.run([str(jdk / "bin" / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "A"], text=True)',
+        'subprocess.run([java_bin / "java", "-Dfile.encoding=UTF-8", "A"])',
+        'subprocess.run([javac, "-d", "out"])',
+        'argv = [dp.tool(None, "java"), "-cp", "x"]',
+        'subprocess.run(["javac", "-encoding", "ISO-8859-1", "A.java"])',
+    ],
+)
+def test_guard_flags_resolved_path_forms(source: str):
+    """The guard is not vacuous: each resolved-path form it exists for is caught when the flags are missing."""
+    assert _violations(source, "synthetic")
 
-        # check java calls (excluding python/git/docker/etc)
-        if any("java" in s for s in cmd_strings[:1]) and not any("javac" in s for s in cmd_strings[:1]):
-            has_utf8_flag = any("-Dfile.encoding=UTF-8" in s or "-Dstdout.encoding=UTF-8" in s for s in cmd_strings)
-            assert has_utf8_flag, (
-                f"{rel_path}:{node.lineno}: java missing -Dfile.encoding=UTF-8 / -Dstdout.encoding=UTF-8"
-            )
 
-            # Check keyword arguments for text=True without explicit encoding
-            kw_dict = {kw.arg: kw.value for kw in node.keywords if kw.arg}
-            if "text" in kw_dict and isinstance(kw_dict["text"], ast.Constant) and kw_dict["text"].value is True:
-                # If text=True, must specify explicit encoding="utf-8"
-                assert "encoding" in kw_dict, (
-                    f"{rel_path}:{node.lineno}: java subprocess uses text=True without explicit encoding='utf-8'; "
-                    "capture bytes and .decode('utf-8') or pass encoding='utf-8'"
-                )
+@pytest.mark.parametrize(
+    "source",
+    [
+        'subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-d", "out"], check=True)',
+        'subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "A"], capture_output=True, text=True, encoding="utf-8")',
+        'subprocess.run(["git", "log"], text=True)',
+    ],
+)
+def test_guard_accepts_the_pattern(source: str):
+    assert not _violations(source, "synthetic")
 
 
 @pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs JDK (javac + java)")

@@ -317,15 +317,6 @@
    "reason": "fill_UpdcustDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so the wrong DTO field (offset/length/dropped setter) is run in every scenario and never compared."
   },
   {
-   "id": "d2f72df52e",
-   "op": "ROR",
-   "line": 284,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
-   "verdict": "case-gap",
-   "reason": "caWhole is only used when a scenario states commarea_length (exactCommarea); none does. Add scenarios with commarea_length 261 (and a shorter one that ends before COMM-ADDR is referenced, plus a following scenario in the same service instance), so the restore of the full DFHCOMMAREA array after the task, the write-back and the IOOBE->PastFrom handling are exercised."
-  },
-  {
    "id": "3e1b8acb0a",
    "op": "DEL",
    "line": 308,
@@ -504,42 +495,6 @@
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
    "reason": "Differs only for a task with exactCommarea false and calen < 1985, e.g. a task with NO COMMAREA (EIBCALEN 0): the original keeps the 1985-byte DFHCOMMAREA image, the mutant truncates to 0 bytes and the first COMM-SCODE reference fails PastFrom. Add a scenario without a commarea (if the harness supports it)."
-  },
-  {
-   "id": "73f85f9766",
-   "op": "DEL",
-   "line": 396,
-   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "caWhole is only used when a scenario states commarea_length (exactCommarea); none does. Add scenarios with commarea_length 261 (and a shorter one that ends before COMM-ADDR is referenced, plus a following scenario in the same service instance), so the restore of the full DFHCOMMAREA array after the task, the write-back and the IOOBE->PastFrom handling are exercised."
-  },
-  {
-   "id": "22774c1dce",
-   "op": "NEG",
-   "line": 406,
-   "before": "if (caWhole == null) {",
-   "after": "if (!(caWhole == null)) {",
-   "verdict": "case-gap",
-   "reason": "caWhole is only used when a scenario states commarea_length (exactCommarea); none does. Add scenarios with commarea_length 261 (and a shorter one that ends before COMM-ADDR is referenced, plus a following scenario in the same service instance), so the restore of the full DFHCOMMAREA array after the task, the write-back and the IOOBE->PastFrom handling are exercised."
-  },
-  {
-   "id": "e9581f8a97",
-   "op": "ROR",
-   "line": 406,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "case-gap",
-   "reason": "caWhole is only used when a scenario states commarea_length (exactCommarea); none does. Add scenarios with commarea_length 261 (and a shorter one that ends before COMM-ADDR is referenced, plus a following scenario in the same service instance), so the restore of the full DFHCOMMAREA array after the task, the write-back and the IOOBE->PastFrom handling are exercised."
-  },
-  {
-   "id": "a09885bf61",
-   "op": "DEL",
-   "line": 412,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "caWhole is only used when a scenario states commarea_length (exactCommarea); none does. Add scenarios with commarea_length 261 (and a shorter one that ends before COMM-ADDR is referenced, plus a following scenario in the same service instance), so the restore of the full DFHCOMMAREA array after the task, the write-back and the IOOBE->PastFrom handling are exercised."
   },
   {
    "id": "bb9a7ecec6",

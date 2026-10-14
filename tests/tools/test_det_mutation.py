@@ -118,3 +118,13 @@ def test_describe_shows_the_raw_score():
 def test_the_committed_ledgers_agree():
     problems, _ = dm.check(tracked=False)
     assert problems == []
+
+
+def test_component_staleness_as_evidence_records():
+    """#4731's rule: a stored-components input is stale only when a component the target uses moved."""
+    e = entry(components={"harness": {"cics": "x", "db2": "y"}})
+    now = {**{k: {"sha256": v} for k, v in FP.items()}, "harness": {"sha256": "c2", "components": {"cics": "x"}}}
+    assert dm.stale(e, now) == []  # the harness moved, but only in a component (db2) this case does not use
+    now["harness"]["components"] = {"cics": "x2"}
+    assert dm.stale(e, now) == ["harness"]
+    assert dm.stale(entry(), {**FP, "harness": "c2"}) == ["harness"]  # no components stored: the whole input decides

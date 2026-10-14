@@ -91,17 +91,39 @@ def port_sha(port: Path) -> str:
     return h.hexdigest()
 
 
-def fingerprints(case: str) -> dict[str, str]:
-    """The case's input fingerprints in the tree now, but `port` (the det port is not committed: `port_sha`)."""
+def fingerprints(case: str) -> dict[str, Any]:
+    """The case's inputs in the tree now, but `port` (the det port is not committed: `port_sha`): per input its
+    sha256 and, for the harness / oracle / generator, the per-component fingerprints of what the case's target uses
+    (evidence.py's, #4731)."""
     import evidence as ev  # (git-backed: only when a ledger is written / read)
 
     now = ev.compute_inputs(ev.equivalence_target(case))
-    return {name: now[name]["sha256"] for name in INPUTS if name != "port"}
+    return {name: {k: now[name][k] for k in ("sha256", "components") if k in now[name]} for name in INPUTS
+            if name != "port"}  # fmt: skip
 
 
-def stale(entry: dict[str, Any], now: dict[str, str]) -> list[str]:
-    """The inputs (but `port`, which `refresh` checks by translating) whose fingerprint differs from the tree's."""
-    return [n for n in INPUTS if n != "port" and (entry.get("inputs") or {}).get(n) != now.get(n)]
+def _sha(v: Any) -> Any:
+    return v.get("sha256") if isinstance(v, dict) else v
+
+
+def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
+    """The inputs (but `port`, which `refresh` checks by translating) whose fingerprint differs from the tree's. As
+    for an evidence record (#4731), an input whose components the entry stores is stale only when a component the
+    case's target uses changed: a harness change to the Db2 layer does not stale a CICS program's score."""
+    import evidence as ev
+
+    held = entry.get("inputs") or {}
+    comps = entry.get("components") or {}
+    out = []
+    for n in INPUTS:
+        if n == "port" or held.get(n) == _sha(now.get(n)):
+            continue
+        cur = now.get(n)
+        moved = (ev.component_changed({"components": comps[n]}, cur)
+                 if n in comps and isinstance(cur, dict) else None)  # fmt: skip
+        if moved is None or moved:
+            out.append(n)
+    return out
 
 
 def case_kind(case: str) -> str:
@@ -192,6 +214,7 @@ def entry_from_run(case: str, run: dict[str, Any], port: Path, out_of_scope: int
     import evidence as ev
 
     results = run["results"]
+    now = fingerprints(case)
     by = {v: [r for r in results if r["verdict"] == v] for v in ("killed", "timeout", "survived", "stillborn",
                                                                   "error", "pending")}  # fmt: skip
     return {
@@ -208,7 +231,8 @@ def entry_from_run(case: str, run: dict[str, Any], port: Path, out_of_scope: int
         "killed": sorted(r["id"] for r in by["killed"] + by["timeout"]),
         "stillborn": sorted(r["id"] for r in by["stillborn"]),
         "survived": [{k: r[k] for k in ("id", "op", "file", "line", "before", "after")} for r in by["survived"]],
-        "inputs": {"port": port_sha(port), **fingerprints(case)},
+        "inputs": {"port": port_sha(port), **{n: v["sha256"] for n, v in now.items()}},
+        "components": {n: v["components"] for n, v in now.items() if "components" in v},
     }
 
 
@@ -423,7 +447,10 @@ def refresh(cases: list[str], work: Path) -> int:
     for case in todo:
         port = det / case / "port"
         if port.is_dir() and port_sha(port) == ledger[case]["inputs"]["port"]:
-            ledger[case]["inputs"]["generator"] = fingerprints(case)["generator"]
+            gen = fingerprints(case)["generator"]
+            ledger[case]["inputs"]["generator"] = gen["sha256"]
+            if "components" in gen:
+                ledger[case].setdefault("components", {})["generator"] = gen["components"]
             write(case, ledger[case])
             print(f"{case}: the det port is unchanged: fingerprint renewed")
         else:

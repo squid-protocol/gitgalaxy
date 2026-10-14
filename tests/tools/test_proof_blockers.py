@@ -212,6 +212,52 @@ def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
     assert pb.fact_gaps(facts, pb.Run("crucible", "k", startcode=True)) == set()  # the runner states both
 
 
+def test_a_case_that_states_a_terminal_drops_the_facility_gap(tmp_path):
+    """#5126: ASSIGN FACILITY / TERMCHK are stated by a case's (or every scenario's) "termid" (GGCICS_FACILITY on the
+    stub, CicsTask.withTermid on the port); one scenario without it, an empty one, or none keeps the gap. USERID and
+    SCRNHT / SCRNWD stay gaps: the harness states neither."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", termid="T001", scenarios=list(sc))
+    case(cases, "each", "k", "src/e.cbl", scenarios=[{**x, "termid": "T002"} for x in sc])
+    case(cases, "part", "k", "src/p.cbl", scenarios=[{"name": "a", "termid": "T001"}, {"name": "b"}])
+    case(cases, "empty", "k", "src/m.cbl", scenarios=[{"name": "a", "termid": ""}])
+    case(cases, "none", "k", "src/n.cbl", scenarios=list(sc))
+    case(cases, "noscen", "k", "src/s.cbl", termid="T001")
+    runs = pb.equivalence_runs(cases)
+    stated = {c: runs[("k", f"src/{f}.cbl")][0].termid for c, f in
+              (("top", "t"), ("each", "e"), ("part", "p"), ("empty", "m"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
+    assert stated == {"top": True, "each": True, "part": False, "empty": False, "none": False, "noscen": False}
+    facts = {"eib": set(), "assign_task": {"FACILITY", "USERID", "SCRNHT/SCRNWD"}, "assign_region": set()}
+    userid, screen = ("fact: ASSIGN USERID (no equivalence case states it)",
+                      "fact: ASSIGN SCRNHT/SCRNWD (no equivalence case states it)")  # fmt: skip
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", termid=True)) == {userid, screen}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {
+        userid,
+        screen,
+        "fact: ASSIGN FACILITY (no equivalence case states it)",
+    }
+    assert (
+        pb.fact_gaps(
+            {"eib": set(), "assign_task": {"FACILITY"}, "assign_region": set()}, pb.Run("equivalence", "c", termid=True)
+        )
+        == set()
+    )
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == set()  # the runner states all of them
+
+
+def test_the_facts_of_a_program_with_holes_are_read_but_never_ranked(tmp_path):
+    """#5126 (zECS ZECS001's MOVE EIBRCODE): the ranking is over the programs a survey translates WHOLE, so a program
+    with holes shows no fact gap there -- though its facts are read (the evidence report prints them)."""
+    src = fixed("PROCEDURE DIVISION.", "    MOVE EIBRCODE TO WS-R", "    EXEC CICS RETURN END-EXEC.")
+    assert pb.facts_needed(src)["eib"] == {"EIBRCODE"}
+    corpora = tmp_path / "corpora"
+    write(corpora / "estate" / "a/HOLES.cbl", src)
+    rows = {("estate", "a/HOLES.cbl"): {"program": "a/HOLES.cbl", "statements": 5, "translated": 4, "holes": ["x"]}}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=tmp_path / "c", crucible_dir=tmp_path / "k", det_baseline={})
+    assert res["programs"] == [] and res["whole"] == 0
+
+
 def test_facts_are_names_only():
     f = pb.facts_needed(fixed("    MOVE EIBTASKN TO A", "    MOVE EIBCALEN TO B",
                               "    EXEC CICS ASSIGN SYSID(S) SCRNHT(H) END-EXEC."))  # fmt: skip

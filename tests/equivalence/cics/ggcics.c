@@ -1938,10 +1938,41 @@ static int nchans = 0;
 
 /* A channel / container name without its trailing blanks; one that is empty, has an embedded
  * blank, or more than 16 characters is refused (IBM's "illegal character" rules are not modelled). */
+/* #4950: the characters IBM's PUT CONTAINER page allows in a CONTAINER / CHANNEL name ("The acceptable characters are
+ * A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _. Leading and embedded blank characters are not permitted").
+ * RUN TRANSID's page (channel_chars) lists three more -- & < and the not sign -- which this one omits: a name holding
+ * one is refused (the two pages disagree), as CicsTask.illegalName does */
+static const char name_chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#/%?!:|\"=,;>.-_";
+
+/* `src` without its trailing blanks into `dst`; 1 when it holds a character outside IBM's set (a leading or embedded
+ * blank included), else 0. A blank name, or one holding only IBM's set and & < or the not sign, is refused. */
+static int cics_name_check(const char *src, char *dst, const char *what) {
+    char msg[160];
+    int disputed = 0;
+    trim(src, 16, dst);
+    if (!dst[0]) {
+        snprintf(msg, sizeof msg, "%s name '%s'", what, dst);
+        refuse(msg);
+    }
+    for (const char *p = dst; *p; p++) {
+        if (strchr(name_chars, *p)) continue;
+        if (strchr("&<\xac", *p)) { disputed = 1; continue; }
+        return 1;
+    }
+    if (disputed) {
+        snprintf(msg, sizeof msg, "%s name '%s' holds & < or a not sign: IBM's RUN TRANSID page allows them, its PUT "
+                 "CONTAINER page does not", what, dst);
+        refuse(msg);
+    }
+    return 0;
+}
+
+/* The name of a command whose page says nothing of an illegal one: refused (PUT CONTAINER alone has CHANNELERR RESP2 1
+ * / CONTAINERERR RESP2 18, GGCPUTC) */
 static void cics_name(const char *src, char *dst, const char *what) {
     char msg[96];
-    trim(src, 16, dst);
-    if (!dst[0] || strchr(dst, ' ')) {
+    if (cics_name_check(src, dst, what)) {
         snprintf(msg, sizeof msg, "%s name '%s'", what, dst);
         refuse(msg);
     }
@@ -2028,7 +2059,29 @@ int GGCPUTC(gg_cics *c, char *from) {
     chr = strstr(flags, "CHAR") != NULL;
     c->resp = NORMAL;
     c->resp2 = 0;
-    cics_name(c->qname, name, "container");
+    int bad_name = cics_name_check(c->qname, name, "container");
+    int bad_chan = 0;
+    if (strstr(flags, "CHANNEL")) {
+        char chn[17];
+        bad_chan = cics_name_check(c->chan, chn, "channel");
+    }
+    if (bad_name || bad_chan) {
+        /* IBM: CHANNELERR RESP2 1 (CHANNEL), CONTAINERERR RESP2 18 (CONTAINER) "contains an illegal character or
+         * combination of characters"; which it raises first of two of them, or of one and another condition, is not
+         * documented */
+        if (bad_name && bad_chan) refuse("PUT CONTAINER with an illegal CONTAINER and CHANNEL name: which condition IBM raises first is not documented");
+        if (c->len < 0) refuse("PUT CONTAINER with an illegal name and a negative FLENGTH: which condition IBM raises first is not documented");
+        if (bad_chan) { c->resp = CHANNELERR; c->resp2 = 1; return 0; }
+        if (strstr(flags, "CHANNEL")) {
+            char chn[17];
+            trim(c->chan, 16, chn);
+            if (!channel_named(chn, 0)) refuse("PUT CONTAINER with an illegal CONTAINER name and a channel not in scope: which condition IBM raises first is not documented");
+        } else if (!levels[lvl].cur) {
+            refuse("PUT CONTAINER with an illegal CONTAINER name and no channel: which condition IBM raises first is not documented");
+        }
+        c->resp = CONTAINERERR; c->resp2 = 18;
+        return 0;
+    }
     ch = command_channel(c, 1, bit || chr ? 1 : 4);
     if (!ch) return 0;
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }

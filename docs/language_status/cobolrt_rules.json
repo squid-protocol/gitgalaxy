@@ -537,9 +537,10 @@
   {
    "id": "RT-CBL-MOVE-NONDIGIT-SIGN-REFUSED",
    "family": "CBL",
-   "title": "A signed zoned sender whose separate sign byte is neither a digit, a sign nor a space, MOVEd to a binary item: refused by name",
+   "title": "A signed zoned sender whose sign byte is neither a digit, an overpunch, a sign nor a space, MOVEd to a binary item (a separate sign) or to an alphanumeric item: refused by name",
    "methods": [
-    "nonDigitSign"
+    "nonDigitSign",
+    "refuseUndefinedSign"
    ],
    "ibm": null,
    "ibm_note": "IBM documents no result for such data",

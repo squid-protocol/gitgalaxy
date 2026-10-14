@@ -2,26 +2,32 @@
 """The cobolrt rule catalogue (#4711): every semantic rule of the det-port Java runtime, by a stable ID.
 
 Source of truth: ``docs/language_status/cobolrt_rules.json``
-  documents   the IBM manuals the rules cite, by key
-  options     the compile / runtime options and dialect switches a rule may depend on (the #4704 resolver's names)
-  families    a family of runtime files (cobolrt/...): its rule-ID prefix, files, the methods that carry no rule of
-              their own (`plumbing`: byte helpers, constructors of state, accessors), and whether it is catalogued
-              (`done`; a family not done yet is listed, not checked)
-  rules       one per rule: id (RT-<FAMILY>-<NAME>), title, family, methods (the Java methods that implement it),
-              ibm ({doc, section}, or null with `ibm_note` where IBM documents no result), options, register (the
-              oracle-assumptions entries, docs/language_status/register/), status (MATCHED / DIFFERS / REFUSED /
-              ASSUMED against IBM), calibration ("uncalibrated", or "z/OS-measured" with `evidence`, #4702)
+  documents   the manuals the rules cite, by key (IBM's; for COBDATFT the estate's own routine)
+  options     what a rule may depend on, by kind: a compile option (one the #4704 resolver knows,
+              gitgalaxy/core/compiler_options.py), a source clause, a dialect switch or a deployment fact
+  families    runtime files (cobolrt/...) under one rule-ID prefix; `plumbing` names the methods that carry no rule of
+              their own (byte helpers, item constructors, accessors); `done` once the family is catalogued (a family
+              not done yet is listed, not checked, and may carry no marker)
+  rules       id (RT-<PREFIX>-<NAME>, never reused), title, family, methods ("name", or "file:name" where the family's
+              files share a name), site (optional: the declaration the marker stands on, "name", "file:name" or
+              "...@N" for the Nth declaration of the name; default the first method), ibm ({doc, section}, or null with
+              `ibm_note` for a rule that is not MATCHED), options, register (oracle-assumptions entries,
+              docs/language_status/register/), status (MATCHED / DIFFERS / REFUSED / ASSUMED, against IBM),
+              calibration ("uncalibrated", or "z/OS-measured" with `evidence`, #4702)
 
-Each rule's code site carries ``[rule <ID>]`` in a comment of its family's files. check() is two-way: a site with no
-entry, an entry with no site, a method of a catalogued file that no rule and no plumbing list names, a method named
-that does not exist, and a register entry a file cites that none of its rules carries all fail.
+Each rule's code site carries ``// [rule <ID>]`` on the line above its declaration. check() is two-way: a marker with
+no entry, an entry with no marker, a marker standing before a method that is not the rule's, a method of a catalogued
+family that no rule and no plumbing list names, a named method that does not exist, a register entry a family's code
+cites that none of its rules carries, and a runtime file no family lists all fail
+(tests/cobol_mainframe/test_cobolrt_rules.py). A marker is a comment: det_port.java_code -- what `det_port.py check`
+compares a runtime class by -- does not see it, so citing an ID moves no port.
 
 Generated: ``docs/language_status/cobolrt_rules.md`` -- git-ignored, rendered by generated_docs.py and published to the
 `generated` branch (#5057's pattern).
 
   cobolrt_rules.py --check     exit 1 when the catalogue and the code disagree
   cobolrt_rules.py render      write the page into the working tree (local reading)
-  cobolrt_rules.py methods F   the methods of one runtime file (relative to cobolrt/) and the rule naming each
+  cobolrt_rules.py mark        write the missing markers of the catalogued families at their sites
 """
 
 from __future__ import annotations
@@ -56,8 +62,28 @@ _MODS = r"(?:(?:public|protected|private|static|final|synchronized|abstract|nati
 METHOD = re.compile(
     rf"(?m)^[ \t]*(?:@\w+(?:\([^)]*\))?\s+)*{_MODS}(?:<[^>{{}};=]*>\s+)?([\w$.]+(?:<[^{{}};=()]*>)?(?:\[\])*)\s+(\w+)\s*\("
 )
-NOT_TYPES = {"return", "new", "throw", "else", "case", "yield", "assert", "throws", "extends", "implements", "record",
-             "public", "protected", "private", "static", "final", "synchronized", "abstract", "native", "default"}
+NOT_TYPES = {
+    "return",
+    "new",
+    "throw",
+    "else",
+    "case",
+    "yield",
+    "assert",
+    "throws",
+    "extends",
+    "implements",
+    "record",
+    "public",
+    "protected",
+    "private",
+    "static",
+    "final",
+    "synchronized",
+    "abstract",
+    "native",
+    "default",
+}
 
 
 def compile_options() -> set[str]:
@@ -319,8 +345,6 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd")
     sub.add_parser("render")
     sub.add_parser("mark", help="write the missing [rule ID] markers at their sites")
-    m = sub.add_parser("methods")
-    m.add_argument("file")
     a = ap.parse_args()
     if a.check:
         probs = check()
@@ -332,13 +356,6 @@ def main() -> int:
         return 0
     if a.cmd == "mark":
         print("\n".join(mark()) or "no marker missing")
-        return 0
-    if a.cmd == "methods":
-        cat = load()
-        by = {mm: r["id"] for r in cat["rules"] for mm in r["methods"]}
-        plumbing = {mm for f in cat["families"] if a.file in f["files"] for mm in f.get("plumbing", [])}
-        for mm in methods((RT / a.file).read_text(encoding="utf-8")):
-            print(f"{mm}\t{by.get(mm, 'plumbing' if mm in plumbing else '-')}")
         return 0
     ap.print_help()
     return 2

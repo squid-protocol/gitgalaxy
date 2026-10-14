@@ -122,13 +122,23 @@ def test_mainframe_clock_compilation_and_run(tmp_path):
     pkg_dir = tmp_path / "com" / "gitgalaxy" / "batch"
     pkg_dir.mkdir(parents=True)
     java_file = pkg_dir / "MainframeClock.java"
-    java_file.write_text(src)
+    java_file.write_text(src, encoding="utf-8")
 
-    subprocess.run(["javac", str(java_file)], check=True)
+    subprocess.run(["javac", "-encoding", "UTF-8", str(java_file)], check=True)
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
     res = subprocess.run(
-        ["java", "-cp", str(tmp_path), "com.gitgalaxy.batch.MainframeClock"], capture_output=True, text=True, check=True
+        [
+            "java",
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path),
+            "com.gitgalaxy.batch.MainframeClock",
+        ],
+        capture_output=True,
+        check=True,
     )
-    assert res.stdout.strip() == "2022071810301500+0530"
+    assert res.stdout.decode("utf-8").strip() == "2022071810301500+0530"
 
 
 # ---- #3934: the zone the generated application.yml writes is the zone the clock reads ----------------

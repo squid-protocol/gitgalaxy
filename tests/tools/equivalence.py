@@ -112,6 +112,7 @@ from equivalence_common import (
     data_encoding,
     diff_records,
     diff_varseq,
+    docker_build,
     java_failure_report,
     layout_fields,
     numproc_guard,
@@ -372,10 +373,7 @@ def build_image() -> None:
         ["docker", "image", "inspect", IMAGE], capture_output=True, check=False  # noqa: S603, S607
     ).returncode == 0:  # fmt: skip
         return
-    subprocess.run(
-        ["docker", "build", "-q", "-t", IMAGE, "-f", str(CASES / "gnucobol.Dockerfile"), str(CASES)],
-        check=True, capture_output=True,
-    )  # fmt: skip
+    docker_build("-q", "-t", IMAGE, "-f", str(CASES / "gnucobol.Dockerfile"), str(CASES))  # #5048: retried
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:

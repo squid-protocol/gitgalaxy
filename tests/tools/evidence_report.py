@@ -194,7 +194,7 @@ def corpus_ref(estate: str) -> str:
 # ---- #4863 step 2: the translator the survey ran, fingerprinted ----------------------------------------------------
 # What `cics_census.py survey` (tests/tools/det_survey.py) reads to translate a program: the cobol_to_java package (the
 # det translator with its runtime sources and copy members, and the forge modules it imports), the CICS command spec it is generated from (standards/cics), and the core modules the
-# translator imports (source format, compiler options, BMS maps, EBCDIC, the class-name rule). test_evidence_report pins
+# translator imports (CICS macro-level refusal, source format, compiler options, BMS maps, EBCDIC, the class-name rule). test_evidence_report pins
 # this list against the translator's own imports, so a new import cannot silently leave the fingerprint.
 TRANSLATOR_INPUTS = (
     "gitgalaxy/tools/cobol_to_java/*",  # det/ (with cobolrt, copy) and the forge modules det imports (sql: db2 forge)
@@ -202,6 +202,7 @@ TRANSLATOR_INPUTS = (
     "gitgalaxy/core/aperture.py",
     "gitgalaxy/core/bms_screen_fields.py",
     "gitgalaxy/core/bms_symbolic.py",
+    "gitgalaxy/core/cics_macro_level.py",
     "gitgalaxy/core/cobol_source_format.py",
     "gitgalaxy/core/compiler_options.py",
     "gitgalaxy/core/ebcdic_codecs.py",

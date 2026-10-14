@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gitgalaxy.core import cics_macro_level as ML
+from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
 from gitgalaxy.core.cobol_source_format import ispf_screen
 from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
@@ -102,11 +102,11 @@ class MacroLevelCics(ValueError):
 def macro_level(lines: list[Line]) -> str | None:
     """#5121: why `lines` is a macro-level CICS program (the first piece of evidence, by name), or None. Command-level
     `EXEC CICS`, DFHRESP and the macro TABLES are no evidence (gitgalaxy/core/cics_macro_level.py)."""
-    hits = ML.cobol_hits([ln.text for ln in lines])
+    hits = cobol_hits([ln.text for ln in lines])
     if not hits:
         return None
     ln = lines[hits[0].line - 1]
-    return ML.refusal_text(ML.Hit(hits[0].family, hits[0].what, ln.line), Path(ln.file).name)
+    return refusal_text(Hit(hits[0].family, hits[0].what, ln.line), Path(ln.file).name)
 
 
 class NotCobol(ValueError):
@@ -848,11 +848,11 @@ def assembler_refusal(raw: list[str], file: str) -> str | None:
     """#5121: why a file that is no COBOL program (no PROGRAM-ID, no DIVISION) but a CICS Assembler program is refused, or None."""
     if any(re.search(r"\bPROGRAM-ID\b|\bDIVISION\b", t, re.I) for t in raw):  # (a COBOL member: no assembler)
         return None
-    hits = ML.assembler_hits(raw)
+    hits = assembler_hits(raw)
     # a bare `EXEC CICS` is also what a COBOL member's text looks like: it counts only in an assembler file
-    if Path(file).suffix.lower() not in ML.ASSEMBLER_SUFFIXES:
+    if Path(file).suffix.lower() not in ASSEMBLER_SUFFIXES:
         hits = [h for h in hits if h.what != "EXEC CICS"]
-    return ML.refusal_text(hits[0], Path(file).name) if hits else None
+    return refusal_text(hits[0], Path(file).name) if hits else None
 
 
 class UnitRefused(ValueError):

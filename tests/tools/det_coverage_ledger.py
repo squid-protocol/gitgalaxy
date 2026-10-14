@@ -73,6 +73,21 @@ def parse_line(line: str) -> dict[str, Any] | None:
     return {"scenarios": n, "paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": bc, "total": bt}}
 
 
+def linked_counts(coverage: Any) -> dict[str, Any]:
+    """#5084: a coverage.json's `linked` section (cobol_coverage.linked_coverage) -> {PROGRAM: {paragraphs, branches}}
+    counts of the programs the case's main program LINKs / CALLs; a program whose measurement failed is left out
+    (unknown, never a clean zero)."""
+    out = {}
+    for name, s in sorted(((coverage or {}).get("linked") or {}).items()):
+        try:
+            p, b = s["paragraphs"], s["branches"]
+            out[name] = {"paragraphs": {"covered": p["covered"], "live": p["live"]},
+                         "branches": {"covered": b["covered"], "total": b["total"]}}  # fmt: skip
+        except (KeyError, TypeError):
+            continue
+    return out
+
+
 def fingerprints(case: str) -> dict[str, Any]:
     """The case's input fingerprints in the tree now (tests/tools/evidence.py's scheme), plus (#4731) under `components`
     the per-component fingerprints of the harness / oracle components the case uses."""
@@ -147,7 +162,8 @@ def last_coverage(case: str, ledger: dict[str, dict[str, Any]]) -> dict[str, Any
         return None
     p, b = entry["paragraphs"], entry["branches"]
     return {"coverage": (p["covered"], p["live"], b["covered"], b["total"]), "stale_inputs": bad,
-            "blocking": any(n in BLOCKING for n in bad), "measured_at": measured_at(entry)}  # fmt: skip
+            "blocking": any(n in BLOCKING for n in bad), "measured_at": measured_at(entry),
+            **({"linked": entry["linked"]} if entry.get("linked") else {})}  # fmt: skip
 
 
 def sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
@@ -171,7 +187,7 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
             continue
         nums = parse_line(row.get("coverage", ""))
         if nums is not None:
-            new = {**nums, "inputs": fingerprints(case)}
+            new = {**nums, **({"linked": row["linked"]} if row.get("linked") else {}), "inputs": fingerprints(case)}
             prev = cases.get(case)
             # Same numbers from the same inputs: the entry is kept as it is, `measured_at` included (still true: those
             # inputs gave those numbers at that commit). Otherwise every refresh restamps every entry, the bot's own merge
@@ -182,8 +198,10 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
     return dict(sorted(cases.items()))
 
 
-def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
-    """(problems, warnings) of the sweep against the ledger."""
+def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]],
+          recheck: bool = False) -> tuple[list[str], list[str]]:  # fmt: skip
+    """(problems, warnings) of the sweep against the ledger. `recheck` (#5084): the sweep re-checked these cases' counts,
+    so an entry still fingerprinted to an older harness / oracle is a problem too (re-record it), not a warning."""
     problems, warnings = [], []
     if LEGACY.exists():
         problems.append(legacy_problem())
@@ -215,9 +233,15 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
         if got != nums:
             problems.append(f"coverage ledger: {case}: the sweep covered {_show(nums)}, the ledger has {_show(got)} "
                             f"-- coverage moved: if intended, {fix}")  # fmt: skip
+        if row.get("linked"):  # #5084: the LINKed / CALLed programs' counts
+            if "linked" not in entry:
+                warnings.append(f"coverage ledger: {case}: no LINKed-program counts yet; {fix}")
+            elif entry["linked"] != row["linked"]:
+                problems.append(f"coverage ledger: {case}: the LINKed programs' coverage moved ({row['linked']} vs the "
+                                f"ledger's {entry['linked']}) -- if intended, {fix}")  # fmt: skip
         now = fingerprints(case)
         bad = stale(entry, now)
-        if [n for n in bad if n in BLOCKING]:
+        if [n for n in bad if n in BLOCKING] or (bad and recheck):
             problems.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed) -- {fix}")
         elif bad:
             warnings.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed); refresh when convenient")

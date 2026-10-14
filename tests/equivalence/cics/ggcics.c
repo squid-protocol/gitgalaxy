@@ -3378,14 +3378,27 @@ static int counter_step(counter_row *r, unsigned long long incr, int wrap, unsig
     return 0;
 }
 
-/* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
- * counter is one more; a counter not there is INVREQ RESP2 201 "Named counter not found" (the page lists no NOTFND; X30),
- * a name outside IBM's rules INVREQ 403 / 404. */
-int GGCGCNT(gg_cics *c) {
+static void put32(unsigned char *p, unsigned long long v) {
+    for (int i = 3; i >= 0; i--) { p[i] = (unsigned char)(v & 255); v >>= 8; }
+}
+
+/* GET COUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER; X30, #5039, X50): the
+ * value before the increment is written big-endian (signed fullword) into `value`, after which the counter is the
+ * increment more; `wrap` is WRAP. See counter_step for the limits. As CicsTask.getCounter(pool, name, increment, wrap). */
+int GGCGCNT(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, int inclen, int wrap) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
+    unsigned long long incr = 0;
+    int i;
     counter_names(c, want, pool, shown);
     int bad = counter_name_resp2(shown, want);
+    if (inclen == 8 && inc[0] == 0 && inc[1] == 0 && inc[2] == 0 && inc[3] == 0) {
+        inc += 4;
+        inclen = 4;
+    }
+    if (inclen > 4 || valuelen != 4) refuse("GET COUNTER with a VALUE or INCREMENT that is not a fullword");
+    for (i = 0; i < inclen; i++) incr = incr * 256 + inc[i];
+    if (incr == 0) refuse("GET COUNTER with an INCREMENT not above zero");
     int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -3396,14 +3409,14 @@ int GGCGCNT(gg_cics *c) {
         c->resp = INVREQ;
         c->resp2 = 201;
     } else {
-        unsigned long long got;
-        if (counter_step(&rows[at], 1, 0, &got)) {
+        unsigned long long v;
+        if (counter_step(&rows[at], incr, wrap, &v)) {
             c->resp = SUPPRESSED;
             c->resp2 = 101;
-        } else {
-            c->num = (int)got;
-            counters_write(rows, n);
+            return 0;
         }
+        put32(value, v);
+        counters_write(rows, n);
     }
     return 0;
 }
@@ -3522,15 +3535,18 @@ int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     return 0;
 }
 
-/* QUERY COUNTER(qname) POOL(name1) VALUE (#4415 slice 2, register X29; IBM, EXEC CICS QUERY COUNTER): the named counter's
- * current value in GG-NUM, unchanged; a counter not there is INVREQ RESP2 201 "Named counter not found". A value beyond
- * a fullword (IBM's LENGERR) is refused. */
-int GGCQCNT(gg_cics *c) {
+/* QUERY COUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (IBM CICS TS, EXEC CICS QUERY COUNTER; #4415 slice 2, X29; #5039, X50):
+ * the named counter's value and limits, signed fullwords written big-endian into the areas given (length 0: not asked for);
+ * the value is unchanged. A counter not there is INVREQ RESP2 201 "Named counter not found". MINIMUM / MAXIMUM of a counter with
+ * no limits, and a value beyond a fullword (IBM's LENGERR), are refused. As CicsTask.queryCounter. */
+int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
     counter_names(c, want, pool, shown);
     int bad = counter_name_resp2(shown, want);
     int n = counters_read(rows), at = bad ? -1 : counter_find(rows, n, pool, want);
+    if ((vallen && vallen != 4) || (lolen && lolen != 4) || (hilen && hilen != 4))
+        refuse("QUERY COUNTER with a VALUE, MINIMUM or MAXIMUM that is not a fullword");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (bad) {
@@ -3539,23 +3555,30 @@ int GGCQCNT(gg_cics *c) {
     } else if (at < 0) {
         c->resp = INVREQ;
         c->resp2 = 201;
-    } else if (rows[at].value > 2147483647ULL) {
-        refuse("QUERY COUNTER of a value beyond a fullword");
     } else {
-        c->num = (int)rows[at].value;
+        if ((lolen || hilen) && !rows[at].limited)
+            refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        if (rows[at].value > 2147483647ULL)
+            refuse("QUERY COUNTER of a value beyond a fullword");
+        if (vallen) put32(val, rows[at].value);
+        if (lolen) put32(lo, rows[at].min);
+        if (hilen) put32(hi, rows[at].max);
     }
     return 0;
 }
 
-/* DEFINE COUNTER(qname) POOL(name1) VALUE(GG-NUM) (#4270, register X30; IBM, EXEC CICS DEFINE COUNTER): the counter
- * created with VALUE (zero when the command omits it: IBM's initial value); INVREQ RESP2 202 "Duplicate counter name"
- * when one of that name exists, 403 / 404 for a name outside IBM's rules. A VALUE below zero is refused. */
-int GGCDCNT(gg_cics *c) {
+/* DEFINE COUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (#4270, register X30; #5039, X50; IBM, EXEC CICS DEFINE COUNTER):
+ * fullwords, each area passed with its length (0: omitted -- IBM's defaults MINIMUM zero, MAXIMUM X'7FFFFFFF' = 2147483647,
+ * VALUE zero). INVREQ 407 when MAXIMUM is below MINIMUM or beyond X'7FFFFFFF', 406 when VALUE is below MINIMUM or above MAXIMUM + 1,
+ * 202 for a duplicate, 403 / 404 for a name outside IBM's rules (407 / 406 checked first: the page gives no order). A VALUE or
+ * MINIMUM below zero is refused. As CicsTask.defineCounter. */
+int GGCDCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
     counter_names(c, want, pool, shown);
     int bad = counter_name_resp2(shown, want);
     int n = counters_read(rows);
+    if (vallen > 4 || lolen > 4 || hilen > 4) refuse("DEFINE COUNTER with a VALUE, MINIMUM or MAXIMUM that is not a fullword");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (bad) {
@@ -3563,8 +3586,18 @@ int GGCDCNT(gg_cics *c) {
         c->resp2 = bad;
         return 0;
     }
-    if (c->num < 0) refuse("DEFINE COUNTER with a VALUE below zero");
-    if (counter_find(rows, n, pool, want) >= 0) {
+    if (vallen && (val[0] & 0x80)) refuse("DEFINE COUNTER with a VALUE below zero");
+    if (lolen && (lo[0] & 0x80)) refuse("DEFINE COUNTER with a MINIMUM below zero");
+    unsigned long long v = vallen ? be64(val, vallen) : 0;
+    unsigned long long mn = lolen ? be64(lo, lolen) : 0;
+    unsigned long long mx = hilen ? be64(hi, hilen) : 2147483647ULL;
+    if (mx < mn || mx > 2147483647ULL) {
+        c->resp = INVREQ;
+        c->resp2 = 407;
+    } else if (v < mn || v > mx + 1) {
+        c->resp = INVREQ;
+        c->resp2 = 406;
+    } else if (counter_find(rows, n, pool, want) >= 0) {
         c->resp = INVREQ;
         c->resp2 = 202;
     } else if (n >= MAXCNT) {
@@ -3572,8 +3605,10 @@ int GGCDCNT(gg_cics *c) {
     } else {
         snprintf(rows[n].pool, sizeof rows[n].pool, "%s", pool);
         snprintf(rows[n].name, sizeof rows[n].name, "%s", want);
-        rows[n].value = (unsigned long long)c->num;
-        rows[n].limited = 0;
+        rows[n].value = v;
+        rows[n].limited = 1;
+        rows[n].min = mn;
+        rows[n].max = mx;
         counters_write(rows, n + 1);
     }
     return 0;

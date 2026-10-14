@@ -3,10 +3,10 @@ https://github.com/walmartlabs/zECS
 Authors: Randy Frerking and Rich Jackson (Walmart Technology)
 
 Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
-licence file). The program under test, Source/ZECS003.cbl, and its copybooks
+licence file). The program under test, Source/ZECS000.cbl, and its copybooks
 (Source/ZECSZFC.cpy, ZECSZKC.cpy) are zECS's, used unmodified from the corpus.
 
-The document template, URIMAP definition, HTTP peer and request the scenarios
-state follow zECS's own templates (Source/ZC##DC.txt, CSDZC##.rdo) with their
-placeholders filled in for this case. The scenarios in case.json are written for
-this case.
+The install symbols the case states (@ecs_hlq@, @environment@ of
+Source/ZCEXPIRE.idcams and CSDZECSX.rdo) are filled in for this case, and the
+control record in zcexpire.bin is written for it. The scenarios in case.json are
+written for this case.

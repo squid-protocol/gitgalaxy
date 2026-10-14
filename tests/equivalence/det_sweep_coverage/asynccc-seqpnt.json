@@ -9,22 +9,94 @@
   "covered": 4,
   "total": 4
  },
- "inputs": {
-  "case": "4113ce9fb107671dbed8b0d5944489d393500fcc8170c4c348abf263d7c305dc",
-  "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-  "harness": "668a98300771b213d8149fdacc4023be72b30b13152765e7906e64478859ca16",
-  "oracle": "5ae49d87e1774d7266ba251978f20043a3149493c44da5e065322aba197cad9f",
-  "components": {
-   "harness": {
-    "harness:cics": "51ed99032bd42ef8e4003f2180027f5ce982aa302eb14fad0277a1f4b7b5fab6",
-    "harness:core": "485bc7d0e9f00e005f046cbf551af85b8fad21b179a543ad6f43ad0a69dd5444"
+ "linked": {
+  "CRDTCHK": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
    },
-   "oracle": {
-    "oracle:cics-stub": "d551707ce43935382d99fe5ffb9111f08782d8ba3f2982c9bbab3e7e8733e905",
-    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
-    "oracle:le": "c844eafe26530eef44ce5ef212399ee8524ddc9d06463ea8d3825e1d3afe1d55"
+   "branches": {
+    "covered": 2,
+    "total": 2
+   }
+  },
+  "CSSTATUS": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   }
+  },
+  "GETADDR": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   }
+  },
+  "GETNAME": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 2,
+    "total": 2
+   }
+  },
+  "GETPOL": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  },
+  "GETSPND": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  },
+  "UPDCSDB": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
    }
   }
  },
- "measured_at": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+ "inputs": {
+  "case": "4113ce9fb107671dbed8b0d5944489d393500fcc8170c4c348abf263d7c305dc",
+  "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+  "harness": "7230bd00e88bc442247859a16a66eba3e382a27fdfbbe75dc5a7023818347e5f",
+  "oracle": "f81d7f6cb60830f5f5a43d8da92fe0e98691abdf9b4b1dd8a7d78613b3f23231",
+  "components": {
+   "harness": {
+    "harness:cics": "73637aeab5f07a958a611956db01011b881583781689e4fef16dc13f4337ce9d",
+    "harness:core": "a2df512e6104a671ce65b3428c1b9532962ca8fd67f4a218c1cae4d85cb93a89"
+   },
+   "oracle": {
+    "oracle:cics-stub": "31c336975fd66cddf3bae04a7f97f294dc14625499fc34cb330f829b2ea2294a",
+    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
+    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+   }
+  }
+ },
+ "measured_at": "4c1bde5340ced7e1283b26a01d11e346f9d050f6"
 }

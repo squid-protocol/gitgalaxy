@@ -261,6 +261,12 @@ class Dto:
         return n
 
 
+def _typed(cls: str) -> str | None:
+    """#5053: the class a stub types a COMMAREA with, None when it types none: a DFHCOMMAREA that is no record (PIC X(30))
+    is `Object request`, and Object is no generated DTO (it read as a missing dto/contract class: a hole)."""
+    return None if cls == "Object" else cls
+
+
 class Generated:
     """What the generated project says about one program's CICS boundary."""
 
@@ -275,7 +281,7 @@ class Generated:
         m = re.search(r"public \w+ handleLink\((\w+) request\)", text) or re.search(
             r"handleTransaction\(String transid, (\w+) request\)", text
         )
-        return m.group(1) if m else None
+        return _typed(m.group(1)) if m else None
 
     def __init__(self, project: Path, stub: str):
         self.java = project / "src/main/java"
@@ -283,16 +289,16 @@ class Generated:
         self.contract = None
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
-            self.contract = m.group(1)
+            self.contract = _typed(m.group(1))
         else:  # a program only ever LINKed to (CBSA's): its COMMAREA is handleLink's
             m = re.search(r"public \w+ handleLink\((\w+) request\)", stub)
             if m:
-                self.contract = m.group(1)
+                self.contract = _typed(m.group(1))
         # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
         self.links = {mm.group(1).upper(): mm.group(2)
-                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)}  # fmt: skip
+                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
         self.xctl = {mm.group(1).upper(): mm.group(2)
-                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub)}  # fmt: skip
+                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
         self.files: dict[str, tuple[str, str, str | None]] = {}  # CICS file -> (repository, entity, findBy prop)
         self.inferred: list[str] = []
         self._map_files(stub, self.files)

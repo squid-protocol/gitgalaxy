@@ -84,6 +84,14 @@ public final class Ceedays {
         if (span == 0) {
             throw new UnsupportedOperationException("CEEDAYS: picture not modelled");
         }
+        // owner decision 2026-10-14 (register L1): the picture's tail past the span is assumed ignored only when it is
+        // all blanks; a non-blank byte, or one past the picture item (foreign storage), is refused by name
+        for (int t = span; t < pl; t++) {
+            if (2 + t >= pic.length() || pb[p + t] != ' ') {
+                throw new UnsupportedOperationException(
+                    "CEEDAYS: picture not modelled: a non-blank tail after the date tokens");
+            }
+        }
         putLilian(lilian, 0);
         int cover = Math.min(dl, span);
         if (cover > 0 && db[d + cover - 1] == ' ') {

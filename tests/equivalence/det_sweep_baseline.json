@@ -2,6 +2,10 @@
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
  "det": {
+  "cbsa-crecust": {
+   "issue": "#4952",
+   "why": "CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
+  },
   "mortgage-mpmt": {
    "issue": "#4271",
    "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"

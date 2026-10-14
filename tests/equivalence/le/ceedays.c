@@ -23,9 +23,10 @@
  * ignored", so the date past the picture's span is never read; a date shorter than the picture's span is CEE2EB.
  * Pictures modelled (#4952, register L1): YYYY MM DD in any order, or YYYY DDD (Julian), each token once, adjacent
  * or joined by one separator character (- / .) used throughout. A picture LONGER than that span -- CardDemo's
- * 'YYYYMMDD  ', CBSA CRECUST's 'YYYYMMDD' declared length 10 over 8 bytes -- is read as its span and the rest is
- * ASSUMED ignored: IBM does not say how characters after the last token are read, and in CRECUST they are not even
- * in the item (the slack bytes of the storage that follows), so no byte past the span is ever looked at.
+ * 'YYYYMMDD  ' -- is read as its span and the rest is ASSUMED ignored ONLY WHEN IT IS ALL BLANKS (owner decision
+ * 2026-10-14, register L1): IBM does not say how characters after the last token are read. A tail with any
+ * non-blank byte is NOT modelled and refused by name, as is CBSA CRECUST's 'YYYYMMDD' declared length 10 over 8 bytes
+ * (its 2 extra bytes are the storage that follows the item, which z/OS would read as picture text).
  * NOT modelled, and refused the same way: a numeric month outside 1-12 (2508 or 2517 -- IBM's documentation does
  * not settle it); a trailing blank on the part of the date the picture covers, all blanks included (#4049: whether CEEDAYS
  * ignores them -- 2507, insufficient data, once the date is shorter than the picture -- or reads a blank in a
@@ -93,7 +94,7 @@ static int digits(const unsigned char *s, int n, int *out) {
 /* The picture, as far as the tokens go: YYYY MM DD (any order) or YYYY DDD, adjacent or each pair joined by one
  * separator character, the same one throughout (- / .). Returns the length of that span, or 0 for a picture not
  * modelled. kind[] gets 'Y' (YYYY), 'M', 'D' (DD) or 'J' (DDD) in the order they appear. Only the picture's own
- * bytes up to the span are read: what follows the span is never looked at (see the header). */
+ * bytes up to the span are read here; the tail past the span is checked for blanks by the caller (see the header). */
 static int pic_span(const unsigned char *p, int pl, char *kind, int *nt, char *sep) {
     int i = 0, have = 0, sepd = -1;
     *nt = 0;
@@ -158,6 +159,13 @@ int CEEDAYS(unsigned char *date, unsigned char *pic, unsigned char *lilian, unsi
     if (!span) {
         fprintf(stderr, "CEEDAYS: picture not modelled: '%.*s'\n", pl, (const char *)p);
         exit(98);
+    }
+    for (int i = span; i < pl; i++) {
+        if (p[i] != ' ') {
+            fprintf(stderr, "CEEDAYS: picture not modelled: a non-blank tail after '%.*s'\n", span,
+                    (const char *)p);
+            exit(98);
+        }
     }
     put_lilian(lilian, 0);
     /* a trailing blank on the part of the date the picture covers: not modelled (#4049). A blank inside it is a

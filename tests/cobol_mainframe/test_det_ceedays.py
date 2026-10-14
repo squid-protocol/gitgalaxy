@@ -1,14 +1,16 @@
 """#4952: LE CEEDAYS pictures (register L1) in the det runtime (cobolrt/le/Ceedays.java) and in the harness's COBOL-side
 model (tests/equivalence/le/ceedays.c), so CBSA CRECUST's CEEDAYS (picture 'YYYYMMDD' declared length 10 over 8 bytes, a date
-of length 10 over 8 digits) is modelled instead of refused.
+of length 10 over 8 digits) stays REFUSED by name (a non-blank picture tail is foreign storage), while CardDemo's blank-padded
+'YYYYMMDD  ' is modelled (register L1, owner decision 2026-10-14).
 
 One vector table drives three checks, as test_det_le_time.py does for the other LE services:
 
 1. **IBM's documented answers** (`want`): the Lilian day or the feedback message number for the input.
 2. **The runtime against the oracle's model**: the same table through the Java runtime and the C model, every output
    and every refusal equal.
-3. **No byte past the picture's span is read**: a date / picture whose declared length overruns its item sits in
-   storage of exactly its text (AddressSanitizer on the C side, an exact array on the Java side), so a read past it fails.
+3. **The picture's tail**: exactly the span, a tail of blanks (ASSUMED ignored), a tail with any non-blank byte, and a
+   declared length that overruns the item (foreign storage, poison on the C side, past the field on the Java side) are
+   each their own rows; only the blank tail converts. The date past its span is never read (IBM).
 
 The input class: every token order (YYYY MM DD in all six orders, YYYY DDD in both), adjacent and each separator, the
 declared length equal to / past the span (item exactly that long, or a longer item with blanks, or an overrunning
@@ -50,14 +52,30 @@ VECTORS = [
     ("1988-05-16", 10, "YYYY-MM-DD", 10, _ok(1988, 5, 16)),
     ("1988/05/16", 10, "YYYY/MM/DD", 10, _ok(1988, 5, 16)),
     ("1988.05.16", 10, "YYYY.MM.DD", 10, _ok(1988, 5, 16)),
-    # CRECUST: 'YYYYMMDD' declared length 10 over 8 bytes, the date too (the 2 bytes past each are poison)
-    ("19880516", 10, "YYYYMMDD", 10, _ok(1988, 5, 16)),
-    ("20000229", 10, "YYYYMMDD", 10, _ok(2000, 2, 29)),
+    # CRECUST: 'YYYYMMDD' declared length 10 over 8 bytes: the 2 bytes past the picture are foreign storage, REFUSED
+    ("19880516", 10, "YYYYMMDD", 10, REFUSED),
+    ("20000229", 10, "YYYYMMDD", 10, REFUSED),
+    ("19880516", 9, "YYYYMMDD", 9, REFUSED),  # one byte past the item
+    ("19880516", 8, "YYYYMMDD", 100, REFUSED),  # far past it
     ("19880516", 8, "YYYYMMDD", 8, _ok(1988, 5, 16)),
     # a picture longer than its span with real blanks (CardDemo CSUTLDTC): the tail is ignored (L1, ASSUMED)
     ("19880516  ", 10, "YYYYMMDD  ", 10, _ok(1988, 5, 16)),
     ("19880516", 8, "YYYYMMDD  ", 10, _ok(1988, 5, 16)),
-    ("1988-05-16 x", 12, "YYYY-MM-DD", 10, _ok(1988, 5, 16)),  # IBM: remaining characters are ignored
+    ("19880516", 8, "YYYYMMDD ", 9, _ok(1988, 5, 16)),  # a one-byte blank tail
+    ("19880516", 8, "YYYYMMDD    ", 12, _ok(1988, 5, 16)),
+    ("1988-05-16", 10, "YYYY-MM-DD   ", 13, _ok(1988, 5, 16)),
+    ("1988137", 7, "YYYYDDD  ", 9, _ok(1988, 5, 16)),
+    ("05161988", 8, "MMDDYYYY  ", 10, _ok(1988, 5, 16)),
+    # a tail with any non-blank byte is refused by name, wherever the byte sits
+    ("19880516", 8, "YYYYMMDDX", 9, REFUSED),
+    ("19880516", 8, "YYYYMMDD X", 10, REFUSED),
+    ("19880516", 8, "YYYYMMDDX ", 10, REFUSED),
+    ("19880516", 8, "YYYYMMDD00", 10, REFUSED),
+    ("1988-05-16", 10, "YYYY-MM-DD.", 11, REFUSED),
+    ("1988137", 7, "YYYYDDDX", 8, REFUSED),
+    # a blank tail whose declared length overruns the item is foreign storage too: refused
+    ("19880516", 8, "YYYYMMDD ", 12, REFUSED),
+    ("1988-05-16 x", 12, "YYYY-MM-DD", 10, _ok(1988, 5, 16)),  # IBM: remaining characters of the DATE are ignored
     # every token order and separator
     ("05161988", 8, "MMDDYYYY", 8, _ok(1988, 5, 16)),
     ("16051988", 8, "DDMMYYYY", 8, _ok(1988, 5, 16)),
@@ -79,7 +97,7 @@ VECTORS = [
     # IBM's documented conditions, one invalid field at a time
     ("19000229", 8, "YYYYMMDD", 8, "2508|"),  # 1900 is not a Gregorian leap year
     ("19880230", 8, "YYYYMMDD", 8, "2508|"),
-    ("19880431", 10, "YYYYMMDD", 10, "2508|"),
+    ("19880431", 8, "YYYYMMDD", 8, "2508|"),
     ("19880500", 8, "YYYYMMDD", 8, "2508|"),
     ("1988051", 7, "YYYYMMDD", 8, "2507|"),  # shorter than the span
     ("1988-05", 7, "YYYY-MM-DD", 10, "2507|"),
@@ -114,11 +132,11 @@ VECTORS = [
         11,
         "YYYYMMDDDDD",
         11,
-        _ok(1988, 5, 16),
-    ),  # after YYYY MM the last token is DD; the tail 'DDD' is ignored
-    ("1988.05.137", 11, "YYYY.MM.DDD", 11, _ok(1988, 5, 13)),
-    ("198805161988", 12, "YYYYMMDDYYYY", 12, _ok(1988, 5, 16)),  # a complete set, then a tail (ASSUMED ignored)
-    ("1988137", 7, "YYYYDDDMM", 9, _ok(1988, 5, 16)),  # YYYY DDD, then a tail
+        REFUSED,
+    ),  # after YYYY MM the last token is DD; the tail 'DDD' is not blank
+    ("1988.05.137", 11, "YYYY.MM.DDD", 11, REFUSED),  # the tail 'D' after YYYY.MM.DD
+    ("198805161988", 12, "YYYYMMDDYYYY", 12, REFUSED),  # a complete set, then a non-blank tail
+    ("1988137", 7, "YYYYDDDMM", 9, REFUSED),  # YYYY DDD, then a non-blank tail
     ("05137", 5, "MMDDD", 5, REFUSED),  # DDD with MM
 ]
 
@@ -132,12 +150,14 @@ C_DRIVER = r"""
 #include <stdlib.h>
 #include <string.h>
 int CEEDAYS(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
-/* argv: date text, declared length, picture text, declared length. The item is exactly its text (2 + n bytes, on the
- * heap): a model that reads past it (the declared length may overrun the item, as CRECUST's does) trips AddressSanitizer. */
+/* argv: date text, declared length, picture text, declared length. The item is its text (2 + n bytes, on the heap),
+ * then 256 poison bytes of foreign storage (0xFF, never a blank) for a declared length that overruns the item, as
+ * CRECUST's does. */
 static unsigned char *vstr(const char *s, int declared) {
     size_t n = strlen(s);
-    unsigned char *o = malloc(2 + n);
+    unsigned char *o = malloc(2 + n + 256);
     o[0] = declared >> 8; o[1] = declared & 255; memcpy(o + 2, s, n);
+    memset(o + 2 + n, 0xFF, 256);
     return o;
 }
 int main(int argc, char **argv) {
@@ -160,7 +180,8 @@ import p.cobolrt.le.*;
 public class Probe {
     static Field vstr(String t, int declared) {
         byte[] b = t.getBytes(StandardCharsets.ISO_8859_1);
-        Storage s = new Storage(2 + b.length); // exactly the item: a read past it throws
+        Storage s = new Storage(2 + b.length + 256); // the item, then foreign storage the runtime must not trust
+        java.util.Arrays.fill(s.bytes, 2 + b.length, s.bytes.length, (byte) 0xFF);
         s.bytes[0] = (byte) (declared >> 8);
         s.bytes[1] = (byte) declared;
         System.arraycopy(b, 0, s.bytes, 2, b.length);

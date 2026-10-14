@@ -14,9 +14,9 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
     python tests/tools/det_mutation.py survivors [CASE ...]              # the survivors and their stated verdicts
     python tests/tools/det_mutation.py state CASE TRIAGE.json            # {id: {verdict, reason}} -> the list
 
-Two committed files:
+Two committed directories, one <CASE>.json per case in each (two PRs measuring different cases never collide):
 
-  tests/equivalence/det_mutation.json -- written only by `run` / `record` / `refresh`: per case the run's counts,
+  tests/equivalence/det_mutation/ -- written only by `run` / `record` / `refresh`: per case the run's counts,
     every judged mutant's verdict, the survivors in full, and the fingerprints of what the score depends on: the det
     port's own files (`port`), the case, the corpus pin, the harness and the oracle (tests/tools/evidence.py's), and
     the Java generator (`generator`), the cheap stand-in for the port: a reader cannot translate. An entry is
@@ -24,7 +24,7 @@ Two committed files:
     When only the generator moved, `refresh` translates the case again and, when the port is byte-identical,
     renews the generator fingerprint (no mutant re-run).
 
-  tests/equivalence/det_mutation_survivors.json -- written by a person: per case, a surviving mutant (by id, with
+  tests/equivalence/det_mutation_survivors/ -- written by a person: per case, a surviving mutant (by id, with
     the Java line before / after) and its verdict, `equivalent` (the change cannot alter anything the program
     shows: an initial value overwritten before use, a pad the field's width truncates) or `unreachable` (no input
     gets there: an entry point the case's kind never calls is out of scope already; this is code after a transfer,
@@ -56,8 +56,8 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 CASES = REPO / "tests" / "equivalence"
-LEDGER = CASES / "det_mutation.json"
-SURVIVORS = CASES / "det_mutation_survivors.json"
+LEDGER = CASES / "det_mutation"  # one <CASE>.json per case (like det_sweep_coverage/, #4789: PRs do not collide)
+SURVIVORS = CASES / "det_mutation_survivors"  # one <CASE>.json per case
 FORMAT = "det-mutation/1"
 SURVIVORS_FORMAT = "det-mutation-survivors/1"
 INPUTS = ("port", "generator", "case", "corpus", "harness", "oracle")
@@ -76,7 +76,7 @@ SCOPE = {"cics": ("runProgram", "runBatch", "dd"), "batch": ("runTask", "handleT
 ABOUT = ("#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s "
          "port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while "
          "its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in "
-         "det_mutation_survivors.json (reviewed).")  # fmt: skip
+         "det_mutation_survivors/ (reviewed).")  # fmt: skip
 SURVIVORS_ABOUT = ("#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and "
                    "why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a "
                    "stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.")  # fmt: skip
@@ -148,16 +148,38 @@ def scope_filter(kind: str, port: Path) -> Callable[[list[Any]], list[Any]]:
 
 # ---- the ledgers -----------------------------------------------------------------------------------------------------
 def load(path: Path = LEDGER) -> dict[str, dict[str, Any]]:
-    return json.loads(path.read_text(encoding="utf-8")).get("cases", {}) if path.is_file() else {}
+    """{case: ledger entry}, from path/<CASE>.json."""
+    out = {}
+    for f in sorted(path.glob("*.json")) if path.is_dir() else []:
+        out[f.stem] = json.loads(f.read_text(encoding="utf-8"))["entry"]
+    return out
 
 
 def load_survivors(path: Path = SURVIVORS) -> dict[str, list[dict[str, Any]]]:
-    return json.loads(path.read_text(encoding="utf-8")).get("cases", {}) if path.is_file() else {}
+    """{case: stated survivors}, from path/<CASE>.json."""
+    out = {}
+    for f in sorted(path.glob("*.json")) if path.is_dir() else []:
+        out[f.stem] = json.loads(f.read_text(encoding="utf-8"))["survivors"]
+    return out
 
 
-def write(cases: dict[str, dict[str, Any]], path: Path = LEDGER) -> None:
-    body = {"format": FORMAT, "issue": "#4628", "about": ABOUT, "cases": dict(sorted(cases.items()))}
-    path.write_text(json.dumps(body, indent=1) + "\n", encoding="utf-8")
+def write(case: str, entry: dict[str, Any], path: Path = LEDGER) -> None:
+    """The case's ledger entry, as path/<CASE>.json."""
+    path.mkdir(parents=True, exist_ok=True)
+    body = {"format": FORMAT, "issue": "#4628", "about": ABOUT, "case": case, "entry": entry}
+    (path / f"{case}.json").write_text(json.dumps(body, indent=1) + "\n", encoding="utf-8")
+
+
+def write_survivors(case: str, entries: list[dict[str, Any]], path: Path = SURVIVORS) -> None:
+    """The case's reviewed survivors, as path/<CASE>.json (removed when none is left)."""
+    f = path / f"{case}.json"
+    if not entries:
+        f.unlink(missing_ok=True)
+        return
+    path.mkdir(parents=True, exist_ok=True)
+    body = {"format": SURVIVORS_FORMAT, "issue": "#4628", "about": SURVIVORS_ABOUT, "verdicts": VERDICTS,
+            "case": case, "survivors": entries}  # fmt: skip
+    f.write_text(json.dumps(body, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def stated(case: str, survivors: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, dict[str, Any]]:
@@ -227,35 +249,46 @@ def summary(case: str, entry: dict[str, Any], survivors: dict[str, list[dict[str
                   and not refuted(case, entry, survivors)}  # fmt: skip
 
 
-def status(case: str, program: str | None = None) -> dict[str, Any] | None:
-    """The evidence report's L5 hook (#4603): the case's det-port mutation result while its ledger entry is fresh,
-    else None (missing, stale, or for another program). Keys: score (caught / judged, 0-1), killed (killed +
-    timeout), survived, stillborn, accounted / unaccounted (survivors with / without a reviewed verdict), chosen /
-    mutants / seed (the sample), refuted (stated mutants the run killed), and l5: every survivor accounted for, no
-    error, no refuted claim."""
+def measured(case: str, program: str | None = None) -> dict[str, Any] | None:
+    """The case's det-port mutation result, fresh or stale, or None (no entry, or the entry is another program's):
+    `summary`'s keys plus `current` (every fingerprint matches the tree) and `stale_inputs` (the ones that moved;
+    ["unknown"] when the fingerprints cannot be computed)."""
     entry = load().get(case)
     if not entry or not (CASES / case / "case.json").is_file():
         return None
     if program and entry.get("program") and str(entry["program"]).upper() != program.upper():
         return None
     try:
-        if stale(entry, fingerprints(case)):
-            return None
+        moved = stale(entry, fingerprints(case))
     except (RuntimeError, KeyError, OSError):
-        return None
-    return summary(case, entry)
+        moved = ["unknown"]
+    return {**summary(case, entry), "current": not moved, "stale_inputs": moved}
+
+
+def status(case: str, program: str | None = None) -> dict[str, Any] | None:
+    """The evidence report's L5 hook (#4603): the case's det-port mutation result while its ledger entry is fresh,
+    else None (missing, stale, or for another program). Keys: score (caught / judged, 0-1), killed (killed +
+    timeout), survived, stillborn, accounted / unaccounted (survivors with / without a reviewed verdict), chosen /
+    mutants / seed (the sample), refuted (stated mutants the run killed), and l5: every survivor accounted for, no
+    error, no refuted claim."""
+    s = measured(case, program)
+    return s if s and s["current"] else None
 
 
 def describe(s: dict[str, Any] | None) -> str:
-    """One line for a report: the raw score beside the accounting (the owner's rule: the raw score always shows)."""
+    """One line for a report: the raw score beside the accounting (the owner's rule: the raw score always shows). A
+    stale result (`measured`'s) is shown as the last measurement, marked stale."""
     if s is None:
-        return "not measured (no fresh det_mutation.json entry)"
+        return "not measured (no det_mutation/ entry)"
     score = f"{100 * s['score']:.0f}%" if s["score"] is not None else "n/a"
     acc = (f"every survivor accounted for ({s['accounted']})" if s["l5"]
            else f"{s['unaccounted']} of {s['survived']} survivors unaccounted"
            + (f", {len(s['refuted'])} stated claims refuted" if s["refuted"] else ""))  # fmt: skip
-    return (f"raw {score} ({s['killed']}/{s['killed'] + s['survived']} caught; {s['chosen']} of {s['mutants']} "
+    line = (f"raw {score} ({s['killed']}/{s['killed'] + s['survived']} caught; {s['chosen']} of {s['mutants']} "
             f"mutants, seed {s['seed']}); {acc}")  # fmt: skip
+    if s.get("current") is False:
+        line = f"stale ({', '.join(s['stale_inputs'])} moved), last measured: {line}"
+    return line
 
 
 # ---- the checks ------------------------------------------------------------------------------------------------------
@@ -295,7 +328,8 @@ def check(ledger: dict[str, dict[str, Any]] | None = None, survivors: dict[str, 
     problems: list[str] = []
     warnings: list[str] = []
     if tracked:
-        problems += [f"det mutation: {f.name} is not a committed file (git-ignored?)" for f in (LEDGER, SURVIVORS)
+        files = [LEDGER / f"{c}.json" for c in ledger] + [SURVIVORS / f"{c}.json" for c in survivors]
+        problems += [f"det mutation: {f.relative_to(REPO)} is not a committed file (git-ignored?)" for f in files
                      if not f.is_file() or not _tracked(f)]  # fmt: skip
     problems += problems_in_survivors(survivors)
     for case in sorted(ledger):
@@ -343,9 +377,7 @@ def record(case: str, run_dir: Path, port: Path) -> int:
 
     with (Path(tempfile.gettempdir()) / "gitgalaxy-det-mutation.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        cases = {c: e for c, e in load().items() if (CASES / c / "case.json").is_file()}
-        cases[case] = entry
-        write(cases)
+        write(case, entry)
     s = summary(case, entry)
     print(_row(s))
     for i in s["refuted"]:
@@ -364,8 +396,13 @@ def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, 
             print(f"{case}: no det port (translation failed: see {det / 'summary.json'})")
             rc = 1
             continue
-        mu.run(case, work / case, jobs, sample, seed, set(mu.OPERATORS), None, False, full, port=port, files=FILES,
-               select=scope_filter(case_kind(case), port))  # fmt: skip
+        try:
+            mu.run(case, work / case, jobs, sample, seed, set(mu.OPERATORS), None, False, full, port=port,
+                   files=FILES, select=scope_filter(case_kind(case), port))  # fmt: skip
+        except SystemExit as e:  # the det port is not proven: nothing to measure; the batch goes on
+            print(f"{case}: {e}")
+            rc = 1
+            continue
         rc |= record(case, work / case, port)
     return rc
 
@@ -387,11 +424,11 @@ def refresh(cases: list[str], work: Path) -> int:
         port = det / case / "port"
         if port.is_dir() and port_sha(port) == ledger[case]["inputs"]["port"]:
             ledger[case]["inputs"]["generator"] = fingerprints(case)["generator"]
+            write(case, ledger[case])
             print(f"{case}: the det port is unchanged: fingerprint renewed")
         else:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
             rc = 1
-    write(ledger)
     return rc
 
 
@@ -408,13 +445,11 @@ def state(case: str, triage: dict[str, dict[str, str]]) -> int:
         s = survived[i]
         mine[i] = {"id": i, "op": s["op"], "line": s["line"], "before": s["before"], "after": s["after"],
                    "verdict": t["verdict"], "reason": t["reason"]}  # fmt: skip
-    all_[case] = sorted(mine.values(), key=lambda e: (e["line"], e["id"]))
-    problems = problems_in_survivors({case: all_[case]})
+    entries = sorted(mine.values(), key=lambda e: (e["line"], e["id"]))
+    problems = problems_in_survivors({case: entries})
     if problems:
         raise SystemExit("\n".join(problems))
-    body = {"format": SURVIVORS_FORMAT, "issue": "#4628", "about": SURVIVORS_ABOUT, "verdicts": VERDICTS,
-            "cases": dict(sorted(all_.items()))}  # fmt: skip
-    SURVIVORS.write_text(json.dumps(body, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_survivors(case, entries)
     s = summary(case, load()[case])
     print(_row(s))
     return 0

@@ -90,9 +90,29 @@ def test_member_spans_and_scope():
 
 
 def test_the_ledgers_are_tracked():
-    """`.gitignore` has `*.json`: both files need their `!path` exception, or a PR ships without its data."""
-    assert dm._tracked(dm.LEDGER)
-    assert dm._tracked(dm.SURVIVORS)
+    """`.gitignore` has `*.json`: both directories need their `!dir/*.json` exception, or a PR ships without its data."""
+    for case in dm.load():
+        assert dm._tracked(dm.LEDGER / f"{case}.json"), case
+    for case in dm.load_survivors():
+        assert dm._tracked(dm.SURVIVORS / f"{case}.json"), case
+
+
+def test_per_case_files_round_trip(tmp_path):
+    led, sv = tmp_path / "led", tmp_path / "sv"
+    dm.write(CASE, entry(), led)
+    dm.write_survivors(CASE, [claim(S1)], sv)
+    assert dm.load(led) == {CASE: entry()}
+    assert dm.load_survivors(sv) == {CASE: [claim(S1)]}
+    dm.write_survivors(CASE, [], sv)  # none left: the file goes
+    assert dm.load_survivors(sv) == {}
+
+
+def test_describe_shows_the_raw_score():
+    assert dm.describe(None).startswith("not measured")
+    line = dm.describe(dm.summary(CASE, entry(), {CASE: [claim(S1)]}))
+    assert "raw 60% (3/5 caught" in line and "1 of 2 survivors unaccounted" in line
+    line = dm.describe(dm.summary(CASE, entry(), {CASE: [claim(S1), claim(S2)]}))
+    assert "every survivor accounted for (2)" in line
 
 
 def test_the_committed_ledgers_agree():

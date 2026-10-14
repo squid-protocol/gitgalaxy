@@ -14,9 +14,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
 REPORTS = sorted(er.OUT.glob("*/report.json"))
-TREE = (next((s["translator"] for f in REPORTS for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
-             if s.get("translator")), None)
-        or {"sha256": "tree-fp", "files": 3})  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
+TREE = next(
+    (
+        s["translator"]
+        for f in REPORTS
+        for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
+        if s.get("translator")
+    ),
+    None,
+) or {"sha256": "tree-fp", "files": 3}  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
 
 
 @pytest.fixture(autouse=True)
@@ -161,6 +167,43 @@ def test_levels_are_cumulative_and_never_reach_l5_unmeasured(kw, level):
     if level == "L4":
         assert any("#4628" in n for n in nxt)
         assert not any("oracle" in n for n in nxt)
+
+
+def test_l5_needs_a_fresh_det_mutation_entry_with_every_survivor_accounted_for():
+    """#4628: L4 + the det port's mutation result current and l5; stale, open or missing stays L4 with the raw score."""
+    full = {"para": (10, 10), "branch": (10, 10)}
+    assert er.level_of(program(**full), BARS)[0] == "L4"  # no mutation result
+    for mut, level in (
+        ({"det_port": "raw 60%", "score": 0.6, "current": True, "l5": True}, "L5"),
+        ({"det_port": "raw 60%", "score": 0.6, "current": False, "l5": True}, "L4"),  # stale: unknown
+        ({"det_port": "raw 60%", "score": 0.6, "current": True, "l5": False}, "L4"),  # a survivor open
+    ):
+        p = {**program(**full), "mutation": mut}
+        lvl, nxt = er.level_of(p, BARS)
+        assert lvl == level
+        assert lvl == "L5" or "raw 60%" in nxt[0]
+    p = {**program(para=(9, 10), branch=(10, 10)), "mutation": {"current": True, "l5": True}}
+    assert er.level_of(p, BARS)[0] == "L2"  # the rungs below still gate
+    assert (er._pct(None, None), er._pct(0.554, True), er._pct(0.5, False)) == ("—", "55%", "50% (stale)")
+
+
+def test_mutation_of_reads_the_det_mutation_ledger(monkeypatch):
+    import det_mutation as dm
+
+    seen = []
+
+    def measured(case, program=None):
+        seen.append((case, program))
+        return {"score": 0.5, "killed": 1, "survived": 1, "accounted": 1, "unaccounted": 0, "chosen": 2,
+                "mutants": 9, "seed": 0, "refuted": [], "l5": True, "current": True, "stale_inputs": []}  # fmt: skip
+
+    monkeypatch.setattr(dm, "measured", measured)
+    cache = {}
+    got = er.mutation_of({"case": "cbsa-abndproc"}, "src/base/cobol_src/ABNDPROC.cbl", cache)
+    assert (got["score"], got["current"], got["l5"]) == (0.5, True, True) and "raw 50%" in got["det_port"]
+    er.mutation_of({"case": "cbsa-abndproc"}, "src/base/cobol_src/ABNDPROC.cbl", cache)
+    assert seen == [("cbsa-abndproc", "ABNDPROC")]  # the program by its member name, measured once
+    assert er.mutation_of(None, "X.cbl", {})["det_port"].startswith("not measured")
 
 
 def test_the_bars_are_parameters_and_strict_by_default():

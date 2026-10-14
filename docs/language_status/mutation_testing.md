@@ -246,12 +246,12 @@ python tests/tools/det_mutation.py refresh --work DIR        # the generator mov
   writes into the service is in: storage images, field declarations, the COMMAREA mapping, the PERFORM machinery,
   condition handling, the paragraphs. The same operators, fast mode and seeded sample (`--sample 150`, seed 0) as
   above; `mutation.py run --port DIR --files GLOB` is the hook.
-- **The ledger**, `tests/equivalence/det_mutation.json`, is written only by the tool: per case the counts, every
+- **The ledger**, `tests/equivalence/det_mutation/<CASE>.json`, is written only by the tool: per case the counts, every
   judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
   corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
   translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and renews an entry whose
   port bytes did not change.
-- **The reviewed survivor list**, `tests/equivalence/det_mutation_survivors.json` (the #4602 pattern): each survivor
+- **The reviewed survivor list**, `tests/equivalence/det_mutation_survivors/<CASE>.json` (the #4602 pattern): each survivor
   stated `equivalent` (the change cannot alter what the program shows) or `unreachable` (no input gets there), with
   the Java change and the reason, proposed in a PR and reviewed by the owner. Two more verdicts record a triaged
   survivor that is NOT accounted for: `case-gap` (an input the case lacks would kill it: strengthen the case) and

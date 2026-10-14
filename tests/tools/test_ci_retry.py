@@ -1,6 +1,7 @@
 """#5048: tests/tools/ci_retry.sh and the workflow steps that use it."""
 
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,12 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "tests" / "tools" / "ci_retry.sh"
 WORKFLOWS = REPO / ".github" / "workflows"
+
+# ci_retry.sh runs only on the ubuntu workflow runners; on a Windows runner `bash` is the WSL launcher (UTF-16 output,
+# no /usr/bin), so the behaviour tests are Linux-only like the other bash-script tools (test_box_tools.py).
+needs_linux_bash = pytest.mark.skipif(
+    sys.platform != "linux", reason="ci_retry.sh is a bash script for the Linux runners"
+)
 
 
 def _run(tmp_path, attempts, fail_times, *, cmd=None, backoff=3):
@@ -33,17 +40,20 @@ def _run(tmp_path, attempts, fail_times, *, cmd=None, backoff=3):
     return proc, tries, slept
 
 
+@needs_linux_bash
 def test_first_try_success_does_not_sleep(tmp_path):
     proc, tries, slept = _run(tmp_path, 4, 0)
     assert (proc.returncode, tries, slept) == (0, 1, [])
 
 
+@needs_linux_bash
 def test_fail_then_succeed_retries_with_doubling_backoff(tmp_path):
     proc, tries, slept = _run(tmp_path, 4, 2)
     assert (proc.returncode, tries, slept) == (0, 3, ["3", "6"])
     assert "INFRASTRUCTURE" not in proc.stdout
 
 
+@needs_linux_bash
 def test_never_working_stops_at_the_bound_with_the_infrastructure_marker(tmp_path):
     proc, tries, slept = _run(tmp_path, 3, 99)
     assert proc.returncode == 7
@@ -51,6 +61,7 @@ def test_never_working_stops_at_the_bound_with_the_infrastructure_marker(tmp_pat
     assert "::error::INFRASTRUCTURE (not a code defect)" in proc.stdout
 
 
+@needs_linux_bash
 def test_missing_command_is_infrastructure_too_and_args_with_spaces_survive(tmp_path):
     proc, tries, _ = _run(tmp_path, 2, 0, cmd=["/nonexistent/docker", "pull", "a b"])
     assert proc.returncode != 0 and "INFRASTRUCTURE" in proc.stdout and "a b" in proc.stdout
@@ -58,6 +69,7 @@ def test_missing_command_is_infrastructure_too_and_args_with_spaces_survive(tmp_
     assert ok.returncode == 0
 
 
+@needs_linux_bash
 def test_bad_usage_is_refused():
     assert subprocess.run(["bash", str(SCRIPT), "3"], capture_output=True).returncode == 2
 

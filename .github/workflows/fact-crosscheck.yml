@@ -18,6 +18,7 @@ name: Fact Cross-check
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
     paths:
       - "gitgalaxy/**"
@@ -74,6 +75,7 @@ jobs:
   # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
   # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
   tested-tree:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -98,7 +100,7 @@ jobs:
 
   crosscheck:
     needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4964: not again for a tree the PR run proved
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 12  # install + 7 corpus scans + the crucible scan + ~10 s of comparison; a hang should fail fast
     env:

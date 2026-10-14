@@ -11,6 +11,7 @@ name: Detection Accuracy Audit
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
     paths:
@@ -32,6 +33,7 @@ concurrency:
 
 jobs:
   detection-accuracy-audit:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

@@ -2,6 +2,7 @@ name: Golden Crucible Resilience Test
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
       - v6-dev
@@ -21,6 +22,7 @@ concurrency:
 
 jobs:
   crucible-audit:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

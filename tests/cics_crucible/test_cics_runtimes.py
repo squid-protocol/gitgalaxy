@@ -106,12 +106,13 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
     (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                                    + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
-    built = subprocess.run(["javac", "-d", str(classes), *map(str, pkg.glob("*.java"))], check=False,  # noqa: S603, S607
+    built = subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(classes), *map(str, pkg.glob("*.java"))], check=False,  # noqa: S603, S607
                            capture_output=True, text=True)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    proc = subprocess.run(["java", "-cp", str(classes), "t.cics.Main"], capture_output=True, text=True,  # noqa: S603, S607
-                          check=True)  # fmt: skip
-    return proc.stdout
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
+    proc = subprocess.run(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(classes), "t.cics.Main"],  # noqa: S603, S607
+                          capture_output=True, check=True)  # fmt: skip
+    return proc.stdout.decode("utf-8")
 
 
 @needs_javac

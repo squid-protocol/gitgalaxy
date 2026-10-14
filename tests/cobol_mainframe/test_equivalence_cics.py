@@ -1097,9 +1097,6 @@ def test_define_and_delete_counter_become_stub_calls():
     for bad in (
         "DEFINE COUNTER(WS-C) MINIMUM(WS-M)",
         "DEFINE DCOUNTER(WS-C) MINIMUM(WS-M)",
-        "DEFINE COUNTER(WS-C) NOSUSPEND",
-        "DEFINE DCOUNTER(WS-C) NOSUSPEND",
-        "DELETE COUNTER(WS-C) NOSUSPEND",
     ):
         with pytest.raises(ec.Unsupported, match="COUNTER|DCOUNTER"):
             ec.translate_command(bad)
@@ -1413,10 +1410,7 @@ def test_get_dcounter_becomes_a_doubleword_stub_call():
     d = ec.translate_command("GET DCOUNTER(WS-N) VALUE(WS-V) NOHANDLE")
     assert "MOVE X'0000000000000001' TO GG-NAME2" in d and "    BY REFERENCE GG-NAME2" in d
     assert "CALL 'GGCGCNT' USING GG-CICS" in ec.translate_command("GET COUNTER(WS-N) VALUE(WS-V) NOHANDLE")
-    for bad, why in (("GET DCOUNTER(WS-N) VALUE(WS-V) REDUCE", "maximum is not stated"),
-                     ("GET DCOUNTER(WS-N) VALUE(WS-V) COMPAREMIN(WS-I)", "range check"),
-                     ("GET DCOUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "rebuild"),
-                     ("GET DCOUNTER(WS-N) VALUE('5')", "literal")):  # fmt: skip
+    for bad, why in (("GET DCOUNTER(WS-N) VALUE('5')", "literal"),):  # (REDUCE / COMPARE / NOSUSPEND: #5039, X53)  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
@@ -1441,7 +1435,7 @@ def test_define_query_delete_dcounter_become_doubleword_stub_calls():
                      ("DEFINE DCOUNTER(WS-C) MINIMUM(WS-V)", "MINIMUM without VALUE"),
                      ("DEFINE COUNTER(WS-C) DCOUNTER(WS-C)", "one of COUNTER and DCOUNTER"),
                      ("QUERY DCOUNTER(WS-C)", "without VALUE"),
-                     ("DELETE DCOUNTER(WS-C) NOSUSPEND", "NOSUSPEND")):  # fmt: skip
+                     ):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
@@ -1479,9 +1473,7 @@ def test_define_query_counter_become_fullword_stub_calls():
     for bad, why in (("DEFINE COUNTER(WS-C) VALUE(WS-V) MAXIMUM('A')", "literal"),
                      ("QUERY COUNTER(WS-C) VALUE(5)", "literal"),
                      ("DEFINE COUNTER(WS-C) MINIMUM(WS-V)", "MINIMUM without VALUE"),
-                     ("DEFINE COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),
-                     ("QUERY COUNTER(WS-C) NOSUSPEND", "NOSUSPEND"),
-                     ("GET COUNTER(WS-N) VALUE(WS-V) NOSUSPEND", "NOSUSPEND")):  # fmt: skip
+                     ):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 

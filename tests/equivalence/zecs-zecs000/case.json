@@ -1,0 +1,69 @@
+{
+  "kind": "cics",
+  "corpus": "zecs",
+  "program": "ZECS000",
+  "program_source": "Source/ZECS000.cbl",
+  "copy_dirs": [
+    "Source"
+  ],
+  "transid": "ZX01",
+  "clock": "2026/10/01 10:30:15.00",
+  "install_symbols": {
+    "values": {
+      "ECS_HLQ": "ZECS",
+      "ENVIRONMENT": "TEST"
+    },
+    "why": "zECS's install jobs (JCL/CONFIG.jcl, DEFEXPR.jcl) replace @ecs_hlq@ and @environment@ in ZCEXPIRE.idcams and the CSD's DEFINE FILE(ZCEXPIRE) DSNAME; this case installs one environment, high-level qualifier ZECS and environment TEST"
+  },
+  "datasets": {
+    "ZECS.ZCEXPIRE.TEST": {
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 4,
+        "reclen": 70,
+        "variable": true,
+        "why": "Source/ZCEXPIRE.idcams: INDEXED KEYS(4 0) RECORDSIZE(80 2048), RECORDFORMAT(V) in the CSD. Every record the program writes and reads is its ZX-RECORD, 70 bytes (LENGTH OF ZX-RECORD), whose first 4 bytes are the key"
+      },
+      "input": "@case/zcexpire.bin",
+      "entity": "ZxRecord",
+      "copybook": "Source/ZECS000.cbl",
+      "record": "ZX-RECORD"
+    }
+  },
+  "commarea": null,
+  "linked": false,
+  "screens": {},
+  "scenarios": [
+    {
+      "name": "interval-not-elapsed",
+      "commarea": null,
+      "startcode": "S",
+      "why": "the control record ZX01 on file was written 600 s before the task (its interval is 1800 s): 1400-UPDATE finds RELATIVE-TIME below the TTL, so 8000-RESTART (START TRANSID(EIBTRNID) INTERVAL(1500) with the 20-byte ZC-PARM) and 9000-RETURN end the task before the expiration browse of the instance's file"
+    },
+    {
+      "name": "control-record-duprec",
+      "commarea": null,
+      "startcode": "S",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZCEXPIRE",
+          "resp": "NOTFND",
+          "why": "the control record is not on file: 1300-WRITE"
+        },
+        {
+          "cmd": "WRITE",
+          "file": "ZCEXPIRE",
+          "resp": "DUPREC",
+          "why": "another expiration task wrote it first"
+        }
+      ],
+      "why": "READ UPDATE of the control record NOTFND, so 1300-WRITE writes it, and the WRITE answers DUPREC (a task of the same instance wrote it first): 8000-RESTART and 9000-RETURN end the task before the browse"
+    }
+  ],
+  "notes": "zECS expiration task.",
+  "region": {
+    "applid": "ZECSAPPL",
+    "sysid": "ZECS"
+  }
+}

@@ -107,5 +107,9 @@ def test_a_rerun_shard_overwrites_its_sweep_json_and_merges_without_a_duplicate(
     other.mkdir()
     (other / "sweep.json").write_text(json.dumps({"det": {"b": {"proved": True}}}), encoding="utf-8")
     assert sorted(ps.merge_sweeps([shard, other])["det"]) == ["a", "b"]
-    with pytest.raises(ValueError, match="in two shards"):  # the duplicate check is not loosened
-        ps.merge_sweeps([shard, shard])
+    assert ps.merge_sweeps([shard, shard])["det"] == {"a": {"proved": True}}  # an identical repeat merges once (#5107)
+    disagree = tmp_path / "shard-3"
+    disagree.mkdir()
+    (disagree / "sweep.json").write_text(json.dumps({"det": {"a": {"proved": False}}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="in two shards with conflicting results"):  # a real conflict still raises
+        ps.merge_sweeps([shard, disagree])

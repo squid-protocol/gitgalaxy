@@ -858,7 +858,7 @@ The combined method runs in the porting loop like any other backend, and every e
   PCCONF translates whole. Its proof failed on RECEIVE MAP, which did not apply the field's DFHMDF JUSTIFY (AMT is
   `JUSTIFY=(RIGHT,ZERO)`) and the generated screen model carried none (#5082): `ScreenField.justify` now carries it and
   `DetCics.typedJustified` places the input (register X54; a field with no JUSTIFY still goes through `DetCics.typed`, so
-  no other port moves). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
+  no other port moves; #5116: a NUM field with no JUSTIFY is IBM's RIGHT,ZERO, so `ScreenField.justify` carries that too and a port that RECEIVEs a NUM field goes through `DetJustify.place`). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
   `handleLink` ...: `proof_reach.DET_HELPERS`, only in a file marked as a det port) as `det_helper`, proven by the cells that
   reach the class, not as `ported_unproven`.
 - **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,

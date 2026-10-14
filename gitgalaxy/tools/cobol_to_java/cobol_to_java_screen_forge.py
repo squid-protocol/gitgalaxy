@@ -75,10 +75,14 @@ _JUSTIFY = re.compile(r"(?:^|,)\s*JUSTIFY\s*=\s*(\([^)]*\)|[A-Za-z]+)", re.I)
 
 
 def _justify(f: dict) -> str | None:
-    """DFHMDF JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) as 'RIGHT,ZERO' (parentheses and blanks dropped, upper case); None
-    when the field has none. `attributes` keeps the operand as written, parenthesised comma and all."""
+    """The field's effective input justification as 'RIGHT,ZERO' (parentheses and blanks dropped, upper case). The
+    DFHMDF JUSTIFY operand as written (`attributes` keeps it parenthesised, comma and all); with none coded, IBM's
+    default (CICS TS DFHMDF: "If JUSTIFY is omitted, but the NUM attribute is specified, RIGHT and ZERO are assumed",
+    #5116, X54): 'RIGHT,ZERO' for a NUM field, None (left-justified, blank padded) for any other."""
     m = _JUSTIFY.search(f.get("attributes") or "")
-    return re.sub(r"[()\s]", "", m.group(1)).upper() or None if m else None
+    if m:
+        return re.sub(r"[()\s]", "", m.group(1)).upper() or None
+    return "RIGHT,ZERO" if "NUM" in _attrs(f) else None
 
 
 @dataclass

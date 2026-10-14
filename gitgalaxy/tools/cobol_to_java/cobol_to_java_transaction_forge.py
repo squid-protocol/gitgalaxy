@@ -2339,7 +2339,7 @@ public class CicsTask {
                     + "with an incorrect CHANNEL name: which condition IBM raises is not documented, not modelled");
         }
         if (chan != null) {
-            Channel ch = scopeChannel(chan, false);
+            Channel ch = scopeHanded(chan, false);
             if (ch == null) {
                 throw new UnsupportedOperationException("START CHANNEL(" + chan + ") of a channel not in the "
                         + "program's scope: not modelled");
@@ -2469,7 +2469,7 @@ public class CicsTask {
             resp2 = 1;
         } else {
             child = String.format(java.util.Locale.ROOT, "GGCHILD%09d", ++task.children);
-            task.kids.add(new Child(child, transid, name == null ? null : copyOf(scopeChannel(name, true), name),
+            task.kids.add(new Child(child, transid, name == null ? null : copyOf(scopeHanded(name, true), name),
                     task.children));
         }
         Map<String, Object> e = new LinkedHashMap<>();
@@ -2952,20 +2952,60 @@ public class CicsTask {
         }
     }
 
+    // #4950: the characters IBM's PUT CONTAINER page allows in a CONTAINER / CHANNEL name ("The acceptable characters are
+    // A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _. Leading and embedded blank characters are not permitted").
+    // RUN TRANSID's page (CHANNEL_CHARS) lists three more -- & < and the not sign -- which this one omits: a name
+    // holding one is refused (the two pages disagree), never accepted or called illegal
+    private static final String NAME_CHARS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#/%?!:|\\"=,;>.-_";
+    private static final String NAME_CHARS_RUN_ONLY = "&<\\u00ac";
+
     /** A channel or container name as CICS compares it: the 16-character value without its trailing blanks. One
-     *  with nothing else, or with an embedded blank, is refused (CHANNELERR / CONTAINERERR "illegal character"
-     *  is IBM's, but which characters its names allow is not modelled). */
+     *  with nothing else, or longer than 16, or holding & < or the not sign, is refused; one with a character outside
+     *  IBM's set (a leading or embedded blank included) is refused here too, except by PUT CONTAINER (illegalName),
+     *  the one command whose page says what it does (CHANNELERR RESP2 1 / CONTAINERERR RESP2 18). */
     private static String channelName(String name, String what) {
+        String n = trimmedName(name, what);
+        if (illegalName(name, what)) {
+            throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
+        }
+        return n;
+    }
+
+    private static String trimmedName(String name, String what) {
         String n = name == null ? "" : name;
         int end = n.length();
         while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
             end--;
         }
         n = n.substring(0, end);
-        if (n.isEmpty() || n.contains(" ") || n.length() > 16) {
+        if (n.isEmpty() || n.length() > 16) {
             throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
         }
         return n;
+    }
+
+    /** True when the name holds a character outside IBM's set; refuses one that holds only IBM's set and & < or the
+     *  not sign (the PUT CONTAINER and RUN TRANSID pages disagree). */
+    private static boolean illegalName(String name, String what) {
+        String n = trimmedName(name, what);
+        boolean disputed = false;
+        for (int i = 0; i < n.length(); i++) {
+            char ch = n.charAt(i);
+            if (NAME_CHARS.indexOf(ch) >= 0) {
+                continue;
+            }
+            if (NAME_CHARS_RUN_ONLY.indexOf(ch) >= 0) {
+                disputed = true;
+                continue;
+            }
+            return true;
+        }
+        if (disputed) {
+            throw new UnsupportedOperationException(what + " name '" + name + "' holds & < or a not sign: IBM's RUN "
+                    + "TRANSID page allows them, its PUT CONTAINER page does not");
+        }
+        return false;
     }
 
     private java.util.Set<String> inScope() {
@@ -2994,7 +3034,16 @@ public class CicsTask {
      *  CONTAINER: "If the channel does not exist, it is created"; LINK / XCTL CHANNEL: "a new empty channel is
      *  created"); else null. */
     private Channel scopeChannel(String name, boolean create) {
-        String n = channelName(name, "channel");
+        return scopeNamed(channelName(name, "channel"), create);
+    }
+
+    /** A channel RUN / START CHANNEL named, already checked against RUN TRANSID's character set (handedChannel): one
+     *  with & < or the not sign is a channel here, though the container commands refuse it (scopeChannel). */
+    private Channel scopeHanded(String handed, boolean create) {
+        return scopeNamed(handed, create);
+    }
+
+    private Channel scopeNamed(String n, boolean create) {
         if (droppedChannels.contains(n)) {
             throw new UnsupportedOperationException("channel " + n + " after an XCTL that did not pass it: its scope "
                     + "is not documented, not modelled");
@@ -3016,6 +3065,30 @@ public class CicsTask {
      *  The data replaces the container's, or with APPEND follows it. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append) {
+        boolean badChannel = channel != null && illegalName(channel, "channel");
+        boolean badContainer = illegalName(container, "container");
+        if (badChannel || badContainer) {
+            // IBM: CHANNELERR RESP2 1 (CHANNEL), CONTAINERERR RESP2 18 (CONTAINER) "contains an illegal character or
+            // combination of characters"; what it raises first of two of them, or of one and another condition, is
+            // not documented
+            if (badChannel && badContainer) {
+                throw new UnsupportedOperationException("PUT CONTAINER with an illegal CONTAINER and CHANNEL name: "
+                        + "which condition IBM raises first is not documented, not modelled");
+            }
+            if (flength < 0) {
+                throw new UnsupportedOperationException("PUT CONTAINER with an illegal name and a negative FLENGTH: "
+                        + "which condition IBM raises first is not documented, not modelled");
+            }
+            if (badChannel) {
+                return new ContainerResult("CHANNELERR", 1, -1, null);
+            }
+            if (channel == null ? currentChannel == null : scopeChannel(channel, false) == null) {
+                throw new UnsupportedOperationException("PUT CONTAINER with an illegal CONTAINER name and "
+                        + (channel == null ? "no channel" : "a channel not in scope")
+                        + ": which condition IBM raises first is not documented, not modelled");
+            }
+            return new ContainerResult("CONTAINERERR", 18, -1, null);
+        }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
         String name = channelName(container, "container");
         if (ch == null) {

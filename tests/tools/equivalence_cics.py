@@ -556,6 +556,27 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
+    """#5079 (X57): READQ TD / DELETEQ TD -> GGCRDTD / GGCDLTD (the queue in GG-QNAME). READQ's LENGTH is in-out, as READ's:
+    in, the most INTO takes; out, the record's length, on NORMAL and LENGERR."""
+    feature = f"{verb} TD"
+    _check_spec(feature, opts, (verb, "TD"), lambda bad: [f"{feature} {bad[0]}"])
+    queue = opts.get("QUEUE")
+    if not queue:
+        raise Unsupported(f"{feature} without QUEUE", [feature])
+    lines = [f"MOVE {queue} TO GG-QNAME"]
+    if verb == "DELETEQ":
+        return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
+    into, length = opts.get("INTO"), opts.get("LENGTH")
+    if not into:
+        raise Unsupported(f"{feature} without INTO", [feature])
+    settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+    after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
+    lines.append(f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN")
+    return (lines + _call("GGCRDTD", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
+            + after + _resp(opts, True, labels))  # fmt: skip
+
+
 def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4884, #4950: FETCH ANY / FETCH CHILD(token) -> GGCFETCH: GG-FLAGS names CHILD (the token in GG-QNAME), NOSUSPEND,
     TIMEOUT (GG-NUM) and CHANNEL; on NORMAL the stub's answers go to the program's areas -- the token (ANY), the reply
@@ -1679,6 +1700,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
                 + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
                 + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
+        return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
         _check_spec("DELETEQ TS", opts, (verb,), lambda bad: [f"DELETEQ TS {bad[0]}"])
         queue = opts.get("QUEUE") or opts.get("QNAME")
@@ -2589,10 +2612,21 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
 
 def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The transient-data queues the case's CSD defines (DEFINE TDQUEUE), or None: every queue is defined."""
+    types = csd_tdqueue_types(corpus, case)
+    return None if types is None else sorted(types)
+
+
+def csd_tdqueue_types(corpus: Path, case: dict[str, Any]) -> dict[str, str] | None:
+    """#5079 (X57): each queue the CSD defines and its TYPE (INTRA, EXTRA, INDIRECT, REMOTE; "" when the definition
+    states none), or None: every queue is defined. A queue defined twice keeps its last TYPE."""
     if not case.get("csd"):
         return None
     text = (corpus / case["csd"]).read_text(encoding="latin-1")
-    return sorted(set(re.findall(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)", text)))
+    out: dict[str, str] = {}
+    for m in re.finditer(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)(.*?)(?=\bDEFINE\b|\Z)", text, re.S):
+        kind = re.search(r"\bTYPE\(\s*([A-Z]+)\s*\)", m.group(2))
+        out[m.group(1)] = kind.group(1) if kind else ""
+    return out
 
 
 def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
@@ -3052,7 +3086,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
     date, _, time = case["clock"].partition(" ")
     programs = csd_programs(corpus, case)
-    tdqueues = csd_tdqueues(corpus, case)
+    tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
         if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
             raise Unsupported('ASSIGN APPLID / SYSID: the case states no region ("region": {"applid", "sysid"})')
@@ -3117,7 +3151,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
-            (d / "tdqueues.cfg").write_text("".join(f"{q}\n" for q in tdqueues), encoding="ascii")
+            # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
+            (d / "tdqueues.cfg").write_text(
+                "".join(f"{q} {tdqueues[q] or '-'}\n" for q in sorted(tdqueues)), encoding="ascii"
+            )
         if _counters(
             case, sc
         ):  # named counters the region has (POOL/NAME: value); absent ones are INVREQ RESP2 201 (X30)
@@ -3447,6 +3484,11 @@ def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[st
     if verb == "RECEIVE":
         return {"event": verb, "resp": resp, "data": text}
     name = bytes.fromhex(kv.get("queue", ""))
+    if (
+        verb == "READQ-TD"
+    ):  # #5079 (X57): CicsTask.readqTd records {queue, resp, data}: a transient-data queue has no items
+        return {"event": verb, "queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"),
+                "resp": resp, "data": text}  # fmt: skip
     item = kv.get("item", "")
     return {"event": verb, "queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"),
             "item": int(item) if item.isdigit() else item, "resp": resp, "data": text}  # fmt: skip
@@ -3536,7 +3578,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
-        elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
+        elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
             res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
@@ -4099,7 +4141,7 @@ def _svc_var(program: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: list[str] | None = None, tdqueues: list[str] | None = None) -> str:  # fmt: skip
+                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -4127,8 +4169,11 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
-        names = ", ".join(f'"{q}"' for q in tdqueues)
+        names = ", ".join(f'"{q}"' for q in sorted(tdqueues))
         csd_java += f"            task.withTdQueues(java.util.Set.of({names}));\n"
+        kinds = ", ".join(f'"{q}", "{tdqueues[q]}"' for q in sorted(tdqueues) if tdqueues[q])
+        # #5079 (X57): each queue's TYPE (none stated: ""), which decides what READQ TD / DELETEQ TD do
+        csd_java += f"            task.withTdQueueTypes(java.util.Map.of({kinds}));\n"
     extras = [x["program"].upper() for x in case.get("programs", [])]
     runs = "".join(
         f'                    if ("{p}".equals(program)) {{ if (facades) {{ region.enter("{p}", t, {_svc_var(p)}); }} '
@@ -4558,7 +4603,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
-        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueues(corpus, case)),
+        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueue_types(corpus, case)),
         encoding="utf-8",
     )
     inputs = work / "in"
@@ -4934,7 +4979,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-HEADER", **next(webheaders)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
-        elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
+        elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
             out.append(next(reads))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): CicsTask.start records it
             out.append({"event": "START", **next(starts)})

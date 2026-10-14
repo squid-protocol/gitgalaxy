@@ -1767,30 +1767,153 @@ int GGCASGN(gg_cics *c) {
     return 0;
 }
 
+/* ---- transient data (#5079, register X57) ---------------------------------------------------------------
+ * An intrapartition queue is a first-in first-out file: <ts root>/td-<hex of the name>/NNNNNN.bin, the records from
+ * `head` (the first one not yet read) on. tdqueues.cfg lists the CSD's queues, `NAME [TYPE]` (TYPE EXTRA: an
+ * extrapartition queue; any other, or none: intrapartition); absent, every queue is defined and intrapartition. */
+static void td_dir(const char *queue, char *dir, size_t size) {
+    const char *root = getenv("GGCICS_TS");
+    char hex[40];
+    hex[0] = '\0';
+    for (int i = 0; queue[i] && i < 16; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
+    if (root) snprintf(dir, size, "%s/td-%s", root, hex);
+    else snprintf(dir, size, "%s/ts/td-%s", dir_in(), hex);
+}
+
+/* 0: the CSD does not define the queue, 1: intrapartition (TYPE INTRA, or no TYPE column), 2: extrapartition, 3: any
+ * other TYPE, or none stated ("-"): a queue READQ TD / DELETEQ TD do not model. */
+static int td_kind(const char *queue) {
+    char path[4096], line[256], name[32], type[32];
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 1;
+    int kind = 0;
+    while (fgets(line, sizeof line, cfg)) {
+        type[0] = '\0';
+        if (sscanf(line, "%31s %31s", name, type) >= 1 && strcmp(name, queue) == 0)
+            kind = !type[0] || strcmp(type, "INTRA") == 0 ? 1 : strcmp(type, "EXTRA") == 0 ? 2 : 3;
+    }
+    fclose(cfg);
+    return kind;
+}
+
+static int td_head(const char *dir) {
+    char path[4200];
+    int head = 1;
+    snprintf(path, sizeof path, "%s/head", dir);
+    FILE *f = fopen(path, "r");
+    if (f) { if (fscanf(f, "%d", &head) != 1) head = 1; fclose(f); }
+    return head;
+}
+
+static int td_tail(const char *dir, int head) {
+    struct stat st;
+    char path[4200];
+    int n = head;
+    for (;;) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, n);
+        if (stat(path, &st) != 0) return n;
+        n++;
+    }
+}
+
 /* WRITEQ TD QUEUE(qname) FROM LENGTH(GG-LEN): one record on a transient-data queue -- recorded with its data and
- * compared (CardDemo's CORPT00C submits JCL through the JOBS queue). QIDERR for a queue the CSD does not define
- * (tdqueues.cfg; absent, every queue is defined). */
+ * compared (CardDemo's CORPT00C submits JCL through the JOBS queue), and appended to an intrapartition queue for a
+ * READQ TD to read. QIDERR for a queue the CSD does not define (tdqueues.cfg; absent, every queue is defined). */
 int GGCWRTD(gg_cics *c, char *from) {
-    char queue[17], line[256], name[32], ev[96], path[4096];
-    int fresp, fresp2, defined = 1;
+    char queue[17], ev[96], dir[4096], path[4200];
+    int fresp, fresp2, kind;
     trim(c->qname, 16, queue);
     c->resp = NORMAL;
     c->resp2 = 0;
-    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
-    FILE *cfg = fopen(path, "r");
-    if (cfg) {
-        defined = 0;
-        while (fgets(line, sizeof line, cfg)) if (sscanf(line, "%31s", name) == 1 && strcmp(name, queue) == 0) defined = 1;
-        fclose(cfg);
-    }
+    kind = td_kind(queue);
     if (injected("WRITEQ-TD", queue, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-    } else if (!defined) {
+    } else if (!kind) {
         c->resp = QIDERR;
+    }
+    if (c->resp == NORMAL && kind == 1) {
+        const char *root = getenv("GGCICS_TS");
+        char base[4096];
+        if (root) snprintf(base, sizeof base, "%s", root);
+        else snprintf(base, sizeof base, "%s/ts", dir_in());
+        MKDIR(base);
+        td_dir(queue, dir, sizeof dir);
+        MKDIR(dir);
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, td_tail(dir, td_head(dir)));
+        FILE *f = fopen(path, "wb");
+        if (f) { if (c->len > 0) fwrite(from, 1, (size_t)c->len, f); fclose(f); }
     }
     snprintf(ev, sizeof ev, "WRITEQ-TD queue=%s len=%d resp=%d", queue, c->len, c->resp);
     event(ev, c->resp == NORMAL ? from : NULL, c->resp == NORMAL ? c->len : 0);
+    return 0;
+}
+
+/* READQ TD QUEUE INTO LENGTH(c->len) (IBM, EXEC CICS READQ TD): a destructive read, first in first out. QIDERR when the
+ * CSD does not define the queue; QZERO when it holds no record; LENGERR for a LENGTH below zero (nothing is read) or a
+ * record longer than LENGTH (the record is read, so lost, and INTO gets its first LENGTH bytes; LENGTH 0: none); LENGTH
+ * is set to the record's own length. An extrapartition queue, a record moved past INTO: refused (X57, X6). */
+int GGCRDTD(gg_cics *c, char *into, int intolen) {
+    char queue[17], hex[40], dir[4096], path[4200], ev[160], buf[32768];
+    int max = c->len, n = 0, copied = 0, shown = -1, kind;
+    trim(c->qname, 16, queue);
+    hex[0] = '\0';
+    for (int i = 0; queue[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (kind == 2) refuse("READQ TD of an extrapartition queue: IBM's NOTOPEN / IOERR / INVREQ need the queue's open state, not modelled");
+    if (kind == 3) refuse("READQ TD of a queue whose TYPE is not INTRA: not modelled");
+    if (!kind) {
+        c->resp = QIDERR;
+    } else if (max < 0) {
+        c->resp = LENGERR;
+    } else {
+        td_dir(queue, dir, sizeof dir);
+        int head = td_head(dir), tail = td_tail(dir, head);
+        if (head == tail) {
+            c->resp = DFHRESP_QZERO;
+        } else {
+            snprintf(path, sizeof path, "%s/%06d.bin", dir, head);
+            FILE *f = fopen(path, "rb");
+            if (f) { n = (int)fread(buf, 1, sizeof buf, f); fclose(f); }
+            copied = n < max ? n : max;
+            if (copied > intolen) refuse("READQ TD INTO LENGTH: a record moved past INTO");
+            memcpy(into, buf, (size_t)copied);
+            c->resp = n > max ? LENGERR : NORMAL;
+            c->len = shown = n;
+            remove(path);
+            snprintf(path, sizeof path, "%s/head", dir);
+            f = fopen(path, "w");
+            if (f) { fprintf(f, "%d\n", head + 1); fclose(f); }
+        }
+    }
+    snprintf(ev, sizeof ev, "READQ-TD queue=%s resp=%d len=%d copied=%d", hex, c->resp, shown, copied);
+    event(ev, into, copied);
+    return 0;
+}
+
+/* DELETEQ TD QUEUE (IBM, EXEC CICS DELETEQ TD): every record of an intrapartition queue; QIDERR when the CSD does not
+ * define it, INVREQ (RESP2 0: IBM lists none) for an extrapartition queue. */
+int GGCDLTD(gg_cics *c) {
+    char queue[17], dir[4096], path[4200];
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    int kind = td_kind(queue);
+    if (!kind) { c->resp = QIDERR; return 0; }
+    if (kind == 2) { c->resp = INVREQ; return 0; }
+    if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+    td_dir(queue, dir, sizeof dir);
+    int head = td_head(dir), tail = td_tail(dir, head);
+    for (int i = head; i < tail; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/head", dir);
+    remove(path);
+    RMDIR(dir);
     return 0;
 }
 

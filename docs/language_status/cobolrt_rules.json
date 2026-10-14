@@ -2098,6 +2098,25 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CICS-READQ-TD-INTO",
+   "family": "CICS",
+   "title": "READQ TD INTO: the record (cut to LENGTH) goes INTO, the rest of INTO as it was; a record moved past INTO refused",
+   "methods": [
+    "readTd"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READQ TD: INTO, LENGTH"
+   },
+   "options": [],
+   "register": [
+    "X6",
+    "X57"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-BIF-DEEDIT",
    "family": "CICS",
    "title": "BIF DEEDIT: the characters other than the digits removed, the digits right-aligned and zero-padded, a trailing sign kept as the last digit's zone",

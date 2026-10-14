@@ -354,9 +354,11 @@ public final class Cobol {
         if (raw != null && raw.dirty && moveNonDigit(from, raw, to, cs)) return;
         switch (cat(to)) {
             case ALNUM:
+                refuseUndefinedSign(from, fc, cs);
                 padCopy(sourceText(from, fc, cs), to, to.justRight, cs);
                 break;
             case ALNUM_EDITED:
+                refuseUndefinedSign(from, fc, cs);
                 insertEdit(to, sourceText(from, fc, cs), cs);
                 break;
             case NUMERIC:
@@ -537,6 +539,24 @@ public final class Cobol {
                 break;
             default:
                 System.arraycopy(b, 0, to.st.bytes, to.off, b.length);
+        }
+    }
+
+    /** #5032: a signed zoned sender whose sign byte is no digit, overpunch, sign or space (`!`, X'FF'), MOVEd to an
+     *  alphanumeric item. IBM treats the sender as an unsigned integer and documents no result for an invalid sign
+     *  (C11, undefined data); GnuCOBOL turns the byte into a digit, the bytes were copied before. Refused by name. */
+    private static void refuseUndefinedSign(Field from, int fc, Charset cs) {
+        if (fc != NUMERIC || from.kind != Field.Kind.NUMERIC_DISPLAY || !from.signed || from.len == 0) return;
+        byte[] d = from.st.bytes;
+        int at = from.signSeparate ? (from.signLeading ? from.off : from.off + from.len - 1)
+                : (from.signLeading ? from.off : from.off + from.digits - 1);
+        char c = Codec.ch(d[at], cs);
+        boolean ok = from.signSeparate ? (c == '+' || c == '-' || c == ' ')
+                : (c >= '0' && c <= '9') || c == ' ' || "{ABCDEFGHI}JKLMNOPQR".indexOf(c) >= 0;
+        if (!ok) {
+            throw new UnsupportedOperationException("MOVE to an alphanumeric item of a signed zoned item whose sign "
+                    + "byte is neither a digit, a sign nor a space (IBM documents no result, register C11) is not "
+                    + "modelled");
         }
     }
 

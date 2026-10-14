@@ -1357,6 +1357,18 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                   "            }",
                   "            calen = cx(task, cb.length);",
                   "        }"]  # fmt: skip
+        # #5053: a COMMAREA of another program's DTO (a RETURN TRANSID into a program the stub types `Object`: pc-wizard's
+        # PCWIZ into PCCONF) is read through its layout -- the bytes of the record, in this port's page, as the program
+        # reading another program's record through its own sees them (the facades' task.returned conversion, #4449)
+        if cx.gp.contract is None:  # (a stub that types its COMMAREA takes no other class: the harness passes its own)
+            ca_in += ["        if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+                      "            byte[] cb = DetCics.layoutBytes(ca);",
+                      f"            System.arraycopy(cb, 0, {st}.bytes, 0, Math.min(cb.length, {st}.bytes.length));",
+                      f"            if (cb.length > {st}.bytes.length) {{",
+                      f"                {st}.beyond = java.util.Arrays.copyOfRange(cb, {st}.bytes.length, cb.length);",
+                      "            }",
+                      "            calen = cx(task, cb.length);",
+                      "        }"]  # fmt: skip
         # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
         # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
         # #4679: bytes of a LINK LENGTH past the record are kept past it (Storage.beyond) and go back with the rest

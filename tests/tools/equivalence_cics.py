@@ -24,6 +24,7 @@ so the Java side can be compared field by field (see equivalence_java).
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 import shutil
@@ -2365,12 +2366,49 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     return out
 
 
-def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING) -> bytes:
+def justified(text: str, width: int, justify: str) -> str:
+    """#5082 (X54): what BMS leaves in an input field whose DFHMDF says JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) (IBM CICS TS,
+    DFHMDF): the text typed, without its trailing blanks, at the left or right end of the field, the rest filled with
+    blanks or zeros. The DFHMDF's JUSTIFY only: a field with none is the text as typed, as before."""
+    typed = text.rstrip(" ")
+    fill = "0" if "ZERO" in justify else " "
+    if "RIGHT" in justify:
+        return typed[-width:].rjust(width, fill)
+    return typed[:width].ljust(width, fill)
+
+
+@functools.lru_cache(maxsize=256)
+def bms_justify(corpus: Path, map_name: str) -> dict[str, str]:
+    """{symbolic input field (<name>I): its DFHMDF JUSTIFY, "RIGHT,ZERO"} of a map, from the corpus's BMS sources (the
+    engine's own reading of them, gitgalaxy.core.bms_screen_fields); a map with no JUSTIFY field gives {}."""
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _justify
+
+    out: dict[str, str] = {}
+    for p in sorted(corpus.rglob("*.bms")):
+        if ".git" in p.parts:
+            continue
+        rows = bms_screen_fields(read_source(p).text)
+        maps = {r["ordinal"] for r in rows if r["kind"] == "map" and (r["name"] or "").upper() == map_name.upper()}
+        for r in rows:
+            if r["kind"] == "field" and r["parent_ordinal"] in maps and r["name"] and _justify(r):
+                out[r["name"].upper() + "I"] = _justify(r)
+    return out
+
+
+def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING,
+              justify: dict[str, str] | None = None) -> bytes:  # fmt: skip
     """A RECEIVE MAP input area: nulls everywhere, and for each field the user typed in
-    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L)."""
+    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L). `justify` (#5082): the fields whose DFHMDF
+    says JUSTIFY, by symbolic name: their data is as BMS justifies it; the length is that of the text typed."""
     typed: dict[str, Any] = {}
+    width = {f["name"]: f["bytes"] for f in fields}
     for field, text in values.items():
-        typed[field] = text.encode(enc)  # what was typed, whatever the field's PICIN
+        placed = (
+            justified(text, width[field], justify[field]) if justify and field in justify and field in width else text
+        )
+        typed[field] = placed.encode(enc)  # what was typed, whatever the field's PICIN
         typed[field[:-1] + "L"] = len(text.rstrip())
     return encode_record(fields, typed, b"\x00", enc)
 
@@ -2971,7 +3009,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             for i, item in enumerate(items, 1):
                 (qdir / f"{i:06d}.bin").write_bytes(item.encode(enc))
         for m, typed in (sc.get("receive") or {}).items():
-            (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
+            (d / f"receive_{m}.bin").write_bytes(
+                map_input(screen_fields(corpus, case, m, "input"), typed, enc, bms_justify(corpus, m))
+            )
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined

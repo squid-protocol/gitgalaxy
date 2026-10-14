@@ -19,7 +19,15 @@ CERT = "-----BEGIN CERTIFICATE-----\n"
 PRIV = "-----BEGIN RSA PRIVATE KEY-----\n"
 MB = 1024 * 1024
 
-DER_CERT = b"\x30\x82\x03\x10\x30\x82\x02\xf8\xa0\x03\x02\x01\x02" + b"\x01" * 600
+DER_CERT = b"\x30\x82\x03\x10\x30\x82\x02\xf8\xa0\x03\x02\x01\x02" + b"\x01" * 600  # v3
+DER_CERT_V1 = b"\x30\x82\x03\x10\x30\x82\x02\xf8\x02\x01\x05" + b"\x01" * 600
+# encrypted PKCS#8: SEQUENCE { SEQUENCE { AlgorithmIdentifier (PBES2 OID) ... } OCTET STRING }
+DER_ENC_PKCS8 = (
+    b"\x30\x82\x03\x10\x30\x4f\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x05\x0d"
+    + b"\x01" * 80
+    + b"\x04\x82\x02\x90"
+    + b"\x01" * 600
+)
 DER_PKCS8 = b"\x30\x82\x04\xa4\x02\x01\x00\x02\x82\x01\x01" + b"\x01" * 600
 DER_PKCS12 = (
     b"\x30\x82\x0a\x00\x02\x01\x03\x30\x82\x04\x00\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x07\x01"
@@ -51,6 +59,10 @@ def _leak(tmp_path, name, data):
         # binary DER
         ("a.cer", DER_CERT, False),
         ("a.crt", DER_CERT, False),
+        ("a.cer", DER_CERT_V1, False),
+        ("a.crt", DER_CERT_V1, False),
+        ("a.cer", DER_ENC_PKCS8, True),
+        ("a.crt", DER_ENC_PKCS8, True),
         ("a.der", DER_CERT, False),
         ("a.p7b", DER_P7B, False),
         ("a.cer", DER_PKCS8, True),
@@ -160,3 +172,17 @@ def test_sarif_never_invents_a_position(tmp_path):
     assert regions[1] == ("GG-SAST-HARDCODED_SECRETS", {"startLine": 40, "startColumn": 8})
     assert regions[2] == ("GG-SAST-UNPINNED_INSTALL", {"startLine": 5})
     assert regions[3] == ("GG-AGENT-GUARDRAIL", {"startLine": 7})
+
+
+@pytest.mark.parametrize("ext", [".der", ".cer", ".crt", ".p7b"])
+@pytest.mark.parametrize(
+    ("data", "public"),
+    [(DER_CERT, True), (DER_CERT_V1, True), (DER_ENC_PKCS8, False), (DER_PKCS8, False), (DER_PKCS12, False)],
+)
+def test_der_classifier_per_extension(tmp_path, ext, data, public):
+    """`.der` is not itself a shunt extension, so the classifier is pinned directly for every cert extension."""
+    from gitgalaxy.core.aperture import _is_public_key_material
+
+    f = tmp_path / f"a{ext}"
+    f.write_bytes(data)
+    assert _is_public_key_material(f) is public

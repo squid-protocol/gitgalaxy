@@ -229,13 +229,19 @@ def _der_seq_body(buf: bytes, pos: int) -> int | None:
 
 def _is_der_public_certificate(head: bytes) -> bool:
     """A binary X.509 certificate (SEQUENCE { SEQUENCE tbsCertificate ... }) or a PKCS#7 signedData bundle.
-    A PKCS#8 key opens SEQUENCE { INTEGER 0 ... }; a PKCS#12 carries OID 1.2.840.113549.1.12. Neither qualifies."""
+    A PKCS#8 key opens SEQUENCE { INTEGER 0 ... } (encrypted: SEQUENCE { SEQUENCE { OID ... } ... }); a PKCS#12 carries OID 1.2.840.113549.1.12. Neither qualifies."""
     if _PKCS12_OID in head:
         return False
     body = _der_seq_body(head, 0)
     if body is None:
         return False
-    return _der_seq_body(head, body) is not None or head.startswith(_PKCS7_SIGNED_DATA_OID, body)
+    if head.startswith(_PKCS7_SIGNED_DATA_OID, body):
+        return True
+    # tbsCertificate opens with the v3 `[0]` version (0xA0) or, for a v1 cert, the serial INTEGER (0x02). An
+    # encrypted PKCS#8 key is SEQUENCE { SEQUENCE { AlgorithmIdentifier OID ... } OCTET STRING }: its inner
+    # SEQUENCE opens with an OID (0x06), so it is not cleared.
+    inner = _der_seq_body(head, body)
+    return inner is not None and inner < len(head) and head[inner] in (0xA0, 0x02)
 
 
 def _is_public_key_material(path_obj: Path) -> bool:

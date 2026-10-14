@@ -246,7 +246,16 @@ def test_schema_over_fixtures():
     for f in fixtures:  # #5117: every program the inventory counts has an era tag, and the summary adds up
         d = json.loads(f.read_text())
         counted = {
-            p for c, v in d.items() if c not in ("eras", "unparsed_programs") for x in v.values() for p in x["programs"]
+            p
+            for c, v in d.items()
+            if c
+            not in (
+                "eras",
+                "unparsed_programs",
+                "refusal_families",
+            )  # (#5121: assembler members carry no COBOL era tag)
+            for x in v.values()
+            for p in x["programs"]
         }
         assert counted <= set(d["eras"]["programs"]), f.name  # noqa: S101
         s = d["eras"]["summary"]

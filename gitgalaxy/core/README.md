@@ -99,6 +99,9 @@ Three properties worth knowing before extending either:
 * **Resolution is by PROGRAM-ID, nearest-wins.** That is deliberately *not* `network_risk_sensor.py`'s rule: an import names a file, a called program is chosen by library concatenation order. Both share one proximity definition (`path_proximity.py`), and they disagree about what a tie means — a call picks one, an import that is still ambiguous draws nothing (#3199). The import resolver additionally disqualifies a candidate that declares a PROGRAM-ID, which is exactly the file a `CALL` wants.
 * **These edges never enter the DAG.** PageRank, popularity, blast radius and every risk score are unaffected; only `edge_data` grows, under its own `edge_kind`.
 
+### 5b. `cics_macro_level.py` (macro-level CICS and CICS Assembler, #5121)
+**Role:** Names two refusal families so such programs are refused by name, not read as broken COBOL: `macro-level CICS` (`DFHxx TYPE=` macro calls, CSA / TCA addressing, era 0) and `CICS Assembler` (HLASM written for CICS). A pure function over COBOL code lines or assembler lines, used by the det translator (`det/source.py`) and the feature inventory (`refusal_families`). It never fires on command-level `EXEC CICS`, the macro TABLES (resource definitions, `cics_macro_tables.py`) or BMS map macros. Register entry X55.
+
 ### 6. `spatial_mapper.py` (The Positioning Engine)
 **Role:** 3D Geometric Resolution.
 Transforms the mathematical DAG into a deterministic 3D Cartesian coordinate map for the WebGPU visualizer. It groups files into directory clusters relative to high-impact central nodes.

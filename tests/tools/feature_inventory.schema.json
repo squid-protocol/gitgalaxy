@@ -10,6 +10,7 @@
     "intrinsic_functions": { "$ref": "#/$defs/category" },
     "compile_options": { "$ref": "#/$defs/category" },
     "copybook_resolution_gaps": { "$ref": "#/$defs/category" },
+    "refusal_families": { "$ref": "#/$defs/family_category" },
     "eras": { "$ref": "#/$defs/eras" },
     "unparsed_programs": {
       "type": "array",
@@ -97,6 +98,18 @@
         "additionalProperties": false
       },
       "required": ["unknown"]
+    },
+    "family_category": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "minimum": 0 },
+          "programs": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["count", "programs"],
+        "additionalProperties": false
+      }
     }
   }
 }

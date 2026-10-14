@@ -2318,3 +2318,17 @@ def test_a_cases_maps_are_stated_as_the_stubs_mapsets():
     assert ec.mapsets_env({"maps": {"BNK1CC": {"mapset": "BNK1CCM"}}}) == "BNK1CCM=BNK1CC"
     assert (ec.mapsets_env({"maps": {"B": {"mapset": "MSB"}, "A2": {"mapset": "MSA"}, "A1": {"mapset": "MSA"}}})
             == "MSA=A1,A2;MSB=B")  # fmt: skip
+
+
+def test_map_input_justifies_a_field_as_its_dfhmdf_says_5082():
+    """X54: the oracle's RECEIVE MAP input is what BMS leaves in the field: JUSTIFY=(RIGHT,ZERO) right-justified and
+    zero-filled, (LEFT,ZERO) zero-filled behind the text; no JUSTIFY (a field absent from `justify`) as typed; the length
+    is the text typed's either way."""
+    fields = []
+    for i, n in enumerate("ABC"):
+        fields += [{"name": f"{n}L", "offset": i * 8, "bytes": 2, "pic": "S9(4)", "usage": "COMP"},
+                   {"name": f"{n}I", "offset": i * 8 + 2, "bytes": 6, "pic": "X(06)", "usage": None}]  # fmt: skip
+    got = ec.map_input(fields, {"AI": "42", "BI": "42", "CI": "42"}, justify={"AI": "RIGHT,ZERO", "BI": "LEFT,ZERO"})
+    assert got == b"\x00\x02000042" + b"\x00\x02420000" + b"\x00\x0242    "
+    assert ec.justified("  7 ", 4, "RIGHT") == "   7" and ec.justified("12345", 3, "RIGHT") == "345"
+    assert ec.justified("", 3, "RIGHT,ZERO") == "000" and ec.justified("ab", 4, ",ZERO") == "ab00"

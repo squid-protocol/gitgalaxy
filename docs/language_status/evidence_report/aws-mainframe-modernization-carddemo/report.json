@@ -59,6 +59,18 @@
    "entry": "INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused",
    "id": "X34",
    "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+   "id": "X46",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+   "id": "X52",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -204,30 +216,58 @@
     69,
     75
    ],
-   "carddemo-cobtupdt": [
-    9,
-    9,
-    16,
-    20
-   ],
-   "carddemo-copaus2c": [
-    2,
-    2,
-    6,
-    6
-   ],
-   "carddemo-cotrtlic": [
-    56,
-    59,
-    165,
-    230
-   ],
-   "carddemo-cotrtupc": [
-    62,
-    63,
-    126,
-    166
-   ],
+   "carddemo-cobtupdt": {
+    "coverage": [
+     9,
+     9,
+     16,
+     20
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-copaus2c": {
+    "coverage": [
+     2,
+     2,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-cotrtlic": {
+    "coverage": [
+     56,
+     59,
+     165,
+     230
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-cotrtupc": {
+    "coverage": [
+     62,
+     63,
+     126,
+     166
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "carddemo-dailyval": [
     18,
     18,
@@ -360,36 +400,67 @@
     2,
     2
    ],
-   "cbsa-acctctrl": [
-    7,
-    7,
-    2,
-    2
-   ],
-   "cbsa-bnk1cac": [
-    25,
-    25,
-    60,
-    97
-   ],
-   "cbsa-bnk1cra": [
-    28,
-    28,
-    52,
-    67
-   ],
-   "cbsa-bnk1dac": [
-    31,
-    31,
-    44,
-    60
-   ],
+   "cbsa-acctctrl": {
+    "coverage": [
+     7,
+     7,
+     2,
+     2
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1cac": {
+    "coverage": [
+     25,
+     25,
+     60,
+     97
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1ccs": null,
+   "cbsa-bnk1cra": {
+    "coverage": [
+     28,
+     28,
+     52,
+     67
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1dac": {
+    "coverage": [
+     31,
+     31,
+     44,
+     60
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-bnk1dcs": [
     46,
     51,
     62,
     102
    ],
+   "cbsa-bnk1tfn": null,
+   "cbsa-bnk1uac": null,
    "cbsa-bnkmenu": [
     19,
     25,
@@ -426,30 +497,59 @@
     4,
     6
    ],
-   "cbsa-creacc": [
-    34,
-    34,
-    26,
-    38
-   ],
-   "cbsa-custctrl": [
-    7,
-    7,
-    3,
-    4
-   ],
-   "cbsa-dbcrfun": [
-    16,
-    22,
-    25,
-    35
-   ],
-   "cbsa-delacc": [
-    19,
-    19,
-    13,
-    14
-   ],
+   "cbsa-creacc": {
+    "coverage": [
+     34,
+     34,
+     26,
+     38
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-crecust": null,
+   "cbsa-custctrl": {
+    "coverage": [
+     7,
+     7,
+     3,
+     4
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-dbcrfun": {
+    "coverage": [
+     16,
+     22,
+     25,
+     35
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-delacc": {
+    "coverage": [
+     19,
+     19,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-getcompy": [
     2,
     2,
@@ -462,84 +562,154 @@
     0,
     0
    ],
-   "cbsa-inqacc": [
-    22,
-    25,
-    15,
-    25
-   ],
-   "cbsa-inqacccu": [
-    16,
-    22,
-    19,
-    33
-   ],
+   "cbsa-inqacc": {
+    "coverage": [
+     22,
+     25,
+     15,
+     25
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-inqacccu": {
+    "coverage": [
+     16,
+     22,
+     19,
+     33
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-inqcust": [
     22,
     25,
     39,
     46
    ],
-   "cbsa-updacc": [
-    7,
-    7,
-    6,
-    6
-   ],
-   "cbsa-updacc-generated": [
-    7,
-    7,
-    6,
-    6
-   ],
+   "cbsa-updacc": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-updacc-generated": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": [
-    27,
-    28,
-    46,
-    81
-   ],
-   "genapp-lgacdb01": [
-    4,
-    4,
-    13,
-    14
-   ],
-   "genapp-lgacdb02": [
-    3,
-    3,
-    10,
-    10
-   ],
-   "genapp-lgacus01": [
-    3,
-    3,
-    4,
-    8
-   ],
+   "cbsa-xfrfun": {
+    "coverage": [
+     27,
+     28,
+     46,
+     81
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacdb01": {
+    "coverage": [
+     4,
+     4,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacdb02": {
+    "coverage": [
+     3,
+     3,
+     10,
+     10
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacus01": {
+    "coverage": [
+     3,
+     3,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgacvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgapdb01": [
-    6,
-    7,
-    17,
-    31
-   ],
-   "genapp-lgapol01": [
-    2,
-    2,
-    5,
-    8
-   ],
+   "genapp-lgapdb01": {
+    "coverage": [
+     6,
+     7,
+     17,
+     31
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgapol01": {
+    "coverage": [
+     2,
+     2,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgapvs01": [
     2,
     3,
@@ -552,54 +722,96 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": [
-    3,
-    3,
-    12,
-    12
-   ],
-   "genapp-lgdpol01": [
-    3,
-    3,
-    8,
-    12
-   ],
+   "genapp-lgdpdb01": {
+    "coverage": [
+     3,
+     3,
+     12,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgdpol01": {
+    "coverage": [
+     3,
+     3,
+     8,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgdpvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": [
-    3,
-    4,
-    4,
-    12
-   ],
-   "genapp-lgicus01": [
-    4,
-    4,
-    4,
-    8
-   ],
+   "genapp-lgicdb01": {
+    "coverage": [
+     3,
+     4,
+     4,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgicus01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgicvs01": [
     1,
     1,
     7,
     12
    ],
-   "genapp-lgipdb01": [
-    12,
-    12,
-    73,
-    74
-   ],
-   "genapp-lgipol01": [
-    2,
-    2,
-    3,
-    6
-   ],
+   "genapp-lgipdb01": {
+    "coverage": [
+     12,
+     12,
+     73,
+     74
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgipol01": {
+    "coverage": [
+     2,
+     2,
+     3,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgipvs01": [
     1,
     1,
@@ -612,66 +824,129 @@
     2,
     2
    ],
-   "genapp-lgtestc1": [
-    9,
-    10,
-    16,
-    18
-   ],
-   "genapp-lgtestp1": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp2": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp3": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp4": [
-    7,
-    9,
-    18,
-    22
-   ],
-   "genapp-lgucdb01": [
-    4,
-    4,
-    9,
-    10
-   ],
-   "genapp-lgucus01": [
-    4,
-    4,
-    5,
-    8
-   ],
+   "genapp-lgtestc1": {
+    "coverage": [
+     9,
+     10,
+     16,
+     18
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp1": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp2": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp3": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp4": {
+    "coverage": [
+     7,
+     9,
+     18,
+     22
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgucdb01": {
+    "coverage": [
+     4,
+     4,
+     9,
+     10
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgucus01": {
+    "coverage": [
+     4,
+     4,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgucvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgupdb01": [
-    9,
-    9,
-    26,
-    38
-   ],
-   "genapp-lgupol01": [
-    4,
-    4,
-    13,
-    16
-   ],
+   "genapp-lgupdb01": {
+    "coverage": [
+     9,
+     9,
+     26,
+     38
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgupol01": {
+    "coverage": [
+     4,
+     4,
+     13,
+     16
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgupvs01": [
     2,
     3,
@@ -684,12 +959,19 @@
     0,
     0
    ],
-   "mortgage-cmort": [
-    3,
-    6,
-    15,
-    21
-   ],
+   "mortgage-cmort": {
+    "coverage": [
+     3,
+     6,
+     15,
+     21
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -710,6 +992,13 @@
     22,
     22
    ],
+   "zecs-ecs001": [
+    15,
+    15,
+    15,
+    18
+   ],
+   "zecs-zecs003": null,
    "zecs-zecsplt": [
     11,
     11,
@@ -1186,11 +1475,11 @@
     "program": "app/cbl/CBSTM03A.CBL",
     "row": {
      "holes": [
-      "line 266: HOLE SET ADDRESS OF (pointers)",
-      "line 267: HOLE SET ADDRESS OF (pointers)",
-      "line 268: HOLE SET ADDRESS OF (pointers)",
-      "line 273: HOLE SET ADDRESS OF (pointers)",
-      "line 284: HOLE SET ADDRESS OF (pointers)",
+      "line 266: SET-ADDRESS SET ADDRESS OF (pointers)",
+      "line 267: SET-ADDRESS SET ADDRESS OF (pointers)",
+      "line 268: SET-ADDRESS SET ADDRESS OF (pointers)",
+      "line 273: SET-ADDRESS SET ADDRESS OF (pointers)",
+      "line 284: SET-ADDRESS SET ADDRESS OF (pointers)",
       "line 300: HOLE ALTER not modelled",
       "line 303: HOLE ALTER not modelled",
       "line 306: HOLE ALTER not modelled",
@@ -1212,14 +1501,10 @@
     },
     "program": "app/cbl/CBSTM03B.CBL",
     "row": {
-     "holes": [
-      "line 136: OPEN TRNX-FILE: no repository for this file in the generated project",
-      "line 141: READ TRNX-FILE: no repository for this file in the generated project",
-      "line 147: CLOSE TRNX-FILE: no repository for this file in the generated project"
-     ],
+     "holes": [],
      "kind": "call",
      "statements": 53,
-     "translated": 50
+     "translated": 53
     },
     "source_read": true
    },
@@ -1865,10 +2150,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "translator": {
-    "files": 106,
-    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+    "files": 107,
+    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
    }
   },
   "sweeps": {}
@@ -2078,6 +2363,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2094,7 +2385,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2104,8 +2395,11 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2136,7 +2430,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2212,7 +2506,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2320,7 +2616,8 @@
    "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 3,
@@ -2334,8 +2631,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -2923,6 +3223,18 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2980,7 +3292,7 @@
     "cases": [
      {
       "case": "carddemo-billpay",
-      "case_scenarios": 25,
+      "case_scenarios": 26,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3003,19 +3315,19 @@
        },
        "db2": false,
        "facade": {
-        "passed": 25,
-        "runs": 25
+        "passed": 26,
+        "runs": 26
        },
-       "fault_runs": 10,
+       "fault_runs": 11,
        "java_failed": false,
        "option_differences": [],
        "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
        "oracle_matches_pin": true,
-       "records_compared": 85,
-       "records_equal": 85,
-       "runs": 25,
-       "scenarios": 25,
-       "scenarios_equal": 25,
+       "records_compared": 90,
+       "records_equal": 90,
+       "runs": 26,
+       "scenarios": 26,
+       "scenarios_equal": 26,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -3025,7 +3337,7 @@
     ],
     "chosen": {
      "case": "carddemo-billpay",
-     "case_scenarios": 25,
+     "case_scenarios": 26,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -3048,19 +3360,19 @@
       },
       "db2": false,
       "facade": {
-       "passed": 25,
-       "runs": 25
+       "passed": 26,
+       "runs": 26
       },
-      "fault_runs": 10,
+      "fault_runs": 11,
       "java_failed": false,
       "option_differences": [],
       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
       "oracle_matches_pin": true,
-      "records_compared": 85,
-      "records_equal": 85,
-      "runs": 25,
-      "scenarios": 25,
-      "scenarios_equal": 25,
+      "records_compared": 90,
+      "records_equal": 90,
+      "runs": 26,
+      "scenarios": 26,
+      "scenarios_equal": 26,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -3153,7 +3465,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3172,7 +3486,9 @@
      "command": "READPREV",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3312,7 +3628,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3398,7 +3716,9 @@
      "X14",
      "X22",
      "X27",
-     "X31"
+     "X31",
+     "X46",
+     "X52"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 12,
@@ -4119,6 +4439,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4563,7 +4889,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4729,7 +5057,8 @@
      "X14",
      "X22",
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 14,
     "commands": 10,
@@ -5355,6 +5684,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5613,7 +5948,9 @@
      "command": "READNEXT",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5621,7 +5958,9 @@
      "command": "READPREV",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5829,7 +6168,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 5,
     "commands": 8,
@@ -6349,6 +6689,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -6416,7 +6762,7 @@
     "cases": [
      {
       "case": "carddemo-tranadd",
-      "case_scenarios": 46,
+      "case_scenarios": 47,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -6440,19 +6786,19 @@
        },
        "db2": false,
        "facade": {
-        "passed": 46,
-        "runs": 46
+        "passed": 47,
+        "runs": 47
        },
-       "fault_runs": 8,
+       "fault_runs": 9,
        "java_failed": false,
        "option_differences": [],
        "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
        "oracle_matches_pin": true,
-       "records_compared": 132,
-       "records_equal": 132,
-       "runs": 46,
-       "scenarios": 46,
-       "scenarios_equal": 46,
+       "records_compared": 135,
+       "records_equal": 135,
+       "runs": 47,
+       "scenarios": 47,
+       "scenarios_equal": 47,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -6462,7 +6808,7 @@
     ],
     "chosen": {
      "case": "carddemo-tranadd",
-     "case_scenarios": 46,
+     "case_scenarios": 47,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -6486,19 +6832,19 @@
       },
       "db2": false,
       "facade": {
-       "passed": 46,
-       "runs": 46
+       "passed": 47,
+       "runs": 47
       },
-      "fault_runs": 8,
+      "fault_runs": 9,
       "java_failed": false,
       "option_differences": [],
       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
       "oracle_matches_pin": true,
-      "records_compared": 132,
-      "records_equal": 132,
-      "runs": 46,
-      "scenarios": 46,
-      "scenarios_equal": 46,
+      "records_compared": 135,
+      "records_equal": 135,
+      "runs": 47,
+      "scenarios": 47,
+      "scenarios_equal": 47,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -6594,7 +6940,9 @@
      "command": "READPREV",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6812,7 +7160,8 @@
      "X14",
      "X22",
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 9,
@@ -6859,6 +7208,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -7117,7 +7472,9 @@
      "command": "READNEXT",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7125,7 +7482,9 @@
      "command": "READPREV",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7333,7 +7692,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 5,
     "commands": 8,
@@ -7836,6 +8196,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -8193,7 +8559,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8263,7 +8631,8 @@
      "X14",
      "X22",
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 2,
     "commands": 6,
@@ -8795,7 +9164,7 @@
      "covered": 16,
      "total": 20
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8805,8 +9174,11 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8837,7 +9209,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8912,8 +9284,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10576,6 +10951,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10800,7 +11181,9 @@
      "command": "READNEXT",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10808,7 +11191,9 @@
      "command": "READPREV",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11102,7 +11487,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 9,
@@ -12393,7 +12779,7 @@
      "covered": 126,
      "total": 166
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12403,8 +12789,11 @@
      "live": 63
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12435,7 +12824,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12837,8 +13226,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12891,6 +13283,12 @@
       "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
       "id": "X31",
       "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -13193,7 +13591,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     },
     {
@@ -13369,7 +13769,8 @@
      "X14",
      "X22",
      "X27",
-     "X31"
+     "X31",
+     "X52"
     ],
     "branch_outcomes_unrun": 87,
     "commands": 11,
@@ -14034,6 +14435,125 @@
     "cases": [],
     "chosen": null
    },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "app/cbl/CBSTM03B.CBL",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 53,
+    "translated": 53,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
    "level": "L0",
    "level_current": true,
    "mutation": {
@@ -14167,6 +14687,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -14270,7 +14796,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -14436,7 +14964,8 @@
      "X14",
      "X18",
      "X22",
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": null,
     "commands": 7,
@@ -15659,7 +16188,7 @@
      "covered": 165,
      "total": 230
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15669,8 +16198,11 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16419,6 +16951,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -16522,7 +17060,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -16667,7 +17207,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X18",
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": null,
     "commands": 5,
@@ -17058,143 +17599,18 @@
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "ALTER not modelled",
-     "SET ADDRESS OF"
+     "<name> SET ADDRESS OF",
+     "ALTER not modelled"
     ],
     "hole_count": 9,
     "holes": [
      "HOLE ALTER not modelled",
-     "HOLE SET ADDRESS OF (pointers)"
+     "SET-ADDRESS SET ADDRESS OF (pointers)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 424,
     "translated": 415,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "translated whole (3 holes left)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "app/cbl/CBSTM03B.CBL",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 3,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "<name>: no repository for this file in the generated project"
-    ],
-    "hole_count": 3,
-    "holes": [
-     "CLOSE TRNX-FILE: no repository for this file in the generated project",
-     "OPEN TRNX-FILE: no repository for this file in the generated project",
-     "READ TRNX-FILE: no repository for this file in the generated project"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 53,
-    "translated": 50,
     "whole": false
    }
   },
@@ -17326,8 +17742,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -17351,21 +17767,21 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "translator": {
-    "files": 106,
-    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+    "files": 107,
+    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
    }
   },
-  "translator_commit": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+  "translator_commit": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 25,
   "det_equal": 30,
   "histogram": {
-   "L0": 15,
-   "L1": 0,
+   "L0": 14,
+   "L1": 1,
    "L2": 3,
    "L3": 13,
    "L4": 13,
@@ -17374,9 +17790,9 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 0,
-   "L3": 0,
-   "L4": 0,
+   "L2": 1,
+   "L3": 1,
+   "L4": 1,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -17387,19 +17803,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 77,
-  "levels_stale": 0,
+  "holes": 74,
+  "levels_stale": 3,
   "levels_stale_survey": 0,
   "programs": 44,
   "records_current": 23,
   "refused_whole": 3,
   "source_unread": 0,
-  "translated_whole": 29,
+  "translated_whole": 30,
   "with_case": 30,
   "with_record": 23
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+  "fingerprint": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
  }
 }

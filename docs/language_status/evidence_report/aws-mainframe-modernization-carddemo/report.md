@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `45d4de7c9061`).
+The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
 
 ## How to read this report
 
@@ -40,18 +40,18 @@ The translation survey matches the translator in the tree (translator fingerprin
 
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
-| L0 | 15 | 0 |
-| L1 | 0 | 0 |
-| L2 | 3 | 0 |
-| L3 | 13 | 0 |
-| L4 | 13 | 0 |
+| L0 | 14 | 0 |
+| L1 | 1 | 0 |
+| L2 | 3 | 1 |
+| L3 | 13 | 1 |
+| L4 | 13 | 1 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 44 programs; the rest are current
-- L2+: 29 (0 awaiting re-check); L3+: 26 (0 awaiting re-check); L4+: 13 (0 awaiting re-check)
+- stale (`*`, last measured): 3 of 44 programs; the rest are current
+- L2+: 29 (3 awaiting re-check); L3+: 26 (2 awaiting re-check); L4+: 13 (1 awaiting re-check)
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
-- translated whole: 29; refused whole: 3; holes left: 77
+- translated whole: 30; refused whole: 3; holes left: 74
 - with an equivalence case: 30; det port equal on its case: 30; with an evidence record: 23; record current at build: 23
 
 ## Options the estate compiles and runs under
@@ -88,20 +88,20 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4 | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4* | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
 | app/cbl/COADM01C.cbl | L4 | 80/80 | 0 | carddemo-adminmenu | equal | 16 | shown equal, unapproved | 8/8 (100.0%) | 20/26 (76.9%) | 20/20 (100.0%) | not yet measured (#4628) | 5/5 |
-| app/cbl/COBIL00C.cbl | L4 | 190/190 | 0 | carddemo-billpay | equal | 25 | shown equal, unapproved | 16/16 (100.0%) | 46/48 (95.8%) | 46/46 (100.0%) | not yet measured (#4628) | 4/12 |
+| app/cbl/COBIL00C.cbl | L4 | 190/190 | 0 | carddemo-billpay | equal | 26 | shown equal, unapproved | 16/16 (100.0%) | 46/48 (95.8%) | 46/46 (100.0%) | not yet measured (#4628) | 4/12 |
 | app/cbl/COCRDSLC.cbl | L4 | 263/263 | 0 | carddemo-cardview | equal | 23 | shown equal, unapproved | 30/30 (100.0%) | 69/75 (92.0%) | 69/69 (100.0%) | not yet measured (#4628) | 7/8 |
 | app/cbl/COCRDUPC.cbl | L4 | 488/488 | 0 | carddemo-cardupdate | equal | 43 | none | 45/45 (100.0%) | 175/189 (92.6%) | 175/175 (100.0%) | not yet measured (#4628) | 7/10 |
 | app/cbl/COSGN00C.cbl | L4 | 71/71 | 0 | carddemo-signon | equal | 12 | shown equal, unapproved | 6/6 (100.0%) | 17/17 (100.0%) | 17/17 (100.0%) | not yet measured (#4628) | 6/7 |
 | app/cbl/COTRN00C.cbl | L4 | 294/294 | 0 | carddemo-tranlist | equal | 32 | shown equal, unapproved | 16/16 (100.0%) | 96/101 (95.0%) | 96/96 (100.0%) | not yet measured (#4628) | 4/8 |
 | app/cbl/COTRN01C.cbl | L4 | 95/95 | 0 | carddemo-tranview | equal | 15 | shown equal, unapproved | 9/9 (100.0%) | 23/24 (95.8%) | 23/23 (100.0%) | not yet measured (#4628) | 4/5 |
-| app/cbl/COTRN02C.cbl | L4 | 300/300 | 0 | carddemo-tranadd | equal | 46 | shown equal, unapproved | 18/18 (100.0%) | 72/75 (96.0%) | 72/72 (100.0%) | not yet measured (#4628) | 4/9 |
+| app/cbl/COTRN02C.cbl | L4 | 300/300 | 0 | carddemo-tranadd | equal | 47 | shown equal, unapproved | 18/18 (100.0%) | 72/75 (96.0%) | 72/72 (100.0%) | not yet measured (#4628) | 4/9 |
 | app/cbl/COUSR00C.cbl | L4 | 288/288 | 0 | carddemo-userlist | equal | 32 | shown equal, unapproved | 16/16 (100.0%) | 95/100 (95.0%) | 95/95 (100.0%) | not yet measured (#4628) | 4/8 |
 | app/cbl/COUSR01C.cbl | L4 | 94/94 | 0 | carddemo-useradd | equal | 13 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | not yet measured (#4628) | 4/5 |
 | app/cbl/COUSR02C.cbl | L4 | 148/148 | 0 | carddemo-userupd | equal | 23 | shown equal, unapproved | 11/11 (100.0%) | 44/46 (95.7%) | 44/44 (100.0%) | not yet measured (#4628) | 4/6 |
 | app/cbl/COUSR03C.cbl | L4 | 115/115 | 0 | carddemo-userdel | equal | 18 | shown equal, unapproved | 11/11 (100.0%) | 30/32 (93.8%) | 30/30 (100.0%) | not yet measured (#4628) | 4/6 |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L3 | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/20 (80.0%) | not yet measured (#4628) | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L3* | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/20 (80.0%) | not yet measured (#4628) | — |
 | app/cbl/CBACT01C.cbl | L3 | 190/190 | 0 | carddemo-readacct | equal | None | none | 16/16 (100.0%) | 41/44 (93.2%) | 41/44 (93.2%) | not yet measured (#4628) | — |
 | app/cbl/CBACT02C.cbl | L3 | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/22 (95.5%) | not yet measured (#4628) | — |
 | app/cbl/CBACT03C.cbl | L3 | 64/64 | 0 | carddemo-readxref | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/22 (95.5%) | not yet measured (#4628) | — |
@@ -114,9 +114,10 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COMEN01C.cbl | L3 | 91/91 | 0 | carddemo-menu | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/33 (87.9%) | 29/30 (96.7%) | not yet measured (#4628) | 4/5 |
 | app/cbl/CORPT00C.cbl | L3 | 220/220 | 0 | carddemo-report | equal | 25 | shown equal, unapproved | 10/10 (100.0%) | 51/59 (86.4%) | 51/52 (98.1%) | not yet measured (#4628) | 4/5 |
 | app/cbl/CSUTLDTC.cbl | L3 | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/10 (40.0%) | not yet measured (#4628) | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2 | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2* | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
 | app/cbl/COACTUPC.cbl | L2 | 1415/1415 | 0 | carddemo-acctupdate | equal | 137 | none | 89/95 (93.7%) | 310/397 (78.1%) | 310/397 (78.1%) | not yet measured (#4628) | 7/11 |
 | app/cbl/COACTVWC.cbl | L2 | 275/275 | 0 | carddemo-acctview | equal | 20 | shown equal, unapproved | 31/32 (96.9%) | 58/69 (84.1%) | 58/69 (84.1%) | not yet measured (#4628) | 7/8 |
+| app/cbl/CBSTM03B.CBL | L1 | 53/53 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L0 | 70/81 | 11 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L0 | 356/370 | 14 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/6 |
@@ -130,12 +131,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/CBEXPORT.cbl | L0 | 217/224 | 7 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/CBIMPORT.cbl | L0 | 172/175 | 3 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/CBSTM03A.CBL | L0 | 415/424 | 9 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
-| app/cbl/CBSTM03B.CBL | L0 | 50/53 | 3 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | app/cbl/COBSWAIT.cbl | L0 | 2/4 | 2 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 
 ## Per program
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4
+### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of carddemo-copaus2c against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -152,9 +154,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | FORMATTIME | full | none | no |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COADM01C.cbl -- L4
 
@@ -187,12 +189,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/cbl/COBIL00C.cbl -- L4
 
-- **Executed equivalent** on the 25 scenarios of carddemo-billpay against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Executed equivalent** on the 26 scenarios of carddemo-billpay against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 190/190 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (carddemo-billpay, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 25/25 scenarios equal, 85/85 records equal, 25 runs (10 fault runs); through its deployed entry points 25/25
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 26/26 scenarios equal, 90/90 records equal, 26 runs (11 fault runs); through its deployed entry points 26/26
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 16/16 (100.0%), branch outcomes 46/48 (95.8%) raw, 46/46 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -211,11 +213,11 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | WRITE | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:275:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between.
   - stated infeasible branch outcome (reviewed claim, family R): UPDATE-ACCTDAT-FILE:387:WHEN@390 (EVALUATE) -- `WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X46, X52; commands without oracle backing: ASKTIME, ENDBR, FORMATTIME, READ, READPREV, REWRITE, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COCRDSLC.cbl -- L4
 
@@ -273,7 +275,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | SYNCPOINT | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): 1210-EDIT-ACCOUNT:730:false (IF) -- `IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is INITIALIZEd (374-375) and SET to SPACES at 384; 1210-EDIT-ACCOUNT is the first edit, PERFORMed only at 647 (0000-MAIN WHEN OTHER -> 1000-PROCESS-INPUTS -> 1100-RECEIVE-MAP -> 1200-EDIT-MAP-INPUTS), and nothing on that path (YYYY-STORE-PFKEY in CSSTRPFY writes only CCARD-AID-*, 1100 writes CC-ACCT-ID/CC-CARD-NUM/CCUP-NEW-*) writes WS-RETURN-MSG before it, so the message is always still off.
   - stated infeasible branch outcome (reviewed claim, family G): 1210-EDIT-ACCOUNT:743:false (IF) -- `IF WS-RETURN-MSG-OFF` at 743 is reached only when the blank test at 725-727 failed (that branch GOes TO the exit at 735), so this paragraph set no message either; as for line 730, WS-RETURN-MSG is still the SPACES set at 384.
   - stated infeasible branch outcome (reviewed claim, family G): 1230-EDIT-NAME:816:false (IF) -- 1230-EDIT-NAME is PERFORMed only at 698, after the fetched-details branch of 1200-EDIT-MAP-INPUTS (1210/1220 run only in the not-fetched branch, which GOes TO the exit at 661). On that path the only write of WS-RETURN-MSG after 384 is `SET NO-CHANGES-DETECTED` at 682, and that is followed by the GO TO exit at 692 (685-692), so on reaching 698 WS-RETURN-MSG is SPACES and `IF WS-RETURN-MSG-OFF` is always true.
@@ -289,7 +291,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   - stated infeasible branch outcome (reviewed claim, family G): 9200-WRITE-PROCESSING:1455:true (IF) -- DATA-WAS-CHANGED-BEFORE-UPDATE (an 88 of WS-RETURN-MSG) is SET only at 1511, and that branch GOes TO 9200-WRITE-PROCESSING-EXIT at 1518, leaving 9300 without returning to 1455. When 9300 returns normally its IF at 1503-1508 was true (CONTINUE), and on entry to 9200 (only from 990, with action 'N' so 1200 ran only 668-692) WS-RETURN-MSG is SPACES (384) or NO-CHANGES-DETECTED (682); 1446 is followed by its own GO TO at 1448. So `IF DATA-WAS-CHANGED-BEFORE-UPDATE` at 1455 is never true.
   - stated infeasible branch outcome (reviewed claim, family C): ABEND-ROUTINE:1533:true (IF) -- `IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 374-376, and the program writes it only at line 1023 (a non-blank literal) and 1534. It is never LOW-VALUES.
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: READ, REWRITE, SYNCPOINT; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X52; commands without oracle backing: READ, REWRITE, SYNCPOINT; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COSGN00C.cbl -- L4
 
@@ -339,14 +341,14 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | STARTBR | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): PROCESS-PAGE-BACKWARD:339:false (IF) -- `IF EIBAID NOT = DFHENTER AND DFHPF8`: PROCESS-PAGE-BACKWARD is PERFORMed only from PROCESS-PF7-KEY (line 246), which MAIN-PARA PERFORMs only under `WHEN DFHPF7` of `EVALUATE EIBAID`; COTRN00C never changes EIBAID, so EIBAID = DFHPF7 here and the condition is always true.
   - stated infeasible branch outcome (reviewed claim, family G): PROCESS-PAGE-BACKWARD:361:false (IF) -- `IF NEXT-PAGE-YES`: PROCESS-PF7-KEY does `SET NEXT-PAGE-YES TO TRUE` (line 242) just before PERFORM PROCESS-PAGE-BACKWARD, and nothing on the way (STARTBR / READPREV / POPULATE / INITIALIZE / SEND paragraphs) sets NEXT-PAGE-NO -- only PROCESS-PAGE-FORWARD does, which PF7 never runs. The flag is always 'Y' here.
   - stated infeasible branch outcome (reviewed claim, family C): POPULATE-TRAN-DATA:390:OTHER (EVALUATE) -- `EVALUATE WS-IDX` WHEN 1 .. WHEN 10: POPULATE-TRAN-DATA is PERFORMed only at line 300, inside `PERFORM UNTIL WS-IDX >= 11 ...` (line 297; WS-IDX moved 1 at line 295, +1 per row at line 301), and at line 354, inside `PERFORM UNTIL WS-IDX <= 0 ...` (line 351; WS-IDX moved 10 at line 349, -1 per row at line 355). The loop test runs before each pass, so WS-IDX is in 1..10 every time.
   - stated infeasible branch outcome (reviewed claim, family C): INITIALIZE-TRAN-DATA:452:OTHER (EVALUATE) -- `EVALUATE WS-IDX` WHEN 1 .. WHEN 10: INITIALIZE-TRAN-DATA is PERFORMed only by `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 10` (lines 290 and 344), so WS-IDX is in 1..10 every time.
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:512:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C' and line 123 'COMEN01C'; both fields PIC X(08), COCOM01Y). COTRN00C never moves SPACES or LOW-VALUES into it in between.
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COTRN01C.cbl -- L4
 
@@ -374,12 +376,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/cbl/COTRN02C.cbl -- L4
 
-- **Executed equivalent** on the 46 scenarios of carddemo-tranadd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Executed equivalent** on the 47 scenarios of carddemo-tranadd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 300/300 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (carddemo-tranadd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 46/46 scenarios equal, 132/132 records equal, 46 runs (8 fault runs); through its deployed entry points 46/46
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 47/47 scenarios equal, 135/135 records equal, 47 runs (9 fault runs); through its deployed entry points 47/47
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 18/18 (100.0%), branch outcomes 72/75 (96.0%) raw, 72/72 (100.0%) net of 3 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -395,12 +397,12 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | WRITE | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): VALIDATE-INPUT-DATA-FIELDS:237:true (IF) -- `IF ERR-FLG-ON` at the head of VALIDATE-INPUT-DATA-FIELDS: MAIN-PARA sets ERR-FLG-OFF (line 109) and every MOVE 'Y' TO WS-ERR-FLG that can run before it (lines 149, 198, 212, 225 and the xref READs at 592 / 599 / 625 / 632) is followed by PERFORM SEND-TRNADD-SCREEN, which ends in EXEC CICS RETURN (line 530, no RESP, no HANDLE in COTRN02C) and never comes back. So the flag is always 'N' when this IF runs.
   - stated infeasible branch outcome (reviewed claim, family G): COPY-LAST-TRAN-DATA:480:false (IF) -- `IF NOT ERR-FLG-ON` after VALIDATE-INPUT-KEY-FIELDS and the STARTBR / READPREV / ENDBR of COPY-LAST-TRAN-DATA: each of them that sets WS-ERR-FLG to 'Y' (lines 198, 212, 225, 592, 599, 625, 632, 656, 663, 692) then PERFORMs SEND-TRNADD-SCREEN, which ends in EXEC CICS RETURN (line 530, no RESP, no HANDLE) and never comes back; READPREV ENDFILE (line 688) only zeroes TRAN-ID. So the flag is still the 'N' MAIN-PARA set (line 109).
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:502:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 116 moves 'COSGN00C', line 138 'COMEN01C', and line 141 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COTRN02C never moves SPACES or LOW-VALUES into it in between.
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: ENDBR, READ, READPREV, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X52; commands without oracle backing: ENDBR, READ, READPREV, STARTBR, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COUSR00C.cbl -- L4
 
@@ -424,14 +426,14 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | STARTBR | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): PROCESS-PAGE-BACKWARD:342:false (IF) -- `IF EIBAID NOT = DFHENTER  AND DFHPF8`: PROCESS-PAGE-BACKWARD is PERFORMed only from PROCESS-PF7-KEY (line 249), which MAIN-PARA PERFORMs only under `WHEN DFHPF7` of `EVALUATE EIBAID`; COUSR00C never changes EIBAID, so EIBAID = DFHPF7 here and the condition is always true.
   - stated infeasible branch outcome (reviewed claim, family G): PROCESS-PAGE-BACKWARD:364:false (IF) -- `IF NEXT-PAGE-YES`: PROCESS-PF7-KEY does `SET NEXT-PAGE-YES TO TRUE` (line 245) just before PERFORM PROCESS-PAGE-BACKWARD, and nothing on the way (STARTBR / READPREV / POPULATE / INITIALIZE / SEND paragraphs) sets NEXT-PAGE-NO -- only PROCESS-PAGE-FORWARD does, which PF7 never runs. The flag is always 'Y' here.
   - stated infeasible branch outcome (reviewed claim, family C): POPULATE-USER-DATA:386:OTHER (EVALUATE) -- `EVALUATE WS-IDX` WHEN 1 .. WHEN 10: POPULATE-USER-DATA is PERFORMed only at line 303, inside `PERFORM UNTIL WS-IDX >= 11 ...` (line 300; WS-IDX moved 1 at line 298, +1 per row at line 304), and at line 357, inside `PERFORM UNTIL WS-IDX <= 0 ...` (line 354; WS-IDX moved 10 at line 352, -1 per row at line 358). The loop test runs before each pass, so WS-IDX is in 1..10 every time.
   - stated infeasible branch outcome (reviewed claim, family C): INITIALIZE-USER-DATA:448:OTHER (EVALUATE) -- `EVALUATE WS-IDX` WHEN 1 .. WHEN 10: INITIALIZE-USER-DATA is PERFORMed only by `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 10` (lines 293 and 347), so WS-IDX is in 1..10 every time.
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:508:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 111 moves 'COSGN00C' and line 126 'COADM01C'; both fields PIC X(08), COCOM01Y). COUSR00C never moves SPACES or LOW-VALUES into it in between.
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COUSR01C.cbl -- L4
 
@@ -477,11 +479,11 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): RETURN-TO-PREV-SCREEN:252:true (IF) -- `IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 91, 114 and 125 move 'COSGN00C' / 'COADM01C', and line 117 moves CDEMO-FROM-PROGRAM only after testing it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COUSR02C never moves SPACES or LOW-VALUES into it in between.
   - stated infeasible branch outcome (reviewed claim, family R): UPDATE-USER-SEC-FILE:368:WHEN@377 (EVALUATE) -- `WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-USRSEC-FILE)` (line 360): REWRITE has no RIDFLD and updates the record the READ ... UPDATE at line 322 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X52; commands without oracle backing: READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COUSR03C.cbl -- L4
 
@@ -509,7 +511,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: DELETE, READ; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L3
+### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the batch runs of carddemo-cobtupdt against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 80.0 raw, 80.0 net of the reviewed infeasible outcomes)
@@ -662,11 +666,11 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | STARTBR | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - stated infeasible branch outcome (reviewed claim, family G): 1250-SETUP-ARRAY-ATTRIBS:757:true (IF) -- `IF WS-EDIT-SELECT(1) = SPACE OR LOW-VALUES` is only reached when WS-ROW-CRDSELECT-ERROR(1) = '1' (line 755). That flag is INITIALIZEd to spaces with WS-MISC-STORAGE (line 300) and set to '1' only in 2250-EDIT-ARRAY: at line 1104 when SELECT-OK(1) ('S' or 'U'), at line 1110 in WHEN OTHER after SELECT-BLANK(1) (' ' or LOW-VALUES, lines 80-82) failed, and by the INSPECT at lines 1090-1093, which turns only 'S' / 'U' into '1'. WS-EDIT-SELECT(1) is written only at line 972 (2100-RECEIVE-SCREEN, performed before 2200-EDIT-INPUTS at lines 952-956), so it is never blank when its error flag is '1'.
   - stated infeasible branch outcome (reviewed claim, family G): 1400-SETUP-MESSAGE:897:OTHER (EVALUATE) -- 1400-SETUP-MESSAGE is only PERFORMed by 1000-SEND-MAP (line 633), right after 1100-SCREEN-INIT (line 625), which ends with `SET WS-NO-INFO-MESSAGE TO TRUE` (line 669); nothing in 1200 / 1250 / 1300 writes WS-INFO-MSG. So when no earlier WHEN matches, `WHEN WS-NO-INFO-MESSAGE` (line 917) always does, and WHEN OTHER (line 920) cannot be taken.
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X52; commands without oracle backing: ENDBR, READNEXT, READPREV, STARTBR; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COMEN01C.cbl -- L3
 
@@ -738,7 +742,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 6 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2
+### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 34 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 98.4)
@@ -789,9 +795,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | SYNCPOINT ROLLBACK | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 6 live paragraphs unrun; 87 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 6 live paragraphs unrun; 87 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31, X52; commands without oracle backing: READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COACTVWC.cbl -- L2
 
@@ -820,6 +826,18 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 live paragraphs unrun; 11 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
+
+### app/cbl/CBSTM03B.CBL -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 53/53 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; assumption reach and the migration dimensions above: not measured
 
 ### app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl -- L0
 
@@ -856,9 +874,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | SYNCPOINT | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** refused whole (missing copybook CMQODV); ASSUMED / DIFFERS entries named: X14, X18, X22, X27; commands without oracle backing: ASKTIME, FORMATTIME, READ, SYNCPOINT, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** refused whole (missing copybook CMQODV); ASSUMED / DIFFERS entries named: X14, X18, X22, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, READ, SYNCPOINT, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl -- L0
 
@@ -1014,9 +1032,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** refused whole (missing copybook CMQGMOV); ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** refused whole (missing copybook CMQGMOV); ASSUMED / DIFFERS entries named: X18, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/CBEXPORT.cbl -- L0
 
@@ -1053,7 +1071,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Next level needs:** translated whole (9 holes left)
 - **Translation:** 415/424 statements, 9 holes; whole: no
   - hole: HOLE ALTER not modelled
-  - hole: HOLE SET ADDRESS OF (pointers)
+  - hole: SET-ADDRESS SET ADDRESS OF (pointers)
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -1061,21 +1079,6 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 9 holes; assumption reach and the migration dimensions above: not measured
-
-### app/cbl/CBSTM03B.CBL -- L0
-
-- **Next level needs:** translated whole (3 holes left)
-- **Translation:** 50/53 statements, 3 holes; whole: no
-  - hole: CLOSE TRNX-FILE: no repository for this file in the generated project
-  - hole: OPEN TRNX-FILE: no repository for this file in the generated project
-  - hole: READ TRNX-FILE: no repository for this file in the generated project
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing:** no EXEC CICS command
-- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 holes; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/COBSWAIT.cbl -- L0
 
@@ -1107,10 +1110,12 @@ From the spec entries of the commands the programs use, with the register's stat
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X34 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused |
+| X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
 
 ## Reproducibility
 
-- translator commit (the survey's): `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946`
+- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1120,8 +1125,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
+python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

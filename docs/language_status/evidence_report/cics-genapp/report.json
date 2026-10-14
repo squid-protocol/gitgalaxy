@@ -77,6 +77,30 @@
    "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
    "id": "X31",
    "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+  },
+  {
+   "area": "CICS",
+   "entry": "A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused",
+   "id": "X45",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+   "id": "X46",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused",
+   "id": "X50",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+   "id": "X52",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
   }
  ],
  "bars": {
@@ -222,30 +246,58 @@
     69,
     75
    ],
-   "carddemo-cobtupdt": [
-    9,
-    9,
-    16,
-    20
-   ],
-   "carddemo-copaus2c": [
-    2,
-    2,
-    6,
-    6
-   ],
-   "carddemo-cotrtlic": [
-    56,
-    59,
-    165,
-    230
-   ],
-   "carddemo-cotrtupc": [
-    62,
-    63,
-    126,
-    166
-   ],
+   "carddemo-cobtupdt": {
+    "coverage": [
+     9,
+     9,
+     16,
+     20
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-copaus2c": {
+    "coverage": [
+     2,
+     2,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-cotrtlic": {
+    "coverage": [
+     56,
+     59,
+     165,
+     230
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "carddemo-cotrtupc": {
+    "coverage": [
+     62,
+     63,
+     126,
+     166
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "carddemo-dailyval": [
     18,
     18,
@@ -378,36 +430,67 @@
     2,
     2
    ],
-   "cbsa-acctctrl": [
-    7,
-    7,
-    2,
-    2
-   ],
-   "cbsa-bnk1cac": [
-    25,
-    25,
-    60,
-    97
-   ],
-   "cbsa-bnk1cra": [
-    28,
-    28,
-    52,
-    67
-   ],
-   "cbsa-bnk1dac": [
-    31,
-    31,
-    44,
-    60
-   ],
+   "cbsa-acctctrl": {
+    "coverage": [
+     7,
+     7,
+     2,
+     2
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1cac": {
+    "coverage": [
+     25,
+     25,
+     60,
+     97
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1ccs": null,
+   "cbsa-bnk1cra": {
+    "coverage": [
+     28,
+     28,
+     52,
+     67
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-bnk1dac": {
+    "coverage": [
+     31,
+     31,
+     44,
+     60
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-bnk1dcs": [
     46,
     51,
     62,
     102
    ],
+   "cbsa-bnk1tfn": null,
+   "cbsa-bnk1uac": null,
    "cbsa-bnkmenu": [
     19,
     25,
@@ -444,30 +527,59 @@
     4,
     6
    ],
-   "cbsa-creacc": [
-    34,
-    34,
-    26,
-    38
-   ],
-   "cbsa-custctrl": [
-    7,
-    7,
-    3,
-    4
-   ],
-   "cbsa-dbcrfun": [
-    16,
-    22,
-    25,
-    35
-   ],
-   "cbsa-delacc": [
-    19,
-    19,
-    13,
-    14
-   ],
+   "cbsa-creacc": {
+    "coverage": [
+     34,
+     34,
+     26,
+     38
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-crecust": null,
+   "cbsa-custctrl": {
+    "coverage": [
+     7,
+     7,
+     3,
+     4
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-dbcrfun": {
+    "coverage": [
+     16,
+     22,
+     25,
+     35
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-delacc": {
+    "coverage": [
+     19,
+     19,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-getcompy": [
     2,
     2,
@@ -480,84 +592,154 @@
     0,
     0
    ],
-   "cbsa-inqacc": [
-    22,
-    25,
-    15,
-    25
-   ],
-   "cbsa-inqacccu": [
-    16,
-    22,
-    19,
-    33
-   ],
+   "cbsa-inqacc": {
+    "coverage": [
+     22,
+     25,
+     15,
+     25
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-inqacccu": {
+    "coverage": [
+     16,
+     22,
+     19,
+     33
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-inqcust": [
     22,
     25,
     39,
     46
    ],
-   "cbsa-updacc": [
-    7,
-    7,
-    6,
-    6
-   ],
-   "cbsa-updacc-generated": [
-    7,
-    7,
-    6,
-    6
-   ],
+   "cbsa-updacc": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "cbsa-updacc-generated": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": [
-    27,
-    28,
-    46,
-    81
-   ],
-   "genapp-lgacdb01": [
-    4,
-    4,
-    13,
-    14
-   ],
-   "genapp-lgacdb02": [
-    3,
-    3,
-    10,
-    10
-   ],
-   "genapp-lgacus01": [
-    3,
-    3,
-    4,
-    8
-   ],
+   "cbsa-xfrfun": {
+    "coverage": [
+     27,
+     28,
+     46,
+     81
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacdb01": {
+    "coverage": [
+     4,
+     4,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacdb02": {
+    "coverage": [
+     3,
+     3,
+     10,
+     10
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgacus01": {
+    "coverage": [
+     3,
+     3,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgacvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgapdb01": [
-    6,
-    7,
-    17,
-    31
-   ],
-   "genapp-lgapol01": [
-    2,
-    2,
-    5,
-    8
-   ],
+   "genapp-lgapdb01": {
+    "coverage": [
+     6,
+     7,
+     17,
+     31
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgapol01": {
+    "coverage": [
+     2,
+     2,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgapvs01": [
     2,
     3,
@@ -570,54 +752,96 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": [
-    3,
-    3,
-    12,
-    12
-   ],
-   "genapp-lgdpol01": [
-    3,
-    3,
-    8,
-    12
-   ],
+   "genapp-lgdpdb01": {
+    "coverage": [
+     3,
+     3,
+     12,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgdpol01": {
+    "coverage": [
+     3,
+     3,
+     8,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgdpvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": [
-    3,
-    4,
-    4,
-    12
-   ],
-   "genapp-lgicus01": [
-    4,
-    4,
-    4,
-    8
-   ],
+   "genapp-lgicdb01": {
+    "coverage": [
+     3,
+     4,
+     4,
+     12
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgicus01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgicvs01": [
     1,
     1,
     7,
     12
    ],
-   "genapp-lgipdb01": [
-    12,
-    12,
-    73,
-    74
-   ],
-   "genapp-lgipol01": [
-    2,
-    2,
-    3,
-    6
-   ],
+   "genapp-lgipdb01": {
+    "coverage": [
+     12,
+     12,
+     73,
+     74
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgipol01": {
+    "coverage": [
+     2,
+     2,
+     3,
+     6
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgipvs01": [
     1,
     1,
@@ -630,66 +854,129 @@
     2,
     2
    ],
-   "genapp-lgtestc1": [
-    9,
-    10,
-    16,
-    18
-   ],
-   "genapp-lgtestp1": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp2": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp3": [
-    7,
-    10,
-    14,
-    19
-   ],
-   "genapp-lgtestp4": [
-    7,
-    9,
-    18,
-    22
-   ],
-   "genapp-lgucdb01": [
-    4,
-    4,
-    9,
-    10
-   ],
-   "genapp-lgucus01": [
-    4,
-    4,
-    5,
-    8
-   ],
+   "genapp-lgtestc1": {
+    "coverage": [
+     9,
+     10,
+     16,
+     18
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp1": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp2": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp3": {
+    "coverage": [
+     7,
+     10,
+     14,
+     19
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgtestp4": {
+    "coverage": [
+     7,
+     9,
+     18,
+     22
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgucdb01": {
+    "coverage": [
+     4,
+     4,
+     9,
+     10
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgucus01": {
+    "coverage": [
+     4,
+     4,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgucvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgupdb01": [
-    9,
-    9,
-    26,
-    38
-   ],
-   "genapp-lgupol01": [
-    4,
-    4,
-    13,
-    16
-   ],
+   "genapp-lgupdb01": {
+    "coverage": [
+     9,
+     9,
+     26,
+     38
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
+   "genapp-lgupol01": {
+    "coverage": [
+     4,
+     4,
+     13,
+     16
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "genapp-lgupvs01": [
     2,
     3,
@@ -702,12 +989,19 @@
     0,
     0
    ],
-   "mortgage-cmort": [
-    3,
-    6,
-    15,
-    21
-   ],
+   "mortgage-cmort": {
+    "coverage": [
+     3,
+     6,
+     15,
+     21
+    ],
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+   },
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -728,6 +1022,13 @@
     22,
     22
    ],
+   "zecs-ecs001": [
+    15,
+    15,
+    15,
+    18
+   ],
+   "zecs-zecs003": null,
    "zecs-zecsplt": [
     11,
     11,
@@ -1710,10 +2011,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "translator": {
-    "files": 106,
-    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+    "files": 107,
+    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
    }
   },
   "sweeps": {}
@@ -1920,6 +2221,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -1936,7 +2243,7 @@
      "covered": 10,
      "total": 10
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -1946,8 +2253,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2011,7 +2321,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2106,7 +2416,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2240,7 +2552,8 @@
    "program": "base/src/lgacdb02.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 5,
@@ -2254,8 +2567,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -2291,6 +2607,18 @@
       "area": "CICS",
       "entry": "DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused",
       "id": "X30",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused",
+      "id": "X45",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
@@ -2426,7 +2754,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2451,7 +2781,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X30"
+      "X30",
+      "X45"
      ],
      "spec_entry": "full"
     },
@@ -2625,7 +2956,9 @@
     "assumed_or_differs_named": [
      "X17",
      "X27",
-     "X30"
+     "X30",
+     "X45",
+     "X46"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 7,
@@ -2667,6 +3000,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -2683,7 +3022,7 @@
      "covered": 12,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2693,8 +3032,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2780,7 +3122,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2875,7 +3217,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3009,7 +3353,8 @@
    "program": "base/src/lgdpdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 5,
@@ -3023,8 +3368,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -3590,6 +3938,24 @@
       "entry": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP",
       "id": "X29",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused",
+      "id": "X45",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused",
+      "id": "X50",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -3765,7 +4131,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -3774,7 +4142,9 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X29"
+      "X29",
+      "X45",
+      "X50"
      ],
      "spec_entry": "full"
     },
@@ -3980,7 +4350,10 @@
      "X18",
      "X19",
      "X27",
-     "X29"
+     "X29",
+     "X45",
+     "X46",
+     "X50"
     ],
     "branch_outcomes_unrun": 0,
     "commands": 9,
@@ -4028,6 +4401,18 @@
       "entry": "DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused",
       "id": "X30",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused",
+      "id": "X45",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4044,7 +4429,7 @@
      "covered": 13,
      "total": 14
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4054,8 +4439,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4108,7 +4496,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4203,7 +4591,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4212,7 +4602,8 @@
      "crucible_cases": [],
      "facts_stated": [],
      "registers": [
-      "X30"
+      "X30",
+      "X45"
      ],
      "spec_entry": "full"
     },
@@ -4348,7 +4739,9 @@
    "residual": {
     "assumed_or_differs_named": [
      "X27",
-     "X30"
+     "X30",
+     "X45",
+     "X46"
     ],
     "branch_outcomes_unrun": 1,
     "commands": 6,
@@ -4363,8 +4756,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -4389,6 +4785,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4405,7 +4807,7 @@
      "covered": 4,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4415,8 +4817,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4458,7 +4863,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4553,7 +4958,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4687,7 +5094,8 @@
    "program": "base/src/lgacus01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
@@ -4701,8 +5109,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -4727,6 +5138,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -4743,7 +5160,7 @@
      "covered": 5,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4753,8 +5170,11 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4829,7 +5249,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4924,7 +5344,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5058,7 +5480,8 @@
    "program": "base/src/lgapol01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 5,
@@ -5072,8 +5495,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5098,6 +5524,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5114,7 +5546,7 @@
      "covered": 8,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5124,8 +5556,11 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5200,7 +5635,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5295,7 +5730,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5429,7 +5866,8 @@
    "program": "base/src/lgdpol01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
@@ -5443,8 +5881,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5469,6 +5910,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -5485,7 +5932,7 @@
      "covered": 4,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5495,8 +5942,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5538,7 +5988,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5633,7 +6083,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -5767,7 +6219,8 @@
    "program": "base/src/lgicus01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
@@ -5781,8 +6234,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6387,6 +6843,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -6403,7 +6865,7 @@
      "covered": 73,
      "total": 74
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6413,8 +6875,11 @@
      "live": 12
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6500,7 +6965,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6595,7 +7060,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -6729,7 +7196,8 @@
    "program": "base/src/lgipdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 1,
     "commands": 5,
@@ -6743,8 +7211,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6769,6 +7240,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -6785,7 +7262,7 @@
      "covered": 3,
      "total": 6
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6795,8 +7272,11 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6871,7 +7351,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6966,7 +7446,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7100,7 +7582,8 @@
    "program": "base/src/lgipol01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 5,
@@ -7114,8 +7597,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7638,6 +8124,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -7654,7 +8146,7 @@
      "covered": 9,
      "total": 10
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7664,8 +8156,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7718,7 +8213,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7813,7 +8308,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -7947,7 +8444,8 @@
    "program": "base/src/lgucdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 1,
     "commands": 5,
@@ -7961,8 +8459,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7987,6 +8488,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -8003,7 +8510,7 @@
      "covered": 5,
      "total": 8
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8013,8 +8520,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8056,7 +8566,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8151,7 +8661,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8285,7 +8797,8 @@
    "program": "base/src/lgucus01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 5,
@@ -8299,8 +8812,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8331,6 +8847,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -8347,7 +8869,7 @@
      "covered": 26,
      "total": 38
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8357,8 +8879,11 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8458,7 +8983,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
+       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -8533,7 +9058,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
+      "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -8548,7 +9073,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -8643,7 +9168,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -8787,7 +9314,8 @@
    "program": "base/src/lgupdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 12,
     "commands": 6,
@@ -8802,8 +9330,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8828,6 +9359,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -8844,7 +9381,7 @@
      "covered": 13,
      "total": 16
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8854,8 +9391,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8930,7 +9470,7 @@
     }
    },
    "level": "L3",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9025,7 +9565,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9159,7 +9701,8 @@
    "program": "base/src/lgupol01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 3,
     "commands": 5,
@@ -9173,8 +9716,11 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9197,6 +9743,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -9383,7 +9935,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9525,7 +10079,8 @@
    "program": "base/src/lgacvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 6,
@@ -9566,6 +10121,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -9582,7 +10143,7 @@
      "covered": 17,
      "total": 31
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9592,8 +10153,11 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9679,7 +10243,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9774,7 +10338,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -9908,7 +10474,8 @@
    "program": "base/src/lgapdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 14,
     "commands": 5,
@@ -9922,8 +10489,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9946,6 +10516,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10216,7 +10792,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10358,7 +10936,8 @@
    "program": "base/src/lgapvs01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
@@ -10403,6 +10982,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10613,7 +11198,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -10748,7 +11335,8 @@
    "residual": {
     "assumed_or_differs_named": [
      "X22",
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 5,
@@ -10789,6 +11377,12 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -10805,7 +11399,7 @@
      "covered": 4,
      "total": 12
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10815,8 +11409,11 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10859,7 +11456,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
+       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -10932,7 +11529,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
+      "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
       "oracle_matches_pin": true,
       "records_compared": 24,
       "records_equal": 24,
@@ -10947,7 +11544,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11042,7 +11639,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -11176,7 +11775,8 @@
    "program": "base/src/lgicdb01.cbl",
    "residual": {
     "assumed_or_differs_named": [
-     "X27"
+     "X27",
+     "X46"
     ],
     "branch_outcomes_unrun": 8,
     "commands": 5,
@@ -11190,8 +11790,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11462,7 +12065,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11880,8 +12483,11 @@
     "paragraphs_unrun": null,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11944,7 +12550,7 @@
      "covered": 16,
      "total": 18
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -11954,8 +12560,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11986,7 +12595,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12500,8 +13109,11 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12564,7 +13176,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12574,8 +13186,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12606,7 +13221,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13039,8 +13654,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13103,7 +13721,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13113,8 +13731,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13145,7 +13766,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13578,8 +14199,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13642,7 +14266,7 @@
      "covered": 14,
      "total": 19
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13652,8 +14276,11 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13684,7 +14311,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -14117,8 +14744,11 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14181,7 +14811,7 @@
      "covered": 18,
      "total": 22
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -14191,8 +14821,11 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness",
+     "oracle"
+    ],
+    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -14223,7 +14856,7 @@
     }
    },
    "level": "L2",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -14656,8 +15289,11 @@
     "paragraphs_unrun": 2,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness",
+    "oracle"
+   ],
+   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14692,6 +15328,18 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -14878,7 +15526,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -15024,7 +15674,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     }
    ],
@@ -15033,7 +15685,9 @@
     "assumed_or_differs_named": [
      "X14",
      "X22",
-     "X27"
+     "X27",
+     "X46",
+     "X52"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 7,
@@ -15085,6 +15739,18 @@
       "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
       "id": "X27",
       "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
     "reach": "not measured",
@@ -15212,7 +15878,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
+       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -15356,7 +16022,9 @@
      "command": "FORMATTIME",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X46"
+     ],
      "spec_entry": "full"
     },
     {
@@ -15502,7 +16170,9 @@
      "command": "REWRITE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X52"
+     ],
      "spec_entry": "full"
     }
    ],
@@ -15511,7 +16181,9 @@
     "assumed_or_differs_named": [
      "X14",
      "X22",
-     "X27"
+     "X27",
+     "X46",
+     "X52"
     ],
     "branch_outcomes_unrun": 4,
     "commands": 7,
@@ -15544,8 +16216,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
@@ -15562,21 +16234,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67",
-   "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa"
+   "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+   "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
    "translator": {
-    "files": 106,
-    "sha256": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+    "files": 107,
+    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
    }
   },
-  "translator_commit": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+  "translator_commit": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -15593,9 +16265,9 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 0,
-   "L3": 0,
-   "L4": 0,
+   "L2": 8,
+   "L3": 11,
+   "L4": 2,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -15607,7 +16279,7 @@
    "L5": 0
   },
   "holes": 0,
-  "levels_stale": 0,
+  "levels_stale": 21,
   "levels_stale_survey": 0,
   "programs": 31,
   "records_current": 3,
@@ -15619,6 +16291,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "45d4de7c90619b3cafbc5fb2741d6613306df04da3666067bc28806c4882742a"
+  "fingerprint": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
  }
 }

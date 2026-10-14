@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `45d4de7c9061`).
+The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
 
 ## How to read this report
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 13 | 0 |
-| L3 | 13 | 0 |
-| L4 | 5 | 0 |
+| L2 | 13 | 8 |
+| L3 | 13 | 11 |
+| L4 | 5 | 2 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 31 (0 awaiting re-check); L3+: 18 (0 awaiting re-check); L4+: 5 (0 awaiting re-check)
+- stale (`*`, last measured): 21 of 31 programs; the rest are current
+- L2+: 31 (21 awaiting re-check); L3+: 18 (13 awaiting re-check); L4+: 5 (2 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
@@ -88,41 +88,43 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacdb02.cbl | L4 | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgacdb02.cbl | L4* | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | not yet measured (#4628) | 3/5 |
 | base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | not yet measured (#4628) | 3/7 |
-| base/src/lgdpdb01.cbl | L4 | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgdpdb01.cbl | L4* | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | not yet measured (#4628) | 3/5 |
 | base/src/lgsetup.cbl | L4 | 91/91 | 0 | genapp-lgsetup | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 4/7 |
 | base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | not yet measured (#4628) | 5/9 |
-| base/src/lgacdb01.cbl | L3 | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 13/14 (92.9%) | 13/14 (92.9%) | not yet measured (#4628) | 3/6 |
-| base/src/lgacus01.cbl | L3 | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | not yet measured (#4628) | 3/5 |
-| base/src/lgapol01.cbl | L3 | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | not yet measured (#4628) | 3/5 |
-| base/src/lgdpol01.cbl | L3 | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 8/12 (66.7%) | 8/12 (66.7%) | not yet measured (#4628) | 3/5 |
-| base/src/lgicus01.cbl | L3 | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgacdb01.cbl | L3* | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 13/14 (92.9%) | 13/14 (92.9%) | not yet measured (#4628) | 3/6 |
+| base/src/lgacus01.cbl | L3* | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgapol01.cbl | L3* | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | not yet measured (#4628) | 3/5 |
+| base/src/lgdpol01.cbl | L3* | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 8/12 (66.7%) | 8/12 (66.7%) | not yet measured (#4628) | 3/5 |
+| base/src/lgicus01.cbl | L3* | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | not yet measured (#4628) | 3/5 |
 | base/src/lgicvs01.cbl | L3 | 51/51 | 0 | genapp-lgicvs01 | equal | 4 | none | 1/1 (100.0%) | 7/12 (58.3%) | 7/12 (58.3%) | not yet measured (#4628) | 6/9 |
-| base/src/lgipdb01.cbl | L3 | 238/238 | 0 | genapp-lgipdb01 | equal | 46 | none | 12/12 (100.0%) | 73/74 (98.6%) | 73/74 (98.6%) | not yet measured (#4628) | 3/5 |
-| base/src/lgipol01.cbl | L3 | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/6 (50.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgipdb01.cbl | L3* | 238/238 | 0 | genapp-lgipdb01 | equal | 46 | none | 12/12 (100.0%) | 73/74 (98.6%) | 73/74 (98.6%) | not yet measured (#4628) | 3/5 |
+| base/src/lgipol01.cbl | L3* | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/6 (50.0%) | not yet measured (#4628) | 3/5 |
 | base/src/lgipvs01.cbl | L3 | 31/31 | 0 | genapp-lgipvs01 | equal | 5 | none | 1/1 (100.0%) | 4/6 (66.7%) | 4/6 (66.7%) | not yet measured (#4628) | 4/5 |
-| base/src/lgucdb01.cbl | L3 | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/10 (90.0%) | not yet measured (#4628) | 3/5 |
-| base/src/lgucus01.cbl | L3 | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | not yet measured (#4628) | 3/5 |
-| base/src/lgupdb01.cbl | L3 | 116/116 | 0 | genapp-lgupdb01 | equal | 5 | shown equal, unapproved | 9/9 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | not yet measured (#4628) | 3/6 |
-| base/src/lgupol01.cbl | L3 | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/16 (81.2%) | not yet measured (#4628) | 3/5 |
+| base/src/lgucdb01.cbl | L3* | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/10 (90.0%) | not yet measured (#4628) | 3/5 |
+| base/src/lgucus01.cbl | L3* | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | not yet measured (#4628) | 3/5 |
+| base/src/lgupdb01.cbl | L3* | 116/116 | 0 | genapp-lgupdb01 | equal | 5 | shown equal, unapproved | 9/9 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | not yet measured (#4628) | 3/6 |
+| base/src/lgupol01.cbl | L3* | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/16 (81.2%) | not yet measured (#4628) | 3/5 |
 | base/src/lgacvs01.cbl | L2 | 25/25 | 0 | genapp-lgacvs01 | equal | 4 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 3/6 |
-| base/src/lgapdb01.cbl | L2 | 124/124 | 0 | genapp-lgapdb01 | equal | 4 | none | 6/7 (85.7%) | 17/31 (54.8%) | 17/31 (54.8%) | not yet measured (#4628) | 3/5 |
+| base/src/lgapdb01.cbl | L2* | 124/124 | 0 | genapp-lgapdb01 | equal | 4 | none | 6/7 (85.7%) | 17/31 (54.8%) | 17/31 (54.8%) | not yet measured (#4628) | 3/5 |
 | base/src/lgapvs01.cbl | L2 | 47/47 | 0 | genapp-lgapvs01 | equal | 8 | shown equal, unapproved | 2/3 (66.7%) | 5/9 (55.6%) | 5/9 (55.6%) | not yet measured (#4628) | 2/5 |
 | base/src/lgdpvs01.cbl | L2 | 28/28 | 0 | genapp-lgdpvs01 | equal | 5 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 2/5 |
-| base/src/lgicdb01.cbl | L2 | 44/44 | 0 | genapp-lgicdb01 | equal | 12 | shown equal, unapproved | 3/4 (75.0%) | 4/12 (33.3%) | 4/12 (33.3%) | not yet measured (#4628) | 3/5 |
-| base/src/lgstsq.cbl | L2 | 26/26 | 0 | genapp-lgacdb01 | equal | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/6 |
-| base/src/lgtestc1.cbl | L2 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 9/10 (90.0%) | 16/18 (88.9%) | 16/18 (88.9%) | not yet measured (#4628) | 9/12 |
-| base/src/lgtestp1.cbl | L2 | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
-| base/src/lgtestp2.cbl | L2 | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
-| base/src/lgtestp3.cbl | L2 | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
-| base/src/lgtestp4.cbl | L2 | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 7/9 (77.8%) | 18/22 (81.8%) | 18/22 (81.8%) | not yet measured (#4628) | 7/8 |
+| base/src/lgicdb01.cbl | L2* | 44/44 | 0 | genapp-lgicdb01 | equal | 12 | shown equal, unapproved | 3/4 (75.0%) | 4/12 (33.3%) | 4/12 (33.3%) | not yet measured (#4628) | 3/5 |
+| base/src/lgstsq.cbl | L2* | 26/26 | 0 | genapp-lgacdb01 | equal | 6 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/6 |
+| base/src/lgtestc1.cbl | L2* | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 9/10 (90.0%) | 16/18 (88.9%) | 16/18 (88.9%) | not yet measured (#4628) | 9/12 |
+| base/src/lgtestp1.cbl | L2* | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp2.cbl | L2* | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp3.cbl | L2* | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | not yet measured (#4628) | 7/8 |
+| base/src/lgtestp4.cbl | L2* | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 7/9 (77.8%) | 18/22 (81.8%) | 18/22 (81.8%) | not yet measured (#4628) | 7/8 |
 | base/src/lgucvs01.cbl | L2 | 32/32 | 0 | genapp-lgucvs01 | equal | 5 | none | 2/3 (66.7%) | 0/4 (0.0%) | 0/4 (0.0%) | not yet measured (#4628) | 3/7 |
 | base/src/lgupvs01.cbl | L2 | 55/55 | 0 | genapp-lgupvs01 | equal | 6 | none | 2/3 (66.7%) | 5/9 (55.6%) | 5/9 (55.6%) | not yet measured (#4628) | 3/7 |
 
 ## Per program
 
-### base/src/lgacdb02.cbl -- L4
+### base/src/lgacdb02.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgacdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -147,10 +149,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgastat1.cbl -- L4
 
@@ -173,12 +175,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27, X30; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27, X30, X45, X46; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgdpdb01.cbl -- L4
+### base/src/lgdpdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -207,10 +211,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgsetup.cbl -- L4
 
@@ -260,13 +264,15 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | START | full | gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes) | yes |
   | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X29 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X29 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X50 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X29; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X29, X45, X46, X50; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgacdb01.cbl -- L3
+### base/src/lgacdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 92.9 raw, 92.9 net of the reviewed infeasible outcomes)
@@ -290,12 +296,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X30; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X30, X45, X46; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgacus01.cbl -- L3
+### base/src/lgacus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgacus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -316,12 +324,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgapol01.cbl -- L3
+### base/src/lgapol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgapol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
@@ -348,12 +358,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgdpol01.cbl -- L3
+### base/src/lgdpol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 66.7 raw, 66.7 net of the reviewed infeasible outcomes)
@@ -380,12 +392,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgicus01.cbl -- L3
+### base/src/lgicus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgicus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -406,10 +420,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgicvs01.cbl -- L3
 
@@ -441,7 +455,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 5 branch outcomes unrun; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27; commands without oracle backing: DEQ, ENQ, READ; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgipdb01.cbl -- L3
+### base/src/lgipdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 46 scenarios of genapp-lgipdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 98.6 raw, 98.6 net of the reviewed infeasible outcomes)
@@ -470,12 +486,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgipol01.cbl -- L3
+### base/src/lgipol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgipol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -502,10 +520,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgipvs01.cbl -- L3
 
@@ -532,7 +550,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27; commands without oracle backing: READ; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgucdb01.cbl -- L3
+### base/src/lgucdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgucdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 90.0 raw, 90.0 net of the reviewed infeasible outcomes)
@@ -555,12 +575,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgucus01.cbl -- L3
+### base/src/lgucus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgucus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
@@ -581,12 +603,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgupdb01.cbl -- L3
+### base/src/lgupdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgupdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)
@@ -616,12 +640,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | SYNCPOINT ROLLBACK | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgupol01.cbl -- L3
+### base/src/lgupol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgupol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 81.2 raw, 81.2 net of the reviewed infeasible outcomes)
@@ -648,10 +674,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgacvs01.cbl -- L2
 
@@ -679,11 +705,13 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WRITE | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgapdb01.cbl -- L2
+### base/src/lgapdb01.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 85.7)
@@ -712,10 +740,10 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 14 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 14 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgapvs01.cbl -- L2
 
@@ -748,9 +776,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | WRITE | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgdpvs01.cbl -- L2
 
@@ -783,11 +811,13 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X22, X27; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X22, X27, X46; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgicdb01.cbl -- L2
+### base/src/lgicdb01.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 12 scenarios of genapp-lgicdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 75.0)
@@ -810,12 +840,14 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 8 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 8 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgstsq.cbl -- L2
+### base/src/lgstsq.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (coverage not measured for a LINKed program: the case's coverage is its main program's)
@@ -872,7 +904,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X15, X19, X27; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestc1.cbl -- L2
+### base/src/lgtestc1.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 14 scenarios of genapp-lgtestc1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 90.0)
@@ -902,7 +936,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 live paragraphs unrun; 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp1.cbl -- L2
+### base/src/lgtestp1.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -928,7 +964,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp2.cbl -- L2
+### base/src/lgtestp2.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp2 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -954,7 +992,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp3.cbl -- L2
+### base/src/lgtestp3.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp3 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -980,7 +1020,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp4.cbl -- L2
+### base/src/lgtestp4.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 16 scenarios of genapp-lgtestp4 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 77.8)
@@ -1033,9 +1075,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | REWRITE | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### base/src/lgupvs01.cbl -- L2
 
@@ -1070,9 +1112,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
   | REWRITE | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -1093,21 +1135,25 @@ From the spec entries of the commands the programs use, with the register's stat
 | X29 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP |
 | X30 | CICS | ASSUMED (REFUSED where IBM is silent) | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused |
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
+| X45 | CICS | ASSUMED (REFUSED where IBM is silent) | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused |
+| X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
+| X50 | CICS | ASSUMED (REFUSED where IBM is silent) | A fullword counter has the limits DEFINE COUNTER gave it (MINIMUM zero and MAXIMUM X'7FFFFFFF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM or beyond X'7FFFFFFF', 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET COUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY COUNTER returns VALUE / MINIMUM / MAXIMUM; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a VALUE or MINIMUM below zero, and the limits of a counter whose limits the run does not state are refused |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
 
 ## Reproducibility
 
-- translator commit (the survey's): `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946`
+- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:1fae0d13d04ee5c91d90756bfceb4c04ec6057b0c4be5fa0439e85054dfd6a67`, `sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa`
+- oracle images the evidence records ran on: `sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa`, `sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
+python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01

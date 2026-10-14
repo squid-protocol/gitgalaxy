@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `45d4de7c9061`).
+The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
 
 ## How to read this report
 
@@ -41,18 +41,18 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 1 | 0 |
-| L1 | 3 | 0 |
+| L1 | 2 | 0 |
 | L2 | 0 | 0 |
-| L3 | 0 | 0 |
+| L3 | 1 | 0 |
 | L4 | 1 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 5 programs; the rest are current
-- L2+: 1 (0 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
+- L2+: 2 (0 awaiting re-check); L3+: 2 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 5 (with an EXEC CICS command: 5; source not read: 0)
-- translated whole: 4; refused whole: 0; holes left: 12
-- with an equivalence case: 1; det port equal on its case: 1; with an evidence record: 0; record current at build: 0
+- translated whole: 4; refused whole: 1; holes left: 0
+- with an equivalence case: 3; det port equal on its case: 2; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -84,10 +84,10 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 2/5 |
-| Source/ECS001.cbl | L1 | 105/105 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/7 |
+| Source/ECS001.cbl | L3 | 105/105 | 0 | zecs-ecs001 | equal | 22 | none | 15/15 (100.0%) | 15/18 (83.3%) | 15/18 (83.3%) | not yet measured (#4628) | 3/7 |
 | Source/ZECS000.cbl | L1 | 173/173 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 5/22 |
-| Source/ZECS003.cbl | L1 | 73/73 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
-| Source/ZECS001.cbl | L0 | 549/561 | 12 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
+| Source/ZECS003.cbl | L1 | 73/73 | 0 | zecs-zecs003 | not equal | 12 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
+| Source/ZECS001.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
 
 ## Per program
 
@@ -115,13 +115,15 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
-### Source/ECS001.cbl -- L1
+### Source/ECS001.cbl -- L3
 
-- **Next level needs:** an equivalence case that runs it
+- **Executed equivalent** on the 22 scenarios of zecs-ecs001 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)
 - **Translation:** 105/105 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Executed equivalence** (zecs-ecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (22 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 15/18 (83.3%) raw, 15/18 (83.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -137,7 +139,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: http_peers, urimaps
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X15, X27, X32, X35; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X27, X32, X35; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS000.cbl -- L1
 
@@ -173,20 +175,21 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITE | full | none | no |
   | WRITEQ TD | full | none | no |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: doctemplates, facility, http_peers, screen, startcode, urimaps, userid
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33, X35, X36; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33, X35, X36, X46, X52; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS003.cbl -- L1
 
-- **Next level needs:** an equivalence case that runs it
+- **Next level needs:** its det port equal on every scenario of zecs-zecs003: ledgered as differing in det_sweep_baseline.json (#5076): ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not shown equal.
 - **Translation:** 73/73 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
+- **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#5076): ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not shown equal.)
+  - evidence record: none (12 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -213,13 +216,8 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 ### Source/ZECS001.cbl -- L0
 
-- **Next level needs:** translated whole (12 holes left)
-- **Translation:** 549/561 statements, 12 holes; whole: no
-  - hole: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate
-  - hole: EXEC EXEC CICS: EXEC CICS FREEMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)
-  - hole: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)
-  - hole: EXEC EXEC CICS: WEB RECEIVE SET: option not modelled (SET: a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled)
-  - hole: HOLE SET ADDRESS OF (pointers)
+- **Next level needs:** translated whole (refused whole by the translator)
+- **Translation:** refused whole: refused: ValueError: a second N group named FILLER: its items cannot be told apart
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
@@ -232,9 +230,9 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | DOCUMENT CREATE | full | none | no |
   | DOCUMENT RETRIEVE | full | none | no |
   | FORMATTIME | full | none | no |
-  | FREEMAIN | name-only | none | no |
+  | FREEMAIN | full | none | no |
   | GET COUNTER | full | none | no |
-  | GETMAIN | name-only | none | no |
+  | GETMAIN | full | none | no |
   | INQUIRE PROGRAM | full | none | no |
   | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
   | READ | full | none | no |
@@ -255,13 +253,13 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   | WRITEQ TD | full | none | no |
   | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X34 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X38 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X30 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X34 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X38 (ASSUMED (REFUSED where IBM is silent)), X45 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X47 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: doctemplates, http_peers, http_request
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBFN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 12 holes; 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** refused whole (refused: ValueError: a second N group named FILLER: its items cannot be told apart); 3 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -283,12 +281,16 @@ From the spec entries of the commands the programs use, with the register's stat
 | X34 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused |
 | X35 | CICS | ASSUMED (REFUSED where IBM is silent) | The HTTP server is a stated fact (http_peers: scheme, host, port, CLIENT URIMAP and path, and the response to each request, matched by method, path and query in order); WEB OPEN by URIMAP or HOST / HOSTLENGTH / PORTNUMBER (80 / 443 when omitted) / SCHEME returns our 8-byte token (GGWSnnnn), LENGERR 21, INVREQ 40 / 138; WEB CONVERSE sends METHOD, PATH (the URIMAP's when omitted), QUERYSTRING, FROM with MEDIATYPE, recorded as a WEB-CONVERSE event, and returns INTO (at most MAXLENGTH, INTO's length when omitted; LENGERR 57 when longer), TOLENGTH, STATUSCODE, the reason phrase's bytes and MEDIATYPE (blank-padded to 56), with NOTOPEN 27, INVREQ 33 / 34 / 54 / 76, LENGERR 5 / 8 / 16 / 50 / 59; WEB CLOSE NOTOPEN 27; the exchange is in the program's characters (conversion options change nothing); refused: an unstated peer or response, two conditions at once, TRACE / OPTIONS, MAXLENGTH 0, no PATH on a HOST session, a blank MEDIATYPE with a body, a reason phrase longer than STATUSLEN, a length past its area, and every option zECS does not use |
 | X36 | CICS | ASSUMED (REFUSED where IBM is silent) | WEB PARSE URL is pure: URL / URLLENGTH are split into SCHEMENAME (upper case, blank-padded to its 16-byte area), HOST / HOSTLENGTH, PORTNUMBER (explicit, else 80 for HTTP and 443 for HTTPS), PATH / PATHLENGTH (with its leading slash) and QUERYSTRING / QUERYSTRLEN (without its question mark, still escaped); each length option is read as the area's size and set to the piece's length; INVREQ 28 (no scheme and ://, an empty scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED) and INVREQ 65 (a percent not followed by two of 0-9 A-F); the areas are written on NORMAL only; refused: a scheme other than HTTP / HTTPS, user-info, a fragment, an IPv6 host, an empty port or port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero or past its area, LENGERR (host / path / query longer than its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions at once, HOSTTYPE |
-| X37 | CICS | ASSUMED (REFUSED where IBM is silent) | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH with ACTION(IMMEDIATE), MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted) and SRVCONVERT / NOSRVCONVERT is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL) and INVREQ 72 (204 / 205 / 304 with a body); the response is in the program's characters (conversion changes nothing); refused: no stated request, ACTION EVENTUAL or omitted, a second send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, DOCSTATUS (what becomes of a sent document), LENGTH; WEB SEND DOCTOKEN sends the document the task created (DOCUMENT CREATE) as the body, an empty document being no body (a 204 may send it: ASSUMED), a token naming no document of the task refused |
-| X38 | CICS | ASSUMED (REFUSED where IBM is silent) | #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: SET, the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: SET (the pointer lane), NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once |
+| X37 | CICS | ASSUMED (REFUSED where IBM is silent) | The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH or DOCTOKEN with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); the response is in the program's characters (conversion changes nothing); refused: no stated request, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH |
+| X38 | CICS | ASSUMED (REFUSED where IBM is silent) | #4972: EXTRACT WEB is IBM's synonym of WEB EXTRACT (one table, one runtime call, the same answers and refusals); EXTRACT TCPIP reads the connection the run STATES (tcpip: client / server IPv4 address, the names the DNS knows, the port, the SSL type): CLIENTADDR / CADDRLENGTH, CLIENTNAME / CNAMELENGTH, SERVERADDR / SADDRLENGTH, SERVERNAME / SNAMELENGTH written as bytes with each length option set to the real length (areas on NORMAL only), CLIENTADDRNU / SERVERADDRNU (the address as a signed fullword), CLNTIPFAMILY / SRVRIPFAMILY (IPV4, 300), PORTNUMNU, SSLTYPE (SSL 1030 / NOSSL 1031 / CLIENTAUTH 1032 / ATTLSAWARE 1205); an area given with its length option missing or not above zero LENGERR RESP2 1; a client name the DNS does not know length 0, the area left alone, NORMAL; refused: no connection stated, an address that is not IPv4 dotted decimal (IPv6, CLNTADDR6NU / SRVRADDR6NU), an address number past a signed fullword, a SERVERNAME the connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7), PORTNUMBER (the character form), AUTHENTICATE, TCPIPSERVICE, PRIVACY, MAXDATALEN, a length past its area, two conditions at once. #4940: WEB READ FORMFIELD / QUERYPARM read the stated body form (application/x-www-form-urlencoded) / query string as name=value pairs joined by '&' (split at the first '=', only %XX unescaped), the name matched without case (IBM), two pairs of the name refused, NAMELENGTH / VALUELENGTH not above zero LENGERR RESP2 1, no data INVREQ RESP2 13, no such name NOTFND RESP2 1, a value longer than VALUELENGTH cut with LENGERR RESP2 5 and VALUELENGTH its real length; WEB STARTBROWSE / READNEXT / ENDBROWSE of HTTPHEADER, FORMFIELD, QUERYPARM keep a browse per kind (ILLOGIC RESP2 10 / 5 for a second start, INVREQ RESP2 43 / 13 for no headers / data, INVREQ RESP2 4 READNEXT / ENDBROWSE before a start, ENDFILE with RESP2 0 at the end, LENGERR RESP2 1 for a length not above zero with the browse left where it was, LENGERR RESP2 4 / 5 for a FORMFIELD / QUERYPARM name / value that does not fit, cut, the same pair returned again, lengths the real ones), a start name matched exactly (case-only or duplicate matches refused), a start that raises a condition starts no browse (ASSUMED); refused: the code-page options, the client form (SESSTOKEN), HTTPHEADER truncation on READNEXT, a body that is not application/x-www-form-urlencoded, data with a pair lacking '=', an empty name or pair, ';', '+', a bad escape, an escaped name or a byte outside printable ASCII, a READNEXT after ENDFILE, a name and value both too long, two conditions at once. #4767: The task serves the one inbound HTTP request that whoever runs it STATES (http_request, as X37; unstated, each command is refused); WEB EXTRACT (server form) returns the stated scheme (CVDA HTTP 1096 / HTTPS 1029), host, HTTP method, HTTP version (the text the run states: ASSUMED), path, query string (none: length 0, area left alone: ASSUMED), the port and REQUESTTYPE HTTPYES, each length option read as the area's size and set to the piece's length, the areas written on NORMAL only; LENGERR RESP2 21 / 5 / 7 for a HOSTLENGTH / PATHLENGTH / VERSIONLEN not above zero; WEB RECEIVE INTO / LENGTH / MAXLENGTH / MEDIATYPE returns the stated body (cut at MAXLENGTH with LENGERR RESP2 57, LENGTH the bytes returned, LENGERR RESP2 16 for a MAXLENGTH not above zero, MEDIATYPE blank-padded to 56) with SRVCONVERT / NOSRVCONVERT changing nothing (program characters); WEB READ HTTPHEADER returns the value of the stated header of that exact name (INVREQ RESP2 43 no headers, NOTFND RESP2 1 no such header, LENGERR RESP2 1 VALUELENGTH not above zero); WEB WRITE HTTPHEADER adds a header to the response, recorded as WEB-HEADER and compared (a name written twice is two headers; LENGERR RESP2 35 / 55); refused: NOTRUNCATE, containers, every code-page option, SERVERCONV, BODYCHARSET, TYPE, the client forms (SESSTOKEN, REALM), HOSTTYPE, URIMAP, a LENGERR on a piece or value longer than its length, a METHODLENGTH / QUERYSTRLEN not above zero, a request with no body, a second RECEIVE, a header found only without case or stated twice, a header written after the response was sent, a name with a blank or colon, a length past its area, two conditions at once |
+| X45 | CICS | ASSUMED (REFUSED where IBM is silent) | A doubleword counter has the limits DEFINE DCOUNTER gave it (MINIMUM zero and MAXIMUM a doubleword of X'FF' when omitted; VALUE zero; INVREQ RESP2 407 for MAXIMUM below MINIMUM, 406 for VALUE below MINIMUM or above MAXIMUM + 1); GET DCOUNTER at MAXIMUM + 1 is SUPPRESSED RESP2 101 and leaves the counter, or with WRAP returns MINIMUM and goes on from it; QUERY DCOUNTER returns VALUE / MINIMUM / MAXIMUM; DELETE DCOUNTER; an INCREMENT beyond MAXIMUM - MINIMUM or past MAXIMUM + 1, a counter past a doubleword, and the limits of a counter DEFINE COUNTER made are refused |
+| X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
+| X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
 
 ## Reproducibility
 
-- translator commit (the survey's): `5eb4d68e305d144048d8b4f4e9ec9ed5a965a946`
+- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -298,9 +300,9 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
-python tests/tools/evidence_report.py zecs --baseline --sha 5eb4d68e305d144048d8b4f4e9ec9ed5a965a946
+python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/evidence_report.py zecs --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-zecsplt
+python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

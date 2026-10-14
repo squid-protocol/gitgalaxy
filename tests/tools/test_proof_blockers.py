@@ -82,7 +82,7 @@ def test_each_gap_class_from_its_source(tmp_path):
         pb.LINKED_NOT_MEASURED
     ]  # run by the case, but its own coverage is not measured (#4270)
     assert gaps_of(res, "NOCASE") == ["no case"]
-    assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (det-sweep runs --skip-db2)"]
+    assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (no sweep row, no readable det-sweep ledger entry)"]
     assert gaps_of(res, "KNOWN") == ["known unproven: #1"]
     assert gaps_of(res, "COV") == ["coverage: live paragraphs no scenario runs"]
     assert gaps_of(res, "TASKN") == ["fact: EIBRCODE (no harness states it)"]  # EIBTASKN: the case states it
@@ -258,3 +258,80 @@ def test_a_linked_program_does_not_inherit_the_case_s_coverage():
     other = pb.Run("equivalence", "c2", role="linked")
     pb.judge_equivalence(other, {}, {}, True)
     assert other.gaps == {pb.LINKED_NOT_MEASURED}
+
+
+# ---- #5075: the det-sweep ledger is the Db2 lanes' verdict, and its harness / oracle-stale coverage is the last count --
+STALE = {"coverage": [3, 3, 1, 1], "stale_inputs": ["harness", "oracle"], "stale_since": "abc123"}
+
+
+def subject(res, stem):
+    return next(p for p in res["programs"] if Path(p["program"]).stem == stem)
+
+
+def test_a_db2_case_takes_its_verdict_from_a_readable_ledger_entry(tmp_path):
+    """Current or stale on a scheduled input only: proven, with the ledger as its source; the coverage is read too."""
+    for reading in ([3, 3, 1, 1], STALE):
+        res = run(tmp_path, ledger={"c-db2": reading})
+        assert gaps_of(res, "DB2") == []
+        assert subject(res, "DB2")["verdict"] == "ledger"
+        assert res["sources"]["ledger_verdicts"] == ["c-db2"]
+        assert res["sources"]["stale_ledger_coverage"] == (["c-db2"] if reading is STALE else [])
+    assert (res["whole"], res["proven"]) == (9, 2)
+
+
+def test_a_db2_ledger_entry_with_uncovered_paragraphs_is_a_coverage_gap(tmp_path):
+    res = run(tmp_path, ledger={"c-db2": [2, 3, 1, 1]})
+    assert gaps_of(res, "DB2") == ["coverage: live paragraphs no scenario runs"]
+
+
+def test_no_entry_or_a_blocking_change_leaves_the_db2_case_unproven(tmp_path):
+    """None is what ledger_readings gives a missing entry AND one whose case / corpus changed."""
+    for ledger in ({}, {"c-db2": None}):
+        res = run(tmp_path, ledger=ledger)
+        assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (no sweep row, no readable det-sweep ledger entry)"]
+        assert subject(res, "DB2")["verdict"] == ""
+
+
+def test_the_ledger_never_overrides_a_baseline_or_a_sweep(tmp_path):
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    det_baseline["c-db2"] = {"issue": "#2", "why": "differs"}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline,
+                            ledger={"c-db2": [3, 3, 1, 1]})  # fmt: skip
+    assert gaps_of(res, "DB2") == ["known unproven: #2"] and subject(res, "DB2")["verdict"] == ""
+    sweep = tmp_path / "sweep"
+    write(sweep / "sweep.json", {"det": {"c-db2": {"proved": False, "coverage": ""}}})
+    res = run(tmp_path, ledger={"c-db2": [3, 3, 1, 1]}, sweeps=pb.load_sweeps([sweep]))
+    assert gaps_of(res, "DB2") == ["scenario differs: not proven (no report kept)"]
+
+
+def test_a_non_db2_case_reads_scheduled_stale_coverage_not_blocking(tmp_path):
+    """c-diff has no evidence record: its coverage is the ledger's or unknown."""
+    res = run(tmp_path, ledger={"c-diff": STALE})
+    assert gaps_of(res, "DIFF") == [] and subject(res, "DIFF")["stale_coverage"] == ["harness", "oracle"]
+    assert subject(res, "DIFF")["verdict"] == ""  # its verdict is CI's ratchet, not the ledger
+    res = run(tmp_path, ledger={"c-diff": None})
+    assert gaps_of(res, "DIFF") == ["coverage: unknown (no sweep, no evidence record)"]
+    res = run(tmp_path, ledger={"c-diff": {**STALE, "coverage": [1, 3, 1, 1]}})
+    assert gaps_of(res, "DIFF") == ["coverage: live paragraphs no scenario runs"]
+
+
+def test_a_linked_program_never_takes_the_ledger_s_coverage(tmp_path):
+    res = run(tmp_path, ledger={"c-proven": [3, 3, 1, 1]})
+    assert gaps_of(res, "LINKED") == [pb.LINKED_NOT_MEASURED]
+
+
+def test_ledger_readings_maps_last_coverage(monkeypatch):
+    import det_coverage_ledger as dcl
+
+    base = {"coverage": (4, 4, 2, 2), "measured_at": "deadbeef"}
+    lasts = {"cur": {**base, "stale_inputs": [], "blocking": False},
+             "sched": {**base, "stale_inputs": ["oracle"], "blocking": False},
+             "block": {**base, "stale_inputs": ["corpus"], "blocking": True}, "none": None}  # fmt: skip
+    monkeypatch.setattr(dcl, "load", lambda: dict.fromkeys(lasts, {}))
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, ledger: lasts[case])
+    got = pb.ledger_readings()
+    assert got == {"block": None, "cur": [4, 4, 2, 2], "none": None,
+                   "sched": {"coverage": [4, 4, 2, 2], "stale_inputs": ["oracle"], "stale_since": "deadbeef"}}  # fmt: skip
+    assert (
+        pb.ledger_readings(cases_dir=Path("/elsewhere")) == {}
+    )  # a fixture tree: the repo's fingerprints do not apply

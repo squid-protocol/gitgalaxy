@@ -1208,6 +1208,14 @@ def test_web_send_becomes_a_stub_call():
     assert t[:7] == ["MOVE WS-FL TO GG-LEN", "MOVE WS-A TO GG-ITEM", "MOVE WS-S TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 1 TO GG-MINS", "MOVE 'MEDIA STEXT' TO GG-FLAGS", "CALL 'GGCWSND' USING GG-CICS"]  # fmt: skip
     assert t[7:9] == ["    BY REFERENCE WS-F", "    BY VALUE LENGTH OF WS-F"]
+    ct = ec.translate_command("WEB SEND CONTAINER(WS-K) CHANNEL(WS-C) MEDIATYPE(WS-M) ACTION(WS-A) NOHANDLE")
+    assert ct[:7] == ["MOVE 0 TO GG-LEN", "MOVE WS-A TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
+                      "MOVE 0 TO GG-MINS", "MOVE 'MEDIA CHANNEL' TO GG-FLAGS", "MOVE WS-K TO GG-QNAME"]  # fmt: skip
+    assert ct[7] == "MOVE WS-C TO GG-CHAN" and "CALL 'GGCWSCT' USING GG-CICS" in ct  # (#5037 X37: a container's data)
+    cn = ec.translate_command("WEB SEND CONTAINER(WS-K) ACTION(WS-A) NOHANDLE")
+    assert (
+        "MOVE 'CHANNEL' TO GG-FLAGS" not in cn and "MOVE SPACES TO GG-FLAGS" in cn
+    )  # (no CHANNEL: the current channel)
     d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
     assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
@@ -1220,14 +1228,23 @@ def test_web_send_becomes_a_stub_call():
         "    BY REFERENCE WS-D",
         "    BY VALUE LENGTH OF WS-D",
     ]
-    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
-                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
+    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs exactly one of FROM"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs exactly one of FROM"),
                      ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCSTATUS(WS-X)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response")):  # fmt: skip
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response"),
+                     ("WEB SEND CONTAINER(WS-K) FROM(WS-F) FROMLENGTH(WS-FL)", "needs exactly one of FROM"),
+                     ("WEB SEND CONTAINER(WS-K) DOCTOKEN(WS-D)", "needs exactly one of FROM"),
+                     ("WEB SEND CHANNEL(WS-C) FROM(WS-F) FROMLENGTH(WS-FL)", "CHANNEL without CONTAINER"),
+                     ("WEB SEND CONTAINER(WS-K) CHUNKING(WS-C)", "chunked response"),
+                     ("WEB SEND CONTAINER(WS-K) HOSTCODEPAGE(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CHARACTERSET(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CLNTCODEPAGE(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CLOSESTATUS(WS-H)", "closing the connection"),
+                     ("WEB SEND CONTAINER(WS-K) LENGTH(WS-H)", "LENGTH is kept for upgrade only")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 

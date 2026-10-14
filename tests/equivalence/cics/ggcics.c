@@ -4484,7 +4484,7 @@ static void web_flush(void) {
 }
 
 static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap,
-                         int ofdoc, int doc_i, int docstatus) {
+                         int ofdoc, int doc_i, int docstatus, int pre, int pre2) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
     int eventual, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
@@ -4507,6 +4507,7 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (pre) { c->resp = pre; c->resp2 = pre2; conds++; } /* a container send's own conditions */
     if (ofdoc && doc_i < 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
     if (ofdoc && docstatus != 0 && docstatus != 295 && docstatus != 296) { c->resp = INVREQ; c->resp2 = 143; conds++; }
@@ -4556,7 +4557,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0);
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0, 0, 0);
 }
 
 /* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
@@ -4582,7 +4583,34 @@ int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *
     if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
     if (i == ndocs || doc_dead[i]) i = -1; /* NOTFND 1: not created, deleted or wrongly named (IBM lists one RESP2) */
     return web_send_body(c, i < 0 ? "" : (const char *)docs[i], i < 0 ? 0 : doc_len[i], media, mediacap, stext, stextcap, 1,
-                         i, c->secs);
+                         i, c->secs, 0, 0);
+}
+
+/* WEB SEND CONTAINER(GG-QNAME) [CHANNEL(GG-CHAN)] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body is
+ * the container's data as it is now. CONTAINERERR RESP2 2, CHANNELERR RESP2 2, INVREQ RESP2 145 (no CHANNEL, no current
+ * channel), INVREQ RESP2 150 (conversion of a BIT container); an empty container and a BIT container sent as it is are refused.
+ * As CicsTask.webSendContainer. */
+int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], name[17];
+    int sl = c->hours, hast, ch, pre = 0, pre2 = 0;
+    gg_container *k = NULL;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 145);
+    if (!ch) { pre = c->resp; pre2 = c->resp2; }
+    else if (!(k = container_named(&chans[ch - 1], name, 0))) { pre = CONTAINERERR; pre2 = 2; }
+    else if (c->mins != 0 && k->bit) { pre = INVREQ; pre2 = 150; }
+    else if (k->len == 0) refuse("WEB SEND of an empty container");
+    else if (k->bit) refuse("WEB SEND of a DATATYPE BIT container");
+    return web_send_body(c, pre ? "" : k->data, pre ? 0 : k->len, media, mediacap, stext, stextcap, 0, -1, 0, pre, pre2);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ

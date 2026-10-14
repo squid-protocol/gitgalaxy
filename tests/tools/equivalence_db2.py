@@ -314,7 +314,7 @@ def _ensure_container() -> None:
         with _setup_lock("gitgalaxy-db2-image.lock"):  # #5094: one build; the others find the image
             if not _docker("images", "-q", COBOL_IMAGE).strip():
                 fetch_odbc_cli()
-                _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
+                common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
     import fcntl
 
     # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it

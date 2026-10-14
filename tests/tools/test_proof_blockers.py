@@ -171,6 +171,47 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}
 
 
+def test_eib_names_match_whole_words_outside_literals_and_comments():
+    """#5077: the whole input class of a name that is not a read -- a literal's text, a hyphenated or underscored
+    user name that starts with an EIB field, a comment line, a VALUE clause -- against the real reads."""
+    for src in (
+        fixed("    01  MSG PIC X(8) VALUE 'EIBFN: '.", '    DISPLAY "EIBRCODE=".'),
+        fixed("    01  EIBRCODE-NICE PIC X.", "    MOVE 1 TO EIBFN-X", "    MOVE 1 TO WS-EIBFN"),
+        fixed("    01  EIBFN_COPY PIC X."),
+        "000100*    MOVE EIBFN TO X\n000200/   MOVE EIBRCODE TO X\n",
+    ):
+        assert pb.facts_needed(src)["eib"] == set(), src
+    real = fixed("    MOVE EIBFN TO A", "    MOVE EIBRCODE TO B", "    IF EIBERR = 1 DISPLAY 'EIBDS'.",
+                 "    MOVE EIBRCODE(1:1) TO C", "    MOVE 'EIBAID' TO D")  # fmt: skip
+    assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBRCODE", "EIBERR"}
+    assert pb.facts_needed(fixed("    MOVE 'A' TO X EIBDS."))["eib"] == {"EIBDS"}
+
+
+def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
+    """#5077: STARTCODE is stated by a case's (or every scenario's) "startcode"; a case that leaves one scenario
+    without it, or states none, keeps the gap. USERID stays a gap either way."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", startcode="TD", scenarios=list(sc))
+    case(cases, "each", "k", "src/e.cbl", scenarios=[{**x, "startcode": "S"} for x in sc])
+    case(cases, "part", "k", "src/p.cbl", scenarios=[{"name": "a", "startcode": "TD"}, {"name": "b"}])
+    case(cases, "none", "k", "src/n.cbl", scenarios=list(sc))
+    case(cases, "noscen", "k", "src/s.cbl", startcode="TD")
+    runs = pb.equivalence_runs(cases)
+    stated = {c: runs[("k", f"src/{f}.cbl")][0].startcode for c, f in
+              (("top", "t"), ("each", "e"), ("part", "p"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
+    assert stated == {"top": True, "each": True, "part": False, "none": False, "noscen": False}
+    facts = {"eib": set(), "assign_task": {"STARTCODE", "USERID"}, "assign_region": set()}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", startcode=True)) == {
+        "fact: ASSIGN USERID (no equivalence case states it)"
+    }
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {
+        "fact: ASSIGN USERID (no equivalence case states it)",
+        "fact: ASSIGN STARTCODE (no equivalence case states it)",
+    }
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k", startcode=True)) == set()  # the runner states both
+
+
 def test_facts_are_names_only():
     f = pb.facts_needed(fixed("    MOVE EIBTASKN TO A", "    MOVE EIBCALEN TO B",
                               "    EXEC CICS ASSIGN SYSID(S) SCRNHT(H) END-EXEC."))  # fmt: skip

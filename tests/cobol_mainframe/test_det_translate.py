@@ -1432,10 +1432,16 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
         ", 1, 0, CS);"
     )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ct = c.command("WEB SEND CONTAINER(KEY) CHANNEL(REC) MEDIATYPE(REC) ACTION(R2) SRVCONVERT NOHANDLE", "")
+    assert ".webSendContainer(REC.strip(), KEY.strip(), Cobol.text(" in ct[0] and ct[0].endswith(
+        ", 1, CS);"
+    )  # (#5037 X37: a container's data)
+    cc = c.command("WEB SEND CONTAINER(KEY) ACTION(R2) NOHANDLE", "")
+    assert ".webSendContainer(null, " in cc[0]  # (no CHANNEL: the current channel)
     ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
     assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
-    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs exactly one of FROM"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
@@ -1444,7 +1450,16 @@ def test_web_send_is_the_response_to_the_stated_request():
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) FROM(REC) FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND CONTAINER(KEY) DOCTOKEN(KEY)", "needs exactly one of FROM"),
+                     ("WEB SEND CHANNEL(KEY) FROM(REC) FROMLENGTH(R)", "CHANNEL without CONTAINER"),
+                     ("WEB SEND CONTAINER(KEY) CHUNKING(R)", "chunked response"),
+                     ("WEB SEND CONTAINER(KEY) HOSTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLNTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) LENGTH(R)", "LENGTH is kept for upgrade only")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 

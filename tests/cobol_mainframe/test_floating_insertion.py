@@ -105,6 +105,7 @@ def test_decimal_comma_floats_across_the_period(tmp_path):
     )
     subprocess.run([javac, "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))],
                    check=True)  # fmt: skip
-    run = subprocess.run([java, "-cp", str(tmp_path), "com.test.entity.vsam.Runner"], capture_output=True,
-                         text=True, check=True)  # fmt: skip
-    assert run.stdout.splitlines() == ["[ $1.234,50]", "[    $34,50]"]
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
+    run = subprocess.run([java, "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path),
+                          "com.test.entity.vsam.Runner"], capture_output=True, check=True)  # fmt: skip
+    assert run.stdout.decode("utf-8").splitlines() == ["[ $1.234,50]", "[    $34,50]"]

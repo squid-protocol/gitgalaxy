@@ -1183,7 +1183,48 @@ public class CicsTask {
             throw refused("WEB SEND length beyond its area");
         }
         return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv, false,
-                null, 0);
+                null, 0, null);
+    }
+
+    /** WEB SEND CONTAINER(container) [CHANNEL(channel)] [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area)
+     *  [STATUSLEN(n)]] [SRVCONVERT | NOSRVCONVERT] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body
+     *  is the container's data as it is now, recorded as WEB-SEND. IBM: "If the CONTAINER option is specified, CHANNEL is
+     *  optional" (omitted: the current channel); CONTAINERERR RESP2 2 (container not found), CHANNELERR RESP2 2 (channel not
+     *  found), INVREQ RESP2 145 (no CHANNEL and no current channel), INVREQ RESP2 150 (conversion requested of a DATATYPE BIT
+     *  container). Refused: an empty container, and a BIT container sent as it is (IBM does not say what an empty body
+     *  is, and a body of bytes is not compared as text); `cs` is the program's character set. */
+    public int[] webSendContainer(String channel, String container, String mediaType, int action, int status,
+                                  String statusText, int statusLength, int conv, java.nio.charset.Charset cs) {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        if (r.webSent) {
+            throw refused("WEB SEND after a response was sent");
+        }
+        if ((statusText != null && statusLength == 0) || statusLength < -1) {
+            throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+        }
+        if (statusText != null && statusLength > statusText.length()) {
+            throw refused("WEB SEND length beyond its area");
+        }
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        int[] pre = null;
+        Container k = null;
+        if (ch == null) {
+            pre = channel == null ? new int[] {16, 145} : new int[] {122, 2};
+        } else if ((k = ch.containers.get(name)) == null) {
+            pre = new int[] {110, 2};
+        } else if (conv != 0 && k.bit) {
+            pre = new int[] {16, 150};
+        } else if (k.data.length == 0) {
+            throw refused("WEB SEND of an empty container");
+        } else if (k.bit) {
+            throw refused("WEB SEND of a DATATYPE BIT container");
+        }
+        return webSendBody(pre != null ? "" : new String(k.data, cs), mediaType, action, status, statusText, statusLength,
+                conv, false, null, 0, pre);
     }
 
     /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
@@ -1209,13 +1250,13 @@ public class CicsTask {
         }
         r.webDocToken = doctoken.stripTrailing();
         return webSendBody(doc == null ? "" : new String(doc, cs), mediaType, action, status,
-                statusText, statusLength, conv, true, doc, docStatus);
+                statusText, statusLength, conv, true, doc, docStatus, null);
     }
 
     private String webDocToken;  // (the token webSendDocument is sending: webSendBody deletes its document on DOCDELETE)
 
     private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
-                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus) {
+                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus, int[] pre) {
         CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
@@ -1232,6 +1273,9 @@ public class CicsTask {
             throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (pre != null) {
+            c.add(pre);  // a container send's own conditions (CONTAINERERR / CHANNELERR / INVREQ 145 / 150)
+        }
         if (ofDocument && doc == null) {
             c.add(new int[] {13, 1});  // the document has not been created, or has been deleted, or the name is wrong
         }

@@ -1278,7 +1278,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   time: a PUT naming the other data type for an existing container (IBM says DATATYPE "applies only to new
   containers" and also lists INVREQ RESP2 33 for "an attempt ... to change the data-type"); a channel an XCTL left
   behind (IBM's scope tables do not say); an FLENGTH past FROM / INTO, or a negative one on GET; a name that is
-  blank or has an embedded blank (IBM's "illegal character" rules are not modelled).
+  blank, longer than 16, or holds a character outside IBM's set on a command whose page says nothing of one (GET /
+  DELETE CONTAINER, LINK / XCTL CHANNEL, the browse and MOVE commands); a name holding & < or the not sign (RUN
+  TRANSID's page allows them in a channel name, PUT CONTAINER's does not); on PUT CONTAINER, two illegal names, or an
+  illegal one with a negative FLENGTH or no channel in scope (which condition IBM raises first is not documented).
+- **Names (#4950).** PUT CONTAINER (CHANNEL) documents the set: "A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _.
+  Leading and embedded blank characters are not permitted", with CHANNELERR RESP2 1 for an illegal CHANNEL name and
+  CONTAINERERR RESP2 18 for an illegal CONTAINER name. Both runtimes model exactly that (before, any name with no blank
+  was accepted, `^` or `~` included). The other commands' pages give no set and no condition.
 - **Reached.** cics-crucible ca-channel-containers (2 scenarios: CHAR / BIT / APPEND, LINK and XCTL CHANNEL, the
   current channel, truncation and LENGERR, NODATA, CONTAINERERR / CHANNELERR / INVREQ by RESP and by HANDLE
   CONDITION, AEZJ by default), cobol-stub and the det port both passing the hand-written logs (crucible branch

@@ -551,7 +551,7 @@ public class Cotrn00cService {
         // ---------------------------------------------------------------- STARTBR-TRANSACT-FILE
         void startbrTransact() {
             resp = task.startbr(FILE, rec.getTranId(), false, this::tranKeys);
-            reas = 0;   // RESP2 is not given by the task
+            reas = task.resp2();
             if (resp == 0) {
                 // CONTINUE
             } else if (resp == 13) {
@@ -568,7 +568,7 @@ public class Cotrn00cService {
         void readnextTransact() {
             CicsTask.Browsed b = task.readnext(FILE, rec.getTranId());
             resp = b.resp();
-            reas = 0;
+            reas = b.resp2();
             if (resp == 0) {
                 loadRecord(b.key());
             } else if (resp == 20) {
@@ -585,7 +585,7 @@ public class Cotrn00cService {
         void readprevTransact() {
             CicsTask.Browsed b = task.readprev(FILE, rec.getTranId());
             resp = b.resp();
-            reas = 0;
+            reas = b.resp2();
             if (resp == 0) {
                 loadRecord(b.key());
             } else if (resp == 20) {

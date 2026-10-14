@@ -1237,6 +1237,17 @@ def test_delete_and_query_channel_answer_with_channelerr_and_the_count():
         _ChanCics().command("DELETE CHANNEL(CH) CONTAINERTYPE(X)", "")
 
 
+def test_inquire_container_is_refused_by_name_whatever_its_options():
+    """#5005 / X44: IBM documents INQUIRE CONTAINER only for a BTS data-container, so a channel form (CHANNEL,
+    BROWSETOKEN, START / NEXT / END) and the BTS options alike are refused at translation, with the reason."""
+    for opts in ("", "(CN)", "(CN) CHANNEL(CH)", "(CN) BROWSETOKEN(TK)", " START CHANNEL(CH) BROWSETOKEN(TK)",
+                 " NEXT BROWSETOKEN(TK)", " END BROWSETOKEN(TK)", "(CN) DATALENGTH(FL)", "(CN) SET(PTR)",
+                 "(CN) ACTIVITYID(ID) DATALENGTH(FL)", "(CN) PROCESS(PN) PROCESSTYPE(PT) SET(PTR) RESP(R)",
+                 "(CN) CHANNEL(CH) NOHANDLE"):  # fmt: skip
+        with pytest.raises(C.CicsError, match="INQUIRE CONTAINER.*only for a BTS data-container.*no channel form"):
+            _ChanCics().command(f"INQUIRE CONTAINER{opts}", "")
+
+
 def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
     """IBM, LINK / XCTL CHANNEL: the channel is "made available to the called program" as its current channel;
     ASSIGN CHANNEL returns its name (blanks without one). CHANNEL beside COMMAREA is refused."""

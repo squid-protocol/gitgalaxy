@@ -273,6 +273,40 @@ def test_a_whole_command_refusal_names_its_reason():
     assert whole_refusal("INQUIRE", "INQUIRE FILE", None) is None
 
 
+def test_inquire_container_is_refused_whole_in_every_form():
+    """#5005 / X44: IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE /
+    DATALENGTH / SET), with no CHANNEL, BROWSETOKEN or START / NEXT / END form, so every option set is refused by name
+    and the reason says why (the channel browse is STARTBROWSE CONTAINER, X42; a length is GET CONTAINER NODATA)."""
+    from gitgalaxy.standards.cics.commands import whole_refusal
+
+    c = COMMANDS["INQUIRE CONTAINER"]
+    assert c.status == "refused" and not c.options and not c.outcomes
+    for first in (
+        None,
+        "CONTAINER",
+        "CHANNEL",
+        "BROWSETOKEN",
+        "START",
+        "NEXT",
+        "END",
+        "DATALENGTH",
+        "SET",
+        "ACTIVITYID",
+        "PROCESS",
+        "PROCESSTYPE",
+        "NODATA",
+        "FLENGTH",
+    ):
+        r = whole_refusal("INQUIRE", "INQUIRE CONTAINER", first)
+        assert r is not None and r.key == "INQUIRE CONTAINER", first
+        msg = r.whole_message("INQUIRE CONTAINER")
+        assert "only for a BTS data-container" in msg and "no channel form" in msg, first
+        assert "STARTBROWSE CONTAINER" in msg and "NODATA FLENGTH" in msg, first
+    # the neighbours are untouched: the browse is modelled, and the other INQUIREs keep their own entries
+    for key in ("STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER", "QUERY CHANNEL"):
+        assert COMMANDS[key].status == "modelled", key
+
+
 def test_group_lookup():
     assert COMMANDS["START"].group("required", "TRANSID").msg == "START without TRANSID"
     with pytest.raises(KeyError):

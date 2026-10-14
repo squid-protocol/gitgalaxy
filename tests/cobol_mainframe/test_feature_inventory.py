@@ -16,6 +16,26 @@ CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / 
 
 
 SNIPPETS = {
+    "era_mixed": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 BLL-CELLS PIC X.
+       PROCEDURE DIVISION.
+           EXEC CICS HANDLE CONDITION NOTFND(E1) END-EXEC.
+           EXEC CICS PUT CONTAINER('C') CHANNEL('CH')
+               FROM(BLL-CELLS) END-EXEC.
+           GOBACK.
+""",
+    "era_unparsed": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY NOSUCHCPY.
+       PROCEDURE DIVISION.
+           EXEC SQL COMMIT END-EXEC.
+           GOBACK.
+""",
     "statements": "       ID DIVISION.\n       PROGRAM-ID. P.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC 9.\n       PROCEDURE DIVISION.\n           ADD 1 TO X.\n           GOBACK.\n",
     "data_types": """       ID DIVISION.
        PROGRAM-ID. P.
@@ -123,6 +143,20 @@ def test_data_types(synthetic):
     assert has(inv, "data_types", "NATIONAL", "data_types")  # noqa: S101
 
 
+def test_era_tags(synthetic):
+    """#5117: every scanned program is tagged, a mixed one says so, and a program the parser refuses is still tagged."""
+    eras = synthetic[2]["eras"]
+    assert sorted(eras["programs"]) == sorted(f"{n}.cbl" for n in SNIPPETS)  # noqa: S101
+    mixed = eras["programs"]["era_mixed.cbl"]
+    assert (mixed["era"], mixed["earliest"], mixed["mixed"]) == (4, 1, True)  # noqa: S101
+    unparsed = eras["programs"]["era_unparsed.cbl"]
+    assert (unparsed["era"], unparsed["mixed"]) == (2, False)  # noqa: S101
+    assert "era_unparsed.cbl" in {u["program"] for u in synthetic[2]["unparsed_programs"]}  # noqa: S101
+    assert eras["programs"]["statements.cbl"]["era"] is None  # noqa: S101
+    s = eras["summary"]
+    assert s["programs"] == len(SNIPPETS) and s["mixed"] == 1 and s["by_era"]["4"] == 1  # noqa: S101
+
+
 def test_cics_commands_and_options(synthetic):
     inv = synthetic[2]
     assert has(inv, "cics_commands", "SEND TEXT", "cics_commands_and_options")  # noqa: S101
@@ -164,7 +198,15 @@ def test_fallback(synthetic):
     assert has(inv, "statements", "GOBACK", "fallback")  # noqa: S101
 
 
-TYPES = {"object": dict, "array": list, "string": str, "integer": int, "number": (int, float), "boolean": bool}
+TYPES = {
+    "object": dict,
+    "array": list,
+    "string": str,
+    "integer": int,
+    "number": (int, float),
+    "boolean": bool,
+    "null": type(None),
+}
 
 
 def check_schema(data, node, root, where="$"):
@@ -174,8 +216,9 @@ def check_schema(data, node, root, where="$"):
         node = root["$defs"][node["$ref"].split("/")[-1]]
     t = node.get("type")
     if t:
-        assert isinstance(data, TYPES[t]) and not (t == "integer" and isinstance(data, bool)), f"{where}: not {t}"  # noqa: S101
-    if "minimum" in node:
+        ok = [x for x in ([t] if isinstance(t, str) else t) if isinstance(data, TYPES[x])]
+        assert ok and not (ok == ["integer"] and isinstance(data, bool)), f"{where}: not {t}"  # noqa: S101
+    if "minimum" in node and data is not None:
         assert data >= node["minimum"], f"{where}: below {node['minimum']}"  # noqa: S101
     if isinstance(data, dict):
         for k in node.get("required", []):
@@ -200,6 +243,23 @@ def test_schema_over_fixtures():
     assert len(fixtures) == 6  # noqa: S101 -- one per burned estate
     for f in fixtures:
         check_schema(json.loads(f.read_text()), schema, schema, f.name)
+    for f in fixtures:  # #5117: every program the inventory counts has an era tag, and the summary adds up
+        d = json.loads(f.read_text())
+        counted = {
+            p
+            for c, v in d.items()
+            if c
+            not in (
+                "eras",
+                "unparsed_programs",
+                "refusal_families",
+            )  # (#5121: assembler members carry no COBOL era tag)
+            for x in v.values()
+            for p in x["programs"]
+        }
+        assert counted <= set(d["eras"]["programs"]), f.name  # noqa: S101
+        s = d["eras"]["summary"]
+        assert s["programs"] == len(d["eras"]["programs"]) == sum(s["by_era"].values()), f.name  # noqa: S101
     with pytest.raises(AssertionError):
         check_schema({"statements": "not an object"}, schema, schema)
 

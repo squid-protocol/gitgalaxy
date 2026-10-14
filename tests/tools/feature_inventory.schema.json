@@ -11,6 +11,7 @@
     "compile_options": { "$ref": "#/$defs/category" },
     "copybook_resolution_gaps": { "$ref": "#/$defs/category" },
     "refusal_families": { "$ref": "#/$defs/family_category" },
+    "eras": { "$ref": "#/$defs/eras" },
     "unparsed_programs": {
       "type": "array",
       "items": {
@@ -32,10 +33,56 @@
     "intrinsic_functions",
     "compile_options",
     "copybook_resolution_gaps",
+    "eras",
     "unparsed_programs"
   ],
   "additionalProperties": false,
   "$defs": {
+    "eras": {
+      "type": "object",
+      "properties": {
+        "programs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "era": { "type": ["integer", "null"], "minimum": 0 },
+              "earliest": { "type": ["integer", "null"], "minimum": 0 },
+              "mixed": { "type": "boolean" },
+              "tells": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tell": { "type": "string" },
+                    "era": { "type": "integer", "minimum": 0 },
+                    "count": { "type": "integer", "minimum": 1 },
+                    "first_line": { "type": ["integer", "null"], "minimum": 1 }
+                  },
+                  "required": ["tell", "era", "count", "first_line"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["era", "earliest", "mixed", "tells"],
+            "additionalProperties": false
+          }
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "programs": { "type": "integer", "minimum": 0 },
+            "by_era": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+            "mixed": { "type": "integer", "minimum": 0 },
+            "tells": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+          },
+          "required": ["programs", "by_era", "mixed", "tells"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["programs", "summary"],
+      "additionalProperties": false
+    },
     "category": {
       "type": "object",
       "additionalProperties": {

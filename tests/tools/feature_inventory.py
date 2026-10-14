@@ -22,6 +22,7 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import source as S  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import stmt as ST  # noqa: E402
 from tests.tools.det_survey import copy_dirs  # noqa: E402
+from tests.tools.era_tags import summarise, tag_program  # noqa: E402
 
 SCHEMA_FILE = TOOLS / "feature_inventory.schema.json"
 
@@ -189,6 +190,12 @@ def census_lines(lines: list[S.Line]) -> tuple[list[S.Line], bool]:
 def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_copy_dirs: list[Path]):
     rel_prog = str(prog.relative_to(estate_dir)).replace("\\", "/")
 
+    # 0. Era tag (#5117): from the raw text, so a program the parser refuses is tagged too
+    try:
+        inv.setdefault("eras", {})[rel_prog] = tag_program(read_source(prog).text)
+    except Exception:
+        inv.setdefault("eras", {})[rel_prog] = {"era": None, "earliest": None, "mixed": False, "tells": []}
+
     # 1. Compile options
     try:
         source_text = read_source(prog).text
@@ -301,6 +308,7 @@ def scan_estate(estate_dir: Path, db_dir: Path) -> dict:
     for cat in inv:
         inv[cat]["unknown"] = {"count": 0, "programs": set()}
     inv["unparsed_programs"] = []
+    inv["eras"] = {}
 
     print(f"Scanning estate: {estate_dir.name}", file=sys.stderr)
     db_path = scan_to_db(estate_dir, db_dir)
@@ -340,13 +348,15 @@ def scan_estate(estate_dir: Path, db_dir: Path) -> dict:
     # Convert sets to sorted lists, sort dict keys
     out = {}
     for cat in sorted(inv.keys()):
-        if cat == "unparsed_programs":
+        if cat in ("unparsed_programs", "eras"):
             continue
         out[cat] = {}
         for k in sorted(inv[cat].keys()):
             # Always ensure "unknown" is present, already did via template
             out[cat][k] = {"count": inv[cat][k]["count"], "programs": sorted(inv[cat][k]["programs"])}
 
+    tags = {p: inv["eras"][p] for p in sorted(inv["eras"])}
+    out["eras"] = {"programs": tags, "summary": summarise(tags)}
     out["unparsed_programs"] = sorted(inv["unparsed_programs"], key=lambda x: x["program"])
     return out
 
@@ -371,10 +381,10 @@ def main():
         if jsonschema:
             jsonschema.validate(instance=data, schema=schema)
         else:
-            if "unparsed_programs" not in data:
+            if "unparsed_programs" not in data or "eras" not in data:
                 raise ValueError
             for cat in data:
-                if cat == "unparsed_programs":
+                if cat in ("unparsed_programs", "eras"):
                     continue
                 if "unknown" not in data[cat] and cat != "refusal_families":
                     raise ValueError

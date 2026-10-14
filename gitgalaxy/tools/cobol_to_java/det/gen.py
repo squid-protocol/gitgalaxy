@@ -440,7 +440,8 @@ class Gen:
 
     def osvs_length(self, e: E.LengthOf) -> int:
         it = self.resolve(e.ref)
-        return it.size if e.ref.subscripts else it.size * it.occurs  # #5076: TERM-LINES(1) is one element, not the table
+        # #5076: TERM-LINES(1) is one element, not the table
+        return it.size if e.ref.subscripts else it.size * it.occurs
 
     @contextlib.contextmanager
     def osvs_plan(self, plan: dict):

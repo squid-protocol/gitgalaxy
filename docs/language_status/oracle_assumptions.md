@@ -1377,14 +1377,36 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   re-run as a process of its own -- GGCCHLD names its program, `childprogs.cfg` the case's `child_programs` -- its
   end state in end.txt / reply.cfg) and CicsTask (`dispatchChildren`, `delay`, `fetch`, `freeChild`); a child's events
   are one CHILD event, compared as a task's (`equivalence_cics.compare_events`).
+  **#5089: nested RUN TRANSID (ASSUMED where IBM is silent).** IBM's RUN TRANSID page puts no restriction on who may
+  issue it ("The started task (child task) runs asynchronously with the starting task (parent task)"; "The parent task
+  will get a response back when the API command FETCH CHILD or FETCH ANY is issued"), and IBM's Redbook (SG24-8411)
+  describes a parent that may "initiate further child tasks"; its FETCH CHILD page says only that the token "will have
+  been returned from the RUN TRANSID command", INVREQ RESP2 50 for data that "is not a valid child token". The model: a
+  RUN child is a task like its parent (the same rules, at every level, each task with its own children, tokens and
+  scheduling clock). A child's RUN / FETCH / FREE CHILD concern only the tasks it started: its FETCH ANY with none is
+  INVREQ 52, a token that is not one of its own is INVREQ 50 (ASSUMED: IBM does not say whether a token is valid in a
+  task that did not receive it; tokens are per task here), and a grandchild is dispatched at its parent's wait,
+  completing at that instant plus its own DELAYs on its parent's clock, so the child completes at its own dispatch plus
+  every wait it made (a FETCH ANY at the root sees a child that fetched a slow grandchild as slow). A child that never
+  waits ends with its children not run, as a parent does (a parent that never FETCHes cannot tell, SPEC 4). The nested
+  events are the child's own, in its CHILD event: its RUN, its CHILD events (the grandchildren it dispatched) and its
+  FETCH / FREE CHILD, compared as a whole. EIBTASKN of a descendant is its parent's plus its RUN number (a stated
+  fact, as at the first level: two tasks at different depths may share one number). The depth is bounded at 3
+  generations below a task (child, grandchild, great-grandchild; a RUN from a task at depth 3 is refused by name; IBM
+  states no bound). Both sides: `ggcics.c` (a child process forks its own children, `$GGCICS_DEPTH`) and CicsTask
+  (`runTransid`, `dispatchChildren`). Pinned by `test_cics_runtimes.py` `nested-*` schedules (both runtimes, one
+  script: unfetched, fetched, two grandchildren and their completion order at the root, FETCH CHANNEL of a
+  grandchild, TRANSIDERR, an abended grandchild, NOSUSPEND, TIMEOUT, a tie, a foreign token, FREE CHILD, depth 3 and
+  the depth cap) and by the case `asynccc-asyncpnt` (ASYNCPNT's STUS child CSSTATS2 RUNs GETP / SPND).
   A START's FROM bytes travel in the region's page, as a TS item's (#4528).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
   time): a FETCH whose answer turns on a child completing at the very instant its parent resumed (a tie); FETCH TIMEOUT
   outside 0 to 4080000 ms (IBM's FETCH ANY and FETCH CHILD pages differ); a second FETCH CHILD of a fetched child (INVREQ
   51 is for its channel), FREE CHILD of a fetched one, FETCH CHANNEL of a child that left no current channel; a child
   that went on after an abend (HANDLE ABEND: its completion status); a dispatched child's command on a region resource
-  or a terminal (only RETURN / ABEND / LINK / XCTL are recorded; ENQ / DEQ / counters / SQL, which leave no event, are
-  refused when the case is built) and its RUN TRANSID (a grandchild); a child whose transaction the case runs no
+  or a terminal (only RETURN / ABEND / LINK / XCTL, and its own RUN / FETCH / FREE CHILD and its children's CHILD, are
+  recorded; ENQ / DEQ / counters / SQL, which leave no event, are refused when the case is built) and a RUN TRANSID
+  3 generations below the issuing task (a great-great-grandchild: the depth the harness states); a child whose transaction the case runs no
   program for; a DELAY TIME, or a DELAY out of range, in a task with children or in a child; a CHANNEL name starting
   DFH; an undefined transaction together with an incorrect CHANNEL name (which condition comes first); START CHANNEL of
   a channel not in scope; START USERID / SYSID / NOCHECK / ATTACH / BREXIT / FMH; RETRIEVE SET (a pointer)

@@ -29,7 +29,9 @@ from gitgalaxy.standards.cics.model import (
 
 _NAME = Arg("name", width=16)  # "the name (1 - 16 characters)"
 
-# what every container command refuses while running: a channel an XCTL left behind, an illegal name
+# what every container command refuses while running: a channel an XCTL left behind, an illegal name (PUT CONTAINER
+# alone has IBM's CHANNELERR 1 / CONTAINERERR 18 for one: its page gives the name's character set; the others' pages say
+# nothing of one)
 _SCOPE = RuntimeRefusal(
     "a channel an XCTL left behind: IBM's scope tables do not say",
     "X17",
@@ -37,10 +39,16 @@ _SCOPE = RuntimeRefusal(
     c="channel %s after an XCTL that did not pass it",
 )
 _ILLEGAL_NAME = RuntimeRefusal(
-    "a channel / container name that is blank or has an embedded blank (IBM's illegal-character rules)",
+    "a channel / container name that is blank, longer than 16 or holds a character outside IBM's set (A-Z a-z 0-9 $ @ # / % ? ! : | \" = , ; > . - _, no leading or embedded blank), on a command whose page says nothing of one",
     "X17",
     java=" name '\" + name + \"': not modelled",
     c="%s name '%s'",
+)
+_DISPUTED_NAME = RuntimeRefusal(
+    "a channel / container name holding & < or the not sign: RUN TRANSID's page allows them, PUT CONTAINER's does not",
+    "X17",
+    java="holds & < or a not sign: IBM's RUN ",
+    c="holds & < or a not sign: IBM's RUN TRANSID",
 )
 _CONTAINER_IMPL = {"translator": "Cics.container", "harness": "_container_command"}
 
@@ -75,10 +83,27 @@ PUT_CONTAINER = Command(
         Outcome("INVREQ", 4, "no CHANNEL and no current channel"),
         Outcome("INVREQ", 1, "no CHANNEL and no current channel, with a data type named"),
         Outcome("LENGERR", 1, "FLENGTH below zero"),
+        Outcome(
+            "CHANNELERR", 1, "the CHANNEL name contains an illegal character or combination", raised_by=("CHANNEL",)
+        ),
+        Outcome(
+            "CONTAINERERR",
+            18,
+            "the CONTAINER name contains an illegal character or combination",
+            raised_by=("CONTAINER",),
+        ),
     ),
     runtime_refusals=(
         _SCOPE,
         _ILLEGAL_NAME,
+        _DISPUTED_NAME,
+        RuntimeRefusal(
+            "an illegal CONTAINER and CHANNEL name together, or one with a negative FLENGTH or no channel: which condition "
+            "IBM raises first is not documented",
+            "X17",
+            java="which condition IBM raises first is not documented",
+            c="which condition IBM raises first is not documented",
+        ),
         RuntimeRefusal(
             "a data type named for an existing container of the other type: ignored, or INVREQ RESP2 33?",
             "X17",
@@ -128,6 +153,7 @@ GET_CONTAINER = Command(
     runtime_refusals=(
         _SCOPE,
         _ILLEGAL_NAME,
+        _DISPUTED_NAME,
         RuntimeRefusal(
             "an FLENGTH past INTO's end, or below zero",
             "X17",
@@ -153,7 +179,7 @@ DELETE_CONTAINER = Command(
         Outcome("INVREQ", 4, "issued outside the scope of a currently-active channel"),
         Outcome("CONTAINERERR", 10, "the channel has no such container"),
     ),
-    runtime_refusals=(_SCOPE, _ILLEGAL_NAME),
+    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME),
     state=("channel_scope", "handle_table"),
     engine=EngineFacts(resource="CONTAINER", access="delete"),
     impl=Impl(java="deleteContainer", c="GGCDELC", **_CONTAINER_IMPL),
@@ -181,6 +207,7 @@ MOVE_CONTAINER = Command(
     runtime_refusals=(
         _SCOPE,
         _ILLEGAL_NAME,
+        _DISPUTED_NAME,
         RuntimeRefusal(
             "a container moved onto itself (the same name in the same channel): IBM does not say",
             "X42",
@@ -222,6 +249,7 @@ STARTBROWSE_CONTAINER = Command(
     runtime_refusals=(
         _SCOPE,
         _ILLEGAL_NAME,
+        _DISPUTED_NAME,
         RuntimeRefusal(
             "no CHANNEL and no current channel: IBM treats the command as the BTS form, which is not modelled",
             "X42",
@@ -282,6 +310,7 @@ DELETE_CHANNEL = Command(
     runtime_refusals=(
         _SCOPE,
         _ILLEGAL_NAME,
+        _DISPUTED_NAME,
         RuntimeRefusal(
             "the program's current channel: IBM gives CHANNELERR RESP2 4 (current), 5 (transaction channel) or 6 (not "
             "owned by the calling program), and a channel a program is passed is all of them, unranked",
@@ -309,7 +338,7 @@ QUERY_CHANNEL = Command(
         Outcome("NORMAL", 0, "", writes=("CONTAINERCNT",)),
         Outcome("CHANNELERR", 2, "the channel named on CHANNEL could not be found"),
     ),
-    runtime_refusals=(_SCOPE, _ILLEGAL_NAME),
+    runtime_refusals=(_SCOPE, _ILLEGAL_NAME, _DISPUTED_NAME),
     state=("channel_scope", "handle_table"),
     impl=Impl(java="queryChannel", c="GGCQCHN", **_CHANNEL_IMPL),
 )

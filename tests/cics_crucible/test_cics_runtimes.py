@@ -1797,7 +1797,7 @@ def test_cics_task_moves_containers_and_browses_a_channel_as_the_stub_does(tmp_p
             "browsed channel changed during the browse",
         ),
         ('start("s", "");', "STARTBROWSE CONTAINER with no channel"),
-        ('put("CH1", " A", "a", "CHANNEL");', "container name"),
+        ('put("CH1", " A", "a", "CHANNEL");', "illegal CONTAINER name and a channel not in scope"),
     ],
 )
 def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, steps, why):
@@ -1843,7 +1843,10 @@ def test_the_stub_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, step
             "browsed channel changed during the browse",
         ),
         ("t.startBrowseContainer(null);", "STARTBROWSE CONTAINER with no channel"),
-        ('t.putContainer("CH1", " A", "a".getBytes(), 1, null, false);', "container name"),
+        (
+            't.putContainer("CH1", " A", "a".getBytes(), 1, null, false);',
+            "illegal CONTAINER name and a channel not in scope",
+        ),
     ],
 )
 def test_cics_task_refuses_what_ibm_leaves_open_on_move_and_browse(tmp_path, steps, why):
@@ -5781,3 +5784,170 @@ def test_no_stub_runs_with_a_posix_only_env():
     """A stub started with a literal POSIX PATH and no SYSTEMROOT cannot start on Windows (#5055): every env
     comes from `_stub_base_env()`, so the one literal lives in that helper."""
     assert len(re.findall(r'"PATH":\s*"/usr/bin:/bin"', Path(__file__).read_text(encoding="utf-8"))) == 1
+
+
+# ---- #4950: channel and container names (IBM, PUT CONTAINER (CHANNEL): CHANNEL / CONTAINER) -------------------------
+# IBM's PUT CONTAINER page: "The acceptable characters are A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _. Leading
+# and embedded blank characters are not permitted"; CHANNELERR RESP2 1 / CONTAINERERR RESP2 18 for an illegal name.
+# The other container commands' pages say nothing of one (refused); RUN TRANSID's page lists & < and the not sign too,
+# PUT CONTAINER's does not (refused by name). Both runtimes must agree on all of it.
+_IBM_NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#/%?!:|"=,;>.-_'
+_LEGAL_NAMES = [_IBM_NAME_CHARS[i : i + 16] for i in range(0, len(_IBM_NAME_CHARS), 16)] + ["A", "Z9", "a.b-c_d"]
+_ILLEGAL_NAMES = ["A^B", "A B", " AB", "A~", "A[", "A{", "A\\", "A'", "A`", "A*", "A(", "A+", "A\xe9"]  # (a leading
+# blank is "not permitted" too; an accented byte is no IBM character)
+_DISPUTED_NAMES = ["A&B", "A<B", "A\xacB"]
+
+
+def _c_lit(s: str) -> str:
+    return '"' + "".join(c if c.isalnum() and c.isascii() else "\\%03o" % ord(c) for c in s) + '"'
+
+
+def _j_lit(s: str) -> str:  # (octal: a \u escape is read before the string is, so \u0022 would end it)
+    return _c_lit(s)
+
+
+_NAME_MAIN_HEAD = _CONT_MAIN.split("int main(void) {")[0]
+
+
+def _name_stub(body: str) -> str:
+    return (
+        _NAME_MAIN_HEAD
+        + 'int main(void) {\n    char into[16], *area = NULL;\n    blank(c.name1, 8, "MAIN"); c.len = 0; GGCTASK(&c); '
+        + "GGCNEXT(&c, &area);\n"
+        + body
+        + "\n    return 0;\n}\n"
+    )
+
+
+@needs_cc
+def test_the_stub_put_container_takes_ibms_name_characters_and_raises_ibms_conditions(tmp_path):
+    """#4950: every IBM character is accepted in a CONTAINER and a CHANNEL name; any other (a leading or embedded blank
+    included) is CONTAINERERR 18 / CHANNELERR 1 and creates nothing."""
+    body = "".join(
+        f'op({_c_lit(n)}, "CH1", "CHANNEL", 1); GGCPUTC(&c, "x"); printf("{i} %d/%d\\n", c.resp, c.resp2);\n'
+        f'op("K", {_c_lit(n)}, "CHANNEL", 1); GGCPUTC(&c, "x"); printf("{i}c %d/%d\\n", c.resp, c.resp2);\n'
+        for i, n in enumerate(_LEGAL_NAMES)
+    )
+    base = len(_LEGAL_NAMES)
+    body += "".join(
+        f'op({_c_lit(n)}, "CH1", "CHANNEL", 1); GGCPUTC(&c, "x"); printf("{base + i} %d/%d\\n", c.resp, c.resp2);\n'
+        f'op("K", {_c_lit(n)}, "CHANNEL", 1); GGCPUTC(&c, "x"); printf("{base + i}c %d/%d\\n", c.resp, c.resp2);\n'
+        for i, n in enumerate(_ILLEGAL_NAMES)
+    )
+    # with no CHANNEL option the current channel (here the one LINK passes) takes the PUT
+    body += (
+        'blank(c.name1, 8, "SUB"); c.item = 0; c.len = 0; blank(c.flags, 40, "CHANNEL"); blank(c.chan, 16, "CH1");'
+        " GGCLINK(&c, NULL); GGCNEXT(&c, &area);\n"
+        f'op({_c_lit("A^B")}, "", "", 1); GGCPUTC(&c, "x"); printf("cur %d/%d\\n", c.resp, c.resp2);\n'
+    )
+    out = _run_stub(_stub(tmp_path, _name_stub(body)), tmp_path)
+    legal = [f"{i}{s} 0/0" for i in range(len(_LEGAL_NAMES)) for s in ("", "c")]
+    bad = [f"{base + i}{s} {'110/18' if not s else '122/1'}" for i in range(len(_ILLEGAL_NAMES)) for s in ("", "c")]
+    assert out == legal + bad + ["cur 110/18"]
+
+
+@needs_cc
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        *[
+            (f'op({_c_lit(n)}, "CH1", "CHANNEL", 1); GGCPUTC(&c, "x");', "holds & < or a not sign")
+            for n in _DISPUTED_NAMES
+        ],
+        *[
+            (f'op("K", {_c_lit(n)}, "CHANNEL", 1); GGCPUTC(&c, "x");', "holds & < or a not sign")
+            for n in _DISPUTED_NAMES
+        ],
+        *[
+            (f'op({_c_lit(n)}, "CH1", "CHANNEL", 4); GGCGETC(&c, into);', "holds & < or a not sign")
+            for n in _DISPUTED_NAMES
+        ],
+        ('op("A^", "CH1", "CHANNEL", 4); GGCGETC(&c, into);', "container name 'A^'"),
+        ('op("A^", "CH1", "CHANNEL", 0); GGCDELC(&c);', "container name 'A^'"),
+        ('op("K", "A^", "CHANNEL", 4); GGCGETC(&c, into);', "channel name 'A^'"),
+        ('op("K", "A B", "CHANNEL", 0); GGCDELC(&c);', "channel name 'A B'"),
+        ('op("A^", "B^", "CHANNEL", 1); GGCPUTC(&c, "x");', "which condition IBM raises first is not documented"),
+        ('op("A^", "CH1", "CHANNEL", -1); GGCPUTC(&c, "x");', "negative FLENGTH"),
+        ('op("A^", "", "", 1); GGCPUTC(&c, "x");', "and no channel"),
+        ('op("A^", "NOPE", "CHANNEL", 1); GGCPUTC(&c, "x");', "channel not in scope"),
+    ],
+)
+def test_the_stub_refuses_what_ibm_leaves_open_on_container_names(tmp_path, steps, why):
+    """#4950: a name holding & < or the not sign (IBM's two pages disagree), an illegal name on a command whose page
+    says nothing of one (GET / DELETE CONTAINER), a name over 16, and the PUT CONTAINER combinations IBM does not
+    rank are refused, never guessed."""
+    exe = _stub(tmp_path, _name_stub('op("OK", "CH1", "CHANNEL", 1); GGCPUTC(&c, "x");\n' + steps))
+    (tmp_path / "out").mkdir(exist_ok=True)
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe)], env=env, capture_output=True, encoding="latin-1", check=False)  # noqa: S603
+    assert proc.returncode == 98 and why in proc.stderr + proc.stdout, proc.stdout
+
+
+@needs_javac
+def test_cics_task_put_container_names_as_the_stub(tmp_path):
+    """#4950: CicsTask.putContainer on the stub's name cases (above), the same lines."""
+    lines = []
+    for i, n in enumerate(_LEGAL_NAMES):
+        lines.append(f'p.accept("{i}", t.putContainer("CH1", {_j_lit(n)}, x, 1, null, false));')
+        lines.append(f'p.accept("{i}c", t.putContainer({_j_lit(n)}, "K", x, 1, null, false));')
+    base = len(_LEGAL_NAMES)
+    for i, n in enumerate(_ILLEGAL_NAMES):
+        lines.append(f'p.accept("{base + i}", t.putContainer("CH1", {_j_lit(n)}, x, 1, null, false));')
+        lines.append(f'p.accept("{base + i}c", t.putContainer({_j_lit(n)}, "K", x, 1, null, false));')
+    out = _cics_task(
+        tmp_path,
+        "byte[] x = {'x'};\n"
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {\n'
+        "    public boolean defined(String p) { return true; }\n"
+        "    public void run(String p, CicsTask s) {\n"
+        f"        CicsTask.ContainerResult r = s.putContainer(null, {_j_lit('A^B')}, x, 1, null, false);\n"
+        '        System.out.println("cur " + r.resp() + "/" + r.resp2());\n'
+        "    }\n});\n"
+        "java.util.function.BiConsumer<String, CicsTask.ContainerResult> p = "
+        '(k, r) -> System.out.println(k + " " + r.resp() + "/" + r.resp2());\n'
+        + "\n".join(lines)
+        + '\nt.linkChannel("SUB", "CH1");',
+    )
+    legal = [f"{i}{s} NORMAL/0" for i in range(len(_LEGAL_NAMES)) for s in ("", "c")]
+    bad = [
+        f"{base + i}{s} {'CONTAINERERR/18' if not s else 'CHANNELERR/1'}"
+        for i in range(len(_ILLEGAL_NAMES))
+        for s in ("", "c")
+    ]
+    assert out.splitlines() == legal + bad + ["cur CONTAINERERR/18"]
+
+
+@needs_javac
+@pytest.mark.parametrize(
+    ("steps", "why"),
+    [
+        *[
+            (f't.putContainer("CH1", {_j_lit(n)}, x, 1, null, false);', "holds & < or a not sign")
+            for n in _DISPUTED_NAMES
+        ],
+        *[
+            (f't.putContainer({_j_lit(n)}, "K", x, 1, null, false);', "holds & < or a not sign")
+            for n in _DISPUTED_NAMES
+        ],
+        *[(f't.getContainer("CH1", {_j_lit(n)}, 4);', "holds & < or a not sign") for n in _DISPUTED_NAMES],
+        ('t.getContainer("CH1", "A^", 4);', "container name 'A^'"),
+        ('t.deleteContainer("CH1", "A^");', "container name 'A^'"),
+        ('t.getContainer("A^", "K", 4);', "channel name 'A^'"),
+        ('t.deleteContainer("A B", "K");', "channel name 'A B'"),
+        ('t.putContainer("CH1", "ABCDEFGHIJKLMNOPQ", x, 1, null, false);', "container name 'ABCDEFGHIJKLMNOPQ'"),
+        ('t.putContainer("B^", "A^", x, 1, null, false);', "which condition IBM raises first is not documented"),
+        ('t.putContainer("CH1", "A^", x, -1, null, false);', "negative FLENGTH"),
+        ('t.putContainer(null, "A^", x, 1, null, false);', "and no channel"),
+        ('t.putContainer("NOPE", "A^", x, 1, null, false);', "channel not in scope"),
+    ],
+)
+def test_cics_task_refuses_what_ibm_leaves_open_on_container_names(tmp_path, steps, why):
+    """#4950: the same refusals as the stub's."""
+    out = _cics_task(
+        tmp_path,
+        'CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN");\nbyte[] x = {\'x\'};\n'
+        't.putContainer("CH1", "OK", x, 1, null, false);\n'
+        "try {\n" + steps + '\nSystem.out.println("no refusal");\n} catch (UnsupportedOperationException e) {\n'
+        'System.out.println("refused: " + e.getMessage());\n}',
+    )
+    assert out.startswith("refused: ") and why in out, out

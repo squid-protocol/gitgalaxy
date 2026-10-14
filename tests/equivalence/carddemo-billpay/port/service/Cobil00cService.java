@@ -614,7 +614,7 @@ public class Cobil00cService {
         void updateAcctdatFile() {
             AccountRecord copy = AccountRecord.fromRecord(acct.toRecord(cs), cs);
             resp = task.rewrite("ACCTDAT", () -> rewriteAcctdat(copy));
-            reas = 0;
+            reas = task.resp2();
             if (resp == 0) {
                 return;
             } else if (resp == 13) {
@@ -689,7 +689,7 @@ public class Cobil00cService {
         void writeTransactFile() {
             TranRecord rec = TranRecord.fromRecord(tran.toRecord(cs), cs);
             resp = task.write("TRANSACT", tranRecordRepository.existsById(rec.getTranId()), () -> writeTransact(rec));
-            reas = 0;
+            reas = task.resp2();
             if (resp == 0) {
                 initializeAllFields();
                 message = fit("", 80);

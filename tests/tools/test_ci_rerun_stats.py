@@ -55,7 +55,8 @@ def test_per_day_counts_extra_attempts_only():
 
 def test_ground_truth_job_has_headroom_over_slow_runners():
     text = (WORKFLOWS / "mainframe-ground-truth.yml").read_text(encoding="utf-8")
-    job = text.split("\n  ground-truth:\n", 1)[1].split("\n  publish-history:", 1)[0]
+    # #5133: the work is in the parts; `ground-truth` itself only aggregates them
+    job = text.split("\n  ground-truth-part:\n", 1)[1].split("\n  publish-history:", 1)[0]
     cap = int(re.search(r"timeout-minutes:\s*(\d+)", job).group(1))
     assert cap >= 30, "#5137: slow runners took 20+ min; a 20 min cap cancelled the job at 99% of pytest"
     assert "--durations=" in job

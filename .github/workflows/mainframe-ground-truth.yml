@@ -68,10 +68,40 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
+  # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest, of which one test,
+  # test_evidence_components.py::test_the_components_partition_each_input, is ~1.7-5.7 min by itself). It runs as 2 parts
+  # on 2 runners. Part 2 takes the two corpus-free files that are ~half the directory's test seconds (--durations=0 on
+  # the first split: test_det_nondigit_zoned.py 1480 s over 436 javac tests, test_evidence_components.py 257 s of 3476 s
+  # total); part 1 the ledger gate (which warms the corpus scans) + every other test. `ground-truth` below
+  # stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
   ground-truth:
+    needs: [tested-tree, ground-truth-part]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part passed
+        env:
+          PARTS: ${{ needs.ground-truth-part.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
+        run: |
+          echo "ground-truth parts: $PARTS (tested-tree skip: $SKIP)"
+          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
+          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && test "$SKIP" = "true"; }
+
+  ground-truth-part:
+    name: ground-truth part ${{ matrix.group }}/2
     needs: tested-tree
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: 1
+            tests: "tests/cobol_mainframe/ --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_det_nondigit_zoned.py"
+          - group: 2
+            tests: "tests/cobol_mainframe/test_evidence_components.py tests/cobol_mainframe/test_det_nondigit_zoned.py"
     timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -131,12 +161,13 @@ jobs:
       # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
       # also the only run that appends: the `--history` flag below).
       - name: Restore the published history from the generated branch
-        if: github.event_name == 'push' || github.event_name == 'schedule'
+        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
 
       - name: Gate against the ground-truth ledger
+        if: matrix.group == 1
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
@@ -150,11 +181,12 @@ jobs:
           OMP_NUM_THREADS: 1  # #4902: -n auto already uses every core; no BLAS threads on top
         run: |
           cd gitgalaxy
-          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
-          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/
+          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
+          # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
 
       - name: Keep the history for the publish job
-        if: github.event_name == 'push' || github.event_name == 'schedule'
+        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ground-truth-history

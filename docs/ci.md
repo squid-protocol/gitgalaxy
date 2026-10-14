@@ -87,6 +87,15 @@ enables auto-merge in a later one, and `pr_check.py --merge` marks a draft ready
 so no unreviewed code merges. `pull_request_target` (the shepherd's label events) is unchanged. `tests/core_engine/test_workflow_draft_gate.py`
 fails when a heavy PR workflow lacks the condition; its allowlist is the cheap audits.
 
+## Critical path: ground-truth in 2 parts, evidence deltas apart (#5133)
+
+`ground-truth` (a required check) aggregates `ground-truth-part` 1/2 and 2/2, as `full-suite` aggregates its parts. Part 2 runs
+`test_evidence_components.py` and `test_det_nondigit_zoned.py` (corpus-free, about half the directory's test seconds); part 1
+runs the ledger gate and everything else in `tests/cobol_mainframe/`. A new file there lands in part 1; re-measure with
+`--durations=0` before moving more. The advisory evidence level deltas are the `evidence-deltas` job of `smoke-test.yml`
+(`continue-on-error`, not in `full-suite`'s needs). The parts balance by the newest nightly's durations cache (#4847); the committed
+`.test_durations` is only the cache-miss fallback and the OS-matrix gate's input.
+
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again

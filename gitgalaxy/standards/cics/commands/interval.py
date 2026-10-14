@@ -232,7 +232,9 @@ CANCEL = Command(
 # #4950 (X18, ASSUMED): the region's scheduler. A RUN child is dispatched at its parent's next wait -- a DELAY, or a FETCH
 # that waits -- in RUN order, and runs until it ends or waits before its parent resumes (one quasi-reentrant TCB: a
 # task keeps control until it waits). A task takes no processor time (X4): a child completes at its dispatch plus its
-# own DELAYs; the parent's clock moves by its DELAYs and its waits. A completion at the very instant the parent resumes
+# own DELAYs; the parent's clock moves by its DELAYs and its waits. #5089: the rule holds at every level -- a child
+# that RUNs children of its own dispatches them at its own waits, on its own clock (a grandchild completes at its
+# parent's dispatch time plus its own DELAYs, and the child at its parent's plus its own waits). A completion at the very instant the parent resumes
 # from a wait of its own is a tie IBM does not order: a FETCH whose answer turns on it is refused.
 _CHILD_RUNS = RuntimeRefusal(
     "a RUN TRANSID child's transaction whose program the case does not run", "X18", java="child transaction ",
@@ -283,10 +285,11 @@ RUN = Command(
     runtime_refusals=(
         _DFH_CHANNEL,
         RuntimeRefusal(
-            "a RUN TRANSID in a RUN TRANSID child task (a grandchild)",
+            "a RUN TRANSID in a task 3 generations below the issuing task (a great-great-grandchild): a child may RUN "
+            "children of its own, to the depth the harness states (IBM states none)",
             "X18",
-            java="RUN TRANSID in a RUN TRANSID child",
-            c="RUN TRANSID in a RUN TRANSID child",
+            java="RUN TRANSID in a RUN TRANSID child task",
+            c="RUN TRANSID in a RUN TRANSID child task",
         ),
         _BOTH_BAD,
         _CHILD_RUNS,

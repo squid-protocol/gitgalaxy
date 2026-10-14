@@ -1,10 +1,10 @@
 name: GitGalaxy Smoke Tests
 
 on:
-  pull_request:  # #4825: full-suite / smoke-test are required checks -- they run on every PR
+  pull_request:  # #4825: full-suite is a required check -- it runs on every PR
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
-  # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
+  # the full suite on main; the OS grid runs in os-smoke-grid.yml (#5130)
   push:
     branches: [main]
     paths-ignore: ["docs/**"]
@@ -26,15 +26,9 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # TRUE smoke test: cheap, OS/Python-version-sensitive checks only (package
-  # installs, CLI entry points, syntax floor) across the full matrix. Does
-  # NOT run the full pytest suite -- see full-suite (single env, below) for
-  # every-push regression coverage, and full-suite-gate.yml for the full
-  # matrix x full-suite backup run (fires on main, nightly, release tags and manual runs).
-  # This split exists because most of tests/ (extraction/core_engine regex
-  # rules) has zero OS-dependency: running it 12x per push added CI cost
-  # that scaled with every language added to the extraction-hardening epic
-  # (#813) without adding real signal over running it once.
+  # #5130: the 3 OS x 3 Python smoke grid (package installs, CLI entry points) moved to os-smoke-grid.yml, dispatched
+  # on main by post-merge.yml (cadence-capped) plus nightly and on release tags. This workflow keeps the full suite on
+  # ONE environment (ubuntu/3.12), every PR and every main push; full-suite-gate.yml runs it across the OS x Python matrix.
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
     needs: [tested-tree, full-suite-part]
@@ -53,8 +47,10 @@ jobs:
 
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -77,66 +73,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
-  smoke-test:
-    # #4520: PRs get ubuntu/3.12 via the full-suite job below (which also runs
-    # the --help entry-point checks); this grid runs on main, nightly and manual runs.
-    if: github.event_name != 'pull_request'
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    env:
-      PYTHONUTF8: "1"
-      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
-      OMP_NUM_THREADS: "1"
-      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
-    strategy:
-      fail-fast: false
-      # #4518/#4520: full 9-way grid; this job is skipped on PRs.
-      matrix:
-        include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.10"},{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.10"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.10"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install macOS dependencies (OpenMP for XGBoost)
-        if: runner.os == 'macOS'
-        run: brew install libomp
-
-      - name: Install dependencies
-        shell: bash
-        run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install --require-hashes -r ci/requirements/test.txt
-          pip install --no-build-isolation -e .
-
-      - name: Smoke Test - Core Engine
-        run: python -m gitgalaxy.galaxyscope --help
-
-      - name: Smoke Test - Legacy Refractor Controller
-        run: python -m gitgalaxy.cobol_refractor_controller --help
-
-      - name: Smoke Test - Java Spring Forge Controller
-        run: python -m gitgalaxy.cobol_to_java_controller --help
-
-      - name: Smoke Test - Supply Chain Firewall
-        run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
-
-      - name: Smoke Test - API Network Map
-        run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
-
   # Full pytest suite, ONE representative environment (ubuntu/3.12), on
   # every push. This is the fast-feedback regression net that used to run
-  # 12x inside the smoke-test matrix above; running it once here keeps that
+  # 12x inside the old smoke-test matrix (now os-smoke-grid.yml); running it once here keeps that
   # signal on every push without the 12x cost. The full OS x Python-version
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.

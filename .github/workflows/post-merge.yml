@@ -2,10 +2,14 @@ name: post-merge
 
 # #4825: heavy read-only checks on main run only when no PR job is waiting for a runner. On every push to main (a
 # merge) and every 20 minutes (the fallback: GitHub's schedules are best-effort and sometimes never fire), this reads
-# main's head SHA; if a dispatched workflow has not yet run for that SHA and no PR job is queued, it dispatches the
-# workflow on main. A SHA is dispatched at most once (the run list is checked per SHA), so a push and a cron tick for
-# the same SHA dispatch once. A push that defers (PR jobs queued) is picked up by the next cron tick. Nothing here
-# writes to the repo.
+# main's head SHA and, when no PR job is queued, dispatches each target workflow on main
+# (tests/tools/post_merge_dispatch.py has the rule, and tests in test_post_merge_dispatch.py).
+#
+# #5136: idle at dispatch is not idle afterwards -- a Full Suite Gate dispatched once per main SHA held ~10 runners for
+# ~24 min each time and took 15.6% of all CI minutes. So each target runs at most once per CADENCE_HOURS, on the newest
+# SHA, and only when main changed a file it reads since its last run; its nightly schedule (and, for the two OS
+# grids, release tags) still run it whatever the cadence. #5130/#5131 moved the OS smoke grid and the read-only
+# crucibles here from their own `push` triggers. A SHA is dispatched at most once. Nothing here writes to the repo.
 
 on:
   push:
@@ -30,7 +34,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Dispatch post-merge checks when PR runners are idle
+      - name: Checkout the dispatcher and the workflow filters
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: |
+            tests/tools/post_merge_dispatch.py
+            .github/workflows
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Dispatch post-merge checks when PR runners are idle (cadence-capped)
         env:
           GH_TOKEN: ${{ github.token }}
           # #4859: a run created with the repo GITHUB_TOKEN raises no `workflow_run` when it completes, so main-watch
@@ -38,36 +51,8 @@ jobs:
           # here stays on the read-only token. Falls back to GITHUB_TOKEN if the secret is missing (main-watch's
           # scheduled reconcile still catches the result).
           DISPATCH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-          REPO: ${{ github.repository }}
-          # Workflows dispatched on main, one run per main SHA. Start small: the OS matrix only.
-          WORKFLOWS: full-suite-gate.yml
+          # #5136: at most one run per target per this many hours (on the newest main SHA)
+          CADENCE_HOURS: "3"
           # Defer while more PR jobs than this are waiting (queued) for a runner.
           WAITING_MAX: "0"
-        run: |
-          set -euo pipefail
-
-          sha=$(gh api "repos/$REPO/branches/main" -q .commit.sha)
-          echo "main is at $sha"
-
-          # Count PR work waiting for a runner: queued PR runs, plus queued jobs inside PR runs that are in progress.
-          waiting=$(gh api "repos/$REPO/actions/runs?event=pull_request&status=queued&per_page=100" -q '.workflow_runs | length')
-          for id in $(gh api "repos/$REPO/actions/runs?event=pull_request&status=in_progress&per_page=100" -q '.workflow_runs[].id'); do
-            n=$(gh api "repos/$REPO/actions/runs/$id/jobs?filter=latest&per_page=100" -q '[.jobs[] | select(.status == "queued")] | length')
-            waiting=$((waiting + n))
-          done
-          echo "PR jobs waiting for a runner: $waiting (max $WAITING_MAX)"
-          if [ "$waiting" -gt "$WAITING_MAX" ]; then
-            echo "Deferring: PR checks are waiting for runners."
-            exit 0
-          fi
-
-          for wf in $WORKFLOWS; do
-            # Already dispatched or scheduled for this SHA? Then skip.
-            seen=$(gh api "repos/$REPO/actions/workflows/$wf/runs?branch=main&per_page=50" -q "[.workflow_runs[] | select(.head_sha == \"$sha\")] | length")
-            if [ "$seen" -gt 0 ]; then
-              echo "$wf already has a run for $sha; skipping."
-              continue
-            fi
-            echo "Dispatching $wf on main ($sha)."
-            GH_TOKEN="${DISPATCH_TOKEN:-$GH_TOKEN}" gh workflow run "$wf" --repo "$REPO" --ref main
-          done
+        run: python3 tests/tools/post_merge_dispatch.py

@@ -400,8 +400,15 @@ Only generator output, never a test case:
   UCTRANST (BNK1CCS, BNK1DCS). DFHVALUE(name) already translated in expressions (`MOVE DFHVALUE(..)`, comparisons) from
   IBM's CVDA table; it was missing on the stub side (now substituted) and as the operand of SET. DEEDIT edits the field
   in the region's page (`DetCics.deedit`, `GGCDEED`); UCTRANST is a stated fact (`withUctranst`, `$GGCICS_UCTRANST`).
-  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. Left for
-  slice 2: FORMATTIME YYDDD / DATE / MILLISECONDS, DELETEQ TS, DUMP, QUERY; INQUIRE of other resources stays refused.
+  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. INQUIRE of
+  other resources stays refused.
+- #4415 slice 2 (#4760): `DELETEQ TS`, `QUERY COUNTER` (QUERY DCOUNTER followed in #4770, QUERY CHANNEL in #5005),
+  INQUIRE ASSOCIATION origin data and RECEIVE MAP TERMINAL. Register X29.
+- #4415 slice 3 (#5040): FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and the binary forms (DAYCOUNT, DAYOFMONTH,
+  DAYOFWEEK, MONTHOFYEAR, YEAR, MILLISECONDS) run on both runtimes, proved equal on six instants under Java and
+  GnuCOBOL. Refused by name (register X46, IBM leaves them to the region's setup): FORMATTIME DATE / DATEFORM /
+  FULLDATE (the region's DATFORM) and DATESTRING / STRINGFORMAT / STRINGZONE, `DUMP TRANSACTION` (also the bare DUMP)
+  and `QUERY SECURITY` (no security manager in the region). Every #4415 member is now modelled or refused by name.
 - #4270 slice: `EXEC CICS RETURN ... IMMEDIATE` (9 CBSA programs) and `LINK ... SYNCONRETURN` (10). IMMEDIATE attaches
   TRANSID's task at once with the COMMAREA, ahead of the terminal's next input (`CicsTask.returnImmediate`, `GGCRETI`; the
   runner's `immediate` trigger); it can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11) and the program then goes on.

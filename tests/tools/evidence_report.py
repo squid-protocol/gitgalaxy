@@ -308,24 +308,12 @@ def det_coverage() -> dict[str, Any]:
     [paragraphs covered, live, branches covered, total] while the entry is current;
     {"coverage": [...], "stale_inputs": [...], "stale_since": sha|None} while it is stale on SCHEDULED inputs only
     (harness / oracle: the last measurement, not re-checked); None (no entry, or a BLOCKING input -- case / corpus --
-    changed, so it describes another program)."""
-    import det_coverage_ledger as dcl
-
-    ledger = dcl.load()
+    changed, so it describes another program). #5075: the reading is proof_blockers.ledger_readings', one rule."""
     used = sorted({r.case for runs in pb.equivalence_runs().values() for r in runs})
-    out: dict[str, Any] = {}
-    for case in used:
-        last = dcl.last_coverage(case, ledger)
-        if last is None or last["blocking"]:
-            out[case] = None
-        elif not last["stale_inputs"]:
-            out[case] = list(last["coverage"])
-        else:
-            out[case] = {
-                "coverage": list(last["coverage"]),
-                "stale_inputs": list(last["stale_inputs"]),
-                "stale_since": last["measured_at"] or record_commit(case),
-            }
+    out = pb.ledger_readings(used)
+    for case, reading in out.items():
+        if isinstance(reading, dict) and not reading["stale_since"]:
+            reading["stale_since"] = record_commit(case)
     return out
 
 

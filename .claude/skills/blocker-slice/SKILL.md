@@ -38,8 +38,11 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - Proof level: `proof_blockers.py` ranks, for the programs already WHOLE, what stops each being PROVEN: `no case`,
   `known unproven: #issue` (det_sweep_baseline.json), `scenario differs: KIND`, `not proven in CI: Db2 case`,
   `coverage: ...`, `fact: EIBTASKN` / `fact: ASSIGN USERID` (a runtime fact no harness states). Without `--sweep`
-  it trusts main's CI det-sweep ratchet for non-Db2 cases; pass a local `proof_sweep.py --det-only --work DIR` for
-  Db2 verdicts and coverage. A new equivalence case is the usual cure for `no case`; a fact gap needs the fact
+  it trusts main's CI det-sweep ratchet for non-Db2 cases, and for a Db2 case the committed det-sweep ledger (#5075:
+  the Db2 lanes -- det-sweep's `db2` job and the nightly Evidence Refresh `db2` job -- keep an entry only for a case
+  their sweep proved). Ledger coverage stale on harness / oracle only counts as the last measurement (the report
+  says how many); a case / corpus change makes it unknown. Pass a local `proof_sweep.py --det-only --work DIR` to
+  replace both with fresh verdicts and coverage. A new equivalence case is the usual cure for `no case`; a fact gap needs the fact
   stated on BOTH sides first (C12 / EIBTASKN).
 
 ## 2. Land it spec-first (CICS commands)

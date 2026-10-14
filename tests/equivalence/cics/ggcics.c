@@ -299,7 +299,38 @@ static int held_key(const char *file, const char *key, int klen) {
     return 0;
 }
 
+/* #5078 (X52): READ UPDATE TOKEN(d) holds a record under a token of its own (IBM, EXEC CICS READ: "a unique identifier
+ * for this READ UPDATE request ... for use in associating a subsequent REWRITE or DELETE (or UNLOCK) request with the
+ * record returned"), however many are held, on any file. The ids count from 1 per task (their value is IBM's to choose:
+ * ASSUMED). REWRITE / DELETE / UNLOCK TOKEN spend the token; one that matches no token in use (never issued, spent,
+ * or another file's) is INVREQ RESP2 47 ("a token whose value cannot be matched against any token in use"). */
+#define MAX_TOKENS 64
+static struct { int id; char name[9]; char key[256]; int klen; } tokens[MAX_TOKENS];
+static int next_token = 1;
+
+static int token_hold(const char *file, const char *key, int klen) {
+    for (int i = 0; i < MAX_TOKENS; i++) {
+        if (tokens[i].id == 0) {
+            tokens[i].id = next_token++;
+            snprintf(tokens[i].name, sizeof tokens[i].name, "%s", file);
+            memcpy(tokens[i].key, key, (size_t)(klen < 256 ? klen : 256));
+            tokens[i].klen = klen < 256 ? klen : 256;
+            return tokens[i].id;
+        }
+    }
+    refuse("READ UPDATE TOKEN: more than 64 records held");
+    return 0;
+}
+
+static int token_find(int id, const char *file) {
+    for (int i = 0; id > 0 && i < MAX_TOKENS; i++) {
+        if (tokens[i].id == id && (!file || strcmp(tokens[i].name, file) == 0)) return i;
+    }
+    return -1;
+}
+
 static void release(const char *file) {
+    if (!file) for (int i = 0; i < MAX_TOKENS; i++) tokens[i].id = 0;  /* a SYNCPOINT ends every hold, tokens too */
     for (int i = 0; i < MAX_FILES; i++) {
         if (held[i].name[0] && (!file || strcmp(held[i].name, file) == 0)) held[i].name[0] = 0;
     }
@@ -470,8 +501,12 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     }
     if (!have) {
         c->resp = FILENOTFOUND;
-    } else if (!held_key(want, key, klen)) {
+    } else if (strstr(c->flags, "TOKEN") ? token_find(c->num, want) < 0 : !held_key(want, key, klen)) {
         c->resp = INVREQ;
+        if (strstr(c->flags, "TOKEN")) c->resp2 = 47;
+    } else if (strstr(c->flags, "TOKEN") && (tokens[token_find(c->num, want)].klen != klen
+                                              || memcmp(tokens[token_find(c->num, want)].key, key, (size_t)klen) != 0)) {
+        refuse("REWRITE TOKEN FROM: a key other than the held record's");
     } else {
         long at = find_key(path, reclen, keyoff, klen, key);
         if (at < 0) {
@@ -485,7 +520,8 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
             if (data && rec && fseek(data, at * (long)reclen, SEEK_SET) == 0) fwrite(rec, 1, (size_t)reclen, data);
             if (data) fclose(data);
             free(rec);
-            release(want);
+            if (strstr(c->flags, "TOKEN")) tokens[token_find(c->num, want)].id = 0;
+            else release(want);
             c->resp = NORMAL;
         }
     }
@@ -599,7 +635,8 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
                     c->resp = reclen > max ? LENGERR : NORMAL;
                     c->resp2 = reclen > max ? 11 : 0;
                     c->len = reclen;
-                    if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
+                    if (c->resp == NORMAL && strstr(c->flags, "TOKEN")) c->num = token_hold(want, rec + keyoff, klen);
+                    else if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
                     break;
                 }
             }
@@ -960,7 +997,8 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     int reclen, keyoff, klen, fresp, fresp2;
     trim(c->name1, 8, want);
     c->resp2 = 0;
-    int by_hold = strstr(c->flags, "HELD") != NULL;
+    int by_tok = strstr(c->flags, "TOKEN") != NULL;  /* #5078: the record a READ UPDATE TOKEN holds (GG-NUM) */
+    int by_hold = strstr(c->flags, "HELD") != NULL || by_tok;
     if (injected("DELETE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
@@ -977,7 +1015,17 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     char key[256];
     memset(key, 0, sizeof key);
     int s = -1;
-    if (by_hold) {
+    if (by_tok) {
+        int ti = token_find(c->num, want);
+        if (ti < 0) {
+            c->resp = INVREQ;
+            c->resp2 = 47;
+            file_event("DELETE", want, ridfld, 0, c->resp);
+            return 0;
+        }
+        memcpy(key, tokens[ti].key, (size_t)tokens[ti].klen);
+        s = ti;
+    } else if (by_hold) {
         for (int i = 0; i < MAX_FILES; i++) if (held[i].name[0] && strcmp(held[i].name, want) == 0) { s = i; break; }
         if (s >= 0) memcpy(key, held[s].key, (size_t)held[s].klen);
     } else {
@@ -1011,11 +1059,34 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         FILE *data = fopen(path, "wb");
         for (long i = 0; data && i < n; i++) if (i != at) fwrite(all + i * reclen, 1, (size_t)reclen, data);
         if (data) fclose(data);
-        if (by_hold) release(want);
+        if (by_tok) tokens[s].id = 0;
+        else if (by_hold) release(want);
         c->resp = NORMAL;
     }
     free(all);
     file_event("DELETE", want, key, klen, c->resp);
+    return 0;
+}
+
+/* UNLOCK FILE(name1) TOKEN(GG-NUM) (#5078, X52): releases the record a READ UPDATE TOKEN holds; INVREQ RESP2 47 for a
+ * token matching none in use. UNLOCK without TOKEN is not modelled (translate refuses it). */
+int GGCUNLK(gg_cics *c) {
+    char want[9], path[3000];
+    int reclen, keyoff, klen;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+        return 0;
+    }
+    int ti = token_find(c->num, want);
+    if (ti < 0) {
+        c->resp = INVREQ;
+        c->resp2 = 47;
+    } else {
+        tokens[ti].id = 0;
+        c->resp = NORMAL;
+    }
     return 0;
 }
 

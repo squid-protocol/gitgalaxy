@@ -730,13 +730,19 @@ def test_file_updates_translate_to_stub_calls():
     w = ec.translate_command("WRITE DATASET(F) FROM(REC) RIDFLD(K) RESP(X)")
     assert w[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCWRIT' USING GG-CICS"] and "    BY REFERENCE REC" in w
     rw = ec.translate_command("REWRITE FILE(F) FROM(REC) RESP(X) RESP2(Y)")
-    assert rw[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCREWR' USING GG-CICS"]
+    assert rw[:3] == [
+        "MOVE F TO GG-NAME1",
+        "MOVE SPACES TO GG-FLAGS",
+        "CALL 'GGCREWR' USING GG-CICS",
+    ]  # #5078: flags set
     assert ec.translate_command("SYNCPOINT")[:2] == ["MOVE SPACES TO GG-FLAGS", "CALL 'GGCSYNC' USING GG-CICS"]
     assert ec.translate_command("SYNCPOINT ROLLBACK")[0] == "MOVE 'ROLLBACK' TO GG-FLAGS"
     for bad in ("WRITE FILE(F) FROM(R) RIDFLD(K) MASSINSERT", "REWRITE FILE(F) FROM(R) SYSID(S)"):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
-    sc = {"faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOSPACE"}]}  # IBM's REWRITE lists no NOTOPEN (#5044)
+    sc = {
+        "faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOSPACE"}]
+    }  # IBM's REWRITE lists no NOTOPEN (#5044)
     assert ec.fault_lines(sc) == ["REWRITE ACCTDAT 1 18 100"]
 
 

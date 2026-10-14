@@ -304,6 +304,8 @@ public class CicsTask {
     private List<String[]> faultPlan = List.of();           // #4023 follow-up: injected conditions (the task's root)
     private java.nio.file.Path faultLog;
     private final java.util.Set<String> held = new java.util.HashSet<>();  // files a readForUpdate holds (the root's)
+    private final Map<Integer, Object[]> updateTokens = new HashMap<>();  // #5078 (X52): token -> {file, key} (the root's)
+    private int nextToken = 1;
     private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
     private boolean dplServer;                          // #4437: LINKed from outside the region (the root's)
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
@@ -3823,6 +3825,65 @@ public class CicsTask {
         return done(0, 0);
     }
 
+    /** READ FILE(file) UPDATE TOKEN(d) (#5078, X52; IBM, EXEC CICS READ): the record whose key is `key` is held under a
+     *  token of its own, however many are held; returns the token (the task's 1, 2, ...: IBM leaves the value open,
+     *  ASSUMED). */
+    public int holdToken(String file, byte[] key) {
+        int id = root().nextToken++;
+        root().updateTokens.put(id, new Object[] {file, key});
+        return id;
+    }
+
+    /** A token's {file, key}, spent; null when it matches no token in use for `file` (never issued, spent, or the
+     *  token of another file's record): INVREQ, RESP2 47 ("a token whose value cannot be matched against any token in
+     *  use for an existing read for UPDATE"). */
+    private Object[] spendToken(String file, int token) {
+        Object[] t = root().updateTokens.get(token);
+        if (t == null || !t[0].equals(file)) {
+            return null;
+        }
+        root().updateTokens.remove(token);
+        return t;
+    }
+
+    /** REWRITE FILE(file) FROM TOKEN(token): replaces the record the token holds; `key` is FROM's record's key (a key
+     *  other than the held record's is refused: IBM does not say). */
+    public int rewriteToken(String file, int token, byte[] key, Runnable store) {
+        int[] planned = root().injected("REWRITE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        Object[] t = root().updateTokens.get(token);
+        if (t == null || !t[0].equals(file)) {
+            return done(16, 47);
+        }
+        if (!java.util.Arrays.equals((byte[]) t[1], key)) {
+            throw new UnsupportedOperationException("REWRITE TOKEN FROM: a key other than the held record's: not modelled");
+        }
+        spendToken(file, token);
+        store.run();
+        return done(0, 0);
+    }
+
+    /** DELETE FILE(file) TOKEN(token), no RIDFLD: deletes the record the token holds (`remove` is given its key). */
+    public int deleteToken(String file, int token, java.util.function.Consumer<byte[]> remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        Object[] t = spendToken(file, token);
+        if (t == null) {
+            return done(16, 47);
+        }
+        remove.accept((byte[]) t[1]);
+        return done(0, 0);
+    }
+
+    /** UNLOCK FILE(file) TOKEN(token): releases the record the token holds, unchanged (IBM, EXEC CICS UNLOCK). */
+    public int unlockToken(String file, int token) {
+        return spendToken(file, token) == null ? done(16, 47) : done(0, 0);
+    }
+
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
      *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
     private static final class Browse {
@@ -4152,6 +4213,7 @@ public class CicsTask {
     public void syncpoint() {
         refuseInDplServer("SYNCPOINT");
         root().held.clear();
+        root().updateTokens.clear();  // a sync point / rollback ends every hold
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         event("SYNCPOINT");
@@ -4166,6 +4228,7 @@ public class CicsTask {
             throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
         }
         root().held.clear();
+        root().updateTokens.clear();  // a sync point / rollback ends every hold
         root().containerBrowses.clear();
         if (root().rollbackHook != null) {
             root().rollbackHook.run();

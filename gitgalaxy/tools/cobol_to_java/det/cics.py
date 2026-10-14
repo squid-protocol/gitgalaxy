@@ -1076,7 +1076,7 @@ class Cics:
                     *self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)])  # fmt: skip
         if verb in ("READ", "READNEXT", "READPREV"):
             return self.read(verb, opts, ind)
-        if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR"):
+        if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR", "UNLOCK"):
             return self.file_update(verb, opts, ind)
         if verb == "HANDLE ABEND":
             if "LABEL" in opts:
@@ -2379,7 +2379,7 @@ class Cics:
         n = self._keylength("READ", opts)
         rid = _arg(opts.get("RIDFLD"))
         gt = "true" if gteq else "false"
-        update = "true" if "UPDATE" in opts else "false"
+        update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
         if n is None:  # GTEQ on the full key: the file's
             name = self.constant(opts.get("DATASET") or opts.get("FILE"))
             if name is None:
@@ -2442,7 +2442,7 @@ class Cics:
         g = self.g
         r, rec = g.tmpname("read"), g.tmpname("rec")
         if verb == "READ":
-            fn = "readForUpdate" if "UPDATE" in opts else "read"
+            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"  # TOKEN: held by the token
             call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
             search = self._search(opts, file, st, rec)
             if search is not None:
@@ -2452,7 +2452,8 @@ class Cics:
                 f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                 f"{ind}if ({r}.record() != null) {{",
                 f"{ind}    DetCics.put({into}, {r}.record());",
-                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts else []),
+                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
+                *self.token_out(opts, file, st, r, f"{ind}    "),
                 f"{ind}}}",
             ]
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
@@ -2464,6 +2465,18 @@ class Cics:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
+    def token_out(self, opts: dict, file: str, st: str, r: str, ind: str) -> list[str]:
+        """#5078 (X52): READ ... UPDATE TOKEN(d) -- the record read is held under a token (CicsTask.holdToken) that is
+        stored into d, a fullword (IBM, EXEC CICS READ: "a unique identifier for this READ UPDATE request"; "If you
+        specify TOKEN it implies update"). The key held is the record's own, as the stub holds it."""
+        if "TOKEN" not in opts:
+            return []
+        if not opts["TOKEN"]:
+            raise CicsError("READ TOKEN needs a data area")
+        tok = self.g.tmpname("tok")
+        return [f"{ind}int {tok} = task.holdToken({file}, {st}.keyOf({r}.record()));",
+                f"{ind}{self.g.store_into(self.ref(_arg(opts['TOKEN'])), f'BigDecimal.valueOf({tok})', False)}"]  # fmt: skip
+
     def read_length(self, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str) -> list[str]:
         """#4436: READ ... INTO LENGTH(length). LENGTH's value is the most the program takes: the record goes INTO,
         truncated to it with LENGERR (22, RESP2 11) when longer, and LENGTH is set to the record's length (on NORMAL
@@ -2473,8 +2486,8 @@ class Cics:
         g = self.g
         r, rec = g.tmpname("read"), g.tmpname("rec")
         resp, resp2 = g.tmpname("resp"), g.tmpname("resp2")
-        update = "UPDATE" in opts
-        fn = "readForUpdate" if update else "read"
+        update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
+        fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
         call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
         search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
         if search is not None:
@@ -2487,8 +2500,9 @@ class Cics:
                f"{ind}if ({r}.record() != null) {{",
                f"{ind}    {resp} = DetCics.readInto({into}, {r}.record(), {self.int_(length)}, {str(update).lower()});",
                f"{ind}    {resp2} = {resp} == 22 ? 11 : 0;"]  # fmt: skip
-        if update:
+        if update and "TOKEN" not in opts:
             out.append(f"{ind}    heldKey.put({file}, {held});")  # (LENGERR on READ UPDATE: refused above)
+        out += self.token_out(opts, file, st, r, f"{ind}    ")
         if settable:
             set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
             out.append(f"{ind}    {set_back}")
@@ -2551,11 +2565,38 @@ class Cics:
                 f"{ind}}});"]  # fmt: skip
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
+    def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """#5078 (X52): REWRITE / DELETE / UNLOCK TOKEN(t) act on the record the READ UPDATE TOKEN that returned `t` holds
+        (IBM). A token matching none in use is INVREQ RESP2 47 (CicsTask.rewriteToken / deleteToken / unlockToken)."""
+        if not opts["TOKEN"]:
+            raise CicsError(f"{verb} TOKEN needs a value")
+        if verb == "DELETE" and opts.get("RIDFLD"):
+            raise CicsError(_msg("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"))
+        st = self.store(opts)
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        tok = self.int_(_arg(opts["TOKEN"]))
+        r = self.g.tmpname("resp")
+        if verb == "REWRITE":
+            rec = self.g.tmpname("rec")
+            out = [f"{ind}byte[] {rec} = {self.record_from(opts)};",
+                   f"{ind}int {r} = task.rewriteToken({file}, {tok}, {st}.keyOf({rec}), () -> {st}.store({rec}));"]  # fmt: skip
+        elif verb == "DELETE":
+            out = [f"{ind}int {r} = task.deleteToken({file}, {tok}, k -> {st}.remove(k));"]
+        else:  # UNLOCK
+            out = [f"{ind}int {r} = task.unlockToken({file}, {tok});"]
+        return out + self.outcome(opts, r, "task.resp2()", ind)
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         if self._rba(verb, opts):
             return self.rba_browse(verb, opts, ind)
         if verb == "DELETE" and "GENERIC" in opts:  # #4771
+            if "TOKEN" in opts:
+                raise CicsError(_msg("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"))
             return self.delete_generic(opts, ind)
+        if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
+            return self.token_update(verb, opts, ind)
+        if verb == "UNLOCK":  # IBM: the file's held record -- #5079
+            raise CicsError("UNLOCK without TOKEN: not modelled")
         self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))

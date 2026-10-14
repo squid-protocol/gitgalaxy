@@ -116,7 +116,11 @@ MOVED = {
     "mainframe-ground-truth.yml": ["docs/self_scan/ground_truth_history.jsonl"],  # #4963
     "archetype-validation.yml": ["gitgalaxy/standards/archetype_brains/archetype_validation.json"],
     # #5057: rendered from committed sources, never committed (tests/tools/generated_docs.py PAGES)
-    "generated-docs.yml": ["docs/language_status/oracle_assumptions.md", "docs/language_status/cics_spec_status.md"],
+    "generated-docs.yml": [
+        "docs/language_status/oracle_assumptions.md",
+        "docs/language_status/cics_spec_status.md",
+        "docs/language_status/cobolrt_rules.md",  # #4711
+    ],
 }
 
 

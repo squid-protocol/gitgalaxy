@@ -20,6 +20,7 @@ public final class Storage {
     }
 
     /** A storage holding a copy of `data` (a record, a key in its record's place). */
+    // [rule RT-DATA-STORAGE-AREA]
     public static Storage of(byte[] data) {
         Storage s = new Storage(data.length);
         System.arraycopy(data, 0, s.bytes, 0, data.length);

@@ -113,17 +113,20 @@ public final class Field {
                 picture);
     }
 
+    // [rule RT-DATA-BINARY-SIZE]
     static int binaryLength(int digits) {
         return digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
     }
 
     /** A subscript, 1-based: offset + (index - 1) * stride. */
+    // [rule RT-DATA-SUBSCRIPT]
     public Field at(int index, int stride) {
         return new Field(st, off + (index - 1) * stride, len, kind, digits, scale, signed, signLeading, signSeparate,
                 nativeBin, justRight, blankWhenZero, pic, decimalComma);
     }
 
     /** Reference modification (start 1-based; a null length means to the end): an ALPHANUMERIC view. */
+    // [rule RT-DATA-REFERENCE-MODIFICATION]
     public Field ref(int start, Integer length) {
         int n = length == null ? len - (start - 1) : length;
         return new Field(st, off + start - 1, n, Kind.ALPHANUMERIC, 0, 0, false, false, false, false, false, false,

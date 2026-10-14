@@ -76,6 +76,7 @@ public final class Hfp {
     }
 
     /** The exponent range: a characteristic of 0..127. */
+    // [rule RT-HFP-EXPONENT-RANGE]
     private static void range(int e) {
         if (e > 63) {
             throw new UnsupportedOperationException("HFP exponent overflow (the result exceeds 16**63): what z/OS "
@@ -130,6 +131,7 @@ public final class Hfp {
     // ------------------------------------------------------------------------------------------ conversions
 
     /** A fixed-point value converted to long HFP: the exact value truncated to 14 hexadecimal digits. */
+    // [rule RT-HFP-FIXED-TO-FLOAT]
     public static BigDecimal of(BigDecimal v) {
         H h = chop(v, LONG);
         return h == null ? BigDecimal.ZERO : value(h, LONG);
@@ -144,6 +146,7 @@ public final class Hfp {
      *  most 15 decimal digits can be converted accurately to long-precision floating point [...] Otherwise, the
      *  result may lose precision in an unexpected manner" (Programming Guide, same section): more than 15 digits
      *  from the first nonzero one (trailing zeros written included) are not modelled. */
+    // [rule RT-HFP-NUMVAL-FLOAT]
     public static BigDecimal numval(String s, boolean currency) {
         int digits = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -169,11 +172,13 @@ public final class Hfp {
      *  arithmetic statement's store. The model ASSUMES the same rule (pending z/OS calibration, #4702; register C6):
      *  the value is rounded half away from zero to the receiver's scale, so NUMVAL('0.10') (0.0999... in long HFP)
      *  stores 0.10 even without ROUNDED. */
+    // [rule RT-HFP-FLOAT-STATEMENT-STORE]
     public static BigDecimal fixedStore(BigDecimal v, int scale, boolean rounded) {
         return v.setScale(scale, RoundingMode.HALF_UP);
     }
 
     /** A long value rounded to short (LOAD ROUNDED): a one added at the first discarded bit, carry propagated. */
+    // [rule RT-HFP-LONG-TO-SHORT]
     public static BigDecimal toShort(BigDecimal v) {
         H h = chop(v, LONG);
         if (h == null) return BigDecimal.ZERO;
@@ -194,6 +199,7 @@ public final class Hfp {
 
     /** A float's value moved to a fixed-point item of `scale`: rounded half away from zero in the low-order
      *  position, at most `significant` digits (9 for COMP-1, 18 for COMP-2) and the rest zero. */
+    // [rule RT-HFP-FLOAT-TO-FIXED]
     public static BigDecimal toFixed(BigDecimal v, int scale, int significant) {
         BigDecimal r = v.setScale(scale, RoundingMode.HALF_UP);
         if (r.unscaledValue().abs().toString().length() > significant && r.signum() != 0) {
@@ -210,6 +216,7 @@ public final class Hfp {
 
     /** ADD NORMALIZED: the operand with the smaller exponent shifted right keeping one guard digit, the sum
      *  normalized (the guard digit shifted in), then truncated. */
+    // [rule RT-HFP-ADD-NORMALIZED]
     public static BigDecimal add(BigDecimal a, BigDecimal b, boolean longP) {
         int d = digits(longP);
         H x = exact(a, d);
@@ -246,6 +253,7 @@ public final class Hfp {
     }
 
     /** MULTIPLY: the exact product truncated. */
+    // [rule RT-HFP-MULTIPLY]
     public static BigDecimal multiply(BigDecimal a, BigDecimal b, boolean longP) {
         int d = digits(longP);
         exact(a, d);
@@ -258,6 +266,7 @@ public final class Hfp {
      *  Cobol.divide (#4675, oracle_assumptions C14): the oracle converts a float to a decimal and divides it, so a
      *  receiver is left unchanged; z/OS leaves the result undefined. Only a division that is a statement's whole
      *  value (COMPUTE x = a / b, DIVIDE): inside a larger expression divideNested refuses. */
+    // [rule RT-HFP-DIVIDE]
     public static BigDecimal divide(BigDecimal a, BigDecimal b, boolean longP) {
         if (b.signum() == 0) {
             Cobol.raiseSize();
@@ -284,6 +293,7 @@ public final class Hfp {
     /** DIVIDE inside a larger floating-point expression: a zero divisor is refused by name. The oracle's NaN meets
      *  cob_decimal_align there (NaN * x is 0, 2 - NaN is 2, NaN + 1 unchanged: measured, #4675) and the HFP model
      *  does not replay that (oracle_assumptions C14). */
+    // [rule RT-HFP-ZERO-DIVISOR]
     public static BigDecimal divideNested(BigDecimal a, BigDecimal b, boolean longP) {
         if (b.signum() == 0) {
             throw new ArithmeticException("division by zero inside a floating-point expression (oracle_assumptions C14)");
@@ -296,6 +306,7 @@ public final class Hfp {
     // ------------------------------------------------------------------------------------------- storage
 
     /** The item's bytes as an exact value. An unnormalized fraction reads as its value too. */
+    // [rule RT-HFP-FORMAT]
     static BigDecimal read(Field f) {
         byte[] d = f.st.bytes;
         int digits = f.len == 4 ? SHORT : LONG;
@@ -328,6 +339,7 @@ public final class Hfp {
 
     /** -.9(8)E-99 (COMP-1) or -.9(17)E-99 (COMP-2): a space or '-', the point, the mantissa's digits rounded half
      *  away from zero (ASSUMED), 'E', a space or '-', two exponent digits. Zero: " .000...E 00". */
+    // [rule RT-HFP-DISPLAY]
     static String display(BigDecimal v, boolean longP) {
         int n = longP ? 17 : 8;
         if (v.signum() == 0) return " ." + "0".repeat(n) + "E 00";

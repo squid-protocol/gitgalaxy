@@ -12,6 +12,7 @@ public final class Sysout {
     private Sysout() {
     }
 
+    // [rule RT-SYS-DISPLAY-SYSOUT]
     public static void display(Object... operands) {
         write(join(operands), true);
     }

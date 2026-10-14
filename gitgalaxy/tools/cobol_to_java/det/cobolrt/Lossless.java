@@ -36,6 +36,7 @@ public final class Lossless extends Charset {
     }
 
     /** The charset itself, or the one that keeps every byte when it is a single-byte charset. */
+    // [rule RT-DATA-BYTE-TRANSPARENT]
     public static Charset of(Charset cs) {
         if (cs instanceof Lossless || cs.newEncoder().maxBytesPerChar() != 1.0f) {
             return cs;

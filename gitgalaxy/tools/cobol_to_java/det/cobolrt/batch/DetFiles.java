@@ -27,6 +27,7 @@ public final class DetFiles {
     }
 
     public interface DetFile {
+        // [rule RT-FILE-FILE-STATUS]
         String open(String mode);
 
         String close();
@@ -34,6 +35,7 @@ public final class DetFiles {
         String readNext();
 
         /** A keyed READ: the record whose bytes [keyOffset, keyOffset + keyLength) equal the record area's. */
+        // [rule RT-FILE-KEYED-READ]
         String readKey(int keyOffset, int keyLength);
 
         String write(int length);
@@ -62,6 +64,7 @@ public final class DetFiles {
             return files.close(dd);
         }
 
+        // [rule RT-FILE-UNBOUND-FILE]
         private static RuntimeException hole() {
             return new __PACKAGE__.cobolrt.Hole("a record operation on a file with no store bound");
         }

@@ -19,13 +19,13 @@
  "proof": {
   "reproven": [
    {
-    "at": "2026-10-14T01:14:49+00:00",
+    "at": "2026-10-14T01:30:07+00:00",
     "crucible_ref": "v0.7.0 (aaf84bcd)",
     "summary": {
      "no-terminal": "1/1"
     },
     "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
-    "harness_commit": "62b657e0a9dec57eaa2637ee470b144e31297cc9",
+    "harness_commit": "5be634bb79dda7c04ec709da69b9c6d16ce022ac",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
     "entry_points": [
      "runTask",

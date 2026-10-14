@@ -216,14 +216,6 @@ public class PcimmbService {
                 }
                 calen = cx(task, cb.length);
             }
-            if (calen == 0 && ca != null && !(ca instanceof byte[])) {
-                byte[] cb = DetCics.layoutBytes(ca);
-                System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));
-                if (cb.length > s_DFHCOMMAREA.bytes.length) {
-                    s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);
-                }
-                calen = cx(task, cb.length);
-            }
             byte[] raw = task.linkArea();
             if (raw != null) {
                 System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));

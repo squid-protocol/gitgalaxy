@@ -19,14 +19,14 @@
  "proof": {
   "reproven": [
    {
-    "at": "2026-10-14T01:14:27+00:00",
+    "at": "2026-10-14T01:29:56+00:00",
     "crucible_ref": "v0.7.0 (aaf84bcd)",
     "summary": {
      "link-level2": "1/1",
      "synconreturn": "1/1"
     },
-    "port_sha256": "02b169b4486143639e2c00f16da36ff429c9839193d30d0127c4dfc050a372f5",
-    "harness_commit": "62b657e0a9dec57eaa2637ee470b144e31297cc9",
+    "port_sha256": "8e2511be6b425d7b58804141bd2466ae6ffcbae8dd2424209f92aa3c6c2fe16f",
+    "harness_commit": "5be634bb79dda7c04ec709da69b9c6d16ce022ac",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMML --report-dir)",
     "entry_points": [
      "runTask",

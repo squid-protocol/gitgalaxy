@@ -19,7 +19,7 @@
  "proof": {
   "reproven": [
    {
-    "at": "2026-10-14T01:13:59+00:00",
+    "at": "2026-10-14T01:29:34+00:00",
     "crucible_ref": "v0.7.0 (aaf84bcd)",
     "summary": {
      "immediate": "1/1",
@@ -28,7 +28,7 @@
      "synconreturn": "1/1"
     },
     "port_sha256": "dcd6086135c3191e44c0fad4f8f4590403a733d690935da8e7b1110077af9b38",
-    "harness_commit": "62b657e0a9dec57eaa2637ee470b144e31297cc9",
+    "harness_commit": "5be634bb79dda7c04ec709da69b9c6d16ce022ac",
     "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMA --report-dir)",
     "entry_points": [
      "runTask",

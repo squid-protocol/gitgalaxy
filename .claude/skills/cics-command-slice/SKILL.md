@@ -75,7 +75,7 @@ Traps `--check` exists for:
   - A divergence is a bug report against the runtime / translator, never a reason to edit the log.
 - [ ] **Refusals registered:** a new X-number: `register.py next X` (take it when the issue is filed), then one file
       `docs/language_status/register/Xnn.md` (front matter incl. the summary-table fields; body: ASSUMED / REFUSED, what
-      IBM says, which case proves it). `oracle_assumptions.md` is rendered, never committed (#5057).
+      IBM says, which case proves it). `oracle_assumptions.md` is rendered, never committed (#5057). `register.py next X` can skip ids held by open PRs (it returned X61 with no X59 on main): use what it says (#5189).
 - [ ] **After survey:** `... survey --out $SCRATCH/s --label after --verb VERB`, then
       `$PY tests/tools/cics_census.py compare $SCRATCH/s --verb VERB`: per program translated / statements before ->
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the
@@ -108,6 +108,11 @@ Traps `--check` exists for:
 - **Known local-only failure:** `test_porting_loop_tooling.py::test_the_loops_committed_ports_are_proven[*]`.
 - A pin-bump PR in flight moves `tests/_cics_crucible_pin.py`, `tests/cics_crucible/{baseline,coverage}.json` and the
   port evidence: never touch those in a slice PR.
+- **`parse_exec` treats `WAIT` as a bare option**, so an EXEC CICS command starting with WAIT reads as no verb: check `words` is non-empty before indexing the verb (#5185).
+- **A new stub event kind needs a branch in `equivalence_cics.cobol_events` too**, or the COBOL side drops it and the case DIFFERS ("COBOL `START`, Java `ENQ`") (#5187).
+- **A stub refusal prints "not modelled" on stdout and exits nonzero**: strip that line when comparing stub output with CicsTask's (#5189).
+- **The harness trims trailing spaces from a SEND TEXT event's text**: a hand-traced expected string with trailing spaces fails even when the case is proven (#5196).
+- **After a cics-crucible pin bump**, run `tests/tools/evidence.py prove` on the stale `crucible:` keys as well as `crucible_port_provenance.py reprove`; reprove leaves `evidence.json` stale (#5192).
 
 ## 3. Release flow (cics-crucible RELEASING.md, done for v0.4.0 and v0.5.0)
 

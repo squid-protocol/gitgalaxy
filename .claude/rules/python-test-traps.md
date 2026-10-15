@@ -16,3 +16,4 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   audits. Give it a temp root (#5171).
 * **`ruff format` reflows multi-line expressions even beside `# fmt: skip`.** After formatting, re-check any test that
   pins source text (#5173).
+* **CodeQL `py/uninitialized-local-variable`:** a local assigned inside one `if` and read under a later separate `if` must be initialised before the first block, even when the guards are identical (#5196).

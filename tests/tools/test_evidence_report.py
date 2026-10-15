@@ -382,6 +382,38 @@ def test_the_release_gate_fails_while_a_level_is_stale(tmp_path, monkeypatch, ca
     assert er.main(["--check", "--live"]) == 0
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_passes_the_published_non_live_report_and_fails_drift(tmp_path, monkeypatch):
+    """#5208: the refresh publishes a non-live render; the release gate must pass it, and still fail real drift."""
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))  # what the refresh publishes
+    assert er.main(["--check", "--live"]) == 0  # clean right after a refresh
+    assert er.main(["--check"]) == 0
+    md = tmp_path / estate / "report.md"
+    clean_md = md.read_text("utf-8")
+    md.write_text(clean_md.replace("| L0 |", "| L0 (edited) |", 1), "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # edited rendering
+    md.write_text(clean_md, "utf-8")
+    js = tmp_path / estate / "report.json"
+    clean_js = js.read_text("utf-8")
+    js.write_text(clean_js.replace("evidence.py status at build time", "edited", 1), "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # edited data
+    js.write_text(clean_js, "utf-8")
+    (tmp_path / estate / "stray.md").write_text("x", "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # an extra file
+    (tmp_path / estate / "stray.md").unlink()
+    assert er.main(["--check", "--live"]) == 0
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_still_fails_a_stale_level_in_a_non_live_published_report(tmp_path, monkeypatch, capsys):
+    stale_fixture(tmp_path, monkeypatch, STALE)
+    er.write(er.expected(False))
+    assert er.main(["--check", "--live"]) == 1
+    assert "stale level" in capsys.readouterr().err
+    assert er.main(["--check"]) == 0  # non-live compares content only
+
+
 def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
     stale_fixture(tmp_path, monkeypatch, FULL)  # committed: current
     now = {**er.det_coverage(), CASE: STALE}  # the harness moved since

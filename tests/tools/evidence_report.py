@@ -1720,7 +1720,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--deltas", action="store_true", help="print the level changes a refresh would make; exit 0 (#4703)"
     )
-    ap.add_argument("--live", action="store_true", help="--check / --refresh: recompute the records' status now")
+    ap.add_argument(
+        "--live",
+        action="store_true",
+        help="--refresh: recompute the records' status now; --check: also fail a stale level or survey (#5208)",
+    )
     args = ap.parse_args(argv)
 
     if args.deltas:
@@ -1728,10 +1732,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.check:
         stale_failed = False
-        built = rebuilt(args.live)
-        want = expected(args.live, built)
+        # #5208: the published copy is built non-live (provenance "at build time"), so its content is compared with a
+        # non-live render; --live adds the currency checks below, from the live build. The refresh fallback
+        # (`--refresh --live`) publishes a live render, so a file equal to either render is current.
+        want = expected(False)
+        built = rebuilt(True) if args.live else None
+        alt = expected(True, built) if built is not None else {}
         have = current_texts(list(want))
-        bad = [p for p, text in want.items() if have[p] != text]
+        bad = [p for p, text in want.items() if have[p] != text and have[p] != alt.get(p)]
         extra = [p for p in OUT.glob("*/*") if p.is_file() and p not in want]
         if args.live:  # #4730: the release gate never quotes a stale level as current
             for e, prog, lv, sha, ins in stale_levels(True, built):

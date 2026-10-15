@@ -1440,7 +1440,7 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
 int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
     char saved[40];
     int most = c->len;
-    if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal");
+    if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
     if (fromlen < 0) {
         c->resp = LENGERR;
         c->resp2 = 0;

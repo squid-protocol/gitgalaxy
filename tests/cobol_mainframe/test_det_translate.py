@@ -639,7 +639,7 @@ def test_options_honoured_without_code_say_why():
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL", "BELOW", "EXECUTABLE"}  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -1020,6 +1020,11 @@ _RESP_ELSEWHERE = {
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
+    **dict.fromkeys(
+        ("POST", "WAIT EVENT", "CONVERSE"),
+        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
+    ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 

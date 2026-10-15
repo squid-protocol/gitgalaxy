@@ -2068,9 +2068,10 @@ class Cics:
         under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
         runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
         name by the spec entry."""
-        frm = _arg(opts.get("FROM"))
-        if not opts.get("INTO"):
-            raise CicsError(_msg("CONVERSE", "required", "INTO"))
+        for req in ("FROM", "INTO"):
+            if not opts.get(req):
+                raise CicsError(_msg("CONVERSE", "required", req))
+        frm = _arg(opts["FROM"])
         sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
         length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
         most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")

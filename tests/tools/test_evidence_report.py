@@ -13,7 +13,14 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
-REPORTS = sorted(er.OUT.glob("*/report.json"))
+REPORTS = sorted(er.FIXTURE.glob("*/report.json"))  # #5206: main commits no report; the tests read a frozen snapshot
+
+
+@pytest.fixture(autouse=True)
+def _snapshot(monkeypatch):
+    monkeypatch.setattr(er, "OUT", er.FIXTURE)
+
+
 TREE = next(
     (
         s["translator"]
@@ -81,21 +88,12 @@ def test_burned_estate_reports_are_committed_and_only_burned():
         assert cc.is_burned(f.parent.name), f"{f.parent.name}: only burned estates are committed"
 
 
-@pytest.mark.skipif(
-    os.environ.get("EVIDENCE_REPORT_ADVISORY") == "1",
-    reason="#4703: per-PR CI is advisory (smoke-test.yml / full-suite-gate.yml print the level deltas); the evidence-refresh "
-    "bot regenerates the reports on main and the release gate (publish.yml) runs `evidence_report.py --check --live`",
-)
-def test_the_committed_reports_are_current():
-    assert er.main(["--check"]) == 0, "stale: python tests/tools/evidence_report.py --refresh"
-
-
 @pytest.mark.parametrize("path", REPORTS, ids=lambda p: p.parent.name)
-def test_committed_report_validates(path):
+def test_snapshot_report_validates(path):
     assert er.validate(json.loads(path.read_text("utf-8"))) == []
 
 
-@pytest.mark.parametrize("path", [*REPORTS, er.OUT / "README.md"], ids=lambda p: p.parent.name + "/" + p.name)
+@pytest.mark.parametrize("path", [*REPORTS, er.FIXTURE / "README.md"], ids=lambda p: p.parent.name + "/" + p.name)
 def test_no_forbidden_words(path):
     md = path.with_name("report.md") if path.suffix == ".json" else path
     hits = er._FORBIDDEN.findall(md.read_text("utf-8"))

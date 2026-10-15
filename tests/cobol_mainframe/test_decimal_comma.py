@@ -167,6 +167,9 @@ def test_the_codec_reads_no_edited_picture_as_a_number():
     assert _pic_numeric("S9(5)V99") == (True, 7, 2)
 
 
+@pytest.mark.slow(
+    reason="first user of the module-scoped generated fixture: one Spring-forge run of two programs (#5178)"
+)
 def test_a_vsam_entity_keeps_the_comma_pictures_as_their_text(generated):
     entity = (generated / "src/main/java/com/gitgalaxy/modernized/entity/vsam/EuRec.java").read_text(encoding="utf-8")
     assert '@Column(name = "EU_AMT", length = 6)\n    private String euAmt;' in entity

@@ -49,7 +49,7 @@ import pytest
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _strict_harness import assert_redos_immune  # type: ignore
+from _strict_harness import assert_redos_immune_all  # type: ignore
 
 
 def _rule(lang, signal="immutability_locks"):
@@ -169,7 +169,5 @@ def test_immutability_locks_redos_sweep():
         "New-Variable " + "x" * 50000,
         "final " + "val" * 20000,
     ]
-    for lang in sorted(CASES):
-        rule = _rule(lang)
-        for payload in payloads:
-            assert_redos_immune(rule, payload, timeout_sec=3.0)
+    # #5166: one child process for the whole sweep, not one per (language, payload)
+    assert_redos_immune_all(((_rule(lang), payload) for lang in sorted(CASES) for payload in payloads), timeout_sec=3.0)

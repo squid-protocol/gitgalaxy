@@ -55,6 +55,18 @@ def test_a_hung_pattern_times_out_as_an_offender():
     assert rows[0]["offender"] and rows[0]["reason"].startswith("timeout")
 
 
+def test_a_sharded_sweep_returns_the_serial_rows_in_order():
+    """#5166: `workers` only changes how the sites are dealt out, never a row or its place."""
+    sites = [tr.Site("demo.py", pat, 0, [i], {"match"}) for i, pat in enumerate((r"A", r"B+", r"\s*X", r"C|D", r"E"))]
+    serial = tr.sweep(sites)
+    for workers in (2, 3, 9):
+        sharded = tr.sweep(sites, workers=workers)
+        assert [(r["lines"], r["pattern"], r["offender"]) for r in sharded] == [
+            (r["lines"], r["pattern"], r["offender"]) for r in serial
+        ]
+    assert [r["pattern"] for r in serial] == [s.pattern for s in sites]
+
+
 def test_payload_units_include_keyword_prefixes():
     units = tr.payload_units(r"EXEC\s+CICS\s+[A-Z]+\s+END-EXEC", 0)
     assert "EXEC CICS " in units and "EXEC X CICS X " in units
@@ -81,7 +93,7 @@ def test_no_new_offenders():
     re-measured here (the CLI does that, and reports any that stopped reproducing)."""
     baseline = {tr._bkey(b) for b in tr.load_baseline()}
     sites, _ = tr.collect()
-    rows = tr.sweep([s for s in sites if s.key not in baseline])
+    rows = tr.sweep([s for s in sites if s.key not in baseline], workers=4)  # #5166
     new = [f"{r['module']}:{r['lines']} {r['pattern']!r}: {r['reason']} ({r['unit']!r})" for r in rows if r["offender"]]
     assert not new, "new ReDoS offenders in the refraction tools:\n" + "\n".join(new)
 

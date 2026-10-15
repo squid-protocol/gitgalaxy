@@ -1454,8 +1454,11 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `$GGCICS_FACILITY` / `$GGCICS_SCREEN`. The crucible runner states them from its scheduler and the reference region
   (cics-crucible SPEC 2): `TD` for a task a terminal step starts (typed input, or a pseudo-conversational RETURN
   TRANSID's next input), `SD` / `S` for a START-triggered task by whether its request(s) passed FROM, user `CICSUSER`
-  (no security, nobody signs on), FACILITY the task's terminal, screen 24 x 80. Unstated (the equivalence harness's
-  one-task scenarios), the option is refused at run time, not guessed.
+  (no security, nobody signs on), FACILITY the task's terminal, screen 24 x 80. The equivalence harness states the
+  ones a case gives (#5126): a scenario's or the case's `"userid"` (`$GGCICS_USERID` / `withUserid`), `"screen"`
+  (`[rows, columns]`, of a stated `"termid"`: `$GGCICS_SCREEN` / `withScreen`), `"termid"` (FACILITY) and `"startcode"`;
+  `proof_blockers` drops the gap only when every scenario states it. Unstated, the option is refused at run time, not
+  guessed.
 - **Assumed.** An ASSIGN that raises INVREQ writes none of its data areas, the other options' included (IBM does not
   say; a crucible case never reads one after INVREQ). A START that passes RTRANSID / RTERMID / QUEUE but no FROM is
   `S` (IBM's codes are worded by FROM alone).

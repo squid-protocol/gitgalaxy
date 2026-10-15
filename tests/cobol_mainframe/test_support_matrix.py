@@ -11,6 +11,15 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import support_matrix as sm  # tests/tools/support_matrix.py
 
+FIXTURE_REPORTS = Path(__file__).resolve().parents[1] / "fixtures" / "evidence_report"
+
+
+@pytest.fixture(autouse=True)
+def _snapshot_reports(monkeypatch):
+    """#5206: the evidence report is published on `generated`, not committed; these tests read a frozen snapshot."""
+    monkeypatch.setattr(sm, "REPORTS", FIXTURE_REPORTS)
+
+
 GETMAIN_HOLE = "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task is not modelled)"
 
 

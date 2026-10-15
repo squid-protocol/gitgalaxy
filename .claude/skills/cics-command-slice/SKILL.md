@@ -156,7 +156,7 @@ are fine). `cics_census.py` warns about a census-root corpus that is not on the 
   `proof.log`; `cics_crucible.py --out O` -> `O/results.json` + `O/report.md`, `--report-dir R` -> `R/report.json`
   (a port proof); `--keep W` keeps `W/<case>/{forge,cobol,java}`.
 - **Re-proving evidence:** `$PY tests/tools/evidence.py status` shows what is stale; re-prove with
-  `evidence.py prove KEY ...` (or `refresh --stale`) (do not commit the rendered report under `docs/language_status/evidence_report/`: the bot regenerates it, #4703). Never hand-edit an evidence record or
+  `evidence.py prove KEY ...` (or `refresh --stale`) (main holds no rendered report: it is published on `generated`, read it via `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`, #5206). Never hand-edit an evidence record or
   a `reproven` entry, and never drop or write an approval -- only a person runs `evidence.py approve`.
 - Debugging a differing scenario, Db2 cases and the checklists for a translator / runtime / harness change: the
   `det-port` skill.

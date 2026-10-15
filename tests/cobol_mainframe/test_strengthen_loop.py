@@ -116,11 +116,14 @@ def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fau
     assert "fault" in st.validate(CICS, bad, set(), names)
 
 
-_FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid"}
+_FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid",
+              "ENQ": "resource"}  # fmt: skip
+_FAULT_RESP = {"ENQ": ("ENQBUSY", 0)}  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 
 def _fault_member_scenario(cmd):
-    plan = {"cmd": cmd, "resp": "NOTAUTH", "resp2": 101}
+    resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
+    plan = {"cmd": cmd, "resp": resp, **({"resp2": resp2} if resp2 else {})}
     if cmd != "RETRIEVE":
         plan[_FAULT_KEY.get(cmd, "file")] = "TARGET1"
     return {"name": "x", "faults": [plan]}
@@ -133,7 +136,8 @@ def test_the_strengthen_loop_plans_a_fault_for_every_fault_command(cmd):
     ec = st.eq_cics()
     assert st.validate(CICS, sc, set(), set()) is None
     name = "-" if cmd == "RETRIEVE" else "TARGET1"
-    assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP['NOTAUTH']} 101"]
+    resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
+    assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP[resp]} {resp2}"]
 
 
 @pytest.mark.parametrize("cmd", st.eq_cics().FAULT_COMMANDS)

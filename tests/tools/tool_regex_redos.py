@@ -349,8 +349,24 @@ def _worker(jobs: "multiprocessing.Queue", results: "multiprocessing.Queue") -> 
         results.put(measure(*job))
 
 
-def sweep(sites: list[Site], timeout: float = JOB_TIMEOUT_S) -> list[dict[str, Any]]:
-    """Measures every site in a worker process, restarting the worker after a timeout."""
+def sweep(sites: list[Site], timeout: float = JOB_TIMEOUT_S, workers: int = 1) -> list[dict[str, Any]]:
+    """Measures every site in a worker process, restarting the worker after a timeout.
+
+    `workers` > 1 deals the sites round-robin to that many worker processes (#5166). Each site is
+    measured on its thread's CPU clock, so a busier box does not change a verdict; rows come back
+    in `sites` order, the same as the serial sweep."""
+    workers = max(1, min(workers, len(sites)))
+    if workers == 1:
+        return _sweep_serial(sites, timeout)
+    from concurrent.futures import ThreadPoolExecutor
+
+    shards = [sites[i::workers] for i in range(workers)]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        done = list(pool.map(lambda shard: _sweep_serial(shard, timeout), shards))
+    return [done[i % workers][i // workers] for i in range(len(sites))]
+
+
+def _sweep_serial(sites: list[Site], timeout: float) -> list[dict[str, Any]]:
     ctx = multiprocessing.get_context("spawn")
     rows = []
     proc = jobs = results = None

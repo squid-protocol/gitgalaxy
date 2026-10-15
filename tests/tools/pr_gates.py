@@ -233,6 +233,12 @@ def ratchets() -> list[Ratchet]:
             "python tests/tools/ground_truth_ledger.py update   (then `assign` a cause to each UNTRIAGED entry)",
             _need_corpora,
         ),  # fmt: skip
+        Ratchet(
+            "time",
+            [PY, t + "time_ratchet.py", "check"],
+            "make the test faster or mark it @pytest.mark.slow(reason=...); shrink the baseline: python tests/tools/time_ratchet.py update --times .test_durations (never raises; #5166)",
+            lambda env: None,
+        ),  # fmt: skip
     ]
 
 

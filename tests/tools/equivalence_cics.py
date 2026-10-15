@@ -1449,6 +1449,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
+            key = enq_fault_key(opts.get("RESOURCE"))
+            flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
+            return [f"MOVE '{key}' TO GG-FLAGS", flag] + _call("GGCENQ", []) + _resp(opts, True, labels)
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
@@ -2828,7 +2832,16 @@ def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, An
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY")}  # fmt: skip
+
+
+def enq_fault_key(resource: str | None) -> str:
+    """#5089: the name an ENQ fault gives its resource -- the RESOURCE operand as written (upper case, no blanks), which
+    both translators read from the same source text. At most 16 characters: the stub's fault counters key on that."""
+    key = re.sub(r"\s+", "", (resource or "").upper())
+    if not key or len(key) > 16 or "'" in key:
+        raise Unsupported(f"ENQ RESOURCE({resource}): a data-name of 1 to 16 characters is the name a fault gives it")
+    return key
 
 
 FAULT_COMMANDS = (
@@ -2855,12 +2868,13 @@ FAULT_COMMANDS = (
     "START",
     "RETRIEVE",
     "CANCEL",
+    "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
 LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
-_FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
+_FAULT_NAME = ("file", "program", "queue", "transid", "reqid", "resource")  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
 # IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
@@ -2990,6 +3004,19 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
             listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
             raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
+        if (cmd == "ENQ") != (
+            f["resp"] == "ENQBUSY"
+        ):  # #5089 (register X60): IBM lists ENQBUSY for ENQ only, and ENQ's others
+            raise Unsupported(  # (INVREQ, LENGERR) the program's own operands raise, not a plan
+                f"scenario {sc['name']}: fault {f}: ENQ is planned with ENQBUSY only (IBM lists no other condition a region "
+                "raises for it), and ENQBUSY is no other command's (register X60, refused)"
+            )
+        if cmd == "ENQ":
+            if resp2:
+                raise Unsupported(
+                    f"scenario {sc['name']}: fault {f}: IBM states no RESP2 for ENQBUSY (register X60): name none"
+                )
+            f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:

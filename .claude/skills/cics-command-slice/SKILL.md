@@ -50,6 +50,9 @@ Traps `--check` exists for:
 - [ ] **Translator** (`det/cics.py`): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
       does not honour refused BY NAME with the entry's reason; conditions through
       `outcome()` / `conditions()` with the RESP2 IBM documents; HANDLE CONDITION / NOHANDLE / RESP all honoured.
+      Read IBM's command page (WebFetch `ibm.com/docs/en/cics-ts/6.x?topic=summary-...`) for a condition's exact
+      semantics before modelling it as REFUSED: LENGERR on GET / QUERY COUNTER is a warning that completes the
+      operation (#5213).
       A failing test first in `tests/cobol_mainframe/test_det_translate.py`.
 - [ ] **BOTH runtimes**, the same semantics: the Java `CicsTask` / `DetCics` (cobolrt) AND the stub
       `tests/equivalence/cics/ggcics.c` (+ `tests/tools/equivalence_cics.py`). A fact the runtime cannot know (a

@@ -830,6 +830,11 @@ class Cics:
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
+        if not words and next(iter(opts), None) == "WAIT":
+            # #5079: WAIT is a bare option (RETRIEVE ... WAIT) to the parser, so a command that starts with it (WAIT EVENT,
+            # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
+            words = ["WAIT"]
+            del opts["WAIT"]
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -1258,6 +1263,8 @@ class Cics:
             return self.receive(opts, ind)
         if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
             return self.storage(key, opts, ind)
+        if key == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
+            return self.address(opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)
         if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
@@ -2052,6 +2059,34 @@ class Cics:
         halfword = str(form == "LENGTH").lower()
         call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
+
+    def address(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X59): ADDRESS EIB(ptr) / COMMAREA(ptr) (IBM, EXEC CICS ADDRESS: "a pointer reference set to the address of
+        the EXEC interface block" / "of the communication area (COMMAREA) available to the currently executing program").
+        The pointer holds the handle of the record's own bytes (DetCics.setPointerToRecord), so SET ADDRESS OF rec TO ptr
+        shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address, and a
+        task with none (EIBCALEN 0: IBM's X'FF000000', no COBOL NULL) is refused when it runs. The command has no
+        condition: NORMAL. CWA / TWA / TCTUA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        if not (opts.get("EIB") or opts.get("COMMAREA")):
+            raise CicsError("ADDRESS without EIB or COMMAREA: the pointer to set")
+        out: list[str] = []
+        for option in ("EIB", "COMMAREA"):
+            if option not in opts:
+                continue
+            ptr = self.pointer(opts[option])
+            if option == "EIB":
+                out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")
+                continue
+            try:
+                rec = self.g.address_record("DFHCOMMAREA")
+            except Untranslatable:
+                raise CicsError(
+                    "ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address"
+                ) from None
+            out.append(f"{ind}DetCics.addressCommarea(task, {ptr}, {rec}, {self.int_('EIBCALEN')});")
+        return [*out, *self.outcome(opts, "0", "0", ind)]
 
     def receive(self, opts: dict, ind: str) -> list[str]:
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.

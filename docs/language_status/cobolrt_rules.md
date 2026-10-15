@@ -13,7 +13,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java` | 10 | yes |
-| CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 23 | yes |
+| CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 24 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -21,7 +21,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-144 rules: 80 MATCHED, 22 DIFFERS, 10 REFUSED, 32 ASSUMED; 0 measured on z/OS (#4702).
+145 rules: 80 MATCHED, 22 DIFFERS, 10 REFUSED, 33 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -184,6 +184,7 @@ What a det port does around a CICS command: the bytes it passes and receives. Th
 | RT-CICS-START-LENGTH | START FROM(f) LENGTH(n): the first n bytes, LENGERR when LENGTH is not greater than zero; past FROM refused | `cics-apr` START | - | X18 (ASSUMED (REFUSED where IBM is silent)); X6 (REFUSED (the WRITEQ) / judged up to it) | MATCHED | uncalibrated |
 | RT-CICS-RETRIEVE-INTO | RETRIEVE RTRANSID / RTERMID / QUEUE: the value MOVEd into the program's area, padded with spaces or truncated; RETRIEVE INTO the bytes | `cics-apr` RETRIEVE | - | X18 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-READ-INTO-LENGTH | READ INTO LENGTH(max): the record truncated to max, LENGERR (RESP2 11) when longer, the rest of INTO as it was; a negative LENGTH or a record past INTO refused | `cics-apr` READ: INTO, LENGTH | - | X14 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
+| RT-CICS-READQ-TD-INTO | READQ TD INTO: the record (cut to LENGTH) goes INTO, the rest of INTO as it was; a record moved past INTO refused | `cics-apr` READQ TD: INTO, LENGTH | - | X6 (REFUSED (the WRITEQ) / judged up to it); X57 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-BIF-DEEDIT | BIF DEEDIT: the characters other than the digits removed, the digits right-aligned and zero-padded, a trailing sign kept as the last digit's zone | `cics-apr` BIF DEEDIT | - | X26 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-REGION-CODE-PAGE | TS items are in the region's code page (the estate's EBCDIC page, else CCSID 037): the program's bytes moved byte for byte, a byte with no character in both pages stops the run by name | none: the region's code page is a deployment fact IBM leaves to the installation | REGION-CODE-PAGE | - | ASSUMED | uncalibrated |
 | RT-CICS-ASSIGN-TEXT | ASSIGN of a short value (SYSID: 4 bytes) into a longer area: the first bytes, the rest as it was | `cics-apr` ASSIGN | - | X19 (ASSUMED (REFUSED where the harness cannot decide)) | ASSUMED | uncalibrated |

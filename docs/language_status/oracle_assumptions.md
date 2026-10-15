@@ -164,6 +164,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X54 | CICS | A DFHMDF field coded JUSTIFY=(RIGHT[,ZERO]) / (LEFT,ZERO) receives the operator's input right- or left-justified and filled with zeros or blanks, as BMS does; <f>L stays the length of the text typed. A field with no JUSTIFY is unchanged (left-justified, blank padded) | ASSUMED (where IBM is silent) | unit-proven on DetJustify.place over the whole operand class (tests/cobol_mainframe/test_det_receive_map_justify_5082.py); PCCONF (pc-wizard) RECEIVE MAP into a JUSTIFY=(RIGHT,ZERO) field |
 | X55 | CICS | A program written to CICS's macro-level API (DFHPC / DFHFC / DFHTC / DFHSC ... TYPE= macro calls, CSA / TCA addressing) or an assembler program written for CICS (DFHEIENT / DFHEISTG / EXEC CICS in HLASM) is its own refusal family: the scanner names it, the support matrix and blocker report count it per estate, and the det translator refuses it with the reason instead of reading it as COBOL with holes | REFUSED | no (no burned estate holds one; unit-proven on gitgalaxy/core/cics_macro_level.py and the det source check) |
 | X56 | CICS | An OS/VS COBOL program's BLL cell list (the LINKAGE 01 of fullwords after DFHCOMMAREA, a FILLER first, one cell per 4096 bytes of each following 01) is rewritten before translation as IBM's 'Converting to VS COBOL II' says: the cells become POINTERs (X47), SET(cell) stays SET(pointer), SERVICE RELOAD record becomes SET ADDRESS OF record TO its cell, a long record's ADD 4096 secondary cells go, MOVE cell TO cell is SET; the det port and the GnuCOBOL oracle run that one program. Refused whole by name (OS/VS COBOL BLL addressing: ...): a cell used as a number or moved to / from data, a cell changed with no SERVICE RELOAD of its record later in the paragraph (addressability through a paragraph name), a reload before a long record's secondary cells are reset, a secondary cell set any other way than ADD 4096, a cell as a command's data, SERVICE LABEL, SERVICE RELOAD of a non-LINKAGE item or of a record no cell addresses, DFHCOMMAREA after the list, a list in a COPY member | ASSUMED (REFUSED where IBM is silent) | yes, on a synthetic estate only (tests/cobol_mainframe/test_bll_cells_5119.py: a long record over two cells and a record aliased to it, proven against GnuCOBOL end to end; every refusal tested). No corpus program uses BLL cells; estate-crucible's era strata (#5118 S4-S6) are to carry the corpus cases |
+| X57 | CICS | READQ TD QUEUE INTO [LENGTH]: a destructive, first-in first-out read of the queue the task's own WRITEQ TDs fill; QZERO for an empty queue, QIDERR for a queue the CSD does not define, LENGERR (the record read and lost, INTO holding its first LENGTH bytes) for a record longer than LENGTH or a LENGTH of zero, LENGERR with nothing read for a negative LENGTH, LENGTH set to the record's own length. DELETEQ TD: every record of an intrapartition queue; QIDERR; INVREQ for an extrapartition queue. Refused by name: READQ TD of an extrapartition queue (and of any queue whose CSD TYPE is neither INTRA nor EXTRA), READQ TD SET / SYSID / NOSUSPEND, DELETEQ TD SYSID and of a queue with a TYPE other than INTRA / EXTRA, a record moved past INTO. The WRITEQ TD event keeps its shape | ASSUMED (REFUSED where IBM is silent) | no corpus program issues either command yet; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5079.py) and the translator's refusals (tests/cobol_mainframe/test_equivalence_cics.py) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2751,6 +2752,38 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven end to end on a synthetic estate (a long record over two cells,
   written past 4096 bytes and aliased by a second record through MOVE cell TO cell: GnuCOBOL and the det port SEND the same hand-traced
   text). No corpus program uses BLL cells yet, so no port moves.
+
+### X57. READQ TD / DELETEQ TD on an intrapartition queue — ASSUMED, REFUSED where IBM is silent (#5079)
+- **READQ TD** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-readq-td). "Each READQ TD consumes the record it
+  reads": the read is destructive. QUEUE (1-4 characters), INTO or SET, LENGTH, NOSUSPEND, SYSID. Conditions: QZERO (23) "the queue is
+  empty or the end has been reached"; QIDERR (44) the queue name cannot be found; LENGERR (22) the INTO area cannot hold the data or
+  the length is invalid: a LENGTH below zero raises it and the queue is not read, a LENGTH of zero raises it and the queue is still
+  read, a record longer than LENGTH is truncated to LENGTH and raises it; after a read LENGTH is set to the record's original length.
+  NOTOPEN (19), IOERR (17) and INVREQ (16, "an extrapartition queue opened for output was named") concern extrapartition queues;
+  QBUSY (25) only arises with NOSUSPEND or an active HANDLE; DISABLED, ISCINVREQ, LOCKED, NOTAUTH, SYSIDERR need a region the run does not
+  have. The page lists no ENDFILE: QZERO is the end-of-queue condition, so ENDFILE is not modelled.
+- **DELETEQ TD** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-deleteq-td). "Deletes all transient data in a queue": an
+  intrapartition queue's records go; an extrapartition queue "cannot be deleted" and raises INVREQ (16); QIDERR (44) for a queue that
+  cannot be found. LOCKED, DISABLED, NOTAUTH, ISCINVREQ, SYSIDERR: not modelled (one task, no security, no remote queue). IBM lists no
+  RESP2 for any of them (so 0).
+- **What the runtimes do.** An intrapartition queue is a first-in first-out list in the run (the stub's files under the TS root,
+  `td-<hex of the name>/`, shared by the tasks of one conversation as TS queues are; `CicsTask.TempStorage.td`): a WRITEQ TD to a
+  defined intrapartition queue appends its record as well as recording its event (the WRITEQ TD event is unchanged: queue, text,
+  resp), READQ TD removes the first, DELETEQ TD empties the queue. The queue's TYPE comes from the case's CSD (`DEFINE TDQUEUE(Q)
+  ... TYPE(INTRA|EXTRA)`: `tdqueues.cfg` has a TYPE column, `CicsTask.withTdQueueTypes`); with no CSD every queue is defined and
+  intrapartition. READQ TD records an event on both sides ({queue, resp, data}: the text of what went INTO, none when nothing was
+  read); DELETEQ TD records none, as DELETEQ TS does, and shows through the RESP and the reads after it. LENGTH of a data area is
+  set on NORMAL and LENGERR with a record read; a literal or `LENGTH OF` is the most INTO takes and is set nowhere.
+- **Assumed.** (1) A queue is empty before the task writes to it: IBM says nothing of records a queue holds when the region starts
+  (a case cannot seed one yet). (2) A WRITEQ TD to an intrapartition queue is committed at once: no logical recoverability, so a
+  SYNCPOINT ROLLBACK does not undo it and a read sees a write of the same task. (3) A WRITEQ TD of LENGTH 0 queues an empty record,
+  which a READQ TD reads as length 0 with NORMAL.
+- **Refused by name.** READQ TD of an extrapartition queue (IBM's NOTOPEN / IOERR / INVREQ depend on the queue's open state and
+  on a data set the run does not have) and of a queue defined with a TYPE other than INTRA or EXTRA (INDIRECT, REMOTE) or none
+  (stub and port stop at the statement, "not modelled"); DELETEQ TD of the same other types; SET (the address of CICS's copy of the
+  data is not modelled), SYSID (a remote system is not modelled), NOSUSPEND (QBUSY needs a second task); a record moved past INTO
+  (a READQ TD whose LENGTH exceeds INTO, as READ INTO's: GnuCOBOL lays the storage after INTO out unlike IBM's compiler, X6).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. The oracle is GnuCOBOL plus the stub, not z/OS.
 
 ## Language Environment
 

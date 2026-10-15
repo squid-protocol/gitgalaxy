@@ -182,3 +182,18 @@ The full-suite parts of `smoke-test.yml` pass `--ignore=tests/cobol_mainframe/te
 
 ## Test-time ratchet (#5166)
 `tests/tools/time_ratchet.py`, baseline `tests/test_time_baseline.json` (the 32 tests over 10 s with their seconds, and `suite_budget_s`). Each full-suite part of `smoke-test.yml` runs with `GITGALAXY_TEST_TIMES` set (`tests/conftest.py` writes every test's seconds plus the reasons of `slow`-marked ones) and then runs `time_ratchet.py check` on it: a test over 10 s needs `@pytest.mark.slow(reason=...)` or a baseline entry, and a baselined test fails over 2x its recorded seconds (runner noise is +-20-30%). The step is inside the required part, so it always reports. The `suite-time` job (not required) sums the three parts' own seconds and prints the total and its delta against the budget in the job summary; on the nightly it fails over +10% and files or refreshes one issue ("Suite time over budget (nightly)"). The only workflow permission added is `issues: write` on that job. `update` only lowers; `pr_gates.py --ratchets` has a `time` entry that checks the committed `.test_durations`.
+
+## Fewer PR jobs (#5132)
+PR CI is limited by queueing (a pool of about 20 concurrent jobs), so every job that leaves the PR path frees a slot. Three changes, none touching a required check (required: `det`, `full-suite`, `ground-truth`, `mypy-audit`, `ruff-audit`):
+
+* `gitgalaxy.yml`: Vault Sentinel, X-Ray Inspector and Supply Chain Firewall (59 s, 42 s and 147 s of job time on a recent PR, mostly setup) are the three steps of one `pre-gate` job. A later step runs after an earlier failure (`!cancelled()`), so one push still reports every failing gate. The check name is now `Pre-gate (Vault Sentinel, X-Ray, Supply Chain)`.
+* `muninn.yml`, `codeql.yml`: a PR starts them only when `gitgalaxy/**`, `.github/**`, a dependency pin (`pyproject.toml`, `ci/requirements/**`, `templates/requirements/**`, `requirements*.txt`, `action.yml`) changes (Muninn also `.claude/**`). The weekly schedules stay as the backstop for everything else.
+* `golden-crucible.yml`: a PR starts the two legs only for engine code, the golden fixtures and their helper modules, the crucible pin, dependencies or the workflow itself, minus the COBOL-to-Java translator and its entry point (no scan reads them) and prose: the same exclusion as `crucible-path-independence.yml`. `tests/tools/test_ci_critical_path_split.py` checks the filters against sample changed paths and that every bare module `test_golden_crucible.py` imports is covered.
+
+| PR type | Jobs before | Jobs after | Job-minutes saved (recent runs) |
+|---|---|---|---|
+| engine (`gitgalaxy/**`, not translator) | 3 pre-gate + Muninn + CodeQL + 2 golden = 7 | 1 + Muninn + CodeQL + 2 golden = 5 | 2 runners; setup of 2 jobs |
+| translator-only | 7 | 1 + Muninn + CodeQL = 3 (Muninn and CodeQL run because the translator is Python under `gitgalaxy/**`) | 2 golden legs (about 7 min) plus 2 pre-gate runners |
+| tests / docs / `.claude` only | 7 (docs-only: none of the path-ignored ones) | 1 | Muninn about 7.6 min, CodeQL about 4.9 min, 2 golden legs about 7 min, 2 pre-gate runners |
+
+The critical path (time-to-green) is unchanged on an engine PR: it is `full-suite` and `ground-truth`, set by #5133 / #5151. Runner-minutes are from one recent run of each workflow, not a controlled measurement. The nightly durations cache is still recorded under `-n auto` contention (see #5162 above); a wall-calibrated weight is not done.

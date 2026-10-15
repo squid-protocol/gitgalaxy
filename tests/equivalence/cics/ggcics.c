@@ -4041,6 +4041,16 @@ static void put32(unsigned char *p, unsigned long long v) {
     for (int i = 3; i >= 0; i--) { p[i] = (unsigned char)(v & 255); v >>= 8; }
 }
 
+/* LENGERR RESP2 of a fullword (COUNTER) command whose counter holds v (#4770, X30; IBM, GET COUNTER and QUERY COUNTER): 0 when v fits
+ * a signed fullword or the counter is at its limit (v past MAXIMUM: "LENGERR can't occur at counter-at-limit"); else 1 (no bit above
+ * the low word: the sign bit), 2 (the high word is 1), 3 (above 1). The operation completes: VALUE is the low 32 bits. As
+ * CicsTask.fullwordLengerr. */
+static int counter_lengerr(const counter_row *r, unsigned long long v) {
+    if (v <= 2147483647ULL) return 0;
+    if (r->limited && r->max != ~0ULL && v > r->max) return 0;
+    return (v >> 32) == 0 ? 1 : (v >> 32) == 1 ? 2 : 3;
+}
+
 /* GET COUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER; X30, #5039, X50): the
  * value before the increment is written big-endian (signed fullword) into `value`, after which the counter is the
  * increment more; `wrap` is WRAP. See counter_step for the limits. As CicsTask.getCounter(pool, name, increment, wrap). */
@@ -4076,6 +4086,7 @@ int GGCGCNT(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, 
         }
         put32(value, v);
         counters_write(rows, n);
+        if ((c->resp2 = counter_lengerr(&rows[at], v))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -4158,8 +4169,10 @@ static int get_counter_x(gg_cics *c, int width, unsigned char *value, int valuel
             c->resp2 = st == 1 ? 101 : 103;
             return 0;
         }
+        unsigned long long got = v;
         for (int i = width - 1; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
         counters_write(rows, n);
+        if (width == 4 && (c->resp2 = counter_lengerr(&rows[at], got))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -4332,7 +4345,8 @@ int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
 /* QUERY COUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (IBM CICS TS, EXEC CICS QUERY COUNTER; #4415 slice 2, X29; #5039, X50):
  * the named counter's value and limits, signed fullwords written big-endian into the areas given (length 0: not asked for);
  * the value is unchanged. A counter not there is INVREQ RESP2 201 "Named counter not found". MINIMUM / MAXIMUM of a counter with
- * no limits, and a value beyond a fullword (IBM's LENGERR), are refused. As CicsTask.queryCounter. */
+ * no limits, and limits beyond a fullword, are refused; a value beyond a fullword is IBM's LENGERR (#4770, X30): RESP2 1 / 2 / 3, the
+ * low 32 bits written. As CicsTask.queryCounter. */
 int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
@@ -4352,8 +4366,9 @@ int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     } else {
         if ((lolen || hilen) && !rows[at].limited)
             refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
-        if (rows[at].value > 2147483647ULL)
-            refuse("QUERY COUNTER of a value beyond a fullword");
+        if ((lolen && rows[at].min > 2147483647ULL) || (hilen && rows[at].max > 2147483647ULL))
+            refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
+        if ((c->resp2 = counter_lengerr(&rows[at], rows[at].value))) c->resp = LENGERR;
         if (vallen) put32(val, rows[at].value);
         if (lolen) put32(lo, rows[at].min);
         if (hilen) put32(hi, rows[at].max);

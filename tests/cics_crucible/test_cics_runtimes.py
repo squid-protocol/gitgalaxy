@@ -2507,7 +2507,9 @@ def test_the_stub_deleteq_ts_inquire_association_and_query_counter(tmp_path):
     assert run({}, "qcnt", "PLAIN").stdout.strip() == "0/0/7"
     assert run({}, "qcnt", "NOPE", "GENAPOOL").stdout.strip() == "16/201/0"
     big = run({}, "qcnt", "BIGCNT", "BIG", check=False)
-    assert big.returncode == 98 and "beyond a fullword" in big.stdout
+    assert (
+        big.returncode == 0 and big.stdout.strip() == "22/2/0"
+    )  # #4770 (X30): LENGERR RESP2 2 (2**32), the low 32 bits
 
 
 @needs_cc
@@ -2549,7 +2551,7 @@ def test_the_stub_defines_gets_and_deletes_named_counters(tmp_path):
 def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_does(tmp_path):
     """#4415 slice 2: CicsTask answers as the stub does (above): DELETEQ TS the whole queue and its NEXT position, QIDERR /
     INVREQ; INQUIRE ASSOCIATION the stated origin (8 characters, the facility type's CVDA), refused unstated; QUERY COUNTER
-    the value unchanged, INVREQ RESP2 201, a value beyond a fullword refused."""
+    the value unchanged, INVREQ RESP2 201, a value beyond a fullword LENGERR (#4770, X30)."""
     out = _cics_task(
         tmp_path,
         """
@@ -2598,17 +2600,13 @@ def test_cics_task_deleteq_ts_inquire_association_and_query_counter_as_the_stub_
                 System.out.println("refused " + e.getMessage().contains("below zero") + " " + e.getMessage().contains("blank"));
             }
         }
-        try {
-            t.queryCounter("BIG", "BIGCNT");
-        } catch (UnsupportedOperationException e) {
-            System.out.println("refused");
-        }""",
+        System.out.println(java.util.Arrays.toString(t.queryCounter("BIG", "BIGCNT")));""",
     )
     assert out.splitlines() == ["0 QIDERR 44", "16", "[GTCICS01][CICSUSER][T001    ][GTNET   ] 213", "unstated",
                                 "bad type", "[0, 0, 41][0, 0, 41][0, 0, 7][16, 201, 0]",
                                 "[16, 201, 0][0, 0, 41][0, 0, 42]", "[16, 202][0, 0][0, 0][16, 403][16, 404][16, 404]",
                                 "[0, 0][16, 201][16, 403][0, 0, 3]", "refused true false", "refused false true",
-                                "refused"]  # fmt: skip
+                                "[22, 2, 0]"]  # fmt: skip
 
 
 _X32_MAIN = r"""

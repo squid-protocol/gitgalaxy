@@ -457,7 +457,9 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     "termid" (EIBTRMID and the principal facility: $EIBIN, $GGCICS_FACILITY and terminals.cfg / CicsTask.withTermid;
     RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
     $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
-    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29). The scenario's, else the case's; unstated, None, and
+    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29), plus "userid" (ASSIGN USERID: $GGCICS_USERID /
+    withUserid) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
+    X19), each present only when stated (#5126). The scenario's, else the case's; unstated, None, and
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
@@ -466,6 +468,18 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
+    for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+        if sc.get(k, case.get(k)) is not None:
+            out[k] = sc.get(k, case.get(k))
+    u = out.get("userid")
+    if u is not None and (not isinstance(u, str) or not 1 <= len(u) <= 8 or not u.strip() or "," in u or " " in u):
+        raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
+    scr = out.get("screen")
+    if scr is not None and (not isinstance(scr, list) or len(scr) != 2
+                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+        raise Unsupported(
+            f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
+        )
     o = out["origin"]
     if o is not None and (not isinstance(o, dict) or sorted(o) != sorted(ORIGIN_KEYS)
                           or any(not isinstance(o[k], str) or "," in o[k] or not o[k] for k in ORIGIN_KEYS)):  # fmt: skip
@@ -3374,6 +3388,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
+                      + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
+                      + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
@@ -4609,6 +4625,8 @@ class EquivalenceRunTest {{
             if (calen != null) {{
                 task.withExactCommarea();
             }}
+            if (sc.hasNonNull("userid")) task.withUserid(sc.get("userid").asText());  // #5126 (X19): ASSIGN USERID
+            if (sc.hasNonNull("screen")) task.withScreen(sc.get("screen").get(0).asInt(), sc.get("screen").get(1).asInt());
             if (sc.hasNonNull("origin")) {{  // #4270 (X29): INQUIRE ASSOCIATION -- the origin data the case states
                 JsonNode o = sc.get("origin");
                 task.withOrigin(o.get("applid").asText(), o.get("userid").asText(), o.get("facilname").asText(),

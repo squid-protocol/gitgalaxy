@@ -5122,6 +5122,13 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+        elif (
+            verb == "ENQ"
+        ):  # #5089 (X60): an ENQ the scenario planned busy: CicsTask.enq records it (the others record none)
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append(
+                {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
+            )
         elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
@@ -5207,7 +5214,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

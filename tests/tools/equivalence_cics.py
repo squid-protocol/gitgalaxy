@@ -1100,6 +1100,29 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
+def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
+    stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
+    then is the pointer itself. The option rules as the det translator's."""
+    key = "ADDRESS"
+    _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
+    if not (opts.get("EIB") or opts.get("COMMAREA")):
+        raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
+    lines: list[str] = []
+    if opts.get("EIB"):
+        lines += ["MOVE SPACES TO GG-FLAGS"]
+        lines += _call("GGCADDR", [f"BY REFERENCE {_pointer(key, opts['EIB'])}", "BY REFERENCE DFHEIBLK"])
+    if opts.get("COMMAREA"):
+        ptr = _pointer(key, opts["COMMAREA"])
+        lines += ["MOVE EIBCALEN TO GG-NUM", "MOVE 'COMMAREA' TO GG-FLAGS", "IF EIBCALEN = 0"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", f"BY REFERENCE {ptr}"])]
+        lines += ["ELSE"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
+        lines += ["END-IF"]
+    return lines + _resp(opts, False, labels)
+
+
 def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
     key = "FREEMAIN"
@@ -1607,6 +1630,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
         return _freemain(opts, labels)
+    if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
+        return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
         return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
@@ -2148,6 +2173,9 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
+        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
+                          ["ADDRESS COMMAREA"])  # fmt: skip
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,

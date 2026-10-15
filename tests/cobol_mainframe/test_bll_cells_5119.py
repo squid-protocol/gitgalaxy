@@ -8,7 +8,7 @@ POINTERs in WORKING-STORAGE, SERVICE RELOAD record becomes SET ADDRESS OF record
 pointer lane. The pieces, the whole input class each:
 - the lowering of IBM's own examples (Figure 3, the SERVICE RELOAD example, Figure 5, the MOVE example), unchanged for
   a program with no BLL evidence, and each idiom it cannot keep refused whole by name;
-- the det translator: a BLL program translates with no hole; READ SET(cell) and ADDRESS TWA(cell) are still holes
+- the det translator: a BLL program translates with no hole; READ SET(cell) and ADDRESS TWA(cell) (X59: only EIB and COMMAREA are modelled) are still holes
   under their own commands' refusals;
 - the oracle's translate(): the same lowered program, a refusal raised as Unsupported;
 - end to end (EQUIVALENCE_E2E): GnuCOBOL and the det port, one proven case on a synthetic estate.
@@ -267,7 +267,7 @@ def test_a_read_set_into_a_cell_is_the_pointer_lane_now(tmp_path):
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",
             "EXEC CICS ADDRESS TWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
-            "EXEC CICS ADDRESS not modelled",
+            "ADDRESS TWA: option not modelled",
         ),
         # a list that is not the first LINKAGE record (IBM: only DFHCOMMAREA may precede it) is no BLL list: its
         # fullwords are data, and SET(FRPTR) names no pointer

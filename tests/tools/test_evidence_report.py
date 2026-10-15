@@ -14,9 +14,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
 REPORTS = sorted(er.OUT.glob("*/report.json"))
-TREE = (next((s["translator"] for f in REPORTS for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
-             if s.get("translator")), None)
-        or {"sha256": "tree-fp", "files": 3})  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
+TREE = next(
+    (
+        s["translator"]
+        for f in REPORTS
+        for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
+        if s.get("translator")
+    ),
+    None,
+) or {"sha256": "tree-fp", "files": 3}  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
 
 
 @pytest.fixture(autouse=True)
@@ -410,11 +416,13 @@ def db2_fixture(tmp_path, monkeypatch, cov, sweep=None, isolate=False):
     return rep, p
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monkeypatch):
     _, p = db2_fixture(tmp_path, monkeypatch, None, isolate=True)
     assert p["level"] == "L1" and p["equivalence"]["chosen"]["det"]["state"] == "not run"
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
     row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 4/8 branches",
            "translated": "", "first_diff": "", "uncovered": None}  # fmt: skip
@@ -425,6 +433,7 @@ def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
     assert p["coverage"]["source"] == "local sweep coverage line"
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_persists_from_the_ledger_on_a_run_without_db2(tmp_path, monkeypatch):
     """A push refresh skips the db2 job; the ledger entry the last full refresh wrote (proven cases only) carries."""
     _, p = db2_fixture(tmp_path, monkeypatch, DB2_COV)
@@ -434,6 +443,7 @@ def test_a_db2_verdict_persists_from_the_ledger_on_a_run_without_db2(tmp_path, m
     assert p["coverage"]["paragraphs"] == {"covered": 3, "live": 3} and p["coverage"]["branches"]["total"] == 8
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_stale_ledger_entry_is_marked_stale(tmp_path, monkeypatch):
     stale = {"coverage": DB2_COV, "stale_inputs": ["harness"], "stale_since": "abc1234def5678"}
     rep, p = db2_fixture(tmp_path, monkeypatch, stale)
@@ -459,6 +469,7 @@ def test_the_ledger_never_overrides_a_known_unproven_db2_case(monkeypatch):
     assert er.ledger_verdicts({("x", "y"): [run2]}, {DB2_CASE: DB2_COV}) == {DB2_CASE} and not run2.gaps
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdict_is_stale(tmp_path, monkeypatch):
     """LGSTSQ is only LINKed by the GenApp Db2 cases (here only DB2_CASE has a ledger entry): equal by the ledger is L2 (no coverage of its own, #4270),
     stale with the entry it rests on."""

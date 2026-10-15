@@ -338,6 +338,7 @@ def test_symbolic_merge(tmp_path):
     assert acct["defined_by"]["match"] == "symbolic"
 
 
+@pytest.mark.slow(reason="runs two full repository scans (#5178)")
 def test_symbolic_conflict_rejected(tmp_path):
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
 

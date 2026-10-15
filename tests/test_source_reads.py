@@ -27,6 +27,8 @@ import ast
 from functools import cache
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parent.parent
 PACKAGE = REPO / "gitgalaxy"
 TESTS = REPO / "tests"  # rule 1 only: rule 2's scope is gitgalaxy/ paths
@@ -137,6 +139,7 @@ def _all_findings(root: Path) -> list[tuple[str, str, str, int]]:
     return sorted(out)
 
 
+@pytest.mark.slow(reason="parses every module of the package and the tools with ast (#5178)")
 def test_no_source_read_loses_a_byte():
     found = findings() + findings(TESTS)
     assert not found, (

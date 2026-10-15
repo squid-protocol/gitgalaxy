@@ -37,6 +37,7 @@ def _assert_within_baseline(name: str, scope: str, summary, classified) -> None:
     )
 
 
+@pytest.mark.slow(reason="refracts a whole corpus excerpt and classifies every difference (#5178)")
 @pytest.mark.parametrize("target", EXCERPT_TARGETS, ids=lambda t: t[0])
 def test_excerpt_no_new_unexplained(target):
     name, source, key, db = target

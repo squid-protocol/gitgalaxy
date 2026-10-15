@@ -222,6 +222,7 @@ def test_guard_accepts_the_pattern(source: str):
     assert not _violations(source, "synthetic")
 
 
+@pytest.mark.slow(reason="parses every test module with ast to find mvn subprocess calls (#5176)")
 def test_no_maven_subprocess_in_tests_decodes_with_locale_charset():
     """#5161: Maven starts JVMs too (its own, surefire's fork); every `mvn` subprocess in tests/ names its charset."""
     bad = []

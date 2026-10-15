@@ -167,6 +167,7 @@ def test_conforming_values_give_trunc_stds_results(typed, tmp_path):
     assert _lines(opt) == WANT
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178)")
 @pytest.mark.parametrize("typed", [False, True])
 @pytest.mark.parametrize(
     ("stmt", "said"),

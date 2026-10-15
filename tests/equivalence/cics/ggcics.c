@@ -1935,14 +1935,35 @@ static void td_resolve(const char *queue, char *target) {
     }
 }
 
-/* #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed. OPENTIME DEFERRED: "the data set
- * remains closed until you indicate that you want to open it" (CEMT / SET TDQUEUE, not modelled), so closed; INITIAL (or none
- * stated: ASSUMED) is open. Refused: a TYPEFILE other than INPUT / OUTPUT (RDBACK, or none stated). */
+/* #5168 round 3 (X61): the run-time open state a SET TDQUEUE OPENSTATUS left, in a file beside the queue's directory (so it
+ * outlives the task, as the queue's records do): -1 none was set, 0 closed, 1 open. It overrides the CSD's OPENTIME. */
+static int td_open_override(const char *queue) {
+    char dir[4096], path[4200], word[16] = "";
+    td_dir(queue, dir, sizeof dir);
+    snprintf(path, sizeof path, "%s.open", dir);
+    FILE *f = fopen(path, "r");
+    if (!f) return -1;
+    if (fscanf(f, "%15s", word) != 1) word[0] = '\0';
+    fclose(f);
+    return strcmp(word, "OPEN") == 0 ? 1 : strcmp(word, "CLOSED") == 0 ? 0 : -1;
+}
+
+/* 1 when an extrapartition queue's data set is closed: the SET TDQUEUE state if there is one, else OPENTIME DEFERRED ("the data
+ * set remains closed until you indicate that you want to open it"); INITIAL (or none stated: ASSUMED) is open. */
+static int td_extra_closed(const char *queue) {
+    char open[16];
+    int set = td_open_override(queue);
+    if (set >= 0) return !set;
+    return td_attr(queue, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0;
+}
+
+/* #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed (td_extra_closed). Refused: a
+ * TYPEFILE other than INPUT / OUTPUT (RDBACK, or none stated). */
 static int td_extra_state(const char *queue) {
-    char file[16], open[16];
+    char file[16];
     if (!td_attr(queue, "TYPEFILE", file, sizeof file) || (strcmp(file, "INPUT") != 0 && strcmp(file, "OUTPUT") != 0))
         refuse("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
-    if (td_attr(queue, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0) return 2;
+    if (td_extra_closed(queue)) return 2;
     return strcmp(file, "INPUT") == 0 ? 0 : 1;
 }
 
@@ -2056,8 +2077,8 @@ int GGCWRTD(gg_cics *c, char *from) {
     } else if (kind == 2) {
         /* #5168 (X61): IBM WRITEQ TD: INVREQ for an extrapartition queue opened for input, NOTOPEN for a closed one. A queue with no
          * TYPEFILE (or RDBACK) is still taken as open for output (ASSUMED), as before. */
-        char file[16], open[16];
-        if (td_attr(target, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0) c->resp = DFHRESP_NOTOPEN;
+        char file[16];
+        if (td_extra_closed(target)) c->resp = DFHRESP_NOTOPEN;
         else if (td_attr(target, "TYPEFILE", file, sizeof file) && strcmp(file, "INPUT") == 0) c->resp = INVREQ;
     }
     if (c->resp == NORMAL && kind == 1) {
@@ -2158,6 +2179,72 @@ int GGCRDTS(gg_cics *c, void **slot) {
     c->len = (int)sizeof buf;
     GGCRDTD(c, buf, (int)sizeof buf);
     if (c->resp == NORMAL) *slot = blk_set_new("READQ TD", buf, (size_t)c->len, 0);
+    return 0;
+}
+
+/* ---- #5168 round 3 (X61): SET / INQUIRE TDQUEUE OPENSTATUS (IBM CICS TS 6.x, SET TDQUEUE, INQUIRE TDQUEUE) ----
+ * The queue is in GG-QNAME. CVDAs: OPEN 18, CLOSED 19, NOTAPPLIC 1; TYPE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4.
+ * SET OPENSTATUS (extrapartition queues only; the data set "is to be opened / closed"): QIDERR RESP2 1 (the queue cannot be
+ * found), INVREQ RESP2 9 for an intrapartition queue, RESP2 8 for an invalid CVDA. The state outlives the task (td_open_override)
+ * and replaces OPENTIME. Setting the state a queue is already in is NORMAL (ASSUMED). Refused by name: an INDIRECT / REMOTE queue
+ * (IBM names only intrapartition), an invalid CVDA on a queue that is not extrapartition (IBM does not order RESP2 8 / 9 / QIDERR),
+ * OPEN with no TYPEFILE INPUT / OUTPUT (no direction to open it in), OPEN of an input queue that has been read (reopening
+ * restarts the data set; the records are consumed), RESP2 16 (the DDNAME is taken as found). INQUIRE: QIDERR RESP2 1; OPENSTATUS
+ * (GG-NUM) OPEN / CLOSED for an extrapartition queue, NOTAPPLIC ("the queue is not extrapartition") for the others; TYPE (GG-LEN);
+ * GG-FLAGS says which are wanted, and a queue with no TYPE stated is refused for either. */
+static int td_type_cvda(const char *queue, int kind, char *word, size_t size) {
+    td_type_word(queue, word, size);
+    if (kind == 1) return 222;
+    if (kind == 2) return 221;
+    if (strcmp(word, "INDIRECT") == 0) return 122;
+    if (strcmp(word, "REMOTE") == 0) return 4;
+    refuse("INQUIRE TDQUEUE of a queue with no TYPE stated");
+    return 0;
+}
+
+int GGCSTDQ(gg_cics *c) {
+    char queue[17], file[16], dir[4096], path[4200];
+    int cvda = c->num, kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (cvda != 18 && cvda != 19 && kind != 2)
+        refuse("SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition: IBM does not say which condition comes first");
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (kind == 1) { c->resp = INVREQ; c->resp2 = 9; return 0; }
+    if (kind == 3) refuse("SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue");
+    if (cvda != 18 && cvda != 19) { c->resp = INVREQ; c->resp2 = 8; return 0; }
+    td_dir(queue, dir, sizeof dir);
+    if (cvda == 18) {
+        if (!td_attr(queue, "TYPEFILE", file, sizeof file) || (strcmp(file, "INPUT") != 0 && strcmp(file, "OUTPUT") != 0))
+            refuse("SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE INPUT / OUTPUT");
+        if (strcmp(file, "INPUT") == 0 && td_head(dir) != 1)
+            refuse("SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read: reopening restarts the data set");
+    }
+    td_base();
+    snprintf(path, sizeof path, "%s.open", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%s\n", cvda == 18 ? "OPEN" : "CLOSED"); fclose(f); }
+    return 0;
+}
+
+int GGCITDQ(gg_cics *c) {
+    char queue[17], word[32];
+    int kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (strstr(c->flags, "TYPE")) c->len = td_type_cvda(queue, kind, word, sizeof word);
+    if (strstr(c->flags, "OPENSTATUS")) {
+        if (kind == 2) c->num = td_extra_closed(queue) ? 19 : 18;
+        else {
+            td_type_cvda(queue, kind, word, sizeof word);
+            c->num = 1;
+        }
+    }
     return 0;
 }
 

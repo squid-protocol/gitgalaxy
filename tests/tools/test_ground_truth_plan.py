@@ -14,8 +14,10 @@ import pytest
 
 TOOLS = Path(__file__).resolve().parent
 ROOT = TOOLS.parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(TOOLS))
 import ground_truth_plan as gp  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 yaml = pytest.importorskip("yaml")
 
@@ -126,7 +128,7 @@ def _closure():
     ]
 
     def named(path):
-        text = path.read_text(encoding="utf-8", errors="ignore")
+        text = read_source(path).text
         return {m for m in mods if re.search(rf"\b{re.escape(m)}\b", text)}
 
     seen: set[str] = set()

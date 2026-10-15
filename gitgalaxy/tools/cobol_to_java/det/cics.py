@@ -849,6 +849,13 @@ class Cics:
             return self.delay(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
+        if (
+            verb == "ENQ"
+        ):  # #5089 (X60): CicsTask.enq -- NORMAL, or the ENQBUSY a scenario plans for the RESOURCE as written
+            res = re.sub(r"\s+", "", (opts.get("RESOURCE") or "").upper())
+            r = self.g.tmpname("enq")
+            return [f"{ind}int {r} = DetCics.resp(task.enq({G_jstr(res)}, {'true' if 'NOSUSPEND' in opts else 'false'}));",
+                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):

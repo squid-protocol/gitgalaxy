@@ -11,8 +11,7 @@ name: Mainframe Ground Truth
 #
 # Runs on every PR that changes a ground-truth input (#5164: the plan job skips the rest, still reporting `ground-truth`): the scores depend on the whole engine
 # (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
-# and the full fetch + scan + score of all three corpora takes well under a
-# minute. The same job also runs tests/cobol_mainframe/ with the corpora
+# and the fetch + scan + score of all three corpora takes 2-4 min on a cold scan (#5142: the "Gate against" step, measured 2026-10-15). The same job also runs tests/cobol_mainframe/ with the corpora
 # fetched, so the full-corpus refraction differential and the excerpt
 # byte-identity checks -- skipped in every other workflow -- run here too.
 #

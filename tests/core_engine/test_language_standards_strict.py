@@ -24,7 +24,8 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent.parent / "extraction" / "la
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+import _strict_harness  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune, assert_redos_immune_all  # noqa: E402 # type: ignore
 
 
 # ==============================================================================
@@ -265,3 +266,20 @@ def test_global_debt_patterns_ignore_hyphenated_identifiers():
     payload = "TOD-" * 25000 + "TODO-"
     _immune(GLOBAL_PLANNED_DEBT, payload, timeout_sec=3.0)
     _immune(GLOBAL_FRAGILE_DEBT, "HAC-" * 25000 + "HACK-", timeout_sec=3.0)
+
+
+def test_redos_detonator_batch_passes_clean_pairs_and_skips_disabled_rules():
+    """#5166: one child runs every pair; a disabled rule (None) is passed over as in the one-pair form."""
+    linear = re.compile(r"a+b")
+    assert_redos_immune_all([(linear, "a" * 2000), (None, "x"), (linear, "b" * 2000)], timeout_sec=1.0)
+    assert_redos_immune_all([], timeout_sec=1.0)
+
+
+def test_redos_detonator_batch_names_the_hanging_pair(monkeypatch):
+    """#5166: a hang in the middle of a batch kills the child and names that pair, not the first."""
+    monkeypatch.setattr(_strict_harness, "_hang_cap", lambda _timeout: 2.0)  # the kill switch, not the property
+    linear = re.compile(r"a+b")
+    evil = re.compile("(" + "a+" + ")+$")
+    with pytest.raises(AssertionError) as exc_info:
+        assert_redos_immune_all([(linear, "a" * 100), (evil, "a" * 40 + "b")], timeout_sec=0.1)
+    assert "ReDoS TRIGGERED" in str(exc_info.value) and "(a+)+$" in str(exc_info.value)

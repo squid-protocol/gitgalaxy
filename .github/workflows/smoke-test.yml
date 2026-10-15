@@ -73,6 +73,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
+  # #5114: the newest measured durations, chosen ONCE for all three parts. A part that restored `test-durations-` itself
+  # could land on a different cache than its neighbours (the nightly saves one between their starts) and pytest-split
+  # then cuts different slices. lookup-only downloads nothing; the parts restore this exact key. An empty key (no
+  # cache yet, or this job failed) means every part uses the committed .test_durations: the same file, so still one split.
+  durations:
+    name: durations key
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      key: ${{ steps.durations.outputs.cache-matched-key }}
+    steps:
+      - name: Find the newest measured durations (#4847)
+        id: durations
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            test-durations-
+          lookup-only: true
+
   # Full pytest suite, ONE representative environment (ubuntu/3.12), on
   # every push. This is the fast-feedback regression net that used to run
   # 12x inside the old smoke-test matrix (now os-smoke-grid.yml); running it once here keeps that
@@ -87,7 +111,7 @@ jobs:
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
-    needs: tested-tree
+    needs: [tested-tree, durations]
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -132,14 +156,15 @@ jobs:
           restore-keys: |
             tree-sitter-${{ runner.os }}-
 
-      - name: Restore the newest measured durations (#4847)
+      # #5114: the exact key the `durations` job resolved ONCE; a part never picks "the newest" on its own (a nightly
+      # save between two parts' starts gave them different slices: a test dropped or run twice).
+      - name: Restore the durations the plan chose (#4847, #5114)
         id: durations
+        if: needs.durations.outputs.key != ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: durations-cache
-          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            test-durations-
+          key: ${{ needs.durations.outputs.key }}
 
       - name: Balance by the restored durations (else the committed .test_durations)
         if: steps.durations.outputs.cache-matched-key != ''
@@ -169,6 +194,7 @@ jobs:
         env:
           GROUP: ${{ matrix.group }}
           EVENT: ${{ github.event_name }}
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           # the nightly stores this part's seconds (--clean-durations: only the tests it ran) for full-suite-durations
           store=()
@@ -176,6 +202,19 @@ jobs:
           # --timeout: a hung test fails by name, not as a job timeout (see full-suite-gate.yml, #4840)
           # #5162: test_evidence_components.py (~226 s) is run by mainframe-ground-truth.yml (all of tests/cobol_mainframe/)
           pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --group "$GROUP" "${store[@]}"
+
+      # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
+      # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.
+      - name: Per-test time ratchet (#5166)
+        run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's test times (#5166)
+        if: always() && hashFiles(format('{0}/times-part-{1}.json', runner.temp, matrix.group)) != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-times-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-part-${{ matrix.group }}.json
+          retention-days: 7
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()
@@ -260,3 +299,48 @@ jobs:
         with:
           path: durations-cache
           key: test-durations-${{ github.run_id }}
+
+  # #5166 part B: the suite's total serial test seconds against tests/test_time_baseline.json's budget. A PR (and main
+  # push) prints the total and the delta in the job summary and never fails; the nightly fails over +10% and files or
+  # refreshes ONE issue. Not a required check, not in `full-suite`'s needs. The total is the sum of the parts' own
+  # measured seconds, not the contended durations cache (#5162).
+  suite-time:
+    name: suite time budget (#5166)
+    needs: full-suite-part
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download the parts' test times
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: test-times-part-*
+          path: times
+
+      - name: Total against the budget
+        env:
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          parts=$(find times -name 'times-part-*.json' | sort)
+          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' test times:"; echo "$parts"; exit 1; }
+          enforce=()
+          if [ "$EVENT" = "schedule" ]; then enforce=(--enforce); fi
+          status=0
+          python3 tests/tools/time_ratchet.py budget --times $parts "${enforce[@]}" | tee report.txt || status=$?
+          { echo "### Suite time budget"; echo; cat report.txt; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" = 1 ] && [ "$EVENT" = "schedule" ]; then
+            body="The nightly full suite is over its time budget (tests/test_time_baseline.json): $(tail -n 2 report.txt | head -n 1). Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Suite time over budget"' --json number -q '.[0].number')
+            if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"
+            else gh issue create --repo "$GITHUB_REPOSITORY" --title "Suite time over budget (nightly)" --body "$body"; fi
+          fi
+          exit $status

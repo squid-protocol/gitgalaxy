@@ -524,6 +524,7 @@ public class CicsTask {
     private String applid;
     private String sysid;
     private java.util.Set<String> tdQueues;
+    private java.util.Map<String, String> tdTypes;
 
     /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
     public CicsTask withRegion(String applid, String sysid) {
@@ -1518,6 +1519,8 @@ public class CicsTask {
         byte[] bytes;
         int kind;
         boolean bound;
+        String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
+        boolean syncEnds;  // #5042: a SYNCPOINT ends it too
         Block(byte[] bytes, int kind) {
             this.bytes = bytes;
             this.kind = kind;
@@ -1529,8 +1532,8 @@ public class CicsTask {
     private long nextBlock = 1;
 
     private long newBlock(byte[] bytes, int kind) {
-        long h = nextBlock++;
-        blocks.put(h, new Block(bytes, kind));
+        long h = root().nextBlock++;
+        root().blocks.put(h, new Block(bytes, kind));
         return h;
     }
 
@@ -1552,7 +1555,7 @@ public class CicsTask {
     /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
      *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
     public int[] freemain(long handle) {
-        Block b = blocks.get(handle);
+        Block b = root().blocks.get(handle);
         if (b == null || b.kind == 2) {
             return new int[] {16, 1};
         }
@@ -1571,9 +1574,74 @@ public class CicsTask {
         return newBlock(body.clone(), 1);
     }
 
+    /** #5042 (X58): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
+     *  `key` names what IBM says ends the pointer's validity ("valid until the next receive command", "until the next
+     *  READ command for the same file"): the next acquireSet of that key, or invalidateSet(key). A null key: valid to
+     *  the task's end. Refused: a block above 256 MiB. FREEMAIN of the block is refused like a WEB RECEIVE SET body. */
+    public long acquireSet(String key, byte[] data) {
+        return acquireSet(key, data, false);
+    }
+
+    /** As acquireSet; `syncEnds`: a SYNCPOINT ends the pointer too (IBM: a READ UPDATE SET's, a browse SET's). */
+    public long acquireSet(String key, byte[] data, boolean syncEnds) {
+        if (data.length > 268435456L) {
+            throw refused("SET(ptr) data beyond the limit");
+        }
+        invalidateSet(key);
+        long h = newBlock(data.clone(), 1);
+        root().blocks.get(h).key = key;
+        root().blocks.get(h).syncEnds = syncEnds;
+        return h;
+    }
+
+    /** #5042: ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer valid", not
+     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X58:
+     *  a program must not read through a pointer past its validity). */
+    public void invalidateSet(String key) {
+        if (key == null) {
+            return;
+        }
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: a SYNCPOINT ends the SET(ptr) blocks that IBM says it does (READ UPDATE SET, READNEXT / READPREV SET). */
+    public void invalidateSyncSet() {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.syncEnds) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: ends every SET(ptr) block whose key starts with `prefix` (DELETE CHANNEL: its containers' pointers). */
+    public void invalidateSetPrefix(String prefix) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.key.startsWith(prefix)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: whether a SET(ptr) block of `key` is still valid (a pointer the program may hold). */
+    public boolean heldSet(String key) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
     public long addressOf(byte[] record) {
-        return addressed.computeIfAbsent(record, r -> newBlock(r, 2));
+        return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
@@ -1581,7 +1649,7 @@ public class CicsTask {
      *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
      *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
     public byte[] storageAt(long handle, int need) {
-        Block b = blocks.get(handle);
+        Block b = root().blocks.get(handle);
         if (b == null) {
             throw refused("SET ADDRESS OF a null or unknown pointer");
         }
@@ -2047,16 +2115,90 @@ public class CicsTask {
         return this;
     }
 
+    /** Each transient-data queue's TYPE ("" when the CSD states none): INTRA, EXTRA, INDIRECT or REMOTE (#5079, X57).
+     *  Without it, a queue is intrapartition. */
+    public CicsTask withTdQueueTypes(java.util.Map<String, String> types) {
+        this.tdTypes = types;
+        return this;
+    }
+
+    /** The queue's kind: 0 the CSD does not define it, 1 intrapartition (TYPE INTRA, or no types given), 2 extrapartition,
+     *  3 any other TYPE or none stated -- a queue READQ TD / DELETEQ TD do not model. */
+    private int tdKind(String q) {
+        CicsTask root = root();
+        if (root.tdQueues != null && !root.tdQueues.contains(q)) {
+            return 0;
+        }
+        if (root.tdTypes == null) {
+            return 1;
+        }
+        String type = root.tdTypes.getOrDefault(q, "");
+        return type.equals("INTRA") ? 1 : type.equals("EXTRA") ? 2 : 3;
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
-     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS). QIDERR (44) for a queue the
-     *  CSD does not define, or the condition the harness planned; then nothing is written. */
+     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
+     *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
+     *  harness planned; then nothing is written. */
     public int writeqTd(String queue, String record) {
         String q = queue.strip();
+        int kind = tdKind(q);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0]
-                : root().tdQueues != null && !root().tdQueues.contains(q) ? 44 : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
+        if (resp == 0 && kind == 1) {
+            tempStorage.td.computeIfAbsent(q, k -> new java.util.ArrayDeque<>()).addLast(record);
+        }
         return resp;
+    }
+
+    /** READQ TD QUEUE(queue) INTO LENGTH(maxLength) (#5079, IBM EXEC CICS READQ TD, X57): a destructive read, first in
+     *  first out. QIDERR when the CSD does not define the queue; QZERO when it holds no record; LENGERR for a negative
+     *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
+     *  its first maxLength characters); the result's length is the record's own. An extrapartition queue is refused. */
+    public TdResult readqTd(String queue, int maxLength) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 2) {
+            throw new UnsupportedOperationException("READQ TD of an extrapartition queue: IBM's NOTOPEN / IOERR / INVREQ "
+                    + "need the queue's open state, not modelled");
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("READQ TD of a queue whose TYPE is not INTRA: not modelled");
+        }
+        java.util.ArrayDeque<String> records = tempStorage.td.get(q);
+        String resp = kind == 0 ? "QIDERR" : maxLength < 0 ? "LENGERR" : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
+        String data = null;
+        int length = -1;
+        if (kind != 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+            String record = records.removeFirst();
+            data = record.length() > maxLength ? record.substring(0, maxLength) : record;
+            length = record.length();
+            resp = record.length() > maxLength ? "LENGERR" : "NORMAL";
+        } else if (resp.equals("LENGERR")) {
+            data = "";
+        }
+        event("READQ-TD", "queue", q, "resp", resp, "data", data);
+        return new TdResult(CicsSpec.resp(resp), length, data);
+    }
+
+    /** DELETEQ TD QUEUE(queue) (#5079, IBM EXEC CICS DELETEQ TD, X57): every record of an intrapartition queue. QIDERR
+     *  (44) when the CSD does not define it, INVREQ (16) for an extrapartition queue. Returns RESP (RESP2 is 0). */
+    public int deleteqTd(String queue) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 3) {
+            throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+        }
+        if (kind != 1) {
+            return kind == 0 ? 44 : 16;
+        }
+        tempStorage.td.remove(q);
+        return 0;
+    }
+
+    /** A READQ TD's outcome: RESP, the record's own length (-1 when none was read) and the text moved INTO (null when none). */
+    public record TdResult(int resp, int length, String data) {
     }
 
     /** EXEC CICS FORMATTIME's condition (IBM): INVREQ (16) RESP2 1 when the ABSTIME value is less than zero ("or not in
@@ -2941,6 +3083,23 @@ public class CicsTask {
         return resp;
     }
 
+    /** ENQ RESOURCE(resource) (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) --
+     *  or ENQBUSY when the harness planned it. IBM raises ENQBUSY only "when an ENQ command specifies a resource that
+     *  is unavailable and the NOSUSPEND option is specified" (or a HANDLE CONDITION ENQBUSY is active); without
+     *  NOSUSPEND the task would be suspended, which is not modelled. IBM states no RESP2 for ENQBUSY: 0. */
+    public String enq(String resource, boolean nosuspend) {
+        int[] planned = root().injected("ENQ", resource);
+        if (planned == null) {
+            return "NORMAL";
+        }
+        if (!nosuspend) {
+            throw new UnsupportedOperationException("ENQ on a planned-busy resource without NOSUSPEND: " + resource
+                    + " (the task would be suspended), not modelled");
+        }
+        event("ENQ", "resource", resource, "resp", respName(planned[0]));
+        return respName(planned[0]);
+    }
+
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
     public String link(String program) {
         return link(program, null, 0);
@@ -3151,6 +3310,10 @@ public class CicsTask {
             return new ContainerResult("LENGERR", 1, -1, null);
         }
         Container c = ch.containers.get(name);
+        if (c != null && heldSet(containerKey(ch, name))) {
+            throw refused("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
+                    + "pointer then sees");
+        }
         if (c != null && type != null && c.bit != "BIT".equals(type)) {
             throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
                     + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
@@ -3166,6 +3329,29 @@ public class CicsTask {
             c.data = data.clone();
         }
         return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    private static String containerKey(Channel ch, String name) {
+        return "CONTAINER " + ch.name + " " + name;
+    }
+
+    /** #5042 (X58): GET CONTAINER(container) [CHANNEL(channel)] SET(ptr) FLENGTH(area) (IBM, EXEC CICS GET CONTAINER
+     *  (CHANNEL)): the same conditions as getContainer without INTO (no LENGERR: nothing to truncate); on NORMAL the
+     *  handle of a new block holding a copy of the container's data and the result's length FLENGTH takes. IBM: "CICS
+     *  maintains the data area until" the next GET CONTAINER SET of the same container in the same channel, a DELETE
+     *  CONTAINER, a MOVE CONTAINER, the channel leaving scope or a DELETE CHANNEL. Refused: a PUT or MOVE onto the
+     *  container while the pointer is held (IBM does not say what the pointer then sees). Handle 0: no block. */
+    public SetBlock getContainerSet(String channel, String container) {
+        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE);
+        if (!"NORMAL".equals(r.resp())) {
+            return new SetBlock(r, 0);
+        }
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        return new SetBlock(r, acquireSet(containerKey(ch, channelName(container, "container")), r.data()));
+    }
+
+    /** A GET CONTAINER SET's outcome: the container result and the block's handle (0 when none was acquired). */
+    public record SetBlock(ContainerResult result, long handle) {
     }
 
     /** GET CONTAINER(container) [CHANNEL(channel)] INTO FLENGTH | NODATA FLENGTH (IBM, EXEC CICS GET CONTAINER
@@ -3205,6 +3391,7 @@ public class CicsTask {
         if (ch.containers.remove(name) == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
+        invalidateSet(containerKey(ch, name));  // IBM: GET CONTAINER SET's data area is kept until "deleted by a DELETE CONTAINER"
         ch.shape++;
         return new ContainerResult("NORMAL", 0, -1, null);
     }
@@ -3224,6 +3411,7 @@ public class CicsTask {
         if (ch == currentChannel) {
             throw refused("DELETE CHANNEL of the current channel");
         }
+        invalidateSetPrefix("CONTAINER " + ch.name + " ");  // IBM: until "deleted by a DELETE CHANNEL command"
         ch.containers.clear();
         ch.shape++;
         channels.remove(ch.name);
@@ -3269,9 +3457,14 @@ public class CicsTask {
         if (dst != null && dst.bit != src.bit) {
             throw refused("MOVE CONTAINER onto a container of the other data type");
         }
+        if (dst != null && heldSet(containerKey(to, target))) {
+            throw refused("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
+                    + "pointer then sees");
+        }
         if (to == null) {
             to = scopeChannel(toChannel, true);
         }
+        invalidateSet(containerKey(from, name));  // IBM: until "moved by a MOVE CONTAINER command"
         if (dst == null) {
             to.containers.put(target, src);
             to.shape++;
@@ -3957,6 +4150,7 @@ public class CicsTask {
             return done(16, 30);  // #5092: no READ UPDATE without a token before it
         }
         store.run();
+        invalidateSet("READ " + file);  // IBM: a READ SET pointer is valid "until completion of a corresponding REWRITE"
         return done(0, 0);
     }
 
@@ -3971,6 +4165,7 @@ public class CicsTask {
             return done(13, 80);
         }
         remove.run();
+        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... DELETE"
         return done(0, 0);
     }
 
@@ -3984,6 +4179,7 @@ public class CicsTask {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
         }
         remove.run();
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
@@ -4024,6 +4220,7 @@ public class CicsTask {
         }
         spendToken(file, token);
         store.run();
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
@@ -4038,18 +4235,24 @@ public class CicsTask {
             return done(16, 47);
         }
         remove.accept((byte[]) t[1]);
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
     /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds; none held: no action, NORMAL (IBM). */
     public int unlockHeld(String file) {
         root().held.remove(file);
+        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... UNLOCK"
         return done(0, 0);
     }
 
     /** UNLOCK FILE(file) TOKEN(token): releases the record the token holds, unchanged (IBM, EXEC CICS UNLOCK). */
     public int unlockToken(String file, int token) {
-        return spendToken(file, token) == null ? done(16, 47) : done(0, 0);
+        if (spendToken(file, token) == null) {
+            return done(16, 47);
+        }
+        invalidateSet("READ " + file);
+        return done(0, 0);
     }
 
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
@@ -4358,7 +4561,11 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
-        return root().browses.remove(file) != null ? done(0, 0) : done(16, 35);
+        if (root().browses.remove(file) == null) {
+            return done(16, 35);
+        }
+        invalidateSet("BROWSE " + file);  // IBM: "no longer valid after an ENDBR"
+        return done(0, 0);
     }
 
     /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */
@@ -4382,6 +4589,7 @@ public class CicsTask {
         refuseInDplServer("SYNCPOINT");
         root().held.clear();
         root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         event("SYNCPOINT");
@@ -4397,6 +4605,7 @@ public class CicsTask {
         }
         root().held.clear();
         root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
@@ -4554,6 +4763,8 @@ public class CicsTask {
     public static final class TempStorage {
         private final Map<String, List<byte[]>> queues = new LinkedHashMap<>();
         private final Map<String, Integer> next = new HashMap<>();
+        /** The intrapartition transient-data queues' records (#5079): first in first out. */
+        final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
 
         /** A queue as it is before the conversation starts. */
         public TempStorage seed(String queue, List<byte[]> items) {

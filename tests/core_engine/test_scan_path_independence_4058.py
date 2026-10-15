@@ -14,6 +14,7 @@ import json
 import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -57,7 +58,11 @@ def _scan(target: Path, out: Path) -> dict:
 @pytest.fixture(scope="module")
 def scans(tmp_path_factory):
     base = tmp_path_factory.mktemp("path_independence")
-    return {parent: _scan(_tree(base / parent / "proj"), base / "out" / parent) for parent in PARENTS}
+    # #5166: the seven scans are independent subprocesses; run them side by side, not one by one.
+    trees = {parent: _tree(base / parent / "proj") for parent in PARENTS}
+    with ThreadPoolExecutor(max_workers=len(PARENTS)) as pool:
+        futures = {parent: pool.submit(_scan, trees[parent], base / "out" / parent) for parent in PARENTS}
+        return {parent: future.result() for parent, future in futures.items()}
 
 
 def _doc_umbrellas(audit: dict) -> dict[str, float]:

@@ -152,11 +152,11 @@ public class Main {
         (src / rel).parent.mkdir(parents=True, exist_ok=True)
         (src / rel).write_text(text, encoding="utf-8")
     jdk = _javac()
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     want = []
     for j, w, t in cases:
         body, n = _expected(t, w, j)

@@ -96,6 +96,8 @@ runs the ledger gate and everything else in `tests/cobol_mainframe/`. A new file
 (`continue-on-error`, not in `full-suite`'s needs). The parts balance by the newest nightly's durations cache (#4847); the committed
 `.test_durations` is only the cache-miss fallback and the OS-matrix gate's input.
 
+`ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
+
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again
@@ -177,3 +179,6 @@ Evidence Refresh surveys main once a night; its `publish-blockers` job writes `d
 
 ## Full-suite critical path (#5162)
 The full-suite parts of `smoke-test.yml` pass `--ignore=tests/cobol_mainframe/test_evidence_components.py`: `mainframe-ground-truth.yml` runs all of `tests/cobol_mainframe/`, so the file (~226 s) ran twice per PR. The OS x Python gate (`full-suite-gate.yml`) still runs it: no other job covers it there. The evidence tests' time was `evidence._match` (fnmatch of every spec pattern against every tracked file, 17M calls per `test_evidence_report.py::test_check_fails_on_an_edited_report`); it now compiles each pattern list once and memoises per (files, spec). `test_evidence_report.py` went from 205 s to about 100 s serial, `test_evidence_components.py` from 60 s to 14 s on its slowest test. The nightly durations cache is still recorded under `-n auto` contention, so summed seconds do not predict a part's wall time: a wall-calibrated weight is not done.
+
+## Test-time ratchet (#5166)
+`tests/tools/time_ratchet.py`, baseline `tests/test_time_baseline.json` (the 32 tests over 10 s with their seconds, and `suite_budget_s`). Each full-suite part of `smoke-test.yml` runs with `GITGALAXY_TEST_TIMES` set (`tests/conftest.py` writes every test's seconds plus the reasons of `slow`-marked ones) and then runs `time_ratchet.py check` on it: a test over 10 s needs `@pytest.mark.slow(reason=...)` or a baseline entry, and a baselined test fails over 2x its recorded seconds (runner noise is +-20-30%). The step is inside the required part, so it always reports. The `suite-time` job (not required) sums the three parts' own seconds and prints the total and its delta against the budget in the job summary; on the nightly it fails over +10% and files or refreshes one issue ("Suite time over budget (nightly)"). The only workflow permission added is `issues: write` on that job. `update` only lowers; `pr_gates.py --ratchets` has a `time` entry that checks the committed `.test_durations`.

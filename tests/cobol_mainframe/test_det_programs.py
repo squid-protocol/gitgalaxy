@@ -1384,9 +1384,11 @@ def _java_run(
                                       f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
+    )  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
@@ -1446,9 +1448,11 @@ def _java_run_batch(
     )
     jdk = _java()
     files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
+    )  # noqa: S603
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,

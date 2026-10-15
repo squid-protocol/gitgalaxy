@@ -58,7 +58,25 @@ ENQ = Command(
     ibm=ibm("EXEC CICS ENQ", "summary-enq"),
     status="modelled",
     options={**_RESOURCE, "NOSUSPEND": Arg("flag"), **RESP_OPTIONS},
-    outcomes=(Outcome("NORMAL", 0, "one task in the region: the resource is never held by another"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "one task in the region: the resource is never held by another"),
+        # #5089 (X60): only a scenario's plan raises it (IBM states no RESP2 for it: 0)
+        Outcome(
+            "ENQBUSY",
+            None,
+            "the resource is unavailable and NOSUSPEND is specified (or a HANDLE CONDITION ENQBUSY is active)",
+            raised_by=("NOSUSPEND",),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a planned-busy resource without NOSUSPEND: IBM suspends the task until the resource is free (a HANDLE CONDITION "
+            "ENQBUSY would raise the condition instead; not told apart)",
+            "X60",
+            java="ENQ on a planned-busy resource without NOSUSPEND",
+            c="ENQ on a planned-busy resource without NOSUSPEND",
+        ),
+    ),
     engine=EngineFacts(task_verb="ENQ", target_option="RESOURCE"),
 )
 

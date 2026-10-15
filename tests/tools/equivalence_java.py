@@ -32,7 +32,7 @@ from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
-from maven_exe import mvn_executable
+from maven_exe import JVM_UTF8_FLAGS, decode_output, maven_utf8_env, mvn_executable, run_decoded
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -503,7 +503,7 @@ def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str
     build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
     (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
     try:
-        subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+        subprocess.run([str(java_bin / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
                         str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True,
                        timeout=JAVAC_RUNNER_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
@@ -537,8 +537,8 @@ def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subproces
     runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
     full = os.pathsep.join([*classpath, str(launcher), str(runner)])
     try:
-        return subprocess.run([str(java_bin / "java"), *split_argline(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
-                              cwd=project, env=shell, capture_output=True, text=True, check=False,
+        return subprocess.run([str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *split_argline(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+                              cwd=project, env=shell, capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVA_DIRECT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         return subprocess.CompletedProcess(
@@ -593,8 +593,8 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
     try:
-        proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
-                              env=env, capture_output=True, text=True, check=False,
+        proc = subprocess.run([javac, "-encoding", "UTF-8", *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+                              env=env, capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_OVERLAY_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         errors = [f"[ERROR] javac timed out after {JAVAC_OVERLAY_TIMEOUT}s compiling overlay"]
@@ -617,21 +617,22 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
     argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    maven_argline = (
+        f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
+    )
     proc = _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-               f"-DargLine={argline}"]  # fmt: skip
+               f"-DargLine={maven_argline}"]  # fmt: skip
         try:
-            proc = subprocess.run(  # noqa: S603
-                cmd, cwd=project, env=shell, capture_output=True, text=True, check=False, timeout=MAVEN_TEST_TIMEOUT
-            )
+            proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(
                 args=cmd,
                 returncode=124,
-                stdout=exc.stdout or "",
-                stderr=((exc.stderr or "") + f"\nmvn test timed out after {MAVEN_TEST_TIMEOUT}s").lstrip(),
+                stdout=decode_output(exc.stdout),
+                stderr=(decode_output(exc.stderr) + f"\nmvn test timed out after {MAVEN_TEST_TIMEOUT}s").lstrip(),
             )
         if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
             (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())

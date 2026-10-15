@@ -366,7 +366,6 @@ class _KeyCics(_RbaCics):
         "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DATE(KEY)",  # #4415 slice 3 (X46): the DATFORM order is the installation's
         "ASKTIME ABSTIME(REC) RESP(R)",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
-        "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
         "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
@@ -960,6 +959,7 @@ _RESP_SAMPLES = {
     "ENDBR": "ENDBR FILE('KSDS')", "WRITE": "WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY)",
     "REWRITE": "REWRITE FILE('KSDS') FROM(REC)", "DELETE": "DELETE FILE('KSDS') RIDFLD(KEY)",
     "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
+    "READQ TD": "READQ TD QUEUE('Q') INTO(REC)", "DELETEQ TD": "DELETEQ TD QUEUE('Q')",
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
@@ -1000,6 +1000,7 @@ _RESP_ELSEWHERE = {
     "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
+    "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 
@@ -1081,7 +1082,6 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
                        "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
                        "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
     for bad, why in (
-        ("RECEIVE SET(PTR) LENGTH(RLEN) MAXLENGTH(80)", "pointers are not modelled"),
         ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
@@ -1859,7 +1859,6 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
         ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
         ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
-        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL)", "pointer"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
@@ -1941,7 +1940,6 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("START TRANSID('T') AFTER", "go with AFTER / AT"),
         ("START INTERVAL(0)", "without TRANSID"),
         ("START TRANSID('T') LENGTH(4)", "LENGTH without FROM"),
-        ("RETRIEVE SET(P) LENGTH(L)", "pointer"),
         ("RETRIEVE INTO(AREA) WAIT", "WAIT"),
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
@@ -2696,11 +2694,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:5] == ["IBM037 E640C1", "true", "4120", "true", "850A"]  # NL is NEL, as Python's cp037 has it
     assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
     assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
@@ -2761,10 +2759,10 @@ public class Main {
     import subprocess
 
     built = subprocess.run([str(jdk / "javac"), "-nowarn", "-encoding", "UTF-8", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:9] == ["[14-6704/B] -> [00146704B]", "[$25.68   ] -> [000002568]", "[123-] -> [012L]",
                        "[1.5CR] -> [0001N]", "[5-] -> [0N]", "[12}] -> [12}]", "[A] -> [A]",
                        "[ab12cd34] -> [00001234]", "[ab12cd34] -> [0012cd34]"]  # fmt: skip
@@ -2972,6 +2970,27 @@ def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6(
     assert "public static int within(Field f, int n, String what)" in rt
 
 
+def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():
+    """#5079 (register X57): READQ TD INTO [LENGTH] -> CicsTask.readqTd (the most INTO takes: LENGTH, else INTO's own
+    size), the record's text moved INTO by DetCics.readTd (a record past INTO refused), a data area LENGTH set to the
+    record's length when one was read; DELETEQ TD -> CicsTask.deleteqTd; SET / SYSID / NOSUSPEND refused by name."""
+    out = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(WS-N) RESP(R)", "")
+    assert out[0].startswith("CicsTask.TdResult td1 = task.readqTd('Q'.strip(), ") and "WS-N" in out[0]
+    assert out[1] == "if (td1.data() != null) DetCics.readTd(f_REC, td1.data().getBytes(CS));"
+    assert "td1.length() >= 0" in out[2] and "BigDecimal.valueOf(td1.length())" in out[2]
+    plain = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) RESP(R)", "")
+    assert "f_REC.length()" in plain[0] and not any("td1.length()" in line for line in plain)
+    literal = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(8) RESP(R)", "")
+    assert not any("td1.length()" in line for line in literal)
+    assert _ChanCics().command("DELETEQ TD QUEUE('Q') RESP(R)", "")[0] == "int resp1 = task.deleteqTd('Q'.strip());"
+    for body in ("READQ TD QUEUE('Q') SET(P)", "READQ TD QUEUE('Q') INTO(REC) SYSID('S')",
+                 "READQ TD QUEUE('Q') INTO(REC) NOSUSPEND", "DELETEQ TD QUEUE('Q') SYSID('S')"):  # fmt: skip
+        with pytest.raises(Exception, match="not modelled|refused|SYSID|SET|NOSUSPEND"):
+            _ChanCics().command(body, "")
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert "public static void readTd(Field into, byte[] record)" in rt
+
+
 def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     """#4270 (oracle_assumptions.md X23): a level-1 task whose runner states the COMMAREA is exactly EIBCALEN bytes
     (CicsTask.withExactCommarea: a scenario's `commarea_length`, shorter than the record) runs with DFHCOMMAREA's
@@ -3132,11 +3151,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 

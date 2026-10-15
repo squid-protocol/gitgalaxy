@@ -76,6 +76,54 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
         assert duration < timeout_sec, f"Regex took too long: {duration:.4f}s"
 
 
+def _detonate_all(jobs: list, conn, started=None):
+    """`_detonate` over a list of (pattern, payload), one duration per job, in order (#5166).
+    The durations go down a Pipe, not a Queue: a Queue's feeder thread cannot flush while the next
+    job's regex holds the GIL, so an earlier result would be stuck behind a later hang."""
+    if started is not None:
+        started.set()
+    for pattern, payload in jobs:
+        start = time.thread_time()
+        list(pattern.finditer(payload))
+        conn.send(time.thread_time() - start)
+
+
+def assert_redos_immune_all(pairs, timeout_sec: float = 1.0):
+    """`assert_redos_immune` for many (pattern, payload) pairs in ONE isolated process (#5166).
+
+    A sweep of N pairs paid N interpreter spawns, which was most of its time. Every pair is still
+    timed on the child's own CPU clock and bounded by `timeout_sec`; a pair that does not finish
+    within the hang cap kills the child and fails naming that pair's payload and regex."""
+    pairs = [(pat, payload) for pat, payload in pairs if pat is not None]  # a disabled rule has nothing to detonate
+    if not pairs:
+        return
+    ctx = multiprocessing.get_context("spawn")
+    receiver, sender = ctx.Pipe(duplex=False)
+    started = ctx.Event()
+    p = ctx.Process(target=_detonate_all, args=([(_plain(pat), payload) for pat, payload in pairs], sender, started))
+    p.start()
+    sender.close()  # the child holds the only write end, so its death reads as EOF below
+    try:
+        assert started.wait(60), "the ReDoS child process never started"
+        for pattern, payload in pairs:
+            if not receiver.poll(_hang_cap(timeout_sec)):
+                p.terminate()
+                raise AssertionError(f"🔥 ReDoS TRIGGERED! Regex hung on payload:\n{payload}\nRegex: {pattern.pattern}")
+            try:
+                duration = receiver.recv()
+            except EOFError:
+                raise AssertionError(
+                    f"the ReDoS child died on payload {payload[:60]!r} for {pattern.pattern}"
+                ) from None
+            assert duration < timeout_sec, (
+                f"Regex took too long: {duration:.4f}s on payload {payload[:60]!r} for {pattern.pattern}"
+            )
+    finally:
+        if p.is_alive():
+            p.terminate()
+        p.join()
+
+
 def _best_of_timing(pattern: re.Pattern, payload: str, trials: int = 5) -> float:
     """
     Times a single in-process `.search()` call, taking the minimum of

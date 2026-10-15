@@ -166,15 +166,8 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # storage and addresses
     ("GETMAIN64", None, _STORAGE),
     ("FREEMAIN64", None, _STORAGE),
-    (
-        "ADDRESS",
-        None,
-        "the addresses of CICS areas (EIB, COMMAREA, CWA, TWA, TCTUA) set into pointers are not modelled",
-    ),
     ("ADDRESS SET", None, "setting a pointer from a data area's address (or the reverse) is not modelled"),
     # queues and files beyond the modelled ones
-    ("READQ TD", None, "reading a transient-data queue is not modelled (only WRITEQ TD)"),
-    ("DELETEQ TD", None, "deleting a transient-data queue is not modelled"),
     ("RESETBR", None, "repositioning a browse (RESETBR) is not modelled"),
     # journals
     ("JOURNAL", None, _JOURNAL),
@@ -242,12 +235,22 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("CONVERTTIME", None, "converting a date and time string to ABSTIME (CONVERTTIME) is not modelled"),
 )
 
+# #5079 (X59): the old-style commands refused by name with a register entry citing IBM's page for each
+_REGISTER = {
+    "SEND PAGE": "X59",
+    "PURGE MESSAGE": "X59",
+    "CONVERSE": "X59",
+    "POST": "X59",
+    "WAIT EVENT": "X59",
+}
+
 COMMANDS = tuple(
     Command(
         key=name,
         ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
         status="refused",
         why=why,
+        register=_REGISTER.get(name),
     )
     for name, topic, why in _NAME_ONLY
 )

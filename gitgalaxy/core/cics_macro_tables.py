@@ -31,6 +31,12 @@
 #          CICS/ESA); CICS/ESA 4.1 installs only BDAM files from an FCT.
 #   [APAR] IBM APAR II05097 (CICS/MVS 1.7 -> CICS/ESA 3.1.1 migration):
 #          `DFHPPT TYPE=ENTRY,MAPSET=name` and `DFHPPT TYPE=ENTRY,PROGRAM=name`.
+#   [TS]   IBM CICS TS 5.x "Reference: system management / resources / macros" pages (#5154):
+#          DFHSRT TYPE=SYSTEM|USER (ibm.com/docs SSGMCP_5.3.0 .../macros/srt/system.html),
+#          DFHTCT TYPE=REMOTE (SSGMCP_5.4.0 reference/resources/macros/tct/remote.html: ACCMETH,
+#          SYSIDNT, TRMIDNT, TRMTYPE, RMTNAME; TYPE=TERMINAL operands are valid on a home-region
+#          REMOTE), DFHMCT TYPE=EMP (SSGMCP_5.4.0 .../macros/mct/emp.html: ID, CLASS=PERFORM, ...),
+#          DFHSIT TYPE=CSECT|DSECT (SSGMCP_5.5.0 configuring/cics/dfha2_specify_dfhsit_macroparms.html).
 #   The CICS/VS and CICS/ESA 3.x "Resource Definition (Macro)" manuals themselves
 #   were NOT retrievable; where a statement below rests on [MIG] / [APAR] / a
 #   retained-spelling note instead of a syntax table, it is marked ASSUMED.
@@ -66,11 +72,33 @@
 #          compatibility ... exactly the same as TYPE=RECOVERY" [RDG p.484]. RECOVERY(YES) /
 #          SECURITY(YES) / REMOTESYSTEM / REMOTEPREFIX in `attributes`.
 #
+#   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
+#          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
+#          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
+#   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  ASSUMED: no IBM syntax page for the JCT macro was
+#          retrievable; JFILEID= / JTYPE= are read from secondary sources (Xephon CICS Update 1999-04,
+#          a DFHJCT TYPE=ENTRY example with JFILEID=SYSTEM,JTYPE=DISK2; the CICS TS 1.3 manual is
+#          the reference to confirm against). Only JFILEID names the row; every other operand stays in
+#          `attributes`.
+#   DFHTCT TYPE=TERMINAL|REMOTE,TRMIDNT=  TERMINAL; TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS]. TRMTYPE,
+#          ACCMETH, NETNAME, SYSIDNT, RMTNAME ride in `attributes`.
+#   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
+#          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
+#   DFHSIT TYPE=CSECT|DSECT  SIT  one row (name = SUFFIX= if coded, else DFHSIT). The system
+#          initialization parameters, including the table suffixes it selects (FCT=, DCT=, SRT=, ...),
+#          ride in `attributes`; they are not expanded to rows (REFUSED). Whether SIT has a SUFFIX
+#          operand is ASSUMED (SIT names come from the SIT= start-up override, not the macro).
+#   JCL: a job with an assembler step (PGM=ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR) or DFHAUPLE carries the
+#          tables as in-stream SYSIN; mainframe_boundary reads them through the same function, and
+#          the row's `line` is the line in the job. A SYSIN that is a separate member is that member's.
+#   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register entry).
+#
 #   REFUSED (read nothing rather than guess): FCT `RECSIZE=` (not an FCT operand; the
 #   record length is LRECL); DATAID=() (the "any other queue" null, it names no prefix);
 #   DFHTST TYPE=SHARED (a pool, not a model); TYPE=INITIAL / FINAL / GROUP (assembly
 #   control and CSD-migration statements, not resources); a TYPE= or RECFORM word the
-#   manual does not list; DFHSIT / DFHSRT / DFHJCT / DFHTCT / DFHMCT.
+#   manual does not list; DFHTCT TYPE=LINE / GPENTRY / SDSCI (no resource named by the operands
+#   read); DFHMCT TYPE=RECORD (not retrieved); DFHJCT TYPE=INITIAL / FINAL.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Joining a macro FILE to its JCL dataset, and
@@ -85,8 +113,10 @@ from typing import Any
 
 from gitgalaxy.core.ims_gen import _first, _operands, _statements
 
-_TABLES = ("DFHFCT", "DFHPCT", "DFHPPT", "DFHDCT", "DFHTST")
-_GATE = re.compile(r"\bDFH(?:FCT|PCT|PPT|DCT|TST)\b", re.I)
+_TABLES = ("DFHFCT", "DFHPCT", "DFHPPT", "DFHDCT", "DFHTST", "DFHSIT", "DFHSRT", "DFHJCT", "DFHTCT", "DFHMCT")
+_GATE = re.compile(r"\bDFH(?:FCT|PCT|PPT|DCT|TST|SIT|SRT|JCT|TCT|MCT)\b", re.I)
+_SRT_SYSTEM_CODE = re.compile(r"[0-9A-F]{3}\Z")  # TYPE=SYSTEM: "three hexadecimal digits" [CICS TS 5.3 DFHSRT]
+_SRT_USER_CODE = re.compile(r"[0-9]{1,4}\Z")  # TYPE=USER: "a decimal number (nnnn)"
 # FCT RECFORM's first element [RDG p.392]; the RDO FILE RECORDFORMAT is U | V | F [RDG p.532].
 _FCT_RECFORM = {"UNDEFINED": "U", "VARIABLE": "V", "FIXED": "F"}
 # SDSCI RECFORM [RDG p.376]: base word -> (RECORDFORMAT, BLOCKFORMAT); suffix -> PRINTCONTROL.
@@ -212,6 +242,36 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
     return _row("TDQUEUE", name, table, line, text, rdo, **extra)
 
 
+def _emp_id(value: str | None) -> str | None:
+    """DFHMCT ID= -> `entryname.number`: `180` / `(PP,3)` / `BANK.180` [CICS TS 5.4 DFHMCT TYPE=EMP].
+
+    The default entry name is USER; `(PP,n)` is "equivalent to ID 199 + n" (n 1-56); a user
+    number is 1-255 (1-199 user, 200-255 IBM). Anything else names nothing.
+    """
+    text = (value or "").strip().strip("'\"").upper()
+    pp = re.fullmatch(r"\(PP,(\d{1,2})\)", text)
+    if pp and 1 <= int(pp.group(1)) <= 56:
+        return f"USER.{199 + int(pp.group(1))}"
+    entry, _, number = text.strip("()").rpartition(".")
+    if not number.isdigit() or not 1 <= int(number) <= 255 or (entry and not entry.isalnum()):
+        return None
+    return f"{entry or 'USER'}.{int(number)}"
+
+
+def _srt_rows(line: int, text: str, keyed: dict[str, str], kind: str, table: str) -> list[dict[str, Any]]:
+    """DFHSRT TYPE=SYSTEM|USER: one SRT row per intercepted abend code, only for RECOVER=YES.
+
+    RECOVER=NO, or no RECOVER, "removes" the codes from the SRT: that is not a definition,
+    so it yields nothing. A code that is not three hex digits (SYSTEM) or a decimal number
+    (USER) is dropped. The row is named as the MVS code is: Sxxx / Unnnn.
+    """
+    if (_first(keyed.get("RECOVER")) or "") != "YES":
+        return []
+    shape, prefix = (_SRT_SYSTEM_CODE, "S") if kind == "SYSTEM" else (_SRT_USER_CODE, "U")
+    codes = [c.strip("() '\"").upper() for c in (keyed.get("ABCODE") or "").split(",")]
+    return [_row("SRT", prefix + code, table, line, text, ["RECOVER(YES)"]) for code in codes if shape.match(code)]
+
+
 def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
     """Every resource a DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro statement defines."""
     if not code_stream or not _GATE.search(code_stream):
@@ -288,4 +348,26 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
                 ]
             prefixes = [p.strip("() '\"").upper() for p in (keyed.get("DATAID") or "").strip().split(",")]
             rows.extend(_row("TSMODEL", prefix, table, line, text, rdo) for prefix in prefixes if prefix)
+        elif op == "DFHSRT" and kind in ("SYSTEM", "USER"):
+            rows.extend(_srt_rows(line, text, keyed, kind, table))
+        elif op == "DFHJCT" and kind == "ENTRY":
+            # ASSUMED (no IBM syntax page retrievable): JFILEID= SYSTEM | nn names the journal.
+            name = _name(keyed.get("JFILEID"))
+            if name:
+                rows.append(_row("JOURNAL", name, table, line, text))
+        elif op == "DFHTCT" and kind in ("TERMINAL", "REMOTE"):
+            name = _name(keyed.get("TRMIDNT"))
+            if name:
+                rows.append(_row("TERMINAL", name, table, line, text))
+        elif op == "DFHTCT" and kind == "SYSTEM":
+            name = _name(keyed.get("SYSIDNT"))
+            if name:
+                rows.append(_row("CONNECTION", name, table, line, text))
+        elif op == "DFHMCT" and kind == "EMP":
+            name = _emp_id(keyed.get("ID"))
+            if name:
+                rows.append(_row("MONITORPOINT", name, table, line, text))
+        elif op == "DFHSIT" and kind in ("CSECT", "DSECT"):
+            # One row per table; the table-selection operands (FCT=, DCT=, ...) ride in `attributes`.
+            rows.append(_row("SIT", _name(keyed.get("SUFFIX")) or "DFHSIT", table, line, text))
     return rows

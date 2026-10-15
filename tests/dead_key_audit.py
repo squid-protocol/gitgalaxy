@@ -316,9 +316,11 @@ ALLOWLIST = {
     **{
         k: "CICS macro operand keyword, written via ims_gen._operands' dynamic keying (cics_macro_tables.py, #5120)"
         for k in (
+            "ABCODE",
             "DATAID",
             "DESTID",
             "DSCNAME",
+            "JFILEID",
             "KEYLEN",
             "LRECL",
             "RECFORM",
@@ -327,6 +329,7 @@ ALLOWLIST = {
             "SUFFIX",
             "SYSIDNT",
             "TRIGLEV",
+            "TRMIDNT",
         )
     },
     # --- Generated code-page tables (#3816 part 3a) ---

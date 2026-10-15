@@ -41,7 +41,21 @@ def _entry(ir, rtype, name):
 
 def test_tables_only_estate_produces_every_resource_type_with_provenance(tables_only):
     entries = {(e["resource_type"], e["name"]): e for e in tables_only.resource_map()}
-    assert {t for t, _ in entries} == {"FILE", "TRANSACTION", "PROGRAM", "MAPSET", "PARTITIONSET", "TDQUEUE", "TSMODEL"}
+    assert {t for t, _ in entries} == {
+        "FILE",
+        "TRANSACTION",
+        "PROGRAM",
+        "MAPSET",
+        "PARTITIONSET",
+        "TDQUEUE",
+        "TSMODEL",
+        "SIT",
+        "SRT",
+        "JOURNAL",
+        "TERMINAL",
+        "CONNECTION",
+        "MONITORPOINT",
+    }
     acct = entries[("FILE", "ACCTDAT")]
     assert acct["sources"] == ["MACRO"]
     (d,) = acct["definitions"]
@@ -53,6 +67,27 @@ def test_tables_only_estate_produces_every_resource_type_with_provenance(tables_
     assert ("FILE", "RMTFIL") in entries and ("MAPSET", "BANKMAP") in entries
     assert entries[("TRANSACTION", "BA01")]["merged"]["program"] == "BANKINQ"
     assert {n for t, n in entries if t == "TSMODEL"} == {"BANK", "AUDT", "RCV", "SEC", "RMT"}
+
+
+def test_sibling_tables_carry_their_provenance_through_a_real_scan(tables_only):
+    entries = {(e["resource_type"], e["name"]): e for e in tables_only.resource_map()}
+    assert {n for t, n in entries if t == "SRT"} == {"S0C1", "S0C4", "U1234"}  # S0C7 is RECOVER=NO: a removal
+    assert {n for t, n in entries if t == "JOURNAL"} == {"SYSTEM", "03"}
+    assert {n for t, n in entries if t == "TERMINAL"} == {"T001", "R001"}
+    assert {n for t, n in entries if t == "MONITORPOINT"} == {"USER.202", "BANK.180"}
+    (d,) = entries[("SIT", "DFHSIT")]["definitions"]
+    assert (d["macro_table"], d["defined_in"], d["line"]) == ("DFHSIT", "DFHSIT.asm", 4)
+    (d,) = entries[("CONNECTION", "SYSB")]["definitions"]
+    assert (d["macro_table"], d["defined_in"]) == ("DFHTCT01", "DFHTCT.asm")
+
+
+def test_tables_assembled_inside_jcl_reach_the_resource_map(tmp_path_factory):
+    ir = _ir(tmp_path_factory, "jcl_assembled")
+    entries = {(e["resource_type"], e["name"]): e for e in ir.resource_map()}
+    assert set(entries) == {("FILE", "ACCTDAT"), ("SRT", "U4321"), ("TERMINAL", "T002")}  # NOASM.jcl reads nothing
+    (d,) = entries[("FILE", "ACCTDAT")]["definitions"]
+    assert (d["source"], d["macro_table"], d["defined_in"], d["line"]) == ("MACRO", "DFHFCT01", "ASMTABLE.jcl", 7)
+    assert entries[("FILE", "ACCTDAT")]["merged"]["dsname"] == "BANK.ACCT.DAM"
 
 
 def test_tables_only_estate_has_no_conflicts(tables_only):

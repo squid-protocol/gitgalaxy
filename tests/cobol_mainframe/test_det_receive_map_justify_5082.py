@@ -111,6 +111,7 @@ _WIDTHS = [1, 4, 8]
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.slow(reason="javac plus a JVM run over the whole operand class (#5178)")
 def test_the_runtime_places_the_text_for_the_whole_operand_class(tmp_path):
     from gitgalaxy.tools.cobol_to_java.det import program as P
 

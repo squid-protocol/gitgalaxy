@@ -28,6 +28,24 @@ def translator_in_the_tree_matches_the_surveys(monkeypatch):
     monkeypatch.setattr(er, "translator_at", lambda sha: TREE)
 
 
+@pytest.fixture(autouse=True, scope="module")
+def tree_fingerprints_computed_once():
+    """#5178: every live build fingerprints each case's inputs by hashing the tree (~27 of a build's ~35 s), and no test
+    here edits the tree, so a case's fingerprint is computed once per module, not once per build."""
+    import det_coverage_ledger as dcl
+
+    real, seen = dcl.fingerprints, {}
+
+    def once(case):
+        if case not in seen:
+            seen[case] = real(case)
+        return copy.deepcopy(seen[case])
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(dcl, "fingerprints", once)
+        yield
+
+
 # A number as the Markdown prints it: not part of a name (CBACT01C, L5) or a hex digest (8dff2ec2e).
 _NUMBER = re.compile(r"(?<![A-Za-z0-9.])\d+(?:\.\d+)*(?![A-Za-z0-9])")
 

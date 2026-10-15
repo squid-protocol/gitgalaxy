@@ -56,7 +56,7 @@ import pytest
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _strict_harness import assert_redos_immune  # type: ignore
+from _strict_harness import assert_redos_immune_all  # type: ignore
 
 
 def _rule(lang, signal="ownership"):
@@ -401,5 +401,4 @@ def test_ownership_markdown_has_no_rule():
 @pytest.mark.parametrize("lang", sorted(CASES))
 def test_ownership_contract_rules_are_redos_immune(lang):
     rule = _rule(lang)
-    for payload in PAYLOADS:
-        assert_redos_immune(rule, payload, timeout_sec=3.0)
+    assert_redos_immune_all([(rule, payload) for payload in PAYLOADS], timeout_sec=3.0)

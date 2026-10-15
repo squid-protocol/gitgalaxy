@@ -51,7 +51,7 @@ from typing import Any
 from collections.abc import Iterator
 
 from gitgalaxy.core.source_text import read_source
-from maven_exe import mvn_executable
+from maven_exe import maven_utf8_env, mvn_executable
 
 # ----------------------------------------------------------------------------- protobuf
 
@@ -481,7 +481,9 @@ _FETCH_POM = """<project xmlns="http://maven.apache.org/POM/4.0.0"><modelVersion
 
 def _run(cmd: list[str], cwd: Path, what: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     try:
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)  # noqa: S603 -- fixed tools
+        proc = subprocess.run(  # noqa: S603 -- fixed tools
+            cmd, cwd=cwd, env=maven_utf8_env(), capture_output=True, text=True, encoding="utf-8", errors="replace"
+        )
     except OSError as exc:
         raise SystemExit(f"scip_callgraph: {what}: {exc}") from exc
     if check and proc.returncode != 0:

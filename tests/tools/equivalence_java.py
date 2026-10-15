@@ -32,7 +32,7 @@ from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
-from maven_exe import mvn_executable
+from maven_exe import JVM_UTF8_FLAGS, maven_utf8_env, mvn_executable
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -617,14 +617,25 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
     argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    maven_argline = (
+        f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
+    )
     proc = _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-               f"-DargLine={argline}"]  # fmt: skip
+               f"-DargLine={maven_argline}"]  # fmt: skip
         try:
             proc = subprocess.run(  # noqa: S603
-                cmd, cwd=project, env=shell, capture_output=True, text=True, check=False, timeout=MAVEN_TEST_TIMEOUT
+                cmd,
+                cwd=project,
+                env=maven_utf8_env(shell),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+                timeout=MAVEN_TEST_TIMEOUT,
             )
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(

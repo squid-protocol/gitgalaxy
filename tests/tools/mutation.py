@@ -51,7 +51,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import mvn_executable  # noqa: E402
+from maven_exe import maven_utf8_env, mvn_executable  # noqa: E402
 
 EQUIVALENCE = TOOLS / "equivalence.py"
 CASES = REPO_ROOT / "tests" / "equivalence"
@@ -302,8 +302,8 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
         shutil.rmtree(scratch)
     shutil.copytree(project, scratch, ignore=shutil.ignore_patterns("target"))
     try:
-        proc = subprocess.run([mvn_executable(), "-o", "-X", "-B", "compile"], cwd=scratch, env=_java_env(),  # noqa: S607
-                              capture_output=True, text=True, check=False,
+        proc = subprocess.run([mvn_executable(), "-o", "-X", "-B", "compile"], cwd=scratch, env=maven_utf8_env(_java_env()),  # noqa: S607
+                              capture_output=True, text=True, encoding="utf-8", errors="replace", check=False,
                               timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         raise SystemExit(

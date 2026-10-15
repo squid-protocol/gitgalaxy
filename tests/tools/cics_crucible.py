@@ -119,7 +119,7 @@ REPO_ROOT = HERE_TOOLS.parents[1]
 sys.path.insert(0, str(HERE_TOOLS))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import mvn_executable  # noqa: E402
+from maven_exe import maven_utf8_env, mvn_executable  # noqa: E402
 
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
@@ -431,7 +431,16 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
     if env["JAVA_HOME"]:
         env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
     cmd = [mvn_executable(env), "-q", "-B", *(["-o"] if offline else []), *args]
-    proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    proc = subprocess.run(  # noqa: S603
+        cmd,
+        cwd=project,
+        env=maven_utf8_env(env),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
     log.write_text(proc.stdout + proc.stderr, encoding="utf-8")
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
     return proc.returncode == 0, "\n".join(errors[:20]) or _tail(proc.stdout + proc.stderr, 20)

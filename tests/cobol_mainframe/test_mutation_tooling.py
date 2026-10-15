@@ -219,6 +219,9 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     maven_flags = ej.split_argline(next(a for a in mvn if a.startswith("-DargLine="))[len("-DargLine=") :])
     assert maven_flags[-1] == "-Dgitgalaxy.faults.plan=a"
     utf8 = ["-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8"]  # #5128: the direct java names its charset itself
+    assert maven_flags[:2] == utf8  # #5161: so does surefire's fork
+    assert mvn_kw["encoding"] == "utf-8" and "-Dfile.encoding=UTF-8" in mvn_kw["env"]["MAVEN_OPTS"]
+    maven_flags = maven_flags[2:]
     assert java[1:3] == utf8
     n = len(utf8)
     assert (

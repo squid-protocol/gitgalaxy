@@ -217,6 +217,7 @@ def test_trunc_opt_stops_on_a_typed_move_past_the_picture(typed, stmt, said, tmp
     assert "BEFORE" in e.value.stdout and "AFTER" not in e.value.stdout
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5176)")
 @pytest.mark.parametrize("typed", [False, True])
 def test_trunc_opt_conforming_typed_moves_are_stds(typed, tmp_path):
     T = _jdk_or_skip()

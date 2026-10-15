@@ -12,13 +12,13 @@ These files are derived output. A feature PR does not commit them: the Evidence 
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 1 | 3 (1 stale) | 13 (1 stale) | 13 (1 stale) | 0 |
-| [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 1 | 0 | 0 | 9 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 7 | 12 (4 stale) | 6 (6 stale) | 6 (2 stale) | 0 |
-| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 13 (8 stale) | 13 (11 stale) | 5 (2 stale) | 0 |
-| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 2 | 1 | 2 (1 stale) | 0 | 1 | 0 |
-| [zecs](zecs/report.md) | 5 | 1 | 2 | 0 | 1 | 1 | 0 |
-| total | 127 | 17 | 12 | 30 (14 stale) | 33 (18 stale) | 35 (5 stale) | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 1 | 3 | 13 | 13 | 0 |
+| [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 7 | 12 | 6 | 6 | 0 |
+| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 13 | 13 | 5 | 0 |
+| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 2 | 1 | 2 | 0 | 1 | 0 |
+| [zecs](zecs/report.md) | 5 | 1 | 1 | 1 | 1 | 1 | 0 |
+| total | 127 | 17 | 10 | 31 | 33 | 36 | 0 |
 
 ## Non-burned estates
 

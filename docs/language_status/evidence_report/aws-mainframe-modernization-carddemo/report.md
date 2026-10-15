@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0a6f3c6d835f75e5e609c916696ef2d37a69783a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
+The translation survey matches the translator in the tree (translator fingerprint `d24352b94203`).
 
 ## How to read this report
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 14 | 0 |
 | L1 | 1 | 0 |
-| L2 | 3 | 1 |
-| L3 | 13 | 1 |
-| L4 | 13 | 1 |
+| L2 | 3 | 0 |
+| L3 | 13 | 0 |
+| L4 | 13 | 0 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 3 of 44 programs; the rest are current
-- L2+: 29 (3 awaiting re-check); L3+: 26 (2 awaiting re-check); L4+: 13 (1 awaiting re-check)
+- stale (`*`, last measured): 0 of 44 programs; the rest are current
+- L2+: 29 (0 awaiting re-check); L3+: 26 (0 awaiting re-check); L4+: 13 (0 awaiting re-check)
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 30; refused whole: 3; holes left: 74
@@ -88,7 +88,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4* | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4 | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
 | app/cbl/COADM01C.cbl | L4 | 80/80 | 0 | carddemo-adminmenu | equal | 16 | shown equal, unapproved | 8/8 (100.0%) | 20/26 (76.9%) | 20/20 (100.0%) | not yet measured (#4628) | 5/5 |
 | app/cbl/COBIL00C.cbl | L4 | 190/190 | 0 | carddemo-billpay | equal | 26 | shown equal, unapproved | 16/16 (100.0%) | 46/48 (95.8%) | 46/46 (100.0%) | not yet measured (#4628) | 4/12 |
 | app/cbl/COCRDSLC.cbl | L4 | 263/263 | 0 | carddemo-cardview | equal | 23 | shown equal, unapproved | 30/30 (100.0%) | 69/75 (92.0%) | 69/69 (100.0%) | not yet measured (#4628) | 7/8 |
@@ -101,7 +101,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COUSR01C.cbl | L4 | 94/94 | 0 | carddemo-useradd | equal | 13 | shown equal, unapproved | 9/9 (100.0%) | 20/21 (95.2%) | 20/20 (100.0%) | not yet measured (#4628) | 4/5 |
 | app/cbl/COUSR02C.cbl | L4 | 148/148 | 0 | carddemo-userupd | equal | 23 | shown equal, unapproved | 11/11 (100.0%) | 44/46 (95.7%) | 44/44 (100.0%) | not yet measured (#4628) | 4/6 |
 | app/cbl/COUSR03C.cbl | L4 | 115/115 | 0 | carddemo-userdel | equal | 18 | shown equal, unapproved | 11/11 (100.0%) | 30/32 (93.8%) | 30/30 (100.0%) | not yet measured (#4628) | 4/6 |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L3* | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/20 (80.0%) | not yet measured (#4628) | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L3 | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/20 (80.0%) | not yet measured (#4628) | — |
 | app/cbl/CBACT01C.cbl | L3 | 190/190 | 0 | carddemo-readacct | equal | None | none | 16/16 (100.0%) | 41/44 (93.2%) | 41/44 (93.2%) | not yet measured (#4628) | — |
 | app/cbl/CBACT02C.cbl | L3 | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/22 (95.5%) | not yet measured (#4628) | — |
 | app/cbl/CBACT03C.cbl | L3 | 64/64 | 0 | carddemo-readxref | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/22 (95.5%) | not yet measured (#4628) | — |
@@ -114,7 +114,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COMEN01C.cbl | L3 | 91/91 | 0 | carddemo-menu | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/33 (87.9%) | 29/30 (96.7%) | not yet measured (#4628) | 4/5 |
 | app/cbl/CORPT00C.cbl | L3 | 220/220 | 0 | carddemo-report | equal | 25 | shown equal, unapproved | 10/10 (100.0%) | 51/59 (86.4%) | 51/52 (98.1%) | not yet measured (#4628) | 4/5 |
 | app/cbl/CSUTLDTC.cbl | L3 | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/10 (40.0%) | not yet measured (#4628) | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2* | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L2 | 436/436 | 0 | carddemo-cotrtupc | equal | 34 | none | 62/63 (98.4%) | 126/166 (75.9%) | 126/166 (75.9%) | not yet measured (#4628) | 7/8 |
 | app/cbl/COACTUPC.cbl | L2 | 1415/1415 | 0 | carddemo-acctupdate | equal | 137 | none | 89/95 (93.7%) | 310/397 (78.1%) | 310/397 (78.1%) | not yet measured (#4628) | 7/11 |
 | app/cbl/COACTVWC.cbl | L2 | 275/275 | 0 | carddemo-acctview | equal | 20 | shown equal, unapproved | 31/32 (96.9%) | 58/69 (84.1%) | 58/69 (84.1%) | not yet measured (#4628) | 7/8 |
 | app/cbl/CBSTM03B.CBL | L1 | 53/53 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
@@ -135,9 +135,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ## Per program
 
-### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4*
-
-- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl -- L4
 
 - **Executed equivalent** on the 5 scenarios of carddemo-copaus2c against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -511,9 +509,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: DELETE, READ; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### app/app-transaction-type-db2/cbl/COBTUPDT.cbl -- L3
 
 - **Executed equivalent** on the batch runs of carddemo-cobtupdt against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 80.0 raw, 80.0 net of the reviewed infeasible outcomes)
@@ -742,9 +738,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 6 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L2
 
 - **Executed equivalent** on the 34 scenarios of carddemo-cotrtupc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 98.4)
@@ -1111,22 +1105,22 @@ From the spec entries of the commands the programs use, with the register's stat
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X34 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP(name) with no browse option reads that definition among the installed ones the run states (X32's list: PATH and TRANSACTION as a browse NEXT returns them, NOTFND RESP2 3 when it is not installed, a browse in progress left where it was); INQUIRE PROGRAM STATUS answers ENABLED (CVDA 23), the DEFINE PROGRAM default, for every program the region defines, on NORMAL only; a case CSD defining a program STATUS(DISABLED) refused |
 | X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
-| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
 
 ## Reproducibility
 
-- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
+- translator commit (the survey's): `0a6f3c6d835f75e5e609c916696ef2d37a69783a`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa`
+- oracle images the evidence records ran on: `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

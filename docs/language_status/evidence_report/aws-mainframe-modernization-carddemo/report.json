@@ -68,7 +68,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   }
@@ -114,6 +114,12 @@
  ],
  "measured": {
   "det_coverage": {
+   "asynccc-asyncpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
    "asynccc-crdtchk": [
     1,
     1,
@@ -216,58 +222,30 @@
     69,
     75
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     56,
-     59,
-     165,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     62,
-     63,
-     126,
-     166
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -400,59 +378,31 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     60,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
    "cbsa-bnk1ccs": null,
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     52,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     44,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
@@ -497,59 +447,31 @@
     4,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
    "cbsa-crecust": null,
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     3,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     16,
-     22,
-     25,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -562,154 +484,84 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     16,
-     22,
-     19,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
    "cbsa-inqcust": [
     22,
     25,
     39,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     46,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     6,
-     7,
-     17,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     2,
     3,
@@ -722,96 +574,54 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     8,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
    "genapp-lgdpvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     3,
-     4,
-     4,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
     7,
     12
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -824,129 +634,66 @@
     2,
     2
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     9,
-     10,
-     16,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     7,
-     9,
-     18,
-     22
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     2,
     3,
@@ -959,19 +706,12 @@
     0,
     0
    ],
-   "mortgage-cmort": {
-    "coverage": [
-     3,
-     6,
-     15,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -997,6 +737,12 @@
     15,
     15,
     18
+   ],
+   "zecs-zecs000": [
+    9,
+    38,
+    7,
+    46
    ],
    "zecs-zecs003": null,
    "zecs-zecsplt": [
@@ -2150,10 +1896,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
   "sweeps": {}
@@ -2385,7 +2131,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -2395,11 +2141,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -2430,7 +2173,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -2631,11 +2374,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -2800,7 +2540,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 40,
        "records_equal": 40,
@@ -2849,7 +2589,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 40,
       "records_equal": 40,
@@ -3232,7 +2972,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -3321,7 +3061,7 @@
        "fault_runs": 11,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 90,
        "records_equal": 90,
@@ -3366,7 +3106,7 @@
       "fault_runs": 11,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 90,
       "records_equal": 90,
@@ -3916,7 +3656,7 @@
        "fault_runs": 3,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 60,
        "records_equal": 60,
@@ -3965,7 +3705,7 @@
       "fault_runs": 3,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 60,
       "records_equal": 60,
@@ -4442,7 +4182,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -5193,7 +4933,7 @@
        "fault_runs": 1,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 30,
        "records_equal": 30,
@@ -5235,7 +4975,7 @@
       "fault_runs": 1,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 30,
       "records_equal": 30,
@@ -5687,7 +5427,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -5809,7 +5549,7 @@
        "fault_runs": 4,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 91,
        "records_equal": 91,
@@ -5857,7 +5597,7 @@
       "fault_runs": 4,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 91,
       "records_equal": 91,
@@ -6302,7 +6042,7 @@
        "fault_runs": 1,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 39,
        "records_equal": 39,
@@ -6346,7 +6086,7 @@
       "fault_runs": 1,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 39,
       "records_equal": 39,
@@ -6692,7 +6432,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -6792,7 +6532,7 @@
        "fault_runs": 9,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 135,
        "records_equal": 135,
@@ -6838,7 +6578,7 @@
       "fault_runs": 9,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 135,
       "records_equal": 135,
@@ -7211,7 +6951,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -7333,7 +7073,7 @@
        "fault_runs": 4,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 92,
        "records_equal": 92,
@@ -7381,7 +7121,7 @@
       "fault_runs": 4,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 92,
       "records_equal": 92,
@@ -7814,7 +7554,7 @@
        "fault_runs": 1,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 35,
        "records_equal": 35,
@@ -7858,7 +7598,7 @@
       "fault_runs": 1,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 35,
       "records_equal": 35,
@@ -8199,7 +7939,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -8288,7 +8028,7 @@
        "fault_runs": 2,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 74,
        "records_equal": 74,
@@ -8333,7 +8073,7 @@
       "fault_runs": 2,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 74,
       "records_equal": 74,
@@ -8774,7 +8514,7 @@
        "fault_runs": 2,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -8819,7 +8559,7 @@
       "fault_runs": 2,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -9164,7 +8904,7 @@
      "covered": 16,
      "total": 20
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9174,11 +8914,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9209,7 +8946,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -9284,11 +9021,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9514,7 +9248,7 @@
        "fault_runs": 6,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -9555,7 +9289,7 @@
       "fault_runs": 6,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -9722,7 +9456,7 @@
        "fault_runs": 6,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -9763,7 +9497,7 @@
       "fault_runs": 6,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -9930,7 +9664,7 @@
        "fault_runs": 19,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 105,
        "records_equal": 105,
@@ -9982,7 +9716,7 @@
       "fault_runs": 19,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 105,
       "records_equal": 105,
@@ -10149,7 +9883,7 @@
        "fault_runs": 6,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -10190,7 +9924,7 @@
       "fault_runs": 6,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -10357,7 +10091,7 @@
        "fault_runs": 20,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 0,
        "records_equal": 0,
@@ -10398,7 +10132,7 @@
       "fault_runs": 20,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 0,
       "records_equal": 0,
@@ -10565,7 +10299,7 @@
        "fault_runs": 28,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 455,
        "records_equal": 455,
@@ -10617,7 +10351,7 @@
       "fault_runs": 28,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 455,
       "records_equal": 455,
@@ -10784,7 +10518,7 @@
        "fault_runs": 24,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 447,
        "records_equal": 447,
@@ -10825,7 +10559,7 @@
       "fault_runs": 24,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 447,
       "records_equal": 447,
@@ -10954,7 +10688,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -11044,7 +10778,7 @@
        "fault_runs": 5,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 124,
        "records_equal": 124,
@@ -11090,7 +10824,7 @@
       "fault_runs": 5,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 124,
       "records_equal": 124,
@@ -11638,7 +11372,7 @@
        "fault_runs": 2,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 38,
        "records_equal": 38,
@@ -11685,7 +11419,7 @@
       "fault_runs": 2,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 38,
       "records_equal": 38,
@@ -12156,7 +11890,7 @@
        "fault_runs": 1,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 142,
        "records_equal": 142,
@@ -12207,7 +11941,7 @@
       "fault_runs": 1,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 142,
       "records_equal": 142,
@@ -12585,7 +12319,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 17,
        "records_equal": 17,
@@ -12631,7 +12365,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 17,
       "records_equal": 17,
@@ -12779,7 +12513,7 @@
      "covered": 126,
      "total": 166
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12789,11 +12523,8 @@
      "live": 63
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12824,7 +12555,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13226,11 +12957,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13286,7 +13014,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -13907,7 +13635,7 @@
        "fault_runs": 6,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 49,
        "records_equal": 49,
@@ -13972,7 +13700,7 @@
       "fault_runs": 6,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 49,
       "records_equal": 49,
@@ -16188,7 +15916,7 @@
      "covered": 165,
      "total": 230
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -16198,11 +15926,8 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17742,8 +17467,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cobtupdt,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (4) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -17760,20 +17485,20 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:42d04bb08a2ae202b10f8b9984965744dbc662a2b066597c536e1cf591eb8efa"
+   "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
-  "translator_commit": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+  "translator_commit": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -17790,9 +17515,9 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 1,
-   "L3": 1,
-   "L4": 1,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -17804,7 +17529,7 @@
    "L5": 0
   },
   "holes": 74,
-  "levels_stale": 3,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 44,
   "records_current": 23,
@@ -17816,6 +17541,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+  "fingerprint": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
  }
 }

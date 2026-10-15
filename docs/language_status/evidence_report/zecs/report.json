@@ -86,7 +86,7 @@
   },
   {
    "area": "CICS",
-   "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH or DOCTOKEN with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); the response is in the program's characters (conversion changes nothing); refused: no stated request, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
+   "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH, DOCTOKEN or CONTAINER [CHANNEL] with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); for a container body CONTAINERERR 2 (no such container), CHANNELERR 2 (no such channel), INVREQ 145 (no CHANNEL and no current channel), INVREQ 150 (SRVCONVERT on a DATATYPE BIT container); the response is in the program's characters (conversion changes nothing); refused: no stated request, an empty container body, a BIT container sent without conversion, FROM, DOCTOKEN or CHUNKING together with CONTAINER, CHANNEL without CONTAINER, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
    "id": "X37",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -116,8 +116,14 @@
   },
   {
    "area": "CICS",
-   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state",
+   "id": "X53",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   }
  ],
@@ -162,6 +168,12 @@
  ],
  "measured": {
   "det_coverage": {
+   "asynccc-asyncpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
    "asynccc-crdtchk": [
     1,
     1,
@@ -264,58 +276,30 @@
     69,
     75
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     56,
-     59,
-     165,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     62,
-     63,
-     126,
-     166
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -448,59 +432,31 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     60,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
    "cbsa-bnk1ccs": null,
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     52,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     44,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
@@ -545,59 +501,31 @@
     4,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
    "cbsa-crecust": null,
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     3,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     16,
-     22,
-     25,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -610,154 +538,84 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     16,
-     22,
-     19,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
    "cbsa-inqcust": [
     22,
     25,
     39,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     46,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     6,
-     7,
-     17,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     2,
     3,
@@ -770,96 +628,54 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     8,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
    "genapp-lgdpvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     3,
-     4,
-     4,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
     7,
     12
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -872,129 +688,66 @@
     2,
     2
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     9,
-     10,
-     16,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     7,
-     9,
-     18,
-     22
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     2,
     3,
@@ -1007,19 +760,12 @@
     0,
     0
    ],
-   "mortgage-cmort": {
-    "coverage": [
-     3,
-     6,
-     15,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -1045,6 +791,12 @@
     15,
     15,
     18
+   ],
+   "zecs-zecs000": [
+    9,
+    38,
+    7,
+    46
    ],
    "zecs-zecs003": null,
    "zecs-zecsplt": [
@@ -1126,7 +878,6 @@
      ],
      "assign_task": [],
      "eib": [
-      "EIBFN",
       "EIBTASKN"
      ]
     },
@@ -1182,7 +933,6 @@
      "assign_task": [],
      "eib": [
       "EIBDS",
-      "EIBFN",
       "EIBRCODE"
      ]
     },
@@ -1218,9 +968,7 @@
     "facts": {
      "assign_region": [],
      "assign_task": [],
-     "eib": [
-      "EIBFN"
-     ]
+     "eib": []
     },
     "program": "Source/ZECS003.cbl",
     "row": {
@@ -1379,10 +1127,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
   "sweeps": {}
@@ -2392,9 +2140,7 @@
      "userid"
     ],
     "facts_unstated": [
-     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
-     "ASSIGN APPLID (the case states no region)"
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
     ],
     "named_by_commands": [
      {
@@ -2465,7 +2211,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -2474,33 +2220,64 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
+    "branch_net_pct": 15.2,
+    "branch_pct": 15.2,
+    "branches": {
+     "covered": 7,
+     "total": 46
+    },
+    "branches_net": {
+     "covered": 7,
+     "total": 46
+    },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
+    "paragraph_pct": 23.7,
+    "paragraphs": {
+     "covered": 9,
+     "live": 38
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
    "equivalence": {
-    "cases": [],
-    "chosen": null
+    "cases": [
+     {
+      "case": "zecs-zecs000",
+      "case_scenarios": 2,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecs000",
+     "case_scenarios": 2,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
    },
-   "level": "L1",
+   "level": "L2",
    "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "an equivalence case that runs it"
+    "paragraph coverage >= 100.0 (now 23.7)"
    ],
    "options": {
     "assumed": 6,
@@ -2950,7 +2727,7 @@
      "X46",
      "X52"
     ],
-    "branch_outcomes_unrun": null,
+    "branch_outcomes_unrun": 39,
     "commands": 22,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -2972,9 +2749,9 @@
      "WRITE",
      "WRITEQ TD"
     ],
-    "facts_unstated": 3,
+    "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": null,
+    "paragraphs_unrun": 29,
     "refused": null
    },
    "stale_inputs": [],
@@ -2999,9 +2776,7 @@
      "http_request",
      "urimaps"
     ],
-    "facts_unstated": [
-     "EIB field EIBFN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -3047,7 +2822,7 @@
      },
      {
       "area": "CICS",
-      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH or DOCTOKEN with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); the response is in the program's characters (conversion changes nothing); refused: no stated request, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
+      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH, DOCTOKEN or CONTAINER [CHANNEL] with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); for a container body CONTAINERERR 2 (no such container), CHANNELERR 2 (no such channel), INVREQ 145 (no CHANNEL and no current channel), INVREQ 150 (SRVCONVERT on a DATATYPE BIT container); the response is in the program's characters (conversion changes nothing); refused: no stated request, an empty container body, a BIT container sent without conversion, FROM, DOCTOKEN or CHUNKING together with CONTAINER, CHANNEL without CONTAINER, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
       "id": "X37",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -3417,7 +3192,7 @@
      "WEB PARSE URL",
      "WEB SEND"
     ],
-    "facts_unstated": 1,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": null,
     "refused": null
@@ -3445,7 +3220,6 @@
     ],
     "facts_unstated": [
      "EIB field EIBDS (both runtimes read zero; z/OS does not)",
-     "EIB field EIBFN (both runtimes read zero; z/OS does not)",
      "EIB field EIBRCODE (both runtimes read zero; z/OS does not)"
     ],
     "named_by_commands": [
@@ -3505,7 +3279,7 @@
      },
      {
       "area": "CICS",
-      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH or DOCTOKEN with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); the response is in the program's characters (conversion changes nothing); refused: no stated request, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CONTAINER, CHANNEL, CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
+      "entry": "The task serves one inbound HTTP request that whoever runs it STATES (http_request: scheme, host, port, method, version, path, query, headers, media type and body; unstated, WEB SEND is refused); WEB SEND FROM / FROMLENGTH, DOCTOKEN or CONTAINER [CHANNEL] with ACTION(IMMEDIATE), ACTION(EVENTUAL) or no ACTION, MEDIATYPE, STATUSCODE (200 when omitted), STATUSTEXT / STATUSLEN (the whole area when STATUSLEN is omitted), SRVCONVERT / NOSRVCONVERT and, for a document, DOCSTATUS(DOCDELETE | NODOCDELETE) is recorded as a WEB-SEND event (status, reason phrase or none, media type or none, body, action) and compared; an IMMEDIATE response is recorded when sent, an EVENTUAL one (and an omitted ACTION, IBM's default for a send that is not chunked) is held and recorded once at the end of the task, after the task's other events, a second EVENTUAL send replacing the first (the whole response: ASSUMED); DOCDELETE deletes the document once its contents are saved (a later request for it is NOTFND 1), NODOCDELETE (the default) keeps it; INVREQ 11 (an action that is neither IMMEDIATE nor EVENTUAL), INVREQ 72 (204 / 205 / 304 with a body), INVREQ 143 (an invalid DOCSTATUS), NOTFND 1 (a DOCTOKEN that names no document: not created, deleted or wrongly named); for a container body CONTAINERERR 2 (no such container), CHANNELERR 2 (no such channel), INVREQ 145 (no CHANNEL and no current channel), INVREQ 150 (SRVCONVERT on a DATATYPE BIT container); the response is in the program's characters (conversion changes nothing); refused: no stated request, an empty container body, a BIT container sent without conversion, FROM, DOCTOKEN or CHUNKING together with CONTAINER, CHANNEL without CONTAINER, a second send after an IMMEDIATE one, an IMMEDIATE send after an EVENTUAL one, a task that ended in an abend with an EVENTUAL response held, a WEB WRITE HTTPHEADER after any send, DOCSTATUS on a FROM send, FROMLENGTH or STATUSLEN not above zero, a length past its area, a STATUSCODE outside 100-599, a blank or malformed MEDIATYPE, SRVCONVERT on a media type that is not text/*, two conditions at once, and CHUNKING, CHARACTERSET, CLNTCODEPAGE, HOSTCODEPAGE, CLOSESTATUS, LENGTH",
       "id": "X37",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -3535,8 +3309,14 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state",
+      "id": "X53",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
@@ -3695,7 +3475,8 @@
      "facts_stated": [],
      "registers": [
       "X30",
-      "X45"
+      "X45",
+      "X53"
      ],
      "spec_entry": "full"
     },
@@ -4056,7 +3837,8 @@
      "X45",
      "X46",
      "X47",
-     "X52"
+     "X52",
+     "X53"
     ],
     "branch_outcomes_unrun": null,
     "commands": 27,
@@ -4087,7 +3869,7 @@
      "WRITE",
      "WRITEQ TD"
     ],
-    "facts_unstated": 3,
+    "facts_unstated": 2,
     "holes": 0,
     "paragraphs_unrun": null,
     "refused": "refused: ValueError: a second N group named FILLER: its items cannot be told apart"
@@ -4111,10 +3893,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs003,zecs-zecsplt",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
@@ -4133,22 +3915,22 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
-  "translator_commit": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+  "translator_commit": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 5,
-  "det_equal": 2,
+  "det_equal": 3,
   "histogram": {
    "L0": 1,
-   "L1": 2,
-   "L2": 0,
+   "L1": 1,
+   "L2": 1,
    "L3": 1,
    "L4": 1,
    "L5": 0
@@ -4177,11 +3959,11 @@
   "refused_whole": 1,
   "source_unread": 0,
   "translated_whole": 4,
-  "with_case": 3,
+  "with_case": 4,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+  "fingerprint": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
  }
 }

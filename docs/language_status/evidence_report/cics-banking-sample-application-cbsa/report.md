@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0a6f3c6d835f75e5e609c916696ef2d37a69783a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
+The translation survey matches the translator in the tree (translator fingerprint `d24352b94203`).
 
 ## How to read this report
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 7 | 0 |
-| L2 | 12 | 4 |
-| L3 | 6 | 6 |
-| L4 | 6 | 2 |
+| L2 | 12 | 0 |
+| L3 | 6 | 0 |
+| L4 | 6 | 0 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 12 of 31 programs; the rest are current
-- L2+: 24 (12 awaiting re-check); L3+: 12 (8 awaiting re-check); L4+: 6 (2 awaiting re-check)
+- stale (`*`, last measured): 0 of 31 programs; the rest are current
+- L2+: 24 (0 awaiting re-check); L3+: 12 (0 awaiting re-check); L4+: 6 (0 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
@@ -94,17 +94,17 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | src/base/cobol_src/ABNDPROC.cbl | L4 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/2 |
-| src/base/cobol_src/ACCTCTRL.cbl | L4* | 18/18 | 0 | cbsa-acctctrl | equal | 3 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/3 |
+| src/base/cobol_src/ACCTCTRL.cbl | L4 | 18/18 | 0 | cbsa-acctctrl | equal | 3 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/3 |
 | src/base/cobol_src/GETCOMPY.cbl | L4 | 3/3 | 0 | cbsa-getcompy | equal | 3 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | not yet measured (#4628) | 1/1 |
 | src/base/cobol_src/GETSCODE.cbl | L4 | 3/3 | 0 | cbsa-getscode | equal | 3 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | not yet measured (#4628) | 1/1 |
-| src/base/cobol_src/UPDACC.cbl | L4* | 58/58 | 0 | cbsa-updacc | equal | 10 | shown equal, unapproved | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
+| src/base/cobol_src/UPDACC.cbl | L4 | 58/58 | 0 | cbsa-updacc | equal | 10 | shown equal, unapproved | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | not yet measured (#4628) | 1/3 |
 | src/base/cobol_src/UPDCUST.cbl | L4 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | 7/7 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | not yet measured (#4628) | 1/5 |
-| src/base/cobol_src/BNK1CAC.cbl | L3* | 389/389 | 0 | cbsa-bnk1cac | equal | 25 | none | 25/25 (100.0%) | 60/97 (61.9%) | 60/97 (61.9%) | not yet measured (#4628) | 7/11 |
-| src/base/cobol_src/BNK1CRA.cbl | L3* | 317/317 | 0 | cbsa-bnk1cra | equal | 22 | none | 28/28 (100.0%) | 52/67 (77.6%) | 52/67 (77.6%) | not yet measured (#4628) | 7/12 |
-| src/base/cobol_src/BNK1DAC.cbl | L3* | 345/345 | 0 | cbsa-bnk1dac | equal | 17 | none | 31/31 (100.0%) | 44/60 (73.3%) | 44/60 (73.3%) | not yet measured (#4628) | 7/11 |
-| src/base/cobol_src/CREACC.cbl | L3* | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | not yet measured (#4628) | 4/8 |
-| src/base/cobol_src/CUSTCTRL.cbl | L3* | 21/21 | 0 | cbsa-custctrl | equal | 6 | none | 7/7 (100.0%) | 3/4 (75.0%) | 3/4 (75.0%) | not yet measured (#4628) | 1/5 |
-| src/base/cobol_src/DELACC.cbl | L3* | 134/134 | 0 | cbsa-delacc | equal | 11 | none | 19/19 (100.0%) | 13/14 (92.9%) | 13/14 (92.9%) | not yet measured (#4628) | 3/5 |
+| src/base/cobol_src/BNK1CAC.cbl | L3 | 389/389 | 0 | cbsa-bnk1cac | equal | 25 | none | 25/25 (100.0%) | 60/97 (61.9%) | 60/97 (61.9%) | not yet measured (#4628) | 7/11 |
+| src/base/cobol_src/BNK1CRA.cbl | L3 | 317/317 | 0 | cbsa-bnk1cra | equal | 22 | none | 28/28 (100.0%) | 52/67 (77.6%) | 52/67 (77.6%) | not yet measured (#4628) | 7/12 |
+| src/base/cobol_src/BNK1DAC.cbl | L3 | 345/345 | 0 | cbsa-bnk1dac | equal | 17 | none | 31/31 (100.0%) | 44/60 (73.3%) | 44/60 (73.3%) | not yet measured (#4628) | 7/11 |
+| src/base/cobol_src/CREACC.cbl | L3 | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | not yet measured (#4628) | 4/8 |
+| src/base/cobol_src/CUSTCTRL.cbl | L3 | 21/21 | 0 | cbsa-custctrl | equal | 6 | none | 7/7 (100.0%) | 3/4 (75.0%) | 3/4 (75.0%) | not yet measured (#4628) | 1/5 |
+| src/base/cobol_src/DELACC.cbl | L3 | 134/134 | 0 | cbsa-delacc | equal | 11 | none | 19/19 (100.0%) | 13/14 (92.9%) | 13/14 (92.9%) | not yet measured (#4628) | 3/5 |
 | src/base/cobol_src/BNK1DCS.cbl | L2 | 648/648 | 0 | cbsa-bnk1dcs | equal | 22 | none | 46/51 (90.2%) | 62/102 (60.8%) | 62/102 (60.8%) | not yet measured (#4628) | 8/14 |
 | src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 18 | none | 19/25 (76.0%) | 35/62 (56.5%) | 35/62 (56.5%) | not yet measured (#4628) | 7/10 |
 | src/base/cobol_src/CRDTAGY1.cbl | L2 | 44/44 | 0 | cbsa-crdtagy1 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/6 (66.7%) | not yet measured (#4628) | 4/9 |
@@ -112,11 +112,11 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | src/base/cobol_src/CRDTAGY3.cbl | L2 | 44/44 | 0 | cbsa-crdtagy3 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/6 (66.7%) | not yet measured (#4628) | 4/9 |
 | src/base/cobol_src/CRDTAGY4.cbl | L2 | 44/44 | 0 | cbsa-crdtagy4 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/6 (66.7%) | not yet measured (#4628) | 4/9 |
 | src/base/cobol_src/CRDTAGY5.cbl | L2 | 44/44 | 0 | cbsa-crdtagy5 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/6 (66.7%) | not yet measured (#4628) | 4/9 |
-| src/base/cobol_src/DBCRFUN.cbl | L2* | 148/148 | 0 | cbsa-dbcrfun | equal | 22 | none | 16/22 (72.7%) | 25/35 (71.4%) | 25/35 (71.4%) | not yet measured (#4628) | 5/8 |
-| src/base/cobol_src/INQACC.cbl | L2* | 227/227 | 0 | cbsa-inqacc | equal | 14 | shown equal, unapproved | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | not yet measured (#4628) | 5/8 |
-| src/base/cobol_src/INQACCCU.cbl | L2* | 186/186 | 0 | cbsa-inqacccu | equal | 8 | none | 16/22 (72.7%) | 19/33 (57.6%) | 19/33 (57.6%) | not yet measured (#4628) | 5/8 |
+| src/base/cobol_src/DBCRFUN.cbl | L2 | 148/148 | 0 | cbsa-dbcrfun | equal | 22 | none | 16/22 (72.7%) | 25/35 (71.4%) | 25/35 (71.4%) | not yet measured (#4628) | 5/8 |
+| src/base/cobol_src/INQACC.cbl | L2 | 227/227 | 0 | cbsa-inqacc | equal | 14 | shown equal, unapproved | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | not yet measured (#4628) | 5/8 |
+| src/base/cobol_src/INQACCCU.cbl | L2 | 186/186 | 0 | cbsa-inqacccu | equal | 8 | none | 16/22 (72.7%) | 19/33 (57.6%) | 19/33 (57.6%) | not yet measured (#4628) | 5/8 |
 | src/base/cobol_src/INQCUST.cbl | L2 | 162/162 | 0 | cbsa-inqcust | equal | 25 | none | 22/25 (88.0%) | 39/46 (84.8%) | 39/46 (84.8%) | not yet measured (#4628) | 5/13 |
-| src/base/cobol_src/XFRFUN.cbl | L2* | 426/426 | 0 | cbsa-xfrfun | equal | 22 | none | 27/28 (96.4%) | 46/81 (56.8%) | 46/81 (56.8%) | not yet measured (#4628) | 5/9 |
+| src/base/cobol_src/XFRFUN.cbl | L2 | 426/426 | 0 | cbsa-xfrfun | equal | 22 | none | 27/28 (96.4%) | 46/81 (56.8%) | 46/81 (56.8%) | not yet measured (#4628) | 5/9 |
 | src/base/cobol_src/BANKDATA.cbl | L1 | 464/464 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | src/base/cobol_src/BNK1CCA.cbl | L1 | 234/234 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 7/10 |
 | src/base/cobol_src/BNK1CCS.cbl | L1 | 573/573 | 0 | cbsa-bnk1ccs | not equal | 89 | none | not measured | not measured | not measured | not yet measured (#4628) | 8/12 |
@@ -151,7 +151,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (69 scenarios in case.json)
 - **Executed equivalence** (cbsa-creacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (18 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
@@ -173,9 +173,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/ACCTCTRL.cbl -- L4*
-
-- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/ACCTCTRL.cbl -- L4
 
 - **Executed equivalent** on the 3 scenarios of cbsa-acctctrl against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -234,9 +232,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/UPDACC.cbl -- L4*
-
-- **Stale level:** L4 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/UPDACC.cbl -- L4
 
 - **Executed equivalent** on the 10 scenarios of cbsa-updacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
@@ -286,9 +282,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CAC.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/BNK1CAC.cbl -- L3
 
 - **Executed equivalent** on the 25 scenarios of cbsa-bnk1cac against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 61.9 raw, 61.9 net of the reviewed infeasible outcomes)
@@ -319,9 +313,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 37 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CRA.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/BNK1CRA.cbl -- L3
 
 - **Executed equivalent** on the 22 scenarios of cbsa-bnk1cra against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 77.6 raw, 77.6 net of the reviewed infeasible outcomes)
@@ -353,9 +345,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 15 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X29, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, INQUIRE ASSOCIATION, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1DAC.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/BNK1DAC.cbl -- L3
 
 - **Executed equivalent** on the 17 scenarios of cbsa-bnk1dac against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 73.3 raw, 73.3 net of the reviewed infeasible outcomes)
@@ -386,9 +376,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 16 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/CREACC.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/CREACC.cbl -- L3
 
 - **Executed equivalent** on the 18 scenarios of cbsa-creacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)
@@ -418,9 +406,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, DEQ, ENQ, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/CUSTCTRL.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/CUSTCTRL.cbl -- L3
 
 - **Executed equivalent** on the 6 scenarios of cbsa-custctrl against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 75.0 raw, 75.0 net of the reviewed infeasible outcomes)
@@ -443,9 +429,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X18, X22, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, READ; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/DELACC.cbl -- L3*
-
-- **Stale level:** L3 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/DELACC.cbl -- L3
 
 - **Executed equivalent** on the 11 scenarios of cbsa-delacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 92.9 raw, 92.9 net of the reviewed infeasible outcomes)
@@ -546,7 +530,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (89 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy1, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/6 (66.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -579,7 +563,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (89 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy2, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/6 (66.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -612,7 +596,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (89 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy3, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/6 (66.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -645,7 +629,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (89 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy4, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/6 (66.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -678,7 +662,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (89 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy5, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/6 (66.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -701,9 +685,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/DBCRFUN.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/DBCRFUN.cbl -- L2
 
 - **Executed equivalent** on the 22 scenarios of cbsa-dbcrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 72.7)
@@ -733,9 +715,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 6 live paragraphs unrun; 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/INQACC.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/INQACC.cbl -- L2
 
 - **Executed equivalent** on the 14 scenarios of cbsa-inqacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 88.0)
@@ -768,9 +748,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/INQACCCU.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/INQACCCU.cbl -- L2
 
 - **Executed equivalent** on the 8 scenarios of cbsa-inqacccu against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 72.7)
@@ -798,10 +776,8 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 6 live paragraphs unrun; 14 branch outcomes unrun; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 6 live paragraphs unrun; 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/INQCUST.cbl -- L2
 
@@ -844,9 +820,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 3 live paragraphs unrun; 7 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X46, X52; commands without oracle backing: ASKTIME, DELAY, ENDBR, FORMATTIME, READ, READPREV, STARTBR, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/XFRFUN.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### src/base/cobol_src/XFRFUN.cbl -- L2
 
 - **Executed equivalent** on the 22 scenarios of cbsa-xfrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 96.4)
@@ -913,10 +887,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: ASSIGN APPLID (the case states no region)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/BNK1CCS.cbl -- L1
 
@@ -1010,12 +983,12 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/CRECUST.cbl -- L1
 
-- **Next level needs:** its det port equal on every scenario of cbsa-crecust: ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.
+- **Next level needs:** its det port equal on every scenario of cbsa-crecust: ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.
 - **Translation:** 321/321 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
 - **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5076): Three named holes. (1) BNK1CCS RETURNs RETURN TRANSID('OCCS') COMMAREA(WS-COMM-AREA) LENGTH(248) over a 5-byte WS-COMM-AREA: 243 bytes of storage after the item, which the two compilers lay out differently, so the java-facade side refuses the answer by name. (2) It LINKs CRECUST, whose CEEDAYS call the oracle refuses (oracle_assumptions.md L1, #4952): no scenario creates a customer (every scenario that reaches CRECUST is born in 1500, which CRECUST refuses before CEEDAYS), so the successful create is not covered. (3) CRECUST's async credit check schedule is ASSUMED (X18), and its FC is 8 bytes where LE writes 12 (L4). The runTask proof is equal on all 89 scenarios and 33 of 33 paragraphs.)
   - evidence record: none (89 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, program, Db2, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, program, Db2, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -1092,22 +1065,22 @@ From the spec entries of the commands the programs use, with the register's stat
 | X29 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID / ODFACILTYPE: the task's own origin data, the five values the run states (a case's `origin`, for a task terminal input started; unstated, refused), the facility type as IBM's CVDA, a command with no origin option refused (INVREQ RESP2 2 is ambiguous); DELETEQ TS: the whole queue and its READQ NEXT position, QIDERR, INVREQ for a name of binary zeros, RESP2 0; QUERY COUNTER (COUNTER / POOL / VALUE): the value left unchanged, INVREQ RESP2 201 for a counter that is not there, a value beyond a fullword, MINIMUM / MAXIMUM / NOSUSPEND, a task number other than EIBTASKN and the origin of a task not started by terminal input refused; RECEIVE MAP ... TERMINAL: the task's terminal, as every RECEIVE MAP |
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X46 | CICS | ASSUMED (REFUSED where IBM is silent) | FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup) |
-| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
 
 ## Reproducibility
 
-- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
+- translator commit (the survey's): `0a6f3c6d835f75e5e609c916696ef2d37a69783a`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d`
+- oracle images the evidence records ran on: `sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1uac,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-crecust,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (17) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc

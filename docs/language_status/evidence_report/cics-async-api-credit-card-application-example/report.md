@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0a6f3c6d835f75e5e609c916696ef2d37a69783a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
+The translation survey matches the translator in the tree (translator fingerprint `d24352b94203`).
 
 ## How to read this report
 
@@ -41,18 +41,18 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 0 | 0 |
-| L1 | 1 | 0 |
+| L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 9 | 0 |
+| L4 | 10 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 10 programs; the rest are current
-- L2+: 9 (0 awaiting re-check); L3+: 9 (0 awaiting re-check); L4+: 9 (0 awaiting re-check)
+- L2+: 10 (0 awaiting re-check); L3+: 10 (0 awaiting re-check); L4+: 10 (0 awaiting re-check)
 
 - programs: 10 (with an EXEC CICS command: 10; source not read: 0)
 - translated whole: 10; refused whole: 0; holes left: 0
-- with an equivalence case: 9; det port equal on its case: 9; with an evidence record: 0; record current at build: 0
+- with an equivalence case: 10; det port equal on its case: 10; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -83,6 +83,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| src/ASYNCPNT.cbl | L4 | 52/52 | 0 | asynccc-asyncpnt | equal | 4 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | not yet measured (#4628) | 4/8 |
 | src/CRDTCHK.cbl | L4 | 7/7 | 0 | asynccc-crdtchk | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/4 |
 | src/CSSTATS2.cbl | L4 | 8/8 | 0 | asynccc-csstats2 | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 1/4 |
 | src/CSSTATUS.cbl | L4 | 8/8 | 0 | asynccc-csstatus | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | not yet measured (#4628) | 2/4 |
@@ -92,9 +93,36 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 | src/GETSPND.cbl | L4 | 2/2 | 0 | asynccc-getspnd | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | not yet measured (#4628) | 1/2 |
 | src/SEQPNT.cbl | L4 | 47/47 | 0 | asynccc-seqpnt | equal | 4 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | not yet measured (#4628) | 5/7 |
 | src/UPDCSDB.cbl | L4 | 2/2 | 0 | asynccc-updcsdb | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | not yet measured (#4628) | 1/2 |
-| src/ASYNCPNT.cbl | L1 | 52/52 | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 4/8 |
 
 ## Per program
+
+### src/ASYNCPNT.cbl -- L4
+
+- **Executed equivalent** on the 4 scenarios of asynccc-asyncpnt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
+- **Translation:** 52/52 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/ASYNCPNT.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/ASYNCPNT.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | FETCH CHILD | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RUN | full | gt-start-options (yes / no) | no |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X17, X18, X19, X27; commands without oracle backing: FETCH CHILD, GET CONTAINER, PUT CONTAINER, RUN; assumption reach and the migration dimensions above: not measured
 
 ### src/CRDTCHK.cbl -- L4
 
@@ -102,6 +130,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 7/7 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/CRDTCHK.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/CRDTCHK.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-crdtchk, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
@@ -126,6 +156,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 8/8 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/CSSTATS2.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/CSSTATS2.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-csstats2, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -172,6 +204,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 10/10 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/GETADDR.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/GETADDR.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-getaddr, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
@@ -196,6 +230,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 6/6 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/GETNAME.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/GETNAME.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-getname, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
@@ -219,6 +255,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 2/2 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/GETPOL.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/GETPOL.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-csstatus, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (asynccc-getpol, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
@@ -243,6 +281,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 2/2 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/GETSPND.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/GETSPND.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-csstatus, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (asynccc-getspnd, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
@@ -294,6 +334,8 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 2/2 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/UPDCSDB.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/UPDCSDB.cbl:1]
+- **Executed equivalence** (asynccc-asyncpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (asynccc-updcsdb, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
@@ -310,32 +352,6 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: DELAY; assumption reach and the migration dimensions above: not measured
 
-### src/ASYNCPNT.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 52/52 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/ASYNCPNT.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/ASYNCPNT.cbl:1]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | FETCH CHILD | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RUN | full | gt-start-options (yes / no) | no |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X17, X18, X19, X27; commands without oracle backing: FETCH CHILD, GET CONTAINER, PUT CONTAINER, RUN; assumption reach and the migration dimensions above: not measured
-
 ## Assumptions the estate's CICS commands name
 
 From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is not measured.
@@ -351,7 +367,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
+- translator commit (the survey's): `0a6f3c6d835f75e5e609c916696ef2d37a69783a`
 - corpus pin: `cics-async-api-credit-card-application-example` at `c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -361,9 +377,9 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
-python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
+python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
+python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

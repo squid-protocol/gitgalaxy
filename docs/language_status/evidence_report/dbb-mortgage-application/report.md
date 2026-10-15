@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `7db12011bc0b58e4ef625b8b45a770d12d3e4aae` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0a6f3c6d835f75e5e609c916696ef2d37a69783a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `2ebee7f6f9fd`).
+The translation survey matches the translator in the tree (translator fingerprint `d24352b94203`).
 
 ## How to read this report
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 2 | 0 |
 | L1 | 1 | 0 |
-| L2 | 2 | 1 |
+| L2 | 2 | 0 |
 | L3 | 0 | 0 |
 | L4 | 1 | 0 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 1 of 6 programs; the rest are current
-- L2+: 3 (1 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
+- stale (`*`, last measured): 0 of 6 programs; the rest are current
+- L2+: 3 (0 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 4; refused whole: 0; holes left: 16
@@ -85,7 +85,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L4 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | 3/3 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | not yet measured (#4628) | — |
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2* | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2 | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L1 | 13/13 | 0 | mortgage-csmrt | not equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 44/58 | 14 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
@@ -107,9 +107,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
 
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2*
-
-- **Stale level:** L2 is the last measurement, stale since `5eb4d68e305d` (harness, oracle); not yet re-checked
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2
 
 - **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 50.0)
@@ -238,11 +236,11 @@ From the spec entries of the commands the programs use, with the register's stat
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X42 | CICS | ASSUMED (REFUSED where IBM is silent) | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) |
 | X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
-| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079) |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
 
 ## Reproducibility
 
-- translator commit (the survey's): `7db12011bc0b58e4ef625b8b45a770d12d3e4aae`
+- translator commit (the survey's): `0a6f3c6d835f75e5e609c916696ef2d37a69783a`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -252,8 +250,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae
+python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

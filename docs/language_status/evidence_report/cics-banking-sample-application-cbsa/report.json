@@ -80,7 +80,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   }
@@ -126,6 +126,12 @@
  ],
  "measured": {
   "det_coverage": {
+   "asynccc-asyncpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
    "asynccc-crdtchk": [
     1,
     1,
@@ -228,58 +234,30 @@
     69,
     75
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     56,
-     59,
-     165,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     62,
-     63,
-     126,
-     166
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    56,
+    59,
+    165,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    62,
+    63,
+    126,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -412,59 +390,31 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     60,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    60,
+    97
+   ],
    "cbsa-bnk1ccs": null,
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     52,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     44,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    52,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
@@ -509,59 +459,31 @@
     4,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
    "cbsa-crecust": null,
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     3,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     16,
-     22,
-     25,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-custctrl": [
+    7,
+    7,
+    3,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    16,
+    22,
+    25,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -574,154 +496,84 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     16,
-     22,
-     19,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    16,
+    22,
+    19,
+    33
+   ],
    "cbsa-inqcust": [
     22,
     25,
     39,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     46,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    46,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     6,
-     7,
-     17,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgapdb01": [
+    6,
+    7,
+    17,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     2,
     3,
@@ -734,96 +586,54 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     8,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
    "genapp-lgdpvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     3,
-     4,
-     4,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
     7,
     12
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -836,129 +646,66 @@
     2,
     2
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     9,
-     10,
-     16,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     7,
-     9,
-     18,
-     22
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     2,
     3,
     0,
     4
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     2,
     3,
@@ -971,19 +718,12 @@
     0,
     0
    ],
-   "mortgage-cmort": {
-    "coverage": [
-     3,
-     6,
-     15,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
-   },
+   "mortgage-cmort": [
+    3,
+    6,
+    15,
+    21
+   ],
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -1009,6 +749,12 @@
     15,
     15,
     18
+   ],
+   "zecs-zecs000": [
+    9,
+    38,
+    7,
+    46
    ],
    "zecs-zecs003": null,
    "zecs-zecsplt": [
@@ -1242,9 +988,7 @@
       "APPLID"
      ],
      "assign_task": [],
-     "eib": [
-      "EIBTASKN"
-     ]
+     "eib": []
     },
     "program": "src/base/cobol_src/BNK1CCA.cbl",
     "row": {
@@ -2302,10 +2046,7 @@
       "APPLID"
      ],
      "assign_task": [],
-     "eib": [
-      "EIBRCODE",
-      "EIBTASKN"
-     ]
+     "eib": []
     },
     "program": "src/base/cobol_src/INQACCCU.cbl",
     "row": {
@@ -2656,10 +2397,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
   "sweeps": {}
@@ -3044,7 +2785,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -3099,7 +2840,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
+       "oracle_image": "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -3394,7 +3135,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -3404,11 +3145,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3439,7 +3177,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -3640,11 +3378,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -4211,7 +3946,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4221,11 +3956,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4274,7 +4006,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
+       "oracle_image": "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -4329,7 +4061,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
+      "oracle_image": "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -4344,7 +4076,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -4545,11 +4277,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -4593,7 +4322,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -4975,7 +4704,7 @@
      "covered": 60,
      "total": 97
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4985,11 +4714,8 @@
      "live": 25
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5020,7 +4746,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -5477,11 +5203,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5570,7 +5293,7 @@
      "covered": 52,
      "total": 67
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5580,11 +5303,8 @@
      "live": 28
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5615,7 +5335,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6086,11 +5806,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6172,7 +5889,7 @@
      "covered": 44,
      "total": 60
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6182,11 +5899,8 @@
      "live": 31
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6217,7 +5931,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -6674,11 +6388,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6736,7 +6447,7 @@
      "covered": 26,
      "total": 38
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6746,11 +6457,8 @@
      "live": 34
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6792,7 +6500,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7088,11 +6796,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7155,7 +6860,7 @@
      "covered": 3,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7165,11 +6870,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7200,7 +6902,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7427,11 +7129,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7489,7 +7188,7 @@
      "covered": 13,
      "total": 14
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7499,11 +7198,8 @@
      "live": 19
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7545,7 +7241,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -7722,11 +7418,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9029,7 +8722,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -9493,7 +9186,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -9957,7 +9650,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -10421,7 +10114,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -10885,7 +10578,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -11295,7 +10988,7 @@
      "covered": 25,
      "total": 35
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -11305,11 +10998,8 @@
      "live": 22
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11351,7 +11041,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -11654,11 +11344,8 @@
     "paragraphs_unrun": 6,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11722,7 +11409,7 @@
      "covered": 15,
      "total": 25
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -11732,11 +11419,8 @@
      "live": 25
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11815,7 +11499,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
+       "oracle_image": "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -11878,7 +11562,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d",
+      "oracle_image": "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -11893,7 +11577,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12203,11 +11887,8 @@
     "paragraphs_unrun": 3,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12228,10 +11909,7 @@
      "startcode",
      "userid"
     ],
-    "facts_unstated": [
-     "EIB field EIBRCODE (both runtimes read zero; z/OS does not)",
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
+    "facts_unstated": [],
     "named_by_commands": [
      {
       "area": "CICS",
@@ -12272,7 +11950,7 @@
      "covered": 19,
      "total": 33
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12282,11 +11960,8 @@
      "live": 22
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12339,7 +12014,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -12637,16 +12312,13 @@
      "FORMATTIME",
      "SYNCPOINT ROLLBACK"
     ],
-    "facts_unstated": 2,
+    "facts_unstated": 0,
     "holes": 0,
     "paragraphs_unrun": 6,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12715,7 +12387,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -13250,7 +12922,7 @@
      "covered": 46,
      "total": 81
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13260,11 +12932,8 @@
      "live": 28
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13308,7 +12977,7 @@
     }
    },
    "level": "L2",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
@@ -13623,11 +13292,8 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13768,7 +13434,6 @@
      "userid"
     ],
     "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)",
      "ASSIGN APPLID (the case states no region)"
     ],
     "named_by_commands": [
@@ -14274,7 +13939,7 @@
      "FORMATTIME",
      "SEND CONTROL"
     ],
-    "facts_unstated": 2,
+    "facts_unstated": 1,
     "holes": 0,
     "paragraphs_unrun": null,
     "refused": null
@@ -16066,7 +15731,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key, UNLOCK without TOKEN (#5079)",
+      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
@@ -16113,7 +15778,7 @@
       "det": {
        "state": "not equal",
        "why": [
-        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+        "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
        ]
       },
       "record": null,
@@ -16127,7 +15792,7 @@
      "det": {
       "state": "not equal",
       "why": [
-       "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+       "ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
       ]
      },
      "record": null,
@@ -16140,7 +15805,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "its det port equal on every scenario of cbsa-crecust: ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: L4 (FC is 8 bytes, LE's token 12) and X18 (the child schedule is ASSUMED). The scenario born-before-1601 ends before CEEDAYS and runs equal (18/18 events) but reaches 13 of 37 paragraphs, so it is not a proof."
+    "its det port equal on every scenario of cbsa-crecust: ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
    ],
    "options": {
     "assumed": 5,
@@ -16954,8 +16619,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1uac,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-crecust,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (17) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
@@ -16972,20 +16637,20 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:ebc3411ec8ae57ebeafe2b51869cdc4f6c403141636ca288598480f2299d6b1d"
+   "sha256:cd6cba10b3d787699fb0d4d140dd19712ac3b606e4c83decbec781e132d4c25b"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
    "translator": {
-    "files": 107,
-    "sha256": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+    "files": 110,
+    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
    }
   },
-  "translator_commit": "7db12011bc0b58e4ef625b8b45a770d12d3e4aae",
+  "translator_commit": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -17002,9 +16667,9 @@
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
-   "L2": 4,
-   "L3": 6,
-   "L4": 2,
+   "L2": 0,
+   "L3": 0,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -17016,7 +16681,7 @@
    "L5": 0
   },
   "holes": 0,
-  "levels_stale": 12,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 31,
   "records_current": 2,
@@ -17028,6 +16693,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "2ebee7f6f9fd983cfcffa33d7cbe8542b96a8ae5c8a2d78f179c1ef60e0bdee6"
+  "fingerprint": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
  }
 }

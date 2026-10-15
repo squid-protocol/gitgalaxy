@@ -727,6 +727,16 @@ public final class DetCics {
         setPointer(ptr, task.addressOf(record.storage().bytes));
     }
 
+    /** ADDRESS COMMAREA(ptr) (X59): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA (EIBCALEN 0) is
+     *  refused (IBM sets X'FF000000', not the COBOL NULL a handle can hold). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCommarea(CicsTask task, Field ptr, Field record, int eibcalen) {
+        if (eibcalen == 0) {
+            throw new PastFrom("ADDRESS COMMAREA with no COMMAREA: not modelled");
+        }
+        setPointerToRecord(task, ptr, record);
+    }
+
     private static void wholeRecord(Field record, String what) {
         if (record.offset() != 0) {
             throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");

@@ -96,6 +96,8 @@ runs the ledger gate and everything else in `tests/cobol_mainframe/`. A new file
 (`continue-on-error`, not in `full-suite`'s needs). The parts balance by the newest nightly's durations cache (#4847); the committed
 `.test_durations` is only the cache-miss fallback and the OS-matrix gate's input.
 
+`ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
+
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again

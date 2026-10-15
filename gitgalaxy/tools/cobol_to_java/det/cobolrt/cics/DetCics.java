@@ -364,6 +364,18 @@ public final class DetCics {
         return lengerr ? 22 : 0;
     }
 
+    /** #5079 (X57): READQ TD QUEUE INTO: the record's bytes (already cut to LENGTH) go INTO, the rest of INTO left as it
+     *  was. Refused, as not modelled, a record moved past INTO (CICS writes the storage that follows it, which GnuCOBOL
+     *  lays out unlike IBM's compiler: oracle_assumptions.md X6), as READ INTO's is. */
+    // [rule RT-CICS-READQ-TD-INTO]
+    public static void readTd(Field into, byte[] record) {
+        if (record.length > into.length()) {
+            throw new UnsupportedOperationException("READQ TD INTO LENGTH: " + record.length + " bytes past INTO's "
+                    + into.length() + ": not modelled");
+        }
+        System.arraycopy(record, 0, into.storage().bytes, into.offset(), record.length);
+    }
+
     /** #4415 slice 1: EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n) (IBM CICS TS, "BIF DEEDIT"): the first `n` bytes of the
      *  field, as the region's EBCDIC page (`region`) holds them, edited in place -- the characters other than the
      *  digits X'F0'-X'F9' removed, the digits right-aligned and padded on the left with zeros; a field that ends in a

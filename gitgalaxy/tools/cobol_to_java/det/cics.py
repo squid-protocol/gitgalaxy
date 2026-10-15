@@ -1228,6 +1228,12 @@ class Cics:
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if verb == "DELETEQ TD":  # #5079 (X57): every record of an intrapartition queue
+            r = g.tmpname("resp")
+            return [f"{ind}int {r} = task.deleteqTd({self.name(_arg(opts['QUEUE']))});",
+                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if verb == "READQ TD":
+            return self.readq_td(opts, ind)
         if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ", "DELETEQ TS", "DELETEQ") \
                 and verb.startswith(("WRITEQ", "READQ", "DELETEQ")) and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
@@ -2146,6 +2152,23 @@ class Cics:
                     out.append(f"{ind}    DetCics.putText({self.field(_arg(opts[k]))}, task.{acc}(), CS);")
             out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)
+
+    def readq_td(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X57): READQ TD QUEUE INTO [LENGTH] -- a destructive read of the task's intrapartition queue. The record
+        goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
+        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR."""
+        g = self.g
+        r = g.tmpname("td")
+        into = self.field(_arg(opts["INTO"]))
+        maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+        out = [
+            f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});",
+            f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));",
+        ]
+        if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
+            out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
+                       f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
+        return out + self.outcome(opts, f"{r}.resp()", "0", ind)
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the

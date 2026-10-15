@@ -2189,6 +2189,10 @@
         "mixed": false,
         "tells": [
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/CONTDB2.cpy"
+            ],
             "count": 12,
             "era": 2,
             "first_line": 73,
@@ -2438,6 +2442,10 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 9,
             "era": 2,
             "first_line": 49,
@@ -2457,6 +2465,9 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 3,
             "era": 2,
             "first_line": 62,
@@ -2519,6 +2530,10 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 6,
             "era": 2,
             "first_line": 55,
@@ -2532,6 +2547,10 @@
         "mixed": false,
         "tells": [
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 6,
             "era": 2,
             "first_line": 50,
@@ -2551,6 +2570,9 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 3,
             "era": 2,
             "first_line": 54,
@@ -2588,6 +2610,9 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
             "count": 7,
             "era": 2,
             "first_line": 41,
@@ -2613,6 +2638,9 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
             "count": 6,
             "era": 2,
             "first_line": 40,
@@ -2651,6 +2679,9 @@
         "mixed": false,
         "tells": [
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
             "count": 4,
             "era": 2,
             "first_line": 56,
@@ -2695,6 +2726,10 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
             "count": 9,
             "era": 2,
             "first_line": 60,

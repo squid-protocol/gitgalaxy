@@ -904,8 +904,12 @@ class Cics:
                 if "DCOUNTER" in opts
                 else f"BigDecimal.valueOf({v}[2])"
             )
+            full = (
+                "COUNTER" in opts
+            )  # #4770 (X30): a fullword GET of a counter past 31 bits is LENGERR with the low 32 bits
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
-                    f"{ind}if ({v}[0] == 0) {{",
+                    *([f"{ind}{v} = task.fullwordGet({pool}, {nm}, {v});"] if full else []),
+                    f"{ind}if ({v}[0] == 0{' || ' + v + '[0] == 22' if full else ''}) {{",
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
@@ -940,8 +944,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
@@ -956,8 +962,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(

@@ -4065,10 +4065,39 @@ public class CicsTask {
         if (lim == null && limits) {
             throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
         }
-        if (v < 0 || v > 2147483647L) {
-            throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
+        if (lim != null && limits && (lim[0] < 0 || lim[0] > 2147483647L || lim[1] < 0 || lim[1] > 2147483647L)) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
         }
-        return new int[] {0, 0, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+        int le = fullwordLengerr(lim, v);
+        return new int[] {le == 0 ? 0 : 22, le, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+    }
+
+    /** LENGERR RESP2 of a fullword (COUNTER) command whose counter holds `v`, an unsigned doubleword (IBM CICS TS, GET COUNTER and
+     *  QUERY COUNTER; #4770, X30): 0 when v fits a signed fullword, or when the counter is at its limit (MAXIMUM + 1: "LENGERR can't
+     *  occur at counter-at-limit", the value is the maximum plus one in 32 bits). Else LENGERR for a counter DCOUNTER made too
+     *  large: RESP2 1 the value overflowed into the sign bit (no bit above the low word), 2 "too large ... by only 1 bit; the
+     *  overflow value is exactly 1" (the high word is 1), 3 greater than 1 (ASSUMED: IBM does not say how a value that is both
+     *  is numbered; the high word decides). The operation completes: VALUE is the low-order 32 bits. */
+    private static int fullwordLengerr(long[] lim, long v) {
+        if (v >= 0 && v <= 2147483647L) {
+            return 0;
+        }
+        if (lim != null && lim[1] != -1L && Long.compareUnsigned(v, lim[1]) > 0) {
+            return 0;
+        }
+        long high = v >>> 32;
+        return high == 0 ? 1 : high == 1 ? 2 : 3;
+    }
+
+    /** The result {RESP, RESP2, value} of a GET COUNTER (fullword form) as IBM's LENGERR warning has it (#4770, X30): RESP 22 with
+     *  RESP2 1 / 2 / 3 and VALUE the low-order 32 bits (a signed number) for a counter that holds more than a fullword; any other
+     *  result as it is. The counter has been advanced: "the named counter server completes the operation". */
+    public long[] fullwordGet(String pool, String name, long[] r) {
+        if (r[0] != 0) {
+            return r;
+        }
+        int le = fullwordLengerr(root().counterLimits.get(counterKey(pool, name)), r[2]);
+        return le == 0 ? r : new long[] {22, le, (int) r[2]};
     }
 
     public int[] queryCounter(String pool, String name) {

@@ -1378,7 +1378,9 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     with pytest.raises(C.CicsError, match="without an origin option"):
         c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
-    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert (
+        q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
         "QUERY COUNTER(KEY) VALUE(REC)", ""

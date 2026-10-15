@@ -162,3 +162,46 @@ public class Main {
         body, n = _expected(t, w, j)
         want.append(f"[{body}] {n}")
     assert out == want
+
+
+# ---- #5116 (X54): the NUM default, and the three implementations agreeing -----------------------------------------
+_NUM_FIELDS = [  # (the BMS row's attrb, its `attributes`, the effective justify)
+    ("UNPROT,NUM", None, "RIGHT,ZERO"),
+    ("UNPROT,NUM,IC", "COLOR=RED", "RIGHT,ZERO"),
+    ("NUM", "XJUSTIFY=RIGHT", "RIGHT,ZERO"),
+    ("UNPROT,NUM", "JUSTIFY=(LEFT)", "LEFT"),  # coded: LEFT / BLANK for what it leaves out, NUM or not
+    ("UNPROT,NUM", "JUSTIFY=(BLANK)", "BLANK"),
+    ("UNPROT,NUM", "JUSTIFY=(LEFT,BLANK)", "LEFT,BLANK"),
+    ("UNPROT,NUM", "JUSTIFY=(RIGHT,BLANK)", "RIGHT,BLANK"),
+    ("UNPROT", None, None),
+    (None, None, None),  # no ATTRB: ASKIP,NORM
+    ("UNPROT,NORM", "COLOR=BLUE", None),
+    ("UNPROT,NUMX", None, None),  # a different attribute word
+]
+
+
+@pytest.mark.parametrize(("attrb", "attributes", "want"), _NUM_FIELDS)
+def test_a_num_field_with_no_justify_is_right_zero_5116(attrb, attributes, want):
+    assert F._justify({"attrb": attrb, "attributes": attributes}) == want
+
+
+@pytest.mark.parametrize(("attrb", "attributes", "_want"), _NUM_FIELDS)
+@pytest.mark.parametrize("text", ["", "7", "42", "12345", "123456789", "ab  "])
+def test_forge_oracle_and_crucible_runner_place_alike_5116(attrb, attributes, _want, text):
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import cics_bms
+    import equivalence_cics as ec
+
+    width = 6
+    row = {"attrb": attrb, "attributes": attributes}
+    jf = F._justify(row)
+    j = (attributes or "").upper()
+    coded = []
+    if "JUSTIFY=" in j and "XJUSTIFY" not in j:
+        coded = [w for w in j.split("JUSTIFY=")[1].strip("()").replace(")", "").split(",") if w]
+    field = cics_bms.BmsField(name="F", length=width, attrb=attrb.split(",") if attrb else None, initial=None,
+                              color=None, hilight=None, justify=coded, ic=False)  # fmt: skip
+    oracle = ec.justified(text, width, jf) if jf else text.rstrip(" ").ljust(width)[:width]
+    assert cics_bms.received_value(field, text.rstrip(" ")) == oracle

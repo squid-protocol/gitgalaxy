@@ -99,7 +99,9 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
     assert (
         'new ScreenField("USERID", 19, 43, 8, true, false, false, false, true, null, null, 1, null)' in vm
     )  # IC input
-    assert 'new ScreenField("AMOUNT", 20, 43, 5, true, true, false, false, false, null, null, 1, null)' in vm  # NUM
+    assert (
+        'new ScreenField("AMOUNT", 20, 43, 5, true, true, false, false, false, null, null, 1, "RIGHT,ZERO")' in vm
+    )  # NUM, no JUSTIFY: IBM default RIGHT,ZERO (#5116, X54)
     assert 'new ScreenField("PASSWD", 21, 43, 8, true, false, false, true, false, null, null, 1, null)' in vm  # DRK
     assert (
         'new ScreenField("QTY", 23, 1, 6, true, true, false, false, false, null, null, 1, "RIGHT,ZERO")' in vm

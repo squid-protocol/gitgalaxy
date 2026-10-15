@@ -480,7 +480,7 @@ class Gen:
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel):
+        elif isinstance(c, E.Rel) and not self.null_relation(c):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1235,9 +1235,29 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
+            if self.null_relation(c):
+                return self.rel_null(c)
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    @staticmethod
+    def null_relation(c: E.Rel) -> bool:
+        """#5197 (X56): whether a relation has NULL for an operand (no arithmetic plan: it compares no number)."""
+        return any(isinstance(x, E.Fig) and x.kind == E.NULL_POINTER for x in (c.left, c.right))
+
+    def rel_null(self, c: E.Rel) -> str:
+        """#5197 (X56): `pointer = NULL` / `NULL = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and
+        NOT = between a pointer and NULL (or another pointer); a pointer holds a handle whose zero is NULL (X47), so the
+        test is all-zero bytes, the figurative's own comparison. Everything else is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(f"pointer {c.op} NULL: only = and NOT = compare a pointer (OS/VS COBOL, X56)")
+        sides = [x for x in (c.left, c.right) if not (isinstance(x, E.Fig) and x.kind == E.NULL_POINTER)]
+        if len(sides) != 1:
+            raise Untranslatable("NULL compared with NULL (not a pointer comparison, X56)")
+        if not isinstance(sides[0], E.Ref) or sides[0].subscripts or sides[0].qualifiers or sides[0].refmod:
+            raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
+        return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
 
     def cmp_num(self, e) -> str:
         """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
@@ -1248,7 +1268,19 @@ class Gen:
                 return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
         return self.num(e)
 
+    def pointer_operand(self, e) -> bool:
+        try:
+            return isinstance(e, E.Ref) and self.resolve(e).usage == "POINTER"
+        except Untranslatable:
+            return False
+
     def rel(self, op: str, a, b) -> str:
+        if self.pointer_operand(a) or self.pointer_operand(b):
+            # #5197 (X56): IBM compares a pointer only for = / NOT = with NULL or another pointer, never with a number
+            # (ZERO is a BLL cell's NULL; the cell is a POINTER by the time it is read here)
+            if op != "=" or not (self.pointer_operand(a) and self.pointer_operand(b)):
+                raise Untranslatable(f"a pointer compared with {'a non-pointer' if op == '=' else op}: only = / NOT = "
+                                     "with NULL or another pointer (X56)")  # fmt: skip
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
         if self.has_float(a) or self.has_float(b):
             return self.rel_float(jop, a, b)

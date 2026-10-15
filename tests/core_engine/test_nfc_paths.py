@@ -117,7 +117,6 @@ def test_an_include_written_nfd_resolves_an_nfc_stored_header(nfd_scan):
     assert ("main.c", "naïve.h") in edges
 
 
-@pytest.mark.slow(reason="scans the same tree in NFC and NFD form (#5178)")
 def test_nfc_and_nfd_checkouts_record_the_same_paths_and_edges(nfd_scan, tmp_path):
     nfc_db = scan_to_db(_estate(tmp_path / "estate", nfc), tmp_path / "scan")
     nfd_files, nfd_edges = _rows(nfd_scan[1])

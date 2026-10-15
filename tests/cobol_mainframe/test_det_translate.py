@@ -2706,7 +2706,6 @@ public class Main {
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
-@pytest.mark.slow(reason="translates, javac-compiles and runs a CICS program (#5178)")
 def test_det_cics_deedit_follows_ibms_text(tmp_path):
     """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT: non-digits removed, digits right-aligned and zero
     padded in the same field ("14-6704/B" -> "00146704B", "$25.68" in 9 bytes -> "000002568": IBM's two examples); a
@@ -3111,7 +3110,6 @@ def test_return_and_link_commarea_length_past_the_dto():
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
-@pytest.mark.slow(reason="javac plus a JVM run of the det runtime (#5178)")
 def test_det_runtime_passes_opaque_commarea_bytes_on(tmp_path):
     """#4679 (c): a receiver whose DFHCOMMAREA is shorter than the COMMAREA it was passed keeps the bytes past its
     record (Storage.beyond) -- CICS passed LENGTH bytes, the record only addresses its own. A further RETURN / XCTL

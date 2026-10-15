@@ -30,7 +30,6 @@ def _records():
 
 
 # ---- the committed records -----------------------------------------------------------------------------------------
-@pytest.mark.slow(reason="re-derives every committed evidence record (#5178)")
 def test_every_committed_record_is_current():
     """Q1: stale on the port, its case, its corpus pin or its declared differences fails here -- re-prove it in the
     PR (evidence.py prove KEY). Stale on the harness, the oracle or the generator is reported and re-proven by the

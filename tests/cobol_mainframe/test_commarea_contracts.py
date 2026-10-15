@@ -263,7 +263,6 @@ def test_the_continuation_is_found_after_a_condition_name(tmp_path):
     assert (menu["caller_record"]["fields"], menu["caller_record"]["bytes"]) == (3, 8 + 8 + 10)
 
 
-@pytest.mark.slow(reason="scans a nested-group COMMAREA estate (#5178)")
 def test_the_continuation_is_found_after_a_closing_nested_group(tmp_path):
     """CardDemo's COTRN02C: the entry before `COPY COCOM01Y` is `10 CSUTLDTC-RESULT-MSG`, the last item of `05
     CSUTLDTC-RESULT`; its `05 CDEMO-CT02-INFO` after the COPY continues the record one level up."""

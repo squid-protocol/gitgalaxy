@@ -36,7 +36,6 @@ def test_importing_the_registry_compiles_no_rule():
     assert total > 2000 and compiled == 0
 
 
-@pytest.mark.slow(reason="compiles every rule of every language (#5178)")
 def test_every_rule_still_compiles():
     """A broken regex used to fail the import; lazily, it would fail only when its language is first
     scanned. This keeps the failure in CI, for every rule of every language."""

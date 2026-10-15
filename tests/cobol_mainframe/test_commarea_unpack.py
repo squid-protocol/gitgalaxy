@@ -138,7 +138,6 @@ def test_the_extractor_keeps_the_reference_modification_text():
     ]
 
 
-@pytest.mark.slow(reason="scans the COMMAREA layout and every inbound site (#5178)")
 def test_the_unpack_is_the_commarea_layout_and_every_inbound_site_is_listed(scanned):
     _, db = scanned
     ir = load_galaxy_ir(db)

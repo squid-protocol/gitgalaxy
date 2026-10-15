@@ -452,7 +452,6 @@ def scanned(tmp_path_factory):
     return load_galaxy_ir(scan_to_db(repo, base / "scan"))
 
 
-@pytest.mark.slow(reason="scans the engine facts behind the stub file table (#5178)")
 def test_the_stub_file_table_comes_from_the_engines_facts(scanned):
     files = {f["file"]: f for f in ec.stub_files(scanned, "cbl/ACCTINQ.cbl")}
     assert files["ACCT"] == {"file": "ACCT", "dsname": "APP.ACCT.KSDS", "base": "APP.ACCT.KSDS", "key_offset": 0,

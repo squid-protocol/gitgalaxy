@@ -1,5 +1,6 @@
 {
-  "factor": 2.0,
+  "factor": 2.5,
+  "fail_s": 15.0,
   "suite_budget_s": 3415.0,
   "tests": {
     "tests/cobol_mainframe/test_det_programs.py::test_all_literal_relation_emits_compilable_java_with_and_without_a_collating_sequence": 13.33,

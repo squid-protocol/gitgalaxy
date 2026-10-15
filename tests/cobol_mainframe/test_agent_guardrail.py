@@ -12,8 +12,6 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
@@ -177,7 +175,6 @@ LONER = """\
 """
 
 
-@pytest.mark.slow(reason="runs the guardrail end to end on a real scan (#5178)")
 def test_a_real_run_writes_the_baseline_and_rejects_an_invented_call(tmp_path):
     repo = tmp_path / "estate"
     _project(repo, {"cbl/MENU.cbl": MENU, "cbl/ACCTINQ.cbl": ACCTINQ, "cbl/LONER.cbl": LONER,

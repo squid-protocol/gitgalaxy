@@ -338,7 +338,6 @@ def test_symbolic_merge(tmp_path):
     assert acct["defined_by"]["match"] == "symbolic"
 
 
-@pytest.mark.slow(reason="runs two full repository scans (#5178)")
 def test_symbolic_conflict_rejected(tmp_path):
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
 
@@ -413,7 +412,6 @@ def test_a_record_shorter_than_recordsize_max_still_merges(tmp_path):
     assert "program records of [38] bytes fit RECORDSIZE max 40" in store["defined_by"]["evidence"]
 
 
-@pytest.mark.slow(reason="builds and runs a VSAM repository past RECORDSIZE MAX (#5178)")
 def test_a_record_longer_than_recordsize_max_is_refused(tmp_path):
     stores = _symbolic_estate(tmp_path, "8 0", "30 30", ridfld=True)
     (concrete,) = [s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS"]

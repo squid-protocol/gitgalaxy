@@ -279,3 +279,48 @@ def forge_skeletons():
         "PCWIZ": _program("PCWIZ.cbl", "PC02", returns=[(65, "PC02", "PCWIZ.cbl"), (78, "PC03", "PCCONF.cbl")]),
         "PCCONF": _program("PCCONF.cbl", "PC03", returns=[(84, "PC03", "PCCONF.cbl")], xctls=[(50, "PCWIZ.cbl")]),
     }
+
+
+def _link_pair(**callee):
+    """#4803: PCWIZ LINKs PCCONF with its COMMAREA, the PROGRAM a variable (a navigation candidate row, no resolved
+    commarea contract: EPSCMORT's `LINK PROGRAM(W-CALL-PROGRAM)` to EPSCSMRT)."""
+    wiz = _program("PCWIZ.cbl", "PC02")
+    conf = _program("PCCONF.cbl", "PC03", **callee)
+    conf["sections"]["entry_transactions"]["facts"] = []  # reached by LINK only
+    conf["sections"]["navigation"]["facts"] = [
+        {"from": "PCWIZ.cbl", "line": 221, "verb": "LINK", "to": "PCCONF.cbl", "via": "data-driven"}
+    ]
+    forge = CicsForge({"PCWIZ": wiz, "PCCONF": conf}, "com.acme", target_from_dict({}))
+    return forge, forge.dto_sources()
+
+
+def test_a_link_between_records_cut_the_same_way_writes_the_codecs_both_ways_4803():
+    forge, dtos = _link_pair()
+    assert forge.programs["PCCONF"].links[0]["verb"] == "LINK"
+    for name in ("PcwizWsState", "PcconfWsState"):  # the harness reads the caller's bytes through the callee's DTO
+        assert "public byte[] toCommarea() {" in dtos[name]
+        assert f"public static {name} fromCommarea(byte[] rec) {{" in dtos[name]
+
+
+@pytest.mark.parametrize(
+    "callee",
+    [
+        {"items": [*PCSTATE[:-1], ("PC-SPARE", "X(9)", "X", None, 23, 9, None)], "width": 32},
+        {"items": PCSTATE[:-1], "width": 23},
+        {"items": [*PCSTATE[:-1], ("PC-SPARE", "9(7)", "9", None, 23, 7, None)]},
+    ],
+    ids=["wider", "narrower", "cut otherwise"],
+)
+def test_a_link_between_records_cut_otherwise_writes_no_codec_4803(callee):
+    _, dtos = _link_pair(**callee)
+    assert "toCommarea" not in dtos["PcwizWsState"] and "toCommarea" not in dtos["PcconfWsState"]
+
+
+def test_an_xctl_or_a_return_alone_writes_no_link_codec_4803():
+    """Only a LINK's area is read through the callee's DTO here: with no LINK or RETURN crossing, no codec."""
+    wiz = _program("PCWIZ.cbl", "PC02")
+    conf = _program("PCCONF.cbl", "PC03")
+    conf["sections"]["entry_transactions"]["facts"] = []
+    conf["sections"]["navigation"]["facts"] = [{"from": "PCWIZ.cbl", "line": 9, "verb": "XCTL", "to": "PCCONF.cbl"}]
+    dtos = CicsForge({"PCWIZ": wiz, "PCCONF": conf}, "com.acme", target_from_dict({})).dto_sources()
+    assert "toCommarea" not in dtos["PcwizWsState"]

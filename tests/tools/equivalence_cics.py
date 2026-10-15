@@ -3915,6 +3915,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         CicsTask top;  // the scenario's task, until handleTransaction asks the region for it
         CicsTask linked;  // the level a LINK runs, until handleLink asks for it
         String linkedProgram;
+        Object linkedArea;  // #4803: the LINK's COMMAREA read through the linked program's own DTO, when that is another class
         boolean started;  // the scenario's first program began ...
         boolean ended;  // ... and returned normally
         String refused;
@@ -3940,7 +3941,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         @Override
         public CicsTask linked(String p, Object ca) {
             CicsTask t = linked;
-            if (t == null || !p.equals(linkedProgram) || area(t) != ca) {
+            if (t == null || !p.equals(linkedProgram) || (area(t) != ca && linkedArea != ca)) {
                 throw new FacadeRefused("a facade asked the region for a level of " + p
                         + " that is not the LINK the scenario made");
             }
@@ -4088,17 +4089,23 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 call(method(service, "runTask", 1), service, task);
                 return;
             }
+            Object passed = ca;
             if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
-                throw new FacadeRefused("handleLink of " + p + " takes a " + m.getParameterTypes()[0].getName()
-                        + ", the LINK passed a " + ca.getClass().getName());
+                // #4803: LINK passes bytes. A caller's COMMAREA of another DTO class (EPSCMORT's EPSMTCOM, EPSCSMRT's own
+                // DFHCOMMAREA) is read through the linked program's DTO by layout, as CicsTask.returned does for a RETURN;
+                // the program still runs on the task's own area, so what it changes the caller sees. No layout, or fewer
+                // bytes than the target's record: refused, never guessed.
+                passed = convertLayout(p, ca, m.getParameterTypes()[0]);
             }
+            Object outerArea = linkedArea;
             CicsTask outer = linked;
             String outerProgram = linkedProgram;
             linked = task;
             linkedProgram = p;
+            linkedArea = passed;
             entry(p, "handleLink");
             try {
-                call(m, service, ca);
+                call(m, service, passed);
             } catch (RuntimeException e) {
                 if (linked == task && !(e instanceof FacadeRefused)) {  // it never asked the region for its level
                     throw new FacadeRefused("handleLink of " + p + " threw before it ran its level: " + e);
@@ -4110,6 +4117,27 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             }
             linked = outer;
             linkedProgram = outerProgram;
+            linkedArea = outerArea;
+        }
+
+        /** #4803: `ca` read through `type` by layout (toCommarea -> fromCommarea), or a refusal by name. */
+        Object convertLayout(String p, Object ca, Class<?> type) {
+            String why = "handleLink of " + p + " takes a " + type.getName() + ", the LINK passed a "
+                    + ca.getClass().getName();
+            try {
+                Method to = ca.getClass().getMethod("toCommarea");
+                Method from = type.getMethod("fromCommarea", byte[].class);
+                if (to.getReturnType() != byte[].class || !java.lang.reflect.Modifier.isStatic(from.getModifiers())) {
+                    throw new FacadeRefused(why + " (no layout converts one into the other)");
+                }
+                return from.invoke(null, (Object) to.invoke(ca));
+            } catch (NoSuchMethodException e) {
+                throw new FacadeRefused(why + " (no layout converts one into the other)");
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw new FacadeRefused(why + ": " + e.getCause());
+            } catch (IllegalAccessException e) {
+                throw new FacadeRefused(why + ": " + e);
+            }
         }
 
         void entry(String p, String method) {

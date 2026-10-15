@@ -5959,6 +5959,19 @@ class CicsForge:
             if prog.txn_converts and prog.txn_response:
                 for name in (prog.txn_response, *prog.txn_converts):
                     self.dtos[name].methods = self._codecs[name]
+        # #4803: a LINK passes bytes, so the DTO of the program that LINKs (its own COMMAREA, the area its task holds)
+        # and the DTO of the program LINKed to read through each other by layout when both are laid out as bytes and
+        # cut the same way (_reads_through): EPSCMORT's EPSMTCOM and EPSCSMRT's own DFHCOMMAREA, a LINK whose PROGRAM is
+        # a variable (a candidate row, not a resolved contract). The harness converts the LINK's area with these codecs.
+        for prog in self.programs.values():
+            callee = prog.commarea_dto
+            for r in prog.links:
+                sender = by_file.get(r.get("caller", ""))
+                own = sender.commarea_dto if sender is not None else None
+                if (r.get("verb") == "LINK" and callee in self._codecs and own in self._codecs and own != callee
+                        and self._reads_through(callee, {own})):  # fmt: skip
+                    for name in (callee, own):
+                        self.dtos[name].methods = self._codecs[name]
 
     def _reads_through(self, own: str, others: set[str | None]) -> bool:
         """#4449: whether every record in `others` reads through `own` with no byte lost: both laid out exactly as

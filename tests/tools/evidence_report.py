@@ -76,6 +76,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -97,7 +98,11 @@ from gitgalaxy.core.estate_options import counts as estate_counts  # noqa: E402
 from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa: E402
 
 FORMAT = "gitgalaxy-evidence-report/1"
-OUT = REPO / "docs" / "language_status" / "evidence_report"
+DOCS_OUT = REPO / "docs" / "language_status" / "evidence_report"
+OUT = DOCS_OUT  # git-ignored but for the stub README: `materialize` fills it (#5206)
+FIXTURE = REPO / "tests" / "fixtures" / "evidence_report"  # a frozen snapshot for the tests, never current levels
+STUB = "README.md"  # the one committed file in OUT; the published index of the same name is not copied over it
+INDEX_ENV = "EVIDENCE_REPORT_WRITE_INDEX"  # the refresh workflow sets it: only there is the index README written
 CRUCIBLE_BASELINE = REPO / "tests" / "cics_crucible" / "baseline.json"
 CRUCIBLE_PIN = REPO / "tests" / "_cics_crucible_pin.py"
 PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597
@@ -1512,14 +1517,15 @@ def render_index(reports: list[dict[str, Any]]) -> str:
         "",
         (
             'Per estate, a level per program (see any report\'s "How to read this report"). Only burned estates are '
-            "committed here; a non-burned estate's report is written outside the repository."
+            "published here; a non-burned estate's report is written outside the repository."
         ),
         "",
         "## How this stays current",
         "",
-        "These files are derived output. A feature PR does not commit them: the Evidence Refresh workflow "
-        "(`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) through an "
-        "auto-merged bot PR from `auto/evidence-refresh`, and skips the PR when nothing changed. Per-PR CI only prints "
+        "These files are derived output, published on the `generated` branch and not committed on main (#5206). A feature PR "
+        "does not commit them: the Evidence Refresh workflow "
+        "(`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) and publishes "
+        "them here. Per-PR CI only prints "
         "the level changes a PR would cause in its job summary (`evidence_report.py --deltas --live`; advisory, never a "
         "failure). A release tag is gated on `evidence_report.py --check --live` being clean AND on every level being "
         "current: a `(k stale)` cell is a level last measured against an earlier harness or oracle (marked `*` in the "
@@ -1563,7 +1569,7 @@ def committed() -> dict[str, dict[str, Any]]:
 
 
 def expected(live: bool = False, built: Any = None) -> dict[Path, str]:
-    """Every committed file as the repo makes it now, from the committed measured blocks."""
+    """Every report file as the repo makes it now, from the measured blocks of the published (materialized) reports."""
     reps = []
     out: dict[Path, str] = {}
     for estate, _old, rep in built if built is not None else rebuilt(live):
@@ -1668,8 +1674,39 @@ def deltas_markdown(live: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
+def materialize(root: Path = REPO) -> int:
+    """#5206: main carries no rendered report, so copy the one published on `generated` into OUT (git-ignored) for the
+    modes that read it as a seed or compare against it. The stub README is left alone. Returns the files copied; raises
+    when the branch cannot be read and OUT has no report either (the release gate must not pass on nothing)."""
+    if OUT.resolve() != DOCS_OUT.resolve():  # a test's or an --out directory: nothing to fetch into
+        return 0
+    try:
+        tip = gb.fetch_tip(root)
+        names = gb._git(root, "ls-tree", "-r", "--name-only", tip, "--", _rel(OUT)).splitlines() if tip else []
+    except RuntimeError:
+        tip, names = None, []
+    copied = 0
+    for rel in names:
+        dest = root / rel
+        if dest == DOCS_OUT / STUB or dest.suffix not in (".json", ".md"):
+            continue
+        data = gb.read_at(tip, rel, root)
+        if data is not None:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(data)
+            copied += 1
+    if not any(OUT.glob("*/report.json")):
+        raise SystemExit(
+            f"no evidence report: the `{gb.BRANCH}` branch has none under {_rel(OUT)} and none is on disk "
+            "(fetch origin, or run the Evidence Refresh workflow)"
+        )
+    return copied
+
+
 def write(files: dict[Path, str]) -> None:
     for p, text in files.items():
+        if p == DOCS_OUT / STUB and not os.environ.get(INDEX_ENV):
+            continue  # the committed stub; the index is published, not committed
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(text, encoding="utf-8")
 
@@ -1723,6 +1760,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--live", action="store_true", help="--check / --refresh: recompute the records' status now")
     args = ap.parse_args(argv)
 
+    if args.deltas or args.check or args.refresh:
+        materialize()  # #5206: the published report is the seed and the thing compared against
     if args.deltas:
         print(deltas_markdown(args.live), end="")
         return 0

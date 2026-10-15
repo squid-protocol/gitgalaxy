@@ -85,7 +85,7 @@ There is a minor discrepancy in CICS command totals (e.g., 233 vs 240 for CardDe
 
 ## Support matrix (#4724)
 `tests/tools/support_matrix.py` joins each burned estate's inventory fixture with its evidence report
-(`docs/language_status/evidence_report/<estate>/report.json`: each program's level, proving case, and translate-only
+(`<estate>/report.json` of the evidence report published on `generated`: each program's level, proving case, and translate-only
 refusal or holes), the rule catalogue (`docs/language_status/cobolrt_rules.json`, #4711; "not yet catalogued" while it
 is absent) and `docs/language_status/refusal_map.json` (each refusal or hole text: its issue, its agreed refusal family
 in [definition_of_done.md](definition_of_done.md), or the IBM product library a missing copybook belongs to). It reads

@@ -952,6 +952,7 @@ jobs:
           GG_SCRATCH: ${{ runner.temp }}/scratch
           SHA: ${{ steps.asof.outputs.sha }}
           SURVEYED: ${{ steps.survey.outcome == 'success' }}
+          EVIDENCE_REPORT_WRITE_INDEX: "1"  # #5206: the index README is written here (published), never over main's stub
         run: |
           cd gitgalaxy
           # #4863: built from this run's translation survey (above), so the translation column is of this commit; the

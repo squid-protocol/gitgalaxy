@@ -317,6 +317,8 @@ ALLOWLIST = {
         k: "CICS macro operand keyword, written via ims_gen._operands' dynamic keying (cics_macro_tables.py, #5120)"
         for k in (
             "ABCODE",
+            "ID",
+            "RECOVER",
             "DATAID",
             "DESTID",
             "DSCNAME",

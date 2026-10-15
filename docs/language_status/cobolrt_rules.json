@@ -2332,6 +2332,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CICS-ADDRESS",
+   "family": "CICS",
+   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL)",
+   "methods": [
+    "addressCommarea"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "ADDRESS"
+   },
+   "options": [],
+   "register": [
+    "X59"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-SET-BLOCK",
    "family": "CICS",
    "title": "SET(ptr) of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV: a new block of task storage holding the data, its handle in the pointer, valid until the command IBM names ends it",

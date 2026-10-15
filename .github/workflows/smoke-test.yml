@@ -235,12 +235,14 @@ jobs:
         run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-part-${{ matrix.group }}.json"
 
       - name: Upload this part's test times (#5166)
-        if: always() && hashFiles(format('{0}/times-part-{1}.json', runner.temp, matrix.group)) != ''
+        # hashFiles() only sees the workspace, and runner.temp is outside it: it was always '' and the upload never ran (#5178)
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-times-part-${{ matrix.group }}
           path: ${{ runner.temp }}/times-part-${{ matrix.group }}.json
           retention-days: 7
+          if-no-files-found: ignore
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()
@@ -328,8 +330,8 @@ jobs:
 
   # #5166 part B: the suite's total serial test seconds against tests/test_time_baseline.json's budget. A PR (and main
   # push) prints the total and the delta in the job summary and never fails; the nightly fails over +10% and files or
-  # refreshes ONE issue. Not a required check, not in `full-suite`'s needs. The total is the sum of the parts' own
-  # measured seconds, not the contended durations cache (#5162).
+  # refreshes ONE issue (it also lists the tests over 10 s there). Not a required check, not in `full-suite`'s needs.
+  # The total is the sum of the parts' own measured seconds, not the contended durations cache (#5162).
   suite-time:
     name: suite time budget (#5166)
     needs: full-suite-part
@@ -363,8 +365,14 @@ jobs:
           status=0
           python3 tests/tools/time_ratchet.py budget --times $parts "${enforce[@]}" | tee report.txt || status=$?
           { echo "### Suite time budget"; echo; cat report.txt; } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$status" = 1 ] && [ "$EVENT" = "schedule" ]; then
-            body="The nightly full suite is over its time budget (tests/test_time_baseline.json): $(tail -n 2 report.txt | head -n 1). Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          # #5166: the nightly also lists every test over 10 s with no slow marker or baseline entry, in the same one issue
+          over=0
+          if [ "$EVENT" = "schedule" ]; then
+            python3 tests/tools/time_ratchet.py over --times $parts --enforce | tee over.txt || over=1
+            { echo "### Tests over 10 s"; echo; echo '```'; cat over.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if { [ "$status" = 1 ] || [ "$over" = 1 ]; } && [ "$EVENT" = "schedule" ]; then
+            body="The nightly full suite is over its time budget or has tests over 10 s (tests/test_time_baseline.json): $(tail -n 2 report.txt | head -n 1)"$'\n\n'"$(cat over.txt)"$'\n\n'"Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Suite time over budget"' --json number -q '.[0].number')
             if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"
             else gh issue create --repo "$GITHUB_REPOSITORY" --title "Suite time over budget (nightly)" --body "$body"; fi

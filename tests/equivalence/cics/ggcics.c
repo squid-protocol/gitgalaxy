@@ -5197,6 +5197,19 @@ int GGCFREM(gg_cics *c, void **slot) {
     return 0;
 }
 
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
+ * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
+ * a LINKAGE item the caller did not pass names no storage. */
+int GGCADDR(gg_cics *c, void **slot, void *area) {
+    char flags[41];
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    *slot = area;
+    return 0;
+}
+
 /* WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH(n)] [MEDIATYPE(area)] (X38, X47): the body as a new block the pointer addresses; GG-NUM
  * MAXLENGTH (2147483647 when not given); GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. LENGERR 16 leaves the pointer
  * as it was (ASSUMED); a body cut at MAXLENGTH is LENGERR 57 with the pointer set. */

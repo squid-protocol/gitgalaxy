@@ -3725,6 +3725,29 @@ int GGCCNCL(gg_cics *c) {
     return 0;
 }
 
+/* ENQ RESOURCE (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) -- or ENQBUSY when
+ * faults.cfg plans it. IBM raises ENQBUSY only "when an ENQ command specifies a resource that is unavailable and the
+ * NOSUSPEND option is specified" (or a HANDLE CONDITION ENQBUSY is active); without NOSUSPEND the task would be
+ * suspended, which is not modelled. IBM states no RESP2 for ENQBUSY: 0. GG-FLAGS holds the resource as the program
+ * writes it (the fault's name), GG-NAME1 'NOSUSPEND' when given. */
+int GGCENQ(gg_cics *c) {
+    char res[41], ev[96];
+    int fresp, fresp2;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    trim(c->flags, 40, res);
+    if (!injected("ENQ", res, &fresp, &fresp2)) return 0;
+    if (strncmp(c->name1, "NOSUSPEN", 8) != 0) {
+        snprintf(ev, sizeof ev, "ENQ on a planned-busy resource without NOSUSPEND: %s (the task would be suspended)", res);
+        refuse(ev);
+    }
+    c->resp = fresp;
+    c->resp2 = fresp2;
+    snprintf(ev, sizeof ev, "ENQ resource=%s resp=%d", res, c->resp);
+    event(ev, NULL, 0);
+    return 0;
+}
+
 /* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
  * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
 int GGCAOUT(const char *ca, int len) {
@@ -5353,6 +5376,19 @@ int GGCFREM(gg_cics *c, void **slot) {
     }
     c->resp = INVREQ;
     c->resp2 = 1;
+    return 0;
+}
+
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
+ * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
+ * a LINKAGE item the caller did not pass names no storage. */
+int GGCADDR(gg_cics *c, void **slot, void *area) {
+    char flags[41];
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    *slot = area;
     return 0;
 }
 

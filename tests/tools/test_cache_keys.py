@@ -135,14 +135,10 @@ def test_same_base_cache_is_restore_only_on_pull_requests():
     assert sorted(k for k, _ in steps) == ["restore", "save"], steps
     restore = next(s for k, s in steps if k == "restore")
     save = next(s for k, s in steps if k == "save")
-    assert "pull_request.base.sha" in _key(restore) and "github.sha" in _key(restore)
-    assert _key(save).strip() == _key(restore).replace("github.event.pull_request.base.sha || ", "").strip().replace(
-        "${{ matrix.corpus }}", "${{ matrix.corpus }}"
-    ), "the save key is the restore key at main's own sha"
+    # #5142: content-keyed (the generation inputs of the PR's base checkout / main's own), not the base commit's sha
+    assert "base/gitgalaxy/" in _key(restore) and "gitgalaxy/gitgalaxy/" in _key(restore)
+    assert "gitgalaxy/gitgalaxy/" in _key(save) and "base/" not in _key(save), "the save key hashes main's own checkout"
     assert "github.event_name != 'pull_request'" in save, "the same-base save must not run on a pull request"
-    assert "hashFiles" not in _key(restore) + _key(save), (
-        "no head-file hash in the same-base key (a PR editing it forked the key)"
-    )
 
 
 def test_every_java_compile_cache_save_skips_pull_requests():

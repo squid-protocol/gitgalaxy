@@ -11,6 +11,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 POSIX_ONLY = frozenset({"fcntl", "termios", "pwd", "grp", "resource", "posix"})
 # Linux-only by design: the file runs only where Docker/Db2 or the CI shepherd box is, and every test reaching it
@@ -82,6 +84,7 @@ def unguarded(root: Path = REPO_ROOT) -> list[str]:
     return found
 
 
+@pytest.mark.slow(reason="parses every .py under tests and gitgalaxy with ast (#5178)")
 def test_no_posix_only_import_is_unguarded():
     """#4934: guard it (try/except ImportError, pytest.importorskip) or list it in LINUX_ONLY with the reason."""
     assert unguarded() == []

@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 94 full, 2 engine-only, 159 name-only.
+**255 entries:** 95 full, 2 engine-only, 158 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -77,6 +77,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DELETEQ TD | full | yes (4 options, 1 refused by name) | yes | X57 | — | 0 | — |
 | GETMAIN | full | yes (11 options, 2 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
 | FREEMAIN | full | yes (4 options, 1 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
+| ADDRESS | full | yes (5 options, 5 refused by name) | yes | X59 | — | 0 | — |
 | ENQ | full | yes (9 options) | yes | X60 | — | 5 (5 / 0) | — |
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |
@@ -131,7 +132,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-158 more name-only entries no census program uses.
+157 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

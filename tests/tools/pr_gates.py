@@ -236,7 +236,7 @@ def ratchets() -> list[Ratchet]:
         Ratchet(
             "time",
             [PY, t + "time_ratchet.py", "check"],
-            "make the test faster or mark it @pytest.mark.slow(reason=...); shrink the baseline: python tests/tools/time_ratchet.py update --times .test_durations (never raises; #5166)",
+            "make the test faster (over 15 s), or mark it @pytest.mark.slow(reason=...); shrink the baseline: python tests/tools/time_ratchet.py update --times .test_durations (never raises; #5166)",
             lambda env: None,
         ),  # fmt: skip
     ]

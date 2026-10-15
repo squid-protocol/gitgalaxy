@@ -1849,6 +1849,22 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   counter's limits are modelled there; the limits (1) of GET DCOUNTER above hold only for a counter with no limits entry.
 - **Superseded in part by X50** (#5039): DEFINE / QUERY COUNTER MINIMUM / MAXIMUM, GET COUNTER INCREMENT and WRAP at a fullword
   counter's limits are modelled there; the limits (1) of GET COUNTER above hold only for a counter with no limits entry.
+- **LENGERR: a fullword command over a counter past 31 bits** (#4770; https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-get-counter-get-dcounter,
+  ...summary-query-counter-query-dcounter). "LENGERR occurs for COUNTER commands only and does not apply to DCOUNTER requests": a counter a
+  DCOUNTER command made can hold more than "a fullword signed binary value (... more than 31 bits)"; "the named counter server completes
+  the operation, and returns a warning"; "the data area contains the low-order 32 bits ... which could be a negative number"; RESP2 1 "the
+  value ... has overflowed into the high-order (sign) bit", 2 "too large for a fullword data area by only 1 bit ... the overflow value is
+  exactly 1", 3 "by a value greater than 1"; QUERY: "LENGERR can't occur at counter-at-limit" (the value is the maximum plus one in 32
+  bits: a fullword counter at X'7FFFFFFF' + 1 reads the largest negative number). Modelled (`CicsTask.fullwordGet` after a COUNTER GET,
+  `CicsTask.queryCounter`, the stub's `GGCGCNT` / `GGCGCNX` / `GGCQCNT`; both translators write VALUE on RESP 22): RESP LENGERR (22), RESP2 1
+  for a value of 2**31 to 2**32 - 1 (nothing above the low word), 2 when the high word is 1, 3 above; VALUE the low-order 32 bits as a
+  signed number; a counter at its limit (past its DEFINE MAXIMUM) is NORMAL. GET DCOUNTER / QUERY DCOUNTER never give it. Before this the
+  fullword QUERY refused the value and the fullword GET handed it out whole with RESP NORMAL. **ASSUMED**: (1) the page does not say how a value is numbered that is both a sign overflow and one bit too large (a high word of 1 with bit 31 set): the high word decides, so it is 2;
+  (2) a GET that gives LENGERR has advanced the counter
+  (the page says the server completes the operation); (3) a QUERY COUNTER MINIMUM / MAXIMUM of a DCOUNTER-made counter whose limits do not
+  fit a fullword is REFUSED (the page does not say how a limit beyond 31 bits is returned). The same name defined by both forms is one counter
+  (DEFINE of the other form: INVREQ RESP2 202; either form's GET reads it), pinned by tests/cics_crucible/test_counter_shared_namespace_4770.py.
+  The register entry's `X45` / `X50` sentence "a COUNTER and a DCOUNTER of one name are one counter" is this entry's (5).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible `hc-named-counters` (2 scenarios,
   hand-traced) on the cobol-stub side and the det port; unit-proven on `CicsTask` and the stub C
   (tests/cics_crucible/test_cics_runtimes.py).

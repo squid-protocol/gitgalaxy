@@ -85,7 +85,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DEQ | full | yes (8 options) | yes | — | — | 4 (4 / 0) | — |
 | DELAY | full | yes (10 options) | yes | X18 | — | 20 (11 / 9) | — |
 | GET COUNTER | full | yes (13 options) | yes | X30, X45, X53 | — | 2 (2 / 0) | — |
-| QUERY COUNTER | full | yes (10 options) | yes | X29, X45, X50 | — | 1 (1 / 0) | — |
+| QUERY COUNTER | full | yes (10 options) | yes | X29, X30, X45, X50 | — | 1 (1 / 0) | — |
 | DEFINE COUNTER | full | yes (10 options) | yes | X30 | — | 1 (1 / 0) | — |
 | DELETE COUNTER | full | yes (7 options) | yes | X30 | — | 1 (1 / 0) | — |
 | REWIND COUNTER | full | yes (8 options) | yes | X30, X53 | — | 0 | — |

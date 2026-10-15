@@ -378,7 +378,7 @@ def test_a_delete_generic_is_named_to_the_stub():
 @pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
-                                  "READQ TD QUEUE(Q) INTO(A)",
+                                  "READQ TD QUEUE(Q) SET(P)",
                                   "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2) NUMREC(N)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
@@ -419,7 +419,7 @@ def test_a_program_is_translated_whole():
 
 def test_an_unknown_command_in_a_program_names_its_line():
     with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS READQ TD"):
-        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "READQ TD QUEUE('CSSL') INTO(WS-KEY)"))
+        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "READQ TD QUEUE('CSSL') SET(WS-KEY)"))
 
 
 CSD = """\
@@ -2456,3 +2456,36 @@ def test_map_input_justifies_a_field_as_its_dfhmdf_says_5082():
     assert got == b"\x00\x02000042" + b"\x00\x02420000" + b"\x00\x0242    "
     assert ec.justified("  7 ", 4, "RIGHT") == "   7" and ec.justified("12345", 3, "RIGHT") == "345"
     assert ec.justified("", 3, "RIGHT,ZERO") == "000" and ec.justified("ab", 4, ",ZERO") == "ab00"
+
+
+def test_readq_td_and_deleteq_td_become_stub_calls():
+    """#5079 (register X57): READQ TD -> GGCRDTD (the queue in GG-QNAME, LENGTH in GG-LEN, INTO and its size); a data
+    area LENGTH is set from GG-LEN on NORMAL and LENGERR; DELETEQ TD -> GGCDLTD. SET, SYSID and NOSUSPEND are refused by name."""
+    r = ec.translate_command("READQ TD QUEUE('JOBS') INTO(REC) RESP(R)")
+    assert r[:5] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCRDTD' USING GG-CICS",
+                     "    BY REFERENCE REC", "    BY VALUE LENGTH OF REC"]  # fmt: skip
+    assert "MOVE GG-RESP TO R" in r and not any("GG-LEN TO" in line for line in r)
+    n = ec.translate_command("READQ TD QUEUE(WS-Q) INTO(REC) LENGTH(WS-N)")
+    assert n[1] == "MOVE WS-N TO GG-LEN"
+    assert n[5:8] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-N", "END-IF"]
+    assert not any("MOVE GG-LEN TO" in line for line in ec.translate_command("READQ TD QUEUE(Q) INTO(R) LENGTH(8)"))
+    d = ec.translate_command("DELETEQ TD QUEUE('JOBS') RESP(R)")
+    assert d[:2] == ["MOVE 'JOBS' TO GG-QNAME", "CALL 'GGCDLTD' USING GG-CICS"] and "MOVE GG-RESP TO R" in d
+    for body, said in (("READQ TD QUEUE(Q) INTO(A) SET(P)", "SET"), ("READQ TD QUEUE(Q) INTO(A) SYSID('S')", "SYSID"),
+                       ("READQ TD QUEUE(Q) INTO(A) NOSUSPEND", "NOSUSPEND"), ("DELETEQ TD QUEUE(Q) SYSID('S')", "SYSID"),
+                       ("READQ TD INTO(A)", "QUEUE"), ("READQ TD QUEUE(Q)", "INTO"), ("DELETEQ TD", "QUEUE")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=said):
+            ec.translate_command(body)
+
+
+def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
+    """#5079 (X57): `csd_tdqueue_types` is each DEFINE TDQUEUE's TYPE ("" when none), and `csd_tdqueues` its names."""
+    (tmp_path / "x.csd").write_text(
+        "DEFINE TDQUEUE(JOBS) GROUP(G) TYPE(EXTRA) DDNAME(JOBS)\n"
+        "DEFINE TDQUEUE(AUDQ)\n  GROUP(G)\n  TYPE(INTRA)\n"
+        "DEFINE TDQUEUE(NONE) GROUP(G)\n"
+        "DEFINE PROGRAM(P) TYPE(X)\n", encoding="latin-1")  # fmt: skip
+    case = {"csd": "x.csd"}
+    assert ec.csd_tdqueue_types(tmp_path, case) == {"JOBS": "EXTRA", "AUDQ": "INTRA", "NONE": ""}
+    assert ec.csd_tdqueues(tmp_path, case) == ["AUDQ", "JOBS", "NONE"]
+    assert ec.csd_tdqueue_types(tmp_path, {}) is None and ec.csd_tdqueues(tmp_path, {}) is None

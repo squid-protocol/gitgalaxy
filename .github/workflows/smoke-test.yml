@@ -209,12 +209,14 @@ jobs:
         run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-part-${{ matrix.group }}.json"
 
       - name: Upload this part's test times (#5166)
-        if: always() && hashFiles(format('{0}/times-part-{1}.json', runner.temp, matrix.group)) != ''
+        # hashFiles() only sees the workspace, and runner.temp is outside it: it was always '' and the upload never ran (#5178)
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-times-part-${{ matrix.group }}
           path: ${{ runner.temp }}/times-part-${{ matrix.group }}.json
           retention-days: 7
+          if-no-files-found: ignore
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()

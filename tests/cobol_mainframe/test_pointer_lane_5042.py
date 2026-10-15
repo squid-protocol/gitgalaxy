@@ -120,6 +120,9 @@ _REFUSED = [
     ("READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY) RBA", "SET with RBA"),
     ("READPREV FILE('KSDS') RIDFLD(KEY)", "READPREV needs one of INTO / SET"),
     ("READNEXT FILE('KSDS') SET(PTR) RIDFLD(KEY) UPDATE", "browse for update"),
+    ("GETMAIN64 SET(PTR) FLENGTH(L)", "GETMAIN64 not modelled"),
+    ("FREEMAIN64 DATAPOINTER(PTR)", "FREEMAIN64 not modelled"),
+    ("LOAD PROGRAM('P') SET(PTR)", "LOAD not modelled"),
 ]
 
 

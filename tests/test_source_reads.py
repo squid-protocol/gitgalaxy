@@ -24,6 +24,7 @@ keyed by function, not line number, so an unrelated edit does not move it.
 from __future__ import annotations
 
 import ast
+from functools import cache
 from pathlib import Path
 
 import pytest
@@ -111,6 +112,12 @@ def findings(
     root: Path = PACKAGE, allowed: dict[tuple[str, str, str], str] = ALLOWED
 ) -> list[tuple[str, str, str, int]]:
     """(path, enclosing function, rule, line) for every read the gate forbids, allowlist applied."""
+    return [f for f in _all_findings(root) if (f[0], f[1], f[2]) not in allowed]
+
+
+@cache
+def _all_findings(root: Path) -> list[tuple[str, str, str, int]]:
+    """Every forbidden read under root, allowlist not applied. Cached: the tests walk each tree more than once (#5178)."""
     out = []
     for path in sorted(root.rglob("*.py")):
         rel = path.relative_to(root.parent).as_posix()
@@ -127,9 +134,7 @@ def findings(
                     rules.append("lossy-errors")
                 if estate and _is_text_read(node):
                     rules.append("text-read")
-                out.extend(
-                    (rel, func_name, rule, node.lineno) for rule in rules if (rel, func_name, rule) not in allowed
-                )
+                out.extend((rel, func_name, rule, node.lineno) for rule in rules)
             stack.extend((child, func_name) for child in ast.iter_child_nodes(node))
     return sorted(out)
 

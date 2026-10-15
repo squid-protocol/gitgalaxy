@@ -15,6 +15,7 @@ import ast
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -114,6 +115,62 @@ def _violations(source: str, label: str) -> list[str]:
     return bad
 
 
+MVN_UTF8_FLAGS = ("-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8")
+
+
+def _is_maven_launcher(node: ast.expr) -> bool:
+    """#5161: argv[0] is Maven: `mvn_executable(...)`, a literal "mvn"/"mvn.cmd", `shutil.which("mvn")`, or a `mvn` name."""
+    if isinstance(node, ast.Call):
+        func = node.func
+        name = func.id if isinstance(func, ast.Name) else func.attr if isinstance(func, ast.Attribute) else ""
+        if name == "mvn_executable":
+            return True
+        return name == "which" and bool(node.args) and _is_maven_launcher(node.args[0])
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value.replace("\\", "/").rsplit("/", 1)[-1] in ("mvn", "mvn.cmd")
+    return isinstance(node, ast.Name) and node.id in ("mvn", "mvn_bin")
+
+
+def _maven_calls(source: str) -> list[ast.Call]:
+    """Every `subprocess.run/Popen/...` whose argv is a list starting with Maven (the `[mvn, *flags]` form too).
+    Byte-capturing wrappers (`dp.run`) and file-redirecting callers are not matched: they never decode with the locale."""
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if not (isinstance(node, ast.Call) and node.args):
+            continue
+        func = node.func
+        if not (
+            isinstance(func, ast.Attribute)
+            and func.attr in SUBPROCESS_FUNCS
+            and isinstance(func.value, ast.Name)
+            and func.value.id == "subprocess"
+        ):
+            continue
+        argv = node.args[0]
+        if isinstance(argv, (ast.List, ast.Tuple)) and argv.elts and _is_maven_launcher(argv.elts[0]):
+            found.append(node)
+    return found
+
+
+def _maven_violations(source: str, label: str) -> list[str]:
+    """A Maven subprocess that captures text must name its charset (`encoding=`), and a `-DargLine=` literal must carry
+    the JVM's UTF-8 flags (a non-literal argLine is checked where the variable is built)."""
+    bad = []
+    for node in _maven_calls(source):
+        where = f"{label}:{node.lineno}"
+        kw = {k.arg: k.value for k in node.keywords if k.arg}
+        text = kw.get("text")
+        if text is not None and "encoding" not in kw and not (isinstance(text, ast.Constant) and text.value is False):
+            bad.append(f"{where}: mvn uses text= without encoding='utf-8'")
+        for sub in ast.walk(node.args[0]):
+            is_argline = (
+                isinstance(sub, ast.Constant) and isinstance(sub.value, str) and sub.value.startswith("-DargLine=")
+            )
+            if is_argline and not all(f in sub.value for f in MVN_UTF8_FLAGS):
+                bad.append(f"{where}: mvn -DargLine lacks {' '.join(MVN_UTF8_FLAGS)}")
+    return bad
+
+
 def _scanned_files() -> list[Path]:
     return sorted(p for p in (REPO_ROOT / "tests").rglob("*.py") if p.name != Path(__file__).name)
 
@@ -165,6 +222,53 @@ def test_guard_accepts_the_pattern(source: str):
     assert not _violations(source, "synthetic")
 
 
+def test_no_maven_subprocess_in_tests_decodes_with_locale_charset():
+    """#5161: Maven starts JVMs too (its own, surefire's fork); every `mvn` subprocess in tests/ names its charset."""
+    bad = []
+    for path in _scanned_files():
+        bad += _maven_violations(path.read_text(encoding="utf-8"), path.relative_to(REPO_ROOT).as_posix())
+    assert not bad, "\n".join(bad)
+
+
+@pytest.mark.parametrize("rel_path", ["tests/tools/det_survey.py"])
+def test_maven_guard_is_not_blind(rel_path: str):
+    assert _maven_calls((REPO_ROOT / rel_path).read_text(encoding="utf-8")), f"{rel_path}: no mvn call found"
+
+
+def test_run_maven_argline_carries_the_utf8_flags():
+    """The argLine `run_maven` builds is a variable, so the guard cannot see it: pin it at the source."""
+    source = (REPO_ROOT / "tests/tools/equivalence_java.py").read_text(encoding="utf-8")
+    assert 'f"{JVM_UTF8_FLAGS} {argline}"' in source
+    assert "-DargLine={maven_argline}" in source
+    assert "run_decoded(cmd, cwd=project, env=maven_utf8_env(shell)" in source  # #3813: bytes, decoded losslessly
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'subprocess.run([mvn_executable(), "-q"], capture_output=True, text=True)',
+        'subprocess.run([shutil.which("mvn"), "-q"], text=True)',
+        'subprocess.run(["mvn", "-q"], text=True)',
+        'subprocess.run([mvn, "test", "-DargLine=-Dx=1"], capture_output=True)',
+    ],
+)
+def test_maven_guard_flags_locale_decoding(source: str):
+    assert _maven_violations(source, "synthetic")
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'subprocess.run([mvn_executable(), "-q"], capture_output=True, text=True, encoding="utf-8")',
+        'subprocess.run([mvn_executable(), "-q"], capture_output=True)',
+        'subprocess.run([mvn, "test", "-DargLine=-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dx=1"])',
+        'subprocess.run(["git", "log"], text=True)',
+    ],
+)
+def test_maven_guard_accepts_the_pattern(source: str):
+    assert not _maven_violations(source, "synthetic")
+
+
 @pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs JDK (javac + java)")
 def test_utf8_javac_and_java_roundtrip_not_sign_and_multibyte(tmp_path: Path):
     """Verify UTF-8 java execution round-trips the '¬' not-sign (#5091) and multibyte characters."""
@@ -212,3 +316,33 @@ def test_utf8_javac_and_java_roundtrip_not_sign_and_multibyte(tmp_path: Path):
         "multibyte: 世界 Ø § €",
         "TEST_END",
     ]
+
+
+@pytest.mark.parametrize(
+    ("raw", "text"),
+    [
+        (b"BUILD FAILURE", "BUILD FAILURE"),
+        ("caf\u00e9 \u65e5\u672c".encode(), "caf\u00e9 \u65e5\u672c"),  # UTF-8, national text
+        (b"\xef\xbb\xbfok", "ok"),  # a UTF-8 BOM
+        (b"caf\xe9", "caf\u00e9"),  # cp1252 / Latin-1 bytes that are not UTF-8: kept, not U+FFFD
+        (b"", ""),
+        (None, ""),
+    ],
+)
+def test_decode_output_loses_no_byte(raw: bytes | None, text: str):
+    """#3813 / #5161: Maven output is decoded through source_text, never with errors="replace"."""
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    from maven_exe import decode_output
+
+    got = decode_output(raw)
+    assert "\ufffd" not in got
+    assert got.lstrip("\ufeff") == text
+
+
+def test_run_decoded_captures_bytes_and_decodes_them():
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    from maven_exe import run_decoded
+
+    code = "import sys; sys.stdout.buffer.write(b'caf\\xe9'); sys.stderr.buffer.write('\\u65e5'.encode())"
+    proc = run_decoded([sys.executable, "-c", code])
+    assert (proc.stdout, proc.stderr) == ("caf\u00e9", "\u65e5")

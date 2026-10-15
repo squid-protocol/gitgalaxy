@@ -689,6 +689,22 @@ public final class DetCics {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
     }
 
+    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X58): a new block of task storage holding the
+     *  data, its handle in the pointer. `key` is what ends the pointer's validity (CicsTask.acquireSet). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data) {
+        setPointer(ptr, task.acquireSet(key, data));
+    }
+
+    /** As above; `syncEnds`: a SYNCPOINT also ends the pointer (a READ UPDATE SET, a READNEXT / READPREV SET). */
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data, boolean syncEnds) {
+        setPointer(ptr, task.acquireSet(key, data, syncEnds));
+    }
+
+    public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
+        setBlock(task, ptr, key, data.getBytes(cs));
+    }
+
     /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");

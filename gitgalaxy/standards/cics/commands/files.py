@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SET_POINTER, SYSID_REMOTE, ibm
+from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SYSID_REMOTE, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -42,6 +42,7 @@ from gitgalaxy.standards.cics.model import (
     Refusal,
     RuntimeRefusal,
     at_most_one,
+    one_of,
     requires,
 )
 
@@ -57,7 +58,7 @@ _NAME_ONLY = {"DATASET": _FILE["DATASET"], "FILE": _FILE["FILE"]}
 # KEYLENGTH: honoured only as the file's full key (Cics._keylength); a shorter one is refused there
 _KEYLENGTH = Arg("value")
 _REMOTE: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE}
-_READ_REFUSED: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE, "SET": SET_POINTER}
+_READ_REFUSED: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE}
 # #5078 (X52): IBM lets READNEXT / READPREV take UPDATE (and TOKEN) -- a browse for update, "valid only for files accessed in RLS mode"
 _BROWSE_UPDATE = Refusal(
     "a browse for update (READNEXT / READPREV UPDATE [TOKEN]) is not modelled: the region has no RLS", "X52"
@@ -93,6 +94,9 @@ READ = _file(
     options={
         **_FILE,
         "INTO": Arg("area_out"),
+        # #5042 (X58): "CICS is to supply a buffer where the record is read, and specifies the pointer reference that is to
+        # contain the address of the retrieved record"
+        "SET": Arg("pointer"),
         "RIDFLD": Arg("area_in"),
         "UPDATE": Arg("flag"),
         # #5078 (X52): "a unique identifier for this READ UPDATE request" (a fullword out); "If you specify TOKEN it implies update"
@@ -110,11 +114,12 @@ READ = _file(
     groups=(
         # IBM's syntax diagram: EQUAL | GTEQ, one of them (EQUAL the default)
         at_most_one("EQUAL", "GTEQ", msg="READ {} and {} together"),
+        one_of("INTO", "SET", msg="READ needs one of INTO / SET"),
         # IBM, KEYLENGTH: "You must code KEYLENGTH if you specify GENERIC"
         requires(("GENERIC",), ("KEYLENGTH",), msg="READ GENERIC without KEYLENGTH"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "TOKEN")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "TOKEN")),
         _NOTFND,
         # #4270: the GTEQ / GENERIC search states IBM's RESP2 (the full-key READ still records 0, until spec PR 6)
         Outcome(
@@ -149,14 +154,18 @@ READNEXT = _file(
     options={
         **_FILE,
         "INTO": Arg("area_out"),
+        "SET": Arg(
+            "pointer"
+        ),  # #5042 (X58): "valid until the next READNEXT or READPREV command specifies SET for the same browse"
         "RIDFLD": Arg("area_inout"),  # the key of the record read
         "KEYLENGTH": _KEYLENGTH,
         "LENGTH": Arg("value"),  # only INTO's own length (Cics._read_length)
         **RESP_OPTIONS,
     },
     refused={**_READ_REFUSED, "UPDATE": _BROWSE_UPDATE, "TOKEN": _BROWSE_UPDATE},
+    groups=(one_of("INTO", "SET", msg="{} needs one of INTO / SET"),),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the end of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),
@@ -169,8 +178,9 @@ READPREV = _file(
     register="X52",
     options=READNEXT.options,
     refused=READNEXT.refused,
+    groups=READNEXT.groups,
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the start of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),

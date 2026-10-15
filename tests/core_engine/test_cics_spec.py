@@ -170,10 +170,10 @@ def test_resp_tables():
 def test_cli_check_and_emit(capsys):
     assert cli.main(["check"]) == 0
     assert "255 commands, ok" in capsys.readouterr().out
-    assert cli.main(["emit", "--json", "GET CONTAINER"]) == 0
+    assert cli.main(["emit", "--json", "SEND MAP"]) == 0
     data = json.loads(capsys.readouterr().out)
-    assert list(data["commands"]) == ["GET CONTAINER"]
-    assert data["commands"]["GET CONTAINER"]["refused"]["SET"]["why"].startswith("the address of CICS's copy")
+    assert list(data["commands"]) == ["SEND MAP"]
+    assert data["commands"]["SEND MAP"]["refused"]["SET"]["why"].startswith("the address of CICS's copy")
     assert cli.main(["emit"]) == 0 and "SEND TEXT" in capsys.readouterr().out
     assert cli.main(["emit", "NO SUCH"]) == 2
 
@@ -315,10 +315,10 @@ def test_group_lookup():
 
 def test_each_command_keeps_its_own_refusal_reasons():
     """Owner decision (spec PR 2, disagreement 2): no global table -- GET CONTAINER WAIT shows no RETRIEVE reason;
-    a read's SET and a file command's SYSID keep the reason that is true for them."""
+    a SEND MAP's SET and a file command's SYSID keep the reason that is true for them (#5042: a read's SET is modelled)."""
     assert COMMANDS["GET CONTAINER"].refusal_message(["WAIT"]) == "GET CONTAINER WAIT: option not modelled"
-    assert COMMANDS["READ"].refusal_message(["SET"]) == (
-        "READ SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)"
+    assert COMMANDS["SEND MAP"].refusal_message(["SET"]) == (
+        "SEND MAP SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)"
     )
     assert (
         COMMANDS["LINK"].refusal_message(["SYSID"])

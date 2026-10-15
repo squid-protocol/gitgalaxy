@@ -529,8 +529,23 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
     queue = opts.get("QUEUE") or opts.get("QNAME")
     area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
+    setp = opts.get("SET") if verb == "READQ" else None
     if not queue:
         raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
+    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
+        if area:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        item, num = opts.get("ITEM"), opts.get("NUMITEMS")
+        lines = [f"MOVE {queue} TO GG-QNAME", "MOVE 0 TO GG-LEN",
+                 f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM"]  # fmt: skip
+        lines += _call("GGCRDQS", [f"BY REFERENCE {_pointer(feature, setp)}"])
+        lines += ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"]
+        if num:
+            lines += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
+        return lines + _resp(opts, True, labels)
     if not area:
         raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
     length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
@@ -704,13 +719,21 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
         lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
-        into = opts.get("INTO")
+        into, setp = opts.get("INTO"), opts.get("SET")
         length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
-        if not into and (not named or length):
+        if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
+            if into:
+                raise Unsupported(_rule("RETRIEVE", "at_most_one", "INTO"), ["RETRIEVE"])
+            if not length or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()):
+                raise Unsupported(_rule("RETRIEVE", "requires", "SET"), ["RETRIEVE"])
+        elif not into and (not named or length):
             raise Unsupported(_rule("RETRIEVE", "requires", "LENGTH"), ["RETRIEVE"])
-        flags = " ".join((["INTO"] if into else []) + named)
+        flags = " ".join((["INTO"] if into or setp else []) + named)
         lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
-        lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
+        if setp:
+            lines += _call("GGCRTRS", [f"BY REFERENCE {_pointer('RETRIEVE', setp)}"])
+        else:
+            lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
         if length:
             lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
         if named:
@@ -1272,7 +1295,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"READ {bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDST, the record as a new block
+        if "SET" in opts and into:
+            raise Unsupported(_rule("READ", "one_of", "INTO"), ["READ"])
+        if not (file and (into or setp) and ridfld):
             raise Unsupported("READ without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
@@ -1293,6 +1319,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
         if "TOKEN" in opts:
             after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
+        if setp:  # (LENGTH(data-area) is set to the record's length, on NORMAL and DUPKEY, as the translator's)
+            if length and not settable:
+                raise Unsupported("READ SET with a literal LENGTH: only a data area is modelled", ["READ SET"])
+            after = ["IF GG-RESP = 0 OR GG-RESP = 15", f"    MOVE GG-LEN TO {length}", "END-IF"] if length else []
+            if "TOKEN" in opts:
+                after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
+            return ([name(file, "GG-NAME1"), update, "MOVE 0 TO GG-LEN"]
+                    + _call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer('READ', setp)}"])
+                    + after + _resp(opts, True, labels))  # fmt: skip
         return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
@@ -1346,9 +1381,17 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
+        if "SET" in opts and (into or rba or opts.get("LENGTH")):
+            raise Unsupported(f"{verb} SET with INTO, RBA or LENGTH: not modelled", [f"{verb} SET"])
+        if not (file and (into or setp) and ridfld):
             raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+        if setp:
+            stub = "GGCRDNS" if verb == "READNEXT" else "GGCRDPS"
+            return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"]
+                    + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer(verb, setp)}"])
+                    + _resp(opts, True, labels))  # fmt: skip
         stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
         return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
                 + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
@@ -1680,8 +1723,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
         if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not m or not most or not length:
-                raise Unsupported("RECEIVE SET other than ADDRESS OF with MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not most or not length:
+                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
+                return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
+                        + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
                     + _input_resp(opts, labels, handle_aid))  # fmt: skip
@@ -1913,10 +1959,19 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
                 + _past_from(flength, frm, "PUT CONTAINER") + _call("GGCPUTC", [f"BY REFERENCE {frm}"])
                 + _resp(opts, True, labels))  # fmt: skip
     into, nodata = opts.get("INTO"), "NODATA" in opts
-    if bool(into) == nodata:
+    if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
-    flags += ["NODATA"] if nodata else []
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
+        if not settable:
+            raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
+        lines += [
+            "MOVE SPACES TO GG-FLAGS" if not flags else f"MOVE '{' '.join(flags)}' TO GG-FLAGS",
+            "MOVE 0 TO GG-LEN",
+        ]
+        lines += _call("GGCGETS", [f"BY REFERENCE {_pointer('GET CONTAINER', opts['SET'])}"])
+        return lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}", "END-IF"] + _resp(opts, True, labels)
+    flags += ["NODATA"] if nodata else []
     lines += [
         f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
         "MOVE 0 TO GG-LEN" if nodata else f"MOVE {flength or f'LENGTH OF {into}'} TO GG-LEN",

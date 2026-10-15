@@ -2332,6 +2332,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CICS-SET-BLOCK",
+   "family": "CICS",
+   "title": "SET(ptr) of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV: a new block of task storage holding the data, its handle in the pointer, valid until the command IBM names ends it",
+   "methods": [
+    "setBlock"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READ"
+   },
+   "options": [],
+   "register": [
+    "X58"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-FAULT-INJECTION",
    "family": "SQL",
    "title": "A planned SQL fault (PROGRAM LINE NTH SQLCODE SQLSTATE) replaces the statement's execution, the SQLCA set as Db2 would set it",

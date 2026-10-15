@@ -11,13 +11,23 @@
 program's own bytes in the region's code page (#4528). #5079, register X57: READQ TD / DELETEQ TD on an intrapartition
 queue (a first-in first-out queue the task's own WRITEQ TDs fill).
 
-A refused option shows no reason but SYSID's and READQ TS SET's (the reasons the old global table gave them). MAIN /
+A refused option shows no reason but SYSID's and READQ TD SET's (the reasons the old global table gave them). MAIN /
 AUXILIARY say where CICS keeps an item, not what it holds; NOSUSPEND: one task, a queue never waits."""
 
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SET_POINTER, SYSID_REMOTE, ibm
-from gitgalaxy.standards.cics.model import Arg, Command, EngineFacts, Outcome, Refusal, one_of, required
+from gitgalaxy.standards.cics.model import (
+    Arg,
+    Command,
+    EngineFacts,
+    Outcome,
+    Refusal,
+    at_most_one,
+    one_of,
+    required,
+    requires,
+)
 
 _QUEUE = {"TS": Arg("flag"), "QUEUE": Arg("name", width=16), "QNAME": Arg("name", width=16)}
 _NO_QUEUE = "{} TS without QUEUE / QNAME"  # (det/cics.py Cics.ts_queue)
@@ -69,16 +79,27 @@ READQ_TS = Command(
     options={
         **_QUEUE,
         "INTO": Arg("area_out"),
+        "SET": Arg(
+            "pointer"
+        ),  # #5042 (X58): "valid until the next READQ TS command or the end of task"; LENGTH "must be specified"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "ITEM": Arg("area_inout", width=2, binary=True),
         "NUMITEMS": Arg("area_out", width=2, binary=True),
         "NEXT": Arg("flag"),
         **RESP_OPTIONS,
     },
-    refused={"SYSID": SYSID_REMOTE, "SET": SET_POINTER},
-    groups=(one_of("QUEUE", "QNAME", msg=_NO_QUEUE.format("READQ")),),
+    refused={"SYSID": SYSID_REMOTE},
+    groups=(
+        one_of("QUEUE", "QNAME", msg=_NO_QUEUE.format("READQ")),
+        at_most_one("INTO", "SET", msg="READQ TS: INTO and SET are alternatives"),
+        requires(
+            ("SET",),
+            any_of=("LENGTH",),
+            msg='READQ TS SET without LENGTH (IBM: "If you specify the SET option, the LENGTH must be specified")',
+        ),
+    ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "ITEM", "NUMITEMS")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "ITEM", "NUMITEMS")),
         _QIDERR,
         Outcome("ITEMERR", None, "the item is outside the queue (NEXT: past its end)"),
         Outcome("LENGERR", None, "the item is longer than LENGTH: truncated", writes=("INTO", "LENGTH")),

@@ -40,46 +40,37 @@ jobs:
   # PRE-GATE — runs on every PR, blocks the merge on failure.
   # Fast; no heavy ML/graph dependencies installed.
   # ============================================================
-  vault-sentinel:
+  # #5132: the three pre-gates were three runners (0.6-2.4 min each, mostly setup); one job runs them in order. Each
+  # step fails the job on its own (no continue-on-error), and `if: !cancelled()` makes a later step run after an earlier
+  # failure so one push reports every failing gate. None is a required check.
+  pre-gate:
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (github.event_name == 'pull_request') }}  # #5104: draft PRs skip heavy CI
-    name: Vault Sentinel
+    name: Pre-gate (Vault Sentinel, X-Ray, Supply Chain)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./
+
+      - name: Vault Sentinel
+        uses: ./
         with:
           tool: vault-sentinel
           target: .
           version: local
 
-  xray-inspector:
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (github.event_name == 'pull_request') }}  # #5104: draft PRs skip heavy CI
-    name: X-Ray Inspector
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: ./
+      - name: X-Ray Inspector
+        if: ${{ !cancelled() }}
+        uses: ./
         with:
           tool: xray-inspector
           target: .
           version: local
 
-  supply-chain-firewall:
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (github.event_name == 'pull_request') }}  # #5104: draft PRs skip heavy CI
-    name: Supply Chain Firewall
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: ./
+      - name: Supply Chain Firewall
+        if: ${{ !cancelled() }}
+        uses: ./
         with:
           tool: supply-chain-firewall
           target: .

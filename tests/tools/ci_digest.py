@@ -42,8 +42,8 @@ REPRO: list[tuple[str, str]] = [
     (r"^ruff-audit$", GATES + " --only lint"),
     (r"^mypy-audit$", GATES + " --only audits"),
     (r"^(gauntlet|unicode-gauntlet)$", GATES + " --only gauntlet"),
-    (r"^Vault Sentinel$", GATES + " --only secrets"),
-    (r"^X-Ray Inspector$", GATES + " --only xray"),
+    (r"^Pre-gate \(", GATES + " --only secrets xray"),  # #5132: Vault Sentinel, X-Ray and Supply Chain in one job
+    (r"^(Vault Sentinel|X-Ray Inspector)$", GATES + " --only secrets xray"),  # the pre-#5132 job names
     (r"^crucible-audit", "tests/tools/box/golden-lock.sh " + GATES + " --only golden"),
     (r"^(full-suite|smoke-test)( part \d+/\d+)?$", "python -m pytest -q {tests}"),  # #4828: the suite runs in parts
     (r"^(det|shard \d+/\d+)$", SWEEP + " --cases {cases} --work /tmp/gitgalaxy-scratch/ci-digest/sweep"),

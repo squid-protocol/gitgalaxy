@@ -15,6 +15,7 @@ import ast
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -229,7 +230,7 @@ def test_no_maven_subprocess_in_tests_decodes_with_locale_charset():
     assert not bad, "\n".join(bad)
 
 
-@pytest.mark.parametrize("rel_path", ["tests/tools/mutation.py"])
+@pytest.mark.parametrize("rel_path", ["tests/tools/det_survey.py"])
 def test_maven_guard_is_not_blind(rel_path: str):
     assert _maven_calls((REPO_ROOT / rel_path).read_text(encoding="utf-8")), f"{rel_path}: no mvn call found"
 
@@ -239,7 +240,7 @@ def test_run_maven_argline_carries_the_utf8_flags():
     source = (REPO_ROOT / "tests/tools/equivalence_java.py").read_text(encoding="utf-8")
     assert 'f"{JVM_UTF8_FLAGS} {argline}"' in source
     assert "-DargLine={maven_argline}" in source
-    assert 'encoding="utf-8"' in source[source.index("env=maven_utf8_env(shell)") :][:200]
+    assert "run_decoded(cmd, cwd=project, env=maven_utf8_env(shell)" in source  # #3813: bytes, decoded losslessly
 
 
 @pytest.mark.parametrize(
@@ -315,3 +316,33 @@ def test_utf8_javac_and_java_roundtrip_not_sign_and_multibyte(tmp_path: Path):
         "multibyte: 世界 Ø § €",
         "TEST_END",
     ]
+
+
+@pytest.mark.parametrize(
+    ("raw", "text"),
+    [
+        (b"BUILD FAILURE", "BUILD FAILURE"),
+        ("caf\u00e9 \u65e5\u672c".encode(), "caf\u00e9 \u65e5\u672c"),  # UTF-8, national text
+        (b"\xef\xbb\xbfok", "ok"),  # a UTF-8 BOM
+        (b"caf\xe9", "caf\u00e9"),  # cp1252 / Latin-1 bytes that are not UTF-8: kept, not U+FFFD
+        (b"", ""),
+        (None, ""),
+    ],
+)
+def test_decode_output_loses_no_byte(raw: bytes | None, text: str):
+    """#3813 / #5161: Maven output is decoded through source_text, never with errors="replace"."""
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    from maven_exe import decode_output
+
+    got = decode_output(raw)
+    assert "\ufffd" not in got
+    assert got.lstrip("\ufeff") == text
+
+
+def test_run_decoded_captures_bytes_and_decodes_them():
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    from maven_exe import run_decoded
+
+    code = "import sys; sys.stdout.buffer.write(b'caf\\xe9'); sys.stderr.buffer.write('\\u65e5'.encode())"
+    proc = run_decoded([sys.executable, "-c", code])
+    assert (proc.stdout, proc.stderr) == ("caf\u00e9", "\u65e5")

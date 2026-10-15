@@ -8,7 +8,9 @@ not found. `shutil.which` does apply it, so resolve through here (never a litera
 from __future__ import annotations
 
 import os
+import subprocess
 from collections.abc import Mapping
+from typing import Any
 
 from launcher_exe import launcher_executable
 
@@ -29,3 +31,24 @@ def maven_utf8_env(env: Mapping[str, str] | None = None) -> dict[str, str]:
     out = dict(os.environ if env is None else env)
     out["MAVEN_OPTS"] = f"{out.get('MAVEN_OPTS', '')} {JVM_UTF8_FLAGS}".strip()
     return out
+
+
+def decode_output(data: bytes | str | None) -> str:
+    """Text for a captured subprocess stream (bytes, or the str a text-mode caller already has), decoded through
+    `gitgalaxy.core.source_text` so no byte is lost to an `errors=` handler (#3813)."""
+    if data is None:
+        return ""
+    if isinstance(data, str):
+        return data
+    from gitgalaxy.core.source_text import decode_bytes
+
+    return decode_bytes(data)
+
+
+def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    """`subprocess.run(cmd, capture_output=True, **kwargs)` with stdout and stderr decoded by `decode_output`
+    (byte capture, so neither the locale nor `errors="replace"` touches the output)."""
+    proc = subprocess.run(cmd, capture_output=True, **kwargs)  # noqa: S603
+    return subprocess.CompletedProcess(
+        proc.args, proc.returncode, decode_output(proc.stdout), decode_output(proc.stderr)
+    )

@@ -1252,7 +1252,9 @@ class Cics:
         if key in ("INQUIRE TDQUEUE", "SET TDQUEUE"):  # #5168 round 3 (X61): an extrapartition queue's open state
             for o in ("TDQUEUE", "OPENSTATUS") if key == "SET TDQUEUE" else ("TDQUEUE",):
                 if not opts.get(o):
-                    raise CicsError(_msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o))
+                    raise CicsError(
+                        _msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o)
+                    )
             r = g.tmpname("tdq")
             queue = self.name(_arg(opts["TDQUEUE"]))
             if key == "SET TDQUEUE":
@@ -1261,12 +1263,13 @@ class Cics:
             wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
             if not wanted:
                 raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-            lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {str('OPENSTATUS' in wanted).lower()}, "
-                     f"{str('TYPE' in wanted).lower()});",
-                     f"{ind}if ({r}[0] == 0) {{"]  # fmt: skip
+            wants = ", ".join(str(o in wanted).lower() for o in ("OPENSTATUS", "TYPE"))
+            lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
             for o, i in (("OPENSTATUS", 2), ("TYPE", 3)):
                 if o in wanted:
-                    lines.append(ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False))
+                    lines.append(
+                        ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
+                    )
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")

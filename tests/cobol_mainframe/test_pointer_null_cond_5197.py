@@ -22,6 +22,7 @@ PTR = """\
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  USERPTR                USAGE POINTER.
+       01  P2                     USAGE POINTER.
        01  WS-IMG                 PIC X VALUE '*'.
        01  WS-OUT                 PIC X(4) VALUE SPACES.
        LINKAGE SECTION.
@@ -137,6 +138,8 @@ def test_the_test_is_the_handles_all_zero_bytes(tmp_path):
         ("IF NULL = NULL", "NULL compared with NULL"),
         ("IF WS-OUT = NULL", "not a plain USAGE POINTER"),
         ("IF USERPTR(1) = NULL", "not a plain pointer"),
+        ("IF USERPTR = P2", "compared with another pointer"),
+        ("IF P2 NOT = USERPTR", "compared with another pointer"),
         ("IF NULL", "NULL"),
     ],
 )

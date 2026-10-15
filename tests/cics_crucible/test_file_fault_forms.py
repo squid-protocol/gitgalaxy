@@ -129,7 +129,7 @@ def test_the_stub_reads_the_record_and_answers_dupkey(tmp_path):
     assert rt._run_stub(exe, tmp_path) == [
         "read1 resp=15 resp2=140 into=01AA",
         "read2 resp=0 resp2=0 into=01AA",
-        "read3 resp=13 resp2=0 into=....",
+        "read3 resp=13 resp2=80 into=....",
         "next1 resp=0 resp2=0 into=01AA",
         "next2 resp=15 resp2=140 into=02BB",
         "prev1 resp=0 resp2=0 into=02BB",
@@ -173,7 +173,7 @@ def test_cics_task_reads_the_record_and_answers_dupkey(tmp_path):
     assert out.splitlines() == [
         "read1 15 140 01AA true",
         "read2 0 0 01AA",
-        "read3 13 0 null",
+        "read3 13 80 null",
         "next1 0 0 01",
         "next2 15 140 02 true",
         "prev1 0 0 02",

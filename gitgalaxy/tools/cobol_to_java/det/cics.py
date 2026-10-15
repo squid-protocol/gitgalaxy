@@ -33,6 +33,14 @@ class CicsError(Exception):
     pass
 
 
+class KeylengthInvreq(CicsError):
+    """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
+
+    def __init__(self, msg: str, resp2: int):
+        super().__init__(msg)
+        self.resp2 = resp2
+
+
 # #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
 # byte in every area is CCSID 037")
 REGION_PAGE = "cp037"
@@ -2525,17 +2533,23 @@ class Cics:
             return None
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal (IBM: INVREQ 42 for GENERIC)
+            n = -int(re.sub(r"\D", "", arg))
         name = self.constant(opts.get("DATASET") or opts.get("FILE"))
         mapped = self.gp.file(name) if name is not None else None
         if n is None or mapped is None:
             raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
         _, key = self.gp.entity_key(mapped[1], mapped[2])
+        # #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 GENERIC KEYLENGTH "greater than or equal to the length of a
+        # full key", 42 "less than zero", 26 a KEYLENGTH without GENERIC that is not the key's length; zero is undocumented
+        if generic and n < 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: INVREQ (RESP2 42)", 42)
         if generic and n >= key:
-            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled")
-        if generic and n <= 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25)", 25)
+        if generic and n == 0:
             raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
         if not generic and n != key:
-            raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
+            raise KeylengthInvreq(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 26)", 26)
         return n
 
     def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
@@ -2617,7 +2631,20 @@ class Cics:
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
         searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
-        if not searched:
+        if verb == "READ":
+            try:
+                self._keylength(verb, opts)
+            except (
+                KeylengthInvreq
+            ) as bad:  # #5092 (X52): the read is not done: INVREQ with IBM's RESP2 (CicsTask.readInvalid)
+                r = self.g.tmpname("read")
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
+                return [
+                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
+                ]
+        elif not searched:
             self._keylength(verb, opts)
         if "SET" in opts:
             return self.read_set(verb, opts, ind)

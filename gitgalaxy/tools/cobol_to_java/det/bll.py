@@ -55,6 +55,10 @@ _EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI|SQL)\b.*?\bEND-EXEC\b", re.I | re.S)
 _RELOAD = re.compile(rf"\bSERVICE\s+RELOAD\s+({_NAME})", re.I)
 _LABEL = re.compile(r"\bSERVICE\s+LABEL\b", re.I)
 _MOVE = re.compile(rf"\bMOVE\s+({_NAME})\s+TO\s+({_NAME})", re.I)
+_EQ = r"(?:IS\s+)?(NOT\s+)?(?:=|EQUALS?(?:\s+TO)?)"
+_NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL)(?![A-Z0-9-])"
+# #5197: a cell tested for no address, in either operand order (IBM's conversion makes the cell a POINTER: `= NULL`)
+_COMPARE = re.compile(rf"\b({_NAME})\s+{_EQ}\s+{_NIL}|\b{_NIL}\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
 _ADD = re.compile(rf"\bADD\s+4096\s*,?\s+({_NAME})\s+GIVING\s+({_NAME})", re.I)
 _OPTION = re.compile(rf"\b({_NAME})\s*\(\s*({_NAME})\s*\)", re.I)
 _PARAGRAPH = re.compile(rf"^ {{0,3}}({_NAME})(\s+SECTION)?\s*\.", re.I)
@@ -270,6 +274,14 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                 found.append((m.start(), m.end(), f"CALL 'GGCBLLP' USING {a} {b}", ("none",)))
             else:
                 found.append((m.start(), m.end(), f"CALL 'GGCBLLG' USING {a} {b}", ("change", b)))
+        for m in _COMPARE.finditer(text):
+            cell, neg = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
+            if in_exec(m.start()) or cell.upper() not in cellset:
+                continue
+            if cells.of.get(cell.upper(), ("", 0))[1]:
+                raise Refused(f"{cell} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
+                              "compared (only its base cell holds an address)")  # fmt: skip
+            found.append((m.start(), m.end(), f"{cell} {'NOT ' if neg else ''}= NULL", ("none",)))
         for a, b in execs:
             for o in _OPTION.finditer(text, a, b):
                 if o.group(2) not in cellset:

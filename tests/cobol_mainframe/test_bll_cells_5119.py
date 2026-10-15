@@ -193,7 +193,7 @@ def test_a_program_with_no_bll_evidence_is_left_as_it_is(tmp_path):
         ),
         (
             "           MOVE 'HEAD' TO FIELD1(1:4).\n",
-            "           IF FRPTR = ZERO GOBACK END-IF.\n",
+            "           IF FRPTR > ZERO GOBACK END-IF.\n",
             "FRPTR (line 29): a BLL cell used as a number",
         ),
         ("MOVE FRPTR TO TSPTR", "MOVE FRPTR TO FRPTR1", "a secondary cell of a long record"),

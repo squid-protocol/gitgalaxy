@@ -129,10 +129,15 @@ def test_a_spawned_pool_is_the_forked_pools_output(tmp_path):
     env = {k: v for k, v in os.environ.items() if k != "GALAXYSCOPE_MAX_WORKERS"}
     env.update(GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER", GITGALAXY_DISABLE_GIT_HISTORY="1")
     out = tmp_path / "spawned"
-    subprocess.run([sys.executable, str(harness), str(estate), "--db-only", "--output", str(out)],
-                   check=True, env=env, capture_output=True)  # fmt: skip
+    # #5166: the two scans are independent; the spawned one runs while the inline one does.
+    spawn = subprocess.Popen([sys.executable, str(harness), str(estate), "--db-only", "--output", str(out)],
+                             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # fmt: skip
+    try:
+        inline = _scan(estate, tmp_path / "inline", workers=1)
+    finally:
+        _, stderr = spawn.communicate()
+    assert spawn.returncode == 0, stderr.decode(errors="replace")
     (spawned,) = out.glob("*_galaxy_master.db")
-    inline = _scan(estate, tmp_path / "inline", workers=1)
     assert _facts(spawned) == _facts(inline)
     quals = {r[0] for r in sqlite3.connect(spawned).execute("SELECT calls_out_qualifiers FROM function_data")}
     assert '["b"]' in quals  # `b.push(x)` keeps its receiver

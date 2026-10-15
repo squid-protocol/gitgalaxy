@@ -23,6 +23,14 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             "MAX_RISK_EXPOSURE": 0.0,
         }
 
+    def _empty_root(self) -> str:
+        """A throwaway scan root. The ecosystem audits at the end of execute_pipeline (X-ray, API
+        mapper, firewall) walk the real root, so a root of "." made every pipeline test scan this
+        whole repo (13 s each) for a result it never reads (#5166)."""
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        return tmp.name
+
     # ==============================================================================
     # TEST 1: THE PHANTOM FILE (Race Condition Survival)
     # ==============================================================================
@@ -1434,7 +1442,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         config["SARIF_IGNORED_RULES"] = ["GG-AGENT-GUARDRAIL"]
         config["SARIF_ONLY"] = True  # <--- THE FIX: Bypass the destructive GPU Recorder
 
-        scope = Orchestrator(".", config)
+        scope = Orchestrator(self._empty_root(), config)
 
         # Inject a highly toxic file that explicitly suppresses its own alerts
         scope.parsed_files = [
@@ -1504,7 +1512,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         config = self.mock_config.copy()
         config["SARIF_ONLY"] = True  # Bypass the destructive GPU Recorder
 
-        scope = Orchestrator(".", config)
+        scope = Orchestrator(self._empty_root(), config)
         scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
 
         scope.network_sensor = MagicMock()
@@ -1547,7 +1555,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         config = self.mock_config.copy()
         config["DB_ONLY"] = True  # Only the SQLite recorder needs to run for this test
 
-        scope = Orchestrator(".", config)
+        scope = Orchestrator(self._empty_root(), config)
         scope.parsed_files = [{"path": "src/api.py", "telemetry": {}, "equations": {}}]
         scope.typosquat_hits = 3  # Simulates a real hit from _resolve_dependency_graph()
 

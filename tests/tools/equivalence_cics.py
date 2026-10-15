@@ -1502,7 +1502,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
             key = enq_fault_key(opts.get("RESOURCE"))
             flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
-            return [f"MOVE '{key}' TO GG-FLAGS", flag] + _call("GGCENQ", []) + _resp(opts, True, labels)
+            given = ("L" if opts.get("LENGTH") else "") + ("M" if opts.get("MAXLIFETIME") else "")  # X60: GG-NAME2
+            ops = [f"MOVE {opts['LENGTH']} TO GG-LEN"] if opts.get("LENGTH") else []
+            ops += [f"MOVE {opts['MAXLIFETIME']} TO GG-NUM"] if opts.get("MAXLIFETIME") else []
+            ops.append(f"MOVE '{given}' TO GG-NAME2" if given else "MOVE SPACES TO GG-NAME2")
+            return [f"MOVE '{key}' TO GG-FLAGS", flag, *ops] + _call("GGCENQ", []) + _resp(opts, True, labels)
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
@@ -5278,9 +5282,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             verb == "ENQ"
         ):  # #5089 (X60): an ENQ the scenario planned busy: CicsTask.enq records it (the others record none)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append(
-                {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
-            )
+            e = {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
+            if "resp2" in kv:  # X60: LENGERR 1 / INVREQ 2 from the operands (a planned ENQBUSY states none)
+                e["resp2"] = int(kv["resp2"])
+            out.append(e)
         elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))

@@ -3245,6 +3245,26 @@ public class CicsTask {
         return respName(planned[0]);
     }
 
+    /** ENQ's own operands (#5089, register X60): LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that
+     *  is no CVDA of ENQ (UOW 246, TASK 233) is INVREQ RESP2 2 (IBM EXEC CICS ENQ "Conditions"); otherwise enq(). A null
+     *  length / maxlife is an option the program did not write. Two bad operands at once: IBM names no order, so refused.
+     *  Returns {RESP, RESP2}; the failed ENQ records the event with its RESP2. */
+    public int[] enqChecked(String resource, boolean nosuspend, Integer length, Integer maxlife) {
+        boolean badLength = length != null && (length < 1 || length > 255);
+        boolean badLife = maxlife != null && maxlife != 246 && maxlife != 233;
+        if (badLength && badLife) {
+            throw new UnsupportedOperationException("ENQ with LENGTH outside 1-255 and an invalid MAXLIFETIME: which "
+                    + "condition IBM raises first is not stated, not modelled");
+        }
+        if (badLength || badLife) {
+            int resp = badLength ? 22 : 16;
+            int resp2 = badLength ? 1 : 2;
+            event("ENQ", "resource", resource, "resp", respName(resp), "resp2", resp2);
+            return new int[] {resp, resp2};
+        }
+        return new int[] {CicsSpec.resp(enq(resource, nosuspend)), 0};
+    }
+
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
     public String link(String program) {
         return link(program, null, 0);

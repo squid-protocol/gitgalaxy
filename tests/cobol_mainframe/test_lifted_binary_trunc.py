@@ -171,6 +171,7 @@ def test_the_issue_cases_truncate_to_the_picture(typed, tmp_path):
 GROUP_DATA = ["01 G.", "   05 GA PIC 9(4) COMP.", "   05 GB PIC S9(4) COMP.", "   05 GX PIC X(2).", "01 H PIC X(6)."]
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5176)")
 @pytest.mark.parametrize("mode", ["STD", "BIN"])
 def test_a_synced_groups_bytes_are_not_re_truncated(mode, tmp_path):
     """A group MOVE leaves a binary item's bytes past its PICTURE (X'FFFF' in a 9(4) COMP: 65535); writing the typed
@@ -217,6 +218,7 @@ def test_trunc_opt_stops_on_a_typed_move_past_the_picture(typed, stmt, said, tmp
     assert "BEFORE" in e.value.stdout and "AFTER" not in e.value.stdout
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5176)")
 @pytest.mark.parametrize("typed", [False, True])
 def test_trunc_opt_conforming_typed_moves_are_stds(typed, tmp_path):
     T = _jdk_or_skip()

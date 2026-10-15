@@ -26,13 +26,13 @@ def _secs(job: dict) -> float:
     try:
         a = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
         b = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
-    except (KeyError, TypeError, ValueError):
+    except (AttributeError, KeyError, TypeError, ValueError):
         return 0.0
     return (b - a).total_seconds()
 
 
 def classify(jobs: list[dict], timeout_minutes: dict[str, int] | None = None) -> str:
-    """One cause for a failed attempt: timeout | db2_start | ratchet | other | none."""
+    """One cause for a failed attempt: timeout | db2_start | ratchet | artifact_missing | test_failure | other | none."""
     timeout_minutes = timeout_minutes or {}
     bad = [j for j in jobs if j.get("conclusion") in ("failure", "cancelled", "timed_out")]
     if not bad:
@@ -52,6 +52,10 @@ def classify(jobs: list[dict], timeout_minutes: dict[str, int] | None = None) ->
                 return "db2_start"
             if "ratchet" in name:
                 return "ratchet"
+            if name.startswith("download"):
+                return "artifact_missing"  # the producing job skipped or failed (#5177 publish-history)
+            if "tests" in name or "pytest" in name:
+                return "test_failure"  # a real failure, or main moved under a stale PR (#5173): check the test, not a retry
     return "other"
 
 
@@ -65,6 +69,17 @@ def per_day(runs: list[dict]) -> dict[str, int]:
     return dict(sorted(out.items()))
 
 
+def step_secs(jobs: list[dict], step_name: str) -> list[float]:
+    """Seconds each job spent in the step whose name contains `step_name` (the cache-hit vs cache-miss bimodality, #5142)."""
+    needle = step_name.lower()
+    return [
+        _secs(step)
+        for job in jobs
+        for step in job.get("steps", [])
+        if needle in step.get("name", "").lower() and step.get("conclusion") != "skipped"
+    ]
+
+
 def _gh(path: str) -> dict:
     proc = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=True)  # noqa: S603, S607
     return json.loads(proc.stdout)
@@ -75,6 +90,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("workflows", nargs="+")
     ap.add_argument("--since", required=True, help="YYYY-MM-DD")
     ap.add_argument("--timeout", action="append", default=[], metavar="JOB=MIN", help="job timeout-minutes")
+    ap.add_argument(
+        "--step", help="also print the seconds each run's jobs spent in the step with this name (substring)"
+    )
     args = ap.parse_args(argv)
     caps = {k: int(v) for k, v in (t.split("=") for t in args.timeout)}
     for wf in args.workflows:
@@ -84,6 +102,9 @@ def main(argv: list[str] | None = None) -> int:
             for attempt in range(1, int(run.get("run_attempt", 1))):
                 jobs = _gh(f"repos/{REPO}/actions/runs/{run['id']}/attempts/{attempt}/jobs?per_page=100")["jobs"]
                 print(f"  run {run['id']} attempt {attempt}: {classify(jobs, caps)}")
+            if args.step:
+                jobs = _gh(f"repos/{REPO}/actions/runs/{run['id']}/jobs?per_page=100")["jobs"]
+                print(f"  run {run['id']} step '{args.step}' secs: {[round(x) for x in step_secs(jobs, args.step)]}")
     return 0
 
 

@@ -139,7 +139,7 @@ def _all_findings(root: Path) -> list[tuple[str, str, str, int]]:
     return sorted(out)
 
 
-@pytest.mark.slow(reason="parses every module of the package and the tools with ast (#5178)")
+@pytest.mark.slow(reason="parses every module of the package and the tools with ast (#5176)")
 def test_no_source_read_loses_a_byte():
     found = findings() + findings(TESTS)
     assert not found, (
@@ -149,6 +149,7 @@ def test_no_source_read_loses_a_byte():
     )
 
 
+@pytest.mark.slow(reason="parses every module of the package and the tools with ast (#5176)")
 def test_every_allowlist_entry_is_still_needed():
     """A stale entry would silently license a future lossy read in that function."""
     unfiltered = {(path, func, rule) for path, func, rule, _ in findings(allowed={}) + findings(TESTS, allowed={})}

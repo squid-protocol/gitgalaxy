@@ -112,7 +112,7 @@ def test_interval_control_commands_become_stub_calls():
                      "    BY REFERENCE WS-DATA", "IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN"]  # fmt: skip
     assert ec.translate_command("CANCEL REQID('GTREQ001')")[:2] == ["MOVE 'GTREQ001' TO GG-QNAME",
                                                                    "CALL 'GGCCNCL' USING GG-CICS"]  # fmt: skip
-    for body in ("RETRIEVE SET(P) LENGTH(L)", "CANCEL", "START INTERVAL(0)", "START TRANSID('X') SYSID('R')",
+    for body in ("CANCEL", "START INTERVAL(0)", "START TRANSID('X') SYSID('R')",
                  "START TRANSID('X') AFTER", "START TRANSID('X') HOURS(1)", "START TRANSID('X') INTERVAL(1) AT HOURS(1)",
                  "RETRIEVE LENGTH(L)", "RETRIEVE RTRANSID(T) LENGTH(L)", "RETRIEVE INTO(A) WAIT"):  # fmt: skip
         with pytest.raises(ec.Unsupported):
@@ -245,7 +245,6 @@ def test_channels_and_containers_become_stub_calls():
     for bad in (
         "GET CONTAINER(C) INTO(A) INTOCCSID(1140)",
         "PUT CONTAINER(C) FROM(A) FROMCCSID(37)",
-        "GET CONTAINER(C) SET(P) FLENGTH(L)",
         "GET CONTAINER(C) FLENGTH(L)",
         "RETURN TRANSID('T') CHANNEL(C)",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
@@ -375,7 +374,7 @@ def test_a_delete_generic_is_named_to_the_stub():
             ec.translate_command(bad)
 
 
-@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
+@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", 
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) SET(P)",

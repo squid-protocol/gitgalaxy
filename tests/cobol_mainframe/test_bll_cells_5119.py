@@ -245,13 +245,24 @@ def test_a_bll_program_translates_whole_on_the_pointer_lane(tmp_path):
         assert call in r.java, call
 
 
+def test_a_read_set_into_a_cell_is_the_pointer_lane_now(tmp_path):
+    """READ SET(ptr) is #5042's (X58): into a BLL cell it translates whole, as GETMAIN SET does."""
+    old = "EXEC CICS GETMAIN SET(FRPTR) FLENGTH(5400)\n                INITIMG(WS-IMG) END-EXEC."
+    assert old in PROGRAM
+    r = _translate(
+        tmp_path, PROGRAM.replace(old, "EXEC CICS READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                END-EXEC.")
+    )
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.setBlock(task, f2_FRPTR, " in r.java
+
+
 @pytest.mark.parametrize(
     "old, new, hole",
     [  # the cell form of a command that is refused for a pointer too stays refused, under that command's reason
         (
             "EXEC CICS GETMAIN SET(FRPTR) FLENGTH(5400)\n                INITIMG(WS-IMG) END-EXEC.",
-            "EXEC CICS READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                END-EXEC.",
-            "READ",
+            "EXEC CICS LOAD PROGRAM('P') SET(FRPTR)\n                END-EXEC.",
+            "LOAD",
         ),
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",

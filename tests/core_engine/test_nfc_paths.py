@@ -99,6 +99,7 @@ def nfd_scan(tmp_path_factory):
     return estate, scan_to_db(estate, base / "scan")
 
 
+@pytest.mark.slow(reason="builds an NFD git checkout and scans it to a db (#5176)")
 def test_an_nfd_checkout_stores_nfc_paths(nfd_scan):
     files, _ = _rows(nfd_scan[1])
     paths = {p for p, _ in files.values()}

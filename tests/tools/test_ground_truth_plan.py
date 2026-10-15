@@ -4,7 +4,6 @@ The classifier is an allow-list of what the job does not read (ground_truth_plan
 directions, the "when in doubt, run" default, and that nothing the job's tests reach is on the skip list.
 """
 
-import json
 import re
 import subprocess
 import sys
@@ -174,4 +173,5 @@ def test_the_workflow_wires_the_plan_to_the_required_check():
     assert env["MODE"] == "${{ needs.plan.outputs.mode }}"
     run = jobs["ground-truth"]["steps"][0]["run"]
     assert '"$MODE" = "none"' in run and '"$PARTS" = "success"' in run
-    assert json.dumps(jobs["publish-history"]["needs"]) == '"ground-truth"'
+    # #5176: publish-history also needs the part that uploads the history (skipped parts upload nothing)
+    assert jobs["publish-history"]["needs"] == ["ground-truth", "ground-truth-part"]

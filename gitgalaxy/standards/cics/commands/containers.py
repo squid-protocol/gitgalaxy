@@ -13,7 +13,7 @@ X44."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import CODEPAGE, NEEDS_ARGUMENT, POINTER, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import CODEPAGE, NEEDS_ARGUMENT, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -25,6 +25,7 @@ from gitgalaxy.standards.cics.model import (
     at_most_one,
     one_of,
     required,
+    requires,
 )
 
 _NAME = Arg("name", width=16)  # "the name (1 - 16 characters)"
@@ -129,6 +130,8 @@ GET_CONTAINER = Command(
         # in: "the length of the data to be read"; out: "the length of the data in the container"
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "NODATA": Arg("flag"),
+        # #5042 (X58): "the address of the retrieved data"; FLENGTH is then the output length
+        "SET": Arg("pointer"),
         **RESP_OPTIONS,
     },
     refused={
@@ -136,15 +139,17 @@ GET_CONTAINER = Command(
         "INTOCODEPAGE": CODEPAGE,
         "CONVERTST": CODEPAGE,
         "CCSID": CODEPAGE,
-        "SET": Refusal(POINTER, "X17"),
         "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
         required("CONTAINER", msg=NEEDS_ARGUMENT),
-        one_of("INTO", "NODATA", msg="GET CONTAINER needs one of INTO / NODATA"),
+        one_of("INTO", "NODATA", "SET", msg="GET CONTAINER needs one of INTO / NODATA / SET"),
+        requires(
+            ("SET",), any_of=("FLENGTH",), msg="GET CONTAINER SET without FLENGTH(data-area): the length of the data"
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "FLENGTH")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "FLENGTH")),
         Outcome("LENGERR", 11, "the data is longer than INTO takes: truncated", writes=("INTO", "FLENGTH")),
         Outcome("CHANNELERR", 2, "the channel is not in the program's scope"),
         Outcome("INVREQ", 4, "no CHANNEL and no current channel"),

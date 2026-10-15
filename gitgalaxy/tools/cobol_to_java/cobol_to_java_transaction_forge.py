@@ -1519,6 +1519,8 @@ public class CicsTask {
         byte[] bytes;
         int kind;
         boolean bound;
+        String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
+        boolean syncEnds;  // #5042: a SYNCPOINT ends it too
         Block(byte[] bytes, int kind) {
             this.bytes = bytes;
             this.kind = kind;
@@ -1530,8 +1532,8 @@ public class CicsTask {
     private long nextBlock = 1;
 
     private long newBlock(byte[] bytes, int kind) {
-        long h = nextBlock++;
-        blocks.put(h, new Block(bytes, kind));
+        long h = root().nextBlock++;
+        root().blocks.put(h, new Block(bytes, kind));
         return h;
     }
 
@@ -1553,7 +1555,7 @@ public class CicsTask {
     /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
      *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
     public int[] freemain(long handle) {
-        Block b = blocks.get(handle);
+        Block b = root().blocks.get(handle);
         if (b == null || b.kind == 2) {
             return new int[] {16, 1};
         }
@@ -1572,9 +1574,74 @@ public class CicsTask {
         return newBlock(body.clone(), 1);
     }
 
+    /** #5042 (X58): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
+     *  `key` names what IBM says ends the pointer's validity ("valid until the next receive command", "until the next
+     *  READ command for the same file"): the next acquireSet of that key, or invalidateSet(key). A null key: valid to
+     *  the task's end. Refused: a block above 256 MiB. FREEMAIN of the block is refused like a WEB RECEIVE SET body. */
+    public long acquireSet(String key, byte[] data) {
+        return acquireSet(key, data, false);
+    }
+
+    /** As acquireSet; `syncEnds`: a SYNCPOINT ends the pointer too (IBM: a READ UPDATE SET's, a browse SET's). */
+    public long acquireSet(String key, byte[] data, boolean syncEnds) {
+        if (data.length > 268435456L) {
+            throw refused("SET(ptr) data beyond the limit");
+        }
+        invalidateSet(key);
+        long h = newBlock(data.clone(), 1);
+        root().blocks.get(h).key = key;
+        root().blocks.get(h).syncEnds = syncEnds;
+        return h;
+    }
+
+    /** #5042: ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer valid", not
+     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X58:
+     *  a program must not read through a pointer past its validity). */
+    public void invalidateSet(String key) {
+        if (key == null) {
+            return;
+        }
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: a SYNCPOINT ends the SET(ptr) blocks that IBM says it does (READ UPDATE SET, READNEXT / READPREV SET). */
+    public void invalidateSyncSet() {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.syncEnds) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: ends every SET(ptr) block whose key starts with `prefix` (DELETE CHANNEL: its containers' pointers). */
+    public void invalidateSetPrefix(String prefix) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.key.startsWith(prefix)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: whether a SET(ptr) block of `key` is still valid (a pointer the program may hold). */
+    public boolean heldSet(String key) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
     public long addressOf(byte[] record) {
-        return addressed.computeIfAbsent(record, r -> newBlock(r, 2));
+        return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
@@ -1582,7 +1649,7 @@ public class CicsTask {
      *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
      *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
     public byte[] storageAt(long handle, int need) {
-        Block b = blocks.get(handle);
+        Block b = root().blocks.get(handle);
         if (b == null) {
             throw refused("SET ADDRESS OF a null or unknown pointer");
         }
@@ -3226,6 +3293,10 @@ public class CicsTask {
             return new ContainerResult("LENGERR", 1, -1, null);
         }
         Container c = ch.containers.get(name);
+        if (c != null && heldSet(containerKey(ch, name))) {
+            throw refused("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
+                    + "pointer then sees");
+        }
         if (c != null && type != null && c.bit != "BIT".equals(type)) {
             throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
                     + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
@@ -3241,6 +3312,29 @@ public class CicsTask {
             c.data = data.clone();
         }
         return new ContainerResult("NORMAL", 0, -1, null);
+    }
+
+    private static String containerKey(Channel ch, String name) {
+        return "CONTAINER " + ch.name + " " + name;
+    }
+
+    /** #5042 (X58): GET CONTAINER(container) [CHANNEL(channel)] SET(ptr) FLENGTH(area) (IBM, EXEC CICS GET CONTAINER
+     *  (CHANNEL)): the same conditions as getContainer without INTO (no LENGERR: nothing to truncate); on NORMAL the
+     *  handle of a new block holding a copy of the container's data and the result's length FLENGTH takes. IBM: "CICS
+     *  maintains the data area until" the next GET CONTAINER SET of the same container in the same channel, a DELETE
+     *  CONTAINER, a MOVE CONTAINER, the channel leaving scope or a DELETE CHANNEL. Refused: a PUT or MOVE onto the
+     *  container while the pointer is held (IBM does not say what the pointer then sees). Handle 0: no block. */
+    public SetBlock getContainerSet(String channel, String container) {
+        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE);
+        if (!"NORMAL".equals(r.resp())) {
+            return new SetBlock(r, 0);
+        }
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        return new SetBlock(r, acquireSet(containerKey(ch, channelName(container, "container")), r.data()));
+    }
+
+    /** A GET CONTAINER SET's outcome: the container result and the block's handle (0 when none was acquired). */
+    public record SetBlock(ContainerResult result, long handle) {
     }
 
     /** GET CONTAINER(container) [CHANNEL(channel)] INTO FLENGTH | NODATA FLENGTH (IBM, EXEC CICS GET CONTAINER
@@ -3280,6 +3374,7 @@ public class CicsTask {
         if (ch.containers.remove(name) == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
+        invalidateSet(containerKey(ch, name));  // IBM: GET CONTAINER SET's data area is kept until "deleted by a DELETE CONTAINER"
         ch.shape++;
         return new ContainerResult("NORMAL", 0, -1, null);
     }
@@ -3299,6 +3394,7 @@ public class CicsTask {
         if (ch == currentChannel) {
             throw refused("DELETE CHANNEL of the current channel");
         }
+        invalidateSetPrefix("CONTAINER " + ch.name + " ");  // IBM: until "deleted by a DELETE CHANNEL command"
         ch.containers.clear();
         ch.shape++;
         channels.remove(ch.name);
@@ -3344,9 +3440,14 @@ public class CicsTask {
         if (dst != null && dst.bit != src.bit) {
             throw refused("MOVE CONTAINER onto a container of the other data type");
         }
+        if (dst != null && heldSet(containerKey(to, target))) {
+            throw refused("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
+                    + "pointer then sees");
+        }
         if (to == null) {
             to = scopeChannel(toChannel, true);
         }
+        invalidateSet(containerKey(from, name));  // IBM: until "moved by a MOVE CONTAINER command"
         if (dst == null) {
             to.containers.put(target, src);
             to.shape++;
@@ -4032,6 +4133,7 @@ public class CicsTask {
             return done(16, 30);  // #5092: no READ UPDATE without a token before it
         }
         store.run();
+        invalidateSet("READ " + file);  // IBM: a READ SET pointer is valid "until completion of a corresponding REWRITE"
         return done(0, 0);
     }
 
@@ -4046,6 +4148,7 @@ public class CicsTask {
             return done(13, 80);
         }
         remove.run();
+        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... DELETE"
         return done(0, 0);
     }
 
@@ -4059,6 +4162,7 @@ public class CicsTask {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
         }
         remove.run();
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
@@ -4099,6 +4203,7 @@ public class CicsTask {
         }
         spendToken(file, token);
         store.run();
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
@@ -4113,18 +4218,24 @@ public class CicsTask {
             return done(16, 47);
         }
         remove.accept((byte[]) t[1]);
+        invalidateSet("READ " + file);
         return done(0, 0);
     }
 
     /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds; none held: no action, NORMAL (IBM). */
     public int unlockHeld(String file) {
         root().held.remove(file);
+        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... UNLOCK"
         return done(0, 0);
     }
 
     /** UNLOCK FILE(file) TOKEN(token): releases the record the token holds, unchanged (IBM, EXEC CICS UNLOCK). */
     public int unlockToken(String file, int token) {
-        return spendToken(file, token) == null ? done(16, 47) : done(0, 0);
+        if (spendToken(file, token) == null) {
+            return done(16, 47);
+        }
+        invalidateSet("READ " + file);
+        return done(0, 0);
     }
 
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
@@ -4433,7 +4544,11 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
-        return root().browses.remove(file) != null ? done(0, 0) : done(16, 35);
+        if (root().browses.remove(file) == null) {
+            return done(16, 35);
+        }
+        invalidateSet("BROWSE " + file);  // IBM: "no longer valid after an ENDBR"
+        return done(0, 0);
     }
 
     /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */
@@ -4457,6 +4572,7 @@ public class CicsTask {
         refuseInDplServer("SYNCPOINT");
         root().held.clear();
         root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         event("SYNCPOINT");
@@ -4472,6 +4588,7 @@ public class CicsTask {
         }
         root().held.clear();
         root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         if (root().rollbackHook != null) {
             root().rollbackHook.run();

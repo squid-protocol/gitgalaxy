@@ -1385,13 +1385,20 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     with pytest.raises(C.CicsError, match="without an origin option"):
         c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
-    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert (
+        q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
         "QUERY COUNTER(KEY) VALUE(REC)", ""
     )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
-    assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
+    assert (
+        g[0].startswith("long[] counter")
+        and ".getCounter(" in g[0]
+        and "task.fullwordGet(" in g[1]
+        and g[2].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
     d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]

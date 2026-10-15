@@ -9,8 +9,10 @@ ch.13 (DFHFCT TYPE=FILE|REMOTE, DFHDCT TYPE=SDSCI|EXTRA|INDIRECT|INTRA|REMOTE,
 DFHTST TYPE=LOCAL|RECOVERY|REMOTE|SECURITY) and ch.16 (macro -> RDO attribute
 table); CICS for MVS/ESA Migration Guide V4R1 GC33-1162-04 (DFHPCT / DFHPPT); IBM
 APAR II05097 (`DFHPPT TYPE=ENTRY,MAPSET=`). Operands those sources leave open
-(DFHPCT's operand list, the PPT PARTITIONSET= spelling, DCT RECFORM=UNDEFINED) are
-ASSUMED in the module and pinned here as such. Every fixture is hand-written, with a
+(DFHPCT's operand list, the PPT PARTITIONSET= spelling, DCT RECFORM=UNDEFINED, DFHJCT's
+JFILEID= / JTYPE=) are ASSUMED in the module and pinned here as such; #5154 re-tried IBM's
+library and found no page for them. DFHSIT SUFFIX= and the refusals of DFHMCT TYPE=RECORD and
+DFHTCT TYPE=LINE / SDSCI are read from the CICS TS 5.x pages the module header cites. Every fixture is hand-written, with a
 labelled and an unlabelled statement, column-72 continuation, comments and lower case.
 """
 
@@ -446,6 +448,47 @@ def test_dfhsit_is_one_row_with_its_parameters_in_attributes():
     assert "FCT=01" in row["attributes"] and "SRT=01" in row["attributes"]
     assert [r["resource_type"] for r in _rows("         DFHSIT TYPE=DSECT\n")] == ["SIT"]
     assert _rows("         DFHSIT TYPE=BOGUS\n") == []
+
+
+@pytest.mark.parametrize(
+    ("suffix", "expected"),
+    [
+        ("01", "DFHSIT01"),
+        ("6$", "DFHSIT6$"),
+        ("a", "DFHSITA"),  # one character is valid; the table name is upper case
+        ("'xy'", "DFHSITXY"),
+        ("NO", "DFHSIT"),  # "other than NO and DY" [TS dfha2_suffix]
+        ("DY", "DFHSIT"),
+        ("ABC", "DFHSIT"),  # more than two characters
+        ("", "DFHSIT"),
+    ],
+)
+def test_dfhsit_suffix_names_the_table(suffix, expected):
+    (row,) = _rows(f"         DFHSIT TYPE=CSECT,SUFFIX={suffix},FCT=01,GRPLIST=(DFHLIST,MYLIST)\n")
+    assert (row["name"], row["macro_table"]) == (expected, expected)
+    assert "GRPLIST=(DFHLIST,MYLIST)" in row["attributes"]  # kept as text, never expanded to rows
+
+
+def test_dfhsit_parameters_are_never_rows():
+    src = "         DFHSIT TYPE=CSECT,SUFFIX=01,FCT=01,DCT=01,SRT=01,TST=01,GRPLIST=(A,B),PCT=01\n"
+    assert [r["resource_type"] for r in _rows(src)] == ["SIT"]
+
+
+def test_sequential_device_line_and_sdsci_name_no_resource():
+    """DFHTCT sequential devices [TS tct/seq.html]: SDSCI is a DD, LINE joins two SDSCIs; TERMINAL is the row."""
+    src = (
+        "         DFHTCT TYPE=SDSCI,DSCNAME=ISADS,DDNAME=INDD\n"
+        "         DFHTCT TYPE=SDSCI,DSCNAME=OSADS,DDNAME=OUTDD\n"
+        "         DFHTCT TYPE=LINE,ACCMETH=BSAM,ISADSCN=ISADS,OSADSCN=OSADS\n"
+        "         DFHTCT TYPE=TERMINAL,TRMIDNT=SEQ1,TRMTYPE=SEQ,ACCMETH=BSAM\n"
+    )
+    assert [(r["resource_type"], r["name"]) for r in _rows(src)] == [("TERMINAL", "SEQ1")]
+
+
+def test_dfhmct_record_names_no_resource():
+    """TYPE=RECORD selects performance-class fields [TS mct/record.html]; there is nothing to name."""
+    src = "         DFHMCT TYPE=RECORD,CLASS=PERFORM,EXCLUDE=(DFHTASK,98),INCLUDE=(70)\n"
+    assert _rows(src) == []
 
 
 def test_dfhsit_column_72_continuation():

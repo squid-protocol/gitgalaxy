@@ -1478,7 +1478,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
-            mode = "MOVE SPACES TO GG-FLAGS"
+            # #5092 (X22): a given KEYLENGTH is INVREQ 26 unless it is the key's length, as READ's (GG-FLAGS KEYLENGTH)
+            mode = "MOVE 'KEYLENGTH' TO GG-FLAGS" if opts.get("KEYLENGTH") else "MOVE SPACES TO GG-FLAGS"
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)

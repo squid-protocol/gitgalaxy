@@ -94,7 +94,7 @@ _CASES = [
     #    or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET")
     (["rf 0 B2", "rd 0 4"], ["rf 0/0 4", "rd 42326262"]),
     (["rf 0 A1", "rf 1 B2", "rd 0 4", "rd 1 4"], ["rf 0/0 4", "rf 0/0 4", "rd " + _Z4, "rd 42326262"]),
-    (["rf 0 ZZ"], ["rf 13/0"]),
+    (["rf 0 ZZ"], ["rf 13/80"]),
     (["rf 0 A1 U", "rw A1", "rd 0 4"], ["rf 0/0 4", "rw 0/0", "rd " + _Z4]),
     (["rf 0 A1 U", "ul", "rd 0 4"], ["rf 0/0 4", "ul 0/0", "rd " + _Z4]),
     (["rf 0 A1 U", "dl A1", "rd 0 4"], ["rf 0/0 4", "dl 0/0", "rd " + _Z4]),

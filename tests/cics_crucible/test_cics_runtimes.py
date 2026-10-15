@@ -1108,17 +1108,15 @@ int main(int argc, char **argv) {
 @needs_cc
 def test_the_stub_delete_generic_deletes_every_record_with_the_generic_key(tmp_path):
     """#4771 zECS (ZECS003; IBM, EXEC CICS DELETE; X22): GENERIC deletes every record whose key starts with the KEYLENGTH
-    bytes of RIDFLD; NOTFND RESP2 80 when none does; a KEYLENGTH not shorter than the key is refused (INVREQ 25)."""
+    bytes of RIDFLD; NOTFND RESP2 80 when none does; a KEYLENGTH not shorter than the key is INVREQ 25 (#5092,
+    test_delete_invreq_5092.py), zero is refused by name."""
     (tmp_path / "f.dat").write_bytes(b"300d210c100a200b")
     (tmp_path / "files.cfg").write_text(f"F {tmp_path / 'f.dat'} 4 0 3\n", encoding="ascii")
     exe = _stub(tmp_path, _DELETE_GENERIC_MAIN)
-    assert _run_stub(exe, tmp_path, "2", "2", "10", "4") == [
-        "2 resp=0 resp2=0", "2 resp=13 resp2=80", "10 resp=0 resp2=0", "4 resp=13 resp2=80"]  # fmt: skip
+    assert _run_stub(exe, tmp_path, "2", "2", "10", "4", "300") == [
+        "2 resp=0 resp2=0", "2 resp=13 resp2=80", "10 resp=0 resp2=0", "4 resp=13 resp2=80",
+        "300 resp=16 resp2=25"]  # fmt: skip
     assert (tmp_path / "f.dat").read_bytes() == b"300d"
-    refused = subprocess.run([str(exe), "300"], env={**_stub_base_env(), "GGCICS_DIR": str(tmp_path),
-                                                     "GGCICS_OUT": str(tmp_path / "out")},
-                             capture_output=True, text=True, check=False)  # noqa: S603  # fmt: skip
-    assert refused.returncode == 98 and "DELETE GENERIC KEYLENGTH" in refused.stdout
 
 
 @needs_javac

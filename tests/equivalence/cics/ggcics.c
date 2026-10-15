@@ -1433,6 +1433,30 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
     return 0;
 }
 
+/* CONVERSE FROM FROMLENGTH INTO ... (#5079, X63; IBM, EXEC CICS CONVERSE (default)), as CicsTask.converse: the data written to the
+ * terminal (`from`, `fromlen` bytes), recorded as a plain SEND records it, then the terminal RECEIVE of the reply INTO `into` (GG-LEN the
+ * most taken, GG-FLAGS NOTRUNCATE; on return GG-LEN the reply's length). A negative `fromlen` is LENGERR with nothing sent and nothing
+ * read (GG-LEN -1: ASSUMED). Refused on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE). */
+int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+    char saved[40];
+    int most = c->len;
+    if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal");
+    if (fromlen < 0) {
+        c->resp = LENGERR;
+        c->resp2 = 0;
+        c->len = -1;
+        return 0;
+    }
+    memcpy(saved, c->flags, sizeof saved);
+    memset(c->flags, ' ', sizeof saved);
+    memcpy(c->flags, "DATA", 4);
+    GGCSTXT(c, from, fromlen);
+    memcpy(c->flags, saved, sizeof saved);
+    c->len = most;
+    terminal_receive(c, into);
+    return 0;
+}
+
 /* RETURN: at level 1 it ends the task, with TRANSID / COMMAREA for the next one; at a lower
  * level (#4004) it returns to the linking program, and the event shows the LINK COMMAREA as
  * that program now sees it (`len` -1: the LINK had none). */
@@ -3069,6 +3093,30 @@ int GGCDELQ(gg_cics *c) {
 static struct { char reqid[17]; time_t expires; int cancelled; int data; } own[64];
 static int nown = 0;
 
+/* ---- #5079 (register X63): POST and WAIT EVENT, as CicsTask.post / waitEvent. The timer-event control area is a 4-byte block of
+ * task storage (blk_set_new), posted (first byte X'40', third X'80') by a WAIT EVENT, which runs the stated clock to the expiry, or by
+ * a CANCEL of the POST. A task has one live POST: a later POST, a local START or a DELAY ends it (IBM, POST), and a WAIT EVENT on
+ * an area so ended is refused. */
+static struct { void *area; int released; } post_areas[64];
+static int npost_areas = 0, post_seq = 0;
+static void *post_live = NULL;
+static time_t post_at = 0;
+static char post_reqid[17] = "";
+
+static void post_release(void) {
+    if (!post_live) return;
+    for (int i = 0; i < npost_areas; i++) if (post_areas[i].area == post_live) post_areas[i].released = 1;
+    for (int i = 0; i < nown; i++) if (strcmp(own[i].reqid, post_reqid) == 0) own[i].cancelled = 1;
+    post_live = NULL;
+    post_reqid[0] = '\0';
+}
+
+static void post_area(void *area) {
+    unsigned char *b = (unsigned char *)area;
+    b[0] = 0x40;
+    b[2] = 0x80;
+}
+
 /* #4270: AFTER / AT's HOURS, MINUTES, SECONDS (-1: not given) as hhmmss, or -4 / -5 / -6 (INVREQ's RESP2,
  * negated) for the first one out of range (IBM, EXEC CICS START, AFTER: "A combination of at least two of
  * HOURS(0 - 99), MINUTES(0 - 59), and SECONDS(0 - 59)", or "one of HOURS(0 - 99), MINUTES(0 - 5999), or
@@ -3200,6 +3248,7 @@ int GGCSTRT(gg_cics *c, char *from) {
         at = now + hh * 3600 + mm * 60 + ss;
     }
     if (c->resp == NORMAL) {
+        post_release();  /* #5079 (X63): IBM, POST: a local START ends the POST's area */
         iso(at, expires, sizeof expires);
         if (reqid[0] && nown < 64) {
             snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
@@ -3581,6 +3630,7 @@ int GGCDLAY(gg_cics *c) {
     char msg[96];
     c->resp = NORMAL;
     c->resp2 = 0;
+    post_release();  /* #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's area */
     if (strstr(c->flags, "INTERVAL")) {
         long long v = c->num;
         if (v >= 0 && v / 10000 <= 99 && v / 100 % 100 <= 59 && v % 100 <= 59)
@@ -3604,6 +3654,95 @@ int GGCDLAY(gg_cics *c) {
     }
     dispatch_children();
     waited += ms;
+    return 0;
+}
+
+/* POST INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM) | AFTER / AT HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS; GG-FLAGS says
+ * which) [REQID(qname)] SET(ptr) (IBM, EXEC CICS POST): the 4-byte timer-event control area, binary zeros until posted. INVREQ
+ * RESP2 4 / 5 / 6 for hours / minutes / seconds out of range; EXPIRED for a TIME already past (no area, the pointer as it was). A
+ * POST with no REQID runs under POSTnnnn (ASSUMED: IBM "generates one"), returned in GG-NAME1 for EIBREQID. */
+int GGCPOST(gg_cics *c, void **slot) {
+    char flags[41], reqid[17];
+    int hhmmss = c->num, resp2 = 0, after, is_time;
+    time_t now = now_epoch(), at;
+    trim(c->flags, 40, flags);
+    trim(c->qname, 8, reqid);
+    after = flag_word(flags, "AFTER") || flag_word(flags, "AT");
+    is_time = flag_word(flags, "TIME") || flag_word(flags, "AT");
+    if (after) {
+        hhmmss = hms(c->hours, c->mins, c->secs);
+        if (hhmmss < 0) resp2 = -hhmmss;
+    } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+        resp2 = 4;
+    } else if (hhmmss / 100 % 100 > 59) {
+        resp2 = 5;
+    } else if (hhmmss % 100 > 59) {
+        resp2 = 6;
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (resp2) {
+        c->resp = INVREQ;
+        c->resp2 = resp2;
+        return 0;
+    }
+    int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+    if (is_time) {
+        struct tm t;
+        gmtime_r(&now, &t);
+        t.tm_hour = 0;
+        t.tm_min = 0;
+        t.tm_sec = 0;
+        at = timegm(&t) + hh * 3600 + mm * 60 + ss;
+        if (hh <= 23 && at < now) {
+            c->resp = DFHRESP_EXPIRED;
+            return 0;
+        }
+    } else {
+        at = now + hh * 3600 + mm * 60 + ss;
+    }
+    if (!reqid[0]) snprintf(reqid, sizeof reqid, "POST%04d", ++post_seq);
+    if (npost_areas >= 64 || nown >= 64) refuse("more than 64 POSTs in a task");
+    post_release();
+    post_live = blk_set_new(NULL, "\0\0\0\0", 4, 0);
+    post_areas[npost_areas].area = post_live;
+    post_areas[npost_areas++].released = 0;
+    post_at = at;
+    snprintf(post_reqid, sizeof post_reqid, "%s", reqid);
+    snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
+    own[nown].expires = at;
+    own[nown].data = 0;
+    own[nown++].cancelled = 0;
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, reqid, strlen(reqid) < 8 ? strlen(reqid) : 8);
+    *slot = post_live;
+    return 0;
+}
+
+/* WAIT EVENT ECADDR(ptr) (IBM, EXEC CICS WAIT EVENT), as CicsTask.waitEvent: INVREQ RESP2 2 for a null pointer. An area not yet
+ * posted is posted at its expiry -- the RUN children not yet run are dispatched, the scheduler's clock runs to it (a task takes no
+ * time, X4); one already posted returns at once (ASSUMED). Refused: an address that is no POST's area, an area a later POST,
+ * CANCEL, local START or DELAY ended (IBM: "unpredictable"). */
+int GGCWEVT(gg_cics *c, void **slot) {
+    void *area = *slot;
+    int i;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (area == NULL) {
+        c->resp = INVREQ;
+        c->resp2 = 2;
+        return 0;
+    }
+    for (i = 0; i < npost_areas && post_areas[i].area != area; i++) {}
+    if (i == npost_areas) refuse("WAIT EVENT on an address that is no POST's timer-event control area");
+    if (post_areas[i].released) refuse("WAIT EVENT on a timer-event control area a later POST, CANCEL, START or DELAY ended");
+    if (((unsigned char *)area)[0] != 0x40) {
+        long long ms = (long long)(post_at - now_epoch()) * 1000;
+        dispatch_children();
+        waited += ms > 0 ? ms : 0;
+        post_area(area);
+        for (int k = 0; k < nown; k++) if (strcmp(own[k].reqid, post_reqid) == 0) own[k].cancelled = 1;
+    }
     return 0;
 }
 
@@ -3733,6 +3872,10 @@ int GGCCNCL(gg_cics *c) {
         if (sscanf(line, "%63s %lld", word, &expires) == 2 && strcmp(word, reqid) == 0 && expires > now) found = 1;
     }
     if (f) fclose(f);
+    if (found && post_live && strcmp(reqid, post_reqid) == 0) {  /* #5079 (X63): a CANCEL of the POST posts its area */
+        post_area(post_live);
+        post_release();
+    }
     c->resp = found ? NORMAL : NOTFND;
     c->resp2 = 0;
     snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);

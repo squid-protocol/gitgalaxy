@@ -157,7 +157,12 @@ def _arg(v: str | None) -> str:
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
 # a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
-_SECOND_OPTIONS = {"READ": ("UPDATE",), "READNEXT": ("UPDATE",), "READPREV": ("UPDATE",)}
+_SECOND_OPTIONS = {
+    "READ": ("UPDATE",),
+    "READNEXT": ("UPDATE",),
+    "READPREV": ("UPDATE",),
+    "POST": ("AFTER", "AT"),  # #5079 (X63): POST AFTER SECONDS(n)
+}
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -851,6 +856,9 @@ class Cics:
             # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
             words = ["WAIT"]
             del opts["WAIT"]
+            if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
+                words = ["WAIT", "EVENT"]
+                del opts["EVENT"]
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -868,6 +876,12 @@ class Cics:
             return self.free_child(opts, ind)
         if verb.split()[0] == "DELAY":  # #4950: the wait at which RUN children are dispatched
             return self.delay(opts, ind)
+        if key == "POST":  # #5079 (X63): a timer-event control area
+            return self.post(opts, ind)
+        if key == "WAIT EVENT":
+            return self.wait_event(opts, ind)
+        if key == "CONVERSE":
+            return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if (
@@ -2010,6 +2024,78 @@ class Cics:
         else:
             ms, what = "0L", "DELAY"
         return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
+
+    def post(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS,
+        EXEC CICS POST) on CicsTask.post. SET: the pointer takes the new timer-event control area's handle (the 4 bytes
+        SET ADDRESS OF reads, zero until posted); EXPIRED and INVREQ RESP2 4 / 5 / 6 leave it as it was. No REQID: IBM
+        "generates one" and returns it in EIBREQID, which gets CicsTask's POSTnnnn (ASSUMED). No expiry option:
+        INTERVAL(0). The conditions go through RESP / HANDLE CONDITION."""
+        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+        if len(whens) > 1:
+            raise CicsError(_msg("POST", "at_most_one", "INTERVAL", " and ".join(whens)))
+        when = whens[0] if whens else "INTERVAL"
+        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+        if (when in ("AFTER", "AT")) != bool(hms):
+            raise CicsError(_msg("POST", "requires", "HOURS", when, " ".join(hms)))
+        vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
+        hhmmss = self._number(_arg(opts[when])) if when in ("INTERVAL", "TIME") and when in opts else "0"
+        reqid = self.name(_arg(opts["REQID"])) if "REQID" in opts else "null"
+        r = self.g.tmpname("post")
+        out = [f'{ind}CicsTask.PostResult {r} = task.post("{when}", {hhmmss}, {", ".join(vals)}, {reqid});']
+        if "SET" in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.setPointer({self.pointer(opts['SET'])}, {r}.handle());")
+        if "REQID" not in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.putPadded({self.field('EIBREQID')}, {r}.reqid(), CS);")
+        return [*out, *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]
+
+    def wait_event(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): WAIT EVENT ECADDR(ptr) [NAME] (IBM CICS TS, EXEC CICS WAIT EVENT) on CicsTask.waitEvent: the area
+        a POST made is posted at its expiry (the clock runs to it; a task takes no time, X4), so the task resumes at once;
+        INVREQ RESP2 2 for a null pointer. An address that is no POST's area, or one a later POST / CANCEL / START /
+        DELAY ended, is refused when it runs. NAME only labels the waiting task (INQUIRE TASK): it changes nothing."""
+        if not opts.get("ECADDR"):
+            raise CicsError(_msg("WAIT EVENT", "required", "ECADDR"))
+        r = self.g.tmpname("waited")
+        return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
+                *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+
+    def converse(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
+        (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first
+        FROMLENGTH bytes, else FROM's length), then a terminal RECEIVE of the reply (as `receive`: the most taken is
+        MAXLENGTH, else TOLENGTH's value, else INTO's length; TOLENGTH set to the reply's length, or the original length
+        under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
+        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
+        name by the spec entry."""
+        frm = _arg(opts.get("FROM"))
+        if not opts.get("INTO"):
+            raise CicsError(_msg("CONVERSE", "required", "INTO"))
+        sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
+        length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
+        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
+        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        g = self.g
+        n = self.int_(sent) if sent else str(self.size(frm))
+        fixed = self.constant_int(sent) if sent else None
+        t, r = g.tmpname("text"), g.tmpname("conversed")
+        text = (
+            "Cobol.text({}, CS)"
+            if not sent or (fixed is not None and fixed <= self.size(frm))
+            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
+        ).format(self.read_field(frm), n)
+        target = self.field(opts["INTO"])
+        limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+        out = [f"{ind}String {t} = {text};",
+               f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), {n}, "
+               f"{limit}, {str('NOTRUNCATE' in opts).lower()});",
+               f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
+        if settable and length is not None:
+            out.append(
+                f"{ind}if ({r}.length() >= 0) "
+                + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+            )
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,

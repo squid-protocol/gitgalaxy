@@ -812,11 +812,18 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages: list[tuple[str, str]] = []
     seen = set()
+    fillers = 0
     for rec in records:
         r = roots[id(rec)]
         if id(r) in seen or id(r) in gen.lifted:  # a lifted item is a typed field, not storage
             continue
         seen.add(id(r))
+        if r.name.upper() == "FILLER" and r.section != "FILE":
+            # #4767 (zECS ZECS001 declares `01 FILLER.` four times): no reference can name a FILLER, so unlike a repeated
+            # real name nothing is ambiguous -- each group's named children are reached through their own storage
+            fillers += 1
+            if fillers > 1:
+                r.storage_alias = f"FILLER_{r.line}"
         img = L.image(r) if r.section != "FILE" else b" " * sizes[id(r)]
         img = img.ljust(sizes[id(r)], b"\x00" if r.section != "FILE" else b" ")
         name = _storage_name(r)
@@ -1303,7 +1310,7 @@ def sync_code(gen: G.Gen, records: list, roots: dict) -> list[str]:
 
 
 def _storage_name(rec: L.Item) -> str:
-    return "s_" + G.jname(rec.name)
+    return "s_" + G.jname(rec.storage_alias or rec.name)
 
 
 def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,

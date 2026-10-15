@@ -95,6 +95,11 @@ Traps `--check` exists for:
 - **importorskip.** Any test that touches the translator (det, tree-sitter) starts with
   `pytest.importorskip("tree_sitter_language_pack")`: the ground-truth CI job installs no `translator` extra
   (#4560 / #4563 broke on it).
+- **`python -m gitgalaxy.standards.cics regen --check`** (#5103) says quickly whether a spec edit needs the generated
+  runtime tables regenerated (`regen` without `--check` rewrites them).
+- **IBM macro reference** (#5153): FCT/DCT/TST macros are in the CICS TS for OS/390 R3 Resource Definition Guide
+  (publibfp.dhe.ibm.com/epubs/pdf/dfha400.pdf, ch.13 macros, ch.16 macro->RDO table). PCT/PPT macros are in no
+  reachable IBM doc: say so rather than guess.
 - **test_tool_regex_redos** (#4477) is flaky under load: rerun once before blaming your regex.
 - **The full-suite OS grid does not run on PRs** (#4518). For a path- or OS-sensitive harness change dispatch it:
   `gh workflow run full-suite-gate.yml --ref <branch>`.

@@ -398,6 +398,7 @@ def test_ownership_markdown_has_no_rule():
     assert LANGUAGE_DEFINITIONS["markdown"]["rules"].get("ownership") is None
 
 
+@pytest.mark.slow(reason="ReDoS-times the ownership rule of every language on adversarial payloads (#5176)")
 @pytest.mark.parametrize("lang", sorted(CASES))
 def test_ownership_contract_rules_are_redos_immune(lang):
     rule = _rule(lang)

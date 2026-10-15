@@ -316,6 +316,7 @@ def test_a_harness_only_change_keeps_the_last_level_marked_stale(tmp_path, monke
     assert not er._FORBIDDEN.search(md)
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5176)")
 def test_a_current_measurement_is_a_current_level(tmp_path, monkeypatch):
     estate = stale_fixture(tmp_path, monkeypatch, FULL)
     rep, p = program_of(tmp_path, estate)
@@ -323,6 +324,7 @@ def test_a_current_measurement_is_a_current_level(tmp_path, monkeypatch):
     assert rep["summary"]["levels_stale"] == 0 and er.validate(rep, strict=True) == []
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5176)")
 def test_a_blocking_change_drops_the_level(tmp_path, monkeypatch):
     estate = stale_fixture(tmp_path, monkeypatch, None)  # det_coverage() maps a case / corpus change to None
     _, p = program_of(tmp_path, estate)

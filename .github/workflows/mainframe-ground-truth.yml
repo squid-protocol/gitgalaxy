@@ -228,9 +228,10 @@ jobs:
 
   # #4963: output goes to the `generated` branch, never to main (no PR, no auto-merge). Main's code only: a push or the
   # nightly run on main, never a pull_request, which is why it is a job of its own with the write token.
+  # #5176: only when part 1 ran and uploaded the history; a tested-tree skip leaves the parts skipped and no artifact.
   publish-history:
-    needs: ground-truth
-    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
+    needs: [ground-truth, ground-truth-part]
+    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && needs.ground-truth-part.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -84,6 +84,7 @@ def generated(tmp_path_factory):
     return runs
 
 
+@pytest.mark.slow(reason="renders a ticket for every program of the pinned corpora (#5178)")
 def test_every_program_with_business_logic_gets_a_ticket(generated):
     java = generated[0]
     t = json.loads((java / "ai_agent_jobs/POSTIT_port_ticket.json").read_text())

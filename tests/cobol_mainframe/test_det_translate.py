@@ -960,6 +960,7 @@ _RESP_SAMPLES = {
     "ENDBR": "ENDBR FILE('KSDS')", "WRITE": "WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY)",
     "REWRITE": "REWRITE FILE('KSDS') FROM(REC)", "DELETE": "DELETE FILE('KSDS') RIDFLD(KEY)",
     "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
+    "READQ TD": "READQ TD QUEUE('Q') INTO(REC)", "DELETEQ TD": "DELETEQ TD QUEUE('Q')",
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
@@ -2970,6 +2971,27 @@ def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6(
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static final class PastFrom extends UnsupportedOperationException" in rt
     assert "public static int within(Field f, int n, String what)" in rt
+
+
+def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():
+    """#5079 (register X57): READQ TD INTO [LENGTH] -> CicsTask.readqTd (the most INTO takes: LENGTH, else INTO's own
+    size), the record's text moved INTO by DetCics.readTd (a record past INTO refused), a data area LENGTH set to the
+    record's length when one was read; DELETEQ TD -> CicsTask.deleteqTd; SET / SYSID / NOSUSPEND refused by name."""
+    out = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(WS-N) RESP(R)", "")
+    assert out[0].startswith("CicsTask.TdResult td1 = task.readqTd('Q'.strip(), ") and "WS-N" in out[0]
+    assert out[1] == "if (td1.data() != null) DetCics.readTd(f_REC, td1.data().getBytes(CS));"
+    assert "td1.length() >= 0" in out[2] and "BigDecimal.valueOf(td1.length())" in out[2]
+    plain = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) RESP(R)", "")
+    assert "f_REC.length()" in plain[0] and not any("td1.length()" in line for line in plain)
+    literal = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(8) RESP(R)", "")
+    assert not any("td1.length()" in line for line in literal)
+    assert _ChanCics().command("DELETEQ TD QUEUE('Q') RESP(R)", "")[0] == "int resp1 = task.deleteqTd('Q'.strip());"
+    for body in ("READQ TD QUEUE('Q') SET(P)", "READQ TD QUEUE('Q') INTO(REC) SYSID('S')",
+                 "READQ TD QUEUE('Q') INTO(REC) NOSUSPEND", "DELETEQ TD QUEUE('Q') SYSID('S')"):  # fmt: skip
+        with pytest.raises(Exception, match="not modelled|refused|SYSID|SET|NOSUSPEND"):
+            _ChanCics().command(body, "")
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert "public static void readTd(Field into, byte[] record)" in rt
 
 
 def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):

@@ -219,6 +219,7 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
     linkage = {r.name.upper() for r in records if r.section == "LINKAGE" and r.level == 1}
     names = {it.name.upper() for r in records for it in r.walk()}
     out = Plan()
+    through: set[str] = set()
     # ---- the statements: (start, end, replacement, event) in text order ----------------------------------------
     found: list[tuple[int, int, str, tuple]] = []
     for m in _LABEL.finditer(text):

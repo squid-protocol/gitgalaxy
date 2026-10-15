@@ -148,6 +148,8 @@ def _arg(v: str | None) -> str:
 
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
+# a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
+_SECOND_OPTIONS = {"READ": ("UPDATE",), "READNEXT": ("UPDATE",), "READPREV": ("UPDATE",)}
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -186,7 +188,13 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS:
+        elif (
+            not opts
+            and len(words) < 2
+            and name not in MAP_OPTIONS
+            and name not in _BARE_OPTIONS
+            and not (words and name in _SECOND_OPTIONS.get(words[0], ()))
+        ):
             words.append(name)
         else:
             opts[name] = None

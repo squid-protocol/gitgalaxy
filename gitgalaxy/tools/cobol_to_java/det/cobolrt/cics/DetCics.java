@@ -737,6 +737,34 @@ public final class DetCics {
         setPointerToRecord(task, ptr, record);
     }
 
+    /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword
+     *  takes the token standing for the cell's address (CicsTask.bllToken), 4 bytes big-endian. */
+    // [rule RT-CICS-BLL-ADDRESS]
+    public static void bllToData(CicsTask task, Field cell, Field data) {
+        int v = task.bllToken(pointerValue(cell));
+        for (int i = 3; i >= 0; i--) {
+            data.storage().bytes[data.offset() + i] = (byte) v;
+            v >>>= 8;
+        }
+    }
+
+    /** #5119 (X56): `MOVE fullword TO cell`: the cell takes the address the fullword's token stands for (0: NULL). */
+    public static void bllFromData(CicsTask task, Field data, Field cell) {
+        int v = 0;
+        for (int i = 0; i < 4; i++) {
+            v = (v << 8) | (data.storage().bytes[data.offset() + i] & 0xFF);
+        }
+        setPointer(cell, task.bllPointer(v));
+    }
+
+    /** #5119 (X56): a paragraph name re-addresses a record through its BLL cell (IBM: "Insertion of a paragraph name causes
+     *  the compiler to generate code to reestablish addressability"); a null cell leaves the record as it is (ASSUMED). */
+    public static void bllReload(CicsTask task, Field record, Field cell) {
+        if (pointerValue(cell) != 0) {
+            setAddress(task, record, cell);
+        }
+    }
+
     private static void wholeRecord(Field record, String what) {
         if (record.offset() != 0) {
             throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");

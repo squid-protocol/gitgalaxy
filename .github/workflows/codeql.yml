@@ -4,7 +4,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
-    paths-ignore: ["docs/**"]
+    # #5132: on a PR only when engine code, a dependency pin or a workflow changes; the schedule below is the backstop
+    # for everything else (tests, docs, site, corpora).
+    paths:
+      - "gitgalaxy/**"
+      - ".github/**"
+      - "pyproject.toml"
+      - "ci/requirements/**"
+      - "templates/requirements/**"
+      - "requirements*.txt"
+      - "action.yml"
   schedule:
     - cron: '0 12 * * 1'
 

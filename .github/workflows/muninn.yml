@@ -5,7 +5,17 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
-    paths-ignore: ["docs/**", "**/*.md"]
+    # #5132: on a PR only when engine code, a dependency pin or a workflow changes; the schedule below is the backstop
+    # for everything else (tests, docs, site, corpora).
+    paths:
+      - "gitgalaxy/**"
+      - ".github/**"
+      - "pyproject.toml"
+      - "ci/requirements/**"
+      - "templates/requirements/**"
+      - "requirements*.txt"
+      - "action.yml"
+      - ".claude/**"  # agent instructions and skills are what Muninn reads most closely
   schedule:
     - cron: "17 5 * * 1"  # weekly, Monday
   workflow_dispatch:

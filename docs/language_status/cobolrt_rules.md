@@ -13,7 +13,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java` | 10 | yes |
-| CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 26 | yes |
+| CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -21,7 +21,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-147 rules: 80 MATCHED, 22 DIFFERS, 10 REFUSED, 35 ASSUMED; 0 measured on z/OS (#4702).
+148 rules: 80 MATCHED, 22 DIFFERS, 10 REFUSED, 36 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -198,6 +198,7 @@ What a det port does around a CICS command: the bytes it passes and receives. Th
 | RT-CICS-POINTER-LANE | GETMAIN SET (INITIMG, LENGERR RESP2 1 sets the pointer to zero), WEB RECEIVE SET, SET ADDRESS OF / SET pointer TO ADDRESS OF: handles to blocks of task storage, a record and its block one storage | `cics-apr` GETMAIN | - | X47 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-ADDRESS | ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL) | `cics-apr` ADDRESS | - | X59 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-SET-BLOCK | SET(ptr) of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV: a new block of task storage holding the data, its handle in the pointer, valid until the command IBM names ends it | `cics-apr` READ | - | X58 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
+| RT-CICS-BLL-ADDRESS | OS/VS COBOL chained storage areas: an address moved between a BLL cell and a fullword of data is a token both runtimes number alike (0 NULL, the n-th address n * 65536; a value no cell gave is refused), and a record is addressed again through its cell at a paragraph name (a null cell leaves it as it is) | none: CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, 'BLL and chained storage areas' (p. 22): not an online IBM doc; the token is assumed (a real address does not fit a fullword in the instrument) | - | X56 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 
 ## SQL: embedded SQL
 

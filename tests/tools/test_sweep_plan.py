@@ -5,6 +5,8 @@ marker (tests/conftest.py) must select exactly the sweeps the workflow deselects
 """
 
 import ast
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -131,35 +133,58 @@ def test_the_sweeps_import_no_non_input_module():
     assert not bad, bad
 
 
-def _collect(*args):
+_RECORDER = """
+import json, os
+def pytest_collection_finish(session):
+    rows = {i.nodeid: i.get_closest_marker("redos_sweep") is not None for i in session.items}
+    with open(os.environ["SWEEP_MARKS_OUT"], "w") as fh:
+        json.dump(rows, fh)
+"""
+
+
+def _collect(tmp_path, *args):
+    """Collect `args` once; the nodeids that survive the run's own -m, each with whether it carries `redos_sweep`."""
+    (tmp_path / "sweep_marks_plugin.py").write_text(_RECORDER, encoding="utf-8")
+    out = tmp_path / "marks.json"
+    env = {
+        **os.environ,
+        "SWEEP_MARKS_OUT": str(out),
+        "PYTHONPATH": f"{tmp_path}{os.pathsep}{os.environ.get('PYTHONPATH', '')}",
+    }
     proc = subprocess.run(
-        [sys.executable, "-m", "pytest", "tests/extraction", "--collect-only", "-q", "-p", "no:cacheprovider", *args],
-        cwd=ROOT, capture_output=True, text=True, check=False,
+        [sys.executable, "-m", "pytest", *args, "--collect-only", "-q", "-p", "no:cacheprovider", "-p", "sweep_marks_plugin"],
+        cwd=ROOT, capture_output=True, text=True, check=False, env=env,
     )  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
-    return {ln for ln in proc.stdout.splitlines() if ln.startswith("tests/")}
+    return json.loads(out.read_text(encoding="utf-8"))
 
 
-def test_the_marker_selects_exactly_the_name_rule_and_m_deselects_it():
-    everything = _collect("-m", "not golden_crucible")
-    marked = _collect("-m", "redos_sweep")
-    kept = _collect("-m", "not golden_crucible and not redos_sweep")  # the expression smoke-test.yml uses
-    assert marked, "no sweep is marked: the hook did not run before -m"
-    assert marked | kept == everything and not marked & kept
-    for nodeid in marked:
-        assert nodeid.startswith("tests/extraction/")
-        name = nodeid.split("[")[0].split("::")[-1]
-        assert "redos" in name or "linear_on_pathological" in name, nodeid
-    for nodeid in kept:
-        name = nodeid.split("[")[0].split("::")[-1]
-        assert "redos" not in name and "linear_on_pathological" not in name, nodeid
+def _sweep_name(nodeid):
+    name = nodeid.split("[")[0].split("::")[-1]
+    return "redos" in name or "linear_on_pathological" in name
 
 
-def test_a_test_outside_extraction_is_not_marked():
-    proc = subprocess.run(
-        [sys.executable, "-m", "pytest", "tests/core_engine", "--collect-only", "-q", "-m", "redos_sweep",
-         "-p", "no:cacheprovider"], cwd=ROOT, capture_output=True, text=True, check=False)  # fmt: skip
-    assert "tests/core_engine/" not in proc.stdout  # the ~23 core_engine sweeps stay always-on
+def test_the_marker_is_exactly_the_name_rule_under_extraction(tmp_path):
+    rows = _collect(tmp_path, "tests/extraction")  # one collection of the directory
+    assert any(rows.values()), "no sweep is marked: the hook did not run"
+    for nodeid, marked in rows.items():
+        assert marked == _sweep_name(nodeid), nodeid
+
+
+def test_m_deselects_the_marked_sweeps_and_golden_crucible_stays_out(tmp_path):
+    """pytest's own -m must see the marker (the hook is tryfirst); smoke-test.yml's expression on one language file."""
+    f = "tests/extraction/languages/test_python.py"
+    all_ids = set(_collect(tmp_path, f))
+    kept = _collect(tmp_path, f, "-m", "not golden_crucible and not redos_sweep")
+    assert any(_sweep_name(n) for n in all_ids), "the file has no sweep: pick another"
+    assert set(kept) == {n for n in all_ids if not _sweep_name(n)}
+    assert not any(kept.values())
+
+
+def test_a_test_outside_extraction_is_not_marked(tmp_path):
+    rows = _collect(tmp_path, "tests/core_engine/test_prism.py")  # has redos-named tests: they stay always-on
+    assert any(_sweep_name(n) for n in rows)
+    assert not any(rows.values())
 
 
 def test_the_workflow_plans_then_deselects_with_golden_crucible_kept():

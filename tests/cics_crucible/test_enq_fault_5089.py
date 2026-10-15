@@ -127,3 +127,49 @@ def test_cics_task_answers_as_the_stub_does(tmp_path):
     assert out[: len(_ANSWERS)] == [names[a] for a in _ANSWERS]
     assert "ENQ on a planned-busy resource without NOSUSPEND" in out[len(_ANSWERS)]
     assert out[-1] == "NORMAL"
+
+
+# ---- ENQ / DEQ in a RUN TRANSID child (#5089, X18): only on a data area the child's own WORKING-STORAGE declares ----------------
+def _program(cmd: str, *, ws: str = "01 WS-RES PIC X(8).", linkage: str = "") -> str:
+    pad = "       "
+    return "\n".join(
+        [pad + "IDENTIFICATION DIVISION.", pad + "PROGRAM-ID. KID.", pad + "DATA DIVISION.",
+         pad + "WORKING-STORAGE SECTION.", pad + ws, pad + "LINKAGE SECTION.", pad + linkage,
+         pad + "PROCEDURE DIVISION.", pad + f"EXEC CICS {cmd} END-EXEC.", pad + "EXEC CICS RETURN END-EXEC."]
+    )  # fmt: skip
+
+
+@pytest.mark.parametrize("cmd", ["ENQ RESOURCE(WS-RES)", "DEQ RESOURCE(WS-RES)", "ENQ RESOURCE(WS-RES) NOSUSPEND TASK"])
+def test_an_enq_on_the_childs_own_working_storage_is_task_private(cmd):
+    assert ec.child_region_resource(_program(cmd)) is None
+
+
+@pytest.mark.parametrize(
+    ("cmd", "kw"),
+    [
+        ("ENQ RESOURCE(WS-RES) LENGTH(8)", {}),  # the contents name the resource: another task's may hold the same
+        ("DEQ RESOURCE(WS-RES) LENGTH(8)", {}),
+        (
+            "ENQ RESOURCE(LK-RES)",
+            {"linkage": "01 LK-RES PIC X(8)."},
+        ),  # LINKAGE storage can be shared (a COMMAREA, the CWA)
+        (
+            "ENQ RESOURCE(NOT-HERE)",
+            {},
+        ),  # not declared in this source (a copybook's item is not seen: refused, not guessed)
+        ("ENQ RESOURCE(WS-OTHER)", {"ws": "01 WS-RES PIC X(8).\n       01 WS-OTHER-X PIC X."}),
+        ("ENQ", {}),
+        ("GET COUNTER(WS-RES) VALUE(WS-RES)", {}),  # a counter is region state: stays refused
+    ],
+)
+def test_every_other_region_resource_in_a_child_stays_refused(cmd, kw):
+    assert ec.child_region_resource(_program(cmd, **kw)) is not None
+
+
+def test_one_shared_enq_refuses_the_program_whatever_else_it_holds():
+    text = _program("ENQ RESOURCE(WS-RES)").replace(
+        "EXEC CICS RETURN", "EXEC CICS ENQ RESOURCE(WS-RES) LENGTH(8) END-EXEC.\n       EXEC CICS RETURN"
+    )
+    assert ec.child_region_resource(_program("ENQ RESOURCE(WS-RES)")) is None  # (the private one alone passes)
+    assert ec.child_region_resource(text) == "EXEC CICS ENQ"  # the shared one is not masked by it
+    assert ec.child_region_resource("EXEC SQL SELECT 1 END-EXEC") is not None

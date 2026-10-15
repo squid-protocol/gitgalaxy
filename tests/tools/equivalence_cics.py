@@ -2789,6 +2789,32 @@ _CHILD_STATIC = re.compile(
 )
 
 
+_CHILD_ENQ = re.compile(r"(?is)\bEXEC\s+CICS\s+(ENQ|DEQ)\b(.*?)\bEND-EXEC")
+
+
+def _task_private_enq(source: str, body: str) -> bool:
+    """#5089: an ENQ / DEQ that no other task can contend for -- RESOURCE names a data area (no LENGTH: IBM then serialises on
+    the area's ADDRESS, "it is the location (address) of the data area in storage that matters, not its contents") that the
+    program declares in its own WORKING-STORAGE, which every task has its own copy of. Such a resource is held by this task
+    alone whatever else runs, so the command is unobservable: no event, no order against a parent or a sibling."""
+    m = re.search(r"(?is)\bRESOURCE\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", body)
+    if not m or re.search(r"(?i)\bLENGTH\s*\(", body):
+        return False
+    ws = re.split(r"(?im)^.{6} +LINKAGE\s+SECTION\.", source, maxsplit=1)[0]
+    ws = re.split(r"(?im)^.{6} +WORKING-STORAGE\s+SECTION\.", ws, maxsplit=1)
+    return len(ws) == 2 and bool(re.search(rf"(?im)^.{{6}} +\d{{1,2}}\s+{re.escape(m.group(1))}(?=[\s.])", ws[1]))
+
+
+def child_region_resource(source: str) -> str | None:
+    """#4950 (X18, R1) / #5089: the first statement of a RUN TRANSID child's program that holds a region resource with no
+    event of its own (SQL, a counter, an ENQ / DEQ another task could contend for), as its text; None when there is none."""
+    private = {m.start(): _task_private_enq(source, m.group(2)) for m in _CHILD_ENQ.finditer(source)}
+    for m in _CHILD_STATIC.finditer(source):
+        if not private.get(m.start()):
+            return m.group(0)
+    return None
+
+
 def case_transactions(case: dict[str, Any]) -> list[str]:
     """#4270: the transactions the case's region defines (`"transactions": [...]`, a deployment fact the case states:
     RUN TRANSID / START of any other is TRANSIDERR); absent, every transaction is defined, as before."""
@@ -3135,8 +3161,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if ours & theirs:
                 raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
             stmts_file.write_text(have + x_table, encoding="latin-1")
-        if extra["program"].upper() in case_child_programs(case).values() and _CHILD_STATIC.search(x_source):
-            what = " ".join(_CHILD_STATIC.search(x_source).group(0).split()[1:]).upper()
+        if extra["program"].upper() in case_child_programs(case).values() and child_region_resource(x_source):
+            what = " ".join(child_region_resource(x_source).split()[1:]).upper()
             raise Unsupported(f"{extra['program']}: a RUN TRANSID child's {what} (a region resource): its order "
                               "against its parent's and its siblings' commands is not modelled", ["RUN TRANSID"])  # fmt: skip
         x_translated, x_ca = translate(x_source, [src])

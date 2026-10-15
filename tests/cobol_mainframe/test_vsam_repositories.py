@@ -413,6 +413,7 @@ def test_a_record_shorter_than_recordsize_max_still_merges(tmp_path):
     assert "program records of [38] bytes fit RECORDSIZE max 40" in store["defined_by"]["evidence"]
 
 
+@pytest.mark.slow(reason="builds and runs a VSAM repository past RECORDSIZE MAX (#5178)")
 def test_a_record_longer_than_recordsize_max_is_refused(tmp_path):
     stores = _symbolic_estate(tmp_path, "8 0", "30 30", ridfld=True)
     (concrete,) = [s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS"]

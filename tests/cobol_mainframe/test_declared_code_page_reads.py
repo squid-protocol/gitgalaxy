@@ -199,6 +199,7 @@ def test_the_ticket_listings_are_readable(estate, tmp_path):
 
 
 # ---- end to end: the scan records the page, the refractor reads it back ---------------------------
+@pytest.mark.slow(reason="runs the refractor scan on a declared code page (#5178)")
 def test_the_refractor_scan_declares_the_page_and_reads_the_program_in_it(estate, monkeypatch):
     """`cobol-refractor --scan --source-encoding cp277`: the scan decodes the estate in the page and
     records it per file; the refractor re-reads each program in the page the scan used."""

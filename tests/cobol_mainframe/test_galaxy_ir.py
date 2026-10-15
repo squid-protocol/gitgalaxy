@@ -269,6 +269,7 @@ def test_a_multi_repo_db_needs_an_explicit_repo_name(scanned, tmp_path):
     assert load_galaxy_ir(copy, repo_name="legacy").programs()[0].program_ids == ["PAYROLL"]
 
 
+@pytest.mark.slow(reason="scans an estate twice with both path separators (#5178)")
 def test_windows_separators_are_normalized(scanned, tmp_path):
     """A DB scanned on Windows stores `src\\PAYROLL.cbl`; the reader keys by POSIX form."""
     repo, db = scanned
@@ -385,6 +386,7 @@ def txn_scanned(tmp_path_factory):
     return repo, db
 
 
+@pytest.mark.slow(reason="scans a CICS estate for its transaction map (#5178)")
 def test_transaction_map_names_each_program_entry_transaction(txn_scanned):
     """The CSD deck resolves each transaction to the program it entry-points."""
     _, db = txn_scanned
@@ -647,6 +649,7 @@ def scanned_cics(tmp_path_factory):
     return scan_to_db(repo, base / "scan")
 
 
+@pytest.mark.slow(reason="scans every CSD resource type (#5178)")
 def test_csd_resources_load_per_deck_of_every_type(csd_scanned):
     ir = load_galaxy_ir(csd_scanned)
     deck = ir.files["csd/BANK.csd"].csd_resources
@@ -749,6 +752,7 @@ def test_a_db2entry_may_assign_a_generic_transid_itself(tmp_path):
     assert plans["S+ZZ"]["programs"] == []
 
 
+@pytest.mark.slow(reason="scans a CICS estate for its per-program operations (#5178)")
 def test_cics_operations_load_per_program(scanned_cics):
     ir = load_galaxy_ir(scanned_cics)
     inq = ir.files["src/INQ.cbl"]

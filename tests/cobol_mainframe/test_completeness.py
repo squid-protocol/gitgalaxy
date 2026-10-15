@@ -54,6 +54,7 @@ def estate(tmp_path_factory):
     return load_galaxy_ir(scan_to_db(repo, base / "scan"))
 
 
+@pytest.mark.slow(reason="scans an estate for its completeness channels (#5178)")
 def test_channels_split_system_names_from_gaps(estate):
     report = estate.completeness()
     calls = report["channels"]["program calls"]

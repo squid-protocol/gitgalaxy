@@ -132,6 +132,7 @@ def _cobc(kind: str, trunc: str, work: Path) -> str:
     return text
 
 
+@pytest.mark.slow(reason="runs GnuCOBOL and the det runtime on non-digit zoned bytes (#5178)")
 @pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 @pytest.mark.parametrize("trunc", ["STD", "BIN"])
 @pytest.mark.parametrize("kind", list(KINDS))

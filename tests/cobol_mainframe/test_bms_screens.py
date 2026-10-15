@@ -132,6 +132,7 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
     assert {"business-logic", "missing-layout"} <= cats  # the handlers' TODOs; the GHOST map
 
 
+@pytest.mark.slow(reason="generates a Thymeleaf project (#5178)")
 def test_thymeleaf_adds_pages_validation_and_its_starters(scanned, tmp_path):
     java = _generate(scanned, tmp_path, "thymeleaf")
     vm = (java / SRC / "dto/screen/Sgn0aScreen.java").read_text(encoding="utf-8")

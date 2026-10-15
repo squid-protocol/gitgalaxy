@@ -89,6 +89,7 @@ def generated(tmp_path_factory):
     return java
 
 
+@pytest.mark.slow(reason="generates a whole project (#5178)")
 def test_a_project_without_vsam_or_cics_evidence_gets_the_runtimes(generated):
     vsam = generated / "src/main/java/com/gitgalaxy/modernized/entity/vsam"
     assert sorted(p.name for p in vsam.glob("*.java")) == ["CobolEdit.java", "CobolRecords.java"]  # no entity

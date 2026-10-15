@@ -108,6 +108,7 @@ def _translate(tmp_path, mid: str, sub: str):
     return out
 
 
+@pytest.mark.slow(reason="translates and compiles a LINK/XCTL pair (#5178)")
 @pytest.mark.parametrize(("sub", "marked"), [("whole", True), ("field", True), ("copy", False)])
 def test_a_called_subprograms_linkage_record_is_marked_like_dfhcommarea(tmp_path, sub, marked):
     """The CALLed subprogram's USING record (the whole, or a field of it) is the caller's storage: marked. A copy of it

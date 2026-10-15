@@ -31,6 +31,7 @@ def test_catches_the_3205_pattern():
     assert verdict["unit"].upper().startswith("EXEC CICS")
 
 
+@pytest.mark.slow(reason="times a quadratic pattern on purpose (#5178)")
 @WINDOWS_TIMER
 def test_catches_a_mild_quadratic_by_growth():
     """Under the slow threshold at 40k chars, but ~16x for 4x the input."""

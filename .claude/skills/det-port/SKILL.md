@@ -42,8 +42,9 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 |---|---|
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
-| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
+| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it, but a change to the shared `CicsTask.java` marks every port changed in `check`: re-prove the ones that can reach the changed code and name them in the report (#5147) |
 | structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
+| **run a det case** | `det_port.py run`: only it applies the deterministic port. `equivalence.py run` uses the generated skeleton, not the deterministic port (#5147) |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |

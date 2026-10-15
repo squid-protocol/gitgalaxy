@@ -173,8 +173,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ),
     ("ADDRESS SET", None, "setting a pointer from a data area's address (or the reverse) is not modelled"),
     # queues and files beyond the modelled ones
-    ("READQ TD", None, "reading a transient-data queue is not modelled (only WRITEQ TD)"),
-    ("DELETEQ TD", None, "deleting a transient-data queue is not modelled"),
     ("RESETBR", None, "repositioning a browse (RESETBR) is not modelled"),
     # journals
     ("JOURNAL", None, _JOURNAL),

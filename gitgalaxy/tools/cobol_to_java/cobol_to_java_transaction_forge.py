@@ -524,6 +524,7 @@ public class CicsTask {
     private String applid;
     private String sysid;
     private java.util.Set<String> tdQueues;
+    private java.util.Map<String, String> tdTypes;
 
     /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
     public CicsTask withRegion(String applid, String sysid) {
@@ -2047,16 +2048,90 @@ public class CicsTask {
         return this;
     }
 
+    /** Each transient-data queue's TYPE ("" when the CSD states none): INTRA, EXTRA, INDIRECT or REMOTE (#5079, X57).
+     *  Without it, a queue is intrapartition. */
+    public CicsTask withTdQueueTypes(java.util.Map<String, String> types) {
+        this.tdTypes = types;
+        return this;
+    }
+
+    /** The queue's kind: 0 the CSD does not define it, 1 intrapartition (TYPE INTRA, or no types given), 2 extrapartition,
+     *  3 any other TYPE or none stated -- a queue READQ TD / DELETEQ TD do not model. */
+    private int tdKind(String q) {
+        CicsTask root = root();
+        if (root.tdQueues != null && !root.tdQueues.contains(q)) {
+            return 0;
+        }
+        if (root.tdTypes == null) {
+            return 1;
+        }
+        String type = root.tdTypes.getOrDefault(q, "");
+        return type.equals("INTRA") ? 1 : type.equals("EXTRA") ? 2 : 3;
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
-     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS). QIDERR (44) for a queue the
-     *  CSD does not define, or the condition the harness planned; then nothing is written. */
+     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
+     *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
+     *  harness planned; then nothing is written. */
     public int writeqTd(String queue, String record) {
         String q = queue.strip();
+        int kind = tdKind(q);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0]
-                : root().tdQueues != null && !root().tdQueues.contains(q) ? 44 : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
+        if (resp == 0 && kind == 1) {
+            tempStorage.td.computeIfAbsent(q, k -> new java.util.ArrayDeque<>()).addLast(record);
+        }
         return resp;
+    }
+
+    /** READQ TD QUEUE(queue) INTO LENGTH(maxLength) (#5079, IBM EXEC CICS READQ TD, X57): a destructive read, first in
+     *  first out. QIDERR when the CSD does not define the queue; QZERO when it holds no record; LENGERR for a negative
+     *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
+     *  its first maxLength characters); the result's length is the record's own. An extrapartition queue is refused. */
+    public TdResult readqTd(String queue, int maxLength) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 2) {
+            throw new UnsupportedOperationException("READQ TD of an extrapartition queue: IBM's NOTOPEN / IOERR / INVREQ "
+                    + "need the queue's open state, not modelled");
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("READQ TD of a queue whose TYPE is not INTRA: not modelled");
+        }
+        java.util.ArrayDeque<String> records = tempStorage.td.get(q);
+        String resp = kind == 0 ? "QIDERR" : maxLength < 0 ? "LENGERR" : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
+        String data = null;
+        int length = -1;
+        if (kind != 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+            String record = records.removeFirst();
+            data = record.length() > maxLength ? record.substring(0, maxLength) : record;
+            length = record.length();
+            resp = record.length() > maxLength ? "LENGERR" : "NORMAL";
+        } else if (resp.equals("LENGERR")) {
+            data = "";
+        }
+        event("READQ-TD", "queue", q, "resp", resp, "data", data);
+        return new TdResult(CicsSpec.resp(resp), length, data);
+    }
+
+    /** DELETEQ TD QUEUE(queue) (#5079, IBM EXEC CICS DELETEQ TD, X57): every record of an intrapartition queue. QIDERR
+     *  (44) when the CSD does not define it, INVREQ (16) for an extrapartition queue. Returns RESP (RESP2 is 0). */
+    public int deleteqTd(String queue) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 3) {
+            throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+        }
+        if (kind != 1) {
+            return kind == 0 ? 44 : 16;
+        }
+        tempStorage.td.remove(q);
+        return 0;
+    }
+
+    /** A READQ TD's outcome: RESP, the record's own length (-1 when none was read) and the text moved INTO (null when none). */
+    public record TdResult(int resp, int length, String data) {
     }
 
     /** EXEC CICS FORMATTIME's condition (IBM): INVREQ (16) RESP2 1 when the ABSTIME value is less than zero ("or not in
@@ -4554,6 +4629,8 @@ public class CicsTask {
     public static final class TempStorage {
         private final Map<String, List<byte[]>> queues = new LinkedHashMap<>();
         private final Map<String, Integer> next = new HashMap<>();
+        /** The intrapartition transient-data queues' records (#5079): first in first out. */
+        final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
 
         /** A queue as it is before the conversation starts. */
         public TempStorage seed(String queue, List<byte[]> items) {

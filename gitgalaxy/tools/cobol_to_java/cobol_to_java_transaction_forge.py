@@ -3083,6 +3083,23 @@ public class CicsTask {
         return resp;
     }
 
+    /** ENQ RESOURCE(resource) (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) --
+     *  or ENQBUSY when the harness planned it. IBM raises ENQBUSY only "when an ENQ command specifies a resource that
+     *  is unavailable and the NOSUSPEND option is specified" (or a HANDLE CONDITION ENQBUSY is active); without
+     *  NOSUSPEND the task would be suspended, which is not modelled. IBM states no RESP2 for ENQBUSY: 0. */
+    public String enq(String resource, boolean nosuspend) {
+        int[] planned = root().injected("ENQ", resource);
+        if (planned == null) {
+            return "NORMAL";
+        }
+        if (!nosuspend) {
+            throw new UnsupportedOperationException("ENQ on a planned-busy resource without NOSUSPEND: " + resource
+                    + " (the task would be suspended), not modelled");
+        }
+        event("ENQ", "resource", resource, "resp", respName(planned[0]));
+        return respName(planned[0]);
+    }
+
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
     public String link(String program) {
         return link(program, null, 0);

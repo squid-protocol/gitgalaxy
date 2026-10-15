@@ -188,8 +188,13 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif (not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS
-              and not (words and name in _SECOND_OPTIONS.get(words[0], ()))):
+        elif (
+            not opts
+            and len(words) < 2
+            and name not in MAP_OPTIONS
+            and name not in _BARE_OPTIONS
+            and not (words and name in _SECOND_OPTIONS.get(words[0], ()))
+        ):
             words.append(name)
         else:
             opts[name] = None

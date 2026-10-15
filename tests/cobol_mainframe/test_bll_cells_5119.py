@@ -283,8 +283,11 @@ _WS_LEN = ("       01  WS-NUM ", "       01  WS-LEN                 PIC S9(4) CO
     [
         ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"READ " + "F".strip()', "GGCRDST"),
         # IBM's own order (p. 22): `READ UPDATE DATASET(...)`, UPDATE an option after the verb, never a second verb word
-        ("READ UPDATE DATASET('FILEA') RIDFLD(WS-OUT)\n                SET(FRPTR) LENGTH(WS-LEN)", '"READ " + "FILEA"',
-         "GGCRDST"),
+        (
+            "READ UPDATE DATASET('FILEA') RIDFLD(WS-OUT)\n                SET(FRPTR) LENGTH(WS-LEN)",
+            '"READ " + "FILEA"',
+            "GGCRDST",
+        ),
         ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDNS"),
         ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDPS"),
         ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)\n                MAXLENGTH(80)", '"RECEIVE"', "GGCRECP"),
@@ -376,7 +379,7 @@ CHAIN = """\
 """
 # hand-traced: three areas pushed on a list (ONE, TWO, THRE; each NNEXT the head before it), walked from the head
 # through NEXTAREA, each next area addressed by the paragraph name WALK, as IBM's `MOVE NEXTAREA TO USERPTR. ANYNAME.`
-CHAIN_SENT = "THRE TWO  ONE       "
+CHAIN_SENT = "THRE TWO  ONE"  # (trailing spaces: the harness trims a SEND TEXT event)
 
 
 def test_ibms_chained_storage_example_lowers(tmp_path):
@@ -546,7 +549,7 @@ READQ = """\
 @_E2E
 def test_a_read_set_into_a_cell_is_proven_against_gnucobol(tmp_path):
     """READQ TS SET(cell) and SERVICE RELOAD: the item CICS hands over, read through the record its cell addresses."""
-    _prove(tmp_path, "BLLREAD", READQ, "QUEUED-ITEM1 12     ")
+    _prove(tmp_path, "BLLREAD", READQ, "QUEUED-ITEM1 12")
 
 
 def test_only_a_program_with_bll_evidence_is_read_by_the_lowering():

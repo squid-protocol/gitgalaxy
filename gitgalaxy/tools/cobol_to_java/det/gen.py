@@ -2592,7 +2592,11 @@ class Gen:
                 return [f'{ind}if (true) throw CobolAbend.user(0, "CEE3ABD");']
             return [f'{ind}if (true) throw CobolAbend.user({self.int_expr(code)}, "CEE3ABD");']
         if prog in BLL_CALLS:  # #5119 (X56): det/bll.py's lowering of an address held in data / a paragraph reload
-            if self.cics is None or len(args) != 2 or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
+            if (
+                self.cics is None
+                or len(args) != 2
+                or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args)
+            ):
                 raise Untranslatable(f"CALL {prog}: the BLL lowering's two items expected")
             a, b = (x for _, x in args)
             if prog == "GGCBLLP":

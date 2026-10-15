@@ -1354,6 +1354,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
         # UPDATE holds the record; TOKEN (#5078, X52) implies it and holds it under a token of its own, GG-NUM out
         words = [w for w in ("UPDATE", "TOKEN", "GTEQ", "GENERIC") if w in opts or (w == "UPDATE" and "TOKEN" in opts)]
+        if (
+            "KEYLENGTH" in opts and "GENERIC" not in opts
+        ):  # #5092 (X52): given, so INVREQ 26 unless it is the key's length
+            words.append("KEYLENGTH")
         if "TOKEN" in opts and not opts["TOKEN"]:
             raise Unsupported("READ TOKEN needs a data area", ["READ TOKEN"])
         update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"

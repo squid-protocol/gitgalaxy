@@ -601,12 +601,11 @@ static char *load_records(const char *path, int reclen, long long *n);
  * for a record that has the same key (complete or generic) as that specified in the RIDFLD option is unsuccessful,
  * the first record that has a greater key is retrieved". Of the records whose key's first `cmp` bytes equal RIDFLD's
  * (or, GTEQ, are greater), the first in key order (the browse's byte order); -1 when none: NOTFND, RESP2 80. A GENERIC
- * KEYLENGTH not shorter than the key (INVREQ RESP2 25) or not above zero (42; zero undocumented) stops the run. */
+ * KEYLENGTH not shorter than the key or below zero is INVREQ (RESP2 25 / 42, GGCREAD); zero is undocumented and stops the run. */
 static long long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
                              int keylen, char **all) {
     int gteq = strstr(c->flags, "GTEQ") != NULL, generic = strstr(c->flags, "GENERIC") != NULL;
-    if (generic && (keylen >= klen || keylen <= 0))
-        refuse("READ GENERIC KEYLENGTH not shorter than the key or not above zero");
+    if (generic && keylen == 0) refuse("READ GENERIC KEYLENGTH not above zero (zero is undocumented)");
     int cmp = generic ? keylen : klen;
     long long n, best = -1;
     *all = load_records(path, reclen, &n);
@@ -633,7 +632,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         c->resp = fresp;
         c->resp2 = fresp2;
         char key[256];
-        int shown = keylen < 200 ? keylen : 200;
+        int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
         memcpy(key, ridfld, (size_t)shown);
         key[shown] = '\0';
         snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
@@ -647,11 +646,21 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         while (fgets(line, sizeof line, cfg)) {
             if (sscanf(line, "%63s %2999s %d %d %d", name, path, &reclen, &keyoff, &klen) != 5) continue;
             if (strcmp(name, want) != 0) continue;
+            /* #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 (GENERIC KEYLENGTH "greater than or equal to the length of a
+             * full key"), 42 ("less than zero"), 26 (a KEYLENGTH without GENERIC that is not the key's length); GENERIC
+             * always carries KEYLENGTH. Nothing is read or held. */
+            int generic = strstr(c->flags, "GENERIC") != NULL, given = generic || strstr(c->flags, "KEYLENGTH") != NULL;
+            int bad = !given ? 0 : generic ? (keylen < 0 ? 42 : keylen >= klen ? 25 : 0) : keylen != klen ? 26 : 0;
+            if (bad) {
+                c->resp = INVREQ;
+                c->resp2 = bad;
+                break;
+            }
             c->resp = NOTFND;
+            c->resp2 = 80;  /* IBM: NOTFND RESP2 80, "an attempt to retrieve a record based on the search argument ... is unsuccessful" */
             int search = strstr(c->flags, "GTEQ") || strstr(c->flags, "GENERIC");
             char *found = NULL;
             long long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
-            if (search && at < 0) c->resp2 = 80;
             FILE *data = search ? NULL : fopen(path, "rb");
             char *rec = malloc((size_t)reclen);
             if (search && at >= 0 && rec) memcpy(rec, found + at * reclen, (size_t)reclen);
@@ -680,7 +689,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         fclose(cfg);
     }
     char key[256];
-    int shown = keylen < 200 ? keylen : 200;
+    int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
     memcpy(key, ridfld, (size_t)shown);
     key[shown] = '\0';
     dupkey_apply(c);

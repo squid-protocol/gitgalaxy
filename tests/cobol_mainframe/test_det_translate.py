@@ -379,8 +379,8 @@ def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "a partial key"),  # (CICS: INVREQ)
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(LENGTH OF SHORTKEY)", "a partial key"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length on a known file"),
+        ("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "not a known length on a known file"),
         ("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length"),
         ("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(10)", "not a known length on a known file"),
         # #4436: a keyed READ's LENGTH is modelled; READNEXT / READPREV's and an RBA browse's are not
@@ -528,16 +528,35 @@ def test_delete_generic_deletes_every_record_with_the_generic_key():
     [
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ EQUAL", "EQUAL and GTEQ together"),
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),  # not shorter than the key
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(0) GENERIC GTEQ", "not above zero"),
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GTEQ", "a partial key"),  # not GENERIC: INVREQ 26
         ("READ FILE('KSDS') INTO(REC) RIDFLD(SHORTKEY) GTEQ", "shorter than the 10 bytes searched"),
     ],
 )
 def test_read_gteq_generic_refusals_by_name(text, why):
     with pytest.raises(C.CicsError, match=why):
         _LenCics().command(text, "")
+
+
+@pytest.mark.parametrize(
+    ("opts", "resp2"),
+    [
+        ("KEYLENGTH(6)", 26),  # no GENERIC, not the key's length (10)
+        ("KEYLENGTH(LENGTH OF SHORTKEY)", 26),
+        ("KEYLENGTH(6) GTEQ", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(10) GENERIC", 25),  # GENERIC, not shorter than the key
+        ("KEYLENGTH(11) GENERIC GTEQ", 25),
+        ("KEYLENGTH(-1) GENERIC", 42),  # GENERIC, below zero
+        ("KEYLENGTH(-3) GENERIC GTEQ UPDATE", 42),
+    ],
+)
+def test_read_keylength_invreq_is_a_result_with_ibms_resp2(opts, resp2):
+    """#5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 / 26 / 42 for a KEYLENGTH that is not the key's length (no
+    GENERIC), or for a GENERIC one not shorter than the key / below zero; the read is not done (CicsTask.readInvalid)."""
+    out = _LenCics().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {opts} RESP(R)", "")
+    assert out[0].endswith(f"task.readInvalid('KSDS'.strip(), {'true' if 'UPDATE' in opts else 'false'}, {resp2});")
+    assert not any("find(" in line or "search(" in line for line in out)
 
 
 def test_read_length_literal_is_the_limit_with_nothing_to_set_back():

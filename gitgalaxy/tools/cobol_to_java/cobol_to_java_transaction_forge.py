@@ -4220,7 +4220,7 @@ public class CicsTask {
         }
         T record = lookup.get().orElse(null);
         if (record == null) {
-            return new FileRead<>(13, 0, null);
+            return new FileRead<>(13, 80, null);  // #5092 (X52): IBM, EXEC CICS READ: NOTFND RESP2 80
         }
         int[] o = root().dupkeyOr();  // #4623: a planned DUPKEY follows the read that found the record
         return new FileRead<>(o[0], o[1], record);
@@ -4236,6 +4236,20 @@ public class CicsTask {
             root().held.add(file);
         }
         return r;
+    }
+
+    /** #5092 (X52) READ FILE(file) KEYLENGTH(n) that IBM answers INVREQ: `resp2` 25 / 42 (a GENERIC KEYLENGTH not shorter than
+     *  the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is read or held; a
+     *  second READ UPDATE on a held file is INVREQ 28 first, a planned condition next, as the stub orders them. */
+    public <T> FileRead<T> readInvalid(String file, boolean update, int resp2) {
+        if (update && root().held.contains(file)) {
+            return new FileRead<>(16, 28, null);
+        }
+        int[] planned = root().injected("READ", file);
+        if (planned != null) {
+            return new FileRead<>(planned[0], planned[1], null);
+        }
+        return new FileRead<>(16, resp2, null);
     }
 
     /** #4270 READ FILE(file) GTEQ / GENERIC [UPDATE] (oracle_assumptions.md X22): `lookup` searches the file (the

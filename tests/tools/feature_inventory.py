@@ -240,6 +240,11 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
         inv["unparsed_programs"].append({"program": rel_prog, "reason": f"CopyNotFound: {_copy_not_found(e)}"})
         fallback_parse(prog, rel_prog, inv)
         return
+    except Exception as e:  # e.g. NotCobol (an ISPF screen dump saved as .cbl): unparsed, but already era-tagged above
+        inv["unparsed_programs"].append(
+            {"program": rel_prog, "reason": type(e).__name__ + " - " + _portable(str(e), estate_dir)}
+        )
+        return
 
     try:
         units = S.program_units(lines)

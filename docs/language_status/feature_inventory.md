@@ -56,9 +56,14 @@ checked against an IBM page (`verified`, with the `source`). Checked so far: mac
 and JSON PARSE in 6.2. The other entries name the release as IBM's documentation does and are not yet checked against the manual.
 
 ### Estates not covered
-Distributions are committed only for the burned estates. `dsf` and `zopeneditor-sample` are pinned but not burned, and the
-census repos are measured by tools only: those keep their first-contact numbers (mainframe evidence policy), so no inventory
-or era distribution is committed for them.
+A per-program inventory is committed only for the burned estates. `dsf`, `zopeneditor-sample`, `cics-crucible` and the
+census repos are not burned, and the census repos are measured by tools only: those keep their first-contact numbers
+(mainframe evidence policy), so no inventory is committed for them. Their era distribution is committed as **counts
+only** (`tests/fixtures/era_distribution/summary.json`, written by `tests/tools/era_distribution.py`, rendered in the
+support matrix): programs per era, none, mixed, programs per tell, programs a copybook raised; no program name, tell
+list, line number or source text, and a census repo gets an opaque `census-xxxxxx` label. A parser-refused or
+not-COBOL member (an ISPF screen saved as `.cbl`) is still counted, as untagged. Which corpora are "the 18" of #5117
+is the owner's to name; this covers the ones reachable on the box.
 
 ## How to Run
 Run against a single local estate directory to print the inventory:

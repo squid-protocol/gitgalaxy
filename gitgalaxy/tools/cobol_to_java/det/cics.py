@@ -2207,15 +2207,29 @@ class Cics:
     def readq_td(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X57): READQ TD QUEUE INTO [LENGTH] -- a destructive read of the task's intrapartition queue. The record
         goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
-        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR."""
+        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR.
+        #5168: SET(pointer) LENGTH(data-area) puts the record in a new block, valid to the next READQ TD; NOSUSPEND
+        changes nothing (no second task holds the queue)."""
         g = self.g
         r = g.tmpname("td")
-        into = self.field(_arg(opts["INTO"]))
-        maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
-        out = [
-            f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});",
-            f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));",
-        ]
+        setp = opts.get("SET")
+        if setp:
+            if opts.get("INTO"):
+                raise CicsError(_msg("READQ TD", "at_most_one", "INTO"))
+            if not opts.get("LENGTH"):
+                raise CicsError(_msg("READQ TD", "requires", "SET"))
+            if re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is not None:
+                raise CicsError("READQ TD SET with a literal LENGTH: IBM says LENGTH must then be a data area")
+            ptr = self.pointer(setp)
+            into, maxlen = None, "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
+        else:
+            into = self.field(_arg(opts["INTO"]))
+            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});"]
+        if setp:
+            out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ TD", {r}.data(), CS);')
+        else:
+            out.append(f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));")
         if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
             out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
                        f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip

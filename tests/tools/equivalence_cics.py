@@ -457,7 +457,9 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     "termid" (EIBTRMID and the principal facility: $EIBIN, $GGCICS_FACILITY and terminals.cfg / CicsTask.withTermid;
     RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
     $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
-    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29). The scenario's, else the case's; unstated, None, and
+    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29), plus "userid" (ASSIGN USERID: $GGCICS_USERID /
+    withUserid) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
+    X19), each present only when stated (#5126). The scenario's, else the case's; unstated, None, and
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
@@ -466,6 +468,18 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
+    for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+        if sc.get(k, case.get(k)) is not None:
+            out[k] = sc.get(k, case.get(k))
+    u = out.get("userid")
+    if u is not None and (not isinstance(u, str) or not 1 <= len(u) <= 8 or not u.strip() or "," in u or " " in u):
+        raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
+    scr = out.get("screen")
+    if scr is not None and (not isinstance(scr, list) or len(scr) != 2
+                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+        raise Unsupported(
+            f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
+        )
     o = out["origin"]
     if o is not None and (not isinstance(o, dict) or sorted(o) != sorted(ORIGIN_KEYS)
                           or any(not isinstance(o[k], str) or "," in o[k] or not o[k] for k in ORIGIN_KEYS)):  # fmt: skip
@@ -583,6 +597,15 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "DELETEQ":
         return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
     into, length = opts.get("INTO"), opts.get("LENGTH")
+    if opts.get(
+        "SET"
+    ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
+        if into:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        return (lines + _call("GGCRDTS", [f"BY REFERENCE {_pointer(feature, opts['SET'])}"])
+                + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if not into:
         raise Unsupported(f"{feature} without INTO", [feature])
     settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
@@ -2716,6 +2739,37 @@ def csd_tdqueue_types(corpus: Path, case: dict[str, Any]) -> dict[str, str] | No
     return out
 
 
+_TD_ATTRS = ("RECOVSTATUS", "TYPEFILE", "OPENTIME", "INDIRECTNAME", "TRIGGERLEVEL", "TRANSID")
+
+
+def csd_tdqueue_attrs(corpus: Path, case: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """#5168 (X61): the attributes of each DEFINE TDQUEUE beyond its TYPE that decide what a transient-data command does
+    (RECOVSTATUS, TYPEFILE, OPENTIME, INDIRECTNAME, TRIGGERLEVEL, TRANSID), only those the definition states; a queue defined
+    twice keeps its last. Empty when the case has no CSD."""
+    if not case.get("csd"):
+        return {}
+    text = (corpus / case["csd"]).read_text(encoding="latin-1")
+    out: dict[str, dict[str, str]] = {}
+    for m in re.finditer(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)(.*?)(?=\bDEFINE\b|\Z)", text, re.S):
+        found = {k: v.upper() for k in _TD_ATTRS if (a := re.search(rf"\b{k}\(\s*([A-Z0-9@#$]+)\s*\)", m.group(2)))
+                 for v in [a.group(1)]}  # fmt: skip
+        out[m.group(1)] = found
+    return {q: a for q, a in out.items() if a}
+
+
+def td_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
+    """#5168 (X61): the transient-data queues' records when the task starts ({"QUEUE": [record text, ...]}), the scenario's "td",
+    else the case's: an intrapartition queue's, or an open extrapartition input queue's data set. ASCII text (the stub gets the
+    bytes in the data's encoding, CicsTask the text)."""
+    seed = sc.get("td", case.get("td")) or {}
+    for q, items in seed.items():
+        if not (0 < len(q) <= 4 and isinstance(items, list) and all(isinstance(i, str) and i.isascii() for i in items)):
+            raise Unsupported(
+                f'scenario {sc.get("name")}: "td" maps a queue name (1-4) to a list of ASCII record texts'
+            )
+    return seed
+
+
 def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
@@ -3288,9 +3342,17 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
+            tdattrs = csd_tdqueue_attrs(
+                corpus, case
+            )  # #5168 (X61): and its other attributes, KEY=VALUE words after the TYPE
             (d / "tdqueues.cfg").write_text(
-                "".join(f"{q} {tdqueues[q] or '-'}\n" for q in sorted(tdqueues)), encoding="ascii"
-            )
+                "".join(f"{q} {tdqueues[q] or '-'}" + "".join(f" {k}={v}" for k, v in tdattrs.get(q, {}).items()) + "\n"
+                        for q in sorted(tdqueues)), encoding="ascii")  # fmt: skip
+        for q, recs in td_seed(case, sc).items():  # #5168 (X61): the TD queues the task starts with
+            qdir = d / "ts" / ("td-" + q.encode("ascii").hex().upper())
+            qdir.mkdir(parents=True, exist_ok=True)
+            for i, rec in enumerate(recs, 1):
+                (qdir / f"{i:06d}.bin").write_bytes(rec.encode(enc))
         if _counters(
             case, sc
         ):  # named counters the region has (POOL/NAME: value); absent ones are INVREQ RESP2 201 (X30)
@@ -3326,6 +3388,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
+                      + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
+                      + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
                       + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
@@ -3996,6 +4060,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         CicsTask top;  // the scenario's task, until handleTransaction asks the region for it
         CicsTask linked;  // the level a LINK runs, until handleLink asks for it
         String linkedProgram;
+        Object linkedArea;  // #4803: the LINK's COMMAREA read through the linked program's own DTO, when that is another class
         boolean started;  // the scenario's first program began ...
         boolean ended;  // ... and returned normally
         String refused;
@@ -4021,7 +4086,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         @Override
         public CicsTask linked(String p, Object ca) {
             CicsTask t = linked;
-            if (t == null || !p.equals(linkedProgram) || area(t) != ca) {
+            if (t == null || !p.equals(linkedProgram) || (area(t) != ca && linkedArea != ca)) {
                 throw new FacadeRefused("a facade asked the region for a level of " + p
                         + " that is not the LINK the scenario made");
             }
@@ -4169,17 +4234,23 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 call(method(service, "runTask", 1), service, task);
                 return;
             }
+            Object passed = ca;
             if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
-                throw new FacadeRefused("handleLink of " + p + " takes a " + m.getParameterTypes()[0].getName()
-                        + ", the LINK passed a " + ca.getClass().getName());
+                // #4803: LINK passes bytes. A caller's COMMAREA of another DTO class (EPSCMORT's EPSMTCOM, EPSCSMRT's own
+                // DFHCOMMAREA) is read through the linked program's DTO by layout, as CicsTask.returned does for a RETURN;
+                // the program still runs on the task's own area, so what it changes the caller sees. No layout, or fewer
+                // bytes than the target's record: refused, never guessed.
+                passed = convertLayout(p, ca, m.getParameterTypes()[0]);
             }
+            Object outerArea = linkedArea;
             CicsTask outer = linked;
             String outerProgram = linkedProgram;
             linked = task;
             linkedProgram = p;
+            linkedArea = passed;
             entry(p, "handleLink");
             try {
-                call(m, service, ca);
+                call(m, service, passed);
             } catch (RuntimeException e) {
                 if (linked == task && !(e instanceof FacadeRefused)) {  // it never asked the region for its level
                     throw new FacadeRefused("handleLink of " + p + " threw before it ran its level: " + e);
@@ -4191,6 +4262,27 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             }
             linked = outer;
             linkedProgram = outerProgram;
+            linkedArea = outerArea;
+        }
+
+        /** #4803: `ca` read through `type` by layout (toCommarea -> fromCommarea), or a refusal by name. */
+        Object convertLayout(String p, Object ca, Class<?> type) {
+            String why = "handleLink of " + p + " takes a " + type.getName() + ", the LINK passed a "
+                    + ca.getClass().getName();
+            try {
+                Method to = ca.getClass().getMethod("toCommarea");
+                Method from = type.getMethod("fromCommarea", byte[].class);
+                if (to.getReturnType() != byte[].class || !java.lang.reflect.Modifier.isStatic(from.getModifiers())) {
+                    throw new FacadeRefused(why + " (no layout converts one into the other)");
+                }
+                return from.invoke(null, (Object) to.invoke(ca));
+            } catch (NoSuchMethodException e) {
+                throw new FacadeRefused(why + " (no layout converts one into the other)");
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw new FacadeRefused(why + ": " + e.getCause());
+            } catch (IllegalAccessException e) {
+                throw new FacadeRefused(why + ": " + e);
+            }
         }
 
         void entry(String p, String method) {
@@ -4277,7 +4369,8 @@ def _svc_var(program: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None) -> str:  # fmt: skip
+                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None,
+                          tdattrs: dict[str, dict[str, str]] | None = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -4310,6 +4403,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         kinds = ", ".join(f'"{q}", "{tdqueues[q]}"' for q in sorted(tdqueues) if tdqueues[q])
         # #5079 (X57): each queue's TYPE (none stated: ""), which decides what READQ TD / DELETEQ TD do
         csd_java += f"            task.withTdQueueTypes(java.util.Map.of({kinds}));\n"
+        if tdattrs:  # #5168 (X61): the other attributes that decide what READQ / WRITEQ / DELETEQ TD do
+            flat = ", ".join(f'"{q}", "{k}", "{v}"' for q in sorted(tdattrs) for k, v in tdattrs[q].items())
+            csd_java += f"            task.withTdQueueAttributes({flat});\n"
     extras = [x["program"].upper() for x in case.get("programs", [])]
     runs = "".join(
         f'                    if ("{p}".equals(program)) {{ if (facades) {{ region.enter("{p}", t, {_svc_var(p)}); }} '
@@ -4529,6 +4625,8 @@ class EquivalenceRunTest {{
             if (calen != null) {{
                 task.withExactCommarea();
             }}
+            if (sc.hasNonNull("userid")) task.withUserid(sc.get("userid").asText());  // #5126 (X19): ASSIGN USERID
+            if (sc.hasNonNull("screen")) task.withScreen(sc.get("screen").get(0).asInt(), sc.get("screen").get(1).asInt());
             if (sc.hasNonNull("origin")) {{  // #4270 (X29): INQUIRE ASSOCIATION -- the origin data the case states
                 JsonNode o = sc.get("origin");
                 task.withOrigin(o.get("applid").asText(), o.get("userid").asText(), o.get("facilname").asText(),
@@ -4648,6 +4746,11 @@ class EquivalenceRunTest {{
             q.getValue().forEach(i -> items.add(i.asText().getBytes(region)));
             ts.seed(q.getKey(), items);
         }});
+        sc.path("td").fields().forEachRemaining(q -> {{  // #5168 (X61): the TD queues' records
+            List<String> records = new ArrayList<>();
+            q.getValue().forEach(i -> records.add(i.asText()));
+            ts.seedTd(q.getKey(), records);
+        }});
         return ts;
     }}
 
@@ -4739,7 +4842,14 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
-        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueue_types(corpus, case)),
+        cics_equivalence_test(
+            case,
+            src,
+            files,
+            csd_programs(corpus, case),
+            csd_tdqueue_types(corpus, case),
+            csd_tdqueue_attrs(corpus, case),
+        ),
         encoding="utf-8",
     )
     inputs = work / "in"
@@ -4777,6 +4887,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")

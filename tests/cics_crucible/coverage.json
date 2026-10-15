@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.7.0 (aaf84bcd)",
+ "crucible_ref": "v0.8.0 (afc1db0f)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -647,6 +647,23 @@
     }
    }
   },
+  "gt-web-parse-url/GTWPARS": {
+   "live": 5,
+   "outcomes": 10,
+   "scenarios": {
+    "errors": {
+     "units": [
+      "DO-PARSE",
+      "ERROR-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@64",
+      "134:false"
+     ]
+    }
+   }
+  },
   "hc-abend-link/HCMAIN": {
    "live": 4,
    "outcomes": 4,
@@ -734,6 +751,44 @@
     }
    }
   },
+  "hc-dcounters/HCDCNT": {
+   "live": 7,
+   "outcomes": 7,
+   "scenarios": {
+    "life": {
+     "units": [
+      "HEX-VAL",
+      "LIFE-PARA",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "56:WHEN@57",
+      "198:false",
+      "198:true",
+      "208:false",
+      "208:true"
+     ]
+    },
+    "big": {
+     "units": [
+      "BIG-PARA",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "56:WHEN@59",
+      "198:true",
+      "208:false"
+     ]
+    }
+   }
+  },
   "hc-deedit-uctranst/HCDEED": {
    "live": 7,
    "outcomes": 4,
@@ -794,6 +849,11 @@
      ]
     }
    }
+  },
+  "hc-file-unlock/HCUNLK": {
+   "live": 8,
+   "outcomes": 8,
+   "scenarios": {}
   },
   "hc-handle-aid/HCAID": {
    "live": 6,

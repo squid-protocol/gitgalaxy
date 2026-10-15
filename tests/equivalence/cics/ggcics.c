@@ -558,9 +558,12 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
  * against NULL links on ELF but not on macOS, whose linker still requires it to resolve.) */
 __attribute__((weak)) void ggsql_uow_end(int rollback) { (void)rollback; }
 
+static void td_uow_end(int rollback); /* #5168 */
+
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
     ggsql_uow_end(rollback);
+    td_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
         if (!uow_saved[i][0]) continue;
@@ -1840,16 +1843,178 @@ static int td_tail(const char *dir, int head) {
     }
 }
 
+/* #5168: a queue's CSD attribute -- a KEY=VALUE word after NAME TYPE on its tdqueues.cfg line (RECOVSTATUS, TYPEFILE,
+ * OPENTIME, INDIRECTNAME, TRIGGERLEVEL, TRANSID: the cases write only the ones the definition states). 1 and `out` when stated. */
+static int td_attr(const char *queue, const char *key, char *out, size_t size) {
+    char path[4096], line[256], name[32];
+    int found = 0;
+    size_t klen = strlen(key);
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 0;
+    while (fgets(line, sizeof line, cfg)) {
+        char *w = strtok(line, " \t\r\n");
+        if (!w) continue;
+        snprintf(name, sizeof name, "%s", w);
+        if (strcmp(name, queue) != 0) continue;
+        found = 0;
+        out[0] = '\0';
+        strtok(NULL, " \t\r\n"); /* TYPE */
+        while ((w = strtok(NULL, " \t\r\n")) != NULL) {
+            if (strncmp(w, key, klen) == 0 && w[klen] == '=') { snprintf(out, size, "%s", w + klen + 1); found = 1; }
+        }
+    }
+    fclose(cfg);
+    return found;
+}
+
+/* The queue's own TYPE word ("" when none is stated or the CSD does not define it). */
+static int td_type_word(const char *queue, char *type, size_t size) {
+    char path[4096], line[256], name[32], t[32];
+    int found = 0;
+    type[0] = '\0';
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 0;
+    while (fgets(line, sizeof line, cfg)) {
+        t[0] = '\0';
+        if (sscanf(line, "%31s %31s", name, t) >= 1 && strcmp(name, queue) == 0) {
+            found = 1;
+            snprintf(type, size, "%s", t);
+        }
+    }
+    fclose(cfg);
+    return found;
+}
+
+/* #5168 (X61): an INDIRECT queue routes to the queue its INDIRECTNAME names ("the name of the transient data queue to which
+ * this indirect queue routes data"; the target may itself be indirect). `target` is the queue that holds the records. Refused
+ * by name: an INDIRECT queue with no INDIRECTNAME, one whose target the CSD does not define, a chain that loops. */
+static void td_resolve(const char *queue, char *target) {
+    char type[32], next[32];
+    snprintf(target, 17, "%s", queue);
+    for (int hops = 0;; hops++) {
+        if (!td_type_word(target, type, sizeof type) || strcmp(type, "INDIRECT") != 0) return;
+        if (!td_attr(target, "INDIRECTNAME", next, sizeof next)) refuse("an INDIRECT TD queue without INDIRECTNAME: not modelled");
+        if (hops >= 8) refuse("a chain of INDIRECT TD queues that loops: not modelled");
+        if (!td_type_word(next, type, sizeof type)) refuse("an INDIRECT TD queue whose target the CSD does not define: not modelled");
+        snprintf(target, 17, "%s", next);
+    }
+}
+
+/* #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed. OPENTIME DEFERRED: "the data set
+ * remains closed until you indicate that you want to open it" (CEMT / SET TDQUEUE, not modelled), so closed; INITIAL (or none
+ * stated: ASSUMED) is open. Refused: a TYPEFILE other than INPUT / OUTPUT (RDBACK, or none stated). */
+static int td_extra_state(const char *queue) {
+    char file[16], open[16];
+    if (!td_attr(queue, "TYPEFILE", file, sizeof file) || (strcmp(file, "INPUT") != 0 && strcmp(file, "OUTPUT") != 0))
+        refuse("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
+    if (td_attr(queue, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0) return 2;
+    return strcmp(file, "INPUT") == 0 ? 0 : 1;
+}
+
+/* #5168 (X61): automatic task initiation is not modelled: a WRITEQ TD that brings a queue with a TRANSID to its TRIGGERLEVEL
+ * (default 1; 0 turns ATI off) would start that task. */
+static void td_ati_check(const char *queue, int records_after) {
+    char transid[16], level[16];
+    int n = 1;
+    if (!td_attr(queue, "TRANSID", transid, sizeof transid)) return;
+    if (td_attr(queue, "TRIGGERLEVEL", level, sizeof level)) n = atoi(level);
+    if (n > 0 && records_after >= n) refuse("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task initiation is not modelled");
+}
+
+static void td_base(void) {
+    const char *root = getenv("GGCICS_TS");
+    char base[4096];
+    if (root) snprintf(base, sizeof base, "%s", root);
+    else snprintf(base, sizeof base, "%s/ts", dir_in());
+    MKDIR(base);
+}
+
+static void td_clear(const char *dir) {
+    char path[4200];
+    int head = td_head(dir), tail = td_tail(dir, head);
+    for (int i = head; i < tail; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/head", dir);
+    remove(path);
+    RMDIR(dir);
+}
+
+static void td_copy_dir(const char *from, const char *to) {
+    char a[4200], b[4200];
+    int head = td_head(from), tail = td_tail(from, head);
+    MKDIR(to);
+    for (int i = head; i < tail; i++) {
+        snprintf(a, sizeof a, "%s/%06d.bin", from, i);
+        snprintf(b, sizeof b, "%s/%06d.bin", to, i);
+        copy_file(a, b);
+    }
+    if (head != tail) {
+        snprintf(b, sizeof b, "%s/head", to);
+        FILE *f = fopen(b, "w");
+        if (f) { fprintf(f, "%d\n", head); fclose(f); }
+    }
+}
+
+/* #5168 (X61): RECOVSTATUS. LOGICAL: "restored to the state at the end of the last completed unit of work" -- the first read, write or
+ * delete of the queue since the last SYNCPOINT saves it aside (<dir>.uow), SYNCPOINT drops the copy, SYNCPOINT ROLLBACK puts it back.
+ * NO (and none stated: ASSUMED) commits at once, as X57. PHYSICAL ("the last READQ is backed out if its unit of work did not commit"):
+ * a SYNCPOINT ROLLBACK after touching one is refused by name. */
+#define MAX_TD_UOW 16
+static char td_uow_q[MAX_TD_UOW][17];
+static int td_uow_logical[MAX_TD_UOW], td_uow_n;
+
+static void td_touch(const char *queue) {
+    char rec[16], dir[4096], aside[4200];
+    int logical;
+    if (!td_attr(queue, "RECOVSTATUS", rec, sizeof rec)) return;
+    logical = strcmp(rec, "LOGICAL") == 0;
+    if (!logical && strcmp(rec, "PHYSICAL") != 0) return;
+    for (int i = 0; i < td_uow_n; i++) if (strcmp(td_uow_q[i], queue) == 0) return;
+    if (td_uow_n >= MAX_TD_UOW) refuse("a unit of work that touches more than 16 recoverable TD queues");
+    snprintf(td_uow_q[td_uow_n], sizeof td_uow_q[0], "%s", queue);
+    td_uow_logical[td_uow_n++] = logical;
+    if (logical) {
+        td_base();
+        td_dir(queue, dir, sizeof dir);
+        snprintf(aside, sizeof aside, "%s.uow", dir);
+        td_clear(aside);
+        td_copy_dir(dir, aside);
+    }
+}
+
+static void td_uow_end(int rollback) {
+    char dir[4096], aside[4200];
+    for (int i = 0; i < td_uow_n; i++) {
+        if (!td_uow_logical[i]) {
+            if (rollback) refuse("SYNCPOINT ROLLBACK after a READQ / WRITEQ / DELETEQ TD of a PHYSICALLY recoverable queue: not modelled");
+            continue;
+        }
+        td_dir(td_uow_q[i], dir, sizeof dir);
+        snprintf(aside, sizeof aside, "%s.uow", dir);
+        if (rollback) {
+            td_clear(dir);
+            td_copy_dir(aside, dir);
+        }
+        td_clear(aside);
+    }
+    td_uow_n = 0;
+}
+
 /* WRITEQ TD QUEUE(qname) FROM LENGTH(GG-LEN): one record on a transient-data queue -- recorded with its data and
  * compared (CardDemo's CORPT00C submits JCL through the JOBS queue), and appended to an intrapartition queue for a
  * READQ TD to read. QIDERR for a queue the CSD does not define (tdqueues.cfg; absent, every queue is defined). */
 int GGCWRTD(gg_cics *c, char *from) {
-    char queue[17], ev[96], dir[4096], path[4200];
+    char queue[17], target[17], ev[96], dir[4096], path[4200];
     int fresp, fresp2, kind;
     trim(c->qname, 16, queue);
     c->resp = NORMAL;
     c->resp2 = 0;
-    kind = td_kind(queue);
+    td_resolve(queue, target); /* #5168: an INDIRECT queue holds its records on its target */
+    kind = td_kind(target);
     if (injected("WRITEQ-TD", queue, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
@@ -1857,12 +2022,10 @@ int GGCWRTD(gg_cics *c, char *from) {
         c->resp = QIDERR;
     }
     if (c->resp == NORMAL && kind == 1) {
-        const char *root = getenv("GGCICS_TS");
-        char base[4096];
-        if (root) snprintf(base, sizeof base, "%s", root);
-        else snprintf(base, sizeof base, "%s/ts", dir_in());
-        MKDIR(base);
-        td_dir(queue, dir, sizeof dir);
+        td_base();
+        td_dir(target, dir, sizeof dir);
+        td_touch(target);
+        td_ati_check(target, td_tail(dir, td_head(dir)) - td_head(dir) + 1);
         MKDIR(dir);
         snprintf(path, sizeof path, "%s/%06d.bin", dir, td_tail(dir, td_head(dir)));
         FILE *f = fopen(path, "wb");
@@ -1879,21 +2042,28 @@ int GGCWRTD(gg_cics *c, char *from) {
  * is set to the record's own length. An extrapartition queue, a record moved past INTO: refused (X57, X6). */
 int GGCRDTD(gg_cics *c, char *into, int intolen) {
     char queue[17], hex[40], dir[4096], path[4200], ev[160], buf[32768];
-    int max = c->len, n = 0, copied = 0, shown = -1, kind;
+    char target[17];
+    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0;
     trim(c->qname, 16, queue);
     hex[0] = '\0';
     for (int i = 0; queue[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
     c->resp = NORMAL;
     c->resp2 = 0;
-    kind = td_kind(queue);
-    if (kind == 2) refuse("READQ TD of an extrapartition queue: IBM's NOTOPEN / IOERR / INVREQ need the queue's open state, not modelled");
-    if (kind == 3) refuse("READQ TD of a queue whose TYPE is not INTRA: not modelled");
+    td_resolve(queue, target); /* #5168 */
+    kind = td_kind(target);
+    if (kind == 3) refuse("READQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+    if (kind == 2) state = td_extra_state(target); /* #5168: closed NOTOPEN, open for output INVREQ; IOERR: refused, no data set */
     if (!kind) {
         c->resp = QIDERR;
+    } else if (state == 2) {
+        c->resp = DFHRESP_NOTOPEN;
+    } else if (state == 1) {
+        c->resp = INVREQ;
     } else if (max < 0) {
         c->resp = LENGERR;
     } else {
-        td_dir(queue, dir, sizeof dir);
+        td_touch(target);
+        td_dir(target, dir, sizeof dir);
         int head = td_head(dir), tail = td_tail(dir, head);
         if (head == tail) {
             c->resp = DFHRESP_QZERO;
@@ -1920,15 +2090,17 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
 /* DELETEQ TD QUEUE (IBM, EXEC CICS DELETEQ TD): every record of an intrapartition queue; QIDERR when the CSD does not
  * define it, INVREQ (RESP2 0: IBM lists none) for an extrapartition queue. */
 int GGCDLTD(gg_cics *c) {
-    char queue[17], dir[4096], path[4200];
+    char queue[17], target[17], dir[4096], path[4200];
     trim(c->qname, 16, queue);
     c->resp = NORMAL;
     c->resp2 = 0;
-    int kind = td_kind(queue);
+    td_resolve(queue, target); /* #5168 */
+    int kind = td_kind(target);
     if (!kind) { c->resp = QIDERR; return 0; }
     if (kind == 2) { c->resp = INVREQ; return 0; }
     if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
-    td_dir(queue, dir, sizeof dir);
+    td_touch(target);
+    td_dir(target, dir, sizeof dir);
     int head = td_head(dir), tail = td_tail(dir, head);
     for (int i = head; i < tail; i++) {
         snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
@@ -1937,6 +2109,16 @@ int GGCDLTD(gg_cics *c) {
     snprintf(path, sizeof path, "%s/head", dir);
     remove(path);
     RMDIR(dir);
+    return 0;
+}
+
+/* READQ TD SET(ptr) LENGTH (#5168, X61): the record as one block, valid until the next READQ TD ("until the next READQ TD or the end of
+ * the task"); answers as the INTO form does (the same conditions and event). */
+int GGCRDTS(gg_cics *c, void **slot) {
+    static char buf[32768];
+    c->len = (int)sizeof buf;
+    GGCRDTD(c, buf, (int)sizeof buf);
+    if (c->resp == NORMAL) *slot = blk_set_new("READQ TD", buf, (size_t)c->len, 0);
     return 0;
 }
 

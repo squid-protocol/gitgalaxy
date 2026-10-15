@@ -525,6 +525,9 @@ public class CicsTask {
     private String sysid;
     private java.util.Set<String> tdQueues;
     private java.util.Map<String, String> tdTypes;
+    private java.util.Map<String, java.util.Map<String, String>> tdAttrs;  // #5168: each queue's other CSD attributes
+    private final java.util.Map<String, java.util.ArrayDeque<String>> tdUow = new java.util.LinkedHashMap<>();  // #5168
+    private final java.util.Set<String> tdPhysical = new java.util.LinkedHashSet<>();
 
     /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
     public CicsTask withRegion(String applid, String sysid) {
@@ -2157,6 +2160,22 @@ public class CicsTask {
         return this;
     }
 
+    /** Each queue's CSD attributes beyond its TYPE (#5168, X61), as queue, key, value triples: RECOVSTATUS, TYPEFILE, OPENTIME,
+     *  INDIRECTNAME, TRIGGERLEVEL, TRANSID. A queue the case's definition does not state one for has none. */
+    public CicsTask withTdQueueAttributes(String... triples) {
+        java.util.Map<String, java.util.Map<String, String>> out = new java.util.HashMap<>();
+        for (int i = 0; i + 2 < triples.length; i += 3) {
+            out.computeIfAbsent(triples[i], k -> new java.util.HashMap<>()).put(triples[i + 1], triples[i + 2]);
+        }
+        this.tdAttrs = out;
+        return this;
+    }
+
+    private String tdAttr(String q, String key) {
+        CicsTask root = root();
+        return root.tdAttrs == null || !root.tdAttrs.containsKey(q) ? null : root.tdAttrs.get(q).get(key);
+    }
+
     /** The queue's kind: 0 the CSD does not define it, 1 intrapartition (TYPE INTRA, or no types given), 2 extrapartition,
      *  3 any other TYPE or none stated -- a queue READQ TD / DELETEQ TD do not model. */
     private int tdKind(String q) {
@@ -2171,18 +2190,96 @@ public class CicsTask {
         return type.equals("INTRA") ? 1 : type.equals("EXTRA") ? 2 : 3;
     }
 
+    /** #5168 (X61): an INDIRECT queue routes to the queue its INDIRECTNAME names (which may itself be indirect); the queue
+     *  that holds the records. Refused by name: no INDIRECTNAME, a target the CSD does not define, a chain that loops. */
+    private String tdResolve(String q) {
+        CicsTask root = root();
+        String at = q;
+        for (int hops = 0; root.tdTypes != null && "INDIRECT".equals(root.tdTypes.get(at)); hops++) {
+            String next = tdAttr(at, "INDIRECTNAME");
+            if (next == null) {
+                throw new UnsupportedOperationException("an INDIRECT TD queue without INDIRECTNAME: not modelled");
+            }
+            if (hops >= 8) {
+                throw new UnsupportedOperationException("a chain of INDIRECT TD queues that loops: not modelled");
+            }
+            if (!root.tdTypes.containsKey(next)) {
+                throw new UnsupportedOperationException("an INDIRECT TD queue whose target the CSD does not define: not modelled");
+            }
+            at = next;
+        }
+        return at;
+    }
+
+    /** #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed (OPENTIME DEFERRED: "the data
+     *  set remains closed until you indicate that you want to open it"; INITIAL, or none stated: ASSUMED, open). Refused: a
+     *  TYPEFILE other than INPUT / OUTPUT. */
+    private int tdExtraState(String q) {
+        String file = tdAttr(q, "TYPEFILE");
+        if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
+            throw new UnsupportedOperationException("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
+        }
+        return "DEFERRED".equals(tdAttr(q, "OPENTIME")) ? 2 : file.equals("INPUT") ? 0 : 1;
+    }
+
+    /** #5168 (X61): RECOVSTATUS. LOGICAL: the queue as it was at the end of the last unit of work comes back on a rollback (the
+     *  first read, write or delete since the last SYNCPOINT saves it). NO, or none stated (ASSUMED): committed at once, as X57.
+     *  PHYSICAL: a rollback after touching one is refused by name. */
+    private void tdTouch(String q) {
+        CicsTask root = root();
+        String recov = tdAttr(q, "RECOVSTATUS");
+        if ("LOGICAL".equals(recov)) {
+            java.util.ArrayDeque<String> now = tempStorage.td.get(q);
+            root.tdUow.computeIfAbsent(q, k -> now == null ? new java.util.ArrayDeque<>() : new java.util.ArrayDeque<>(now));
+        } else if ("PHYSICAL".equals(recov)) {
+            root.tdPhysical.add(q);
+        }
+    }
+
+    /** The unit of work ends (#5168): committed, or backed out. */
+    private void tdUowEnd(boolean rollback) {
+        CicsTask root = root();
+        if (rollback && !root.tdPhysical.isEmpty()) {
+            throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a READQ / WRITEQ / DELETEQ TD of a PHYSICALLY "
+                    + "recoverable queue: not modelled");
+        }
+        if (rollback) {
+            root.tdUow.forEach((q, saved) -> {
+                if (saved.isEmpty()) {
+                    tempStorage.td.remove(q);
+                } else {
+                    tempStorage.td.put(q, new java.util.ArrayDeque<>(saved));
+                }
+            });
+        }
+        root.tdUow.clear();
+        root.tdPhysical.clear();
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
      *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
      *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
-     *  harness planned; then nothing is written. */
+     *  harness planned; then nothing is written. #5168: an INDIRECT queue holds its records on its target; a write that
+     *  brings a queue with a TRANSID to its TRIGGERLEVEL (default 1; 0: ATI off) is refused (ATI is not modelled). */
     public int writeqTd(String queue, String record) {
         String q = queue.strip();
-        int kind = tdKind(q);
+        String t = tdResolve(q);
+        int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
         int resp = planned != null ? planned[0] : kind == 0 ? 44 : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
-            tempStorage.td.computeIfAbsent(q, k -> new java.util.ArrayDeque<>()).addLast(record);
+            tdTouch(t);
+            if (tdAttr(t, "TRANSID") != null) {
+                String level = tdAttr(t, "TRIGGERLEVEL");
+                java.util.ArrayDeque<String> held = tempStorage.td.get(t);
+                int after = (held == null ? 0 : held.size()) + 1;
+                if (after >= (level == null ? 1 : Integer.parseInt(level)) && !"0".equals(level)) {
+                    throw new UnsupportedOperationException("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task "
+                            + "initiation is not modelled");
+                }
+            }
+            tempStorage.td.computeIfAbsent(t, k -> new java.util.ArrayDeque<>()).addLast(record);
         }
         return resp;
     }
@@ -2190,22 +2287,25 @@ public class CicsTask {
     /** READQ TD QUEUE(queue) INTO LENGTH(maxLength) (#5079, IBM EXEC CICS READQ TD, X57): a destructive read, first in
      *  first out. QIDERR when the CSD does not define the queue; QZERO when it holds no record; LENGERR for a negative
      *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
-     *  its first maxLength characters); the result's length is the record's own. An extrapartition queue is refused. */
+     *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
+     *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue. */
     public TdResult readqTd(String queue, int maxLength) {
         String q = queue.strip();
-        int kind = tdKind(q);
-        if (kind == 2) {
-            throw new UnsupportedOperationException("READQ TD of an extrapartition queue: IBM's NOTOPEN / IOERR / INVREQ "
-                    + "need the queue's open state, not modelled");
-        }
+        String t = tdResolve(q);
+        int kind = tdKind(t);
         if (kind == 3) {
-            throw new UnsupportedOperationException("READQ TD of a queue whose TYPE is not INTRA: not modelled");
+            throw new UnsupportedOperationException("READQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
         }
-        java.util.ArrayDeque<String> records = tempStorage.td.get(q);
-        String resp = kind == 0 ? "QIDERR" : maxLength < 0 ? "LENGERR" : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
+        int state = kind == 2 ? tdExtraState(t) : 0;
+        java.util.ArrayDeque<String> records = tempStorage.td.get(t);
+        String resp = kind == 0 ? "QIDERR" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
+                : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
         String data = null;
         int length = -1;
-        if (kind != 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+        if (kind != 0 && state == 0 && maxLength >= 0) {
+            tdTouch(t);
+        }
+        if (kind != 0 && state == 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
@@ -2220,15 +2320,16 @@ public class CicsTask {
     /** DELETEQ TD QUEUE(queue) (#5079, IBM EXEC CICS DELETEQ TD, X57): every record of an intrapartition queue. QIDERR
      *  (44) when the CSD does not define it, INVREQ (16) for an extrapartition queue. Returns RESP (RESP2 is 0). */
     public int deleteqTd(String queue) {
-        String q = queue.strip();
-        int kind = tdKind(q);
+        String t = tdResolve(queue.strip());
+        int kind = tdKind(t);
         if (kind == 3) {
             throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
         }
         if (kind != 1) {
             return kind == 0 ? 44 : 16;
         }
-        tempStorage.td.remove(q);
+        tdTouch(t);
+        tempStorage.td.remove(t);
         return 0;
     }
 
@@ -4627,6 +4728,7 @@ public class CicsTask {
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
+        tdUowEnd(false);  // #5168
         event("SYNCPOINT");
     }
 
@@ -4642,6 +4744,7 @@ public class CicsTask {
         root().updateTokens.clear();  // a sync point / rollback ends every hold
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
+        tdUowEnd(true);  // #5168
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -4800,6 +4903,12 @@ public class CicsTask {
         private final Map<String, Integer> next = new HashMap<>();
         /** The intrapartition transient-data queues' records (#5079): first in first out. */
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
+
+        /** A transient-data queue's records as they are before the conversation starts (#5168). */
+        public TempStorage seedTd(String queue, List<String> records) {
+            td.put(queue, new java.util.ArrayDeque<>(records));
+            return this;
+        }
 
         /** A queue as it is before the conversation starts. */
         public TempStorage seed(String queue, List<byte[]> items) {
@@ -6011,6 +6120,19 @@ class CicsForge:
             if prog.txn_converts and prog.txn_response:
                 for name in (prog.txn_response, *prog.txn_converts):
                     self.dtos[name].methods = self._codecs[name]
+        # #4803: a LINK passes bytes, so the DTO of the program that LINKs (its own COMMAREA, the area its task holds)
+        # and the DTO of the program LINKed to read through each other by layout when both are laid out as bytes and
+        # cut the same way (_reads_through): EPSCMORT's EPSMTCOM and EPSCSMRT's own DFHCOMMAREA, a LINK whose PROGRAM is
+        # a variable (a candidate row, not a resolved contract). The harness converts the LINK's area with these codecs.
+        for prog in self.programs.values():
+            callee = prog.commarea_dto
+            for r in prog.links:
+                sender = by_file.get(r.get("caller", ""))
+                own = sender.commarea_dto if sender is not None else None
+                if (r.get("verb") == "LINK" and callee in self._codecs and own in self._codecs and own != callee
+                        and self._reads_through(callee, {own})):  # fmt: skip
+                    for name in (callee, own):
+                        self.dtos[name].methods = self._codecs[name]
 
     def _reads_through(self, own: str, others: set[str | None]) -> bool:
         """#4449: whether every record in `others` reads through `own` with no byte lost: both laid out exactly as

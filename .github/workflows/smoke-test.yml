@@ -129,6 +129,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}  # #5166: the sweep plan's git diff origin/main...HEAD needs the merge base
           persist-credentials: false
 
       - name: Set up Python 3.12
@@ -190,10 +191,32 @@ jobs:
         if: matrix.group == 1
         run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
 
+      # #5166 part A: a PR that changes no sweep input (tests/tools/sweep_plan.py) deselects the extraction ReDoS sweeps
+      # (marker `redos_sweep`, ~18 min of the suite); push, nightly, manual, `shepherd:full`, an unreadable diff: all of them.
+      - name: Plan the ReDoS sweeps (#5166)
+        id: sweeps
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          labels=""
+          if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
+          python3 tests/tools/sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee sweep-plan.json
+          {
+            echo "## ReDoS sweep plan"
+            echo '```json'
+            cat sweep-plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
         env:
           GROUP: ${{ matrix.group }}
           EVENT: ${{ github.event_name }}
+          SWEEPS: ${{ steps.sweeps.outputs.mode }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           # the nightly stores this part's seconds (--clean-durations: only the tests it ran) for full-suite-durations
@@ -201,7 +224,10 @@ jobs:
           if [ "$EVENT" = "schedule" ]; then store=(--store-durations --clean-durations); fi
           # --timeout: a hung test fails by name, not as a job timeout (see full-suite-gate.yml, #4840)
           # #5162: test_evidence_components.py (~226 s) is run by mainframe-ground-truth.yml (all of tests/cobol_mainframe/)
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --group "$GROUP" "${store[@]}"
+          # a bare -m replaces addopts' `not golden_crucible`, so it is repeated; no plan output (a failed step) = the full sweep
+          marks=()
+          if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --group "$GROUP" "${store[@]}" "${marks[@]}"
 
       # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
       # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.

@@ -16,13 +16,12 @@ AUXILIARY say where CICS keeps an item, not what it holds; NOSUSPEND: one task, 
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SET_POINTER, SYSID_REMOTE, ibm
+from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SYSID_REMOTE, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
     EngineFacts,
     Outcome,
-    Refusal,
     at_most_one,
     one_of,
     required,
@@ -128,10 +127,6 @@ DELETEQ_TS = Command(
     engine=EngineFacts(resource="QUEUE", access="delete"),
 )
 
-_TD_NOSUSPEND = Refusal(
-    "a queue another task is writing (QBUSY, a wait) is not modelled: one task, a queue never waits", "X57"
-)
-
 # #5079, register X57. IBM (EXEC CICS READQ TD): a destructive read ("the record is no longer available"); QZERO (23) for an
 # empty queue, QIDERR (44) for a queue CICS cannot find, LENGERR (22) for a record longer than LENGTH (truncated), or a
 # LENGTH below zero (the queue is then not read) or of zero (the record is still read and lost), LENGTH set to the record's
@@ -144,15 +139,24 @@ READQ_TD = Command(
     options={
         "QUEUE": Arg("name", width=4),
         "INTO": Arg("area_out"),
+        "SET": Arg("pointer"),  # #5168: "valid until the next READQ TD or the end of the task"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
+        "NOSUSPEND": Arg("flag"),  # #5168: QBUSY needs a second task writing the queue: never reached here
         **RESP_OPTIONS,
     },
-    refused={"SYSID": SYSID_REMOTE, "SET": SET_POINTER, "NOSUSPEND": _TD_NOSUSPEND},
-    groups=(required("QUEUE", msg="READQ TD without QUEUE"), required("INTO", msg="READQ TD without INTO")),
+    refused={"SYSID": SYSID_REMOTE},
+    groups=(
+        required("QUEUE", msg="READQ TD without QUEUE"),
+        one_of("INTO", "SET", msg="READQ TD without INTO"),
+        at_most_one("INTO", "SET", msg="READQ TD: INTO and SET are alternatives"),
+        requires(("SET",), any_of=("LENGTH",), msg="READQ TD SET without LENGTH (the record's length goes there)"),
+    ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH")),
         Outcome("QZERO", None, "the queue is empty"),
         Outcome("QIDERR", None, "the CSD does not define the queue"),
+        Outcome("NOTOPEN", None, "an extrapartition queue is closed"),
+        Outcome("INVREQ", None, "an extrapartition queue is open for output"),
         Outcome(
             "LENGERR",
             None,

@@ -1,5 +1,6 @@
 """
-#5120: CICS resource macro tables (DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST) as
+#5120: CICS resource macro tables (DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST, and #5154's DFHSIT / DFHSRT /
+DFHJCT / DFHTCT / DFHMCT) as
 `csd_resources` rows -- core/cics_macro_tables.py through `extract_boundary` as hlasm.
 
 The syntax is read from IBM's macro reference, cited in the module header:
@@ -293,7 +294,7 @@ def test_lower_case_comments_and_non_table_macros_are_handled():
         [
             "* DFHFCT TYPE=FILE,FILE=COMMENT",
             "         dfhfct type=file,file=lower,dsname=a.b",
-            "         DFHSIT TYPE=CSECT,FCT=01",
+            "         DFHMSD TYPE=&SYSPARM,MODE=INOUT",  # a BMS macro, not a resource table
             "         MVC   DFHFCT,=C'DFHFCT TYPE=FILE,FILE=NOT'",
         ]
     )
@@ -328,4 +329,176 @@ def test_the_fixture_estates_read_every_table():
         assert {r["source"] for r in rows} == {"MACRO"}
         if estate == "tables_only":
             types = {r["resource_type"] for r in rows}
-    assert types == {"FILE", "TRANSACTION", "PROGRAM", "MAPSET", "PARTITIONSET", "TDQUEUE", "TSMODEL"}
+    assert types == {
+        "FILE",
+        "TRANSACTION",
+        "PROGRAM",
+        "MAPSET",
+        "PARTITIONSET",
+        "TDQUEUE",
+        "TSMODEL",
+        "SIT",
+        "SRT",
+        "JOURNAL",
+        "TERMINAL",
+        "CONNECTION",
+        "MONITORPOINT",
+    }
+
+
+# --- #5154: DFHSRT / DFHJCT / DFHTCT / DFHMCT / DFHSIT and tables assembled in JCL --------------
+
+
+def _named(src: str, rtype: str) -> list[str]:
+    return [r["name"] for r in _rows(src) if r["resource_type"] == rtype]
+
+
+@pytest.mark.parametrize(
+    ("operands", "expected"),
+    [
+        ("TYPE=SYSTEM,ABCODE=(0C1,0C4),RECOVER=YES", ["S0C1", "S0C4"]),
+        ("TYPE=SYSTEM,ABCODE=0c7,RECOVER=YES", ["S0C7"]),  # parentheses optional for one code; any case
+        ("TYPE=USER,ABCODE=(1234,77),RECOVER=YES", ["U1234", "U77"]),
+        ("TYPE=SYSTEM,ABCODE=(0C1),RECOVER=NO", []),  # a removal is not a definition
+        ("TYPE=SYSTEM,ABCODE=(0C1)", []),  # RECOVER omitted reads as NO
+        ("TYPE=SYSTEM,ABCODE=(0C1,ZZZ,0C12),RECOVER=YES", ["S0C1"]),  # not three hex digits
+        ("TYPE=USER,ABCODE=(12345,AB),RECOVER=YES", []),  # not a decimal number of at most four digits
+        ("TYPE=SYSTEM,RECOVER=YES", []),  # no ABCODE
+        ("TYPE=INITIAL,SUFFIX=01", []),
+        ("TYPE=FINAL", []),
+    ],
+)
+def test_dfhsrt_rows_are_the_recoverable_abend_codes(operands, expected):
+    assert _named(f"         DFHSRT {operands}\n", "SRT") == expected
+
+
+def test_dfhsrt_row_provenance():
+    (row,) = _rows("         DFHSRT TYPE=INITIAL,SUFFIX=01\n         DFHSRT TYPE=USER,ABCODE=(9),RECOVER=YES\n")
+    assert (row["source"], row["macro_table"], row["line"], row["queue_type"]) == ("MACRO", "DFHSRT01", 2, None)
+    assert "RECOVER(YES)" in _rdo(row)
+
+
+@pytest.mark.parametrize(
+    ("operands", "expected"),
+    [
+        ("TYPE=ENTRY,JFILEID=SYSTEM,JTYPE=DISK2", ["SYSTEM"]),
+        ("TYPE=ENTRY,JFILEID=(05),JTYPE=TAPE", ["05"]),
+        ("TYPE=ENTRY,JTYPE=DISK1", []),  # no JFILEID
+        ("TYPE=INITIAL,SUFFIX=01", []),
+        ("TYPE=FINAL", []),
+    ],
+)
+def test_dfhjct_entry_is_a_journal(operands, expected):
+    assert _named(f"         DFHJCT {operands}\n", "JOURNAL") == expected
+
+
+@pytest.mark.parametrize(
+    ("operands", "rtype", "expected"),
+    [
+        ("TYPE=TERMINAL,TRMIDNT=T001,ACCMETH=VTAM,TRMTYPE=3270", "TERMINAL", ["T001"]),
+        ("TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=r001,RMTNAME=RR01", "TERMINAL", ["R001"]),
+        ("TYPE=SYSTEM,SYSIDNT=SYSB,ACCMETH=IRC", "CONNECTION", ["SYSB"]),
+        ("TYPE=TERMINAL,ACCMETH=VTAM", "TERMINAL", []),  # no TRMIDNT
+        ("TYPE=LINE,ACCMETH=VTAM", "TERMINAL", []),
+        ("TYPE=GPENTRY,ENTRY=TERMINAL", "TERMINAL", []),
+        ("TYPE=SDSCI,DSCNAME=X", "TERMINAL", []),
+        ("TYPE=INITIAL,SUFFIX=01,SYSIDNT=HOME", "CONNECTION", []),
+    ],
+)
+def test_dfhtct_terminals_and_systems(operands, rtype, expected):
+    assert _named(f"         DFHTCT {operands}\n", rtype) == expected
+
+
+def test_dfhtct_keeps_the_operands_it_does_not_lift():
+    (row,) = _rows("         DFHTCT TYPE=REMOTE,SYSIDNT=SYSB,TRMIDNT=R001,RMTNAME=RR01\n")
+    assert "SYSIDNT=SYSB" in row["attributes"] and "RMTNAME=RR01" in row["attributes"]
+    assert row["macro_table"] == "DFHTCT"
+
+
+@pytest.mark.parametrize(
+    ("operand", "expected"),
+    [
+        ("180", ["USER.180"]),
+        ("(PP,3)", ["USER.202"]),  # "equivalent to ID 199 + number"
+        ("(PP,56)", ["USER.255"]),
+        ("(PP,57)", []),
+        ("BANK.180", ["BANK.180"]),
+        ("bank.7", ["BANK.7"]),
+        ("0", []),
+        ("256", []),
+        ("BANK.", []),
+        ("ABC", []),
+    ],
+)
+def test_dfhmct_emp_id_forms(operand, expected):
+    assert _named(f"         DFHMCT TYPE=EMP,CLASS=PERFORM,ID={operand}\n", "MONITORPOINT") == expected
+
+
+def test_dfhmct_other_types_are_refused():
+    src = "         DFHMCT TYPE=RECORD,CLASS=PERFORM\n         DFHMCT TYPE=INITIAL,SUFFIX=01\n"
+    assert _rows(src) == []
+
+
+def test_dfhsit_is_one_row_with_its_parameters_in_attributes():
+    src = "         DFHSIT TYPE=CSECT,FCT=01,DCT=01,SRT=01\n"
+    (row,) = _rows(src)
+    assert (row["resource_type"], row["name"], row["macro_table"]) == ("SIT", "DFHSIT", "DFHSIT")
+    assert "FCT=01" in row["attributes"] and "SRT=01" in row["attributes"]
+    assert [r["resource_type"] for r in _rows("         DFHSIT TYPE=DSECT\n")] == ["SIT"]
+    assert _rows("         DFHSIT TYPE=BOGUS\n") == []
+
+
+def test_dfhsit_column_72_continuation():
+    (row,) = _rows(_cont("         DFHSIT TYPE=CSECT,FCT=01,", "SRT=02"))
+    assert "FCT=01,SRT=02" in row["attributes"]
+
+
+@pytest.mark.parametrize(
+    "step",
+    [
+        "//ASM EXEC PGM=ASMA90",
+        "//ASM EXEC PGM=IEV90,PARM='OBJECT'",
+        "//ASM EXEC PGM=IEUASM",
+        "//ASM EXEC PGM=ASMAHL",
+        "//ASM EXEC PGM=ASMBLR",
+        "//ASM EXEC DFHAUPLE",
+        "//ASM EXEC PROC=DFHAUPLE,TABLE=X",
+    ],
+)
+def test_a_jcl_assembler_step_with_inline_sysin_yields_the_tables(step):
+    job = f"//J JOB\n{step}\n//SYSIN DD *\n         DFHFCT TYPE=FILE,FILE=F1,DSNAME=A.B\n         DFHSRT TYPE=USER,ABCODE=9,RECOVER=YES\n/*\n"
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert [(r["resource_type"], r["name"], r["source"], r["line"]) for r in rows] == [
+        ("FILE", "F1", "MACRO", 4),
+        ("SRT", "U9", "MACRO", 5),
+    ]
+
+
+@pytest.mark.parametrize(
+    "step",
+    ["//S EXEC PGM=IEFBR14", "//S EXEC PGM=SORT", "//S EXEC PGM=ASMA90X", "//* EXEC DFHAUPLE is a comment word"],
+)
+def test_a_job_without_an_assembler_step_reads_no_tables(step):
+    job = f"//J JOB\n{step}\n//SYSIN DD *\n         DFHFCT TYPE=FILE,FILE=F1,DSNAME=A.B\n/*\n"
+    assert extract_boundary("jcl", job)["csd_resources"] == []
+
+
+def test_a_jcl_job_keeps_its_csd_resources_beside_assembled_tables():
+    job = (
+        "//J JOB\n//CSD EXEC PGM=DFHCSDUP\n//SYSIN DD *\n DEFINE FILE(CF) GROUP(G) DSNAME(A.B)\n/*\n"
+        "//ASM EXEC PGM=ASMA90\n//SYSIN DD *\n         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM\n/*\n"
+    )
+    rows = extract_boundary("jcl", job)["csd_resources"]
+    assert {(r["resource_type"], r["name"], r.get("source", "CSD")) for r in rows} == {
+        ("FILE", "CF", "CSD"),
+        ("JOURNAL", "SYSTEM", "MACRO"),
+    }
+
+
+def test_the_new_tables_are_cpu_bounded():
+    src = ("         DFHSRT TYPE=SYSTEM,ABCODE=(" + ",".join("0C1" for _ in range(2000)) + "),RECOVER=YES\n") * 50 + (
+        "         DFHMCT TYPE=EMP,ID=" + "(" * 3000 + "\n"
+    ) * 50
+    start = time.process_time()
+    _rows(src)
+    assert time.process_time() - start < 5

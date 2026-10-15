@@ -33,6 +33,14 @@ class CicsError(Exception):
     pass
 
 
+class KeylengthInvreq(CicsError):
+    """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
+
+    def __init__(self, msg: str, resp2: int):
+        super().__init__(msg)
+        self.resp2 = resp2
+
+
 # #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
 # byte in every area is CCSID 037")
 REGION_PAGE = "cp037"
@@ -148,6 +156,8 @@ def _arg(v: str | None) -> str:
 
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
+# a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
+_SECOND_OPTIONS = {"READ": ("UPDATE",), "READNEXT": ("UPDATE",), "READPREV": ("UPDATE",)}
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -186,7 +196,13 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS:
+        elif (
+            not opts
+            and len(words) < 2
+            and name not in MAP_OPTIONS
+            and name not in _BARE_OPTIONS
+            and not (words and name in _SECOND_OPTIONS.get(words[0], ()))
+        ):
             words.append(name)
         else:
             opts[name] = None
@@ -2199,15 +2215,29 @@ class Cics:
     def readq_td(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X57): READQ TD QUEUE INTO [LENGTH] -- a destructive read of the task's intrapartition queue. The record
         goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
-        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR."""
+        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR.
+        #5168: SET(pointer) LENGTH(data-area) puts the record in a new block, valid to the next READQ TD; NOSUSPEND
+        changes nothing (no second task holds the queue)."""
         g = self.g
         r = g.tmpname("td")
-        into = self.field(_arg(opts["INTO"]))
-        maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
-        out = [
-            f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});",
-            f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));",
-        ]
+        setp = opts.get("SET")
+        if setp:
+            if opts.get("INTO"):
+                raise CicsError(_msg("READQ TD", "at_most_one", "INTO"))
+            if not opts.get("LENGTH"):
+                raise CicsError(_msg("READQ TD", "requires", "SET"))
+            if re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is not None:
+                raise CicsError("READQ TD SET with a literal LENGTH: IBM says LENGTH must then be a data area")
+            ptr = self.pointer(setp)
+            into, maxlen = None, "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
+        else:
+            into = self.field(_arg(opts["INTO"]))
+            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});"]
+        if setp:
+            out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ TD", {r}.data(), CS);')
+        else:
+            out.append(f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));")
         if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
             out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
                        f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
@@ -2503,17 +2533,23 @@ class Cics:
             return None
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal (IBM: INVREQ 42 for GENERIC)
+            n = -int(re.sub(r"\D", "", arg))
         name = self.constant(opts.get("DATASET") or opts.get("FILE"))
         mapped = self.gp.file(name) if name is not None else None
         if n is None or mapped is None:
             raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
         _, key = self.gp.entity_key(mapped[1], mapped[2])
+        # #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 GENERIC KEYLENGTH "greater than or equal to the length of a
+        # full key", 42 "less than zero", 26 a KEYLENGTH without GENERIC that is not the key's length; zero is undocumented
+        if generic and n < 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: INVREQ (RESP2 42)", 42)
         if generic and n >= key:
-            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled")
-        if generic and n <= 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25)", 25)
+        if generic and n == 0:
             raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
         if not generic and n != key:
-            raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
+            raise KeylengthInvreq(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 26)", 26)
         return n
 
     def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
@@ -2595,7 +2631,20 @@ class Cics:
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
         searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
-        if not searched:
+        if verb == "READ":
+            try:
+                self._keylength(verb, opts)
+            except (
+                KeylengthInvreq
+            ) as bad:  # #5092 (X52): the read is not done: INVREQ with IBM's RESP2 (CicsTask.readInvalid)
+                r = self.g.tmpname("read")
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
+                return [
+                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
+                ]
+        elif not searched:
             self._keylength(verb, opts)
         if "SET" in opts:
             return self.read_set(verb, opts, ind)

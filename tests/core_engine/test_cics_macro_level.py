@@ -3,6 +3,7 @@ CICS, the macro TABLES (resource definitions) or BMS map macros. Every macro fam
 
 from __future__ import annotations
 
+import re
 import time
 from pathlib import Path
 
@@ -140,3 +141,15 @@ def test_pathological_input_is_linear(unit):
     ML.cobol_hits([unit])
     ML.assembler_hits(["LBL      " + unit])
     assert time.perf_counter() - t0 < 2.0
+
+
+def test_the_register_entry_lists_every_macro_family_as_assumed():
+    """#5158: X55 states each family's status by name; a family added to MACROS without a row there fails here."""
+    text = (Path(__file__).resolve().parents[2] / "docs" / "language_status" / "register" / "X55.md").read_text(
+        encoding="utf-8"
+    )
+    rows = dict(re.findall(r"^\s*\| [^|]*\| `DFH(\w+)` \| (\w+) \|$", text, re.M))
+    assert set(rows) == set(ML.MACROS)
+    assert set(rows.values()) == {"ASSUMED"}
+    for name in ML._CSA_TCA_NAMES:
+        assert name in text

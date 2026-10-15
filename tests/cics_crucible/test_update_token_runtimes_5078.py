@@ -32,7 +32,7 @@ _WANT = [
     "U:F:3 resp=0 resp2=0",  # an UNLOCK spends the token
     "U:F:3 resp=16 resp2=47",
     "D:F:3 resp=16 resp2=47",  # nothing left to delete by it
-    "R:F:999 resp=13 resp2=0 tok=0",  # NOTFND: no token issued
+    "R:F:999 resp=13 resp2=80 tok=0",  # NOTFND: no token issued
     "R:F:210 resp=0 resp2=0 tok=4",
     "T:F:210 resp=16 resp2=30",  # a record held by a token is not the file's tokenless hold
     "W:F:4:210 resp=0 resp2=0",

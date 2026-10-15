@@ -12,8 +12,8 @@ OPTIONS, #4436 READ LENGTH), on a KSDS by key and an ESDS by RBA (det/cics.py Ci
 
 RBA / RRN / XRBA are accepted by OPTIONS and then refused or browsed in Cics._rba (a hole by name there). A refused
 option shows no reason but SYSID's and a read's SET (the reasons the old global table gave them, true here too).
-RESP2: the runtimes record 0 but for READ's LENGERR (11) and the GTEQ / GENERIC search's NOTFND (80); IBM's documented
-values are stated in PR 6.
+RESP2: the runtimes record 0 but for READ's INVREQ (25 / 26 / 28 / 42, #5092) and NOTFND (80) and LENGERR (11); IBM's
+other documented values are stated in PR 6.
 
 #4270 READ GTEQ / GENERIC (oracle_assumptions.md X22), IBM CICS TS, EXEC CICS READ
 (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read):
@@ -120,13 +120,34 @@ READ = _file(
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "TOKEN")),
-        _NOTFND,
-        # #4270: the GTEQ / GENERIC search states IBM's RESP2 (the full-key READ still records 0, until spec PR 6)
+        # #5092 (X52), IBM, EXEC CICS READ: NOTFND RESP2 80 for every READ form (plain, UPDATE, TOKEN, GTEQ, GENERIC); a READ
+        # UPDATE that finds nothing holds nothing. NOTFND 81 (RBA / XRBA) and the other option-gated values are refused by name
         Outcome(
             "NOTFND",
             80,
             "An attempt to retrieve a record based on the search argument provided is unsuccessful",
-            raised_by=("GTEQ", "GENERIC"),
+        ),
+        # INVREQ 25 / 42 (GENERIC KEYLENGTH >= the full key / < 0) and 26 (KEYLENGTH without GENERIC, not the key's length): both
+        # runtimes answer them for a given KEYLENGTH; INVREQ 20 (READ not allowed by the file's definition) is ASSUMED never to
+        # arise (X52: files.cfg has no such attribute); 40, 44, 51-53, 55-57, 59 (BDAM, CFDT, RREPL, RBA / XRBA / CONSISTENT /
+        # REPEATABLE / NOSUSPEND) belong to options and files the region refuses
+        Outcome(
+            "INVREQ",
+            25,
+            "the length specified in the KEYLENGTH option is greater than or equal to the length of a full key",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
+        Outcome(
+            "INVREQ",
+            26,
+            "KEYLENGTH is specified without GENERIC and is not the length of the file's key",
+            raised_by=("KEYLENGTH",),
+        ),
+        Outcome(
+            "INVREQ",
+            42,
+            "the length specified in the KEYLENGTH option is less than zero",
+            raised_by=("GENERIC", "KEYLENGTH"),
         ),
         Outcome("LENGERR", 11, "the record is longer than LENGTH: truncated", writes=("INTO", "LENGTH")),
         # #5092 (X52): IBM, EXEC CICS READ: a READ UPDATE without TOKEN on a file with an earlier one not yet released
@@ -138,11 +159,9 @@ READ = _file(
         ),
     ),
     runtime_refusals=(
-        # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; the
-        # translator refuses such a KEYLENGTH by name (Cics._keylength), the stub when the program runs
-        RuntimeRefusal(
-            "a GENERIC KEYLENGTH not shorter than the key, or not above zero", "X22", c="READ GENERIC KEYLENGTH"
-        ),
+        # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; zero is
+        # refused by name, by the translator (Cics._keylength) and by the stub when the program runs
+        RuntimeRefusal("a GENERIC KEYLENGTH of zero", "X22", c="READ GENERIC KEYLENGTH"),
     ),
 )
 

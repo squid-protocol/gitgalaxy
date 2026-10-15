@@ -1032,7 +1032,7 @@ int main(int argc, char **argv) {
 # op: E a plain READ (full key), G GTEQ, R GENERIC (KEYLENGTH = the key given), Q GENERIC GTEQ
 _READ_SEARCH_OPS = ("E150", "G150", "G200", "G301", "R2", "R21", "Q25", "R4", "Q4", "Q0")
 _READ_SEARCH_WANT = [
-    "E150 resp=13 resp2=0 into=....",  # the full-key READ: as before (RESP2 0 until spec PR 6)
+    "E150 resp=13 resp2=80 into=....",  # the full-key READ: NOTFND RESP2 80 (#5092, X52)
     "G150 resp=0 resp2=0 into=200b",  # no 150: the first greater key
     "G200 resp=0 resp2=0 into=200b",  # the key itself
     "G301 resp=13 resp2=80 into=....",  # none greater: NOTFND, RESP2 80

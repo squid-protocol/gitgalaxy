@@ -29,7 +29,8 @@ one or more gap classes:
                            crucible case: the equivalence harness states it, oracle_assumptions X21), an ASSIGN option
                            whose fact an equivalence case cannot state yet (STARTCODE unless every scenario states it, #5077;
                            FACILITY / TERMCHK unless every scenario states a "termid", #5126;
-                           USERID, SCRNHT / SCRNWD: refused at run time, X19), ASSIGN APPLID / SYSID with a case stating no "region"
+                           USERID unless every scenario states a "userid", SCRNHT / SCRNWD unless every one states a
+                           "screen" and a termid, #5126; X19), ASSIGN APPLID / SYSID with a case stating no "region"
 
 Verdicts come from, in order: the sweeps given with --sweep (`proof_sweep.py --det-only --work DIR`: DIR/sweep.json,
 and DIR/det/<case>/proof/report.json for the diff kind), else main's CI ratchet -- a non-Db2 case not in
@@ -115,6 +116,8 @@ class Run:
     termid: bool = (
         False  # #5126: every scenario states a terminal (ASSIGN FACILITY / TERMCHK: $GGCICS_FACILITY, withTermid)
     )
+    userid: bool = False  # #5126: every scenario states a "userid" (ASSIGN USERID)
+    screen: bool = False  # #5126: every scenario states a "screen" and a termid (ASSIGN SCRNHT / SCRNWD)
     gaps: set[str] = field(default_factory=set)
     detail: dict[str, str] = field(default_factory=dict)  # gap -> a longer note (the baseline's why, the diff)
     infeasible: list[str] = field(default_factory=list)  # #4602: stated infeasible outcomes taken out of the total
@@ -137,8 +140,19 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
         scens = case.get("scenarios") or []
         startcode = bool(scens) and all(sc.get("startcode", case.get("startcode")) for sc in scens)
         termid = bool(scens) and all(sc.get("termid", case.get("termid")) for sc in scens)
+        userid = bool(scens) and all(sc.get("userid", case.get("userid")) for sc in scens)
+        screen = termid and all(sc.get("screen", case.get("screen")) for sc in scens)
         out[(case["corpus"], _norm(case["program_source"]))].append(
-            Run("equivalence", f.parent.name, db2=db2, region=region, startcode=startcode, termid=termid)
+            Run(
+                "equivalence",
+                f.parent.name,
+                db2=db2,
+                region=region,
+                startcode=startcode,
+                termid=termid,
+                userid=userid,
+                screen=screen,
+            )  # fmt: skip
         )
         for extra in case.get("programs", []):  # LINKed programs: det_port.py translates them the same way
             out[(case["corpus"], _norm(extra["program_source"]))].append(
@@ -150,6 +164,8 @@ def equivalence_runs(cases_dir: Path = CASES) -> dict[tuple[str, str], list[Run]
                     region=region,
                     startcode=startcode,
                     termid=termid,
+                    userid=userid,
+                    screen=screen,
                     program=str(extra.get("program", "")).upper(),
                 )
             )
@@ -447,6 +463,8 @@ def fact_gaps(facts: dict[str, set[str]], run: Run | None) -> set[str]:
             for f in facts.get("assign_task", ())
             if not (f == "STARTCODE" and run is not None and run.startcode)  # #5077: the case states it
             and not (f == "FACILITY" and run is not None and run.termid)  # #5126: its "termid" is the facility
+            and not (f == "USERID" and run is not None and run.userid)  # #5126: the case states it
+            and not (f == "SCRNHT/SCRNWD" and run is not None and run.screen)
         }
     if run is not None and run.kind == "equivalence" and facts.get("assign_region") and not run.region:
         out.add("fact: ASSIGN APPLID/SYSID (the case states no region)")

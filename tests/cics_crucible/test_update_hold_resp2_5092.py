@@ -24,7 +24,7 @@ _SCENARIO = (
     ("S:F:0", "resp=0 resp2=0"),
     ("T:F:100", "resp=16 resp2=30"),  # a SYNCPOINT ends the hold
     ("D:F:0", "resp=16 resp2=31"),
-    ("R:F:999", "resp=13 resp2=0"),  # a NOTFND holds nothing ...
+    ("R:F:999", "resp=13 resp2=80"),  # a NOTFND holds nothing ...
     ("R:F:100", "resp=0 resp2=0"),  # ... so this one is the first
     ("N:F:200", "resp=0 resp2=0"),  # a plain READ is no hold, and not blocked by one
     ("R:F:200", "resp=16 resp2=28"),
@@ -35,7 +35,7 @@ _SCENARIO = (
     ("R:F:100", "resp=0 resp2=0"),  # ... so a tokenless READ UPDATE is not a second one
     ("D:F:0", "resp=0 resp2=0"),  # the DELETE takes the held record, and releases
     ("D:F:0", "resp=16 resp2=31"),
-    ("R:F:100", "resp=13 resp2=0"),
+    ("R:F:100", "resp=13 resp2=80"),
 )
 _OPS = [o for o, _ in _SCENARIO]
 _WANT = [f"{o} {w}" for o, w in _SCENARIO]

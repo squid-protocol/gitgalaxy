@@ -89,3 +89,91 @@ def test_every_artifact_download_waits_on_a_job_that_can_upload_it():
             assert any(
                 n in needs and (f"needs.{n}.result == 'success'" in gate or "success()" in gate) for n in uploaders
             ), f"{path.name}:{name} downloads an artifact without requiring its uploader to have succeeded"
+
+
+# ---- #5132: fewer PR jobs ------------------------------------------------------------------------------------------
+
+
+def _on(name):
+    doc = yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
+    return doc.get(True) or doc.get("on")
+
+
+def _glob(pattern):
+    """GitHub's filter glob: `**` crosses directories, `*` does not, a leading `!` excludes."""
+    import re
+
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
+
+
+def _starts(name, changed):
+    """Whether a PR that changes only `changed` starts the workflow (GitHub: any path matches, last pattern wins)."""
+    patterns = _on(name)["pull_request"]["paths"]
+    for f in changed:
+        hit = False
+        for p in patterns:
+            if _glob(p.lstrip("!")).match(f):
+                hit = not p.startswith("!")
+        if hit:
+            return True
+    return False
+
+
+ENGINE = "gitgalaxy/core/detector.py"
+TRANSLATOR = "gitgalaxy/tools/cobol_to_java/det/emit.py"
+ONLY_TESTS_AND_DOCS = ["tests/tools/test_x.py", "docs/ci.md", "README.md", "tests/cobol_mainframe/answer_key/a.json"]
+
+
+@pytest.mark.parametrize("name", ["muninn.yml", "codeql.yml"])
+def test_security_scans_run_on_prs_only_for_engine_dependency_or_workflow_changes(name):
+    assert "schedule" in _on(name)  # the backstop that covers everything the PR filter skips
+    assert "paths-ignore" not in _on(name)["pull_request"]
+    for changed in (
+        ENGINE,
+        "pyproject.toml",
+        "ci/requirements/test.txt",
+        ".github/workflows/smoke-test.yml",
+        "action.yml",
+    ):
+        assert _starts(name, [changed]), changed
+    for changed in ONLY_TESTS_AND_DOCS:
+        assert not _starts(name, [changed]), changed
+
+
+def test_golden_crucible_skips_translator_only_and_prose_changes():
+    name = "golden-crucible.yml"
+    assert _starts(name, [ENGINE]) and _starts(name, ["tests/golden_master_audit/_groups.json"])
+    assert _starts(name, ["tests/crucible_pins.toml"]) and _starts(name, [".github/workflows/golden-crucible.yml"])
+    assert not _starts(name, [TRANSLATOR, "gitgalaxy/cobol_to_java_controller.py"])
+    assert not _starts(name, ["gitgalaxy/README.md", *ONLY_TESTS_AND_DOCS])
+    assert _starts(name, [TRANSLATOR, ENGINE])  # one engine file among translator files still runs it
+
+
+def test_golden_crucible_paths_cover_every_file_the_test_imports():
+    """The sibling modules tests/test_golden_crucible.py imports bare must be in the filter, or editing one skips the check."""
+    import re
+
+    text = (ROOT / "tests" / "test_golden_crucible.py").read_text(encoding="utf-8")
+    for mod in re.findall(r"^import (golden_\w+|_crucible_pin)$", text, re.M):
+        assert _starts("golden-crucible.yml", [f"tests/{mod}.py"]), mod
+
+
+def test_the_three_pre_gates_are_one_job():
+    jobs = _jobs("gitgalaxy.yml")
+    assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
+    steps = jobs["pre-gate"]["steps"]
+    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
+    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    # each gate runs even when an earlier one failed, and none may swallow its own failure
+    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert not any(s.get("continue-on-error") for s in steps)

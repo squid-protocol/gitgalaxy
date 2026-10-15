@@ -31,7 +31,7 @@ _WANT = [
     "R:F:210 resp=0 resp2=0 tok=1",
     "N:F:0 resp=0 resp2=0",  # a token hold is not the file's tokenless hold
     "U:F:1 resp=0 resp2=0",
-    "H:F:999 resp=13 resp2=0",  # NOTFND holds nothing
+    "H:F:999 resp=13 resp2=80",  # NOTFND holds nothing
     "N:F:0 resp=0 resp2=0",
     "H:F:100 resp=0 resp2=0",
     "S:F:0 resp=0 resp2=0",  # a SYNCPOINT ends the hold

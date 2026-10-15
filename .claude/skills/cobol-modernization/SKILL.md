@@ -114,6 +114,9 @@ Attribute every difference to one of the differential doc's four causes: old-par
 - **Run both audits locally, not just ruff.** `ruff_audit.py --ci` and `mypy_audit.py --ci`, plus the dead-key audit when you add dict-keyed reads. #3640 reached CI with 5 mypy findings; the usual cause is an Optional that is never narrowed. Or run everything, X-Ray included: `python tests/tools/preflight.py`.
 - **A PR stacked on a squash-merged PR.** When the base PR merges, its branch is deleted and the stacked branch still carries the base's pre-squash commits. Never rebase or force-push: merge `origin/main` into the stacked branch (the base's squashed changes resolve as already-present), check `git diff --stat origin/main...HEAD` shows only your files, push, then open or retarget the PR against `main`. `gh pr create --base <deleted branch>` fails with "Base ref must be a branch".
 - **Generators read the skeleton, never the DB.** The Java side must build from `06_skeleton/*` only, so the facts it used are the facts it cites. When a generator needs more (a layout, a key position), add it to an IR join and export it, as `program_interfaces` and `vsam_stores` do.
+- **A CICS LINK whose PROGRAM is a variable has no resolved callee in `commarea_contracts`**: only the `links` rows built from `navigation` name it. Key LINK-driven generator logic on those (#5188).
+- **`Line.file` on a COPY-expanded program lists the copybook member files**: read those directly instead of re-expanding (#5194).
+- **era_tags: `program_era: None` is present (not absent)** when a copybook alone gives a program its first tell (#5194).
 
 ## Who owns what
 

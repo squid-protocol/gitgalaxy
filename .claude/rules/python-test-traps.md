@@ -14,3 +14,6 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   batched ReDoS timings through a `Pipe` (#5171).
 * **A test that builds `Orchestrator(".")` and calls `execute_pipeline` scans the whole repo** through the ecosystem
   audits. Give it a temp root (#5171).
+* **`ruff format` reflows multi-line expressions even beside `# fmt: skip`.** After formatting, re-check any test that
+  pins source text (#5173).
+* **CodeQL `py/uninitialized-local-variable`:** a local assigned inside one `if` and read under a later separate `if` must be initialised before the first block, even when the guards are identical (#5196).

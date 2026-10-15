@@ -2476,7 +2476,6 @@ def test_readq_td_and_deleteq_td_become_stub_calls():
             ec.translate_command(body)
 
 
-
 def test_readq_td_set_and_nosuspend_5168():
     """#5168 (X61): READQ TD SET(ptr) LENGTH(area) is GGCRDTS (the record as a block, its length to the area); NOSUSPEND changes
     nothing; INTO with SET, SET with no LENGTH area or a literal one are refused."""
@@ -2506,6 +2505,7 @@ def test_csd_tdqueue_attributes_5168(tmp_path):
     assert ec.td_seed({}, {}) == {} and ec.td_seed({"td": {"Q": ["a"]}}, {"td": {"R": ["b"]}}) == {"R": ["b"]}
     with pytest.raises(ec.Unsupported):
         ec.td_seed({"td": {"TOOLONG": ["a"]}}, {})
+
 
 def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
     """#5079 (X57): `csd_tdqueue_types` is each DEFINE TDQUEUE's TYPE ("" when none), and `csd_tdqueues` its names."""

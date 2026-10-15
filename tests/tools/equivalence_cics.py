@@ -583,7 +583,9 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "DELETEQ":
         return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
     into, length = opts.get("INTO"), opts.get("LENGTH")
-    if opts.get("SET"):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
+    if opts.get(
+        "SET"
+    ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
         if into:
             raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
         if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
@@ -2716,7 +2718,9 @@ def td_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
     seed = sc.get("td", case.get("td")) or {}
     for q, items in seed.items():
         if not (0 < len(q) <= 4 and isinstance(items, list) and all(isinstance(i, str) and i.isascii() for i in items)):
-            raise Unsupported(f'scenario {sc.get("name")}: "td" maps a queue name (1-4) to a list of ASCII record texts')
+            raise Unsupported(
+                f'scenario {sc.get("name")}: "td" maps a queue name (1-4) to a list of ASCII record texts'
+            )
     return seed
 
 
@@ -3243,7 +3247,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
-            tdattrs = csd_tdqueue_attrs(corpus, case)  # #5168 (X61): and its other attributes, KEY=VALUE words after the TYPE
+            tdattrs = csd_tdqueue_attrs(
+                corpus, case
+            )  # #5168 (X61): and its other attributes, KEY=VALUE words after the TYPE
             (d / "tdqueues.cfg").write_text(
                 "".join(f"{q} {tdqueues[q] or '-'}" + "".join(f" {k}={v}" for k, v in tdattrs.get(q, {}).items()) + "\n"
                         for q in sorted(tdqueues)), encoding="ascii")  # fmt: skip
@@ -4709,8 +4715,14 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
-        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueue_types(corpus, case),
-                              csd_tdqueue_attrs(corpus, case)),
+        cics_equivalence_test(
+            case,
+            src,
+            files,
+            csd_programs(corpus, case),
+            csd_tdqueue_types(corpus, case),
+            csd_tdqueue_attrs(corpus, case),
+        ),
         encoding="utf-8",
     )
     inputs = work / "in"

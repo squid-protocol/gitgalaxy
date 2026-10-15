@@ -164,5 +164,14 @@ def test_a_td_queue_program_is_proven_against_gnucobol(tmp_path):
     events = report["outputs"]["queue"]["cobol"]
     assert [e["text"].rstrip() for e in events if e.get("event") == "SEND-TEXT"] == SENT
     assert [e["resp"] for e in events if e.get("event") == "READQ-TD"] == [
-        "NORMAL", "NORMAL", "QZERO", "NORMAL", "QZERO", "NOTOPEN", "INVREQ", "NORMAL", "NORMAL", "QZERO",
+        "NORMAL",
+        "NORMAL",
+        "QZERO",
+        "NORMAL",
+        "QZERO",
+        "NOTOPEN",
+        "INVREQ",
+        "NORMAL",
+        "NORMAL",
+        "QZERO",
     ]

@@ -9,3 +9,6 @@
 * The whole-suite budget (`suite_budget_s`) is gated on the nightly main run (>10% over fails and files one issue) and only
   reported on PRs. When the suite gets faster, `update` lowers it.
 * Local check: `python tests/tools/pr_gates.py --ratchets --only-ratchets time` (reads the committed `.test_durations`).
+* **A test just under 10 s locally can exceed the ratchet on CI** (runners are 1.2-2x slower): mark it
+  `slow(reason=...)` up front (#5179). The "Per-test time ratchet" step lists every offender at once; match that list
+  against a sibling PR's actual diff, not its title, since the list may leave files out (#5177).

@@ -14,3 +14,5 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   batched ReDoS timings through a `Pipe` (#5171).
 * **A test that builds `Orchestrator(".")` and calls `execute_pipeline` scans the whole repo** through the ecosystem
   audits. Give it a temp root (#5171).
+* **`ruff format` reflows multi-line expressions even beside `# fmt: skip`.** After formatting, re-check any test that
+  pins source text (#5173).

@@ -20,6 +20,10 @@ where each pool worker re-imports GitGalaxy, it was most of the suite's run time
 Test-time ratchet (#5166, tests/tools/time_ratchet.py): a test marked `slow` must say why (`reason=`), and when
 GITGALAXY_TEST_TIMES names a file the run writes each test's seconds (setup + call + teardown, as pytest-split counts
 them) and the reasons of the slow-marked ones there.
+
+ReDoS sweeps (#5166): a test under tests/extraction/ whose name has `redos` or `linear_on_pathological` is marked
+`redos_sweep`, so a pull request that changes no sweep input deselects them (tests/tools/sweep_plan.py, smoke-test.yml).
+The hook is tryfirst: pytest's own `-m` deselection and pytest-split's slicing must both see the marker.
 """
 
 import hashlib
@@ -50,8 +54,20 @@ def _slow_reason(item):
     return marker.kwargs.get("reason") or (marker.args[0] if marker.args else "")
 
 
+def _is_redos_sweep(item):
+    try:
+        top = item.path.relative_to(item.config.rootpath).parts[:2]
+    except ValueError:
+        return False
+    name = item.originalname or item.name
+    return top == ("tests", "extraction") and ("redos" in name or "linear_on_pathological" in name)
+
+
+@pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(items):
     for item in items:
+        if _is_redos_sweep(item):
+            item.add_marker(pytest.mark.redos_sweep)
         reason = _slow_reason(item)
         if reason is not None and not str(reason).strip():
             raise pytest.UsageError(

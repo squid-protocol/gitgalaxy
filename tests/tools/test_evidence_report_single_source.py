@@ -6,6 +6,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from gitgalaxy.core.source_text import read_source
+
 REPO = Path(__file__).resolve().parents[2]
 REPORT_DIR = "docs/language_status/evidence_report"
 # A path into the report directory naming a file or estate, `<estate>` placeholders included; the bare directory and
@@ -27,7 +29,7 @@ def test_no_doc_agent_or_skill_references_a_generated_only_report_file():
     for rel in _tracked("*.md", ".claude/*"):
         if rel.startswith(("tests/fixtures/", REPORT_DIR + "/")) or not (REPO / rel).is_file():
             continue
-        for n, line in enumerate((REPO / rel).read_text("utf-8", errors="replace").splitlines(), 1):
+        for n, line in enumerate(read_source(REPO / rel).text.splitlines(), 1):
             for m in FILE_REF.finditer(line):
                 # reading it through `generated_branch.py show` is the sanctioned way
                 if "generated_branch.py show" not in line:
@@ -36,11 +38,11 @@ def test_no_doc_agent_or_skill_references_a_generated_only_report_file():
 
 
 def test_the_stub_names_the_generated_branch_and_the_reader():
-    text = (REPO / REPORT_DIR / "README.md").read_text("utf-8")
+    text = read_source(REPO / REPORT_DIR / "README.md").text
     assert "generated" in text and "generated_branch.py show" in text
 
 
 def test_the_gitignore_keeps_the_directory_ignored_but_for_the_stub():
-    ign = (REPO / ".gitignore").read_text("utf-8")
+    ign = read_source(REPO / ".gitignore").text
     assert f"{REPORT_DIR}/*\n!{REPORT_DIR}/README.md" in ign
     assert f"!{REPORT_DIR}/*/report.json" not in ign

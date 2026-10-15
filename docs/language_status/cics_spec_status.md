@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**255 entries:** 95 full, 2 engine-only, 158 name-only.
+**255 entries:** 98 full, 2 engine-only, 155 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -44,6 +44,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | FETCH ANY | full | yes (9 options) | yes | X18 | — | 2 (1 / 1) | — |
 | FETCH CHILD | full | yes (9 options) | yes | X18 | — | 2 (0 / 2) | — |
 | FREE CHILD | full | yes (4 options) | yes | X18 | — | 0 | — |
+| POST | full | yes (12 options) | yes | X63 | — | 0 | — |
+| WAIT EVENT | full | yes (5 options) | yes | X63 | — | 0 | — |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
 | READ | full | yes (18 options, 1 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
@@ -59,6 +61,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | RECEIVE MAP | full | yes (8 options, 1 refused by name) | yes | X31 | — | 45 (36 / 9) | hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
 | SEND CONTROL | full | yes (9 options, 1 refused by name) | yes | X15 | — | 16 (8 / 8) | hc-terminal-receive |
 | RECEIVE | full | yes (10 options) | yes | X15 | — | 9 (5 / 4) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-terminal-eoc, hc-terminal-receive |
+| CONVERSE | full | yes (12 options, 1 refused by name) | yes | X63 | — | 0 | — |
 | LINK | full | yes (8 options, 1 refused by name) | yes | X27 | — | 56 (52 / 4) | ca-channel-containers, ca-link-lengths, hc-abend-link |
 | XCTL | full | yes (7 options) | yes | — | — | 31 (22 / 9) | ca-channel-containers, ca-xctl-versions, pc-aid-menu, pc-wizard |
 | RETURN | full | yes (7 options, 1 refused by name) | yes | X27 | — | 122 (93 / 29) | ca-channel-containers, ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, hx-attr-bytes, hx-extended-cursor, pc-aid-menu, pc-wizard |
@@ -132,7 +135,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-157 more name-only entries no census program uses.
+154 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

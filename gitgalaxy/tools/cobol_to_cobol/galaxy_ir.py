@@ -4481,6 +4481,59 @@ class GalaxyIR:
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
         return out
 
+    # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
+    _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
+
+    def job_macro_tables(self) -> list:
+        """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
+
+        One entry per job step that runs an assembler and whose `SYSIN DD` is `DSN=lib(MEMBER)`:
+        `file` / `job` / `step` / `line` (the DD), `member`, and `resources`, the macro-table
+        rows (`source` "MACRO") of the one hlasm file whose name is the member, each row as
+        `csd_resources` gives it plus `defined_in`. `member_file` is None and `resources` empty
+        when no file, or more than one, is named that: a finding, not a guess. In-stream SYSIN is
+        the job's own `csd_resources`, and an override DD (`//STEP.SYSIN`) is not read.
+        """
+        members: dict[str, list] = {}
+        for f in self.files.values():
+            if any(r.source == "MACRO" for r in f.csd_resources):
+                members.setdefault(nfc(Path(f.file_path).stem.upper()), []).append(f)
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            job = next((r for r in f.job_flow if r.kind == "JOB"), None)
+            if job is None:
+                continue
+            step = None
+            for r in f.job_flow:
+                if r.in_proc:
+                    continue
+                if r.kind == "STEP":
+                    step = r if (r.program or "").upper() in self._ASSEMBLER_PROGRAMS else None
+                elif r.kind == "DD" and step is not None and (r.dd_name or "").upper() == "SYSIN":
+                    m = re.fullmatch(r"[^()]+\(([^()]+)\)", (r.dsn or "").strip())
+                    if not m:
+                        continue
+                    member = m.group(1).upper()
+                    hits = members.get(nfc(member), [])
+                    mf = hits[0] if len(hits) == 1 else None
+                    member_path = mf.file_path if mf else None
+                    out.append(
+                        {
+                            "file": f.file_path,
+                            "job": job.name,
+                            "step": step.step_name,
+                            "line": r.line,
+                            "member": member,
+                            "member_file": member_path,
+                            "resources": [
+                                {**x.__dict__, "defined_in": member_path}
+                                for x in (mf.csd_resources if mf else [])
+                                if x.source == "MACRO"
+                            ],
+                        }
+                    )
+        return out
+
     def job_dataset_flow(self) -> list:
         """Dataset producer -> consumer edges across steps and jobs (#3451).
 

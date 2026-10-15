@@ -36,10 +36,21 @@
 #          DFHTCT TYPE=REMOTE (SSGMCP_5.4.0 reference/resources/macros/tct/remote.html: ACCMETH,
 #          SYSIDNT, TRMIDNT, TRMTYPE, RMTNAME; TYPE=TERMINAL operands are valid on a home-region
 #          REMOTE), DFHMCT TYPE=EMP (SSGMCP_5.4.0 .../macros/mct/emp.html: ID, CLASS=PERFORM, ...),
-#          DFHSIT TYPE=CSECT|DSECT (SSGMCP_5.5.0 configuring/cics/dfha2_specify_dfhsit_macroparms.html).
+#          DFHSIT TYPE=CSECT|DSECT (SSGMCP_5.5.0 configuring/cics/dfha2_specify_dfhsit_macroparms.html),
+#          DFHSIT SUFFIX= (SSGMCP_5.4.0 reference/sit/dfha2_suffix.html: "Any one or two characters (other
+#          than NO and DY) are valid", "specify the SUFFIX parameter in the SIT only"; the table is
+#          DFHSIT + suffix and a start-up SIT=xx picks it), the table-name and suffix rules
+#          (SSGMCP_5.5.0 configuring/resources/dfha4ta.html: six fixed characters + a two-character
+#          suffix, FCT=MY loads DFHFCTMY), DFHMCT TYPE=RECORD (SSGMCP_5.5.0 .../macros/mct/record.html:
+#          CLASS=PERFORM, EXCLUDE=, INCLUDE= select performance fields; no operand names a resource),
+#          DFHTCT sequential devices (SSGMCP_5.5.0 .../macros/tct/seq.html: TYPE=SDSCI carries DSCNAME=
+#          and DDNAME=, TYPE=LINE names them in ISADSCN= / OSADSCN=, the DD statement is named by DDNAME)
+#          and DFHJCT's JFILEID ("supported for compatibility purposes only", SSGMCP_5.3.0 application
+#          programming "Recovery and journaling", dfhp3_recov_journaling.html).
 #   The CICS/VS and CICS/ESA 3.x "Resource Definition (Macro)" manuals themselves
-#   were NOT retrievable; where a statement below rests on [MIG] / [APAR] / a
-#   retained-spelling note instead of a syntax table, it is marked ASSUMED.
+#   were NOT retrievable (re-tried 2026-10-15 for #5154: no IBM page for DFHJCT, DFHPCT, DFHPPT
+#   or DFHTCT TYPE=GPENTRY exists in the TS 5.x library); where a statement below rests on [MIG] /
+#   [APAR] / a retained-spelling note instead of a syntax table, it is marked ASSUMED.
 #
 # MACRO -> RESOURCE:
 #
@@ -75,30 +86,36 @@
 #   DFHSRT TYPE=SYSTEM|USER,ABCODE=(..),RECOVER=YES   SRT  one row per code, named as MVS names it
 #          (Sxxx three hex digits / Unnnn decimal) [TS]. RECOVER=NO or no RECOVER REMOVES the codes
 #          [TS]: that is not a definition, so no row. (The operand is ABCODE, not CODE.)
-#   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  ASSUMED: no IBM syntax page for the JCT macro was
-#          retrievable; JFILEID= / JTYPE= are read from secondary sources (Xephon CICS Update 1999-04,
-#          a DFHJCT TYPE=ENTRY example with JFILEID=SYSTEM,JTYPE=DISK2; the CICS TS 1.3 manual is
-#          the reference to confirm against). Only JFILEID names the row; every other operand stays in
+#   DFHJCT TYPE=ENTRY,JFILEID=SYSTEM|nn   JOURNAL  ASSUMED (kept by name, #5154): IBM has no JCT syntax
+#          page in the TS 5.x library; the only IBM statement found is that the JFILEID option is
+#          "supported for compatibility purposes only" [TS]. JFILEID= / JTYPE= (and the JTYPE=DISK2
+#          spelling) rest on secondary sources (Xephon CICS Update 1999-04); the CICS TS 1.3 RDG is the
+#          reference to confirm against. Only JFILEID names the row; every other operand stays in
 #          `attributes`.
 #   DFHTCT TYPE=TERMINAL|REMOTE,TRMIDNT=  TERMINAL; TYPE=SYSTEM,SYSIDNT=  CONNECTION [TS]. TRMTYPE,
 #          ACCMETH, NETNAME, SYSIDNT, RMTNAME ride in `attributes`.
 #   DFHMCT TYPE=EMP,CLASS=PERFORM,ID=  MONITORPOINT (a user event monitoring point; it has no CSD
 #          counterpart; ID is `number`, `(PP,number)` or `entryname.number`, kept as written) [TS].
-#   DFHSIT TYPE=CSECT|DSECT  SIT  one row (name = SUFFIX= if coded, else DFHSIT). The system
-#          initialization parameters, including the table suffixes it selects (FCT=, DCT=, SRT=, ...),
-#          ride in `attributes`; they are not expanded to rows (REFUSED). Whether SIT has a SUFFIX
-#          operand is ASSUMED (SIT names come from the SIT= start-up override, not the macro).
+#   DFHSIT TYPE=CSECT|DSECT  SIT  one row, named as IBM names the table: DFHSIT + SUFFIX= (one or two
+#          characters, not NO or DY [TS]; a SUFFIX outside that names nothing and the row is DFHSIT),
+#          `macro_table` the same. SUFFIX is confirmed, not ASSUMED. The system initialization
+#          parameters, including the table suffixes it selects (FCT=, DCT=, SRT=, GRPLIST=, ...), ride
+#          in `attributes`; they are not expanded to rows (REFUSED): a SIT parameter names the table or
+#          list a start-up loads, which the SIT= / SYSIN override can change, and no source tree states.
 #   JCL: a job with an assembler step (PGM=ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR) or DFHAUPLE carries the
 #          tables as in-stream SYSIN; mainframe_boundary reads them through the same function, and
-#          the row's `line` is the line in the job. A SYSIN that is a separate member is that member's.
+#          the row's `line` is the line in the job. A SYSIN that is a separate member is that member's:
+#          `GalaxyIR.job_macro_tables` joins the member's tables to the job step (#5154).
 #   CEDA / CEMT runtime state is REFUSED: installed state is not in a source tree (register entry).
 #
 #   REFUSED (read nothing rather than guess): FCT `RECSIZE=` (not an FCT operand; the
 #   record length is LRECL); DATAID=() (the "any other queue" null, it names no prefix);
 #   DFHTST TYPE=SHARED (a pool, not a model); TYPE=INITIAL / FINAL / GROUP (assembly
 #   control and CSD-migration statements, not resources); a TYPE= or RECFORM word the
-#   manual does not list; DFHTCT TYPE=LINE / GPENTRY / SDSCI (no resource named by the operands
-#   read); DFHMCT TYPE=RECORD (not retrieved); DFHJCT TYPE=INITIAL / FINAL.
+#   manual does not list; DFHTCT TYPE=LINE / SDSCI (sequential-device plumbing: SDSCI is the DD of the
+#   simulated device and LINE joins two SDSCIs by ISADSCN= / OSADSCN= [TS]; the terminal it serves is
+#   the TYPE=TERMINAL row); DFHTCT TYPE=GPENTRY (no IBM page); DFHMCT TYPE=RECORD (selects
+#   performance fields, names no resource [TS]); DFHJCT TYPE=INITIAL / FINAL.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Joining a macro FILE to its JCL dataset, and
@@ -242,6 +259,12 @@ def _dct_row(line: int, text: str, keyed: dict[str, str], kind: str, table: str,
     return _row("TDQUEUE", name, table, line, text, rdo, **extra)
 
 
+def _sit_suffix(value: str | None) -> str:
+    """DFHSIT SUFFIX= -> its one or two characters, or "" (any other value is not a SUFFIX) [TS dfha2_suffix]."""
+    text = (_first(value) or "").strip("'\"").upper()
+    return text if 1 <= len(text) <= 2 and text not in ("NO", "DY") else ""
+
+
 def _emp_id(value: str | None) -> str | None:
     """DFHMCT ID= -> `entryname.number`: `180` / `(PP,3)` / `BANK.180` [CICS TS 5.4 DFHMCT TYPE=EMP].
 
@@ -369,5 +392,6 @@ def cics_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
                 rows.append(_row("MONITORPOINT", name, table, line, text))
         elif op == "DFHSIT" and kind in ("CSECT", "DSECT"):
             # One row per table; the table-selection operands (FCT=, DCT=, ...) ride in `attributes`.
-            rows.append(_row("SIT", _name(keyed.get("SUFFIX")) or "DFHSIT", table, line, text))
+            suffix_ = _sit_suffix(keyed.get("SUFFIX"))
+            rows.append(_row("SIT", "DFHSIT" + suffix_, "DFHSIT" + suffix_, line, text))
     return rows

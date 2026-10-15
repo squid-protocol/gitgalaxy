@@ -2088,8 +2088,8 @@ class Cics:
         target = self.field(opts["INTO"])
         limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
         out = [f"{ind}String {t} = {text};",
-               f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), {n}, "
-               f"{limit}, {str('NOTRUNCATE' in opts).lower()});",
+               (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
+                f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
                f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
         if settable and length is not None:
             out.append(

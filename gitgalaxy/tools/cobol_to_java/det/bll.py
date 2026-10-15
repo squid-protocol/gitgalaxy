@@ -15,9 +15,15 @@ cell`, the `ADD 4096` statements go, and `MOVE cell TO cell` is `SET cell TO cel
 pointer-lane program (GETMAIN SET, SET ADDRESS OF; DetCics / CicsTask in the port, the stub and GnuCOBOL's own SET
 ADDRESS OF in the oracle), and both sides run the same lowered program. The record is addressed anew only where the
 program reloads it, as IBM's compiler does; everything the lowering cannot keep exactly is refused by name, the whole
-program (`Refused`, prefixed REFUSED_PREFIX): a cell used as a number, a cell changed with no SERVICE RELOAD of its record
-later in the same paragraph (IBM's chained storage areas, addressed again through a paragraph name), a long record
-reloaded before its secondary cells were reset, SERVICE LABEL. What IBM leaves open is in the register entry.
+program (`Refused`, prefixed REFUSED_PREFIX): a cell used as a number, a long record reloaded before its secondary cells
+were reset, SERVICE LABEL. What IBM leaves open is in the register entry.
+
+IBM's chained storage areas (same book, "BLL and chained storage areas", p. 22: `MOVE NEXTAREA TO USERPTR. ANYNAME.`) are
+kept too: a cell changed with no SERVICE RELOAD of its record later in its paragraph is re-addressed at every paragraph
+name ("Insertion of a paragraph name causes the compiler to generate code to reestablish addressability"), so its record
+is reloaded at the head of each paragraph (`SET ADDRESS OF` for the oracle; `CALL 'GGCBLLR'` for det, which leaves the
+record as it is when the cell is null); an address moved between a cell and a fullword of data is a token both runtimes
+number alike (`CALL 'GGCBLLP'` / `'GGCBLLG'`; ggcics.c, CicsTask.bllToken).
 """
 
 from __future__ import annotations
@@ -102,6 +108,20 @@ def needed(texts: list[str]) -> bool:
     return bool(named) and any(m and m.group(1).upper() in named for m in map(_FULLWORD.match, texts))
 
 
+def _fullword(records: list, name: str) -> bool:
+    """Whether `name` is one plain fullword binary integer (no OCCURS above it): what may hold an address in data."""
+    its = [it for r in records for it in r.walk() if it.name.upper() == name]
+    if len(its) != 1:
+        return False
+    it, up = its[0], its[0]
+    while up is not None:
+        if up.occurs != 1:
+            return False
+        up = up.parent
+    return (not it.children and it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.size == 4
+            and it.scale == 0)  # fmt: skip
+
+
 def _mask(text: str) -> str:
     return _outside_literals(text).upper()
 
@@ -154,9 +174,10 @@ def _map(cand, rest: list) -> Cells:
     return Cells(cand.name.upper(), cells, base, extra, of)
 
 
-def plan(lines: list[Line], records: list, own: str) -> Plan | None:
+def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Plan | None:
     """The lowering of a program (its logical lines, its records as det.layout parses them; `own` the program's file:
-    only its own lines are changed), or None when it needs none. Raises Refused."""
+    only its own lines are changed), or None when it needs none; `oracle`: written for GnuCOBOL and the stub, not det.
+    Raises Refused."""
     proc_at = next((i for i, ln in enumerate(lines) if _PROCEDURE.match(ln.text)), None)
     if proc_at is None:
         return None
@@ -198,6 +219,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
     linkage = {r.name.upper() for r in records if r.section == "LINKAGE" and r.level == 1}
     names = {it.name.upper() for r in records for it in r.walk()}
     out = Plan()
+    through: set[str] = set()
     # ---- the statements: (start, end, replacement, event) in text order ----------------------------------------
     found: list[tuple[int, int, str, tuple]] = []
     for m in _LABEL.finditer(text):
@@ -234,14 +256,20 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             if in_exec(m.start()) or (a not in cellset and b not in cellset):
                 continue
             where = f"line {lines[line_of(m.start())].line}"
-            if a not in cellset or b not in cellset:
-                raise Refused(f"MOVE {a} TO {b} ({where}): an address moved to or from a data item")
             if cells.of.get(b, ("", 0))[1] or cells.of.get(a, ("", 0))[1]:
                 raise Refused(f"MOVE {a} TO {b} ({where}): a secondary cell of a long record (only ADD 4096 sets one)")
+            data = b if a in cellset and b not in cellset else a if a not in cellset else None
+            if data is not None and (data == cells.name or not _fullword(records, data)):
+                raise Refused(f"MOVE {a} TO {b} ({where}): an address moved to or from {data}, no plain fullword")
             nxt = _WORD.match(text, len(text) - len(text[m.end() :].lstrip()))
             if nxt is not None and nxt.group(0) not in _ENDS and (nxt.group(0) in names or nxt.group(0) in cellset):
                 raise Refused(f"MOVE {a} TO {b} {nxt.group(0)} ({where}): an address moved to several items")
-            found.append((m.start(), m.end(), f"SET {b} TO {a}", ("change", b)))
+            if data is None:
+                found.append((m.start(), m.end(), f"SET {b} TO {a}", ("change", b)))
+            elif data == b:  # (an address into data: the token for it, IBM's chained area's "pointer to the next area")
+                found.append((m.start(), m.end(), f"CALL 'GGCBLLP' USING {a} {b}", ("none",)))
+            else:
+                found.append((m.start(), m.end(), f"CALL 'GGCBLLG' USING {a} {b}", ("change", b)))
         for a, b in execs:
             for o in _OPTION.finditer(text, a, b):
                 if o.group(2) not in cellset:
@@ -257,7 +285,7 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             for m in re.finditer(rf"(?<![A-Z0-9-]){re.escape(name)}(?![A-Z0-9-])", text):
                 if not any(s <= m.start() < e for s, e in spans):
                     raise Refused(f"{name} (line {lines[line_of(m.start())].line}): a BLL cell used as a number")
-        _paragraph_rule(lines, proc, starts, found, cells, line_of)
+        through = _paragraph_rule(lines, proc, starts, found, cells, line_of)
     if not found:
         return None
     # ---- the edits --------------------------------------------------------------------------------------------
@@ -281,23 +309,34 @@ def plan(lines: list[Line], records: list, own: str) -> Plan | None:
             t = t[:a] + rep + t[b:]
         out.edits[i] = [t] if t.strip() else []
     if cells is not None:
+        if through:
+            _paragraph_reloads(lines, proc, starts, text, cells, through, own, oracle, out)
         _data_edits(lines, cells, own, proc_at, out)
     return out
 
 
-def _paragraph_rule(lines, proc, starts, found, cells: Cells, line_of) -> None:
+def _heads(lines, proc) -> list[int]:
+    """The places in `proc` (its indexes past the PROCEDURE DIVISION header) where a paragraph or section name starts."""
+    return [k for k, i in enumerate(proc) if k and (m := _PARAGRAPH.match(lines[i].text))
+            and m.group(1).upper() not in _ENDS]  # fmt: skip
+
+
+def _paragraph_rule(lines, proc, starts, found, cells: Cells, line_of) -> set[str]:
     """IBM: SERVICE RELOAD must follow every statement that changes a cell, and a long record's secondary cells are
-    reset before it. A change with no SERVICE RELOAD of its record later in the same paragraph would be addressed
-    again only at the next paragraph name (IBM's chained storage areas): refused, as is a reload too early."""
-    heads = [starts[k] for k, i in enumerate(proc) if k and (m := _PARAGRAPH.match(lines[i].text))
-             and m.group(1).upper() not in _ENDS]  # fmt: skip
+    reset before it (refused when too early). A change with no SERVICE RELOAD of its record later in the same paragraph
+    is addressed again at the next paragraph name (IBM's chained storage areas): the records so changed are returned,
+    to be reloaded at every paragraph name; a long record's secondary cells must be reset before that name too."""
+    heads = [starts[k] for k in _heads(lines, proc)]
     events = sorted(found, key=lambda f: f[0])
     pending: dict[str, tuple[set[str], int]] = {}
+    through: set[str] = set()
 
     def close() -> None:
-        for rec, (_left, at) in pending.items():
-            raise Refused(f"{cells.base[rec]} changed (line {lines[line_of(at)].line}) with no SERVICE RELOAD {rec} "
-                          "after it in the paragraph (addressability through a paragraph name)")  # fmt: skip
+        for rec, (left, at) in pending.items():
+            if left:
+                raise Refused(f"{cells.base[rec]} changed (line {lines[line_of(at)].line}) and a paragraph name reached "
+                              f"before its secondary cells {', '.join(sorted(left))} were reset")  # fmt: skip
+            through.add(rec)
 
     h = 0
     for s, _e, _rep, ev in events:
@@ -321,6 +360,33 @@ def _paragraph_rule(lines, proc, starts, found, cells: Cells, line_of) -> None:
                 raise Refused(f"SERVICE RELOAD {ev[1]} (line {lines[line_of(s)].line}) before its secondary cells "
                               f"{', '.join(sorted(left))} were reset")  # fmt: skip
     close()
+    return through
+
+
+def _paragraph_reloads(lines, proc, starts, text, cells: Cells, through: set[str], own: str, oracle: bool,
+                       out: Plan) -> None:  # fmt: skip
+    """Each record in `through` reloaded from its base cell at the head of every paragraph and section (IBM's compiler
+    re-addresses at each procedure name, however it is reached: falling into it, GO TO, PERFORM, a HANDLE exit). A
+    paragraph that is only EXIT reads no record, so it is left alone."""
+    recs = [r for r in cells.base if r in through]  # (in the cells' order: the same text every time)
+    stmts = [f"    SET ADDRESS OF {r} TO {cells.base[r]}." if oracle else f"    CALL 'GGCBLLR' USING {r} {cells.base[r]}."
+             for r in recs]  # fmt: skip
+    heads = _heads(lines, proc)
+    if re.search(r"(?<![A-Z0-9-])DECLARATIVES\s*\.", text):
+        raise Refused("DECLARATIVES in a program whose records are addressed again at paragraph names")
+    for n, k in enumerate(heads):
+        i = proc[k]
+        m = _PARAGRAPH.match(lines[i].text)
+        if m is None:  # (_heads matched it)
+            continue
+        end = starts[heads[n + 1]] if n + 1 < len(heads) else len(text)
+        if text[starts[k] + m.end() : end].strip() == "EXIT.":
+            continue
+        if lines[i].file != own:
+            raise Refused(f"a paragraph name in the COPY member {Path(lines[i].file).name}")
+        base = (out.edits.get(i) or [lines[i].text])[0]
+        rest = base[m.end() :]
+        out.edits[i] = [base[: m.end()], *stmts, *([rest] if rest.strip() else [])]
 
 
 def _data_edits(lines: list[Line], cells: Cells, own: str, proc_at: int, out: Plan) -> None:
@@ -391,7 +457,7 @@ def lower_text(source: str, dirs: list[Path]) -> str:
         return source
     own = "<program>"
     lines = expand(logical_lines(raw, own), list(dirs))
-    p = plan(lines, _records(lines), own)
+    p = plan(lines, _records(lines), own, oracle=True)
     if p is None:
         return source
     edits: dict[int, list[str]] = {}

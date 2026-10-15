@@ -5379,6 +5379,45 @@ int GGCFREM(gg_cics *c, void **slot) {
     return 0;
 }
 
+/* ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword). `MOVE cell TO fullword` is
+ * CALL 'GGCBLLP' USING cell fullword, `MOVE fullword TO cell` CALL 'GGCBLLG' USING fullword cell. A real address does not fit a
+ * fullword here, so the fullword holds a token (ASSUMED): 0 for NULL, the n-th distinct address moved into data n * 65536 (at most
+ * 1525: 8 digits), 4 bytes big-endian, numbered as CicsTask.bllToken. A block is never reused (blk_new), so one address is one block. */
+static void *bll_tok[1525];
+static int nbll_tok = 0;
+
+int GGCBLLP(void **cell, unsigned char *data) {
+    unsigned int v = 0;
+    int i;
+    if (*cell) {
+        for (i = 0; i < nbll_tok && bll_tok[i] != *cell; i++) {
+        }
+        if (i == nbll_tok) {
+            if (nbll_tok >= 1525) refuse("more than 1525 BLL addresses held in data");
+            bll_tok[nbll_tok++] = *cell;
+        }
+        v = (unsigned int)(i + 1) * 65536U;
+    }
+    for (i = 3; i >= 0; i--) {
+        data[i] = (unsigned char)(v & 0xFF);
+        v >>= 8;
+    }
+    return 0;
+}
+
+int GGCBLLG(unsigned char *data, void **cell) {
+    long long v = (long long)(signed char)data[0];
+    int i;
+    for (i = 1; i < 4; i++) v = (v << 8) | data[i];
+    if (v == 0) {
+        *cell = NULL;
+        return 0;
+    }
+    if (v < 0 || v % 65536 != 0 || v / 65536 > nbll_tok) refuse("an address in data that no BLL cell gave");
+    *cell = bll_tok[v / 65536 - 1];
+    return 0;
+}
+
 /* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
  * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
  * a LINKAGE item the caller did not pass names no storage. */

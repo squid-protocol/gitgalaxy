@@ -2368,6 +2368,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CICS-BLL-ADDRESS",
+   "family": "CICS",
+   "title": "OS/VS COBOL chained storage areas: an address moved between a BLL cell and a fullword of data is a token both runtimes number alike (0 NULL, the n-th address n * 65536; a value no cell gave is refused), and a record is addressed again through its cell at a paragraph name (a null cell leaves it as it is)",
+   "methods": [
+    "bllToData",
+    "bllFromData",
+    "bllReload"
+   ],
+   "ibm": null,
+   "ibm_note": "CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, 'BLL and chained storage areas' (p. 22): not an online IBM doc; the token is assumed (a real address does not fit a fullword in the instrument)",
+   "options": [],
+   "register": [
+    "X56"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-SQL-FAULT-INJECTION",
    "family": "SQL",
    "title": "A planned SQL fault (PROGRAM LINE NTH SQLCODE SQLSTATE) replaces the statement's execution, the SQLCA set as Db2 would set it",

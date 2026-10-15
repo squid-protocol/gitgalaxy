@@ -68,6 +68,7 @@ Do NOT commit the rendered evidence report (`docs/language_status/evidence_repor
 - Golden: bless only via `golden-lock.sh python tests/tools/crucible_check.py --update --yes`, on BOTH legs (both modes it runs), only after a real-scan proof. Attribute every diff to your change (`scope_check.py --expect <lang>`); never bless a sibling's drift. REFUSE to bless if the run excluded files via timeouts (load-induced fake diffs, #4247); rerun when quieter.
 - Bless with `crucible_check.py --update --yes` ONLY (CI-matched venvs per leg), never `update_golden_master` from `~/venvs/galaxy_venv` (py3.12 vs CI pin gave ~2.9k phantom diffs, #4258). After a sibling merge that moved the golden masters, merge origin/main and re-bless (a sibling merge that did not is no reason to merge).
 - Before calling any failure "pre-existing": `git fetch` and re-test on current origin/main (`pr_gates.py --vs-main` does it).
+- `pr_gates --fast` uses the CI ruff 0.16.10 from `~/.cache/gitgalaxy/ruff-0.16.10`; the shared venv's 0.16.0 `ruff format` rewrites ~20 unrelated files, so format only your own files with the CI ruff (#5189).
 - `ruff format` changed `.py` files only (`git diff --name-only`, never bare `ruff format .`), THEN regenerate any baseline.
 - Gates before push: `pr_gates.py --fast` and `--ratchets` ONLY, via `heavy-run.sh`, with JDK 17 from `equivalence_env --shell`; never two gate runs at once. The full suite is CI's job (owner, 2026-10-07). It warns if local ruff/mypy/python differ from CI; follow its private-venv hint. Re-read new subclasses for a missing `super().__init__()`. The `port-surface` ratchet can fail in a full `--ratchets` run and pass alone: rerun it with `--only-ratchets port-surface --vs-main` before chasing it (#5167). Lint with `pr_gates --fast`, not bare `ruff check` (#5177).
 - Taking over a stale or foreign branch: check divergence first (`git rev-list --left-right --count origin/main...HEAD`). A red caused by staleness (pins, golden masters) is fixed by the merge rule in the next bullet, not by merging just to be current.
@@ -86,6 +87,14 @@ Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `rese
 To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md; the label rules run on GitHub). The local `python tests/tools/box/ci_shepherd.py add N` still works as the fallback.
 
 Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures; report what it said, not what you expect. A conclusion of `action_required` together with a CONFLICTING PR means merge main (no checks ran); it is not a failure. A killed background watcher is not a CI failure.
+
+After a crucible pin bump (including cics-crucible), run `sync-pins.sh` so the shared checkouts move: the ratchets gate reads them (#5192).
+
+A workflow or CI-script change has its own traps:
+- On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the commit sha: the sha only has an entry for commits that triggered the workflow (#5184).
+- A step that runs `git diff origin/main...HEAD` needs `fetch-depth: 0` on the checkout; the default shallow clone has no merge base, so a planner silently falls back to "full" (#5191).
+- A rerun that "passes on the same SHA" may be main moving under a stale PR: check the failed test against main's recent commits before calling it a flake (#5184).
+- A cics-crucible `case.json` can list a `sources.copy` directory that is not on disk (git carries no empty dir): guard `iterdir()` on case dirs (#5192).
 
 A wall of golden-crucible / tree-sitter-audit red "... is on vX but CI pins vY" means your branch's pins (`tests/crucible_pins.toml`) are behind main: merge origin/main and run `sync-pins.sh`; never re-bless for it.
 

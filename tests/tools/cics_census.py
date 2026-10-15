@@ -483,7 +483,10 @@ def gap_classes(r: dict[str, Any]) -> set[str]:
 
 
 def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
-    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them)."""
+    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them), and of
+    every CICS Assembler / macro-level assembler member (#5158: det_survey.assembler_rows, refused by name)."""
+    from det_survey import assembler_rows
+
     from gitgalaxy.core.source_text import read_source
 
     out = set()
@@ -495,6 +498,7 @@ def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
                         out.add((name, prog.relative_to(corpus).as_posix()))
                 except OSError:
                     continue
+        out.update((name, r["program"]) for r in assembler_rows(corpus))
     return out
 
 

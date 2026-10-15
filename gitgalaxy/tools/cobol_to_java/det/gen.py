@@ -86,6 +86,9 @@ LIBRARY_CLOCK = {
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
+# #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
+# cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
+BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
 LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
@@ -2588,6 +2591,19 @@ class Gen:
             if code is None:
                 return [f'{ind}if (true) throw CobolAbend.user(0, "CEE3ABD");']
             return [f'{ind}if (true) throw CobolAbend.user({self.int_expr(code)}, "CEE3ABD");']
+        if prog in BLL_CALLS:  # #5119 (X56): det/bll.py's lowering of an address held in data / a paragraph reload
+            if (
+                self.cics is None
+                or len(args) != 2
+                or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args)
+            ):
+                raise Untranslatable(f"CALL {prog}: the BLL lowering's two items expected")
+            a, b = (x for _, x in args)
+            if prog == "GGCBLLP":
+                return [f"{ind}DetCics.bllToData(task, {self.pointer_item(a.name)}, {self.field_expr(b)});"]
+            if prog == "GGCBLLG":
+                return [f"{ind}DetCics.bllFromData(task, {self.field_expr(a)}, {self.pointer_item(b.name)});"]
+            return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
             if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):

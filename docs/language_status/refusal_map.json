@@ -233,7 +233,7 @@
       "features": [
         "statements: SERVICE"
       ],
-      "note": "OS/VS COBOL's BLL cells and SERVICE RELOAD (era 1) are lowered onto the pointer lane by IBM's conversion to VS COBOL II (register X56); an idiom the lowering cannot keep exactly is refused whole by name."
+      "note": "OS/VS COBOL's BLL cells and SERVICE RELOAD (era 1) are lowered onto the pointer lane by IBM's conversion to VS COBOL II, chained storage areas included (register X56); an idiom the lowering cannot keep exactly is refused whole by name."
     },
     {
       "id": "soap",

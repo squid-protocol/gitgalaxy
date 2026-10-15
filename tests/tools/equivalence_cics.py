@@ -2759,14 +2759,22 @@ def csd_tdqueue_attrs(corpus: Path, case: dict[str, Any]) -> dict[str, dict[str,
 
 def td_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
     """#5168 (X61): the transient-data queues' records when the task starts ({"QUEUE": [record text, ...]}), the scenario's "td",
-    else the case's: an intrapartition queue's, or an open extrapartition input queue's data set. ASCII text (the stub gets the
-    bytes in the data's encoding, CicsTask the text)."""
+    else the case's: an intrapartition queue's, or an open extrapartition input queue's data set. Text the data's encoding holds
+    whole (the stub gets its bytes in that encoding, CicsTask the text); a character the page lacks is refused."""
     seed = sc.get("td", case.get("td")) or {}
+    enc = common.data_encoding(case)
     for q, items in seed.items():
-        if not (0 < len(q) <= 4 and isinstance(items, list) and all(isinstance(i, str) and i.isascii() for i in items)):
+        if not (0 < len(q) <= 4 and q.isascii() and isinstance(items, list) and all(isinstance(i, str) for i in items)):
             raise Unsupported(
-                f'scenario {sc.get("name")}: "td" maps a queue name (1-4) to a list of ASCII record texts'
+                f'scenario {sc.get("name")}: "td" maps a queue name (1-4, ASCII) to a list of record texts'
             )
+        for i in items:
+            try:
+                whole = i.encode(enc).decode(enc) == i
+            except UnicodeError:
+                whole = False
+            if not whole:
+                raise Unsupported(f'scenario {sc.get("name")}: "td" record {i!r} does not round-trip through {enc}')
     return seed
 
 
@@ -3764,9 +3772,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
-        elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
-            text = common._decode_text(data, enc)
-            res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+        elif verb == "WRITEQ-TD":  # a record as text in the data page
+            if kv.get("resp", "0") == "0":
+                text = common._decode_text(data, enc)
+                res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)

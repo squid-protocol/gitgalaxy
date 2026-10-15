@@ -2256,6 +2256,15 @@ public class CicsTask {
         root.tdPhysical.clear();
     }
 
+    /** #5168 (X61): WRITEQ TD to an extrapartition queue: NOTOPEN (19) when closed (OPENTIME DEFERRED), INVREQ (16) when open for
+     *  input; a queue with no TYPEFILE (or RDBACK) is taken as open for output (ASSUMED), as before. */
+    private int tdExtraWriteResp(String q) {
+        if ("DEFERRED".equals(tdAttr(q, "OPENTIME"))) {
+            return 19;
+        }
+        return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
      *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
      *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
@@ -2266,7 +2275,7 @@ public class CicsTask {
         String t = tdResolve(q);
         int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0] : kind == 0 ? 44 : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
             tdTouch(t);
@@ -5526,6 +5535,7 @@ public class CicsTask {
             if (!root().syncpointed && root().rollbackHook != null) {
                 root().rollbackHook.run();
             }
+            tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"

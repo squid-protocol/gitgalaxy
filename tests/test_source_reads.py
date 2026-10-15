@@ -26,6 +26,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parent.parent
 PACKAGE = REPO / "gitgalaxy"
 TESTS = REPO / "tests"  # rule 1 only: rule 2's scope is gitgalaxy/ paths

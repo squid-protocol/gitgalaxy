@@ -1886,7 +1886,7 @@ class Cics:
             # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X58)
             out.append(f"{ind}if ({r}.data() != null) DetCics.setBlock(task, {into_ptr}, null, "
                        f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
-            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+            set_back = g.store_into(self.ref(length or ""), f"BigDecimal.valueOf({r}.length())", False)
             out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
         elif into:
             self.region_used = True

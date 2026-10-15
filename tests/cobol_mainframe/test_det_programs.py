@@ -1926,3 +1926,34 @@ def test_a_second_01_of_the_same_name_declares_one_storage_or_is_refused(tmp_pat
         assert java.count("Storage s_D ") == 1, java
     with pytest.raises(ValueError, match="second 01 group named D"):
         translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9.", "01 D.", "   05 D1 PIC 9."])
+
+
+def test_repeated_01_filler_groups_each_get_their_own_storage(tmp_path):
+    """#4767: zECS ZECS001 declares `01 FILLER.` four times, each with named children. Nothing can name a FILLER, so no
+    reference is ambiguous (unlike a repeated real name): each group keeps its own storage and its children bind to it.
+    The first keeps `s_FILLER` (ports of programs with one `01 FILLER` do not move)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "t"
+    src.mkdir()
+    (src / "FILX.cbl").write_text(
+        program(
+            "FILX",
+            [
+                "01 FILLER.",
+                "   05 A PIC X(3) VALUE 'abc'.",
+                "01 FILLER.",
+                "   05 B PIC X(3) VALUE 'xyz'.",
+                "01 FILLER.",
+                "   05 C PIC 9(2) VALUE 7.",
+            ],
+            ["DISPLAY A B C"],
+        )  # fmt: skip
+    )
+    (src / "project").mkdir()
+    java = P.translate(src / "FILX.cbl", [], "public class FilxService {\n}\n", PKG, None, src / "project").java
+    assert java.count("Storage s_FILLER ") == 1, java
+    assert java.count("Storage s_FILLER_") == 2, java
+    if _java() is not None:  # the port compiles and each group's children read their own bytes
+        assert _java_run("FILX", (src / "FILX.cbl").read_text(), tmp_path) == "abcxyz07\n"

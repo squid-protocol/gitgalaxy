@@ -366,7 +366,6 @@ class _KeyCics(_RbaCics):
         "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DATE(KEY)",  # #4415 slice 3 (X46): the DATFORM order is the installation's
         "ASKTIME ABSTIME(REC) RESP(R)",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
-        "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
         "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
@@ -1001,6 +1000,7 @@ _RESP_ELSEWHERE = {
     "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
+    "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 
@@ -1082,7 +1082,6 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
                        "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
                        "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
     for bad, why in (
-        ("RECEIVE SET(PTR) LENGTH(RLEN) MAXLENGTH(80)", "pointers are not modelled"),
         ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
@@ -1860,7 +1859,6 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
         ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
         ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
-        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL)", "pointer"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
@@ -1942,7 +1940,6 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("START TRANSID('T') AFTER", "go with AFTER / AT"),
         ("START INTERVAL(0)", "without TRANSID"),
         ("START TRANSID('T') LENGTH(4)", "LENGTH without FROM"),
-        ("RETRIEVE SET(P) LENGTH(L)", "pointer"),
         ("RETRIEVE INTO(AREA) WAIT", "WAIT"),
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),

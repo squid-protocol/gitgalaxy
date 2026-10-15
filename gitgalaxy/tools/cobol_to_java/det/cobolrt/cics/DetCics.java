@@ -689,6 +689,22 @@ public final class DetCics {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
     }
 
+    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X58): a new block of task storage holding the
+     *  data, its handle in the pointer. `key` is what ends the pointer's validity (CicsTask.acquireSet). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data) {
+        setPointer(ptr, task.acquireSet(key, data));
+    }
+
+    /** As above; `syncEnds`: a SYNCPOINT also ends the pointer (a READ UPDATE SET, a READNEXT / READPREV SET). */
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data, boolean syncEnds) {
+        setPointer(ptr, task.acquireSet(key, data, syncEnds));
+    }
+
+    public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
+        setBlock(task, ptr, key, data.getBytes(cs));
+    }
+
     /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
@@ -709,6 +725,16 @@ public final class DetCics {
     public static void setPointerToRecord(CicsTask task, Field ptr, Field record) {
         wholeRecord(record, "ADDRESS OF");
         setPointer(ptr, task.addressOf(record.storage().bytes));
+    }
+
+    /** ADDRESS COMMAREA(ptr) (X59): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA (EIBCALEN 0) is
+     *  refused (IBM sets X'FF000000', not the COBOL NULL a handle can hold). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCommarea(CicsTask task, Field ptr, Field record, int eibcalen) {
+        if (eibcalen == 0) {
+            throw new PastFrom("ADDRESS COMMAREA with no COMMAREA: not modelled");
+        }
+        setPointerToRecord(task, ptr, record);
     }
 
     private static void wholeRecord(Field record, String what) {

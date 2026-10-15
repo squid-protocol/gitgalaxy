@@ -529,8 +529,23 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
     queue = opts.get("QUEUE") or opts.get("QNAME")
     area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
+    setp = opts.get("SET") if verb == "READQ" else None
     if not queue:
         raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
+    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
+        if area:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        item, num = opts.get("ITEM"), opts.get("NUMITEMS")
+        lines = [f"MOVE {queue} TO GG-QNAME", "MOVE 0 TO GG-LEN",
+                 f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM"]  # fmt: skip
+        lines += _call("GGCRDQS", [f"BY REFERENCE {_pointer(feature, setp)}"])
+        lines += ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"]
+        if num:
+            lines += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
+        return lines + _resp(opts, True, labels)
     if not area:
         raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
     length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
@@ -704,13 +719,21 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
         lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
-        into = opts.get("INTO")
+        into, setp = opts.get("INTO"), opts.get("SET")
         length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
-        if not into and (not named or length):
+        if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
+            if into:
+                raise Unsupported(_rule("RETRIEVE", "at_most_one", "INTO"), ["RETRIEVE"])
+            if not length or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()):
+                raise Unsupported(_rule("RETRIEVE", "requires", "SET"), ["RETRIEVE"])
+        elif not into and (not named or length):
             raise Unsupported(_rule("RETRIEVE", "requires", "LENGTH"), ["RETRIEVE"])
-        flags = " ".join((["INTO"] if into else []) + named)
+        flags = " ".join((["INTO"] if into or setp else []) + named)
         lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
-        lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
+        if setp:
+            lines += _call("GGCRTRS", [f"BY REFERENCE {_pointer('RETRIEVE', setp)}"])
+        else:
+            lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
         if length:
             lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
         if named:
@@ -1077,6 +1100,29 @@ def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]
     return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
 
 
+def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
+    stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
+    then is the pointer itself. The option rules as the det translator's."""
+    key = "ADDRESS"
+    _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
+    if not (opts.get("EIB") or opts.get("COMMAREA")):
+        raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
+    lines: list[str] = []
+    if opts.get("EIB"):
+        lines += ["MOVE SPACES TO GG-FLAGS"]
+        lines += _call("GGCADDR", [f"BY REFERENCE {_pointer(key, opts['EIB'])}", "BY REFERENCE DFHEIBLK"])
+    if opts.get("COMMAREA"):
+        ptr = _pointer(key, opts["COMMAREA"])
+        lines += ["MOVE EIBCALEN TO GG-NUM", "MOVE 'COMMAREA' TO GG-FLAGS", "IF EIBCALEN = 0"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", f"BY REFERENCE {ptr}"])]
+        lines += ["ELSE"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
+        lines += ["END-IF"]
+    return lines + _resp(opts, False, labels)
+
+
 def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
     key = "FREEMAIN"
@@ -1272,7 +1318,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"READ {bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDST, the record as a new block
+        if "SET" in opts and into:
+            raise Unsupported(_rule("READ", "one_of", "INTO"), ["READ"])
+        if not (file and (into or setp) and ridfld):
             raise Unsupported("READ without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
@@ -1293,6 +1342,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
         if "TOKEN" in opts:
             after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
+        if setp:  # (LENGTH(data-area) is set to the record's length, on NORMAL and DUPKEY, as the translator's)
+            if length and not settable:
+                raise Unsupported("READ SET with a literal LENGTH: only a data area is modelled", ["READ SET"])
+            after = ["IF GG-RESP = 0 OR GG-RESP = 15", f"    MOVE GG-LEN TO {length}", "END-IF"] if length else []
+            if "TOKEN" in opts:
+                after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
+            return ([name(file, "GG-NAME1"), update, "MOVE 0 TO GG-LEN"]
+                    + _call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer('READ', setp)}"])
+                    + after + _resp(opts, True, labels))  # fmt: skip
         return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
@@ -1346,9 +1404,17 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
+        if "SET" in opts and (into or rba or opts.get("LENGTH")):
+            raise Unsupported(f"{verb} SET with INTO, RBA or LENGTH: not modelled", [f"{verb} SET"])
+        if not (file and (into or setp) and ridfld):
             raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+        if setp:
+            stub = "GGCRDNS" if verb == "READNEXT" else "GGCRDPS"
+            return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"]
+                    + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer(verb, setp)}"])
+                    + _resp(opts, True, labels))  # fmt: skip
         stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
         return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
                 + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
@@ -1406,6 +1472,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
+            key = enq_fault_key(opts.get("RESOURCE"))
+            flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
+            return [f"MOVE '{key}' TO GG-FLAGS", flag] + _call("GGCENQ", []) + _resp(opts, True, labels)
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
@@ -1560,6 +1630,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
         return _freemain(opts, labels)
+    if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
+        return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
         return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
@@ -1680,8 +1752,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
         if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not m or not most or not length:
-                raise Unsupported("RECEIVE SET other than ADDRESS OF with MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not most or not length:
+                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
+                return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
+                        + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
                     + _input_resp(opts, labels, handle_aid))  # fmt: skip
@@ -1913,10 +1988,19 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
                 + _past_from(flength, frm, "PUT CONTAINER") + _call("GGCPUTC", [f"BY REFERENCE {frm}"])
                 + _resp(opts, True, labels))  # fmt: skip
     into, nodata = opts.get("INTO"), "NODATA" in opts
-    if bool(into) == nodata:
+    if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
-    flags += ["NODATA"] if nodata else []
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
+        if not settable:
+            raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
+        lines += [
+            "MOVE SPACES TO GG-FLAGS" if not flags else f"MOVE '{' '.join(flags)}' TO GG-FLAGS",
+            "MOVE 0 TO GG-LEN",
+        ]
+        lines += _call("GGCGETS", [f"BY REFERENCE {_pointer('GET CONTAINER', opts['SET'])}"])
+        return lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}", "END-IF"] + _resp(opts, True, labels)
+    flags += ["NODATA"] if nodata else []
     lines += [
         f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
         "MOVE 0 TO GG-LEN" if nodata else f"MOVE {flength or f'LENGTH OF {into}'} TO GG-LEN",
@@ -2089,6 +2173,9 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
+        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
+                          ["ADDRESS COMMAREA"])  # fmt: skip
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
@@ -2730,6 +2817,32 @@ _CHILD_STATIC = re.compile(
 )
 
 
+_CHILD_ENQ = re.compile(r"(?is)\bEXEC\s+CICS\s+(ENQ|DEQ)\b(.*?)\bEND-EXEC")
+
+
+def _task_private_enq(source: str, body: str) -> bool:
+    """#5089: an ENQ / DEQ that no other task can contend for -- RESOURCE names a data area (no LENGTH: IBM then serialises on
+    the area's ADDRESS, "it is the location (address) of the data area in storage that matters, not its contents") that the
+    program declares in its own WORKING-STORAGE, which every task has its own copy of. Such a resource is held by this task
+    alone whatever else runs, so the command is unobservable: no event, no order against a parent or a sibling."""
+    m = re.search(r"(?is)\bRESOURCE\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", body)
+    if not m or re.search(r"(?i)\bLENGTH\s*\(", body):
+        return False
+    ws = re.split(r"(?im)^.{6} +LINKAGE\s+SECTION\.", source, maxsplit=1)[0]
+    ws = re.split(r"(?im)^.{6} +WORKING-STORAGE\s+SECTION\.", ws, maxsplit=1)
+    return len(ws) == 2 and bool(re.search(rf"(?im)^.{{6}} +\d{{1,2}}\s+{re.escape(m.group(1))}(?=[\s.])", ws[1]))
+
+
+def child_region_resource(source: str) -> str | None:
+    """#4950 (X18, R1) / #5089: the first statement of a RUN TRANSID child's program that holds a region resource with no
+    event of its own (SQL, a counter, an ENQ / DEQ another task could contend for), as its text; None when there is none."""
+    private = {m.start(): _task_private_enq(source, m.group(2)) for m in _CHILD_ENQ.finditer(source)}
+    for m in _CHILD_STATIC.finditer(source):
+        if not private.get(m.start()):
+            return m.group(0)
+    return None
+
+
 def case_transactions(case: dict[str, Any]) -> list[str]:
     """#4270: the transactions the case's region defines (`"transactions": [...]`, a deployment fact the case states:
     RUN TRANSID / START of any other is TRANSIDERR); absent, every transaction is defined, as before."""
@@ -2773,7 +2886,16 @@ def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, An
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY")}  # fmt: skip
+
+
+def enq_fault_key(resource: str | None) -> str:
+    """#5089: the name an ENQ fault gives its resource -- the RESOURCE operand as written (upper case, no blanks), which
+    both translators read from the same source text. At most 16 characters: the stub's fault counters key on that."""
+    key = re.sub(r"\s+", "", (resource or "").upper())
+    if not key or len(key) > 16 or "'" in key:
+        raise Unsupported(f"ENQ RESOURCE({resource}): a data-name of 1 to 16 characters is the name a fault gives it")
+    return key
 
 
 FAULT_COMMANDS = (
@@ -2800,12 +2922,13 @@ FAULT_COMMANDS = (
     "START",
     "RETRIEVE",
     "CANCEL",
+    "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
 LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
-_FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
+_FAULT_NAME = ("file", "program", "queue", "transid", "reqid", "resource")  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
 # IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
@@ -2935,6 +3058,19 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
             listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
             raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
+        if (cmd == "ENQ") != (
+            f["resp"] == "ENQBUSY"
+        ):  # #5089 (register X60): IBM lists ENQBUSY for ENQ only, and ENQ's others
+            raise Unsupported(  # (INVREQ, LENGERR) the program's own operands raise, not a plan
+                f"scenario {sc['name']}: fault {f}: ENQ is planned with ENQBUSY only (IBM lists no other condition a region "
+                "raises for it), and ENQBUSY is no other command's (register X60, refused)"
+            )
+        if cmd == "ENQ":
+            if resp2:
+                raise Unsupported(
+                    f"scenario {sc['name']}: fault {f}: IBM states no RESP2 for ENQBUSY (register X60): name none"
+                )
+            f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
@@ -3053,8 +3189,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if ours & theirs:
                 raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
             stmts_file.write_text(have + x_table, encoding="latin-1")
-        if extra["program"].upper() in case_child_programs(case).values() and _CHILD_STATIC.search(x_source):
-            what = " ".join(_CHILD_STATIC.search(x_source).group(0).split()[1:]).upper()
+        if extra["program"].upper() in case_child_programs(case).values() and child_region_resource(x_source):
+            what = " ".join(child_region_resource(x_source).split()[1:]).upper()
             raise Unsupported(f"{extra['program']}: a RUN TRANSID child's {what} (a region resource): its order "
                               "against its parent's and its siblings' commands is not modelled", ["RUN TRANSID"])  # fmt: skip
         x_translated, x_ca = translate(x_source, [src])
@@ -5014,6 +5150,13 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+        elif (
+            verb == "ENQ"
+        ):  # #5089 (X60): an ENQ the scenario planned busy: CicsTask.enq records it (the others record none)
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append(
+                {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
+            )
         elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
@@ -5099,7 +5242,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

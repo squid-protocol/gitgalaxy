@@ -143,3 +143,27 @@ def test_single_source_resources_are_named_only_in_when_both_sources_exist(both)
     assert only[("FILE", "MACONLY")] == "MACRO"
     assert only[("FILE", "CSDONLY")] == "CSD"
     assert ("FILE", "ACCTDAT") not in only
+
+
+def test_an_assembler_step_with_a_sysin_member_joins_that_members_tables(tmp_path_factory):
+    """#5154: `//SYSIN DD DSN=lib(MEMBER)` names the member whose tables the step assembles."""
+    ir = _ir(tmp_path_factory, "jcl_member")
+    got = {r["step"]: r for r in ir.job_macro_tables()}
+    assert set(got) == {"ASM1", "ASM2", "ASM3"}  # ASM4 has no member, COMP is not an assembler
+    asm1 = got["ASM1"]
+    assert (asm1["file"], asm1["job"], asm1["member"], asm1["member_file"]) == (
+        "ASMJOB.jcl",
+        "ASMJOB",
+        "DFHFCT01",
+        "DFHFCT01.asm",
+    )
+    assert [(r["resource_type"], r["name"], r["macro_table"], r["defined_in"]) for r in asm1["resources"]] == [
+        ("FILE", "ACCTDAT", "DFHFCT01", "DFHFCT01.asm")
+    ]
+    assert got["ASM2"]["member_file"] is None and got["ASM2"]["resources"] == []  # named, not found: a finding
+    assert [r["name"] for r in got["ASM3"]["resources"]] == ["U4321"]  # member name matched case-blind
+    assert ("FILE", "ACCTDAT") in {
+        (e["resource_type"], e["name"]) for e in ir.resource_map()
+    }  # counted once, in the file
+    (d,) = next(e for e in ir.resource_map() if e["name"] == "ACCTDAT")["definitions"]
+    assert d["defined_in"] == "DFHFCT01.asm"

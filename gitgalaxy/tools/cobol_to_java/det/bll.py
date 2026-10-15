@@ -376,6 +376,8 @@ def _paragraph_reloads(lines, proc, starts, text, cells: Cells, through: set[str
     for n, k in enumerate(heads):
         i = proc[k]
         m = _PARAGRAPH.match(lines[i].text)
+        if m is None:  # (_heads matched it)
+            continue
         end = starts[heads[n + 1]] if n + 1 < len(heads) else len(text)
         if text[starts[k] + m.end() : end].strip() == "EXIT.":
             continue

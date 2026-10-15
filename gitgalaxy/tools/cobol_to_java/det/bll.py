@@ -68,6 +68,9 @@ _LINKAGE = re.compile(r"^\s*LINKAGE\s+SECTION\s*\.", re.I)
 _ENTRY = re.compile(rf"^\s*(01|77|66)\s+({_NAME})?|^\s*{_NAME}\s+SECTION\s*\.|^\s*PROCEDURE\s+DIVISION\b", re.I)
 # options of a command that may name a cell: the pointer it sets (SET, ADDRESS's), the storage FREEMAIN releases
 _CELL_OPTIONS = {"SET", "DATAPOINTER", "EIB", "COMMAREA", "CWA", "TWA", "TCTUA", "CSA", "ACEE"}
+# figuratives that clear a cell (all-zero bytes: no address), and the other figuratives a cell cannot take
+_CLEARS = {"ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "NULL", "NULLS"}
+_FIGURATIVE = _CLEARS | {"SPACE", "SPACES", "HIGH-VALUE", "HIGH-VALUES", "QUOTE", "QUOTES"}
 # words after `MOVE a TO b` that end the statement (any other word may be a second receiving item)
 _ENDS = {"ADD", "SERVICE", "MOVE", "EXEC", "IF", "ELSE", "END-IF", "GO", "PERFORM", "SET", "COMPUTE", "SUBTRACT",
          "DISPLAY", "CONTINUE", "GOBACK", "STOP", "CALL", "INITIALIZE", "EVALUATE", "WHEN", "END-EVALUATE", "NEXT",
@@ -262,13 +265,18 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
             where = f"line {lines[line_of(m.start())].line}"
             if cells.of.get(b, ("", 0))[1] or cells.of.get(a, ("", 0))[1]:
                 raise Refused(f"MOVE {a} TO {b} ({where}): a secondary cell of a long record (only ADD 4096 sets one)")
-            data = b if a in cellset and b not in cellset else a if a not in cellset else None
+            clear = a.upper() in _CLEARS and b in cellset
+            data = None if clear else b if a in cellset and b not in cellset else a if a not in cellset else None
+            if data is not None and data.upper() in _FIGURATIVE:
+                raise Refused(f"MOVE {a} TO {b} ({where}): only ZERO or LOW-VALUES clears a cell")
             if data is not None and (data == cells.name or not _fullword(records, data)):
                 raise Refused(f"MOVE {a} TO {b} ({where}): an address moved to or from {data}, no plain fullword")
             nxt = _WORD.match(text, len(text) - len(text[m.end() :].lstrip()))
             if nxt is not None and nxt.group(0) not in _ENDS and (nxt.group(0) in names or nxt.group(0) in cellset):
                 raise Refused(f"MOVE {a} TO {b} {nxt.group(0)} ({where}): an address moved to several items")
-            if data is None:
+            if clear:  # (#5119: a cell cleared; IBM's conversion makes it a POINTER, NULL = all-zero bytes, X47)
+                found.append((m.start(), m.end(), f"SET {b} TO NULL", ("change", b)))
+            elif data is None:
                 found.append((m.start(), m.end(), f"SET {b} TO {a}", ("change", b)))
             elif data == b:  # (an address into data: the token for it, IBM's chained area's "pointer to the next area")
                 found.append((m.start(), m.end(), f"CALL 'GGCBLLP' USING {a} {b}", ("none",)))

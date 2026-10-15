@@ -230,6 +230,66 @@ def test_what_the_lowering_cannot_keep_is_refused_whole_by_name(tmp_path, old, n
     assert isinstance(e.value, L.LayoutError)  # (the translator reads such a program no further, as any refused whole)
 
 
+# ---- #5119 remainder: a cell cleared, and where a record needs another cell ---------------------------------------
+def _sized(size: int, occurs: int = 1) -> str:
+    """A program with a first record of `size` bytes (x `occurs`) and a second, R2, whose cell is reloaded; the list
+    has cells for the worst case (one per 4096 bytes of R1, plus R2's)."""
+    n = -(-size * occurs // 4096)
+    cells = "".join(f"           02  C{i}                 PIC S9(8) COMP.\n" for i in range(1, n + 2))
+    first = f"       01  R1.\n           02  R1-F  PIC X({size})" + (f" OCCURS {occurs}.\n" if occurs > 1 else ".\n")
+    return ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. BLLDEMO.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n       01  WS-IMG PIC X VALUE '*'.\n       LINKAGE SECTION.\n"
+            "       01  PARMLIST.\n           02  FILLER             PIC S9(8) COMP.\n" + cells + first +
+            "       01  R2 PIC X(8).\n       PROCEDURE DIVISION.\n           SERVICE RELOAD PARMLIST.\n"
+            f"           EXEC CICS GETMAIN SET(C{n + 1}) FLENGTH(8) INITIMG(WS-IMG) END-EXEC.\n"
+            "           SERVICE RELOAD R2.\n           EXEC CICS RETURN END-EXEC.\n")  # fmt: skip
+
+
+@pytest.mark.parametrize(
+    "size, occurs, cells",
+    [(1, 1, 1), (4095, 1, 1), (4096, 1, 1), (4097, 1, 2), (8192, 1, 2), (8193, 1, 3), (4000, 2, 2), (4096, 2, 2),
+     (2049, 2, 2), (4097, 3, 4)],
+)  # fmt: skip
+def test_a_record_takes_one_cell_per_4096_bytes_and_the_next_record_the_cell_after(tmp_path, size, occurs, cells):
+    """IBM, "BLL and large storage areas": one cell per 4096 bytes; the record after it is addressed by the cell
+    after those, whatever the size, so a miscount would reload R2 through a cell of R1."""
+    got = _lowered(tmp_path, _sized(size, occurs))
+    assert f"SET ADDRESS OF R2 TO C{cells + 1}." in got, got
+    assert not any("C%d" % (cells + 2) in t for t in got)
+
+
+CLEAR_OLD = "           SERVICE RELOAD FILE-REC.\n"
+
+
+@pytest.mark.parametrize("fig", ["ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "zero"])
+def test_a_cell_cleared_is_set_to_null(tmp_path, fig):
+    """No address in a cell: IBM's conversion makes the cell a POINTER, so MOVE ZERO / LOW-VALUES is SET cell TO NULL (the
+    handle zero, X47); the cell is changed, so its record is reloaded as for any change."""
+    source = PROGRAM.replace("           MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.\n",
+                             f"           MOVE {fig} TO TSPTR.\n           SERVICE RELOAD TS-REC.\n")  # fmt: skip
+    assert "SET TSPTR TO NULL." in _lowered(tmp_path, source)
+    assert "       SET TSPTR TO NULL.\n" in B.lower_text(source, []).replace("           ", "       ")
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("MOVE ZERO TO FRPTR1.", "a secondary cell of a long record"),
+        ("MOVE ZERO TO FRPTR TSPTR.", "an address moved to several items"),
+        ("MOVE SPACES TO TSPTR.", "only ZERO or LOW-VALUES clears a cell"),
+        ("MOVE HIGH-VALUES TO TSPTR.", "only ZERO or LOW-VALUES clears a cell"),
+        ("MOVE 1 TO TSPTR.", "an address moved to or from 1, no plain fullword"),
+    ],
+)
+def test_what_else_is_moved_into_a_cell_is_refused_by_name(tmp_path, stmt, why):
+    source = PROGRAM.replace("           MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.\n",
+                             f"           {stmt}\n           SERVICE RELOAD TS-REC.\n")  # fmt: skip
+    with pytest.raises(B.Refused, match=why):
+        _lowered(tmp_path, source)
+
+
 def _translate(tmp_path: Path, source: str = PROGRAM):
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
@@ -436,6 +496,56 @@ def test_declaratives_are_refused_where_records_are_readdressed(tmp_path):
         _lowered(tmp_path, source)
 
 
+NULLCELL = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BLLDEMO.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-IMG                 PIC X VALUE '*'.
+       01  WS-OUT                 PIC X(20) VALUE SPACES.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(4).
+       01  PARMLIST.
+           02  FILLER             PIC S9(8) COMP.
+           02  P1                 PIC S9(8) COMP.
+           02  P2                 PIC S9(8) COMP.
+           02  P3                 PIC S9(8) COMP.
+           02  P4                 PIC S9(8) COMP.
+       01  BIG-REC.
+           02  FIELD-A            PIC X(8192).
+           02  FIELD-T            PIC X(8).
+       01  TS-REC                 PIC X(8).
+       PROCEDURE DIVISION.
+           SERVICE RELOAD PARMLIST.
+           EXEC CICS GETMAIN SET(P1) FLENGTH(8200)
+                INITIMG(WS-IMG) END-EXEC.
+           ADD 4096, P1 GIVING P2.
+           ADD 4096, P2 GIVING P3.
+           SERVICE RELOAD BIG-REC.
+           MOVE 'END!' TO FIELD-T(1:4).
+           MOVE 'HD' TO FIELD-A(1:2).
+           MOVE P1 TO P4 SERVICE RELOAD TS-REC.
+           MOVE TS-REC TO WS-OUT(1:8).
+           MOVE FIELD-T(1:4) TO WS-OUT(9:4).
+           IF P1 NOT = ZERO MOVE 'Y' TO WS-OUT(13:1).
+           MOVE ZERO TO P4.
+           IF P4 = ZERO MOVE 'Y' TO WS-OUT(14:1).
+           EXEC CICS SEND TEXT FROM(WS-OUT) LENGTH(20) ERASE
+                END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+# hand-traced: GETMAIN fills 8200 bytes with '*'; HD at byte 1, END! at byte 8193 (the third cell's span); TS-REC is
+# the record's first 8 bytes; P1 holds an address, P4 was cleared
+NULLCELL_SENT = "HD******END!YY"
+
+
+def test_a_cleared_cell_and_a_three_cell_record_translate_whole(tmp_path):
+    r = _translate(tmp_path, NULLCELL)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    lowered = _lowered(tmp_path, NULLCELL)
+    assert "SET P4 TO NULL." in lowered and "SET ADDRESS OF BIG-REC TO P1." in lowered
+
+
 def test_the_oracle_runs_the_same_lowered_program():
     sys.path.insert(0, str(TOOLS))
     import equivalence_cics as ec
@@ -544,6 +654,13 @@ READQ = """\
                 END-EXEC.
            EXEC CICS RETURN END-EXEC.
 """
+
+
+@_E2E
+def test_a_cleared_cell_and_a_three_cell_record_are_proven_against_gnucobol(tmp_path):
+    """A record of 8200 bytes over three cells (its tail past 8192), a cell moved to another, tested against ZERO both
+    ways, and cleared by MOVE ZERO."""
+    _prove(tmp_path, "BLLNULL", NULLCELL, NULLCELL_SENT)
 
 
 @_E2E

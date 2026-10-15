@@ -2470,11 +2470,41 @@ def test_readq_td_and_deleteq_td_become_stub_calls():
     assert not any("MOVE GG-LEN TO" in line for line in ec.translate_command("READQ TD QUEUE(Q) INTO(R) LENGTH(8)"))
     d = ec.translate_command("DELETEQ TD QUEUE('JOBS') RESP(R)")
     assert d[:2] == ["MOVE 'JOBS' TO GG-QNAME", "CALL 'GGCDLTD' USING GG-CICS"] and "MOVE GG-RESP TO R" in d
-    for body, said in (("READQ TD QUEUE(Q) INTO(A) SET(P)", "SET"), ("READQ TD QUEUE(Q) INTO(A) SYSID('S')", "SYSID"),
-                       ("READQ TD QUEUE(Q) INTO(A) NOSUSPEND", "NOSUSPEND"), ("DELETEQ TD QUEUE(Q) SYSID('S')", "SYSID"),
+    for body, said in (("READQ TD QUEUE(Q) INTO(A) SYSID('S')", "SYSID"), ("DELETEQ TD QUEUE(Q) SYSID('S')", "SYSID"),
                        ("READQ TD INTO(A)", "QUEUE"), ("READQ TD QUEUE(Q)", "INTO"), ("DELETEQ TD", "QUEUE")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=said):
             ec.translate_command(body)
+
+
+def test_readq_td_set_and_nosuspend_5168():
+    """#5168 (X61): READQ TD SET(ptr) LENGTH(area) is GGCRDTS (the record as a block, its length to the area); NOSUSPEND changes
+    nothing; INTO with SET, SET with no LENGTH area or a literal one are refused."""
+    r = ec.translate_command("READQ TD QUEUE('Q1') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)")
+    assert r[0] == "MOVE 'Q1' TO GG-QNAME" and "CALL 'GGCRDTS' USING GG-CICS" in r and "    BY REFERENCE PTR" in r
+    assert "    MOVE GG-LEN TO WS-N" in r and "MOVE GG-RESP TO R" in r
+    n = ec.translate_command("READQ TD QUEUE(Q) INTO(A) LENGTH(WS-N) NOSUSPEND")
+    assert "CALL 'GGCRDTD' USING GG-CICS" in n
+    for body in ("READQ TD QUEUE(Q) INTO(A) SET(P) LENGTH(N)", "READQ TD QUEUE(Q) SET(P)", "READQ TD QUEUE(Q) SET(P) LENGTH(8)",
+                 "READQ TD QUEUE(Q) SET(P(1)) LENGTH(N)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(body)
+
+
+def test_csd_tdqueue_attributes_5168(tmp_path):
+    (tmp_path / "c.csd").write_text(
+        "DEFINE TDQUEUE(AAAA) GROUP(G) TYPE(INTRA) RECOVSTATUS(LOGICAL) TRANSID(TRN1) TRIGGERLEVEL(3)\n"
+        "DEFINE TDQUEUE(XXXX) GROUP(G) TYPE(EXTRA) TYPEFILE(INPUT) OPENTIME(DEFERRED)\n"
+        "DEFINE TDQUEUE(IIII) GROUP(G) TYPE(INDIRECT) INDIRECTNAME(AAAA)\n"
+        "DEFINE TDQUEUE(BBBB) GROUP(G) TYPE(INTRA)\n",
+        encoding="ascii",
+    )
+    got = ec.csd_tdqueue_attrs(tmp_path, {"csd": "c.csd"})
+    assert got == {"AAAA": {"RECOVSTATUS": "LOGICAL", "TRANSID": "TRN1", "TRIGGERLEVEL": "3"},
+                   "XXXX": {"TYPEFILE": "INPUT", "OPENTIME": "DEFERRED"}, "IIII": {"INDIRECTNAME": "AAAA"}}  # fmt: skip
+    assert ec.csd_tdqueue_attrs(tmp_path, {}) == {}
+    assert ec.td_seed({}, {}) == {} and ec.td_seed({"td": {"Q": ["a"]}}, {"td": {"R": ["b"]}}) == {"R": ["b"]}
+    with pytest.raises(ec.Unsupported):
+        ec.td_seed({"td": {"TOOLONG": ["a"]}}, {})
 
 
 def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):

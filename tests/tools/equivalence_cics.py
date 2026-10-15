@@ -583,6 +583,15 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "DELETEQ":
         return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
     into, length = opts.get("INTO"), opts.get("LENGTH")
+    if opts.get(
+        "SET"
+    ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
+        if into:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        return (lines + _call("GGCRDTS", [f"BY REFERENCE {_pointer(feature, opts['SET'])}"])
+                + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if not into:
         raise Unsupported(f"{feature} without INTO", [feature])
     settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
@@ -2716,6 +2725,37 @@ def csd_tdqueue_types(corpus: Path, case: dict[str, Any]) -> dict[str, str] | No
     return out
 
 
+_TD_ATTRS = ("RECOVSTATUS", "TYPEFILE", "OPENTIME", "INDIRECTNAME", "TRIGGERLEVEL", "TRANSID")
+
+
+def csd_tdqueue_attrs(corpus: Path, case: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """#5168 (X61): the attributes of each DEFINE TDQUEUE beyond its TYPE that decide what a transient-data command does
+    (RECOVSTATUS, TYPEFILE, OPENTIME, INDIRECTNAME, TRIGGERLEVEL, TRANSID), only those the definition states; a queue defined
+    twice keeps its last. Empty when the case has no CSD."""
+    if not case.get("csd"):
+        return {}
+    text = (corpus / case["csd"]).read_text(encoding="latin-1")
+    out: dict[str, dict[str, str]] = {}
+    for m in re.finditer(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)(.*?)(?=\bDEFINE\b|\Z)", text, re.S):
+        found = {k: v.upper() for k in _TD_ATTRS if (a := re.search(rf"\b{k}\(\s*([A-Z0-9@#$]+)\s*\)", m.group(2)))
+                 for v in [a.group(1)]}  # fmt: skip
+        out[m.group(1)] = found
+    return {q: a for q, a in out.items() if a}
+
+
+def td_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
+    """#5168 (X61): the transient-data queues' records when the task starts ({"QUEUE": [record text, ...]}), the scenario's "td",
+    else the case's: an intrapartition queue's, or an open extrapartition input queue's data set. ASCII text (the stub gets the
+    bytes in the data's encoding, CicsTask the text)."""
+    seed = sc.get("td", case.get("td")) or {}
+    for q, items in seed.items():
+        if not (0 < len(q) <= 4 and isinstance(items, list) and all(isinstance(i, str) and i.isascii() for i in items)):
+            raise Unsupported(
+                f'scenario {sc.get("name")}: "td" maps a queue name (1-4) to a list of ASCII record texts'
+            )
+    return seed
+
+
 def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
@@ -3288,9 +3328,17 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
+            tdattrs = csd_tdqueue_attrs(
+                corpus, case
+            )  # #5168 (X61): and its other attributes, KEY=VALUE words after the TYPE
             (d / "tdqueues.cfg").write_text(
-                "".join(f"{q} {tdqueues[q] or '-'}\n" for q in sorted(tdqueues)), encoding="ascii"
-            )
+                "".join(f"{q} {tdqueues[q] or '-'}" + "".join(f" {k}={v}" for k, v in tdattrs.get(q, {}).items()) + "\n"
+                        for q in sorted(tdqueues)), encoding="ascii")  # fmt: skip
+        for q, recs in td_seed(case, sc).items():  # #5168 (X61): the TD queues the task starts with
+            qdir = d / "ts" / ("td-" + q.encode("ascii").hex().upper())
+            qdir.mkdir(parents=True, exist_ok=True)
+            for i, rec in enumerate(recs, 1):
+                (qdir / f"{i:06d}.bin").write_bytes(rec.encode(enc))
         if _counters(
             case, sc
         ):  # named counters the region has (POOL/NAME: value); absent ones are INVREQ RESP2 201 (X30)
@@ -4305,7 +4353,8 @@ def _svc_var(program: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None) -> str:  # fmt: skip
+                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None,
+                          tdattrs: dict[str, dict[str, str]] | None = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -4338,6 +4387,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         kinds = ", ".join(f'"{q}", "{tdqueues[q]}"' for q in sorted(tdqueues) if tdqueues[q])
         # #5079 (X57): each queue's TYPE (none stated: ""), which decides what READQ TD / DELETEQ TD do
         csd_java += f"            task.withTdQueueTypes(java.util.Map.of({kinds}));\n"
+        if tdattrs:  # #5168 (X61): the other attributes that decide what READQ / WRITEQ / DELETEQ TD do
+            flat = ", ".join(f'"{q}", "{k}", "{v}"' for q in sorted(tdattrs) for k, v in tdattrs[q].items())
+            csd_java += f"            task.withTdQueueAttributes({flat});\n"
     extras = [x["program"].upper() for x in case.get("programs", [])]
     runs = "".join(
         f'                    if ("{p}".equals(program)) {{ if (facades) {{ region.enter("{p}", t, {_svc_var(p)}); }} '
@@ -4676,6 +4728,11 @@ class EquivalenceRunTest {{
             q.getValue().forEach(i -> items.add(i.asText().getBytes(region)));
             ts.seed(q.getKey(), items);
         }});
+        sc.path("td").fields().forEachRemaining(q -> {{  // #5168 (X61): the TD queues' records
+            List<String> records = new ArrayList<>();
+            q.getValue().forEach(i -> records.add(i.asText()));
+            ts.seedTd(q.getKey(), records);
+        }});
         return ts;
     }}
 
@@ -4767,7 +4824,14 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
-        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueue_types(corpus, case)),
+        cics_equivalence_test(
+            case,
+            src,
+            files,
+            csd_programs(corpus, case),
+            csd_tdqueue_types(corpus, case),
+            csd_tdqueue_attrs(corpus, case),
+        ),
         encoding="utf-8",
     )
     inputs = work / "in"
@@ -4805,6 +4869,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")

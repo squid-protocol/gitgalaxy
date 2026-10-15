@@ -1666,6 +1666,41 @@ public class CicsTask {
         return b.bytes;
     }
 
+    // ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword) -------------------
+    private final java.util.List<Long> bllTokens = new java.util.ArrayList<>();
+
+    /** MOVE cell TO fullword: the token standing for the pointer's address (ASSUMED, X56: IBM's is the address itself). 0 for
+     *  NULL; the n-th distinct address moved into data is n * 65536 (ADD 4096 to one never makes another; at most 1525, so a
+     *  token keeps 8 digits). The stub's GGCBLLP numbers them alike. Refused: more addresses than that. */
+    public int bllToken(long handle) {
+        if (handle == 0) {
+            return 0;
+        }
+        java.util.List<Long> t = root().bllTokens;
+        int i = t.indexOf(handle);
+        if (i < 0) {
+            if (t.size() >= 1525) {
+                throw refused("more than 1525 BLL addresses held in data");
+            }
+            t.add(handle);
+            i = t.size() - 1;
+        }
+        return (i + 1) * 65536;
+    }
+
+    /** MOVE fullword TO cell: the handle a token stands for (0: NULL). Refused: a value no MOVE cell TO data gave (an
+     *  address computed in data). */
+    public long bllPointer(long token) {
+        java.util.List<Long> t = root().bllTokens;
+        if (token == 0) {
+            return 0;
+        }
+        if (token < 0 || token % 65536 != 0 || token / 65536 > t.size()) {
+            throw refused("an address in data that no BLL cell gave");
+        }
+        return t.get((int) (token / 65536) - 1);
+    }
+
     /** WEB READ HTTPHEADER's outcome: RESP, RESP2 and, on NORMAL, the header's value, else null. */
     public record WebHeader(int resp, int resp2, String value) {
     }

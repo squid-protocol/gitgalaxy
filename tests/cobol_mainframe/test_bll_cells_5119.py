@@ -165,15 +165,10 @@ def test_a_program_with_no_bll_evidence_is_left_as_it_is(tmp_path):
 @pytest.mark.parametrize(
     "old, new, why",
     [
-        (
-            "           SERVICE RELOAD FILE-REC.\n",
-            "",
-            "FRPTR changed (line 23) with no SERVICE RELOAD FILE-REC after it in the paragraph",
-        ),
-        (
-            "           SERVICE RELOAD FILE-REC.\n",
-            "       NEXT-PARA.\n           SERVICE RELOAD FILE-REC.\n",
-            "with no SERVICE RELOAD FILE-REC after it in the paragraph (addressability through a paragraph name)",
+        (  # a long record re-addressed at a paragraph name before its secondary cell was reset
+            "           ADD 4096, FRPTR\n               GIVING FRPTR1.\n           SERVICE RELOAD FILE-REC.\n",
+            "       NEXT-PARA.\n           ADD 4096, FRPTR\n               GIVING FRPTR1.\n",
+            "FRPTR changed (line 23) and a paragraph name reached before its secondary cells FRPTR1 were reset",
         ),
         (
             "           ADD 4096, FRPTR\n               GIVING FRPTR1.\n           SERVICE RELOAD FILE-REC.\n",
@@ -183,8 +178,18 @@ def test_a_program_with_no_bll_evidence_is_left_as_it_is(tmp_path):
         ("GIVING FRPTR1.", "GIVING TSPTR.", "ADD 4096 FRPTR GIVING TSPTR (line 25): TSPTR is not the secondary cell"),
         (
             "           MOVE 'HEAD' TO FIELD1(1:4).\n",
-            "           MOVE FRPTR TO WS-NUM.\n",
-            "MOVE FRPTR TO WS-NUM (line 29): an address moved to or from a data item",
+            "           MOVE FRPTR TO WS-OUT.\n",
+            "MOVE FRPTR TO WS-OUT (line 29): an address moved to or from WS-OUT, no plain fullword",
+        ),
+        (
+            "           MOVE 'HEAD' TO FIELD1(1:4).\n",
+            "           MOVE FRPTR TO WS-NUM WS-NUM.\n",
+            "MOVE FRPTR TO WS-NUM WS-NUM (line 29): an address moved to several items",
+        ),
+        (
+            "           MOVE 'HEAD' TO FIELD1(1:4).\n",
+            "           MOVE WS-NUM TO FRPTR1.\n",
+            "MOVE WS-NUM TO FRPTR1 (line 29): a secondary cell of a long record",
         ),
         (
             "           MOVE 'HEAD' TO FIELD1(1:4).\n",
@@ -245,25 +250,9 @@ def test_a_bll_program_translates_whole_on_the_pointer_lane(tmp_path):
         assert call in r.java, call
 
 
-def test_a_read_set_into_a_cell_is_the_pointer_lane_now(tmp_path):
-    """READ SET(ptr) is #5042's (X58): into a BLL cell it translates whole, as GETMAIN SET does."""
-    old = "EXEC CICS GETMAIN SET(FRPTR) FLENGTH(5400)\n                INITIMG(WS-IMG) END-EXEC."
-    assert old in PROGRAM
-    r = _translate(
-        tmp_path, PROGRAM.replace(old, "EXEC CICS READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                END-EXEC.")
-    )
-    assert r.stats["holes"] == [], r.stats["holes"]
-    assert "DetCics.setBlock(task, f2_FRPTR, " in r.java
-
-
 @pytest.mark.parametrize(
     "old, new, hole",
     [  # the cell form of a command that is refused for a pointer too stays refused, under that command's reason
-        (
-            "EXEC CICS GETMAIN SET(FRPTR) FLENGTH(5400)\n                INITIMG(WS-IMG) END-EXEC.",
-            "EXEC CICS LOAD PROGRAM('P') SET(FRPTR)\n                END-EXEC.",
-            "LOAD",
-        ),
         (
             "MOVE FRPTR TO TSPTR SERVICE RELOAD TS-REC.",
             "EXEC CICS ADDRESS TWA(TSPTR) END-EXEC SERVICE RELOAD TS-REC.",
@@ -282,6 +271,166 @@ def test_a_cell_in_a_command_the_lane_refuses_stays_a_hole(tmp_path, old, new, h
     assert old in PROGRAM
     r = _translate(tmp_path, PROGRAM.replace(old, new))
     assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+# ---- the SET(cell) class (#5042's commands, X58): each lowers onto its pointer form ---------------------------------
+_GETMAIN = "EXEC CICS GETMAIN SET(FRPTR) FLENGTH(5400)\n                INITIMG(WS-IMG) END-EXEC."
+_WS_LEN = ("       01  WS-NUM ", "       01  WS-LEN                 PIC S9(4) COMP VALUE 0.\n       01  WS-NUM ")
+
+
+@pytest.mark.parametrize(
+    "command, java, stub",
+    [
+        ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"READ " + "F".strip()', "GGCRDST"),
+        # IBM's own order (p. 22): `READ UPDATE DATASET(...)`, UPDATE an option after the verb, never a second verb word
+        ("READ UPDATE DATASET('FILEA') RIDFLD(WS-OUT)\n                SET(FRPTR) LENGTH(WS-LEN)", '"READ " + "FILEA"',
+         "GGCRDST"),
+        ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDNS"),
+        ("READPREV FILE('F') RIDFLD(WS-OUT) SET(FRPTR)", '"BROWSE " + "F".strip()', "GGCRDPS"),
+        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)\n                MAXLENGTH(80)", '"RECEIVE"', "GGCRECP"),
+        ("RETRIEVE SET(FRPTR) LENGTH(WS-LEN)", "null", "GGCRTRS"),
+        ("READQ TS QUEUE('Q') SET(FRPTR)\n                LENGTH(WS-LEN) ITEM(1)", '"READQ"', "GGCRDQS"),
+    ],
+)
+def test_each_set_command_into_a_cell_is_its_pointer_form(tmp_path, command, java, stub):
+    """Every locate-mode command of the class, SET(cell): the det port sets the cell as its SET(pointer) form does
+    (DetCics.setBlock, the key that ends it) and the oracle calls the same stub entry with the cell -- the runtimes
+    then answer the X58 step lists alike (tests/cics_crucible/test_cics_set_pointer_5042.py)."""
+    source = PROGRAM.replace(_GETMAIN, f"EXEC CICS {command}\n                END-EXEC.").replace(*_WS_LEN)
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert f"DetCics.setBlock(task, f2_FRPTR, {java}" in r.java
+    sys.path.insert(0, str(TOOLS))
+    import equivalence_cics as ec
+
+    text, _ = ec.translate(source)
+    assert f"CALL '{stub}'" in text and "BY REFERENCE FRPTR" in text
+
+
+@pytest.mark.parametrize(
+    "command, hole",
+    [  # the cell form keeps each command's own refusal (X58)
+        ("RECEIVE SET(FRPTR) LENGTH(WS-LEN)", "RECEIVE SET without MAXLENGTH"),
+        ("RETRIEVE SET(FRPTR)", "RETRIEVE SET without LENGTH"),
+        ("READQ TS QUEUE('Q') SET(FRPTR) LENGTH(80)", "READQ TS SET with a literal LENGTH"),
+        ("READ FILE('F') RIDFLD(WS-OUT) SET(FRPTR) RBA", "READ SET with RBA / RRN / XRBA"),
+        ("READNEXT FILE('F') RIDFLD(WS-OUT) SET(FRPTR)\n                LENGTH(WS-LEN)", "READNEXT SET with LENGTH"),
+        ("LOAD PROGRAM('P') SET(FRPTR)", "EXEC CICS LOAD not modelled"),  # (#5042: the loaded bytes)
+    ],
+)
+def test_each_set_command_into_a_cell_keeps_its_own_refusal(tmp_path, command, hole):
+    source = PROGRAM.replace(_GETMAIN, f"EXEC CICS {command}\n                END-EXEC.").replace(*_WS_LEN)
+    r = _translate(tmp_path, source)
+    assert any(hole in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+# ---- IBM's chained storage areas (p. 22): a paragraph name re-addresses; an address held in data -------------------
+CHAIN = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BLLDEMO.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-IMG                 PIC X VALUE SPACE.
+       01  WS-OUT                 PIC X(20) VALUE SPACES.
+       01  WS-NAMES               PIC X(12) VALUE 'ONE TWO THRE'.
+       01  WS-K                   PIC 9 VALUE 0.
+       01  WS-POS                 PIC 99 VALUE 1.
+       01  WS-HEAD                PIC S9(8) COMP VALUE 0.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(4).
+       01  PARMLIST.
+           02  FILLER             PIC S9(8) COMP.
+           02  NEWPTR             PIC S9(8) COMP.
+           02  USERPTR            PIC S9(8) COMP.
+       01  NEWAREA.
+           02  NFIELD             PIC X(4).
+           02  NNEXT              PIC S9(8) COMP.
+       01  USERAREA.
+           02  FIELD              PIC X(4).
+           02  NEXTAREA           PIC S9(8) COMP.
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           SERVICE RELOAD PARMLIST.
+           PERFORM BUILD-AREA 3 TIMES.
+           MOVE WS-HEAD TO USERPTR.
+       WALK.
+           MOVE FIELD TO WS-OUT(WS-POS:4).
+           ADD 5 TO WS-POS.
+           IF NEXTAREA = ZERO GO TO DONE.
+           MOVE NEXTAREA TO USERPTR.
+           GO TO WALK.
+       DONE.
+           EXEC CICS SEND TEXT FROM(WS-OUT) LENGTH(20) ERASE
+                END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+       BUILD-AREA.
+           EXEC CICS GETMAIN SET(NEWPTR) FLENGTH(8)
+                INITIMG(WS-IMG) END-EXEC.
+           SERVICE RELOAD NEWAREA.
+           ADD 1 TO WS-K.
+           MOVE WS-NAMES(WS-K * 4 - 3:4) TO NFIELD.
+           MOVE WS-HEAD TO NNEXT.
+           MOVE NEWPTR TO WS-HEAD.
+       BUILD-EXIT.
+           EXIT.
+"""
+# hand-traced: three areas pushed on a list (ONE, TWO, THRE; each NNEXT the head before it), walked from the head
+# through NEXTAREA, each next area addressed by the paragraph name WALK, as IBM's `MOVE NEXTAREA TO USERPTR. ANYNAME.`
+CHAIN_SENT = "THRE TWO  ONE       "
+
+
+def test_ibms_chained_storage_example_lowers(tmp_path):
+    """IBM's example (p. 22) with the SERVICE RELOAD PARMLIST it asks for at the start: `MOVE NEXTAREA TO USERPTR`
+    takes the address the fullword holds (a token, X56) and `ANYNAME.` re-addresses USERAREA through USERPTR."""
+    source = ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. BLLDEMO.\n       DATA DIVISION.\n"
+              "       WORKING-STORAGE SECTION.\n       01  TESTVAL PIC X(4).\n       LINKAGE SECTION.\n"
+              "       01  PARMLIST.\n           02  FILLER PIC S9(8) COMP.\n           02  USERPTR PIC S9(8) COMP.\n"
+              "       01  USERAREA.\n           02  FIELD PIC X(4).\n           02  NEXTAREA PIC S9(8) COMP.\n"
+              "       PROCEDURE DIVISION.\n           SERVICE RELOAD PARMLIST.\n           MOVE NEXTAREA TO USERPTR.\n"
+              "       ANYNAME.\n           MOVE FIELD TO TESTVAL.\n           EXEC CICS RETURN END-EXEC.\n")  # fmt: skip
+    got = _lowered(tmp_path, source)
+    at = got.index("ANYNAME.")
+    assert got[at - 1 : at + 3] == ["CALL 'GGCBLLG' USING NEXTAREA USERPTR.", "ANYNAME.",
+                                    "CALL 'GGCBLLR' USING USERAREA USERPTR.", "MOVE FIELD TO TESTVAL."]  # fmt: skip
+    oracle = B.lower_text(source, [])
+    assert "       ANYNAME.\n           SET ADDRESS OF USERAREA TO USERPTR.\n" in oracle
+
+
+def test_a_record_changed_with_no_reload_is_readdressed_at_every_paragraph_name(tmp_path):
+    """Only the records whose cell changes with no SERVICE RELOAD later in its paragraph are reloaded, at the head of
+    every paragraph but one that is only EXIT; det leaves a record as it is for a null cell (CALL 'GGCBLLR'), the
+    oracle sets it (GnuCOBOL: a later use fails the proof); an address goes into data as a token (CALL 'GGCBLLP')."""
+    got = _lowered(tmp_path, CHAIN)
+    reload = "CALL 'GGCBLLR' USING USERAREA USERPTR."
+    for para in ("MAIN-PARA.", "WALK.", "DONE.", "BUILD-AREA."):
+        assert got[got.index(para) + 1] == reload, para
+    assert got[got.index("BUILD-EXIT.") + 1] == "EXIT."
+    assert "SET ADDRESS OF NEWAREA TO NEWPTR." in got and not any("NEWAREA NEWPTR" in t for t in got)
+    assert "CALL 'GGCBLLP' USING NEWPTR WS-HEAD." in got
+    oracle = B.lower_text(CHAIN, [])
+    assert oracle.count("SET ADDRESS OF USERAREA TO USERPTR.") == 4 and "GGCBLLR" not in oracle
+    r = _translate(tmp_path, CHAIN)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    for call in ("DetCics.bllReload(task, f14_USERAREA, f3_USERPTR);", "DetCics.bllFromData(task, f16_NEXTAREA, f3_USERPTR);",
+                 "DetCics.bllToData(task, f2_NEWPTR, f9_WS_HEAD);"):  # fmt: skip
+        assert call in r.java, call
+
+
+def test_a_long_record_readdressed_at_a_paragraph_name(tmp_path):
+    """PROGRAM with its SERVICE RELOAD FILE-REC replaced by a paragraph name after the ADD 4096: FILE-REC is reloaded
+    there, whole from its base cell (its secondary cell reset first, as IBM asks)."""
+    source = PROGRAM.replace("           SERVICE RELOAD FILE-REC.\n", "       NEXT-PARA.\n")
+    got = _lowered(tmp_path, source)
+    assert got[got.index("NEXT-PARA.") + 1] == "CALL 'GGCBLLR' USING FILE-REC FRPTR."
+    assert "           SET ADDRESS OF FILE-REC TO FRPTR.\n" in B.lower_text(source, [])
+
+
+def test_declaratives_are_refused_where_records_are_readdressed(tmp_path):
+    source = CHAIN.replace("       PROCEDURE DIVISION.\n", "       PROCEDURE DIVISION.\n       DECLARATIVES.\n"
+                           "       D1 SECTION.\n           USE FOR DEBUGGING ON ALL PROCEDURES.\n"
+                           "       END DECLARATIVES.\n")  # fmt: skip
+    with pytest.raises(B.Refused, match="DECLARATIVES in a program whose records are addressed again"):
+        _lowered(tmp_path, source)
 
 
 def test_the_oracle_runs_the_same_lowered_program():
@@ -303,32 +452,30 @@ def test_a_long_lowered_statement_is_wrapped_in_fixed_form():
     assert len(rows) == 2 and all(len(r) <= 65 for r in rows) and rows[1].startswith("    ")
 
 
-@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
-def test_a_bll_program_is_proven_against_gnucobol(tmp_path):
-    """The lowered program under GnuCOBOL and the stub, and the det port under CicsTask: the SEND TEXT both make is
-    the hand-traced one -- the record's head written through FILE-REC and read through TS-REC (one block), its tail past
-    4096 bytes (IBM's secondary cell) -- and the case is proven."""
+def _prove(tmp_path: Path, name: str, program: str, sent: str) -> None:
+    """The lowered program under GnuCOBOL and the stub, and the det port under CicsTask, as one cics case on a synthetic
+    estate: proven, and the SEND TEXT both make is the hand-traced `sent`."""
     sys.path.insert(0, str(TOOLS))
     import det_port
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
+    program = program.replace("PROGRAM-ID. BLLDEMO.", f"PROGRAM-ID. {name}.")
     estate = tmp_path / "estate"
     (estate / "cbl").mkdir(parents=True)
-    # (DFHCOMMAREA before the list, IBM's order: the engine's evidence that the program is a CICS one, #4270)
-    program = PROGRAM.replace("       01  PARMLIST.\n", "       01  DFHCOMMAREA PIC X(4).\n       01  PARMLIST.\n")
-    (estate / "cbl" / "BLLDEMO.cbl").write_text(program, encoding="ascii")
+    (estate / "cbl" / f"{name}.cbl").write_text(program, encoding="ascii")
     for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
         subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
-    case = {"kind": "cics", "corpus": "bll-5119-synthetic", "program": "BLLDEMO", "program_source": "cbl/BLLDEMO.cbl",
+    case = {"kind": "cics", "corpus": "bll-5119-synthetic", "program": name, "program_source": f"cbl/{name}.cbl",
             "copy_dirs": [], "transid": "BLL1", "clock": "2026/10/14 10:00:00.00", "datasets": {}, "screens": {},
-            "commarea": None, "linked": False, "scenarios": [{"name": "long-record", "commarea": None}]}  # fmt: skip
+            "commarea": None, "linked": False, "scenarios": [{"name": "run", "commarea": None}]}  # fmt: skip
     (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
     project = det_port.estate(estate, tmp_path / "translate")
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
-    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "BlldemoService.java").read_text("utf-8")
-    r = P.translate(estate / "cbl" / "BLLDEMO.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project),
+    svc = name.capitalize() + "Service"
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / f"{svc}.java").read_text("utf-8")
+    r = P.translate(estate / "cbl" / f"{name}.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project),
                     project)  # fmt: skip
     assert r.stats["holes"] == [], r.stats["holes"]
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
@@ -336,14 +483,70 @@ def test_a_bll_program_is_proven_against_gnucobol(tmp_path):
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     keep = tmp_path / "proof"
-    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", "bll-5119", "--case-file",  # noqa: S603
-                           str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port), "--keep",
-                           str(keep), "--faults", "none"], capture_output=True, text=True, check=False)  # fmt: skip
+    proc = subprocess.run([sys.executable, str(TOOLS / "equivalence.py"), "run", f"bll-5119-{name.lower()}",  # noqa: S603
+                           "--case-file", str(tmp_path / "case.json"), "--corpus-dir", str(estate), "--port", str(port),
+                           "--keep", str(keep), "--faults", "none"], capture_output=True, text=True, check=False)  # fmt: skip
     report_file = keep / "report.json"
     report = json.loads(report_file.read_text(encoding="utf-8")) if report_file.is_file() else {}
     assert proc.returncode == 0 and report.get("proven") is True, proc.stdout[-4000:] + proc.stderr[-3000:]
-    events = report["outputs"]["long-record"]["cobol"]
-    assert [e["text"] for e in events if e.get("event") == "SEND-TEXT"] == [SENT]
+    events = report["outputs"]["run"]["cobol"]
+    assert [e["text"] for e in events if e.get("event") == "SEND-TEXT"] == [sent]
+
+
+_E2E = pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
+
+
+@_E2E
+def test_a_bll_program_is_proven_against_gnucobol(tmp_path):
+    """The record's head written through FILE-REC and read through TS-REC (one block), its tail past 4096 bytes (IBM's
+    secondary cell). DFHCOMMAREA before the list, IBM's order: the engine's evidence that the program is a CICS one
+    (#4270)."""
+    program = PROGRAM.replace("       01  PARMLIST.\n", "       01  DFHCOMMAREA PIC X(4).\n       01  PARMLIST.\n")
+    _prove(tmp_path, "BLLDEMO", program, SENT)
+
+
+@_E2E
+def test_a_chained_storage_program_is_proven_against_gnucobol(tmp_path):
+    """IBM's chained storage areas: addresses held in data (tokens, alike in both runtimes) and each area addressed
+    again at a paragraph name."""
+    _prove(tmp_path, "BLLCHAIN", CHAIN, CHAIN_SENT)
+
+
+READQ = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BLLREAD.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-ITEM                PIC X(12) VALUE 'QUEUED-ITEM1'.
+       01  WS-LEN                 PIC S9(4) COMP VALUE 0.
+       01  WS-LEND                PIC 99.
+       01  WS-OUT                 PIC X(20) VALUE SPACES.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(4).
+       01  PARMLIST.
+           02  FILLER             PIC S9(8) COMP.
+           02  QPTR               PIC S9(8) COMP.
+       01  Q-REC                  PIC X(12).
+       PROCEDURE DIVISION.
+           SERVICE RELOAD PARMLIST.
+           EXEC CICS WRITEQ TS QUEUE('BLLQ') FROM(WS-ITEM)
+                LENGTH(12) END-EXEC.
+           EXEC CICS READQ TS QUEUE('BLLQ') SET(QPTR)
+                LENGTH(WS-LEN) ITEM(1) END-EXEC.
+           SERVICE RELOAD Q-REC.
+           MOVE Q-REC TO WS-OUT(1:12).
+           MOVE WS-LEN TO WS-LEND.
+           MOVE WS-LEND TO WS-OUT(14:2).
+           EXEC CICS SEND TEXT FROM(WS-OUT) LENGTH(20) ERASE
+                END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+
+@_E2E
+def test_a_read_set_into_a_cell_is_proven_against_gnucobol(tmp_path):
+    """READQ TS SET(cell) and SERVICE RELOAD: the item CICS hands over, read through the record its cell addresses."""
+    _prove(tmp_path, "BLLREAD", READQ, "QUEUED-ITEM1 12     ")
 
 
 def test_only_a_program_with_bll_evidence_is_read_by_the_lowering():

@@ -115,16 +115,13 @@ def test_a_pointer_compared_with_null_translates_whole(tmp_path, cond, negated):
 def test_a_bll_cell_compared_with_zero_or_null_is_the_pointer_test(tmp_path, cond, negated):
     for nil in ("NULL", "ZERO", "ZEROS", "ZEROES"):
         c = cond.replace("PTR", "USERPTR").replace("NULLS", nil).replace("NULL", nil)
-        r = (
-            _translate(tmp_path / nil, BLL.replace(BLL_CONDITION, "IF " + c), "BLLNUL")
-            if (tmp_path / nil).mkdir() is None
-            else None
-        )
+        (tmp_path / nil).mkdir()
+        r = _translate(tmp_path / nil, BLL.replace(BLL_CONDITION, "IF " + c), "BLLNUL")
         assert r.stats["holes"] == [], (c, r.stats["holes"])
         assert ("!(" in _java_test(r)) == negated, c
 
 
-def test_both_programs_choose_the_branch_the_port_and_the_pointer_agree_on(tmp_path):
+def test_the_test_is_the_handles_all_zero_bytes(tmp_path):
     """The test is the handle's all-zero bytes: a freshly GETMAINed pointer is not NULL, a NULLed one is."""
     r = _translate(tmp_path, PTR)
     assert "Figurative.LOW_VALUES, CS) == 0" in r.java

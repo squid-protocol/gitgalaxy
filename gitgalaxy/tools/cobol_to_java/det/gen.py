@@ -1275,12 +1275,15 @@ class Gen:
             return False
 
     def rel(self, op: str, a, b) -> str:
-        if self.pointer_operand(a) or self.pointer_operand(b):
-            # #5197 (X56): IBM compares a pointer only for = / NOT = with NULL or another pointer, never with a number
-            # (ZERO is a BLL cell's NULL; the cell is a POINTER by the time it is read here)
-            if op != "=" or not (self.pointer_operand(a) and self.pointer_operand(b)):
-                raise Untranslatable(f"a pointer compared with {'a non-pointer' if op == '=' else op}: only = / NOT = "
-                                     "with NULL or another pointer (X56)")  # fmt: skip
+        # #5197 (X56): IBM compares a pointer only for = / NOT = with NULL or another pointer, never with a number
+        # (ZERO is a BLL cell's NULL; the cell is a POINTER by the time it is read here)
+        if (self.pointer_operand(a) or self.pointer_operand(b)) and (
+            op != "=" or not (self.pointer_operand(a) and self.pointer_operand(b))
+        ):
+            raise Untranslatable(
+                f"a pointer compared with {'a non-pointer' if op == '=' else op}: only = / NOT = with NULL or another "
+                "pointer (X56)"
+            )
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
         if self.has_float(a) or self.has_float(b):
             return self.rel_float(jop, a, b)

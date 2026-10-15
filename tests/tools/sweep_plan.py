@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Whether a pull request needs the extraction ReDoS sweeps (the "Plan the ReDoS sweeps" step of smoke-test.yml, #5166).
+
+    python tests/tools/sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--labels L,L] [--github-output PATH]
+
+The sweeps are the tests under tests/extraction/ that tests/conftest.py marks `redos_sweep` (the name has `redos` or
+`linear_on_pathological`): about 18 of the 19 minutes of that directory. A pull request that changes nothing they read
+deselects them (mode "none": the full-suite parts run `-m "not golden_crucible and not redos_sweep"`); `full-suite` still
+runs and reports. Every event that is not a pull_request (main push, nightly, manual), the `shepherd:full` label, and an
+unreadable or empty diff are "full".
+
+The sweeps read the whole engine (gitgalaxy/), the extraction tests and their harness, the suite's own config and the
+dependency pins, so this is an ALLOW-list of what they provably do not read, not a list of what they do: a file that
+matches nothing is an input (as ground_truth_plan.py, #5164). INPUTS win over NON_INPUTS. Stdlib only: the step runs
+before anything is installed.
+
+Prints JSON {mode, reason, inputs}; with --github-output appends mode=none|full.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+FULL_LABEL = "shepherd:full"
+
+# fnmatch: `*` also crosses `/`. Checked first: these are inputs even where a NON_INPUTS pattern would match.
+INPUTS = (
+    "gitgalaxy/*",  # the engine and its registries (also its READMEs)
+    "tests/extraction/*",  # the sweeps and their harness
+    "tests/conftest.py",  # the marker hook
+    "pyproject.toml",  # markers, addopts, pytest / ruff config
+    "requirements*.txt",
+    "ci/requirements/*",  # the pinned test environment
+    ".github/workflows/smoke-test.yml",  # the step itself
+    ".github/workflows/full-suite-gate.yml",  # the matrix runs the same marker
+    "tests/tools/sweep_plan.py",
+    "tests/tools/test_sweep_plan.py",
+)
+
+# What the sweeps do not read. Anything matching neither list is an input.
+NON_INPUTS = (
+    "docs/*",
+    "*.md",  # minus the engine's READMEs (INPUTS)
+    ".claude/*",
+    ".github/*",  # minus the two workflows above: the other workflows, issue templates, dependabot
+    "tests/cobol_mainframe/*",
+    "tests/equivalence/*",
+    "tests/tools/*",  # minus the sweep planner above; the sweeps import none of these (test_sweep_plan guards it)
+)
+
+
+def matches(path: str, patterns: tuple[str, ...]) -> bool:
+    return any(fnmatch.fnmatch(path, p) for p in patterns)
+
+
+def is_input(path: str) -> bool:
+    """True unless `path` is provably something the sweeps do not read (when in doubt, an input)."""
+    return matches(path, INPUTS) or not matches(path, NON_INPUTS)
+
+
+def plan(files: list[str], event: str, labels: list[str] | None = None) -> dict:
+    full = {"mode": "full", "inputs": []}
+    if event != "pull_request":
+        return {**full, "reason": f"{event}: always the full sweep"}
+    if FULL_LABEL in (labels or []):
+        return {**full, "reason": f"labelled {FULL_LABEL}: the full sweep on request"}
+    if not files:
+        return {**full, "reason": "no changed files found (the diff is unreadable or empty)"}
+    inputs = sorted(f for f in files if is_input(f))
+    if inputs:
+        return {
+            "mode": "full",
+            "reason": f"{len(inputs)} changed file(s) are sweep inputs, first: {inputs[0]}",
+            "inputs": inputs[:20],
+        }
+    return {"mode": "none", "reason": "no changed file is a sweep input (NON_INPUTS)", "inputs": []}
+
+
+def changed_files(base: str) -> list[str]:
+    proc = subprocess.run(
+        ["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT, capture_output=True, text=True, check=False
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "git diff failed")
+    return [ln for ln in proc.stdout.splitlines() if ln.strip()]
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--event", default="pull_request")
+    ap.add_argument("--base", default="origin/main")
+    ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
+    ap.add_argument("--labels", default="", help="the PR's labels, comma-separated (read live by the step)")
+    ap.add_argument("--github-output", type=Path, help="append mode=none|full for later steps")
+    args = ap.parse_args()
+    labels = [x for x in args.labels.split(",") if x]
+    try:
+        files = (
+            args.files if args.files is not None else (changed_files(args.base) if args.event == "pull_request" else [])
+        )
+        p = plan(files, args.event, labels)
+    except RuntimeError as e:  # cannot tell what changed: everything
+        p = {"mode": "full", "reason": f"cannot diff ({e})", "inputs": []}
+    print(json.dumps(p, indent=1))
+    if args.github_output:
+        with args.github_output.open("a", encoding="utf-8") as fh:
+            fh.write(f"mode={p['mode']}\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

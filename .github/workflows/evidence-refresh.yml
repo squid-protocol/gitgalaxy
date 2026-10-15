@@ -149,6 +149,9 @@ jobs:
   # re-proved after the sweep), the refresh's critical path. Now 5 runners, each with its own Db2: the sweep in 4 shards
   # (proof_sweep.py --shard I/4 --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
   # `db2` job below merges the shards and applies the ratchet, as the `refresh` job does for the non-Db2 shards.
+  # #5114: the split is pinned, not restored: no job here reads the durations cache (det-sweep.yml's `plan` chooses its
+  # durations once and shares them); every shard balances by the committed det_sweep_durations.json of the ONE commit
+  # the `lane` job pinned, so all shards cut the same slices. tests/tools/test_shard_split_pinned.py holds that.
   db2-part:
     name: db2 ${{ matrix.part }}
     needs: lane

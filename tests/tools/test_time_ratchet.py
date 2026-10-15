@@ -1,4 +1,4 @@
-"""The test-time ratchet's logic (#5166 part B): 10 s gate, 2x baseline rule, shrink-only update, suite budget."""
+"""The test-time ratchet's logic (#5166 part B): 15 s fail / 10 s warn, 2.5x baseline rule, shrink-only update, budget."""
 
 import json
 import sys
@@ -10,19 +10,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import time_ratchet as tr  # noqa: E402
 
 
-def test_a_test_over_ten_seconds_fails_at_the_boundary_only():
-    assert tr.check_tests({"a": 10.0}, {}) == []
-    assert len(tr.check_tests({"a": 10.01}, {})) == 1
+def test_an_unmarked_test_fails_only_over_fifteen_seconds():
+    assert tr.check_tests({"a": 15.0}, {}) == []
+    assert len(tr.check_tests({"a": 15.01}, {})) == 1
+
+
+def test_a_test_between_ten_and_fifteen_seconds_is_a_warning_not_a_failure():
+    assert tr.check_tests({"a": 14.9}, {}) == []
+    assert tr.tests_over_threshold({"a": 10.0, "b": 10.01, "c": 14.9}, {}) == [("c", 14.9), ("b", 10.01)]
 
 
 def test_a_slow_marker_or_a_baseline_entry_excuses_it():
     assert tr.check_tests({"a": 50.0}, {}, {"a": "scans 40 repos"}) == []
     assert tr.check_tests({"a": 50.0}, {"a": 40.0}) == []
+    assert tr.tests_over_threshold({"a": 50.0, "b": 50.0}, {"a": 40.0}, {"b": "why"}) == []
 
 
-def test_a_baselined_test_fails_past_twice_its_time():
-    assert tr.check_tests({"a": 80.0}, {"a": 40.0}) == []
-    assert len(tr.check_tests({"a": 80.1}, {"a": 40.0})) == 1
+def test_a_baselined_test_fails_past_two_and_a_half_times_its_time():
+    assert tr.check_tests({"a": 100.0}, {"a": 40.0}) == []
+    assert len(tr.check_tests({"a": 100.1}, {"a": 40.0})) == 1
 
 
 def test_a_baselined_test_the_run_did_not_execute_is_ignored():
@@ -30,7 +36,7 @@ def test_a_baselined_test_the_run_did_not_execute_is_ignored():
 
 
 def test_slow_marker_does_not_lift_the_two_x_rule_on_a_baselined_test():
-    assert len(tr.check_tests({"a": 90.0}, {"a": 40.0}, {"a": "why"})) == 1
+    assert len(tr.check_tests({"a": 101.0}, {"a": 40.0}, {"a": "why"})) == 1
 
 
 def test_update_only_lowers_and_never_adds_or_raises():
@@ -77,6 +83,24 @@ def test_check_reads_slow_reasons_from_the_times_file(tmp_path, monkeypatch):
     _baseline(tmp_path, monkeypatch, {}, 100.0)
     assert tr.main(["check", "--times", _times(tmp_path, {"a": 30.0})]) == 1
     assert tr.main(["check", "--times", _times(tmp_path, {"a": 30.0}, {"a": "why"}, "s.json")]) == 0
+
+
+def test_check_writes_warnings_to_the_job_summary_and_passes(tmp_path, monkeypatch, capsys):
+    _baseline(tmp_path, monkeypatch, {}, 100.0)
+    summary = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+    assert tr.main(["check", "--times", _times(tmp_path, {"warned": 12.0, "fast": 1.0})]) == 0
+    assert "WARN warned" in capsys.readouterr().out
+    assert "`warned`: 12.0s" in summary.read_text()
+
+
+def test_over_lists_the_tests_over_ten_seconds_and_fails_only_when_enforced(tmp_path, monkeypatch, capsys):
+    _baseline(tmp_path, monkeypatch, {}, 100.0)
+    times = _times(tmp_path, {"slowish": 12.0, "fast": 1.0})
+    assert tr.main(["over", "--times", times]) == 0
+    assert "slowish" in capsys.readouterr().out
+    assert tr.main(["over", "--times", times, "--enforce"]) == 1
+    assert tr.main(["over", "--times", _times(tmp_path, {"fast": 1.0}, name="f.json"), "--enforce"]) == 0
 
 
 def test_update_command_writes_a_shrunk_baseline(tmp_path, monkeypatch):

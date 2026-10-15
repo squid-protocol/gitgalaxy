@@ -28,7 +28,11 @@ CASES = [
     ([_job("x", "timed_out")], "timeout"),
     ([_job("db2 3/4", "failure", steps=[("Wait for the background Db2 start", "failure")])], "db2_start"),
     ([_job("det", "failure", steps=[("Apply the ratchet to the merged sweep", "failure")])], "ratchet"),
-    ([_job("det", "failure", steps=[("Run tests", "failure")])], "other"),
+    ([_job("det", "failure", steps=[("Run tests", "failure")])], "test_failure"),
+    ([_job("det", "failure", steps=[("Build the port", "failure")])], "other"),
+    ([_job("p", "failure", steps=[("Download the history", "failure")])], "artifact_missing"),
+    ([_job("p", "failure", steps=[("Full-corpus differential and answer-key tests", "failure")])], "test_failure"),
+    ([_job("p", "failure", steps=[("Run pytest", "failure")])], "test_failure"),
     ([_job("det", "success")], "none"),
     ([], "none"),
 ]
@@ -37,6 +41,28 @@ CASES = [
 @pytest.mark.parametrize(("jobs", "want"), CASES)
 def test_classify(jobs, want):
     assert s.classify(jobs, {"ground-truth": 20}) == want
+
+
+def test_step_secs_picks_the_named_step_and_skips_skipped():
+    def j(steps):
+        return {
+            "steps": [{"name": n, "conclusion": "success", "started_at": a, "completed_at": b} for n, a, b in steps]
+        }
+
+    jobs = [
+        j([("Is the generated Java unchanged? (pull requests)", "2026-10-14T14:00:00Z", "2026-10-14T14:03:20Z")]),
+        j(
+            [
+                ("Is the generated Java unchanged?", "2026-10-14T14:00:00Z", "2026-10-14T14:00:45Z"),
+                ("Other", "2026-10-14T14:00:00Z", "2026-10-14T14:09:00Z"),
+            ]
+        ),
+    ]
+    jobs.append({"steps": [{"name": "Is the generated Java unchanged?", "conclusion": "skipped"}]})
+    assert s.step_secs(jobs, "generated java unchanged") == [200.0, 45.0]
+    assert s.step_secs([], "x") == []
+    running = {"steps": [{"name": "x", "conclusion": None, "started_at": "2026-10-14T14:00:00Z", "completed_at": None}]}
+    assert s.step_secs([running], "x") == [0.0]  # an unfinished step is 0, not a crash
 
 
 def test_cap_unknown_is_not_a_timeout():

@@ -11,6 +11,15 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import support_matrix as sm  # tests/tools/support_matrix.py
 
+FIXTURE_REPORTS = Path(__file__).resolve().parents[1] / "fixtures" / "evidence_report"
+
+
+@pytest.fixture(autouse=True)
+def _snapshot_reports(monkeypatch):
+    """#5206: the evidence report is published on `generated`, not committed; these tests read a frozen snapshot."""
+    monkeypatch.setattr(sm, "REPORTS", FIXTURE_REPORTS)
+
+
 GETMAIN_HOLE = "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task is not modelled)"
 
 
@@ -305,6 +314,15 @@ def test_era_section_has_the_distribution_the_mixed_programs_and_their_tells(bar
     assert "### Era" in page and "| 4 | 1 | 33% |" in page  # noqa: S101
     assert "P1.cbl: handle-condition (era 1), channel-container (era 4)" in page  # noqa: S101
     assert "resp 1" in page  # noqa: S101
+
+
+def test_era_section_names_programs_raised_by_a_copybook_only_when_there_are_some(bare, rmap):
+    """#5117: the copybook line is rendered only for an estate whose summary carries `raised_by_copybook`."""
+    assert "COPY" not in "\n".join(sm.render_eras(bare["eras"]))  # noqa: S101
+    inv = json.loads(json.dumps(INVENTORY))
+    inv["eras"]["summary"]["raised_by_copybook"] = 2
+    m = sm.build_estate("synthetic", inv, REPORT, rmap, None)
+    assert "2 programs have a higher era than their own text shows" in "\n".join(sm.render_eras(m["eras"]))  # noqa: S101
 
 
 def test_an_inventory_without_era_tags_renders_no_era_section(rmap):

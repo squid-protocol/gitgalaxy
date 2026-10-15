@@ -88,7 +88,11 @@ def _load(path: Path) -> Any:
 
 
 def estates() -> list[str]:
-    """The burned estates: only theirs are committed under evidence_report/ (evidence_report.py), with an inventory."""
+    """The burned estates: only theirs are published under evidence_report/ (evidence_report.py), with an inventory."""
+    if not any(REPORTS.glob("*/report.json")):  # #5206: the report is published on `generated`, not committed
+        import evidence_report
+
+        evidence_report.materialize()
     return sorted(
         d.name for d in REPORTS.iterdir() if (d / "report.json").is_file() and (INVENTORY / f"{d.name}.json").is_file()
     )
@@ -392,6 +396,11 @@ def render_eras(e: dict[str, Any] | None) -> list[str]:
     for era, n in s["by_era"].items():
         share = f"{100 * n / s['programs']:.0f}%" if s["programs"] else "-"
         L.append(f"| {era} | {n} | {share} | {_progs(e['programs'][era])} |")
+    if s.get("raised_by_copybook"):  # present only when a copybook raised a program's era (#5117)
+        L += [
+            "",
+            f"{s['raised_by_copybook']} programs have a higher era than their own text shows: a copybook they COPY carries the tell.",
+        ]
     L += ["", "Tells used (programs): " + (", ".join(f"{k} {v}" for k, v in s["tells"].items()) or "none") + ".", ""]
     if e["mixed"]:
         L += ["Mixed programs:", ""]

@@ -34,9 +34,31 @@ A program's `era` is the latest era a tell reaches. Most tells are floors (RESP 
 they only raise the era; the period-bound ones (macros, BLL, HANDLE CONDITION, DL/I, CMPR2, LANGLVL) set `earliest`,
 and a program whose period-bound tell is older than its era is `mixed` (layered code). `era: null` means no tell.
 Comments, string literals and columns 1-6 / 73-80 are not read; a program the parser refuses is still tagged (the tag
-reads the raw text); a tell inside a copybook is not seen. This only detects: parsing the macro tables (#5120) and
+reads the raw text). This only detects: parsing the macro tables (#5120) and
 refusing macro-level programs (#5121) are separate. The support matrix prints the distribution and the mixed programs
 per estate.
+
+### Tells inside copybooks
+When a program's COPY expansion succeeds, the copybooks it resolved (nested ones too) are read with the same tells
+(except assembler macro text, which is no tell in a COBOL copybook). A tell the program text also shows lists the
+copybook under `copybooks`; a tell only a copybook shows is `via_copybook` (its count is over the copybooks, `first_line`
+is null) and can raise the program's `era`, in which case `program_era` keeps the era of the program's own text. The keys
+`via_copybook`, `copybooks`, `program_era` and the summary's `raised_by_copybook` appear only when set, so an estate with
+no copybook tell is byte for byte what it was. A program whose expansion is refused (a missing copybook, macro level) keeps
+its own-text tag. On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
+example) the copybook tells found are `exec-sql` (Db2 DCLGEN members, CardDemo and CBSA) and `resp` (CBSA); each is also in the
+program that copies it, so no tell is `via_copybook` and no program's era moves.
+
+### IBM reference per tell
+`era_tags.CITE` holds, per tell, the IBM release or manual that introduced or retired the construct and whether that was
+checked against an IBM page (`verified`, with the `source`). Checked so far: macro-level support dropped in CICS/ESA 3.2
+(IBM CICS release history), channels and containers in CICS TS 3.1 (Redbook SG24-7227), JSON GENERATE in Enterprise COBOL 6.1
+and JSON PARSE in 6.2. The other entries name the release as IBM's documentation does and are not yet checked against the manual.
+
+### Estates not covered
+Distributions are committed only for the burned estates. `dsf` and `zopeneditor-sample` are pinned but not burned, and the
+census repos are measured by tools only: those keep their first-contact numbers (mainframe evidence policy), so no inventory
+or era distribution is committed for them.
 
 ## How to Run
 Run against a single local estate directory to print the inventory:
@@ -63,7 +85,7 @@ There is a minor discrepancy in CICS command totals (e.g., 233 vs 240 for CardDe
 
 ## Support matrix (#4724)
 `tests/tools/support_matrix.py` joins each burned estate's inventory fixture with its evidence report
-(`docs/language_status/evidence_report/<estate>/report.json`: each program's level, proving case, and translate-only
+(`<estate>/report.json` of the evidence report published on `generated`: each program's level, proving case, and translate-only
 refusal or holes), the rule catalogue (`docs/language_status/cobolrt_rules.json`, #4711; "not yet catalogued" while it
 is absent) and `docs/language_status/refusal_map.json` (each refusal or hole text: its issue, its agreed refusal family
 in [definition_of_done.md](definition_of_done.md), or the IBM product library a missing copybook belongs to). It reads

@@ -27,6 +27,14 @@ SNIPPETS = {
                FROM(BLL-CELLS) END-EXEC.
            GOBACK.
 """,
+    "era_copy": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY ERACPY.
+       PROCEDURE DIVISION.
+           GOBACK.
+""",
     "era_unparsed": """       ID DIVISION.
        PROGRAM-ID. P.
        DATA DIVISION.
@@ -103,6 +111,9 @@ SNIPPETS = {
 }  # one program per feature category, all scanned together ONCE (a full engine scan is 18-33 s)
 
 
+COPYBOOKS = {"ERACPY": "       01 BLL-CELLS PIC X.\n"}  # a tell that only a copybook shows
+
+
 @pytest.fixture(scope="module")
 def synthetic(tmp_path_factory):
     """(estate dir, db dir, inventory) for the combined synthetic estate; tmp_path_factory keeps it xdist-safe."""
@@ -111,6 +122,8 @@ def synthetic(tmp_path_factory):
     d.mkdir()
     for name, code in SNIPPETS.items():
         (d / f"{name}.cbl").write_text(code)
+    for name, code in COPYBOOKS.items():
+        (d / f"{name}.cpy").write_text(code)
     db_dir = base / "db"
     db_dir.mkdir()
     return d, db_dir, scan_estate(d, db_dir)
@@ -153,6 +166,20 @@ def test_era_tags(synthetic):
     assert (unparsed["era"], unparsed["mixed"]) == (2, False)  # noqa: S101
     assert "era_unparsed.cbl" in {u["program"] for u in synthetic[2]["unparsed_programs"]}  # noqa: S101
     assert eras["programs"]["statements.cbl"]["era"] is None  # noqa: S101
+    copy = eras["programs"]["era_copy.cbl"]  # the tell is in the copybook only: seen through the COPY expansion
+    assert (copy["era"], copy["earliest"], copy["mixed"]) == (1, 1, False)  # noqa: S101
+    assert copy["tells"] == [  # noqa: S101
+        {
+            "tell": "bll-cells",
+            "era": 1,
+            "count": 1,
+            "first_line": None,
+            "via_copybook": True,
+            "copybooks": ["ERACPY.cpy"],
+        }
+    ]
+    assert copy["program_era"] is None and "program_era" not in mixed  # noqa: S101
+    assert not synthetic[2]["copybook_resolution_gaps"]["unknown"]["count"]  # noqa: S101
     s = eras["summary"]
     assert s["programs"] == len(SNIPPETS) and s["mixed"] == 1 and s["by_era"]["4"] == 1  # noqa: S101
 

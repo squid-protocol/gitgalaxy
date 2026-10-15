@@ -2069,6 +2069,8 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
     src = work / "src"
     src.mkdir(exist_ok=True)
     for d in case.data["sources"]["copy"]:
+        if not (case.dir / d).is_dir():
+            continue  # a case with no copybooks declares a directory git cannot carry empty (hc-dcounters)
         for p in (case.dir / d).iterdir():
             if p.is_file():
                 shutil.copy(p, src / p.name)

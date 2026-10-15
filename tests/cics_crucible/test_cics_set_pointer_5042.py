@@ -11,8 +11,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_cics_runtimes as R  # noqa: E402  (bare import: tests/ has no __init__.py, see CLAUDE.md)
 

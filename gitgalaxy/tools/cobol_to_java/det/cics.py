@@ -1861,6 +1861,7 @@ class Cics:
         block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
         into = opts.get("INTO")
         length = _one_of(opts, "LENGTH", "FLENGTH")
+        into_ptr = ""  # set by the SET branch below; read only under the same guard
         named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
         if "SET" in opts:  # #5042 (X58): SET(pointer) LENGTH(data-area): the data in a new block of task storage
             if into:

@@ -281,6 +281,7 @@ def _javac() -> Path | None:
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.slow(reason="javac plus a JVM run of the pointer lane (#5178)")
 def test_a_record_set_onto_a_set_block_reads_it_and_the_pointer_ends_where_ibm_says(tmp_path):
     """DetCics.setBlock over a real CicsTask: the record addressed through the pointer holds a copy of the data; a write
     through it never changes the source; the next RECEIVE ends the first pointer (its record then reads zeros, ASSUMED

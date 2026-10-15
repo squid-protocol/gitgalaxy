@@ -9,25 +9,147 @@
   "covered": 18,
   "total": 22
  },
- "inputs": {
-  "case": "2ed102e31e3e0e02df5613652300c45c05626ba3eeae358d57f8a7ff19fb1023",
-  "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-  "harness": "668a98300771b213d8149fdacc4023be72b30b13152765e7906e64478859ca16",
-  "oracle": "5ae49d87e1774d7266ba251978f20043a3149493c44da5e065322aba197cad9f",
-  "components": {
-   "harness": {
-    "harness:cics": "51ed99032bd42ef8e4003f2180027f5ce982aa302eb14fad0277a1f4b7b5fab6",
-    "harness:core": "485bc7d0e9f00e005f046cbf551af85b8fad21b179a543ad6f43ad0a69dd5444",
-    "harness:db2": "f7936bba9020e08dc3f0c0b6257bf95bcda1501d2f5213724acf5a093130688b"
+ "linked": {
+  "LGAPDB01": {
+   "paragraphs": {
+    "covered": 4,
+    "live": 7
    },
-   "oracle": {
-    "oracle:cics-stub": "d551707ce43935382d99fe5ffb9111f08782d8ba3f2982c9bbab3e7e8733e905",
-    "oracle:core": "096391873ad77e887554d240e0df2b301cb4b8bcf0b50902f390f46904d4e8a6",
-    "oracle:db2": "ddbfe636cb402ffc4f9cb0ba1e156fcffebc9403e889a4add24a5e6483e5c57e",
-    "oracle:image-db2": "f9bf98a288533e3ee12980219ecc52006e2dab05f7706dfc35238f26add8f3c5",
-    "oracle:le": "c844eafe26530eef44ce5ef212399ee8524ddc9d06463ea8d3825e1d3afe1d55"
+   "branches": {
+    "covered": 11,
+    "total": 31
+   }
+  },
+  "LGAPOL01": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 2
+   },
+   "branches": {
+    "covered": 2,
+    "total": 8
+   }
+  },
+  "LGAPVS01": {
+   "paragraphs": {
+    "covered": 2,
+    "live": 3
+   },
+   "branches": {
+    "covered": 1,
+    "total": 9
+   }
+  },
+  "LGDPDB01": {
+   "paragraphs": {
+    "covered": 3,
+    "live": 3
+   },
+   "branches": {
+    "covered": 7,
+    "total": 12
+   }
+  },
+  "LGDPOL01": {
+   "paragraphs": {
+    "covered": 2,
+    "live": 3
+   },
+   "branches": {
+    "covered": 4,
+    "total": 12
+   }
+  },
+  "LGDPVS01": {
+   "paragraphs": {
+    "covered": 2,
+    "live": 3
+   },
+   "branches": {
+    "covered": 0,
+    "total": 4
+   }
+  },
+  "LGIPDB01": {
+   "paragraphs": {
+    "covered": 9,
+    "live": 12
+   },
+   "branches": {
+    "covered": 27,
+    "total": 74
+   }
+  },
+  "LGIPOL01": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 2
+   },
+   "branches": {
+    "covered": 1,
+    "total": 6
+   }
+  },
+  "LGSTSQ": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 3,
+    "total": 6
+   }
+  },
+  "LGUPDB01": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 9
+   },
+   "branches": {
+    "covered": 0,
+    "total": 38
+   }
+  },
+  "LGUPOL01": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 4
+   },
+   "branches": {
+    "covered": 0,
+    "total": 16
+   }
+  },
+  "LGUPVS01": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 3
+   },
+   "branches": {
+    "covered": 0,
+    "total": 9
    }
   }
  },
- "measured_at": "5eb4d68e305d144048d8b4f4e9ec9ed5a965a946"
+ "inputs": {
+  "case": "2ed102e31e3e0e02df5613652300c45c05626ba3eeae358d57f8a7ff19fb1023",
+  "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+  "harness": "b35d24347cf1c7d80182d8037a40900b657d9ece1d1110acaddbe2ad8b6a5475",
+  "oracle": "a699b2ae5b3558c1f5b5906550e63726d6a8eed94aa4afeeedd68ed8e83bee19",
+  "components": {
+   "harness": {
+    "harness:cics": "3dd63fec1eb122e95a496b1acbf3d785d0af9fb8aee114f697911a46fbabdfab",
+    "harness:core": "abd72c4a49e3ea05992d272af958e724ae35975d3ecc8dd58211ab805950c25d",
+    "harness:db2": "c7f68db013780fae7e53a575c8a267f6db55b7b05c775d92e50b0ad43351737e"
+   },
+   "oracle": {
+    "oracle:cics-stub": "49bf792099239061c8851fe78d37042c8d6a986a5c1c7aaa912371598867902f",
+    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
+    "oracle:db2": "ddbfe636cb402ffc4f9cb0ba1e156fcffebc9403e889a4add24a5e6483e5c57e",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+   }
+  }
+ },
+ "measured_at": "0a6f3c6d835f75e5e609c916696ef2d37a69783a"
 }

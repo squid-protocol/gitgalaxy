@@ -32,7 +32,7 @@ from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
-from maven_exe import mvn_executable
+from maven_exe import JVM_UTF8_FLAGS, decode_output, maven_utf8_env, mvn_executable, run_decoded
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -617,21 +617,22 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
     argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    maven_argline = (
+        f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
+    )
     proc = _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-               f"-DargLine={argline}"]  # fmt: skip
+               f"-DargLine={maven_argline}"]  # fmt: skip
         try:
-            proc = subprocess.run(  # noqa: S603
-                cmd, cwd=project, env=shell, capture_output=True, text=True, check=False, timeout=MAVEN_TEST_TIMEOUT
-            )
+            proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(
                 args=cmd,
                 returncode=124,
-                stdout=exc.stdout or "",
-                stderr=((exc.stderr or "") + f"\nmvn test timed out after {MAVEN_TEST_TIMEOUT}s").lstrip(),
+                stdout=decode_output(exc.stdout),
+                stderr=(decode_output(exc.stderr) + f"\nmvn test timed out after {MAVEN_TEST_TIMEOUT}s").lstrip(),
             )
         if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
             (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())

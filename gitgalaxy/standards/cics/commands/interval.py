@@ -14,7 +14,7 @@ runtimes, and the crucible proves it (cics_command_spec.md section 2.3)."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, POINTER, REMOTE, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, REMOTE, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -150,6 +150,9 @@ RETRIEVE = Command(
     event="RETRIEVE",
     options={
         "INTO": Arg("area_out"),
+        # #5042 (X56): "the pointer reference to be set to the address of the retrieved data"; "If you use SET you must also
+        # include LENGTH", a data area ("the data area is set to the length of the data")
+        "SET": Arg("pointer"),
         # "On completion of the retrieval operation, the data area is set to the original length of the data"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
@@ -159,7 +162,6 @@ RETRIEVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SET": Refusal(POINTER, "X18"),
         "WAIT": Refusal(
             "a RETRIEVE waiting for START data still to expire is not modelled (one task runs at a time)", "X18"
         ),
@@ -167,10 +169,16 @@ RETRIEVE = Command(
     groups=(
         at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         # INTO, unless the command asks only for RTRANSID / RTERMID / QUEUE (and then no LENGTH)
-        requires(("LENGTH", "FLENGTH"), any_of=("INTO",), msg="RETRIEVE without INTO"),
+        requires(("LENGTH", "FLENGTH"), any_of=("INTO", "SET"), msg="RETRIEVE without INTO"),
+        at_most_one("INTO", "SET", msg="RETRIEVE: INTO and SET are alternatives"),
+        requires(
+            ("SET",),
+            any_of=("LENGTH", "FLENGTH"),
+            msg='RETRIEVE SET without LENGTH (IBM: "If you use SET you must also include LENGTH")',
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
         Outcome(
             "LENGERR",
             None,

@@ -1718,11 +1718,18 @@ class Cics:
                      f"{str('APPEND' in opts).lower()});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
-            if bool(into) == nodata:
+            if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
-            if nodata:
+            if "SET" in opts:  # #5042 (X56): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
+                if not settable:
+                    raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
+                ptr = self.pointer(opts["SET"])
+                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name});",
+                        f"{ind}CicsTask.ContainerResult {r} = {r}s.result();",
+                        f"{ind}if ({r}s.handle() != 0) DetCics.setPointer({ptr}, {r}s.handle());"]  # fmt: skip
+            elif nodata:
                 out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
             else:
                 target = self.field(into)
@@ -1844,20 +1851,38 @@ class Cics:
         INTO's length) -- the data into INTO's first bytes, back in the storage's page; LENGTH, a data area, is set to
         the data's length on NORMAL and LENGERR ("On completion of the retrieval operation, the data area is set to
         the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
-        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET (a pointer) and WAIT are refused (OPTIONS)."""
+        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X56): the data in a new
+        block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
         into = opts.get("INTO")
         length = _one_of(opts, "LENGTH", "FLENGTH")
         named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
-        if not into and (not named or length is not None):
+        if "SET" in opts:  # #5042 (X56): SET(pointer) LENGTH(data-area): the data in a new block of task storage
+            if into:
+                raise CicsError(_msg("RETRIEVE", "at_most_one", "INTO"))
+            if length is None:
+                raise CicsError(_msg("RETRIEVE", "requires", "SET"))
+            if re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is not None:
+                raise CicsError("RETRIEVE SET with a literal LENGTH: IBM says the argument must be a data area")
+            into_ptr = self.pointer(opts["SET"])
+        elif not into and (not named or length is not None):
             raise CicsError(_msg("RETRIEVE", "requires", "LENGTH"))
         g = self.g
         r = g.tmpname("retrieved")
         most = "null"
         if into:
             most = self.int_(length) if length else str(self.size(into))
+        elif "SET" in opts:
+            most = "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
         flags = ", ".join(str(o in named).lower() for o in ("RTRANSID", "RTERMID", "QUEUE"))
         out = [f"{ind}CicsTask.RetrieveResult {r} = task.retrieve({most}, {flags});"]
-        if into:
+        if "SET" in opts:
+            self.region_used = True
+            # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X56)
+            out.append(f"{ind}if ({r}.data() != null) DetCics.setBlock(task, {into_ptr}, null, "
+                       f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
+            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+            out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+        elif into:
             self.region_used = True
             out.append(f"{ind}if ({r}.data() != null) DetCics.put({self.field(into)}, "
                        f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
@@ -2033,23 +2058,30 @@ class Cics:
             put = "received"
         elif opts.get("SET") and "INTO" not in opts:
             m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
-            if m is None:
-                raise CicsError(f"RECEIVE SET({opts['SET']}): pointers are not modelled, only SET(ADDRESS OF record)")
-            item = g.resolve(E.Ref(m.group(1).upper()))
-            if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
-                raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
             if not most:
                 raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
             if not settable:
                 raise CicsError("RECEIVE SET without LENGTH(data-area)")
-            target = self.field(m.group(1))
             limit = self.int_(most)
-            put = "receivedSet"
+            if m is None:  # #5042 (X56): SET(pointer): the data in a new block of task storage the pointer addresses
+                target = self.pointer(opts["SET"])
+                put = "setBlock"
+            else:
+                item = g.resolve(E.Ref(m.group(1).upper()))
+                if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
+                    raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
+                target = self.field(m.group(1))
+                put = "receivedSet"
         else:
             raise CicsError(_msg("RECEIVE", "one_of", "INTO"))
         r = g.tmpname("received")
+        store = (
+            f'DetCics.setBlock(task, {target}, "RECEIVE", {r}.data(), CS);'
+            if put == "setBlock"
+            else f"DetCics.{put}({target}, {r}.data(), CS);"
+        )
         out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
-               f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
+               f"{ind}{store}"]  # fmt: skip
         if settable and length is not None:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
         return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
@@ -2147,15 +2179,32 @@ class Cics:
                         f"{ind}Cobol.store({self.field(_arg(opts['ITEM']))}, BigDecimal.valueOf({r}.item()), false, CS);"
                     )
         else:
-            into = self.field(_arg(opts.get("INTO")))
-            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+            setp = opts.get("SET")
+            if setp:  # #5042 (X56): SET(pointer) LENGTH(data-area): the item in a new block, valid to the next READQ TS
+                if opts.get("INTO"):
+                    raise CicsError(_msg("READQ TS", "at_most_one", "INTO"))
+                if not opts.get("LENGTH"):
+                    raise CicsError(_msg("READQ TS", "requires", "SET"))
+                if re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is not None:
+                    raise CicsError("READQ TS SET with a literal LENGTH: IBM says LENGTH must then be a data area")
+                ptr = self.pointer(setp)
+                into, maxlen = None, "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
+            else:
+                into = self.field(_arg(opts.get("INTO")))
+                maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
             if "NEXT" in opts or not opts.get("ITEM"):
                 out.append(f"{ind}CicsTask.TsResult {r} = task.readqTsNext({queue}, {maxlen});")
             else:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
                 )
-            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));")
+            if setp:
+                out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ", '
+                           f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
+            else:
+                out.append(
+                    f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));"
+                )
             # #4737: LENGTH(LENGTH OF x) / a literal is the most the program takes; CICS's length goes to a temporary
             if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
                 out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
@@ -2464,12 +2513,26 @@ class Cics:
         raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """READ / READNEXT / READPREV. #5042 (X56) SET(pointer): the record in a new block of task storage the pointer
+        addresses (DetCics.setBlock), valid -- IBM, EXEC CICS READ -- "until the next READ command for the same file or until
+        completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET";
+        READNEXT / READPREV: "until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the
+        same file ... no longer valid after an ENDBR or SYNCPOINT" (CicsTask.acquireSet / invalidateSet). RBA, a LENGTH on
+        a browse and a SET with INTO are refused by name; READ's LENGTH(data-area) is set to the record's length."""
+        if bool(opts.get("INTO")) == ("SET" in opts):
+            raise CicsError(_msg(verb, "one_of", "INTO", verb))
+        if "SET" in opts and ("RBA" in opts or "RRN" in opts or "XRBA" in opts):
+            raise CicsError(
+                f"{verb} SET with RBA / RRN / XRBA: not modelled (the block would hold a relative-byte record)"
+            )
         if self._rba(verb, opts):
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
         searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
         if not searched:
             self._keylength(verb, opts)
+        if "SET" in opts:
+            return self.read_set(verb, opts, ind)
         length = self._read_length(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
@@ -2500,6 +2563,53 @@ class Cics:
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    {st}.find({r}.key().getBytes(CS)).ifPresent(b -> DetCics.put({into}, b));",
+               f"{ind}}}"]  # fmt: skip
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """#5042 (X56): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
+        tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
+        record's length (IBM: "the LENGTH parameter contains the actual length of the record"); a LENGTH that is a
+        literal, on a browse, or with a READ UPDATE LENGERR has nothing to say here and is refused."""
+        g = self.g
+        ptr = self.pointer(opts["SET"])
+        st = self.store(opts)
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        rid = self.field(opts["RIDFLD"])
+        length = None
+        if "LENGTH" in opts:
+            arg = _arg(opts["LENGTH"])
+            if verb != "READ" or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None:
+                raise CicsError(f"{verb} SET with LENGTH({arg}): only a data area on READ is modelled (it is set to the "
+                                "record's length)")  # fmt: skip
+            length = arg
+        r, rec = g.tmpname("read"), g.tmpname("rec")
+        if verb == "READ":
+            update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
+            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
+            call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
+            search = self._search(opts, file, st, rec)
+            if search is not None:
+                call, held = search[0], search[1].format(r)
+            out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
+                   f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
+                   f"{ind}if ({r}.record() != null) {{",
+                   f'{ind}    DetCics.setBlock(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
+                   *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
+                   *self.token_out(opts, file, st, r, f"{ind}    ")]  # fmt: skip
+            if length is not None:
+                out.append(
+                    f"{ind}    " + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
+                )
+            out.append(f"{ind}}}")
+            return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+        fn = "readnext" if verb == "READNEXT" else "readprev"
+        got = g.tmpname("rec")
+        out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
+               f"{ind}if ({r}.normal()) {{",
+               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
+               f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
+               f'{ind}    if ({got} != null) DetCics.setBlock(task, {ptr}, "BROWSE " + {file}, {got}, true);',
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 

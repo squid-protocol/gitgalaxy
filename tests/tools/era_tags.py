@@ -16,7 +16,9 @@ calls, BLL cells, HANDLE CONDITION, DL/I, CMPR2, LANGLVL): `earliest` is the old
 period-bound tell is older than its `era` is `mixed` -- layered code, such as a command-level 1980s program with a
 2010s channel call. The tells of each era are listed. A program with no tell has `era` None. Old tells survive in new code (HANDLE CONDITION
 is still written today), so the tag is evidence, not a verdict. This detects only: the macro tables (#5120) and the
-macro-level refusal (#5121) are separate. Only the program's own text is read: a tell inside a copybook is not seen.
+macro-level refusal (#5121) are separate. The program's own text is read first, then the copybooks its COPY statements resolved
+(`tag_program(text, copybooks)`): a tell found in one lists it under `copybooks`, and `via_copybook` marks a tell the
+program text alone does not show. The tag then also carries `program_era`, the era of the program's own text.
 """
 
 from __future__ import annotations
@@ -77,6 +79,60 @@ TELLS: tuple[tuple[str, int, str, re.Pattern[str]], ...] = (
     ("arith-extend", 4, "cbl", re.compile(r"\bARITH\s*\(\s*EXTEND\s*\)", _I)),
 )
 
+# The IBM release or manual behind each tell. `verified` is True only where the statement was checked against an IBM
+# page (see `source`); the rest is the release as IBM's documentation names it, still to be checked against the manual.
+CITE: dict[str, dict[str, Any]] = {
+    "dfh-macro-call": {
+        "ibm": "CICS macro-level API; support dropped from CICS/ESA 3.2 (1991), replaced by EXEC CICS command level",
+        "verified": True,
+        "source": "https://www.ibm.com/support/pages/history-cics-transaction-server",
+    },
+    "csa-tca-dsect": {
+        "ibm": "CICS macro-level CSA / TCA dsects (DFHCSADS, DFHTCADS); gone with macro level",
+        "verified": False,
+    },
+    "bll-cells": {
+        "ibm": "OS/VS COBOL Base Locator for Linkage; replaced by ADDRESS OF in COBOL II (1.x)",
+        "verified": False,
+    },
+    "service-reload": {"ibm": "OS/VS COBOL SERVICE RELOAD; withdrawn with OS/VS COBOL", "verified": False},
+    "handle-condition": {
+        "ibm": "CICS command level HANDLE family; RESP / RESP2 are the later style",
+        "verified": False,
+    },
+    "dli": {"ibm": "IMS DL/I call interface (CBLTDLI) and EXEC DLI under CICS", "verified": False},
+    "langlvl-1": {"ibm": "OS/VS COBOL language level option LANGLVL(1) (COBOL 74 rules)", "verified": False},
+    "address-of": {"ibm": "COBOL II Release 1: ADDRESS OF special register", "verified": False},
+    "set-address": {"ibm": "COBOL II Release 1: SET ADDRESS OF", "verified": False},
+    "resp": {"ibm": "CICS command-level RESP / RESP2 options (CICS/MVS 2.1 and later)", "verified": False},
+    "exec-sql": {"ibm": "Db2 precompiler EXEC SQL host-language support", "verified": False},
+    "dpl-link-sysid": {"ibm": "CICS distributed program link (LINK ... SYSID)", "verified": False},
+    "cmpr2": {"ibm": "COBOL for OS/390 and later: CMPR2 compiler option, COBOL II compatibility", "verified": False},
+    "langlvl-2": {"ibm": "COBOL II LANGLVL(2) (COBOL 85 rules)", "verified": False},
+    "mq-call": {"ibm": "IBM MQ MQI calls from COBOL (MQSeries)", "verified": False},
+    "exci": {"ibm": "CICS external call interface (EXCI), DFHXCIS", "verified": False},
+    "bridge-3270": {"ibm": "CICS 3270 bridge (DFHBRARC and related copybooks)", "verified": False},
+    "le-callable": {"ibm": "Language Environment callable services (CEExxxx), LE for OS/390", "verified": False},
+    "channel-container": {
+        "ibm": "CICS TS 3.1: channels and containers",
+        "verified": True,
+        "source": "https://www.redbooks.ibm.com/abstracts/sg247227.html",
+    },
+    "web-soap": {
+        "ibm": "CICS web support (EXEC CICS WEB) and web services (SOAPFAULT, INVOKE SERVICE)",
+        "verified": False,
+    },
+    "json-xml": {
+        "ibm": "Enterprise COBOL 6.1 JSON GENERATE, 6.2 JSON PARSE (XML PARSE / GENERATE are older)",
+        "verified": True,
+        "source": "https://www.ibm.com/support/pages/system/files/support/swg/swgdocs.nsf/0/a1f5f4c663a37eb58525818a00320a76/$FILE/COBOL%20V6.2%20Whats%20New.pdf",
+    },
+    "async": {"ibm": "CICS asynchronous API (RUN TRANSID, FETCH, FREE CHILD)", "verified": False},
+    "named-counter": {"ibm": "CICS named counter facility (GET / UPDATE / DEFINE / DELETE COUNTER)", "verified": False},
+    "arith-extend": {"ibm": "Enterprise COBOL ARITH(EXTEND) compiler option", "verified": False},
+}
+
+
 # Tells that belong to their period (the construct went out of use or was replaced); every other tell is a floor.
 PERIOD_BOUND = frozenset(
     {
@@ -92,6 +148,7 @@ PERIOD_BOUND = frozenset(
     }
 )
 
+_ASM_TELLS = frozenset(t[0] for t in TELLS if t[2] == "asm")
 _EXEC = re.compile(r"\bEXEC\s+CICS\b(.*?)\bEND-EXEC\b", _I | re.S)
 _CBL = re.compile(r"^\s{0,6}(?:CBL|PROCESS)\s+(.*)$", _I | re.M)
 _LITERAL = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"")
@@ -126,8 +183,8 @@ def clean(text: str) -> tuple[str, str]:
     return raw, "\n".join(_LITERAL.sub(lambda m: " " * len(m.group()), ln) for ln in out)
 
 
-def tag_program(text: str) -> dict[str, Any]:
-    """The era tag of one program's source text: {era, earliest, mixed, tells: [{tell, era, count, first_line}]}."""
+def _scan(text: str) -> list[dict[str, Any]]:
+    """The tells of one source text (a program or a copybook): [{tell, era, count, first_line}]."""
     raw, code = clean(text)
     asm = "\n".join("" if ln.startswith("*") else ln for ln in text.splitlines())
     exec_text = "\0".join(m.group(0) for m in _EXEC.finditer(code))
@@ -153,16 +210,45 @@ def tag_program(text: str) -> dict[str, Any]:
     if found and any(t["era"] == 0 for t in found) and re.search(r"\bEXEC\s+CICS\b", code, _I):
         # DFHxx text beside EXEC CICS is a translated listing or a comment-like mention, not macro-level code.
         found = [t for t in found if t["tell"] != "dfh-macro-call"]
+    return found
+
+
+def _verdict(found: list[dict[str, Any]]) -> tuple[int | None, int | None, bool]:
     eras = [t["era"] for t in found]
     era = max(eras) if eras else None
     bound = [t["era"] for t in found if t["tell"] in PERIOD_BOUND]
     earliest = min(bound) if bound else era
-    return {
-        "era": era,
-        "earliest": earliest,
-        "mixed": era is not None and earliest < era,
-        "tells": found,
-    }
+    return era, earliest, era is not None and earliest < era
+
+
+def tag_program(text: str, copybooks: dict[str, str] | None = None) -> dict[str, Any]:
+    """The era tag of one program's source text: {era, earliest, mixed, tells: [{tell, era, count, first_line}]}.
+
+    `copybooks` (#5117) maps each copybook the program's COPY statements resolved (the expansion's member files) to its
+    text. Its tells are read the same way, except assembler macro text: a tell it shares with the program lists the
+    copybook under `copybooks`; one only it has is a tell of the program too (`via_copybook`, count over the copybooks,
+    no line). Those keys, `program_era` (when it differs from `era`) and `copybooks` are present only when non-empty."""
+    found = _scan(text)
+    program_era = _verdict(found)[0]
+    by_tell = {t["tell"]: t for t in found}
+    for name in sorted(copybooks or {}):
+        for t in _scan(copybooks[name]):
+            if t["tell"] in _ASM_TELLS:
+                continue
+            mine = by_tell.get(t["tell"])
+            if mine is None:
+                mine = {"tell": t["tell"], "era": t["era"], "count": 0, "first_line": None, "via_copybook": True}
+                by_tell[t["tell"]] = mine
+                found.append(mine)
+            if mine.get("via_copybook"):
+                mine["count"] += t["count"]
+            mine.setdefault("copybooks", []).append(name)
+    found.sort(key=lambda t: [x[0] for x in TELLS].index(t["tell"]))
+    era, earliest, mixed = _verdict(found)
+    out: dict[str, Any] = {"era": era, "earliest": earliest, "mixed": mixed, "tells": found}
+    if program_era != era:
+        out["program_era"] = program_era
+    return out
 
 
 def summarise(programs: dict[str, dict[str, Any]]) -> dict[str, Any]:
@@ -171,12 +257,16 @@ def summarise(programs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     tells: Counter[str] = Counter()
     for t in programs.values():
         tells.update(x["tell"] for x in t["tells"])
-    return {
+    out = {
         "programs": len(programs),
         "by_era": {k: by_era[k] for k in ("0", "1", "2", "3", "4", "none")},
         "mixed": sum(t["mixed"] for t in programs.values()),
         "tells": dict(sorted(tells.items())),
     }
+    raised = sum("program_era" in t for t in programs.values())
+    if raised:  # present only when a copybook raised some program's era
+        out["raised_by_copybook"] = raised
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:

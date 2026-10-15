@@ -187,6 +187,22 @@ def census_lines(lines: list[S.Line]) -> tuple[list[S.Line], bool]:
     return out, seen
 
 
+def _tag_with_copybooks(prog: Path, estate_dir: Path, rel_prog: str, lines: list[S.Line], inv) -> None:
+    """#5117: re-tag a program whose COPY expansion succeeded with the tells inside the copybooks it resolved (the
+    member files of the expanded lines, nested ones too), keyed by estate-relative path (a member outside the estate, e.g. the engine's own copybook: by name)."""
+    members = {Path(ln.file).resolve() for ln in lines} - {prog.resolve()}
+    root = estate_dir.resolve()
+    books: dict[str, str] = {}
+    for m in sorted(members):
+        name = m.relative_to(root).as_posix() if m.is_relative_to(root) else m.name  # (engine copies: by name)
+        try:
+            books[name] = read_source(m).text
+        except Exception:  # noqa: S112 -- an unreadable member adds no tell; the program's own tag stands
+            continue
+    if books:
+        inv["eras"][rel_prog] = tag_program(read_source(prog).text, books)
+
+
 def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_copy_dirs: list[Path]):
     rel_prog = str(prog.relative_to(estate_dir)).replace("\\", "/")
 
@@ -211,6 +227,7 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
 
     try:
         lines = S.program_lines(prog, estate_copy_dirs, engine_copies)
+        _tag_with_copybooks(prog, estate_dir, rel_prog, lines, inv)
     except S.MacroLevelCics as e:  # #5121: refused by name, before COPY expansion; not parsed as COBOL with holes
         for m in re.finditer(r"(macro-level CICS|CICS Assembler) not supported", str(e)):
             count_refusal_family(inv, m.group(1), rel_prog)

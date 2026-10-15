@@ -175,3 +175,93 @@ def test_summary_counts_programs_per_era_and_tell():
 
 def test_deterministic():
     assert et.tag_program(ERA_FIXTURES[1]) == et.tag_program(ERA_FIXTURES[1])  # noqa: S101
+
+
+# ---- #5117: tells inside copybooks -------------------------------------------------------------------------------
+PLAIN = prog("DISPLAY 'X'.")
+CBK_TELLS = sorted(t for t in FIXTURES if t != "dfh-macro-call")  # assembler macro text in a COBOL copybook is no tell
+
+
+def with_copybook(text: str, book: str, name: str = "BOOK.cpy") -> dict:
+    return et.tag_program(text, {name: book})
+
+
+@pytest.mark.parametrize("tell", CBK_TELLS)
+def test_each_tell_inside_a_copybook(tell):
+    """Every tell the program text shows is also seen in a copybook (same scopes: code, raw, cics, cbl cards)."""
+    text, era = FIXTURES[tell]
+    tag = with_copybook(PLAIN, text)
+    hit = next(t for t in tag["tells"] if t["tell"] == tell)
+    assert (hit["era"], hit["via_copybook"], hit["copybooks"], hit["first_line"]) == (era, True, ["BOOK.cpy"], None)  # noqa: S101
+    assert tag["era"] == max(t["era"] for t in tag["tells"])  # noqa: S101
+
+
+def test_macro_text_in_a_copybook_is_no_tell():
+    assert with_copybook(PLAIN, FIXTURES["dfh-macro-call"][0])["tells"] == []  # noqa: S101
+
+
+def test_copybook_raises_the_era_and_the_program_era_is_kept():
+    tag = with_copybook(prog("EXEC CICS RETURN RESP(R) END-EXEC."), FIXTURES["channel-container"][0])
+    assert (tag["era"], tag["program_era"]) == (4, 2)  # noqa: S101
+
+
+def test_tell_in_program_and_copybook_counts_the_program_and_names_the_copybook():
+    text = FIXTURES["resp"][0]
+    tag = with_copybook(text, text)
+    resp = next(t for t in tag["tells"] if t["tell"] == "resp")
+    assert resp["count"] == et.tag_program(text)["tells"][0]["count"] and "via_copybook" not in resp  # noqa: S101
+    assert resp["copybooks"] == ["BOOK.cpy"] and "program_era" not in tag  # noqa: S101
+
+
+def test_copybooks_add_up_and_are_listed_in_order():
+    book = prog("EXEC CICS RETURN RESP(R) END-EXEC.")
+    tag = et.tag_program(PLAIN, {"B.cpy": book, "A.cpy": book})
+    resp = tag["tells"][0]
+    assert (resp["count"], resp["copybooks"]) == (2, ["A.cpy", "B.cpy"])  # noqa: S101
+
+
+def test_old_tell_in_a_copybook_makes_a_new_program_mixed():
+    tag = with_copybook(FIXTURES["channel-container"][0], FIXTURES["bll-cells"][0])
+    assert (tag["era"], tag["earliest"], tag["mixed"]) == (4, 1, True)  # noqa: S101
+
+
+def test_floor_tell_in_a_copybook_never_makes_a_program_mixed():
+    tag = with_copybook(FIXTURES["bll-cells"][0], FIXTURES["channel-container"][0])
+    assert tag["mixed"] is False or tag["earliest"] == 1  # noqa: S101
+    tag = with_copybook(FIXTURES["resp"][0], FIXTURES["channel-container"][0])
+    assert tag["mixed"] is False and tag["program_era"] == 2  # noqa: S101
+
+
+def test_comments_and_literals_in_a_copybook_are_not_read():
+    book = "      * EXEC CICS GET CONTAINER('C') END-EXEC\n       01 X PIC X(20) VALUE 'JSON PARSE'.\n"
+    assert with_copybook(PLAIN, book)["tells"] == []  # noqa: S101
+
+
+def test_free_form_copybook_in_a_fixed_form_program():
+    book = "01 BLL-CELLS.\n05 FILLER PIC S9(8) COMP.\n*> SERVICE RELOAD\n"
+    tag = with_copybook(PLAIN, book)
+    assert {t["tell"] for t in tag["tells"]} == {"bll-cells"}  # noqa: S101
+
+
+def test_no_copybooks_is_byte_identical_to_the_program_only_tag():
+    for text in (FIXTURES[t][0] for t in FIXTURES):
+        assert et.tag_program(text, {}) == et.tag_program(text) == et.tag_program(text, None)  # noqa: S101
+        assert "program_era" not in et.tag_program(text)  # noqa: S101
+
+
+def test_copybook_with_no_tell_changes_nothing():
+    assert with_copybook(ERA_FIXTURES[2], "       01 X PIC X.\n") == et.tag_program(ERA_FIXTURES[2])  # noqa: S101
+
+
+def test_summary_counts_programs_raised_by_a_copybook_only_when_any():
+    plain = {"a.cbl": et.tag_program(PLAIN)}
+    assert "raised_by_copybook" not in et.summarise(plain)  # noqa: S101
+    plain["b.cbl"] = with_copybook(PLAIN, FIXTURES["channel-container"][0])
+    assert et.summarise(plain)["raised_by_copybook"] == 1  # noqa: S101
+
+
+def test_every_tell_cites_an_ibm_release():
+    assert set(et.CITE) == {t[0] for t in et.TELLS}  # noqa: S101
+    for tell, c in et.CITE.items():
+        assert c["ibm"] and isinstance(c["verified"], bool), tell  # noqa: S101
+        assert not c["verified"] or c["source"].startswith("https://"), tell  # noqa: S101

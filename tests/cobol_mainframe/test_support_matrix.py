@@ -316,6 +316,15 @@ def test_era_section_has_the_distribution_the_mixed_programs_and_their_tells(bar
     assert "resp 1" in page  # noqa: S101
 
 
+def test_era_section_names_programs_raised_by_a_copybook_only_when_there_are_some(bare, rmap):
+    """#5117: the copybook line is rendered only for an estate whose summary carries `raised_by_copybook`."""
+    assert "COPY" not in "\n".join(sm.render_eras(bare["eras"]))  # noqa: S101
+    inv = json.loads(json.dumps(INVENTORY))
+    inv["eras"]["summary"]["raised_by_copybook"] = 2
+    m = sm.build_estate("synthetic", inv, REPORT, rmap, None)
+    assert "2 programs have a higher era than their own text shows" in "\n".join(sm.render_eras(m["eras"]))  # noqa: S101
+
+
 def test_an_inventory_without_era_tags_renders_no_era_section(rmap):
     inv = {k: v for k, v in INVENTORY.items() if k != "eras"}
     m = sm.build_estate("synthetic", inv, REPORT, rmap, None)

@@ -2194,6 +2194,9 @@
         "mixed": false,
         "tells": [
           {
+            "copybooks": [
+              "app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl"
+            ],
             "count": 4,
             "era": 2,
             "first_line": 65,
@@ -2246,6 +2249,9 @@
         "mixed": false,
         "tells": [
           {
+            "copybooks": [
+              "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl"
+            ],
             "count": 5,
             "era": 2,
             "first_line": 50,
@@ -2265,6 +2271,10 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy",
+              "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl"
+            ],
             "count": 16,
             "era": 2,
             "first_line": 304,
@@ -2290,6 +2300,10 @@
             "tell": "resp"
           },
           {
+            "copybooks": [
+              "app/app-transaction-type-db2/dcl/DCLTRCAT.dcl",
+              "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl"
+            ],
             "count": 7,
             "era": 2,
             "first_line": 282,

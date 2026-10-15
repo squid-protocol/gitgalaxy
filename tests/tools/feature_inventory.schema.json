@@ -49,6 +49,7 @@
               "era": { "type": ["integer", "null"], "minimum": 0 },
               "earliest": { "type": ["integer", "null"], "minimum": 0 },
               "mixed": { "type": "boolean" },
+              "program_era": { "type": ["integer", "null"], "minimum": 0 },
               "tells": {
                 "type": "array",
                 "items": {
@@ -57,7 +58,9 @@
                     "tell": { "type": "string" },
                     "era": { "type": "integer", "minimum": 0 },
                     "count": { "type": "integer", "minimum": 1 },
-                    "first_line": { "type": ["integer", "null"], "minimum": 1 }
+                    "first_line": { "type": ["integer", "null"], "minimum": 1 },
+                    "via_copybook": { "type": "boolean" },
+                    "copybooks": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
                   },
                   "required": ["tell", "era", "count", "first_line"],
                   "additionalProperties": false
@@ -74,6 +77,7 @@
             "programs": { "type": "integer", "minimum": 0 },
             "by_era": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
             "mixed": { "type": "integer", "minimum": 0 },
+            "raised_by_copybook": { "type": "integer", "minimum": 1 },
             "tells": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
           },
           "required": ["programs", "by_era", "mixed", "tells"],

@@ -98,8 +98,15 @@ def test_the_sort_key_orders_as_the_code_page_bytes(tmp_path, code_page):
         '        for (String k : keys) System.out.println(k.replace("\\u00c4", "AE"));\n    }\n}\n',
         encoding="utf-8",
     )
-    subprocess.run([str(_JDK / "javac"), "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True)
-    out = subprocess.run([str(_JDK / "java"), "-cp", str(tmp_path), "t.Runner"], capture_output=True, text=True)
+    subprocess.run(
+        [str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True
+    )
+    out = subprocess.run(
+        [str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path), "t.Runner"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
     assert out.returncode == 0, out.stderr
     want = [k.replace("Ä", "AE") for k in sorted(KEYS, key=lambda k: k.encode(code_page))]
     assert out.stdout.split("\n")[:-1] == want

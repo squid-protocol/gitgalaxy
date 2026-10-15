@@ -319,8 +319,8 @@ def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
     sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
     try:
-        proc = subprocess.run(["javac", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
-                              env=_java_env(), capture_output=True, text=True, check=False,
+        proc = subprocess.run(["javac", "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+                              env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired:
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"

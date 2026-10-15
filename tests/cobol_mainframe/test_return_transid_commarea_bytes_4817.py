@@ -79,12 +79,28 @@ def test_return_transid_passes_the_commarea_bytes_to_the_next_task(tmp_path):
     (src / "Main.java").write_text(TASK_MAIN)
 
     subprocess.run(
-        [str(jdk / "bin" / "javac"), "-d", str(tmp_path / "classes"), *map(str, src.glob("*.java"))], check=True
+        [
+            str(jdk / "bin" / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-d",
+            str(tmp_path / "classes"),
+            *map(str, src.glob("*.java")),
+        ],
+        check=True,
     )  # noqa: S603
     res = subprocess.run(
-        [str(jdk / "bin" / "java"), "-cp", str(tmp_path / "classes"), "com.squid.gitgalaxy.cics.Main"],
+        [
+            str(jdk / "bin" / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path / "classes"),
+            "com.squid.gitgalaxy.cics.Main",
+        ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     )
 

@@ -171,9 +171,11 @@ def test_the_runtime_reads_preferred_signs_and_refuses_the_rest_under_pfd(tmp_pa
     (tmp_path / "src/Probe.java").write_text(RUNTIME_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    lines = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                           text=True, check=True).stdout.split("\n")  # fmt: skip
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    lines = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                           text=True, encoding="utf-8", check=True).stdout.split("\n")  # fmt: skip
     nopfd = lines[0].split()[1:]
     pfd = lines[1].split()[1:]
     # NOPFD (IBM's default): every sign is read, as GnuCOBOL reads it. An overpunch letter in an UNSIGNED item is a

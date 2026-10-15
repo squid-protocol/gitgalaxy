@@ -251,7 +251,7 @@ def test_returned_converts_by_layout_and_refuses_what_it_cannot(tmp_path, style)
         (root / rel).write_text(text or "", encoding="utf-8")
     classes = tmp_path / "classes"
     built = subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(classes), *map(str, root.rglob("*.java"))],  # noqa: S603, S607
-                           capture_output=True, text=True, check=False)  # fmt: skip
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
     # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
     out = (

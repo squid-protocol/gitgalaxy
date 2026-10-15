@@ -83,9 +83,11 @@ def test_cobol_edit_formats_as_cobol(tmp_path):
         '        if (!want.equals(got)) throw new AssertionError("got [" + got + "] want [" + want + "]");\n'
         "    }\n    public static void main(String[] a) {\n" + checks + "\n    }\n}\n"
     )
-    subprocess.run([str(_JDK / "javac"), "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True)
-    run = subprocess.run([str(_JDK / "java"), "-cp", str(tmp_path), "com.test.entity.vsam.Runner"],
-                         capture_output=True, text=True)  # fmt: skip
+    subprocess.run(
+        [str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True
+    )
+    run = subprocess.run([str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path), "com.test.entity.vsam.Runner"],
+                         capture_output=True, text=True, encoding="utf-8")  # fmt: skip
     assert run.returncode == 0, run.stderr
 
 

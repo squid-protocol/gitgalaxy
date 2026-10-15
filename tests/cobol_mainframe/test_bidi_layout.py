@@ -125,7 +125,7 @@ def _run(tmp_path, layout, cases):
     out = tmp_path / layout / "out"
     subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(out), str(pkg / "CobolRecords.java"),
                     str(pkg / "Probe.java")], check=True)  # fmt: skip
-    run = subprocess.run(["java", "-Dstdout.encoding=UTF-8", "-cp", str(out), "t.Probe"],
+    run = subprocess.run(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(out), "t.Probe"],
                          capture_output=True, encoding="utf-8", check=True)  # fmt: skip
     got = run.stdout.splitlines()
     assert [(expr, g) for (expr, _), g in zip(cases, got, strict=False)] == [

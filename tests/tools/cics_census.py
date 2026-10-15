@@ -466,6 +466,9 @@ def error_key(error: str) -> str:
         return f"missing copybook {m.group(1).upper()}" + (" (ambiguous)" if error.startswith("CopyAmbiguous") else "")
     etype, _, msg = error.partition(": ")
     msg = re.sub(r"^\S+\.\w+:\d+:\s*", "", msg)  # the member and line it stopped at
+    fam = re.match(r"(macro-level CICS|CICS Assembler) not supported", msg)  # #5121: one gap per family, not per macro
+    if fam:
+        return f"refused: {fam.group(1)}"
     msg = re.sub(r"\s*\[[^\]]*\]", "", _AT_LINE.sub("", _PATH.sub("<path>", msg)))
     return f"refused: {etype}: {_generic(msg)}"[:120]
 

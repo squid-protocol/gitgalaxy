@@ -166,12 +166,12 @@ def test_detsql_injects_a_planned_fault_and_a_link_window_stops_at_the_record(tm
     (src / "Main.java").write_text(MAIN, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
-    javac = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
-                           capture_output=True, text=True, check=False)  # fmt: skip
+    javac = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
     log = tmp_path / "fired"
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main", str(log)],  # noqa: S603
-                         capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main", str(log)],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["run 1 sqlcode 0 ran 1", "run 2 sqlcode -803 ran 1", "run 3 sqlcode 0 ran 2",
                    "other sqlcode 0", "jcc sqlcode -180 state 22007", "other error sqlcode -803", "window EE 0 0", "back X 71"]  # fmt: skip
     assert log.read_text(encoding="ascii").split() == ["SQL", "PROG", "12", "2", "-803"]
@@ -269,11 +269,11 @@ def _binary_run(tmp_path):
     (src / "Main.java").write_text(BINARY_MAIN, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
-    javac = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
-                           capture_output=True, text=True, check=False)  # fmt: skip
+    javac = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    return subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
-                          capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
 
 
 @pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")

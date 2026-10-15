@@ -2696,11 +2696,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:5] == ["IBM037 E640C1", "true", "4120", "true", "850A"]  # NL is NEL, as Python's cp037 has it
     assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
     assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
@@ -2761,10 +2761,10 @@ public class Main {
     import subprocess
 
     built = subprocess.run([str(jdk / "javac"), "-nowarn", "-encoding", "UTF-8", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:9] == ["[14-6704/B] -> [00146704B]", "[$25.68   ] -> [000002568]", "[123-] -> [012L]",
                        "[1.5CR] -> [0001N]", "[5-] -> [0N]", "[12}] -> [12}]", "[A] -> [A]",
                        "[ab12cd34] -> [00001234]", "[ab12cd34] -> [0012cd34]"]  # fmt: skip
@@ -3132,11 +3132,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 

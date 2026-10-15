@@ -106,7 +106,9 @@ def copy_dirs(root: Path) -> list[Path]:
     return sorted(dirs)
 
 
-def run_calltree(jar: Path, paths: list[Path], libs: list[Path], root: Path) -> tuple[dict[str, dict[str, set[str]]], float, str]:
+def run_calltree(
+    jar: Path, paths: list[Path], libs: list[Path], root: Path
+) -> tuple[dict[str, dict[str, set[str]]], float, str]:
     """One CallTree run over `paths`: (facts by absolute path, wall seconds, error tail)."""
     scratch = os.environ.get("REFEREES_CACHE")
     if scratch:
@@ -117,8 +119,8 @@ def run_calltree(jar: Path, paths: list[Path], libs: list[Path], root: Path) -> 
         (work / "libs").write_text("\n".join(str(d.resolve()) for d in libs) + "\n", encoding="utf-8")
         t0 = time.perf_counter()
         proc = subprocess.run(
-            ["java", "-jar", str(jar), "-fileList", "files", "-copyList", "libs", "-out", "out.csv"],
-            cwd=work, capture_output=True, text=True,
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-jar", str(jar), "-fileList", "files", "-copyList", "libs", "-out", "out.csv"],
+            cwd=work, capture_output=True, text=True, encoding="utf-8",
         )  # fmt: skip
         wall = time.perf_counter() - t0
         csv_path = work / "out.csv"
@@ -154,7 +156,9 @@ def mapa_doc(corpus: str, root: Path, key: dict[str, Any]) -> dict[str, Any]:
     for rel in rels:
         facts = found.get(str((root / rel).resolve()))
         if not facts or not facts["program_ids"]:
-            F.add_file(doc, rel, {}, status="fail", seconds=per[rel], error=f"no PGM record ({errors[rel] or 'no error'})")
+            F.add_file(
+                doc, rel, {}, status="fail", seconds=per[rel], error=f"no PGM record ({errors[rel] or 'no error'})"
+            )
         else:
             F.add_file(doc, rel, facts, seconds=per[rel])
     return doc

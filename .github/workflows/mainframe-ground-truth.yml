@@ -9,7 +9,7 @@ name: Mainframe Ground Truth
 # listed one stops reproducing (an improvement -- ratchet it in with
 # `python tests/tools/ground_truth_ledger.py update`, then commit the ledger).
 #
-# Runs on every code PR (docs/markdown-only changes are skipped): the scores depend on the whole engine
+# Runs on every PR that changes a ground-truth input (#5164: the plan job skips the rest, still reporting `ground-truth`): the scores depend on the whole engine
 # (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
 # and the full fetch + scan + score of all three corpora takes well under a
 # minute. The same job also runs tests/cobol_mainframe/ with the corpora
@@ -74,8 +74,39 @@ jobs:
   # the first split: test_det_nondigit_zoned.py 1480 s over 436 javac tests, test_evidence_components.py 257 s of 3476 s
   # total); part 1 the ledger gate (which warms the corpus scans) + every other test. `ground-truth` below
   # stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
+  # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
+  # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
+  # .claude/, churn tooling, workflows and tests the job does not read: tests/tools/ground_truth_plan.py) proves nothing
+  # (mode none: the parts are skipped and `ground-truth` passes in about a minute). Any input, and every push / nightly /
+  # manual run, is the full check; a failed plan leaves `mode` empty, which also runs it in full.
+  plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          persist-credentials: false
+
+      - name: Plan the check
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/ground_truth_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Ground-truth plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   ground-truth:
-    needs: [tested-tree, ground-truth-part]
+    needs: [tested-tree, plan, ground-truth-part]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -84,15 +115,17 @@ jobs:
         env:
           PARTS: ${{ needs.ground-truth-part.result }}
           SKIP: ${{ needs.tested-tree.outputs.skip }}
+          MODE: ${{ needs.plan.outputs.mode }}
         run: |
-          echo "ground-truth parts: $PARTS (tested-tree skip: $SKIP)"
+          echo "ground-truth parts: $PARTS (tested-tree skip: $SKIP, plan mode: $MODE)"
           # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
-          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && test "$SKIP" = "true"; }
+          # #5164: ... or when the plan found no ground-truth input in the PR (mode none). An empty mode is not none.
+          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && { test "$SKIP" = "true" || test "$MODE" = "none"; }; }
 
   ground-truth-part:
     name: ground-truth part ${{ matrix.group }}/2
-    needs: tested-tree
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
+    needs: [tested-tree, plan]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.outputs.mode != 'none') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

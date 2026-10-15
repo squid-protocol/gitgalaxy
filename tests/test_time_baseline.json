@@ -36,8 +36,7 @@
     "tests/tools/test_evidence_report.py::test_deltas_report_stale_against_current": 10.62,
     "tests/tools/test_evidence_report.py::test_measure_reads_commands_and_facts": 22.85,
     "tests/tools/test_evidence_report.py::test_the_release_gate_fails_while_a_level_is_stale": 21.13,
-    "tests/tools/test_ground_truth_plan.py::test_no_skippable_tool_is_reached_by_the_jobs_tests": 34.6,
-    "tests/tools/test_posix_only_imports_4934.py::test_no_posix_only_import_is_unguarded": 13.19
+    "tests/tools/test_ground_truth_plan.py::test_no_skippable_tool_is_reached_by_the_jobs_tests": 34.6
   },
   "threshold_s": 10.0
 }

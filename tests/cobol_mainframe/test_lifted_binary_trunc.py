@@ -141,6 +141,7 @@ def _lines(out: str) -> list[str]:
     return [" ".join(x.split()) for x in out.splitlines() if re.fullmatch(r"[A-Z][\w.-]* +-?\d+", x.strip())]
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5176)")
 @pytest.mark.parametrize("mode", ["STD", "BIN"])
 @pytest.mark.parametrize("part", ["literal", "item", "arithmetic"])
 def test_typed_binary_stores_equal_bytes_and_the_oracle(mode, part, tmp_path):

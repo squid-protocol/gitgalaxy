@@ -2709,6 +2709,7 @@ public class Main {
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.slow(reason="translates, javac-compiles and runs a CICS program (#5178)")
 def test_det_cics_deedit_follows_ibms_text(tmp_path):
     """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT: non-digits removed, digits right-aligned and zero
     padded in the same field ("14-6704/B" -> "00146704B", "$25.68" in 9 bytes -> "000002568": IBM's two examples); a

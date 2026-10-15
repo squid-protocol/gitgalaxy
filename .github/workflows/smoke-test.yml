@@ -282,7 +282,7 @@ jobs:
   suite-time:
     name: suite time budget (#5166)
     needs: full-suite-part
-    if: ${{ !cancelled() && needs.full-suite-part.result == 'success' }}
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

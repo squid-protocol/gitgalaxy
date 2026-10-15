@@ -246,6 +246,44 @@ def test_a_case_that_states_a_terminal_drops_the_facility_gap(tmp_path):
     assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == set()  # the runner states all of them
 
 
+def test_a_case_that_states_userid_or_screen_drops_that_gap(tmp_path):
+    """#5126: ASSIGN USERID is stated by a "userid" (GGCICS_USERID / withUserid), SCRNHT / SCRNWD by a "screen" of a
+    stated "termid" (GGCICS_SCREEN / withScreen); one scenario short, an empty value, or a screen with no termid
+    keeps the gap."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", termid="T1", userid="U", screen=[24, 80], scenarios=list(sc))
+    case(
+        cases,
+        "each",
+        "k",
+        "src/e.cbl",
+        scenarios=[{**x, "termid": "T1", "userid": "U", "screen": [24, 80]} for x in sc],
+    )
+    case(
+        cases,
+        "part",
+        "k",
+        "src/p.cbl",
+        termid="T1",
+        scenarios=[{"name": "a", "userid": "U", "screen": [1, 2]}, {"name": "b"}],
+    )
+    case(cases, "noterm", "k", "src/n.cbl", userid="U", screen=[24, 80], scenarios=list(sc))
+    case(cases, "empty", "k", "src/m.cbl", termid="T1", userid="", scenarios=list(sc))
+    runs = pb.equivalence_runs(cases)
+    got = {c: (runs[("k", f"src/{f}.cbl")][0].userid, runs[("k", f"src/{f}.cbl")][0].screen) for c, f in
+           (("top", "t"), ("each", "e"), ("part", "p"), ("noterm", "n"), ("empty", "m"))}  # fmt: skip
+    assert got == {"top": (True, True), "each": (True, True), "part": (False, False), "noterm": (True, False),
+                   "empty": (False, False)}  # fmt: skip
+    facts = {"eib": set(), "assign_task": {"USERID", "SCRNHT/SCRNWD"}, "assign_region": set()}
+    userid, screen = ("fact: ASSIGN USERID (no equivalence case states it)",
+                      "fact: ASSIGN SCRNHT/SCRNWD (no equivalence case states it)")  # fmt: skip
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", userid=True)) == {screen}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", screen=True)) == {userid}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", userid=True, screen=True)) == set()
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {userid, screen}
+
+
 def test_the_facts_of_a_program_with_holes_are_read_but_never_ranked(tmp_path):
     """#5126 (zECS ZECS001's MOVE EIBRCODE): the ranking is over the programs a survey translates WHOLE, so a program
     with holes shows no fact gap there -- though its facts are read (the evidence report prints them)."""

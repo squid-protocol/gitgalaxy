@@ -851,6 +851,24 @@ def test_send_text_terminal_translates_as_send_text():
         assert e.value.features == [f"SEND TEXT {opt.split('(')[0]}"]
 
 
+def test_a_tasks_userid_and_screen_are_stated_only_when_given():
+    """#5126 (X19): "userid" (1 to 8 characters) and "screen" ([rows, columns], of a stated termid) -- the scenario's,
+    else the case's; absent from the result unless stated, malformed refused."""
+    case = {"termid": "T001", "userid": "CICSUSER", "screen": [24, 80]}
+    got = ec.terminal_facts(case, {"name": "s"})
+    assert (got["userid"], got["screen"]) == ("CICSUSER", [24, 80])
+    got = ec.terminal_facts(case, {"name": "s", "userid": "BOB", "screen": [43, 80]})
+    assert (got["userid"], got["screen"]) == ("BOB", [43, 80])
+    assert "userid" not in ec.terminal_facts({"termid": "T001"}, {"name": "s"})
+    assert "screen" not in ec.terminal_facts({}, {"name": "s"})
+    for bad in ({"userid": ""}, {"userid": "NINECHARS"}, {"userid": "A B"}, {"userid": "A,B"}, {"userid": 7},
+                {"termid": "T001", "screen": [24]}, {"termid": "T001", "screen": [24, 0]},
+                {"termid": "T001", "screen": [24, "80"]}, {"termid": "T001", "screen": "24 80"},
+                {"screen": [24, 80]}):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "s", **bad})
+
+
 def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""

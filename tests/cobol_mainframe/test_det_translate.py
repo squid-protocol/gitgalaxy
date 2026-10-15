@@ -3110,6 +3110,7 @@ def test_return_and_link_commarea_length_past_the_dto():
 
 
 @pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.slow(reason="javac plus a JVM run of the det runtime (#5178)")
 def test_det_runtime_passes_opaque_commarea_bytes_on(tmp_path):
     """#4679 (c): a receiver whose DFHCOMMAREA is shorter than the COMMAREA it was passed keeps the bytes past its
     record (Storage.beyond) -- CICS passed LENGTH bytes, the record only addresses its own. A further RETURN / XCTL

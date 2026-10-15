@@ -23,6 +23,7 @@ WINDOWS_TIMER = pytest.mark.skipif(
 )
 
 
+@pytest.mark.slow(reason="times a catastrophic-backtracking pattern on purpose (#5178)")
 def test_catches_the_3205_pattern():
     """The pre-fix cobol_jcl_forge.py pattern the sweep exists to catch."""
     verdict = tr.measure(r"EXEC\s+CICS.*?END-EXEC\.", re.IGNORECASE, "findall")

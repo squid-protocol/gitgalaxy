@@ -2376,6 +2376,7 @@ def test_a_java_jcics_link_resolves_to_the_cobol_program(tmp_path):
 
 
 # ---- #3576: completeness scores PL/I and assembler programs ---------------------
+@pytest.mark.slow(reason="scans PL/I and assembler programs through the full completeness pass (#5178)")
 def test_completeness_scores_pli_and_hlasm_programs(tmp_path):
     repo = tmp_path / "mixed"
     files = {

@@ -165,6 +165,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X55 | CICS | A program written to CICS's macro-level API (DFHPC / DFHFC / DFHTC / DFHSC ... TYPE= macro calls, CSA / TCA addressing) or an assembler program written for CICS (DFHEIENT / DFHEISTG / EXEC CICS in HLASM) is its own refusal family: the scanner names it, the support matrix and blocker report count it per estate, and the det translator refuses it with the reason instead of reading it as COBOL with holes | REFUSED | no (no burned estate holds one; unit-proven on gitgalaxy/core/cics_macro_level.py and the det source check) |
 | X56 | CICS | An OS/VS COBOL program's BLL cell list (the LINKAGE 01 of fullwords after DFHCOMMAREA, a FILLER first, one cell per 4096 bytes of each following 01) is rewritten before translation as IBM's 'Converting to VS COBOL II' says: the cells become POINTERs (X47), SET(cell) stays SET(pointer), SERVICE RELOAD record becomes SET ADDRESS OF record TO its cell, a long record's ADD 4096 secondary cells go, MOVE cell TO cell is SET; the det port and the GnuCOBOL oracle run that one program. Refused whole by name (OS/VS COBOL BLL addressing: ...): a cell used as a number or moved to / from data, a cell changed with no SERVICE RELOAD of its record later in the paragraph (addressability through a paragraph name), a reload before a long record's secondary cells are reset, a secondary cell set any other way than ADD 4096, a cell as a command's data, SERVICE LABEL, SERVICE RELOAD of a non-LINKAGE item or of a record no cell addresses, DFHCOMMAREA after the list, a list in a COPY member | ASSUMED (REFUSED where IBM is silent) | yes, on a synthetic estate only (tests/cobol_mainframe/test_bll_cells_5119.py: a long record over two cells and a record aliased to it, proven against GnuCOBOL end to end; every refusal tested). No corpus program uses BLL cells; estate-crucible's era strata (#5118 S4-S6) are to carry the corpus cases |
 | X57 | CICS | READQ TD QUEUE INTO [LENGTH]: a destructive, first-in first-out read of the queue the task's own WRITEQ TDs fill; QZERO for an empty queue, QIDERR for a queue the CSD does not define, LENGERR (the record read and lost, INTO holding its first LENGTH bytes) for a record longer than LENGTH or a LENGTH of zero, LENGERR with nothing read for a negative LENGTH, LENGTH set to the record's own length. DELETEQ TD: every record of an intrapartition queue; QIDERR; INVREQ for an extrapartition queue. Refused by name: READQ TD of an extrapartition queue (and of any queue whose CSD TYPE is neither INTRA nor EXTRA), READQ TD SET / SYSID / NOSUSPEND, DELETEQ TD SYSID and of a queue with a TYPE other than INTRA / EXTRA, a record moved past INTO. The WRITEQ TD event keeps its shape | ASSUMED (REFUSED where IBM is silent) | no corpus program issues either command yet; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5079.py) and the translator's refusals (tests/cobol_mainframe/test_equivalence_cics.py) |
+| X58 | CICS | Each command, given SET(pointer-item) where it used to take INTO, puts a copy of the data in a new block of task storage and the block's handle in the pointer (the pointer lane of X47); SET ADDRESS OF a LINKAGE 01 record then reads it. LENGTH / FLENGTH is the data's length. The pointer ends where IBM says: RECEIVE and READQ TS at the next command of the kind, GET CONTAINER at the next GET CONTAINER SET of the same container or its DELETE / MOVE / the channel's DELETE, READ at the next READ of the file or a REWRITE / DELETE / UNLOCK (a READ UPDATE SET also at SYNCPOINT), READNEXT / READPREV at the next SET of the browse, its ENDBR or a SYNCPOINT; RETRIEVE states no end (to the task's end, ASSUMED). An ended pointer's storage reads as zeros (ASSUMED). A condition that delivers no data leaves the pointer as it was (ASSUMED). Refused by name: SET with INTO, a missing or literal LENGTH where IBM requires a data area, RBA / RRN / XRBA, a LENGTH on a browse SET, BYTEOFFSET, FREEMAIN of any of these blocks, a PUT or MOVE CONTAINER onto a container whose GET CONTAINER SET pointer is held; SEND MAP / RECEIVE MAP / SEND CONTROL SET (BMS storage) and LOAD SET, GETMAIN64 / FREEMAIN64 stay refused | ASSUMED (REFUSED where IBM is silent) | no (unit-proven: the stub and CicsTask answer one list of 37 step lists alike, tests/cics_crucible/test_cics_set_pointer_5042.py; the translators' shapes and refusals and a compiled DetCics run, tests/cobol_mainframe/test_pointer_lane_5042.py; no estate program translates whole through one of these yet) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -2784,6 +2785,57 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   data is not modelled), SYSID (a remote system is not modelled), NOSUSPEND (QBUSY needs a second task); a record moved past INTO
   (a READQ TD whose LENGTH exceeds INTO, as READ INTO's: GnuCOBOL lays the storage after INTO out unlike IBM's compiler, X6).
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. The oracle is GnuCOBOL plus the stub, not z/OS.
+
+### X58. SET(ptr) on RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV — ASSUMED, REFUSED where IBM is silent (#5042)
+- **RECEIVE (3270 logical)** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-3270-logical). SET "specifies the pointer reference
+  that is to be set to the address of the data read from the logical unit or terminal ... The pointer reference is valid until the next
+  receive command or the end of task"; "If you specify the SET option, the argument [LENGTH] must be a data area. When the data has been
+  received, the data area is set to the length of the data". Modelled as the INTO form's (MAXLENGTH and LENGTH(data-area) required, as for
+  SET(ADDRESS OF record), X15).
+- **RETRIEVE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-retrieve). SET "specifies the pointer reference to be set to the address
+  of the retrieved data"; "If you use SET you must also include LENGTH"; "If you specify the SET option, the argument must be a data area. On
+  completion of the retrieval operation, the data area is set to the length" of the data. IBM states no end for the pointer.
+- **READQ TS** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-readq-ts). SET "specifies the pointer reference that is set to the address
+  of the retrieved data. The pointer reference, unless changed by other commands or statements, is valid until the next READQ TS command or the
+  end of task"; "If you specify the SET option, the LENGTH must be specified".
+- **GET CONTAINER (CHANNEL)** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-get-container-channel). SET "specifies a data area in which
+  the address of the retrieved data is returned"; FLENGTH is an output field "the length of the data in the container". "CICS maintains the data
+  area until any of the following occurs: A subsequent GET CONTAINER or GET64 CONTAINER command with the SET option, for the same container in
+  the same channel ... The container is deleted by a DELETE CONTAINER command. The container is moved by a MOVE CONTAINER command. The channel
+  goes out of program scope. The channel, and the containers that are in it, are deleted by a DELETE CHANNEL command. ... Do not issue a FREEMAIN
+  command to release this storage." IBM does not say what the pointer sees when a PUT CONTAINER changes the container while it is held.
+- **READ** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read). SET "indicates that CICS is to supply a buffer where the record is read,
+  and specifies the pointer reference that is to contain the address of the retrieved record ... The pointer reference is valid until the next READ
+  command for the same file or until completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE
+  SET." LENGTH "contains the actual length of the record" on completion.
+- **READNEXT / READPREV** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-readnext, summary-readprev). SET "specifies the pointer reference that
+  is to be set to the address of the retrieved record ... valid until the next READNEXT or READPREV command specifies SET for the same browse (REQID)
+  for the same file. The pointer is no longer valid after an ENDBR or SYNCPOINT command."
+- **What the runtimes do.** One shape in both: `CicsTask.acquireSet(key, data, syncEnds)` (the stub's `blk_set_new`) makes a block of kind "received"
+  (X47) holding a copy of the data, keyed by what ends it, and `invalidateSet(key)` (`blk_invalidate`) ends it; the commands that end a pointer
+  call it where they complete (REWRITE, DELETE, UNLOCK, ENDBR, DELETE CONTAINER, MOVE CONTAINER, DELETE CHANNEL, SYNCPOINT). The port's
+  `DetCics.setBlock` stores the handle in the pointer item; the stub's entry points are GGCRECP, GGCRTRS, GGCRDQS, GGCGETS, GGCRDST, GGCRDNS and
+  GGCRDPS, each answering as the INTO form does (the same conditions and events) and then registering the block. The blocks are the root task's, so
+  a program LINKed to sees and ends the pointers of the one that called it, as the stub's one process does.
+- **Assumed.** (1) After its end IBM calls a pointer "no longer valid" and says nothing of the storage: here it reads as zeros through a record already
+  addressing it, in both runtimes (a program that reads through an ended pointer is outside the proof; a record is not told when its pointer ends).
+  (2) RETRIEVE's pointer lasts to the task's end. (3) A condition that delivers no data (LENGERR with RECEIVE keeps the truncated data, which is
+  delivered; ENDDATA, ENVDEFERR, ITEMERR, QIDERR, CONTAINERERR, NOTFND, ENDFILE ...) leaves the pointer as it was. (4) READ UPDATE SET: the pointer
+  ends at SYNCPOINT (IBM's words), a plain READ SET's does not; a REWRITE / DELETE / UNLOCK that completes ends the READ SET pointers of its file
+  whichever record they hold (IBM: "a corresponding" one; a DELETE by RIDFLD counts). A command that fails ends nothing. (5) A browse pointer's key is
+  the file: this runtime has one browse per file and no REQID (REQID is refused). (6) The terminal's data is delivered as the INTO form's: the first
+  MAXLENGTH bytes (NOTRUNCATE keeps the rest for the next RECEIVE, which ends the pointer). (7) The stub reads a record or item into its own 32768 bytes
+  (the INTO form's buffer); a longer one is refused there.
+- **Refused by name.** At translation: SET together with INTO (or NODATA); RETRIEVE SET / READQ TS SET without LENGTH, GET CONTAINER SET without
+  FLENGTH (IBM: a data area), a literal LENGTH there; READ SET with a literal LENGTH, with RBA / RRN / XRBA (a relative-byte record) and READNEXT /
+  READPREV SET with LENGTH or RBA (the browse forms' INTO LENGTH rule); BYTEOFFSET with GET CONTAINER SET; a pointer that is not a plain USAGE POINTER
+  item or that a REDEFINES overlays (X47); SET ADDRESS OF / ADDRESS OF as X47. At run time: FREEMAIN of one of these blocks (IBM: not GETMAIN's; for GET
+  CONTAINER SET it says do not); a PUT CONTAINER or MOVE CONTAINER onto a container while its GET CONTAINER SET pointer is held; a block above 256
+  MiB. Still refused, and why: SEND MAP / RECEIVE MAP / SEND CONTROL SET (a BMS output / input buffer, a different mechanism), LOAD PROGRAM SET (the
+  loaded bytes), GETMAIN64 / FREEMAIN64 / GET64 CONTAINER (64-bit storage).
+- **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven only (see `reached`): no cics-crucible case or estate program exercises it
+  yet (cics-crucible C2 covers RECEIVE / RETRIEVE SET and C3 / C4 are the container and file cases still to land), so no port moves and no ZECS program
+  is made whole by this entry.
 
 ## Language Environment
 

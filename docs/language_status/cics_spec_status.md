@@ -27,7 +27,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | command | entry | det translator | stub | X-register | stated facts | census use | crucible cases |
 |---|---|---|---|---|---|---|---|
 | PUT CONTAINER | full | yes (11 options, 3 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
-| GET CONTAINER | full | yes (8 options, 6 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
+| GET CONTAINER | full | yes (9 options, 5 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
 | DELETE CONTAINER | full | yes (5 options) | yes | X17 | — | 0 | ca-channel-containers |
 | MOVE CONTAINER | full | yes (7 options) | yes | X17, X42 | — | 0 | — |
 | STARTBROWSE CONTAINER | full | yes (5 options) | yes | X17, X42 | — | 2 (1 / 1) | — |
@@ -38,7 +38,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DOCUMENT CREATE | full | yes (8 options, 8 refused by name) | yes | X33 | doctemplates | 3 (3 / 0) | — |
 | DOCUMENT RETRIEVE | full | yes (8 options, 2 refused by name) | yes | X33 | — | 3 (3 / 0) | — |
 | START | full | yes (21 options, 6 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
-| RETRIEVE | full | yes (9 options, 2 refused by name) | yes | X18 | — | 4 (4 / 0) | gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
+| RETRIEVE | full | yes (10 options, 1 refused by name) | yes | X18 | — | 4 (4 / 0) | gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
 | CANCEL | full | yes (4 options, 5 refused by name) | yes | X18 | — | 0 | gt-terminal-coalesce |
 | RUN | full | yes (6 options) | yes | X18 | — | 4 (1 / 3) | gt-start-options |
 | FETCH ANY | full | yes (9 options) | yes | X18 | — | 2 (1 / 1) | — |
@@ -46,9 +46,9 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | FREE CHILD | full | yes (4 options) | yes | X18 | — | 0 | — |
 | ASSIGN | full | yes (14 options, 18 refused by name) | yes | X19 | startcode, userid, facility, screen | 34 (29 / 5) | ca-channel-containers, gt-assign-startcode, hc-abend-link |
 | SEND TEXT | full | yes (17 options, 22 refused by name) | yes | X20 | — | 35 (28 / 7) | ca-link-lengths, ca-xctl-versions, gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce, hc-abend-link, hc-eoc-error, hc-handle-aid, hc-ignore-error, hc-perform-range, hc-terminal-eoc, hc-terminal-receive, pc-aid-menu, pc-wizard |
-| READ | full | yes (17 options, 2 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
-| READNEXT | full | yes (12 options, 4 refused by name) | yes | X52 | — | 4 (4 / 0) | — |
-| READPREV | full | yes (12 options, 4 refused by name) | yes | X52 | — | 6 (6 / 0) | — |
+| READ | full | yes (18 options, 1 refused by name) | yes | X14, X22 | — | 26 (25 / 1) | — |
+| READNEXT | full | yes (13 options, 3 refused by name) | yes | X52 | — | 4 (4 / 0) | — |
+| READPREV | full | yes (13 options, 3 refused by name) | yes | X52 | — | 6 (6 / 0) | — |
 | STARTBR | full | yes (12 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |
 | ENDBR | full | yes (5 options, 1 refused by name) | yes | — | — | 7 (7 / 0) | — |
 | WRITE | full | yes (12 options, 1 refused by name) | yes | — | — | 10 (9 / 1) | — |
@@ -71,7 +71,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | POP HANDLE | full | yes (3 options) | yes | X16 | — | 0 | hc-abend-link, hc-handle-aid, hc-ignore-error |
 | WRITEQ TD | full | yes (6 options, 1 refused by name) | yes | — | — | 8 (6 / 2) | — |
 | WRITEQ TS | full | yes (14 options, 1 refused by name) | yes | — | — | 6 (6 / 0) | ca-channel-containers, ca-link-lengths, gt-assign-startcode, gt-start-options, gt-start-retrieve, hc-perform-range, pc-wizard |
-| READQ TS | full | yes (11 options, 2 refused by name) | yes | — | — | 5 (4 / 1) | hc-abend-link, hc-perform-range |
+| READQ TS | full | yes (12 options, 1 refused by name) | yes | — | — | 5 (4 / 1) | hc-abend-link, hc-perform-range |
 | DELETEQ TS | full | yes (6 options, 1 refused by name) | yes | X29 | — | 2 (2 / 0) | — |
 | READQ TD | full | yes (6 options, 3 refused by name) | yes | X57 | — | 0 | — |
 | DELETEQ TD | full | yes (4 options, 1 refused by name) | yes | X57 | — | 0 | — |

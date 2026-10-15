@@ -38,7 +38,12 @@ WRITEQ_TD = Command(
     status="modelled",
     options={"QUEUE": Arg("name", width=4), "FROM": Arg("area_in"), "LENGTH": Arg("value"), **RESP_OPTIONS},
     refused={"SYSID": SYSID_REMOTE},
-    outcomes=(Outcome("NORMAL", 0, ""), Outcome("QIDERR", None, "the CSD does not define the queue")),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("QIDERR", None, "the CSD does not define the queue"),
+        Outcome("NOTOPEN", None, "an extrapartition queue is closed"),  # #5168 (X61)
+        Outcome("INVREQ", None, "an extrapartition queue is open for input"),
+    ),
     state=("handle_table",),
     engine=EngineFacts(resource="QUEUE", access="write"),
 )

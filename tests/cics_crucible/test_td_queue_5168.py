@@ -95,6 +95,24 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
         ["W:TTTT:a resp=0", "W:TTTT:b resp=0", "W:UUUU:a resp=0", "W:UUUU:b resp=0", "W:VVVV:v resp=0",
          "R:UUUU:8 resp=0 len=1 into=a.......", "REFUSED"],
     ),
+    "write to extrapartition": (
+        {"IIII": "EXTRA TYPEFILE=INPUT", "CCCC": "EXTRA TYPEFILE=INPUT OPENTIME=DEFERRED",
+         "DDDD": "EXTRA TYPEFILE=OUTPUT OPENTIME=DEFERRED", "OOOO": "EXTRA TYPEFILE=OUTPUT", "NNNN": "EXTRA"},
+        {"IIII": ["keep"]},
+        ["W:IIII:w", "W:CCCC:w", "W:DDDD:w", "W:OOOO:w", "W:NNNN:w", "R:IIII:8", "D:IIII"],
+        ["W:IIII:w resp=16", "W:CCCC:w resp=19", "W:DDDD:w resp=19", "W:OOOO:w resp=0", "W:NNNN:w resp=0",
+         "R:IIII:8 resp=0 len=4 into=keep....", "D:IIII resp=16"],
+    ),
+    "abend backs out logical": (
+        {"LLLL": _L, "NNNN": "INTRA RECOVSTATUS=NO", "CCCC": _L}, {"LLLL": ["old"]},
+        ["R:LLLL:8", "W:LLLL:new", "W:NNNN:n1", "W:CCCC:c1", "S", "W:CCCC:c2", "W:LLLL:x", "A", "R:LLLL:8", "R:LLLL:8", "R:NNNN:8", "R:CCCC:8",
+         "R:CCCC:8"],
+        ["R:LLLL:8 resp=0 len=3 into=old.....", "W:LLLL:new resp=0", "W:NNNN:n1 resp=0", "W:CCCC:c1 resp=0", "S",
+         "W:CCCC:c2 resp=0", "W:LLLL:x resp=0", "A",
+         "R:LLLL:8 resp=0 len=3 into=new.....", f"R:LLLL:8 resp=23 len=-1 {R8}",
+         "R:NNNN:8 resp=0 len=2 into=n1......", "R:CCCC:8 resp=0 len=2 into=c1......", f"R:CCCC:8 resp=23 len=-1 {R8}"],
+    ),
+    "abend with a physical queue": ({"PPPP": "INTRA RECOVSTATUS=PHYSICAL"}, {}, ["W:PPPP:x", "A"], ["W:PPPP:x resp=0", "REFUSED"]),
     "ati default trigger level": ({"VVVV": "INTRA TRANSID=TRN1"}, {}, ["W:VVVV:a"], ["REFUSED"]),
 }  # fmt: skip
 
@@ -108,6 +126,7 @@ int GGCRDTD(gg_cics *c, char *into, int intolen);
 int GGCRDTS(gg_cics *c, void **slot);
 int GGCDLTD(gg_cics *c);
 int GGCSYNC(gg_cics *c);
+int GGCABND(gg_cics *c);
 int main(int argc, char **argv) {
     gg_cics c;
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -116,6 +135,12 @@ int main(int argc, char **argv) {
         char *a = argv[i];
         memset(&c, 0, sizeof c);
         memset(c.qname, ' ', 16);
+        if (a[0] == 'A') {
+            memcpy(c.name1, "ABCD    ", 8);
+            GGCABND(&c);
+            printf("A\n");
+            continue;
+        }
         if (a[0] == 'S' || a[0] == 'B') {
             if (a[0] == 'B') strcpy(c.flags, "ROLLBACK");
             GGCSYNC(&c);
@@ -207,6 +232,9 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                 try {{
                     if (op.equals("S")) {{
                         t.syncpoint();
+                        System.out.println(op);
+                    }} else if (op.equals("A")) {{
+                        t.abend("ABCD");
                         System.out.println(op);
                     }} else if (op.equals("B")) {{
                         t.rollback();

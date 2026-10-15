@@ -2020,6 +2020,12 @@ int GGCWRTD(gg_cics *c, char *from) {
         c->resp2 = fresp2;
     } else if (!kind) {
         c->resp = QIDERR;
+    } else if (kind == 2) {
+        /* #5168 (X61): IBM WRITEQ TD: INVREQ for an extrapartition queue opened for input, NOTOPEN for a closed one. A queue with no
+         * TYPEFILE (or RDBACK) is still taken as open for output (ASSUMED), as before. */
+        char file[16], open[16];
+        if (td_attr(target, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0) c->resp = DFHRESP_NOTOPEN;
+        else if (td_attr(target, "TYPEFILE", file, sizeof file) && strcmp(file, "INPUT") == 0) c->resp = INVREQ;
     }
     if (c->resp == NORMAL && kind == 1) {
         td_base();

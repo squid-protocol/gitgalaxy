@@ -2525,6 +2525,18 @@ def test_csd_tdqueue_attributes_5168(tmp_path):
         ec.td_seed({"td": {"TOOLONG": ["a"]}}, {})
 
 
+def test_a_td_seed_may_hold_any_text_its_data_encoding_holds_whole():
+    """#5168 (X61): a seeded record is text in the case's data page (Latin-1 by default, any single-space page): non-ASCII is fine
+    where the page holds it and decodes back to the same text; a character the page lacks is refused, never replaced."""
+    ec.td_seed({"td": {"Q": ["caf\u00e9", "\u00dcber"]}}, {})
+    assert ec.td_seed({"data_encoding": "cp037", "td": {"Q": ["\u00e9"]}}, {}) == {"Q": ["\u00e9"]}
+    for case in ({"td": {"Q": ["\u20ac"]}}, {"data_encoding": "cp037", "td": {"Q": ["\u4e2d"]}}):
+        with pytest.raises(ec.Unsupported):
+            ec.td_seed(case, {})
+    with pytest.raises(ec.Unsupported):
+        ec.td_seed({"td": {"Q\u00e9": ["a"]}}, {})
+
+
 def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
     """#5079 (X57): `csd_tdqueue_types` is each DEFINE TDQUEUE's TYPE ("" when none), and `csd_tdqueues` its names."""
     (tmp_path / "x.csd").write_text(

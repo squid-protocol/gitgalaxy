@@ -139,7 +139,7 @@ def test_cics_task_reads_a_transient_data_queue_as_the_stub_does(tmp_path):
 
 @needs_cc
 def test_the_stub_refuses_a_record_moved_past_into_and_an_extrapartition_read_by_name(tmp_path):
-    (tmp_path / "tdqueues.cfg").write_text(_CFG + "IIII INDIRECT\n", encoding="ascii")
+    (tmp_path / "tdqueues.cfg").write_text(_CFG + "IIII REMOTE\n", encoding="ascii")
     exe = _stub(tmp_path, _MAIN)
     for ops, said in ((("W:AAAA:123456789", "R:AAAA:9"), "a record moved past INTO"),
                       (("R:XXXX:8",), "extrapartition queue"), (("R:IIII:8",), "TYPE is not INTRA"),
@@ -155,7 +155,7 @@ def test_the_stub_refuses_a_record_moved_past_into_and_an_extrapartition_read_by
 def test_cics_task_refuses_the_same_reads_by_name(tmp_path):
     body = """
         CicsTask t = new CicsTask("T", "ENTER", null, null).withTdQueues(java.util.Set.of("XXXX", "IIII"))
-                .withTdQueueTypes(java.util.Map.of("XXXX", "EXTRA", "IIII", "INDIRECT"));
+                .withTdQueueTypes(java.util.Map.of("XXXX", "EXTRA", "IIII", "REMOTE"));
         for (String q : new String[] {"XXXX", "IIII"}) {
             try {
                 t.readqTd(q, 8);

@@ -2983,11 +2983,27 @@ def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():
     assert not any("td1.length()" in line for line in literal)
     assert _ChanCics().command("DELETEQ TD QUEUE('Q') RESP(R)", "")[0] == "int resp1 = task.deleteqTd('Q'.strip());"
     for body in ("READQ TD QUEUE('Q') SET(P)", "READQ TD QUEUE('Q') INTO(REC) SYSID('S')",
-                 "READQ TD QUEUE('Q') INTO(REC) NOSUSPEND", "DELETEQ TD QUEUE('Q') SYSID('S')"):  # fmt: skip
+                 "DELETEQ TD QUEUE('Q') SYSID('S')"):  # fmt: skip
         with pytest.raises(Exception, match="not modelled|refused|SYSID|SET|NOSUSPEND"):
             _ChanCics().command(body, "")
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static void readTd(Field into, byte[] record)" in rt
+
+
+def test_readq_td_set_puts_the_record_in_a_block_and_nosuspend_changes_nothing_5168():
+    """#5168 (register X61): READQ TD SET(ptr) LENGTH(area) -> the record in a block valid to the next READQ TD
+    (DetCics.setBlock, key "READQ TD"), its length to the area; NOSUSPEND is accepted with no effect (no second task holds a queue);
+    INTO with SET, SET without a LENGTH area or with a literal one are refused."""
+    out = _PtrCics().command("READQ TD QUEUE('Q') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)", "")
+    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE);"
+    assert out[1].startswith("if (td1.data() != null) DetCics.setBlock(task, ") and '"READQ TD", td1.data(), CS' in out[1]
+    assert "td1.length() >= 0" in out[2] and "WS-N" in out[2]
+    nos = _PtrCics().command("READQ TD QUEUE('Q') INTO(REC) NOSUSPEND RESP(R)", "")
+    assert nos[0].startswith("CicsTask.TdResult td1 = task.readqTd(")
+    for body in ("READQ TD QUEUE('Q') INTO(REC) SET(PTR) LENGTH(WS-N)", "READQ TD QUEUE('Q') SET(PTR)",
+                 "READQ TD QUEUE('Q') SET(PTR) LENGTH(8)"):  # fmt: skip
+        with pytest.raises(Exception, match="SET|INTO|LENGTH"):
+            _PtrCics().command(body, "")
 
 
 def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):

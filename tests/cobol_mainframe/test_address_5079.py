@@ -53,6 +53,7 @@ def test_a_program_addressing_the_eib_and_the_commarea_translates_whole(tmp_path
     assert r.stats["holes"] == [], r.stats["holes"]
     assert "DetCics.setPointerToRecord(task, " in r.java
     assert "DetCics.addressCommarea(task, " in r.java
+    assert "Cobol.store(f3_WS_RESP, BigDecimal.valueOf(0), false, CS);" in r.java  # (RESP written: NORMAL)
     assert r.java.index("setPointerToRecord(task, ") < r.java.index(
         "addressCommarea(task, "
     )  # (the order IBM's options are taken)
@@ -281,6 +282,6 @@ public class Main {
     built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                             *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
                          text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["AB true", "true", "ADDRESS COMMAREA with no COMMAREA: not modelled"]

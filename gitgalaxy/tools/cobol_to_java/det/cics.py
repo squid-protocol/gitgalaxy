@@ -1722,7 +1722,7 @@ class Cics:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
-            if "SET" in opts:  # #5042 (X56): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
+            if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
                 if not settable:
                     raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
                 ptr = self.pointer(opts["SET"])
@@ -1851,12 +1851,12 @@ class Cics:
         INTO's length) -- the data into INTO's first bytes, back in the storage's page; LENGTH, a data area, is set to
         the data's length on NORMAL and LENGERR ("On completion of the retrieval operation, the data area is set to
         the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
-        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X56): the data in a new
+        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X58): the data in a new
         block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
         into = opts.get("INTO")
         length = _one_of(opts, "LENGTH", "FLENGTH")
         named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
-        if "SET" in opts:  # #5042 (X56): SET(pointer) LENGTH(data-area): the data in a new block of task storage
+        if "SET" in opts:  # #5042 (X58): SET(pointer) LENGTH(data-area): the data in a new block of task storage
             if into:
                 raise CicsError(_msg("RETRIEVE", "at_most_one", "INTO"))
             if length is None:
@@ -1877,7 +1877,7 @@ class Cics:
         out = [f"{ind}CicsTask.RetrieveResult {r} = task.retrieve({most}, {flags});"]
         if "SET" in opts:
             self.region_used = True
-            # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X56)
+            # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X58)
             out.append(f"{ind}if ({r}.data() != null) DetCics.setBlock(task, {into_ptr}, null, "
                        f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
             set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
@@ -2063,7 +2063,7 @@ class Cics:
             if not settable:
                 raise CicsError("RECEIVE SET without LENGTH(data-area)")
             limit = self.int_(most)
-            if m is None:  # #5042 (X56): SET(pointer): the data in a new block of task storage the pointer addresses
+            if m is None:  # #5042 (X58): SET(pointer): the data in a new block of task storage the pointer addresses
                 target = self.pointer(opts["SET"])
                 put = "setBlock"
             else:
@@ -2180,7 +2180,7 @@ class Cics:
                     )
         else:
             setp = opts.get("SET")
-            if setp:  # #5042 (X56): SET(pointer) LENGTH(data-area): the item in a new block, valid to the next READQ TS
+            if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area): the item in a new block, valid to the next READQ TS
                 if opts.get("INTO"):
                     raise CicsError(_msg("READQ TS", "at_most_one", "INTO"))
                 if not opts.get("LENGTH"):
@@ -2513,7 +2513,7 @@ class Cics:
         raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """READ / READNEXT / READPREV. #5042 (X56) SET(pointer): the record in a new block of task storage the pointer
+        """READ / READNEXT / READPREV. #5042 (X58) SET(pointer): the record in a new block of task storage the pointer
         addresses (DetCics.setBlock), valid -- IBM, EXEC CICS READ -- "until the next READ command for the same file or until
         completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET";
         READNEXT / READPREV: "until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the
@@ -2567,7 +2567,7 @@ class Cics:
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """#5042 (X56): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
+        """#5042 (X58): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
         tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
         record's length (IBM: "the LENGTH parameter contains the actual length of the record"); a LENGTH that is a
         literal, on a browse, or with a READ UPDATE LENGERR has nothing to say here and is refused."""

@@ -70,7 +70,7 @@ READQ_TS = Command(
         "INTO": Arg("area_out"),
         "SET": Arg(
             "pointer"
-        ),  # #5042 (X56): "valid until the next READQ TS command or the end of task"; LENGTH "must be specified"
+        ),  # #5042 (X58): "valid until the next READQ TS command or the end of task"; LENGTH "must be specified"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "ITEM": Arg("area_inout", width=2, binary=True),
         "NUMITEMS": Arg("area_out", width=2, binary=True),

@@ -130,7 +130,7 @@ GET_CONTAINER = Command(
         # in: "the length of the data to be read"; out: "the length of the data in the container"
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "NODATA": Arg("flag"),
-        # #5042 (X56): "the address of the retrieved data"; FLENGTH is then the output length
+        # #5042 (X58): "the address of the retrieved data"; FLENGTH is then the output length
         "SET": Arg("pointer"),
         **RESP_OPTIONS,
     },

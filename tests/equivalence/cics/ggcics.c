@@ -300,7 +300,7 @@ static int held_key(const char *file, const char *key, int klen) {
     return 0;
 }
 
-/* #5042 (register X56): the SET(ptr) blocks (defined with the pointer lane, below) that a command ends or must not change */
+/* #5042 (register X58): the SET(ptr) blocks (defined with the pointer lane, below) that a command ends or must not change */
 static void blk_invalidate(const char *key);
 static void file_set_end(const char *kind, const char *file); /* ends the SET(ptr) blocks of "READ file" / "BROWSE file" */
 static void blk_invalidate_prefix(const char *prefix);
@@ -4966,7 +4966,7 @@ static void *blk_new(size_t n, int kind) {
     return p;
 }
 
-/* #5042 (register X56): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer
+/* #5042 (register X58): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer
  * valid"; the storage reads as zeros through any record already addressing it (ASSUMED), as CicsTask.invalidateSet. */
 static void blk_invalidate(const char *key) {
     for (int i = 0; key && i < nblks; i++) {
@@ -5081,7 +5081,7 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     return 0;
 }
 
-/* ---- #5042 (register X56): SET(ptr) on RECEIVE, RETRIEVE, READQ TS, GET CONTAINER and the file reads. Each answers as its INTO form
+/* ---- #5042 (register X58): SET(ptr) on RECEIVE, RETRIEVE, READQ TS, GET CONTAINER and the file reads. Each answers as its INTO form
  * does (the same conditions and events), then, where data was delivered, puts a copy in a new block the pointer addresses
  * (blk_set_new; the key says what ends the pointer, as CicsTask.acquireSet). Where nothing was delivered the pointer is as it was
  * (ASSUMED: IBM does not say). */

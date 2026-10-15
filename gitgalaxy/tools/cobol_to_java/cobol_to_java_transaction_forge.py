@@ -1573,7 +1573,7 @@ public class CicsTask {
         return newBlock(body.clone(), 1);
     }
 
-    /** #5042 (X56): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
+    /** #5042 (X58): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
      *  `key` names what IBM says ends the pointer's validity ("valid until the next receive command", "until the next
      *  READ command for the same file"): the next acquireSet of that key, or invalidateSet(key). A null key: valid to
      *  the task's end. Refused: a block above 256 MiB. FREEMAIN of the block is refused like a WEB RECEIVE SET body. */
@@ -1594,7 +1594,7 @@ public class CicsTask {
     }
 
     /** #5042: ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer valid", not
-     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X56:
+     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X58:
      *  a program must not read through a pointer past its validity). */
     public void invalidateSet(String key) {
         if (key == null) {
@@ -3243,7 +3243,7 @@ public class CicsTask {
         return "CONTAINER " + ch.name + " " + name;
     }
 
-    /** #5042 (X56): GET CONTAINER(container) [CHANNEL(channel)] SET(ptr) FLENGTH(area) (IBM, EXEC CICS GET CONTAINER
+    /** #5042 (X58): GET CONTAINER(container) [CHANNEL(channel)] SET(ptr) FLENGTH(area) (IBM, EXEC CICS GET CONTAINER
      *  (CHANNEL)): the same conditions as getContainer without INTO (no LENGERR: nothing to truncate); on NORMAL the
      *  handle of a new block holding a copy of the container's data and the result's length FLENGTH takes. IBM: "CICS
      *  maintains the data area until" the next GET CONTAINER SET of the same container in the same channel, a DELETE

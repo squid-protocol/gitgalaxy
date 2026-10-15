@@ -94,7 +94,7 @@ READ = _file(
     options={
         **_FILE,
         "INTO": Arg("area_out"),
-        # #5042 (X56): "CICS is to supply a buffer where the record is read, and specifies the pointer reference that is to
+        # #5042 (X58): "CICS is to supply a buffer where the record is read, and specifies the pointer reference that is to
         # contain the address of the retrieved record"
         "SET": Arg("pointer"),
         "RIDFLD": Arg("area_in"),
@@ -156,7 +156,7 @@ READNEXT = _file(
         "INTO": Arg("area_out"),
         "SET": Arg(
             "pointer"
-        ),  # #5042 (X56): "valid until the next READNEXT or READPREV command specifies SET for the same browse"
+        ),  # #5042 (X58): "valid until the next READNEXT or READPREV command specifies SET for the same browse"
         "RIDFLD": Arg("area_inout"),  # the key of the record read
         "KEYLENGTH": _KEYLENGTH,
         "LENGTH": Arg("value"),  # only INTO's own length (Cics._read_length)

@@ -150,7 +150,7 @@ RETRIEVE = Command(
     event="RETRIEVE",
     options={
         "INTO": Arg("area_out"),
-        # #5042 (X56): "the pointer reference to be set to the address of the retrieved data"; "If you use SET you must also
+        # #5042 (X58): "the pointer reference to be set to the address of the retrieved data"; "If you use SET you must also
         # include LENGTH", a data area ("the data area is set to the length of the data")
         "SET": Arg("pointer"),
         # "On completion of the retrieval operation, the data area is set to the original length of the data"

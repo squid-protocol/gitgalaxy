@@ -532,7 +532,7 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     setp = opts.get("SET") if verb == "READQ" else None
     if not queue:
         raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
-    if setp:  # #5042 (X56): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
+    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
         if area:
             raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
         length = opts.get("LENGTH") or opts.get("FLENGTH")
@@ -700,7 +700,7 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
     if verb == "RETRIEVE":
         into, setp = opts.get("INTO"), opts.get("SET")
         length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
-        if setp:  # #5042 (X56): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
+        if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
             if into:
                 raise Unsupported(_rule("RETRIEVE", "at_most_one", "INTO"), ["RETRIEVE"])
             if not length or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()):
@@ -1274,7 +1274,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"READ {bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X56): SET(pointer) -> GGCRDST, the record as a new block
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDST, the record as a new block
         if "SET" in opts and into:
             raise Unsupported(_rule("READ", "one_of", "INTO"), ["READ"])
         if not (file and (into or setp) and ridfld):
@@ -1360,7 +1360,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             if bad in opts:
                 raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X56): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
+        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
         if "SET" in opts and (into or rba or opts.get("LENGTH")):
             raise Unsupported(f"{verb} SET with INTO, RBA or LENGTH: not modelled", [f"{verb} SET"])
         if not (file and (into or setp) and ridfld):
@@ -1704,7 +1704,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
             if into or not most or not length:
                 raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
-            if not m:  # #5042 (X56): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
+            if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
                         + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
@@ -1939,7 +1939,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
-    if "SET" in opts:  # #5042 (X56): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
+    if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
         if not settable:
             raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
         lines += [

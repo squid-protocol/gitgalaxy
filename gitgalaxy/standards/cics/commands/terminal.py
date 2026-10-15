@@ -86,7 +86,7 @@ RECEIVE = Command(
     register="X15",
     options={
         "INTO": Arg("area_out"),
-        "SET": Arg("pointer"),  # SET(ADDRESS OF a LINKAGE 01 record), or a plain USAGE POINTER item (#5042, X56)
+        "SET": Arg("pointer"),  # SET(ADDRESS OF a LINKAGE 01 record), or a plain USAGE POINTER item (#5042, X58)
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "MAXLENGTH": Arg("value"),

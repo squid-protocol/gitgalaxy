@@ -1,4 +1,4 @@
-"""#5042 (register X56): the SET(ptr) siblings of the pointer lane -- RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT
+"""#5042 (register X58): the SET(ptr) siblings of the pointer lane -- RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT
 and READPREV with SET(pointer-item) -- run alike by the stub (ggcics.c) and CicsTask, from one list of steps.
 
 A step is a word-line; pointer slots 0 and 1. `rcv S MAX [N]` RECEIVE SET (N: NOTRUNCATE), `rtv S` RETRIEVE SET, `rq S ITEM` READQ TS
@@ -394,7 +394,7 @@ def _fixture_dir(work: Path) -> None:
 
 @needs_cc
 def test_the_stub_hands_out_set_pointers_as_ibm_documents(tmp_path):
-    """#5042 (X56): the stub's SET(ptr) entry points, step list by step list; what IBM leaves open is refused by name."""
+    """#5042 (X58): the stub's SET(ptr) entry points, step list by step list; what IBM leaves open is refused by name."""
     exe = R._stub(tmp_path, _MAIN)
     for n, (steps, answers) in enumerate(_CASES):
         work = tmp_path / f"w{n}"
@@ -413,7 +413,7 @@ def test_the_stub_hands_out_set_pointers_as_ibm_documents(tmp_path):
 
 @needs_javac
 def test_cics_task_hands_out_set_pointers_as_the_stub_does(tmp_path):
-    """#5042 (X56): CicsTask.acquireSet / invalidateSet and the commands that end a pointer answer the same steps as the stub."""
+    """#5042 (X58): CicsTask.acquireSet / invalidateSet and the commands that end a pointer answer the same steps as the stub."""
     parts = []
     for steps, _answers in _CASES:
         run = "\n".join(f'step(t, "{st}");' for st in steps)

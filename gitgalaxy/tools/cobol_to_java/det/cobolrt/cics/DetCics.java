@@ -677,7 +677,7 @@ public final class DetCics {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
     }
 
-    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X56): a new block of task storage holding the
+    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X58): a new block of task storage holding the
      *  data, its handle in the pointer. `key` is what ends the pointer's validity (CicsTask.acquireSet). */
     public static void setBlock(CicsTask task, Field ptr, String key, byte[] data) {
         setPointer(ptr, task.acquireSet(key, data));

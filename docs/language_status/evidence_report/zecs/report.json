@@ -38,7 +38,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   },
@@ -116,7 +116,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+   "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -124,6 +124,12 @@
    "area": "CICS",
    "entry": "REWIND resets a counter that has reached its limit (MAXIMUM + 1) to its minimum, else SUPPRESSED RESP2 102, INVREQ 406 for an INCREMENT beyond (maximum - minimum) + 1; UPDATE sets the current value (INVREQ 406 below MINIMUM or above MAXIMUM + 1); GET REDUCE leaves a counter an INCREMENT would carry past MAXIMUM + 1 at MAXIMUM + 1, GET COMPAREMIN / COMPAREMAX hand the value out only when it is in range (either bound when COMPAREMAX is below COMPAREMIN), else SUPPRESSED RESP2 103 and the counter stays; NOSUSPEND is accepted and changes nothing (one task, no coupling-facility structure, so BUSY RESP2 500 cannot occur). Refused: UPDATE COMPAREMIN / COMPAREMAX, REWIND INCREMENT above 1, REDUCE with WRAP or at a counter already at its limit, COMPARE at a counter already at its limit, a negative VALUE / compare value of a fullword counter, REWIND / UPDATE of a counter whose limits the run does not state",
    "id": "X53",
+   "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "A scenario can plan ENQBUSY (RESP 55) for an ENQ by the RESOURCE operand as the program writes it; RESP2 is 0 because IBM states none for ENQBUSY. The ENQ must say NOSUSPEND: without it IBM suspends the task and the runtimes refuse. ENQ's other conditions come from the program's own operands, never from a plan: LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that is neither UOW nor TASK is INVREQ RESP2 2 (both modelled, as IBM states them). Refused: ENQBUSY planned for any other command, any other condition planned for ENQ, a RESP2 on an ENQBUSY plan, a planned-busy ENQ without NOSUSPEND, a resource that is no data-name of 1 to 16 characters, both bad operands at once (IBM names no order)",
+   "id": "X60",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   }
  ],
@@ -441,7 +447,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    60,
+    58,
     97
    ],
    "cbsa-bnk1ccs": null,
@@ -760,12 +766,7 @@
     0,
     0
    ],
-   "mortgage-cmort": [
-    3,
-    6,
-    15,
-    21
-   ],
+   "mortgage-cmort": null,
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -795,7 +796,7 @@
    "zecs-zecs000": [
     9,
     38,
-    7,
+    8,
     46
    ],
    "zecs-zecs003": null,
@@ -938,7 +939,38 @@
     },
     "program": "Source/ZECS001.cbl",
     "row": {
-     "error": "ValueError: line 104: a second 01 group named FILLER: its items cannot be told apart"
+     "holes": [
+      "line 530: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 542: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1098: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
+      "line 1104: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1110: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1134: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1180: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1195: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
+      "line 1198: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1244: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+      "line 1487: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1850: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
+     ],
+     "kind": "cics",
+     "statements": 561,
+     "translated": 549
+    },
+    "source_read": true
+   },
+   {
+    "cards": [],
+    "commands": [],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ZECS002.asm",
+    "row": {
+     "error": "MacroLevelCics: ZECS002.asm:68: CICS Assembler not supported (DFHEIENT): an assembler program, and the translator reads COBOL; named and refused, never translated",
+     "kind": "assembler"
     },
     "source_read": true
    },
@@ -976,6 +1008,21 @@
      "kind": "cics",
      "statements": 73,
      "translated": 73
+    },
+    "source_read": true
+   },
+   {
+    "cards": [],
+    "commands": [],
+    "facts": {
+     "assign_region": [],
+     "assign_task": [],
+     "eib": []
+    },
+    "program": "Source/ZECSNC.asm",
+    "row": {
+     "error": "MacroLevelCics: ZECSNC.asm:91: CICS Assembler not supported (DFHEIENT): an assembler program, and the translator reads COBOL; named and refused, never translated",
+     "kind": "assembler"
     },
     "source_read": true
    },
@@ -1127,10 +1174,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "translator": {
     "files": 110,
-    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
    }
   },
   "sweeps": {}
@@ -1265,7 +1312,7 @@
    }
   ],
   "parm_programs": [],
-  "programs_assumed": 30,
+  "programs_assumed": 42,
   "programs_found": 0,
   "programs_with_deviation": 0,
   "sections": {
@@ -2169,7 +2216,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -2211,8 +2258,14 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "A scenario can plan ENQBUSY (RESP 55) for an ENQ by the RESOURCE operand as the program writes it; RESP2 is 0 because IBM states none for ENQBUSY. The ENQ must say NOSUSPEND: without it IBM suspends the task and the runtimes refuse. ENQ's other conditions come from the program's own operands, never from a plan: LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that is neither UOW nor TASK is INVREQ RESP2 2 (both modelled, as IBM states them). Refused: ENQBUSY planned for any other command, any other condition planned for ENQ, a RESP2 on an ENQBUSY plan, a planned-busy ENQ without NOSUSPEND, a resource that is no data-name of 1 to 16 characters, both bad operands at once (IBM names no order)",
+      "id": "X60",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
@@ -2220,14 +2273,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 15.2,
-    "branch_pct": 15.2,
+    "branch_net_pct": 17.4,
+    "branch_pct": 17.4,
     "branches": {
-     "covered": 7,
+     "covered": 8,
      "total": 46
     },
     "branches_net": {
-     "covered": 7,
+     "covered": 8,
      "total": 46
     },
     "current": true,
@@ -2249,7 +2302,7 @@
     "cases": [
      {
       "case": "zecs-zecs000",
-      "case_scenarios": 2,
+      "case_scenarios": 3,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2261,7 +2314,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs000",
-     "case_scenarios": 2,
+     "case_scenarios": 3,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -2421,7 +2474,9 @@
      "command": "ENQ",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X60"
+     ],
      "spec_entry": "full"
     },
     {
@@ -2725,9 +2780,10 @@
      "X35",
      "X36",
      "X46",
-     "X52"
+     "X52",
+     "X60"
     ],
-    "branch_outcomes_unrun": 39,
+    "branch_outcomes_unrun": 38,
     "commands": 22,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -2786,7 +2842,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -3237,7 +3293,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH not shorter than the key or not above zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -3309,7 +3365,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
       "id": "X52",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -3350,7 +3406,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (refused whole by the translator)"
+    "translated whole (12 holes left)"
    ],
    "options": {
     "assumed": 6,
@@ -3870,20 +3926,272 @@
      "WRITEQ TD"
     ],
     "facts_unstated": 2,
-    "holes": 0,
+    "holes": 12,
     "paragraphs_unrun": null,
-    "refused": "refused: ValueError: a second N group named FILLER: its items cannot be told apart"
+    "refused": null
    },
    "stale_inputs": [],
    "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "refused: ValueError: a second N group named FILLER: its items cannot be told apart"
+     "<name> ADDRESS OF <name>: not a LINKAGE N record",
+     "<name>: a pointer a REDEFINES overlays",
+     "EXEC CICS <name>: a pointer a REDEFINES overlays",
+     "ZUIDSTCK: no program of that name with a CALL entry in the estate"
+    ],
+    "hole_count": 12,
+    "holes": [
+     "CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+     "EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+     "EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+     "SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
+     "SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+     "SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
+    ],
+    "refused": null,
+    "source_defects": [],
+    "statements": 561,
+    "translated": 549,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (refused whole by the translator)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECS002.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": "refused: CICS Assembler"
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [
+     "refused: CICS Assembler"
     ],
     "hole_count": 0,
     "holes": [],
-    "refused": "refused: ValueError: a second N group named FILLER: its items cannot be told apart",
+    "refused": "refused: CICS Assembler",
+    "source_defects": [],
+    "statements": null,
+    "translated": null,
+    "whole": false
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L0",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "translated whole (refused whole by the translator)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECSNC.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": "refused: CICS Assembler"
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [
+     "refused: CICS Assembler"
+    ],
+    "hole_count": 0,
+    "holes": [],
+    "refused": "refused: CICS Assembler",
     "source_defects": [],
     "statements": null,
     "translated": null,
@@ -3893,18 +4201,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "python tests/tools/evidence_report.py zecs --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
+  "crucible_baseline_ref": "v0.8.0 (afc1db0f)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.7.0",
+   "cics": "v0.8.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -3915,20 +4223,20 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "translator": {
     "files": 110,
-    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
    }
   },
-  "translator_commit": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+  "translator_commit": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 5,
   "det_equal": 3,
   "histogram": {
-   "L0": 1,
+   "L0": 3,
    "L1": 1,
    "L2": 1,
    "L3": 1,
@@ -3951,12 +4259,12 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 0,
+  "holes": 12,
   "levels_stale": 0,
   "levels_stale_survey": 0,
-  "programs": 5,
+  "programs": 7,
   "records_current": 0,
-  "refused_whole": 1,
+  "refused_whole": 2,
   "source_unread": 0,
   "translated_whole": 4,
   "with_case": 4,
@@ -3964,6 +4272,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+  "fingerprint": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
  }
 }

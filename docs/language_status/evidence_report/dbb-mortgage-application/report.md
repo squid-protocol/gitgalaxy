@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0a6f3c6d835f75e5e609c916696ef2d37a69783a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `d24352b94203`).
+The translation survey matches the translator in the tree (translator fingerprint `8e4c8ad432c0`).
 
 ## How to read this report
 
@@ -41,18 +41,18 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 2 | 0 |
-| L1 | 1 | 0 |
-| L2 | 2 | 0 |
+| L1 | 2 | 0 |
+| L2 | 1 | 0 |
 | L3 | 0 | 0 |
 | L4 | 1 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 6 programs; the rest are current
-- L2+: 3 (0 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
+- L2+: 2 (0 awaiting re-check); L3+: 1 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
-- translated whole: 4; refused whole: 0; holes left: 16
-- with an equivalence case: 5; det port equal on its case: 3; with an evidence record: 0; record current at build: 0
+- translated whole: 4; refused whole: 0; holes left: 14
+- with an equivalence case: 5; det port equal on its case: 2; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -85,10 +85,10 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L4 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | 3/3 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | not yet measured (#4628) | — |
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L2 | 61/61 | 0 | mortgage-cmort | equal | 8 | none | 3/6 (50.0%) | 15/21 (71.4%) | 15/21 (71.4%) | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L2 | 51/51 | 0 | mortgage-mlist | equal | 9 | none | 5/6 (83.3%) | 14/15 (93.3%) | 14/15 (93.3%) | not yet measured (#4628) | 3/6 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L1 | 61/61 | 0 | mortgage-cmort | not equal | 15 | none | not measured | not measured | not measured | not yet measured (#4628) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L1 | 13/13 | 0 | mortgage-csmrt | not equal | 5 | none | not measured | not measured | not measured | not yet measured (#4628) | — |
-| zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 44/58 | 14 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
+| zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 47/59 | 12 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 2/9 |
 | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L0 | 25/27 | 2 | mortgage-mpmt | not equal | None | none | not measured | not measured | not measured | not yet measured (#4628) | — |
 
 ## Per program
@@ -107,37 +107,14 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach and the migration dimensions above: not measured
 
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L2
-
-- **Executed equivalent** on the 8 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 50.0)
-- **Translation:** 61/61 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (8 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/6 (50.0%), branch outcomes 15/21 (71.4%) raw, 15/21 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
-- **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 3 live paragraphs unrun; 6 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; assumption reach and the migration dimensions above: not measured
-
 ### zBuilder/MortgageApplication/cobol/epsmlist.cbl -- L2
 
 - **Executed equivalent** on the 9 scenarios of mortgage-mlist against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 83.3)
 - **Translation:** 51/51 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-- **Executed equivalence** (mortgage-cmort, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (mortgage-cmort, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).)
+  - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (mortgage-mlist, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (mortgage-mlist-generated, program): det port equal (CI det-sweep ratchet on main)
@@ -158,11 +135,35 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Det-port mutation:** not yet measured (#4628)
 - **Residual risk:** 1 live paragraphs unrun; 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X52; commands without oracle backing: ENDBR, READNEXT, STARTBR; assumption reach and the migration dimensions above: not measured
 
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L1
+
+- **Next level needs:** its det port equal on every scenario of mortgage-cmort: ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).
+- **Translation:** 61/61 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+- **Executed equivalence** (mortgage-cmort, program, Db2, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).)
+  - evidence record: none (15 scenarios in case.json)
+- **Coverage:** not measured
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+- **Det-port mutation:** not yet measured (#4628)
+- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X27, X31; assumption reach and the migration dimensions above: not measured
+
 ### zBuilder/MortgageApplication/cobol/epscsmrt.cbl -- L1
 
 - **Next level needs:** its det port equal on every scenario of mortgage-csmrt: ledgered as differing in det_sweep_baseline.json (#4803): EPSCSMRT CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's five validation-path scenarios run equal on both sides and never reach them, but a program is not shown equal while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).
 - **Translation:** 13/13 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(MIG) [found at zBuilder/MortgageApplication/cobol/epscsmrt.cbl:1]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+- **Executed equivalence** (mortgage-cmort, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).)
+  - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (mortgage-csmrt, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4803): EPSCSMRT CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's five validation-path scenarios run equal on both sides and never reach them, but a program is not shown equal while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271).)
   - evidence record: none (5 scenarios in case.json)
 - **Coverage:** not measured
@@ -173,20 +174,18 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
 
-- **Next level needs:** translated whole (14 holes left)
-- **Translation:** 44/58 statements, 14 holes; whole: no
+- **Next level needs:** translated whole (12 holes left)
+- **Translation:** 47/59 statements, 12 holes; whole: no
   - hole: CALL CALL CEEHDLR
   - hole: CALL CALL CEEHDLU
   - hole: CALL CALL EPSCSMRI
   - hole: CALL CALL EPSCSMRO
   - hole: CALL CALL EPSCSMRX
   - hole: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)
-  - hole: EXEC EXEC CICS: GET CONTAINER SET INTOCCSID: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled; INTOCCSID: code-page conversion of a CHAR container is not modelled)
-  - hole: EXEC EXEC CICS: GET CONTAINER SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)
+  - hole: EXEC EXEC CICS: GET CONTAINER INTOCCSID: option not modelled (INTOCCSID: code-page conversion of a CHAR container is not modelled)
   - hole: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents
   - hole: EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)
   - hole: HOLE SET TO ENTRY: procedure / function pointers are not modelled
-  - hole: IF condition: NULL: pointers are not modelled
   - hole: SET-POINTER ADDRESS OF ERROR-RESPONSE: not a LINKAGE 01 record (not modelled)
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 3 found, 3 assumed): ARITH(EXTEND) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3131]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]; NSYMBOL(NATIONAL) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]
 - **Executed equivalence:** no equivalence case runs it
@@ -207,7 +206,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X47 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 14 holes; ASSUMED / DIFFERS entries named: X17, X27, X42, X47; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 12 holes; ASSUMED / DIFFERS entries named: X17, X27, X42, X47; commands without oracle backing: FREEMAIN, GET CONTAINER, GETMAIN, GETNEXT CONTAINER, PUT CONTAINER, SOAPFAULT CREATE, STARTBROWSE CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsmpmt.cbl -- L0
 
@@ -236,13 +235,13 @@ From the spec entries of the commands the programs use, with the register's stat
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
 | X42 | CICS | ASSUMED (REFUSED where IBM is silent) | MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1) |
 | X47 | CICS | ASSUMED (REFUSED where IBM is silent) | A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic) |
-| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
+| X52 | CICS | ASSUMED (REFUSED where IBM is silent) | READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key |
 
 ## Reproducibility
 
-- translator commit (the survey's): `0a6f3c6d835f75e5e609c916696ef2d37a69783a`
+- translator commit (the survey's): `ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
-- crucible pins: cics `v0.7.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.7.0 (aaf84bcd)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.8.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.8.0 (afc1db0f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -250,8 +249,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a
+python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

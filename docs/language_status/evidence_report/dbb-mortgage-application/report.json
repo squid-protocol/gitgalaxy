@@ -38,7 +38,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+   "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   }
@@ -357,7 +357,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    60,
+    58,
     97
    ],
    "cbsa-bnk1ccs": null,
@@ -676,12 +676,7 @@
     0,
     0
    ],
-   "mortgage-cmort": [
-    3,
-    6,
-    15,
-    21
-   ],
+   "mortgage-cmort": null,
    "mortgage-csmrt": null,
    "mortgage-mlist": [
     5,
@@ -711,7 +706,7 @@
    "zecs-zecs000": [
     9,
     38,
-    7,
+    8,
     46
    ],
    "zecs-zecs003": null,
@@ -918,12 +913,10 @@
     "program": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
     "row": {
      "holes": [
-      "line 210: EXEC EXEC CICS: GET CONTAINER SET INTOCCSID: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled; INTOCCSID: code-page conversion of a CHAR container is not modelled)",
+      "line 210: EXEC EXEC CICS: GET CONTAINER INTOCCSID: option not modelled (INTOCCSID: code-page conversion of a CHAR container is not modelled)",
       "line 219: EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
-      "line 226: EXEC EXEC CICS: GET CONTAINER SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)",
       "line 244: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 254: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-      "line 262: IF condition: NULL: pointers are not modelled",
       "line 269: CALL CALL EPSCSMRX",
       "line 276: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
       "line 282: CALL CALL EPSCSMRI",
@@ -934,8 +927,8 @@
       "line 310: CALL CALL CEEHDLU"
      ],
      "kind": "cics",
-     "statements": 58,
-     "translated": 44
+     "statements": 59,
+     "translated": 47
     },
     "source_read": true
    },
@@ -1173,10 +1166,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "translator": {
     "files": 110,
-    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
    }
   },
   "sweeps": {}
@@ -1499,6 +1492,392 @@
     "named_by_commands": [
      {
       "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 93.3,
+    "branch_pct": 93.3,
+    "branches": {
+     "covered": 14,
+     "total": 15
+    },
+    "branches_net": {
+     "covered": 14,
+     "total": 15
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 83.3,
+    "paragraphs": {
+     "covered": 5,
+     "live": 6
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "mortgage-cmort",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not equal",
+       "why": [
+        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "mortgage-mlist",
+      "case_scenarios": 9,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "mortgage-mlist-generated",
+      "case_scenarios": 0,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "mortgage-mlist",
+     "case_scenarios": 9,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L2",
+   "level_current": true,
+   "mutation": {
+    "det_port": "not yet measured (#4628)"
+   },
+   "next": [
+    "paragraph coverage >= 100.0 (now 83.3)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ENDBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READNEXT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X52"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "STARTBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X31",
+     "X52"
+    ],
+    "branch_outcomes_unrun": 1,
+    "commands": 6,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "ENDBR",
+     "READNEXT",
+     "STARTBR"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 1,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 51,
+    "translated": 51,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
       "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
       "id": "X20",
       "status": "MATCHED (REFUSED where the region cannot decide)"
@@ -1520,26 +1899,17 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 71.4,
-    "branch_pct": 71.4,
-    "branches": {
-     "covered": 15,
-     "total": 21
-    },
-    "branches_net": {
-     "covered": 15,
-     "total": 21
-    },
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 50.0,
-    "paragraphs": {
-     "covered": 3,
-     "live": 6
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
     "stale_inputs": [],
     "stale_since": null,
     "uncovered_branches": [],
@@ -1549,11 +1919,13 @@
     "cases": [
      {
       "case": "mortgage-cmort",
-      "case_scenarios": 8,
+      "case_scenarios": 15,
       "db2": true,
       "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
+       "state": "not equal",
+       "why": [
+        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
+       ]
       },
       "record": null,
       "role": "program"
@@ -1561,23 +1933,25 @@
     ],
     "chosen": {
      "case": "mortgage-cmort",
-     "case_scenarios": 8,
+     "case_scenarios": 15,
      "db2": true,
      "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
+      "state": "not equal",
+      "why": [
+       "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
+      ]
      },
      "record": null,
      "role": "program"
     }
    },
-   "level": "L2",
+   "level": "L1",
    "level_current": true,
    "mutation": {
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 50.0)"
+    "its det port equal on every scenario of mortgage-cmort: ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
    ],
    "options": {
     "assumed": 6,
@@ -1917,13 +2291,13 @@
      "X27",
      "X31"
     ],
-    "branch_outcomes_unrun": 6,
+    "branch_outcomes_unrun": null,
     "commands": 5,
     "commands_backed": 5,
     "commands_not_backed": [],
     "facts_unstated": 0,
     "holes": 0,
-    "paragraphs_unrun": 3,
+    "paragraphs_unrun": null,
     "refused": null
    },
    "stale_inputs": [],
@@ -1937,390 +2311,6 @@
     "source_defects": [],
     "statements": 61,
     "translated": 61,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
-      "id": "X52",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 93.3,
-    "branch_pct": 93.3,
-    "branches": {
-     "covered": 14,
-     "total": 15
-    },
-    "branches_net": {
-     "covered": 14,
-     "total": 15
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 83.3,
-    "paragraphs": {
-     "covered": 5,
-     "live": 6
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "mortgage-cmort",
-      "case_scenarios": 8,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "mortgage-mlist",
-      "case_scenarios": 9,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "mortgage-mlist-generated",
-      "case_scenarios": 0,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "mortgage-mlist",
-     "case_scenarios": 9,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "det_port": "not yet measured (#4628)"
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (now 83.3)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ENDBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READNEXT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X52"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "STARTBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X31",
-     "X52"
-    ],
-    "branch_outcomes_unrun": 1,
-    "commands": 6,
-    "commands_backed": 3,
-    "commands_not_backed": [
-     "ENDBR",
-     "READNEXT",
-     "STARTBR"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 1,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 51,
-    "translated": 51,
     "whole": true
    }
   },
@@ -2351,6 +2341,19 @@
    },
    "equivalence": {
     "cases": [
+     {
+      "case": "mortgage-cmort",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "state": "not equal",
+       "why": [
+        "ledgered as differing in det_sweep_baseline.json (#4803): EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not shown equal while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
+       ]
+      },
+      "record": null,
+      "role": "linked"
+     },
      {
       "case": "mortgage-csmrt",
       "case_scenarios": 5,
@@ -2529,7 +2532,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (14 holes left)"
+    "translated whole (12 holes left)"
    ],
    "options": {
     "assumed": 3,
@@ -2810,7 +2813,7 @@
      "STARTBROWSE CONTAINER"
     ],
     "facts_unstated": 0,
-    "holes": 14,
+    "holes": 12,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -2825,15 +2828,13 @@
      "CALL EPSCSMRI",
      "CALL EPSCSMRO",
      "CALL EPSCSMRX",
-     "EXEC CICS GET CONTAINER SET",
-     "EXEC CICS GET CONTAINER SET INTOCCSID",
+     "EXEC CICS GET CONTAINER INTOCCSID",
      "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "EXEC CICS PUT CONTAINER FROMCCSID",
      "EXEC CICS SOAPFAULT CREATE",
-     "IF condition: NULL: pointers are not modelled",
      "SET TO ENTRY: procedure / function pointers are not modelled"
     ],
-    "hole_count": 14,
+    "hole_count": 12,
     "holes": [
      "CALL CALL CEEHDLR",
      "CALL CALL CEEHDLU",
@@ -2841,18 +2842,16 @@
      "CALL CALL EPSCSMRO",
      "CALL CALL EPSCSMRX",
      "EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
-     "EXEC EXEC CICS: GET CONTAINER SET INTOCCSID: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled; INTOCCSID: code-page conversion of a CHAR container is not modelled)",
-     "EXEC EXEC CICS: GET CONTAINER SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)",
+     "EXEC EXEC CICS: GET CONTAINER INTOCCSID: option not modelled (INTOCCSID: code-page conversion of a CHAR container is not modelled)",
      "EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
      "HOLE SET TO ENTRY: procedure / function pointers are not modelled",
-     "IF condition: NULL: pointers are not modelled",
      "SET-POINTER ADDRESS OF ERROR-RESPONSE: not a LINKAGE 01 record (not modelled)"
     ],
     "refused": null,
     "source_defects": [],
-    "statements": 58,
-    "translated": 44,
+    "statements": 59,
+    "translated": 47,
     "whole": false
    }
   },
@@ -3010,18 +3009,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.7.0 (aaf84bcd)",
+  "crucible_baseline_ref": "v0.8.0 (afc1db0f)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.7.0",
+   "cics": "v0.8.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -3032,22 +3031,22 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
    "translator": {
     "files": 110,
-    "sha256": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
    }
   },
-  "translator_commit": "0a6f3c6d835f75e5e609c916696ef2d37a69783a",
+  "translator_commit": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 3,
-  "det_equal": 3,
+  "det_equal": 2,
   "histogram": {
    "L0": 2,
-   "L1": 1,
-   "L2": 2,
+   "L1": 2,
+   "L2": 1,
    "L3": 0,
    "L4": 1,
    "L5": 0
@@ -3068,7 +3067,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 16,
+  "holes": 14,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 6,
@@ -3081,6 +3080,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "d24352b94203d9cb6262d119724b9027c8a5f195863f9654d13f9d4b80936840"
+  "fingerprint": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
  }
 }

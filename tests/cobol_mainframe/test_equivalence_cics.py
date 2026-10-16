@@ -1920,9 +1920,11 @@ def test_a_scenario_states_startcode_terminal_input_and_ts_queues():
     assert ec.task_facts(case, {"name": "a"}) == ("TD", "LGCF")
     assert ec.task_facts(case, {"name": "b", "startcode": "SD", "terminal": "X"}) == ("SD", "X")
     assert ec.task_facts({}, {"name": "c"}) == (None, None)
+    # D: a LINKed-to program's COMMAREA path (#4174)
+    assert ec.task_facts({"startcode": "D"}, {"name": "d"}) == ("D", None)
     assert ec.ts_seed(case, {"name": "a"}) == {"GENACNTL": ["**** GENAPP CNTL"]}
     assert ec.ts_seed(case, {"name": "b", "ts": {}}) == {}
-    for bad in ({"startcode": "D"}, {"terminal": 5}):
+    for bad in ({"startcode": "X"}, {"startcode": "d"}, {"terminal": 5}):
         with pytest.raises(ec.Unsupported):
             ec.task_facts(bad, {"name": "x"})
     with pytest.raises(ec.Unsupported):

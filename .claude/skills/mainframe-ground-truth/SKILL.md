@@ -24,6 +24,8 @@ Environment: `GITGALAXY_MAINFRAME_CORPORA=<main checkout>/.mainframe_corpora` (i
 across worktrees; fetch once with `mainframe_corpus.py fetch`) and
 `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`. Scans are cached per engine commit plus a dirty hash,
 so a re-check on an unchanged engine takes seconds.
+Use a process pool, not threads, for concurrent `mainframe_corpus.scan`: it sets and restores PYTHONPATH process-wide
+(#5224). `evidence.status(..., live=True)` is fast (~1 s for all 49 records), so a roll-up can call it directly (#5231).
 
 ## A ledger failure in CI: triage
 

@@ -153,6 +153,9 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
 
 
 @needs_javac
+@pytest.mark.slow(
+    reason="1 s warm; on a loaded CI runner it was the first test in its worker and paid the cold javac of the shared CicsTask build (18 s, #4174 run 38903503168)"
+)
 def test_cics_task_ts_queues_follow_readq_and_writeq(tmp_path):
     out = _cics_task(
         tmp_path,

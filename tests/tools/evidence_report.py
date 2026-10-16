@@ -204,6 +204,7 @@ def corpus_ref(estate: str) -> str:
 TRANSLATOR_INPUTS = (
     "gitgalaxy/tools/cobol_to_java/*",  # det/ (with cobolrt, copy) and the forge modules det imports (sql: db2 forge)
     "gitgalaxy/standards/cics/*",
+    "gitgalaxy/standards/mq.py",
     "gitgalaxy/core/aperture.py",
     "gitgalaxy/core/bms_screen_fields.py",
     "gitgalaxy/core/bms_symbolic.py",

@@ -278,6 +278,25 @@ def test_container_ccsid_options_become_stub_arguments():
     assert "MOVE 1140 TO GG-NUM" in sets and "CALL 'GGCGETS' USING GG-CICS" in "\n".join(sets)
 
 
+def test_container_byteoffset_and_prepend_become_stub_arguments():
+    """#5005 (X17): BYTEOFFSET travels in GG-NUM with the flag BYTEOFFSET (INTO only; no CCSID option, NODATA or SET); PREPEND is a
+    flag word (not with APPEND)."""
+    get = ec.translate_command("GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) FLENGTH(WS-N) BYTEOFFSET(WS-OFF)")
+    assert "MOVE 'CHANNEL BYTEOFFSET' TO GG-FLAGS" in get and "MOVE WS-OFF TO GG-NUM" in get
+    assert get.index("MOVE WS-OFF TO GG-NUM") < get.index("CALL 'GGCGETC' USING GG-CICS")
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) BIT PREPEND")
+    assert "MOVE 'BIT PREPEND' TO GG-FLAGS" in put
+    for bad in (
+        "GET CONTAINER(C) NODATA BYTEOFFSET(4)",
+        "GET CONTAINER(C) SET(PTR) FLENGTH(WS-N) BYTEOFFSET(4)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) INTOCCSID(500)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
 def test_move_container_and_the_container_browse_call_the_stub():
     """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER / AS / CHANNEL / TOCHANNEL in GG-QNAME / GG-AS / GG-CHAN / GG-TOCHAN,
     GG-FLAGS naming the channels given), STARTBROWSE -> GGCSBRC (the token out of GG-NUM on NORMAL), GETNEXT -> GGCGNXC
@@ -387,6 +406,10 @@ def test_a_delete_generic_is_named_to_the_stub():
     got = ec.translate_command("DELETE FILE(ZF-FCT) RIDFLD(ZF-KEY-16) KEYLENGTH(DELETE-LENGTH) GENERIC NOHANDLE")
     assert got[:3] == ["MOVE ZF-FCT TO GG-NAME1", "MOVE 'GENERIC' TO GG-FLAGS", "CALL 'GGCDELT' USING GG-CICS"]
     assert got[3:5] == ["    BY REFERENCE ZF-KEY-16", "    BY VALUE DELETE-LENGTH"]
+    # #5092 (X22): a given KEYLENGTH without GENERIC is named to the stub (INVREQ 26 unless it is the key's length); none, not
+    keyed = ec.translate_command("DELETE FILE(F) RIDFLD(K) KEYLENGTH(2) NOHANDLE")
+    assert keyed[1] == "MOVE 'KEYLENGTH' TO GG-FLAGS" and "    BY VALUE 2" in keyed
+    assert ec.translate_command("DELETE FILE(F) RIDFLD(K) NOHANDLE")[1] == "MOVE SPACES TO GG-FLAGS"
     for bad, why in (("DELETE FILE(F) RIDFLD(K) GENERIC", "without KEYLENGTH"),
                      ("DELETE FILE(F) KEYLENGTH(2) GENERIC", "without RIDFLD")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
@@ -2096,6 +2119,38 @@ def test_a_scenario_states_the_channel_its_task_starts_with():
     ):
         with pytest.raises(ec.Unsupported):
             ec.scenario_channel(_channel_case(), {"name": "s", "channel": bad})
+
+
+@pytest.mark.parametrize("bad", ["^", "~", "&", "<", "\u00ac", " ", "A B", " A", "", "X" * 17])
+def test_a_channel_or_container_name_outside_puts_character_set_is_refused(bad):
+    """#4950 (X18): IBM's PUT CONTAINER set; & < and the not sign (RUN TRANSID's page only) are refused too."""
+    name = "AB" + bad if bad.strip() and len(bad) == 1 else bad
+    for ch in ({"name": name}, {"name": "C", "containers": {name: {"text": "a"}}}):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_channel(_channel_case(), {"name": "s", "channel": ch})
+
+
+@pytest.mark.parametrize("good", ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:16], '$@#/%?!:|"=,;>.-', "a.b-c_d", "X" * 16, "9"])
+def test_a_channel_or_container_name_in_puts_character_set_is_accepted(good):
+    sc = {"name": "s", "channel": {"name": good, "containers": {good: {"text": "a"}}}}
+    got = ec.scenario_channel(_channel_case(), sc)
+    assert got["name"] == good
+    assert got["containers"][0]["name"] == good
+
+
+def test_no_committed_case_file_states_a_channel_name_the_harness_now_refuses():
+    import json
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[1] / "equivalence"
+    seen = 0
+    for f in sorted(root.glob("*/case.json")):
+        case = json.loads(f.read_text(encoding="utf-8"))
+        for sc in case.get("scenarios") or []:
+            if isinstance(sc, dict) and sc.get("channel") is not None:
+                ec.scenario_channel(case, sc)
+                seen += 1
+    assert seen
 
 
 def test_the_containers_a_task_leaves_are_compared_at_its_end_unless_it_abends(tmp_path):

@@ -501,19 +501,43 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
 def test_delete_generic_deletes_every_record_with_the_generic_key():
     """#4771 zECS (ZECS003 3100-DELETE; IBM, EXEC CICS DELETE, register X22): GENERIC deletes every record whose key
     starts with RIDFLD's first KEYLENGTH bytes (CicsTask.delete: NOTFND RESP2 80 when none); on a file named at run time
-    a KEYLENGTH not shorter than that file's key is refused then. INVREQ 25 / 42 and an unknown KEYLENGTH refused."""
+    a KEYLENGTH not shorter than that file's key is INVREQ 25 then (#5092: 25 / 42 are answered, CicsTask.deleteInvalid;
+    22 for a non-KSDS and 26 for a KEYLENGTH without GENERIC likewise). Zero and an unknown KEYLENGTH are refused."""
     out = _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
     assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
-    assert out[1] == "int resp1 = task.delete('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    assert (
+        out[1]
+        == "int resp1 = task.deleteGeneric('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    )
     assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
                       "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
     assert "OUTCOME(resp1, task.resp2());" in out
     rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
-    assert rt[1].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
-    assert "not shorter than the key of" in rt[1]
+    assert rt[1] == "int resp1;"
+    assert rt[2].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.strip(), true, 25);")
+    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.strip(), ")
+    for text, want in (
+        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),  # the key is 10
+        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),
+        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+    ):
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(want) and "OUTCOME(" in got[1], got
+    for text, resp2 in (
+        ("KEYLENGTH(6)", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(0)", 26),
+    ):  # not GENERIC, not the key's 10
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(f"task.deleteInvalid('KSDS'.strip(), false, {resp2});"), got
+    assert (
+        "task.delete('KSDS'.strip(),"
+        in _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) RESP(R)", "")[0]
+    )
     for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
                      ("DELETE FILE('KSDS') KEYLENGTH(6) GENERIC", "GENERIC without RIDFLD"),
-                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(0) GENERIC", "not above zero"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
                      ("DELETE FILE('KSDS') RIDFLD(SHORTKEY) KEYLENGTH(8) GENERIC", "shorter than the 8-byte"),
@@ -1191,6 +1215,26 @@ def test_put_container_is_the_programs_bytes_on_the_task_channel():
     out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FLENGTH(N) DATATYPE(DFHVALUE(BIT)) APPEND", "")
     assert out[0] == "int flen2 = INT(N);" and out[1].endswith('flen2, "BIT", true);') and "(null, " in out[1]
     assert ", null, false);" in _ChanCics().command("PUT CONTAINER(CN) FROM(REC)", "")[1]
+
+
+def test_byteoffset_and_prepend_pass_to_the_task():  # noqa: E302
+    """#5005 (X17), IBM GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND: BYTEOFFSET (a data value) calls getContainerAt with the
+    most INTO takes; FLENGTH is set back from the length returned. PREPEND is the task's last argument, after the FROMCCSID (-1:
+    none); a command without either is generated as before."""
+    out = _ChanCics().command("GET CONTAINER(CN) CHANNEL(CH) INTO(AREA) FLENGTH(FL) BYTEOFFSET(OFF) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult cont1 = task.getContainerAt(CH.strip(), CN.strip(), "
+                   "DetCics.containerLimit(f_AREA, INT(FL)), INT(OFF));",
+                   "if (cont1.data() != null) DetCics.put(f_AREA, cont1.data());",
+                   "if (cont1.length() >= 0) STORE(FL, BigDecimal.valueOf(cont1.length()));",
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    assert (
+        "getContainerAt(null, CN.strip(), DetCics.containerLimit(f_AREA, 20), INT(4));"
+        in _ChanCics().command("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "")[0]
+    )
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) BIT PREPEND", "")
+    assert out[1].endswith('flen2, "BIT", false, -1, true);')
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) PREPEND", "")
+    assert out[1].endswith("flen2, null, false, -1, true);")
 
 
 def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
@@ -1924,8 +1968,16 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
         ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
         ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
-        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
-        ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
+        ("GET CONTAINER(CN) NODATA BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),  # #5005 (X17)
+        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL) BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) INTOCCSID(500)", "BYTEOFFSET with INTOCCSID"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))", "BYTEOFFSET with CONVERTST"),
+        (
+            "GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)",
+            "BYTEOFFSET with CONVERTST",
+        ),
+        ("PUT CONTAINER(CN) FROM(REC) PREPEND APPEND", "APPEND and PREPEND together"),
+        ("PUT CONTAINER(CN) FROM(REC) APPEND PREPEND", "APPEND and PREPEND together"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
         ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
         ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),

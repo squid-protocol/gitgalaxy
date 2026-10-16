@@ -11,20 +11,13 @@ byte against the original COBOL under GnuCOBOL. Anything the translator cannot h
 named `Hole` or an explicit refusal citing the IBM manual—never a guess. Every port ships with
 its machine-checked evidence record, and a person approves every port.
 
-<table>
-<tr>
-<td align="center" width="190"><h2>99 / 129</h2></td>
-<td align="center" width="190"><h2>100 / 257</h2></td>
-<td align="center" width="190"><h2>91.1%</h2></td>
-<td align="center" width="190"><h2>17 / 17</h2></td>
-</tr>
-<tr>
-<td align="center" valign="top"><sub><strong>programs proven equivalent (L2+)</strong><br />110 translated whole · 6 burned estates<br /><em><a href="#evidence-ladders-and-where-it-stands">evidence report</a> · oracle is GnuCOBOL</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS commands modelled on both runtimes</strong><br />2 engine-only · 155 refused by name<br /><em><a href="#one-cics-command-spec-both-runtimes">the CICS spec</a> · 0 silent fallbacks</em></sub></td>
-<td align="center" valign="top"><sub><strong>adjusted mutant kill rate</strong><br />585 / 642 killed across 20 measured ports<br /><em><a href="#measuring-the-proof-coverage-and-mutation">mutation testing</a> · 585 / 840 raw</em></sub></td>
-<td align="center" valign="top"><sub><strong>target configs compile-checked</strong><br />Java 17 &amp; 21 · Maven &amp; Gradle · 5 DBs<br /><em><a href="#choosing-the-java-you-get-the-target-config">target matrix</a> · compiling ≠ proven</em></sub></td>
-</tr>
-</table>
+**Current numbers** (the evidence ladder, the CICS commands modelled, the mutation kill rate, the crucibles and the
+era table) are generated from the repo's own artifacts, each with its source and the commit it was rendered from, on
+the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280). This README keeps prose only, so it cannot drift. Levels are evidence levels,
+and the oracle is GnuCOBOL plus IBM documentation, not z/OS.
+
+Targets: Java 17 and 21, Maven and Gradle, five databases
+([target matrix](#choosing-the-java-you-get-the-target-config); compiling is not equivalence).
 
 <a href="#quickstart"><strong>Quickstart</strong></a> ·
 <a href="#pick-your-front-door"><strong>Front door</strong></a> ·
@@ -80,7 +73,7 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
 | **Translate COBOL and CICS deterministically** with no LLM in the loop | [The pipeline ↓](#the-pipeline) and [Deterministic translation (`det/`) ↓](#deterministic-translation-det-and-cobolrt) |
 | **Refactor a proven port for readability** with a model, gated on proof | [Step 3: Port and refine ↓](#the-pipeline) and [`det_port_design.md`](../../../docs/language_status/det_port_design.md) |
 | **See which CICS commands, BMS maps, Db2 SQL, and macro tables work** | [One CICS command spec, both runtimes ↓](#one-cics-command-spec-both-runtimes) |
-| **Audit the proof and mutation numbers** on the 6 public estates | [Evidence ladders and where it stands ↓](#evidence-ladders-and-where-it-stands) |
+| **Audit the proof and mutation numbers** on the public estates | [Evidence ladders and where it stands ↓](#evidence-ladders-and-where-it-stands) |
 | **Customize the generated Spring Boot stack** (Java 17/21, Gradle/Maven, DBs) | [Choosing the Java you get ↓](#choosing-the-java-you-get-the-target-config) |
 | **Understand what the oracle does *not* prove** | [Limits ↓](#limits) and the [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) |
 
@@ -117,12 +110,11 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
    program with business logic gets a porting ticket (`ai_agent_jobs/<PROGRAM>_port_ticket.md`).
 3. **Port (`port_runner run` / `refine` / `submit`).** Sends a ticket to a backend:
    - **The deterministic translator** (`--backend det --source-root ESTATE [--style structured] [--typed]`):
-     no model; translates 97.8%+ of statements across our 6 reference estates into calls against
+     no model; translates the statements of the burned estates into calls against
      `cobolrt`.
    - **Model-assisted readability refinement** (`port_runner refine`): rewrites a proven det port one
      method at a time, running the equivalence proof after each method and reverting any rewrite that
-     changes behaviour (on CardDemo's 4,236-line `COACTUPC`, 109 of 109 method rewrites were proven
-     and kept, cutting runtime calls by 63%).
+     changes behaviour (on CardDemo's `COACTUPC`, every method rewrite was kept only because the proof still passed).
    - **A person or a model the customer chooses** ([the porting loop](../../../docs/language_status/porting_loop.md)):
      checked by [`cobol_to_java_guardrail.py`](cobol_to_java_guardrail.py) against the generated
      project's inventory so it cannot invent endpoints, repositories, or unverified record fields.
@@ -176,13 +168,13 @@ program and copybook by the concrete constructs ("tells") it uses—never by fil
 **mixed-era** programs (such as a 1980s `HANDLE CONDITION` / `BLL` program with a 2010s `PUT CONTAINER`
 call bolted on).
 
-| Era | IBM Stack & Period | Source Tells Detected (`era_tags.py`) | Status on the 6 Burned Estates (129 Programs) | What Works Today vs. Named Refusals |
+| Era | IBM Stack & Period | Source Tells Detected (`era_tags.py`) | Burned-estate status | What Works Today vs. Named Refusals |
 |---|---|---|---|---|
 | **Era 0** | **CICS Macro Level** *(Pre-CICS/ESA 3.2)* | `DFHxx TYPE=` macro calls (`dfh-macro-call`), `DFHCSADS` / `DFHTCADS` (`csa-tca-dsect`) | **Application code refused by design** (`#5121`); **macro tables parsed** (`#5120`, `#5154`) | Macro-level code and HLASM `.asm` exits are refused up front. System macro tables (`DFHSIT`, `DFHPCT`, `DFHPPT`, `DFHFCT`, `DFHDCT`) are extracted; obsolete `DFHTCT LINE/SDSCI` & `DFHMCT RECORD` are refused with IBM cites. |
-| **Era 1** | **Command Level + OS/VS COBOL** | `BLL` cells (`bll-cells`), `SERVICE RELOAD`, `HANDLE CONDITION / AID / ABEND`, `CALL 'CBLTDLI'` / `EXEC DLI`, `LANGLVL(1)` | **100% of `HANDLE` + `BLL` programs proven** (4/4 in GenApp, 14/17 mixed-era at L2+); 5 IMS DL/I programs in CardDemo in progress (`#4893`) | `HANDLE CONDITION/AID/ABEND`, `PUSH/POP HANDLE`, and chained `BLL` cells (`#5119`) are proven at L3/L4. IMS DL/I (`CBLTDLI`, `EXEC DLI`, `ENTRY 'DLITCBL'`) is actively landing (`#4893`, `#5233`). |
-| **Era 2** | **COBOL II / COBOL 85 + CICS/MVS & Db2** | `RESP` / `RESP2`, `EXEC SQL`, `ADDRESS OF`, `SET ADDRESS`, `LINK SYSID` (DPL), `CMPR2`, `LANGLVL(2)` | **67 / 69 (97.1%) translated whole (`L1+`); 61 / 69 (88.4%) proven equivalent (`L2–L4`)** | Full VSAM file control (including `UPDATE TOKEN` and `RESP2`), BMS 3270 maps, `LINK`/`XCTL`/`RETURN`, TS/TD queues (`SET/INQUIRE TDQUEUE`), `GETMAIN`/`FREEMAIN` + `SET ADDRESS OF`, `ENQ`/`DEQ`, `START`/`RETRIEVE`, `POST`/`WAIT`, and live Db2 `EXEC SQL`. |
-| **Era 3** | **LE / COBOL for OS/390 + IBM MQ** | `CALL 'CEExxxx'` (`le-callable`), `CALL 'MQOPEN/GET/PUT...'` (`mq-call`), `EXCI` (`DFHXCIS`), 3270 Bridge (`DFHBR*`) | **14 / 14 LE-callable programs proven at L3/L4**; 3 MQ programs in CardDemo in progress (`#4892`) | LE date/time and abend services (`CEEDAYS`, `CEELOCT`, `CEE3ABD`) are proven; custom condition handlers (`CEEHDLR`/`CEEHDLU`) are refused. MQI queue calls + CICS UOW backout are landing in `#4892`. |
-| **Era 4** | **Enterprise COBOL + Modern CICS TS** | `PUT/GET CONTAINER` & `CHANNEL`, `EXEC CICS WEB` / `SOAPFAULT`, `RUN TRANSID` / `FETCH` (`async`), `COUNTER` / `DCOUNTER`, `JSON/XML PARSE`, `ARITH(EXTEND)` | **19 / 21 (90.5%) translated whole (`L1+`); 18 / 21 (85.7%) proven equivalent (`L2–L4`)** (`cics-async-api` is **10/10 at L4**) | Channels & containers (including `FROMCCSID` / `INTOCCSID` / `CONVERTST` code-page conversion, `#4270`), async `RUN TRANSID`/`FETCH CHILD`, named counters (`COUNTER`/`DCOUNTER` + `REWIND`/`WRAP`), `WEB` HTTP & `DOCUMENT CREATE/RETRIEVE` are proven. `SOAPFAULT CREATE` and `ARITH(EXTEND)` float exponentiation are open gap rules. |
+| **Era 1** | **Command Level + OS/VS COBOL** | `BLL` cells (`bll-cells`), `SERVICE RELOAD`, `HANDLE CONDITION / AID / ABEND`, `CALL 'CBLTDLI'` / `EXEC DLI`, `LANGLVL(1)` | HANDLE + BLL programs and the IMS DL/I programs (`#4893`); level counts on the progress page | `HANDLE CONDITION/AID/ABEND`, `PUSH/POP HANDLE`, and chained `BLL` cells (`#5119`) are proven at L3/L4. IMS DL/I (`CBLTDLI`, `EXEC DLI`, `ENTRY 'DLITCBL'`) is actively landing (`#4893`, `#5233`). |
+| **Era 2** | **COBOL II / COBOL 85 + CICS/MVS & Db2** | `RESP` / `RESP2`, `EXEC SQL`, `ADDRESS OF`, `SET ADDRESS`, `LINK SYSID` (DPL), `CMPR2`, `LANGLVL(2)` | Level counts on the progress page (Eras table) | Full VSAM file control (including `UPDATE TOKEN` and `RESP2`), BMS 3270 maps, `LINK`/`XCTL`/`RETURN`, TS/TD queues (`SET/INQUIRE TDQUEUE`), `GETMAIN`/`FREEMAIN` + `SET ADDRESS OF`, `ENQ`/`DEQ`, `START`/`RETRIEVE`, `POST`/`WAIT`, and live Db2 `EXEC SQL`. |
+| **Era 3** | **LE / COBOL for OS/390 + IBM MQ** | `CALL 'CEExxxx'` (`le-callable`), `CALL 'MQOPEN/GET/PUT...'` (`mq-call`), `EXCI` (`DFHXCIS`), 3270 Bridge (`DFHBR*`) | LE-callable programs and the MQ programs (`#4892`); level counts on the progress page | LE date/time and abend services (`CEEDAYS`, `CEELOCT`, `CEE3ABD`) are proven; custom condition handlers (`CEEHDLR`/`CEEHDLU`) are refused. MQI queue calls + CICS UOW backout are landing in `#4892`. |
+| **Era 4** | **Enterprise COBOL + Modern CICS TS** | `PUT/GET CONTAINER` & `CHANNEL`, `EXEC CICS WEB` / `SOAPFAULT`, `RUN TRANSID` / `FETCH` (`async`), `COUNTER` / `DCOUNTER`, `JSON/XML PARSE`, `ARITH(EXTEND)` | Level counts on the progress page (Eras table) | Channels & containers (including `FROMCCSID` / `INTOCCSID` / `CONVERTST` code-page conversion, `#4270`), async `RUN TRANSID`/`FETCH CHILD`, named counters (`COUNTER`/`DCOUNTER` + `REWIND`/`WRAP`), `WEB` HTTP & `DOCUMENT CREATE/RETRIEVE` are proven. `SOAPFAULT CREATE` and `ARITH(EXTEND)` float exponentiation are open gap rules. |
 
 ---
 
@@ -198,8 +190,8 @@ From that one source of truth, the build generates both the Java runtime tables
 (`tests/equivalence/cics/ggcics_spec.h`), so the Java port and the COBOL oracle cannot drift on
 `DFHRESP` codes, `EIBFN` bytes, abend codes, or refused options.
 
-As of 2026-10-16, the spec tracks **257 CICS commands**:
-- **100 full commands** modelled in both the deterministic translator and the CICS stub runtime:
+The spec tracks every CICS command by name (counts: the progress page):
+- **Full commands** modelled in both the deterministic translator and the CICS stub runtime:
   - **File control (VSAM):** `READ`, `WRITE`, `REWRITE`, `DELETE`, `UNLOCK`, `STARTBR`, `READNEXT`, `READPREV`, `ENDBR`, `RESETBR` (including `GENERIC`, `KEYLENGTH`, `UPDATE TOKEN`, `RBA`/`RRN`, and exact `NOTFND` / `DUPKEY` / `INVREQ` / `LENGERR` `RESP2` semantics).
   - **Terminal & BMS 3270:** `SEND MAP`, `RECEIVE MAP`, `SEND TEXT`, `SEND CONTROL`, `SEND`, `RECEIVE`, `CONVERSE`, `ISSUE ERASEAUP`.
   - **Program, task & storage control:** `LINK`, `XCTL`, `RETURN`, `LOAD`, `RELEASE`, `ABEND`, `SYNCPOINT`, `SYNCPOINT ROLLBACK`, `GETMAIN`, `FREEMAIN`, `ASSIGN`, `ADDRESS`, `ADDRESS SET`, `ENQ`, `DEQ`, `ENTER TRACENUM`, `SUSPEND`.
@@ -208,8 +200,8 @@ As of 2026-10-16, the spec tracks **257 CICS commands**:
   - **Queues & named counters:** `WRITEQ TS`, `READQ TS`, `DELETEQ TS`, `WRITEQ TD`, `READQ TD`, `DELETEQ TD`, `INQUIRE TDQUEUE`, `SET TDQUEUE`, `DEFINE COUNTER`/`DCOUNTER`, `GET COUNTER`/`DCOUNTER`, `QUERY COUNTER`/`DCOUNTER`, `UPDATE COUNTER`/`DCOUNTER`, `REWIND COUNTER`/`DCOUNTER`, `DELETE COUNTER`/`DCOUNTER`.
   - **Web, HTTP & documents:** `DOCUMENT CREATE`, `DOCUMENT INSERT`, `DOCUMENT SET`, `DOCUMENT RETRIEVE`, `WEB OPEN`, `WEB CONVERSE`, `WEB SEND`, `WEB RECEIVE`, `WEB CLOSE`, `WEB PARSE URL`, `WEB EXTRACT`, `WEB READ HTTPHEADER`, `WEB WRITE HTTPHEADER`, `WEB STARTBROWSE/READNEXT/ENDBROWSE HTTPHEADER`, `EXTRACT WEB`, `EXTRACT TCPIP`.
   - **System & resource inquiry:** `INQUIRE FILE`, `SET FILE`, `INQUIRE PROGRAM`, `INQUIRE TRANSACTION`, `INQUIRE SYSTEM`, `INQUIRE APPKEY`, `CHANGE PASSWORD`, `VERIFY PASSWORD`, `SIGNON`, `SIGNOFF`, `BIF DEEDIT`.
-- **2 engine-only commands** recognized for structural extraction.
-- **155 name-only commands** explicitly refused by name with a diagnostic rather than silently ignored.
+- **Engine-only commands** recognized for structural extraction.
+- **Name-only commands** explicitly refused by name with a diagnostic rather than silently ignored.
 
 ---
 
@@ -219,29 +211,14 @@ As of 2026-10-16, the spec tracks **257 CICS commands**:
 
 GitGalaxy tracks two complementary evidence ladders ([`definition_of_done.md`](../../../docs/language_status/definition_of_done.md)):
 
-1. **The `L0–L5` Det-Translator Ladder** ([`evidence_report.py`](../../../tests/tools/evidence_report.py), published on the [`generated` branch](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/README.md)): measures the **deterministic translator (`det`)** across all **129 programs** in the 6 burned estates.
-2. **The `E0–E4` Evidence-Record Ladder** ([`estate_evidence.py`](../../../tests/tools/estate_evidence.py), [per-program records](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence/README.md)): rolls up the **49 committed `evidence.json` records** (CardDemo, CBSA, GenApp, and the 21 CICS Crucible trap programs).
-
-### 1. Deterministic translator across the 6 burned estates (`L0–L5`, 2026-10-16)
-
-| Estate | Programs | L0 (Inventoried) | L1 (Translated Whole) | L2 (Executed Equal) | L3 (100% Para) | L4 (100% Net Branch) | L5 (Det Mutants) | **L1+ Whole** | **L2+ Proven** |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| [`aws-mainframe-modernization-carddemo`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/aws-mainframe-modernization-carddemo/report.md) | 44 | 14 | 1 | 3 | 13 | 13 | 0 | 30 (68%) | **29 (66%)** |
-| [`cics-async-api-credit-card-application-example`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100%) | **10 (100%)** |
-| [`cics-banking-sample-application-cbsa`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 7 | 12 | 6 | 6 | 0 | 31 (100%) | **24 (77%)** |
-| [`cics-genapp`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/cics-genapp/report.md) | 31 | 0 | 0 | 13 | 13 | 5 | 0 | 31 (100%) | **31 (100%)** |
-| [`dbb-mortgage-application`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/dbb-mortgage-application/report.md) | 6 | 2 | 2 | 1 | 0 | 1 | 0 | 4 (67%) | **2 (33%)** |
-| [`zecs`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/zecs/report.md) | 7 | 3 | 1 | 1 | 1 | 1 | 0 | 4 (57%) | **3 (43%)** |
-| **Total** | **129** | **19** | **11** | **30** | **33** | **36** | **0** | **110 (85.3%)** | **99 (76.7%)** |
+1. **The `L0-L5` Det-Translator Ladder** ([`evidence_report.py`](../../../tests/tools/evidence_report.py), published on the [`generated` branch](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/README.md)): measures the **deterministic translator (`det`)** across every program of the burned estates.
+2. **The `E0-E4` Evidence-Record Ladder** ([`estate_evidence.py`](../../../tests/tools/estate_evidence.py), [per-program records](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence/README.md)): rolls up the committed `evidence.json` records.
 
 <a id="measuring-the-proof-coverage-and-mutation"></a>
 
-### 2. Per-program evidence records & mutation testing (`E0–E4`, 2026-10-16)
-
-Across the **49 committed `evidence.json` records** ([`estate_evidence.py`](../../../tests/tools/estate_evidence.py)):
-- **Executed equivalent (`E2+`):** **44 / 49 programs (89.8%)** (23 at `E2`, 21 at `E3`; the 5 at `E1` have a single hand-port stub method or an unrecorded `LINK` target that the `det` port already resolves at `L2–L4`).
-- **COBOL coverage:** **439 / 446 paragraphs (98.4%)** and **1,346 / 1,465 raw branch outcomes (91.9%)**.
-- **Mutation testing** ([`mutation_testing.md`](../../../docs/language_status/mutation_testing.md)): **20 programs measured**, killing **585 / 642 adjusted mutants (91.1%)** (`585 / 840` raw, `69.6%`, with `129` equivalent and `69` unreachable survivors triaged, `0` untriaged, and `57` open `case_gap` survivors). Four programs (`CSUTLDTC`, `HCQREAD`, `HXATTR`, `PCDETL`) have **0 open survivors (100% adjusted kill rate)**.
+The counts at each level, per estate and in total, the mutation kill rate ([`mutation_testing.md`](../../../docs/language_status/mutation_testing.md)),
+the crucibles and the era table are generated, not written here: see the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). Each number there names the
+artifact it was read from and the commit it was rendered at.
 
 ---
 
@@ -272,7 +249,7 @@ Across the **49 committed `evidence.json` records** ([`estate_evidence.py`](../.
 
 The generated skeleton alone is not a port. On the
 [CICS crucible](../../../docs/language_status/cics_crucible.md) it compiles for all cases, but
-its unported skeleton services pass 0 scenarios. The ported ones pass 100%.
+its unported skeleton services pass no scenario. The ported ones pass them all.
 
 ---
 
@@ -301,7 +278,7 @@ Every key is validated. An unknown key or an unsupported value stops the run wit
 it. Explicit `--pkg` / `--header` flags override the file. Without `--config` the output is
 unchanged. Every supported combination is compile-checked by
 [`tests/tools/java_target_matrix.py`](../../../tests/tools/java_target_matrix.py), which generates
-CardDemo under 17 configs and runs the real Maven / Gradle build.
+CardDemo under every supported config and runs the real Maven / Gradle build.
 
 ---
 
@@ -319,7 +296,7 @@ CardDemo under 17 configs and runs the real Maven / Gradle build.
   (for example `C9`: a `POINTER` is 8 bytes on 64-bit Linux vs. 4 bytes on 31-bit z/OS; `D1`: text
   compares in ASCII order unless routed through `CobolCompare`). Proving against captured z/OS
   mainframe traces is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
-- **These are burned estates.** The six reference estates and the CICS crucible are public, and the
+- **These are burned estates.** The burned estates and the CICS crucible are public, and the
   translator and runtime were built against them, so their scores are development results, not
   blind-estate results. The protocol for a blind first-contact trial is in
   [`fresh_estate_trials.md`](../../../docs/language_status/fresh_estate_trials.md).
@@ -341,7 +318,7 @@ CardDemo under 17 configs and runs the real Maven / Gradle build.
 
 | Resource | What it contains |
 |---|---|
-| [Evidence reports (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/README.md) | Live `L0–L5` per-program scorecards across all 6 burned estates, refreshed on every push to `main` |
+| [Evidence reports (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence_report/README.md) | Live `L0–L5` per-program scorecards across all the burned estates, refreshed on every push to `main` |
 | [Per-program evidence records (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/evidence/README.md) | Individual proof, coverage, and mutation certificates (`E0–E4`) |
 | [Definition of done](../../../docs/language_status/definition_of_done.md) | The charter defining `L0–L5`, `E0–E4`, agreed refusals, and estate completion |
 | [Deterministic port design (`det_port_design.md`)](../../../docs/language_status/det_port_design.md) | Architecture of `det/`, `cobolrt`, `--style structured`, `--typed`, and `det_refine` |

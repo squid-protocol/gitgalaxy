@@ -45,7 +45,8 @@ copybook under `copybooks`; a tell only a copybook shows is `via_copybook` (its 
 is null) and can raise the program's `era`, in which case `program_era` keeps the era of the program's own text. The keys
 `via_copybook`, `copybooks`, `program_era` and the summary's `raised_by_copybook` appear only when set, so an estate with
 no copybook tell is byte for byte what it was. A program whose expansion is refused (a missing copybook, macro level) keeps
-its own-text tag. On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
+its own-text tag and carries `copybook_skipped` (the reason: `CopyNotFound`, `MacroLevelCics`, an exception class), counted in
+the summary; assembler members are tagged the same way under `eras.assembler` through their COPY and macro members (#5195). On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
 example) the copybook tells found are `exec-sql` (Db2 DCLGEN members, CardDemo and CBSA) and `resp` (CBSA); each is also in the
 program that copies it, so no tell is `via_copybook` and no program's era moves.
 
@@ -102,6 +103,21 @@ Each feature is **supported and proven** (a program using it is at L2 or above),
 no refusal names it, no proof), **refused by name**, or **unknown / never seen** (only programs refused whole use it),
 with the conditions of "supported" (charter section 5) it does not meet yet. Per estate it also lists the refusals
 with their owners, the missing system copybooks (a configuration fix: name SCSQCOBC / SCEESAMP), the runtime APIs a
-program calls that are not modelled (MQ: translates, not provable), and what is unknown, for triage.
+program calls that are not modelled (MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892, register W), and what is unknown, for triage.
 `tests/cobol_mainframe/test_support_matrix.py` fails when a refusal or hole of a committed report matches no entry of
 `refusal_map.json` (or more than one): a new one after an evidence refresh is added there with its owner.
+
+## Readiness report (#4725)
+`tests/tools/readiness_report.py` is the customer-readable page for each burned estate, from the same committed outputs
+(the evidence report and the inventory's era tags): the evidence ladder with counts (L0-L5, translated whole, with
+holes, refused by reason; a whole-translated program whose CALL / LINK target has holes is counted apart and stays below
+L2), the era mix, the **rules to land** ranked by `cics_census.blockers()` (the `cics_census.py blockers` order, each
+rule with the era mix of the programs it alone blocks), the missing inputs of `estate_intake.py`, the register entries
+the commands name, and the charter bars. It is rendered to `docs/language_status/readiness_report.md` by
+`generated_docs.py` and published to `generated`, not committed.
+```bash
+python tests/tools/readiness_report.py [ESTATE ...] [--json] [--previous EARLIER.json] [--top N] [--out FILE]
+```
+Output is deterministic (no date, path or host); `--json` output fed back as `--previous` adds a "Since the previous
+run" section (ladder counts and rule rank moves). Levels are evidence levels, never a bare "proven"; the oracle is
+GnuCOBOL plus our stub, not z/OS.

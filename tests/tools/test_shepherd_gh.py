@@ -588,7 +588,7 @@ def test_rerun_det_failure_other_error_is_logged_as_failed():
 def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
     monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): skipped (already running)"]
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): skipped (already running)"]
     )
     assert sg.main(["reconcile"]) == 0
 
@@ -596,7 +596,7 @@ def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch
 def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
     monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): FAILED: server error"]
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): FAILED: server error"]
     )
     assert sg.main(["reconcile"]) == 1
 
@@ -835,3 +835,9 @@ def test_an_ordinary_new_commit_goes_to_reapproval():
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
     assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+
+
+def test_failed_matrix_legs_of_one_run_get_one_rerun():
+    legs = [failure("infra", check="muninn (1/2)"), failure("infra", check="muninn (2/2)")]
+    acts = sg.decide(snap(failed=legs, pending=0))
+    assert by_op(acts, "rerun") == [{"op": "rerun", "run_id": 55, "check": "muninn (1/2)"}]

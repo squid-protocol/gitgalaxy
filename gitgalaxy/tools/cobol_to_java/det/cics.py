@@ -439,7 +439,14 @@ class Generated:
 
     def screen_fields(self, cls: str) -> list[str]:
         text = self._file("dto/screen", cls).read_text(encoding="utf-8")
-        return re.findall(r'values\.put\("([A-Z0-9-]+)",', text)
+        return re.findall(r'values\.put\("([A-Z0-9-]+)"(?:,| \+ )', text)  # #5076: a repeated field: "NAME" + "." + i
+
+    def screen_occurs(self, cls: str) -> dict[str, int]:
+        """#5076: the BMS fields a map repeats (DFHMDF OCCURS=n), by name -> n, read off the screen class's LAYOUT
+        (`new ScreenField(name, ..., occurs, justify)`); a field without OCCURS is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        rows = re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, (\d+), (?:null|"[A-Z,]+")\)\)?[,;]?\s*$', text, re.M)
+        return {name: int(n) for name, n in rows if int(n) > 1}
 
     def screen_justify(self, cls: str) -> dict[str, str]:
         """#5082: a named field's DFHMDF JUSTIFY ("RIGHT", "RIGHT,ZERO", "LEFT,ZERO" ...), read off the screen class's
@@ -1821,16 +1828,29 @@ class Cics:
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
             from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
+            if "PREPEND" in opts and "APPEND" in opts:  # #5005 (X17)
+                raise CicsError(_msg("PUT CONTAINER", "at_most_one", "APPEND", "PREPEND"))
+            tail = ""  # the trailing arguments: FROMCCSID (-1: none), then PREPEND
+            if "PREPEND" in opts:
+                tail = f", {from_ccsid or '-1'}, true"
+            elif from_ccsid:
+                tail = f", {from_ccsid}"
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()}{', ' + from_ccsid if from_ccsid else ''});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{tail});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            if "BYTEOFFSET" in opts:  # #5005 (X17): INTO only, a BIT container, the offset a fullword
+                if not into:
+                    raise CicsError(_requires("GET CONTAINER", "BYTEOFFSET", "INTO"))
+                for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+                    if other in opts:
+                        raise CicsError(_msg("GET CONTAINER", "at_most_one", "BYTEOFFSET", other))
             into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
             convert = _convertst(opts)
             if convert and "INTOCCSID" in opts:
@@ -1850,8 +1870,14 @@ class Cics:
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
-                out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}){conv});"),
+                if "BYTEOFFSET" in opts:
+                    call = (
+                        f"task.getContainerAt({chan}, {name}, DetCics.containerLimit({target}, {most}), "
+                        f"{self.int_(_arg(opts['BYTEOFFSET']))})"
+                    )
+                else:
+                    call = f"task.getContainer({chan}, {name}, DetCics.containerLimit({target}, {most}){conv})"
+                out += [f"{ind}CicsTask.ContainerResult {r} = {call};",
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
@@ -2485,17 +2511,18 @@ class Cics:
             )
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
-    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None) -> str | None:
-        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None."""
+    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None, k: int | None = None) -> str | None:
+        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None. #5076 `k`: occurrence k
+        of a repeated field (ACCOUNTO(3))."""
         for rec in [*([record] if record else []), map_name + "I", map_name + "O"]:
-            found = self._field_or_none(name + suffix, rec)
+            found = self._field_or_none(name + suffix, rec, k)
             if found is not None:
                 return found
         return None
 
-    def _field_or_none(self, name: str, rec: str) -> str | None:
+    def _field_or_none(self, name: str, rec: str, subscript: int | None = None) -> str | None:
         try:
-            return self.g.field_expr(E.Ref(name, [rec]))
+            return self.g.field_expr(E.Ref(name, [rec], [] if subscript is None else [E.Lit(E.NumLit(str(subscript)))]))
         except Exception:
             return None
 
@@ -2559,6 +2586,14 @@ class Cics:
                 f"{ind}if ({lbl} == null) throw abended();",
                 f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
 
+    def screen_slots(self, cls: str) -> list[tuple[str, int | None]]:
+        """#5076: a screen class's fields as (name, occurrence): a repeated field once per occurrence (ACCOUNT, 3), any
+        other once (COMPANY, None)."""
+        repeated = self.gp.screen_occurs(cls)
+        return [
+            (n, k) for n in self.gp.screen_fields(cls) for k in (range(1, repeated[n] + 1) if n in repeated else [None])
+        ]
+
     def no_screen(self, m: str) -> CicsError:
         """Why map `m` has no generated screen, by name (a map of no BMS source we hold)."""
         return CicsError(f"no generated screen for map {m}")
@@ -2576,15 +2611,16 @@ class Cics:
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
         out = [*guard, f"{ind}java.util.Map<String, String> {v} = new java.util.LinkedHashMap<>();",
                f"{ind}CicsTask.MapSubfields {sub} = new CicsTask.MapSubfields();"]  # fmt: skip
-        for name in self.gp.screen_fields(cls):
-            o = self.symbolic(m, "O", name, frm)
+        for name, k in self.screen_slots(cls):  # #5076: a repeated field's every occurrence, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            o = self.symbolic(m, "O", name, frm, k)
             if o is None:
-                raise CicsError(f"map {m}: no {name}O")
-            out.append(f"{ind}{v}.put({G_jstr(name)}, Cobol.text({o}, CS));")
-            parts = [self.symbolic(m, s, name, None) for s in ("L", "A", "C", "H")]
+                raise CicsError(f"map {m}: no {name}O" + ("" if k is None else f"({k})"))
+            out.append(f"{ind}{v}.put({G_jstr(key)}, Cobol.text({o}, CS));")
+            parts = [self.symbolic(m, s, name, None, k) for s in ("L", "A", "C", "H")]
             if parts[1] is None:
-                parts[1] = self.symbolic(m, "F", name, None)
-            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(name)}, "
+                parts[1] = self.symbolic(m, "F", name, None, k)
+            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(key)}, "
                        f"{', '.join(p or 'null' for p in parts)}, CS);")  # fmt: skip
         if opts.get("CURSOR"):
             out.append(f"{ind}{sub}.cursorAt({self.int_(opts['CURSOR'])});")
@@ -2615,16 +2651,17 @@ class Cics:
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
         justify = self.gp.screen_justify(cls)
-        for name in self.gp.screen_fields(cls):
-            i = self.symbolic(m, "I", name, into.name)
-            ln = self.symbolic(m, "L", name, into.name)
+        for name, k in self.screen_slots(cls):  # #5076: every occurrence of a repeated field, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            i = self.symbolic(m, "I", name, into.name, k)
+            ln = self.symbolic(m, "L", name, into.name, k)
             if i is None:
                 continue
-            out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
+            out.append(f"{ind}    if ({vals}.get({G_jstr(key)}) != null) {{")
             # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
             tail = f", {G_jstr(justify[name])}" if name in justify else ""
             call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
-            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(key)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)
@@ -2959,43 +2996,53 @@ class Cics:
 
     def delete_generic(self, opts: dict, ind: str) -> list[str]:
         """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
-        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.delete). KEYLENGTH a known value above
-        zero and shorter than the file's key (IBM's INVREQ RESP2 25 / 42 refused by name: here for a file the port knows,
-        at run time for one named at run time)."""
+        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.deleteGeneric). #5092 (X22), IBM INVREQ
+        RESP2: 42 a KEYLENGTH below zero, 25 one "greater than or equal to the length of a full key" (here when the file is
+        known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
+        undocumented and refused by name."""
         for o in ("KEYLENGTH", "RIDFLD"):
             if not opts.get(o):
                 raise CicsError(_requires("DELETE", "GENERIC", o))
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal
+            n = -int(re.sub(r"\D", "", arg))
         if n is None:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
-        if n <= 0:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        if n == 0:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        g = self.g
+        r = g.tmpname("resp")
+        bad = 42 if n < 0 else None
+        if name is not None and bad is None:
+            mapped = self.gp.file(name)
+            if mapped is None:
+                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
+            if n >= self.gp.entity_key(mapped[1], mapped[2])[1]:
+                bad = 25
+        if bad is not None:  # INVREQ: nothing is read from RIDFLD nor deleted (CicsTask.deleteInvalid)
+            return [
+                f"{ind}int {r} = task.deleteInvalid({file}, true, {bad});",
+                *self.outcome(opts, r, "task.resp2()", ind),
+            ]
         rid = _arg(opts["RIDFLD"])
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        g = self.g
-        r, gk, found = g.tmpname("resp"), g.tmpname("generic"), g.tmpname("found")
+        gk, found = g.tmpname("generic"), g.tmpname("found")
         out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
-        if name is not None:
-            mapped = self.gp.file(name)
-            if mapped is None:
-                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
-            key = self.gp.entity_key(mapped[1], mapped[2])[1]
-            if n >= key:
-                raise CicsError(
-                    f"DELETE GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled"
-                )
-        elif self.gp.files:  # named at run time: the key of the store the name picks then
-            out.append(f'{ind}if ({n} >= {self._runtime_keylength(file)}) throw new UnsupportedOperationException('
-                       f'"DELETE GENERIC KEYLENGTH {n} not shorter than the key of " + {file} + ": not modelled");')  # fmt: skip
-        out += [f"{ind}int {r} = task.delete({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
+        call = [f"task.deleteGeneric({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
                 f"{ind}    java.util.Optional<byte[]> {found};",
                 f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
-                f"{ind}}});"]  # fmt: skip
+                f"{ind}}})"]  # fmt: skip
+        if name is None and self.gp.files:  # named at run time: the key of the store the name picks then
+            out += [f"{ind}int {r};",
+                    f"{ind}if ({n} >= {self._runtime_keylength(file)}) {r} = task.deleteInvalid({file}, true, 25);",
+                    f"{ind}else {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]  # fmt: skip
+        else:
+            out += [f"{ind}int {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
     def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
@@ -3032,7 +3079,16 @@ class Cics:
             file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
             return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
-        self._keylength(verb, opts)
+        if verb == "DELETE":
+            try:
+                self._keylength(verb, opts)
+            except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                r = self.g.tmpname("resp")
+                return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
+                        *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
+        else:
+            self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g

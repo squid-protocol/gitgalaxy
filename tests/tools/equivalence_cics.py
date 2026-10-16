@@ -37,6 +37,7 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_db2
 import equivalence_inputs  # #3804
+import equivalence_mq  # #4892
 import equivalence_oracle
 import equivalence_sql
 
@@ -1574,7 +1575,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if ridfld:  # the record with that key
             keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
             args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
-            mode = "MOVE SPACES TO GG-FLAGS"
+            # #5092 (X22): a given KEYLENGTH is INVREQ 26 unless it is the key's length, as READ's (GG-FLAGS KEYLENGTH)
+            mode = "MOVE 'KEYLENGTH' TO GG-FLAGS" if opts.get("KEYLENGTH") else "MOVE SPACES TO GG-FLAGS"
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
@@ -2106,7 +2108,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC. The container's name in GG-QNAME, the
     channel's in GG-CHAN (GG-FLAGS 'CHANNEL'; none: the current channel), the data type, APPEND and NODATA in
     GG-FLAGS, FLENGTH in GG-LEN (PUT: the bytes FROM gives; GET: the most INTO takes, then the container's length,
-    set back on NORMAL / LENGERR). The CCSID options (code-page conversion), SET (a pointer), BYTEOFFSET and PREPEND
+    set back on NORMAL / LENGERR; BYTEOFFSET: GG-NUM, flag BYTEOFFSET, #5005). The CCSID options (code-page conversion) and SET (a pointer)
     are refused, as det/cics.py refuses them; so is an FLENGTH past FROM / INTO (storage GnuCOBOL lays out unlike
     IBM's compiler)."""
     feature = f"{verb} CONTAINER"
@@ -2137,7 +2139,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
             types.append(m.group(1).upper())
         if len(types) > 1:
             raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
-        flags += types + (["APPEND"] if "APPEND" in opts else [])
+        if "APPEND" in opts and "PREPEND" in opts:  # #5005 (X17)
+            raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "APPEND", "PREPEND"), [feature])
+        flags += types + (["APPEND"] if "APPEND" in opts else []) + (["PREPEND"] if "PREPEND" in opts else [])
         code = _container_ccsid(opts, "FROMCCSID")
         flags += ["FROMCCSID"] if code else []
         return (lines + code + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
@@ -2148,6 +2152,15 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    if "BYTEOFFSET" in opts:  # #5005 (X17): GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
+        if not into:
+            need = next(
+                g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",)
+            )
+            raise Unsupported(need, [feature])
+        for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+            if other in opts:
+                raise Unsupported(_rule("GET CONTAINER", "at_most_one", "BYTEOFFSET", other), [feature])
     if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
         if not settable:
             raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
@@ -2160,6 +2173,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
         return (lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}"] + _container_ccsid_out(opts)
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     flags += ["NODATA"] if nodata else []
+    if "BYTEOFFSET" in opts:  # GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
+        flags.append("BYTEOFFSET")
+        lines.append(f"MOVE {opts['BYTEOFFSET']} TO GG-NUM")
     lines += _container_get_options(opts, flags)
     lines += [
         f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
@@ -2288,6 +2304,16 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         i = j + 1
 
 
+def _numbered(ln: str) -> str:
+    """DFHRESP(x) / DFHVALUE(x) replaced by their numbers in the line's code area only, padded back to column 72 when
+    columns 73-80 hold a sequence number (#4892: CardDemo app-vsam-mq numbers its lines there), so it stays there."""
+    head, tail = ln[:72], ln[72:]
+    new = _DFHVALUE.sub(
+        lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), head)
+    )
+    return (new.ljust(72) if tail and new != head else new) + tail
+
+
 def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
@@ -2341,15 +2367,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         features.append(f"DFHVALUE({name})")
     if problems:
         raise Unsupported("; ".join(problems), features)
-    text = (
-        "\n".join(
-            _DFHVALUE.sub(
-                lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln)
-            )
-            for ln in out
-        )
-        + "\n"
-    )
+    text = "\n".join(_numbered(ln) for ln in out) + "\n"
     # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
     # INQACC-COMMAREA BY DFHCOMMAREA)
     has_commarea = bool(
@@ -2804,6 +2822,9 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
     typed: dict[str, Any] = {}
     width = {f["name"]: f["bytes"] for f in fields}
     for field, text in values.items():
+        if "(" in field:  # #5076: the Java side's typed values are keyed by the BMS name, not by a subscript
+            raise Unsupported(f"RECEIVE MAP: {field} -- typing into one occurrence of a repeated field is not "
+                              "modelled", ["BMS OCCURS input"])  # fmt: skip
         placed = (
             justified(text, width[field], justify[field]) if justify and field in justify and field in width else text
         )
@@ -2983,7 +3004,23 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
-_CICS_NAME = re.compile(r"[^ ]{1,16}")
+# #4950 (X18): the characters IBM's PUT CONTAINER page allows in a channel / container name ("A-Z a-z 0-9 $ @ # / % ?
+# ! : | " = , ; > . - and _"). RUN TRANSID's page also lists & < and the not sign, PUT CONTAINER's does not: the pages
+# disagree, so the harness refuses them, as both runtimes do (ggcics.c, the forge's NAME_CHARS)
+_CICS_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + '$@#/%?!:|"=,;>.-_'
+
+
+def _cics_name_problem(name: Any) -> str | None:
+    """Why `name` is not a channel / container name the harness hands both runtimes, or None when it is."""
+    if not isinstance(name, str) or not 1 <= len(name) <= 16:
+        return "a name of 1 to 16 characters"
+    for ch in name:
+        if ch in "&<\u00ac":
+            return (f"character {ch!r}: IBM's RUN TRANSID page allows it, its PUT CONTAINER page does not "
+                    "(the pages disagree, so it is refused)")  # fmt: skip
+        if ch not in _CICS_NAME_CHARS:
+            return f"character {ch!r}, outside IBM's set (A-Z a-z 0-9 $ @ # / % ? ! : | \" = , ; > . - _; no blank)"
+    return None
 
 
 def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
@@ -2996,13 +3033,18 @@ def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]
     if ch is None:
         return None
     where = f"scenario {sc['name']}: channel"
-    if not isinstance(ch, dict) or not _CICS_NAME.fullmatch(str(ch.get("name", ""))):
-        raise Unsupported(f"{where}: a name of 1 to 16 characters with no blank", ["CHANNEL"])
+    if not isinstance(ch, dict):
+        raise Unsupported(f"{where}: an object with a name", ["CHANNEL"])
+    problem = _cics_name_problem(ch.get("name", ""))
+    if problem:
+        raise Unsupported(f"{where} name {ch.get('name')!r}: {problem}", ["CHANNEL"])
     out = []
     for name, spec in (ch.get("containers") or {}).items():
-        if not _CICS_NAME.fullmatch(name) or not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
-            raise Unsupported(f"{where} container {name!r}: a name of 1 to 16 characters and one of text / hex",
-                              ["CHANNEL"])  # fmt: skip
+        problem = _cics_name_problem(name)
+        if problem:
+            raise Unsupported(f"{where} container {name!r}: {problem}", ["CHANNEL"])
+        if not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
+            raise Unsupported(f"{where} container {name!r}: one of text / hex", ["CHANNEL"])
         if spec.get("datatype", "BIT") not in ("BIT", "CHAR"):
             raise Unsupported(f"{where} container {name}: datatype BIT or CHAR", ["CHANNEL"])
         data = spec["text"].encode(common.data_encoding(case)) if "text" in spec else bytes.fromhex(spec["hex"])
@@ -3097,15 +3139,23 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 
 
 def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, Any]]:
-    """A symbolic map's layout (one side's record), as a screen is compared: each field once. #4778: a map whose
-    fields repeat (BMS OCCURS=, an OCCURS in its symbolic map) is refused by name -- a screen's fields are compared
-    by their single-occurrence layout, which would read only the first of them -- until the screen compare names
-    every occurrence, as a COMMAREA's (#4765) does. No case's map has one yet; test_call_compare_4778 keeps it so."""
-    fields = common.layout_fields(corpus, copybook, record)
-    if any(f.get("subscripts") for f in common.layout_fields(corpus, copybook, record, occurrences=True)):
-        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS -- its repeated fields would be compared "
-                          "at their first occurrence only", ["BMS OCCURS"])  # fmt: skip
+    """A symbolic map's layout (one side's record), as a screen is compared: every occurrence of a repeated field
+    (BMS OCCURS=, an OCCURS in its symbolic map) is a field of its own, named by its subscript (ACCOUNTO(3)), as a
+    COMMAREA's (#4765) is -- a compare that read only the first would call a differing second occurrence equal
+    (#4778, #5076). `screen_key` gives each its screen name. An OCCURS DEPENDING ON in a map is refused by name: a
+    generated symbolic map has none, and which occurrences a screen holds would be a guess."""
+    fields = common.layout_fields(corpus, copybook, record, occurrences=True)
+    if any(f.get("odo") for f in fields):
+        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS DEPENDING ON -- which occurrences the "
+                          "screen holds is not stated", ["BMS OCCURS DEPENDING ON"])  # fmt: skip
     return fields
+
+
+def screen_key(f: dict[str, Any]) -> tuple[str, str]:
+    """(screen name, kind letter) of a symbolic-map field: ACCOUNTO(3) -> ("ACCOUNT.3", "O"), COMPANYO -> ("COMPANY",
+    "O"). The name is the BMS field's, the occurrence after a dot, as the generated screen's screenValues() keys it."""
+    base = f.get("base") or f["name"]
+    return base[:-1] + "".join(f".{k}" for k in f.get("subscripts") or []), base[-1:]
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
@@ -3390,6 +3440,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    if equivalence_mq.MQ_CALL.search(source):  # #4892 (register W): the MQ model, and the stand-ins the estate lacks
+        shutil.copy(equivalence_mq.MODEL, src / equivalence_mq.MODEL.name)
+        subs.append(f"src/{equivalence_mq.MODEL.name}")
+        for name in equivalence_mq.STAND_INS:
+            if not (src / f"{name}.cpy").exists():
+                shutil.copy(DET_COPY / f"{name}.cpy", src / f"{name}.cpy")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
     # the program is; a LINK to any other is refused after the run (NOPROGRAM, below)
     linked: dict[str, bool] = {}
@@ -3499,6 +3555,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
+        for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
+            (d / f"retrieve_{i:03d}.bin").write_bytes(data)
+        if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
+            (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -3919,7 +3979,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
-            res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")},
+            keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
+            res["screens"].append({"map": kv["map"],
+                                   "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
                                    "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
@@ -3959,9 +4021,12 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
                 res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
             res.setdefault("retrieves", []).append(_cobol_retrieve(kv, data, enc))
+        elif verb in equivalence_mq.EVENTS:  # #4892: an MQI call, as QueueManager records it
+            res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
+    res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
@@ -3990,10 +4055,10 @@ def map_subfields(
     scr = case["screens"][map_name]
     layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
                for side in ("input", "output")]  # fmt: skip
-    data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
+    data_names = {screen_key(f)[0] for f in layouts[1] if screen_key(f)[1] == "O"}
     space = " ".encode(enc)
     for f in (x for layout in layouts for x in layout):
-        name, kind = f["name"][:-1], f["name"][-1:]
+        name, kind = screen_key(f)  # #5076: ACCOUNT.3 for ACCOUNTA(3)
         if name not in data_names or f["offset"] + f["bytes"] > len(data):
             continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
@@ -4701,6 +4766,26 @@ class EquivalenceRunTest {{
 
     /** #4173: the task's SQL fault plan, through the det runtime's DetSql (its statements' executions counted
      *  afresh): false when a fault is planned and the port has no DetSql to take it (the task is then not run). */
+    /** #4892: the task's queue manager (cobolrt.cics.DetMq, the stub's ggmq.c), from the scenario's mq.cfg. */
+    static void mqAttach(CicsTask task, Path cfg) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("attach", CicsTask.class, Path.class).invoke(null, task, cfg);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a queue manager for a port with no cobolrt.mq", e);
+        }}
+    }}
+
+    /** #4892: the queues the task left (null: it had no queue manager), its normal end committing it. */
+    static Object mqEnd(CicsTask task) {{
+        try {{
+            return Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("end", CicsTask.class).invoke(null, task);
+        }} catch (ClassNotFoundException e) {{
+            return null;
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+    }}
+
     static boolean sqlFaultPlan(List<String> plan, Path log) {{
         try {{
             Class.forName("{pkg}.cobolrt.sql.DetSql").getMethod("withFaults", List.class, Path.class)
@@ -4750,6 +4835,14 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
+                List<byte[]> started = new ArrayList<>();
+                sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
+                task.withRetrieveData(started);
+            }}
+            if (sc.hasNonNull("mq")) {{  // #4892 (W): the queue manager its MQI calls reach, as the stub's mq.cfg
+                mqAttach(task, in.resolve(sc.get("mq").asText()));
+            }}
             if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
                 java.util.List<String[]> defs = new java.util.ArrayList<>();
                 sc.get("urimaps").forEach(u -> defs.add(new String[] {{u.get(0).asText(), u.get(1).asText(),
@@ -4887,6 +4980,13 @@ class EquivalenceRunTest {{
                 Map<String, String> data = new LinkedHashMap<>();
                 task.currentChannel().containers().forEach((k, v) -> data.put(k, java.util.HexFormat.of().withUpperCase().formatHex(v)));
                 left.put("containers", data);
+                events.add(left);
+            }}
+            Object mqLeft = sc.hasNonNull("mq") ? mqEnd(task) : null;
+            if (mqLeft != null) {{  // #4892: the queues the task left, as the stub's mq.out
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "MQ-QUEUES");
+                left.put("queues", mqLeft);
                 events.add(left);
             }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
@@ -5062,7 +5162,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc)})  # fmt: skip
+                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
+                          **_java_mq(case, sc, inputs, len(scenarios))})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -5088,6 +5189,22 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             if why.is_file():
                 facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
     return result
+
+
+def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
+    """#4892: the scenario's start data (hex, in the region's page: CicsTask.withRetrieveData, as the stub's
+    retrieve_NNN.bin) and its queue manager's mq.cfg (the stub's very file, under the runner's inputs); none: no key."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    enc, out = common.data_encoding(case), {}
+    data = equivalence_mq.start_data(case, sc, enc)
+    if data:
+        out["start_data"] = [d.decode(enc).encode(REGION_PAGE).hex().upper() for d in data]
+    st = equivalence_mq.state(case, sc)
+    if st is not None:
+        (inputs / f"mq_{n}.cfg").write_text(equivalence_mq.cfg(st, enc), encoding="ascii")
+        out["mq"] = f"mq_{n}.cfg"
+    return out
 
 
 def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
@@ -5367,6 +5484,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     starts = iter(res.get("starts", []))  # #4270: START
     retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
+    mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
@@ -5405,6 +5523,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "START", **next(starts)})
         elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
             out.append({"event": "RETRIEVE", **next(retrieves)})
+        elif verb in equivalence_mq.EVENTS:  # #4892
+            out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -5468,6 +5588,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
                         "events": cobol_events(next(children))})  # fmt: skip
     if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
         out.append({"event": "CONTAINERS", **res["containers"]})
+    if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
+        out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
@@ -5551,6 +5673,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] in (*equivalence_mq.EVENTS, "MQ-QUEUES"):  # #4892: the MQI call's outcome, the queues left
+            bad += equivalence_mq.compare(c, j)
         if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
             if c.get("channel") != j.get("channel"):
                 bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})
@@ -5895,6 +6019,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     import json
 
     import equivalence_cache
+
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
     ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)

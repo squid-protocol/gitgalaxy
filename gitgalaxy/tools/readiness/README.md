@@ -110,6 +110,7 @@ statements resolve:
 - **`earliest`**: the oldest period-bound tell (`PERIOD_BOUND`).
 - **`mixed`**: `True` when `earliest < era`—identifying layered legacy code (for example, an Era 1 `HANDLE CONDITION` program modified in Era 2 with `RESP` and `EXEC SQL`, or in Era 4 with `EXEC CICS WEB`).
 - **`program_era` & `via_copybook`**: recorded whenever a copybook raises a program's era above what its own source text shows.
+- **`copybook_skipped`**: the reason code on a tag whose copybook pass was refused or cut short (#5195); a tell in a copybook may be missing from that tag.
 
 ---
 

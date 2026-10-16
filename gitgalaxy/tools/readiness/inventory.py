@@ -18,6 +18,7 @@ report as it stands. tests/tools/feature_inventory.py writes the burned estates'
 """
 
 import dataclasses
+import functools
 import re
 import sys
 from collections import defaultdict
@@ -33,7 +34,7 @@ from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import source as S
 from gitgalaxy.tools.cobol_to_java.det import stmt as ST
-from gitgalaxy.tools.readiness.era_tags import summarise, tag_program
+from gitgalaxy.tools.readiness.era_tags import asm_members, mark_skipped, summarise, tag_program
 
 REPO = Path(__file__).resolve().parents[3]  # a checkout's root: `_portable` strips it from a reason
 COPY_EXTS = {".cpy", ".copy", ".cbl", ".cob", ""}  # tests/tools/det_survey.py's
@@ -213,14 +214,50 @@ def _tag_with_copybooks(prog: Path, estate_dir: Path, rel_prog: str, lines: list
     members = {Path(ln.file).resolve() for ln in lines} - {prog.resolve()}
     root = estate_dir.resolve()
     books: dict[str, str] = {}
+    unreadable = False
     for m in sorted(members):
         name = m.relative_to(root).as_posix() if m.is_relative_to(root) else m.name  # (engine copies: by name)
         try:
             books[name] = read_source(m).text
-        except Exception:  # noqa: S112 -- an unreadable member adds no tell; the program's own tag stands
-            continue
+        except Exception:  # an unreadable member adds no tell; the program's own tag stands, marked (#5195)
+            unreadable = True
     if books:
         inv["eras"][rel_prog] = tag_program(read_source(prog).text, books)
+    if unreadable:
+        inv["eras"][rel_prog] = mark_skipped(inv["eras"][rel_prog], "UnreadableCopybook")
+
+
+def _skipped(inv, rel_prog: str, reason: str) -> None:
+    """#5195: the program's COPY expansion was refused, so its tag could not read the copybooks: say so on the tag."""
+    if rel_prog in inv["eras"]:
+        inv["eras"][rel_prog] = mark_skipped(inv["eras"][rel_prog], reason)
+
+
+def _asm_member_finder(estate_dir: Path):
+    """name -> (estate-relative path, text) of the assembler / copy member of that name (case-insensitive, any of the
+    assembler suffixes, `.cpy` / `.copy` / `.inc` or none), the first in path order; None if the estate has none."""
+    index: dict[str, Path] = {}
+    suffixes = ML.ASSEMBLER_SUFFIXES | {".cpy", ".copy", ".inc", ""}
+    for p in sorted(estate_dir.rglob("*")):
+        if p.is_file() and p.suffix.lower() in suffixes and ".git" not in p.parts:
+            index.setdefault(p.stem.upper() if p.suffix else p.name.upper(), p)
+
+    def find(name: str):
+        p = index.get(name.upper())
+        if p is None:
+            return None
+        try:
+            return p.relative_to(estate_dir).as_posix(), read_source(p).text
+        except Exception:
+            return None
+
+    return find
+
+
+def _member_but(find, rel: str, name: str):
+    """`find(name)` except the member being read: it never expands itself."""
+    found = find(name)
+    return None if found is None or found[0] == rel else found
 
 
 def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_copy_dirs: list[Path]):
@@ -249,6 +286,7 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
         lines = S.program_lines(prog, estate_copy_dirs, engine_copies)
         _tag_with_copybooks(prog, estate_dir, rel_prog, lines, inv)
     except S.MacroLevelCics as e:  # #5121: refused by name, before COPY expansion; not parsed as COBOL with holes
+        _skipped(inv, rel_prog, "MacroLevelCics")
         for m in re.finditer(r"(macro-level CICS|CICS Assembler) not supported", str(e)):
             count_refusal_family(inv, m.group(1), rel_prog)
         inv["unparsed_programs"].append(
@@ -256,11 +294,13 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
         )
         return
     except S.CopyNotFound as e:
+        _skipped(inv, rel_prog, "CopyNotFound")
         count_item(inv, "copybook_resolution_gaps", _copy_not_found(e), rel_prog)
         inv["unparsed_programs"].append({"program": rel_prog, "reason": f"CopyNotFound: {_copy_not_found(e)}"})
         fallback_parse(prog, rel_prog, inv)
         return
     except Exception as e:  # e.g. NotCobol (an ISPF screen dump saved as .cbl): unparsed, but already era-tagged above
+        _skipped(inv, rel_prog, type(e).__name__)
         inv["unparsed_programs"].append(
             {"program": rel_prog, "reason": type(e).__name__ + " - " + _portable(str(e), estate_dir)}
         )
@@ -356,6 +396,7 @@ def scan_estate(
         inv[cat]["unknown"] = {"count": 0, "programs": set()}
     inv["unparsed_programs"] = []
     inv["eras"] = {}
+    inv["asm_eras"] = {}
 
     print(f"Scanning estate: {estate_dir.name}", file=sys.stderr)
     db_path = scan(estate_dir, db_dir)
@@ -372,15 +413,25 @@ def scan_estate(
     )
 
     # #5121: assembler members (CICS Assembler, macro-level CICS); a macro TABLE source (DFHFCT ...) has no hit
+    find_member = _asm_member_finder(estate_dir)
     for asm in sorted(
         p
         for p in estate_dir.rglob("*")
         if p.is_file() and p.suffix.lower() in ML.ASSEMBLER_SUFFIXES and ".git" not in p.parts
     ):
+        rel_asm = str(asm.relative_to(estate_dir)).replace("\\", "/")
         try:
-            hits = ML.assembler_hits(read_source(asm).text.splitlines())
+            asm_text = read_source(asm).text
+            hits = ML.assembler_hits(asm_text.splitlines())
         except Exception:  # noqa: S112 -- an unreadable member has no hit
             continue
+        # #5195: era-tag the member with the COPY / macro members it pulls in (nested too); a refused expansion is marked
+        books, skip = asm_members(asm_text, functools.partial(_member_but, find_member, rel_asm))
+        tag = tag_program(asm_text, books, asm=True)
+        if skip:
+            tag = mark_skipped(tag, skip)
+        if tag["tells"] or skip:  # a member with nothing to say adds no row to the estate's tags
+            inv["asm_eras"][rel_asm] = tag
         for family in ML.families(hits):
             count_refusal_family(inv, family, str(asm.relative_to(estate_dir)).replace("\\", "/"))
 
@@ -396,7 +447,7 @@ def scan_estate(
     # Convert sets to sorted lists, sort dict keys
     out: dict[str, Any] = {}
     for cat in sorted(inv.keys()):
-        if cat in ("unparsed_programs", "eras"):
+        if cat in ("unparsed_programs", "eras", "asm_eras"):
             continue
         out[cat] = {}
         for k in sorted(inv[cat].keys()):
@@ -405,5 +456,7 @@ def scan_estate(
 
     tags = {p: inv["eras"][p] for p in sorted(inv["eras"])}
     out["eras"] = {"programs": tags, "summary": summarise(tags)}
+    if inv["asm_eras"]:  # present only when the estate has assembler members (#5195)
+        out["eras"]["assembler"] = {p: inv["asm_eras"][p] for p in sorted(inv["asm_eras"])}
     out["unparsed_programs"] = sorted(inv["unparsed_programs"], key=lambda x: x["program"])
     return out

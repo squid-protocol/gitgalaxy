@@ -280,6 +280,8 @@ public class CicsTask {
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private final Map<String, Object> resources = new HashMap<>();  // #4892: resource managers joined (the root's)
+    private final List<Consumer<Boolean>> uowParticipants = new ArrayList<>();  // #4892: told as its unit of work ends
     private int children;                                   // #4270: the RUN TRANSID children it attached
     private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
     private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
@@ -2245,6 +2247,33 @@ public class CicsTask {
         }
     }
 
+    /** #4892 (register W5): a resource manager the runner joins to the task -- cobolrt.mq's queue manager ("mq") --
+     *  found again by resource(name), and told as the task's unit of work ends: SYNCPOINT (false); SYNCPOINT ROLLBACK
+     *  and the backout of an abend that ends the task (true), as the stub's uow_end tells tests/equivalence/mq/ggmq.c. */
+    public CicsTask withResource(String name, Object manager, Consumer<Boolean> uowEnd) {
+        root().resources.put(name, manager);
+        if (uowEnd != null) {
+            root().uowParticipants.add(uowEnd);
+        }
+        return this;
+    }
+
+    /** #4892: the resource manager joined under `name`, or null. */
+    public Object resource(String name) {
+        return root().resources.get(name);
+    }
+
+    /** #4892: an event a resource manager records in the task's stream (an MQI call, as ggmq.c's ggcics_event). */
+    public void resourceEvent(String kind, Object... kv) {
+        event(kind, kv);
+    }
+
+    private void resourceUowEnd(boolean rollback) {
+        for (Consumer<Boolean> p : root().uowParticipants) {
+            p.accept(rollback);
+        }
+    }
+
     /** The unit of work ends (#5168): committed, or backed out. */
     private void tdUowEnd(boolean rollback) {
         CicsTask root = root();
@@ -3716,6 +3745,14 @@ public class CicsTask {
      *  container is converted to the container's ("converted (if required)"). BIT with FROMCCSID is INVREQ RESP2 34. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append, int fromCcsid) {
+        return putContainer(channel, container, data, flength, type, append, fromCcsid, false);
+    }
+
+    /** #5005 (X17): PUT CONTAINER ... PREPEND (`prepend`; IBM "6.2 and later"): "the data passed to the container is prepended
+     *  to the existing data in the container". On a new container it is the data alone. BIT containers only: IBM counts a CHAR
+     *  container's data in its code page, so PREPEND with CHAR, FROMCCSID or onto a CHAR container is refused. */
+    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
+                                        boolean append, int fromCcsid, boolean prepend) {
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -3775,6 +3812,9 @@ public class CicsTask {
             throw refused("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
         }
         boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
+        if (prepend && (chars || (c != null && !c.bit))) {
+            throw refused("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
+        }
         if (c == null) {
             ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));
             ch.shape++;
@@ -3782,7 +3822,11 @@ public class CicsTask {
         }
         byte[] put = c.bit ? data : convertContainer(data, fromCcsid >= 0 ? fromCcsid : REGION_CCSID, c.ccsid,
                 "PUT CONTAINER");
-        if (append) {
+        if (prepend) {
+            byte[] joined = Arrays.copyOf(put, put.length + c.data.length);
+            System.arraycopy(c.data, 0, joined, put.length, c.data.length);
+            c.data = joined;
+        } else if (append) {
             byte[] joined = Arrays.copyOf(c.data, c.data.length + put.length);
             System.arraycopy(put, 0, joined, c.data.length, put.length);
             c.data = joined;
@@ -3869,6 +3913,40 @@ public class CicsTask {
             return new ContainerResult("LENGERR", 11, data.length, Arrays.copyOf(data, maxLength));
         }
         return new ContainerResult("NORMAL", 0, data.length, data.clone());
+    }
+
+    /** #5005 (X17): GET CONTAINER ... INTO FLENGTH BYTEOFFSET(offset) (IBM, EXEC CICS GET CONTAINER (CHANNEL)): "The data
+     *  returned begins at the offset"; "If the value specified is less than zero, zero is assumed"; "The maximum length returned is
+     *  equal to the length of the data in the container minus the BYTEOFFSET value", and FLENGTH is set to "the length of the data
+     *  returned". An offset "greater than, or equal to, the length of the container" is LENGERR RESP2 12 (FLENGTH and INTO left
+     *  alone: ASSUMED, IBM states FLENGTH per option, not per condition). Refused: a CHAR container (IBM counts the offset in the
+     *  requested code page) and an FLENGTH below the data left (LENGERR RESP2 11, and whether FLENGTH then holds the length
+     *  returned or the container's is not said). On NORMAL the result's length is the length returned. */
+    public ContainerResult getContainerAt(String channel, String container, int maxLength, int byteOffset) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        if (ch == null) {
+            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+                    : new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        Container c = ch.containers.get(name);
+        if (c == null) {
+            return new ContainerResult("CONTAINERERR", 10, -1, null);
+        }
+        lastContainerCcsid = c.bit ? 0 : c.ccsid;
+        if (!c.bit) {
+            throw refused("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
+        }
+        int at = Math.max(byteOffset, 0);
+        if (at >= c.data.length) {
+            return new ContainerResult("LENGERR", 12, -1, null);
+        }
+        int left = c.data.length - at;
+        if (left > maxLength) {
+            throw refused("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length "
+                    + "returned or the container's is not documented");
+        }
+        return new ContainerResult("NORMAL", 0, left, Arrays.copyOfRange(c.data, at, c.data.length));
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
@@ -4715,6 +4793,37 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): IBM, EXEC CICS DELETE: INVREQ RESP2 21, a file that refers to a VSAM ESDS
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
+     *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
+    public int deleteGeneric(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 22);
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ (#5092, X22): `resp2` 25 / 42 (a GENERIC KEYLENGTH
+     *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
+     *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
+    public int deleteInvalid(String file, boolean generic, int resp2) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        return done(16, root().esds.containsKey(file) ? (generic ? 22 : 21) : resp2);
+    }
+
+    private int deleteRecord(String file, boolean exists, Runnable remove) {
         if (!exists) {
             return done(13, 80);
         }
@@ -4728,6 +4837,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         if (!root().held.remove(file)) {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
@@ -4783,6 +4895,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         Object[] t = spendToken(file, token);
         if (t == null) {
@@ -5147,6 +5262,7 @@ public class CicsTask {
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         tdUowEnd(false);  // #5168
+        resourceUowEnd(false);  // #4892
         event("SYNCPOINT");
     }
 
@@ -5163,6 +5279,7 @@ public class CicsTask {
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         tdUowEnd(true);  // #5168
+        resourceUowEnd(true);  // #4892
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -5949,6 +6066,7 @@ public class CicsTask {
                 root().rollbackHook.run();
             }
             tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
+            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"

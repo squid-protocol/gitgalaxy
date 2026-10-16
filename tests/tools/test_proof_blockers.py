@@ -544,3 +544,26 @@ def test_a_fresh_entry_with_linked_counts_is_still_a_current_reading(monkeypatch
     monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": ["harness"],
                         "blocking": True, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
     assert pb.ledger_linked(["c"]) == {}
+
+
+def test_fact_keywords_in_a_continued_literal_or_inline_comment_are_no_read():
+    """#5089: the whole class of text that names a fact without reading it, for every fact keyword -- a literal
+    continued onto the next line (column-7 hyphen) and a `*>` floating comment tail -- against the real reads."""
+    cont = "      -    'END-EXEC' TO X."
+    for src in (
+        fixed("    MOVE 'EXEC CICS ASSIGN USERID(U) APPLID(A)", cont),
+        fixed('    MOVE "EIBFN EIBRCODE EIBERR', '      -    "TAIL" TO X.'),
+        fixed("    MOVE 1 TO X *> EXEC CICS ASSIGN STARTCODE(S) END-EXEC", "    MOVE 2 TO Y *> uses EIBFN"),
+    ):
+        assert pb.facts_needed(src) == {"eib": set(), "assign_task": set(), "assign_region": set()}, src
+    # a `*>` inside a literal is text, and code after a closed continued literal is still read
+    real = fixed(
+        "    MOVE 'A *> B' TO X EIBFN.",
+        "    MOVE 'EXEC CICS ASSIGN APPLID(A)",
+        cont,
+        "    EXEC CICS ASSIGN USERID(U) END-EXEC.",
+    )
+    got = pb.facts_needed(real)
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and not got["assign_region"]
+    # length-preserving: the line structure the command scan relies on is unchanged
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]

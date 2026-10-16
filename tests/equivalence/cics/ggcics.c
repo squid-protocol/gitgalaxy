@@ -156,6 +156,9 @@ static void event(const char *line, const char *data, int len) {
     }
 }
 
+/* #4892: an event of a model linked beside the stub (ggmq.c's MQI calls), in the task's own stream. */
+void ggcics_event(const char *line, const char *data, int len) { event(line, data, len); }
+
 /* ---- the task's inputs ------------------------------------------------------------ */
 int GGCLOAD(char *area, int maxlen) {
     char path[4096];
@@ -557,12 +560,15 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
  * A weak no-op DEFINITION, which ggsql.c's strong one overrides at link time. (A weak undefined REFERENCE checked
  * against NULL links on ELF but not on macOS, whose linker still requires it to resolve.) */
 __attribute__((weak)) void ggsql_uow_end(int rollback) { (void)rollback; }
+/* #4892 (W5): and the MQ model's (tests/equivalence/mq/ggmq.c), when a program CALLs MQI: the same weak default. */
+__attribute__((weak)) void ggmq_uow_end(int rollback) { (void)rollback; }
 
 static void td_uow_end(int rollback); /* #5168 */
 
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
     ggsql_uow_end(rollback);
+    ggmq_uow_end(rollback);
     td_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
@@ -1033,8 +1039,10 @@ int GGCENBR(gg_cics *c) {
 
 /* DELETE FILE(name1) [RIDFLD]: the record with that key, or (no RIDFLD: GG-FLAGS 'HELD') the one a READ UPDATE
  * holds -- INVREQ when none is held; NOTFND when the key is not there. #4771: GG-FLAGS 'GENERIC', every record whose key
- * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none; a KEYLENGTH not shorter than the key, or not above
- * zero, refused: IBM's INVREQ 25 / 42, X22). */
+ * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none). #5092 (X22), IBM, EXEC CICS DELETE, INVREQ RESP2:
+ * 21 a DELETE of an ESDS, 22 a generic one of a non-KSDS (an ESDS here), 25 a GENERIC KEYLENGTH "greater than or equal to the
+ * length of a full key", 42 one below zero, 26 a KEYLENGTH without GENERIC (GG-FLAGS 'KEYLENGTH') that is not the key's
+ * length. Nothing is deleted or released. A GENERIC KEYLENGTH of zero is undocumented and stops the run. */
 int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -1048,13 +1056,28 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    keyed_on_esds("DELETE", want);
+    int generic = strstr(c->flags, "GENERIC") != NULL;
+    if (is_esds(want)) {  /* #5092: IBM INVREQ 21 (ESDS), 22 (generic delete of a non-KSDS); the key is not logged: an ESDS has none */
+        c->resp = INVREQ;
+        c->resp2 = generic ? 22 : 21;
+        file_event("DELETE", want, ridfld, 0, c->resp);
+        return 0;
+    }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    if (strstr(c->flags, "GENERIC") && (keylen <= 0 || keylen >= klen)) refuse("DELETE GENERIC KEYLENGTH");
+    int bad = 0;
+    if (generic) bad = keylen < 0 ? 42 : keylen >= klen ? 25 : 0;
+    else if (!by_hold && strstr(c->flags, "KEYLENGTH") && keylen != klen) bad = 26;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        file_event("DELETE", want, ridfld, 0, c->resp);  /* the key is not logged: KEYLENGTH may exceed RIDFLD */
+        return 0;
+    }
+    if (generic && keylen == 0) refuse("DELETE GENERIC KEYLENGTH not above zero (zero is undocumented)");
     char key[256];
     memset(key, 0, sizeof key);
     int s = -1;
@@ -2703,6 +2726,8 @@ int GGCPUTC(gg_cics *c, char *from) {
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
     if (k && k->bit && from_ccsid >= 0) refuse("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
     chr = chr || from_ccsid >= 0;
+    int prepend = strstr(flags, "PREPEND") != NULL; /* #5005 (X17): BIT containers only */
+    if (prepend && (chr || (k && !k->bit))) refuse("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
     int fresh = k == NULL;
     if (!k) {
         k = container_named(&chans[ch - 1], name, 1);
@@ -2713,7 +2738,16 @@ int GGCPUTC(gg_cics *c, char *from) {
     if (!put) refuse("out of memory");
     memcpy(put, from, (size_t)c->len);
     if (!fresh && !k->bit) ccsid_convert(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER");
-    if (strstr(flags, "APPEND")) {
+    if (prepend && !fresh) {
+        char *joined = malloc((size_t)(k->len + c->len) + 1);
+        if (!joined) refuse("out of memory");
+        memcpy(joined, put, (size_t)c->len);
+        if (k->len > 0) memcpy(joined + c->len, k->data, (size_t)k->len);
+        free(k->data);
+        free(put);
+        k->data = joined;
+        k->len += c->len;
+    } else if (strstr(flags, "APPEND")) {
         char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
         if (!joined) refuse("out of memory");
         memcpy(joined + k->len, put, (size_t)c->len);
@@ -2728,7 +2762,7 @@ int GGCPUTC(gg_cics *c, char *from) {
     return 0;
 }
 
-/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH | NODATA (GG-FLAGS); GG-LEN in: the most INTO
+/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH [BYTEOFFSET: GG-NUM] | NODATA (GG-FLAGS); GG-LEN in: the most INTO
  * takes; out: the container's length (NORMAL, LENGERR; else left as it came). CHANNELERR RESP2 2,
  * INVREQ RESP2 4, CONTAINERERR RESP2 10; longer data truncated, LENGERR RESP2 11. */
 int GGCGETC(gg_cics *c, char *into) {
@@ -2752,6 +2786,18 @@ int GGCGETC(gg_cics *c, char *into) {
         }
         c->num = 0;
         c->resp = CCSIDERR; c->resp2 = 3;
+        return 0;
+    }
+    if (strstr(flags, "BYTEOFFSET")) {
+        /* #5005 (X17), as CicsTask.getContainerAt: from the offset (below zero: zero); at or past the end LENGERR RESP2 12 with
+         * FLENGTH and INTO left alone (ASSUMED); FLENGTH set to the length returned */
+        if (!k->bit) refuse("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
+        if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+        int at = c->num < 0 ? 0 : c->num, left = k->len - at;
+        if (at >= k->len) { c->resp = LENGERR; c->resp2 = 12; return 0; }
+        if (left > c->len) refuse("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length returned or the container's is not documented");
+        memcpy(into, k->data + at, (size_t)left);
+        c->len = left;
         return 0;
     }
     char *conv = malloc((size_t)k->len + 1);

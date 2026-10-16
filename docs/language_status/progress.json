@@ -1,5 +1,5 @@
 {
- "commit": "c768ed5c5",
+ "commit": "00243bc9a",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -24,6 +24,70 @@
    "unlisted_or_unparsed": 7
   },
   "cobolrt_rules": {
+   "families": {
+    "CBL": {
+     "ASSUMED": 3,
+     "DIFFERS": 13,
+     "MATCHED": 25,
+     "REFUSED": 2
+    },
+    "CICS": {
+     "ASSUMED": 18,
+     "MATCHED": 7,
+     "REFUSED": 2
+    },
+    "DATA": {
+     "ASSUMED": 1,
+     "MATCHED": 4
+    },
+    "DLI": {
+     "ASSUMED": 8,
+     "DIFFERS": 1
+    },
+    "EDIT": {
+     "DIFFERS": 1,
+     "MATCHED": 4
+    },
+    "FILE": {
+     "ASSUMED": 2,
+     "REFUSED": 1
+    },
+    "FUNC": {
+     "ASSUMED": 3,
+     "DIFFERS": 2,
+     "MATCHED": 6
+    },
+    "HFP": {
+     "ASSUMED": 3,
+     "DIFFERS": 1,
+     "MATCHED": 7,
+     "REFUSED": 1
+    },
+    "LE": {
+     "ASSUMED": 4,
+     "MATCHED": 9
+    },
+    "MQ": {
+     "ASSUMED": 6,
+     "REFUSED": 1
+    },
+    "NUM": {
+     "DIFFERS": 5,
+     "MATCHED": 4,
+     "REFUSED": 3
+    },
+    "SORT": {
+     "MATCHED": 5,
+     "REFUSED": 1
+    },
+    "SQL": {
+     "ASSUMED": 2,
+     "MATCHED": 8
+    },
+    "SYS": {
+     "MATCHED": 2
+    }
+   },
    "measured_on_zos": 0,
    "rules": 165,
    "status": {
@@ -92,7 +156,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-16T21:16:00Z",
+  "as_of": "2026-10-16T21:21:59Z",
   "core": {
    "closed": 111,
    "open": 35,
@@ -109,6 +173,13 @@
    "open": 23,
    "total": 91
   },
+  "epics": {
+   "4890": "open",
+   "4891": "open",
+   "4892": "open",
+   "4893": "open",
+   "4894": "open"
+  },
   "eta": "82 days",
   "frontier": {
    "closed": 100,
@@ -123,15 +194,223 @@
    "total": 43
   },
   "infra": {
-   "closed": 174,
-   "open": 50,
+   "closed": 175,
+   "open": 49,
    "total": 224
   },
   "measured": true,
+  "milestones": [
+   {
+    "closed": 13,
+    "number": 1,
+    "open": 0,
+    "title": "v2.3.1 \u00b7 Respawn \ud83e\ude79 \u2014 Data Integrity & Security Hotfix",
+    "total": 13
+   },
+   {
+    "closed": 26,
+    "number": 2,
+    "open": 0,
+    "title": "v2.4.0 \u00b7 Multiplayer Mode \ud83c\udfae \u2014 Native on the Big Four VCS Platforms",
+    "total": 26
+   },
+   {
+    "closed": 68,
+    "number": 4,
+    "open": 0,
+    "title": "v2.5.0 \u00b7 Precision Strike \u2694\ufe0f \u2014 AppSec & Keyword Co-occurrence",
+    "total": 68
+   },
+   {
+    "closed": 3,
+    "number": 5,
+    "open": 9,
+    "title": "The Aerospace Expansion",
+    "total": 12
+   },
+   {
+    "closed": 32,
+    "number": 6,
+    "open": 20,
+    "title": "Side Quests \ud83d\uddfa\ufe0f",
+    "total": 52
+   },
+   {
+    "closed": 170,
+    "number": 7,
+    "open": 0,
+    "title": "v2.4.6 \u00b7 Training Montage \ud83c\udfcb\ufe0f \u2014 The Extraction Gauntlets",
+    "total": 170
+   },
+   {
+    "closed": 260,
+    "number": 8,
+    "open": 0,
+    "title": "v2.4.9 \u00b7 Hitbox Accuracy \ud83c\udfaf \u2014 Measured Against Tree-sitter & ctags",
+    "total": 260
+   },
+   {
+    "closed": 71,
+    "number": 10,
+    "open": 0,
+    "title": "Enter the Mainframe \ud83d\udda5\ufe0f \u2014 COBOL, JCL, CICS & Family",
+    "total": 71
+   },
+   {
+    "closed": 206,
+    "number": 11,
+    "open": 0,
+    "title": "Language Select \ud83d\udde3\ufe0f \u2014 The Keyword Rosetta",
+    "total": 206
+   },
+   {
+    "closed": 34,
+    "number": 12,
+    "open": 8,
+    "title": "Yes, but can it go faster...?",
+    "total": 42
+   },
+   {
+    "closed": 57,
+    "number": 13,
+    "open": 0,
+    "title": "Scorekeeper \ud83d\udccb \u2014 CICS vs Hand-Scored Ground Truth",
+    "total": 57
+   },
+   {
+    "closed": 75,
+    "number": 14,
+    "open": 13,
+    "title": "Compiler call-graph comparison",
+    "total": 88
+   },
+   {
+    "closed": 98,
+    "number": 15,
+    "open": 0,
+    "title": "World Tour \ud83c\udf0d \u2014 GitGalaxy Tours the Globe",
+    "total": 98
+   },
+   {
+    "closed": 0,
+    "number": 16,
+    "open": 10,
+    "title": "Retro Collection \ud83d\udd79\ufe0f \u2014 Legacy Platforms Beyond z/OS",
+    "total": 10
+   },
+   {
+    "closed": 0,
+    "number": 17,
+    "open": 3,
+    "title": "Achievement Unlocked: Source Code Optional \ud83c\udfc6",
+    "total": 3
+   },
+   {
+    "closed": 41,
+    "number": 18,
+    "open": 6,
+    "title": "Run Verified \u2705 \u2014 Pics or It Didn't Port",
+    "total": 47
+   },
+   {
+    "closed": 13,
+    "number": 19,
+    "open": 6,
+    "title": "New Challenger Approaches \ud83e\udd4a \u2014 Fresh Estates",
+    "total": 19
+   },
+   {
+    "closed": 19,
+    "number": 20,
+    "open": 0,
+    "title": "Nightmare Mode \ud83d\udc80 \u2014 The Crucibles",
+    "total": 19
+   },
+   {
+    "closed": 3,
+    "number": 21,
+    "open": 5,
+    "title": "Worms Armageddon \ud83e\udeb1 \u2014 The GlassWorm Hunter",
+    "total": 8
+   },
+   {
+    "closed": 57,
+    "number": 22,
+    "open": 10,
+    "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
+    "total": 67
+   },
+   {
+    "closed": 20,
+    "number": 23,
+    "open": 2,
+    "title": "Tech Tree \ud83c\udf33 \u2014 Named System Facts",
+    "total": 22
+   },
+   {
+    "closed": 13,
+    "number": 24,
+    "open": 0,
+    "title": "Class Change \ud83d\udd04 \u2014 COBOL Becomes Java",
+    "total": 13
+   },
+   {
+    "closed": 8,
+    "number": 25,
+    "open": 0,
+    "title": "No-Items Run \ud83c\udf92 \u2014 Zero Dependencies",
+    "total": 8
+   },
+   {
+    "closed": 30,
+    "number": 26,
+    "open": 0,
+    "title": "Quality of Life Update \ud83d\udee0\ufe0f \u2014 Config, CI & Dev Tooling",
+    "total": 30
+   },
+   {
+    "closed": 18,
+    "number": 27,
+    "open": 3,
+    "title": "Save Integrity \ud83d\udcbe \u2014 Same Code, Same Answer",
+    "total": 21
+   },
+   {
+    "closed": 228,
+    "number": 28,
+    "open": 25,
+    "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
+    "total": 253
+   },
+   {
+    "closed": 0,
+    "number": 29,
+    "open": 7,
+    "title": "Open World \ud83d\uddfa\ufe0f \u2014 leaving the starter zone",
+    "total": 7
+   },
+   {
+    "closed": 0,
+    "number": 30,
+    "open": 43,
+    "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
+    "total": 43
+   }
+  ],
   "sweep": {
    "closed": 66,
    "open": 21,
    "total": 87
+  },
+  "title_counts": {
+   "cics": {
+    "closed": 79,
+    "total": 98
+   },
+   "cobol": {
+    "closed": 123,
+    "total": 139
+   }
   },
   "window_days": 7
  },

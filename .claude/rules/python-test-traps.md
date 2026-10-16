@@ -23,5 +23,3 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   socket guards on a Windows leg (#5253).
 * **CI helper scripts the workflows call before the project is installed** (e.g. `tests/tools/db2_image_cache.py`)
   must stay stdlib-only (#5265).
-* **A trailing `# comment` on a `.gitignore` pattern line becomes part of the pattern** (`git check-ignore` fails and
-  `test_no_page_is_committed_and_each_is_ignored` goes red): put comments on their own line (#5287).

@@ -11,6 +11,8 @@ byte against the original COBOL under GnuCOBOL. Anything the translator cannot h
 named `Hole` or an explicit refusal citing the IBM manual—never a guess. Every port ships with
 its machine-checked evidence record, and a person approves every port.
 
+[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+
 **Current numbers** (the evidence ladder, the CICS commands modelled, the mutation kill rate, the crucibles and the
 era table) are generated from the repo's own artifacts, each with its source and the commit it was rendered from, on
 the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280). This README keeps prose only, so it cannot drift. Levels are evidence levels,

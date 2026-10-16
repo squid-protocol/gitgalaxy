@@ -60,6 +60,8 @@ WINDOW_DAYS = 7
 LEVELS = ("L0", "L1", "L2", "L3", "L4", "L5")
 ERAS = ("0", "1", "2", "3", "4", "none")
 SCOPES = ("core", "sweep", "frontier", "infra")
+OPEN_WORLD_EPICS = (4890, 4891, 4892, 4893, 4894)  # the slide's runtime rows read their states (#5286)
+TITLE_TERMS = ("CICS", "COBOL")  # issues with the term in the title, for the slide's resolved-issue boxes (#5286)
 NOT_CONVERGING = "not converging"
 SOURCES = {
     "ladder": "docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch)",
@@ -167,11 +169,18 @@ def rules_component(doc: dict[str, Any]) -> dict[str, Any]:
     rules = doc["rules"]
     status = Counter(r["status"] for r in rules)
     measured = sum(1 for r in rules if r.get("calibration") not in (None, "uncalibrated"))
-    return {
+    families: dict[str, dict[str, int]] = {f["id"]: {} for f in doc.get("families", [])}
+    for r in rules:
+        fam = families.setdefault(r.get("family", "?"), {})
+        fam[r["status"]] = fam.get(r["status"], 0) + 1
+    out = {
         "rules": len(rules),
         "status": {s: status.get(s, 0) for s in ("MATCHED", "DIFFERS", "ASSUMED", "REFUSED")},
         "measured_on_zos": measured,
     }
+    if families:  # the slide's per-family bars (#5286); added only when non-empty
+        out["families"] = {k: dict(sorted(v.items())) for k, v in families.items()}  # the catalogue's own order
+    return out
 
 
 def mutation_component(doc: dict[str, Any]) -> dict[str, Any]:
@@ -252,7 +261,9 @@ def issues_component(cache: dict[str, Any] | None) -> dict[str, Any]:
     m28 = [i for i in core if i.get("milestone") == CORE_MILESTONE]
     frontier = scoped("frontier")
     f_opened, _ = window(frontier)
+    extra = _slide_inputs(cache)
     return {
+        **extra,
         "measured": True,
         "as_of": cache["fetched_at"],
         "window_days": WINDOW_DAYS,
@@ -270,6 +281,37 @@ def issues_component(cache: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+def _slide_inputs(cache: dict[str, Any]) -> dict[str, Any]:
+    """The status slide's GitHub inputs (#5286): milestones, title-search counts and the Open World epic states. Each
+    key is added only when the cache carries it, so an older cache still loads and the slide says "not measured"."""
+    out: dict[str, Any] = {}
+    if cache.get("milestones"):
+        out["milestones"] = [
+            {
+                "number": m["number"],
+                "title": m["title"],
+                "open": m["open_issues"],
+                "closed": m["closed_issues"],
+                "total": m["open_issues"] + m["closed_issues"],
+            }
+            for m in sorted(cache["milestones"], key=lambda m: m["number"])
+        ]
+    if cache.get("title_counts"):
+        out["title_counts"] = {k: dict(v) for k, v in sorted(cache["title_counts"].items())}
+    if cache.get("epics"):
+        out["epics"] = {str(k): v for k, v in sorted(cache["epics"].items(), key=lambda kv: int(kv[0]))}
+    return out
+
+
+def _api(path: str, token: str) -> Any:
+    req = urllib.request.Request(  # noqa: S310 -- a fixed https URL
+        f"https://api.github.com/{path}",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
+        return json.load(resp)
+
+
 def fetch_issues(token: str | None = None) -> dict[str, Any]:
     """Every issue (no PRs) carrying a scope label, from the GitHub REST API (stdlib only)."""
     token = token or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
@@ -278,12 +320,7 @@ def fetch_issues(token: str | None = None) -> dict[str, Any]:
     seen: dict[int, dict[str, Any]] = {}
     for scope in SCOPES:
         for page in range(1, 41):
-            url = f"https://api.github.com/repos/{REPO_SLUG}/issues?labels=scope:{scope}&state=all&per_page=100&page={page}"
-            req = urllib.request.Request(  # noqa: S310 -- a fixed https URL
-                url, headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
-            )
-            with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
-                batch = json.load(resp)
+            batch = _api(f"repos/{REPO_SLUG}/issues?labels=scope:{scope}&state=all&per_page=100&page={page}", token)
             for i in batch:
                 if "pull_request" in i:
                     continue
@@ -297,8 +334,31 @@ def fetch_issues(token: str | None = None) -> dict[str, Any]:
                 }
             if len(batch) < 100:
                 break
+    milestones = [
+        {
+            "number": m["number"],
+            "title": m["title"],
+            "open_issues": m["open_issues"],
+            "closed_issues": m["closed_issues"],
+        }
+        for m in _api(f"repos/{REPO_SLUG}/milestones?state=all&per_page=100", token)
+    ]
+    title_counts = {}
+    for term in TITLE_TERMS:
+        tot = _api(f"search/issues?q=repo:{REPO_SLUG}+is:issue+{term}+in:title&per_page=1", token)["total_count"]
+        closed = _api(f"search/issues?q=repo:{REPO_SLUG}+is:issue+is:closed+{term}+in:title&per_page=1", token)[
+            "total_count"
+        ]
+        title_counts[term.lower()] = {"total": tot, "closed": closed}
+    epics = {n: _api(f"repos/{REPO_SLUG}/issues/{n}", token)["state"] for n in OPEN_WORLD_EPICS}
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return {"fetched_at": now, "issues": [seen[k] for k in sorted(seen)]}
+    return {
+        "fetched_at": now,
+        "issues": [seen[k] for k in sorted(seen)],
+        "milestones": milestones,
+        "title_counts": title_counts,
+        "epics": epics,
+    }
 
 
 def load_issues() -> dict[str, Any] | None:

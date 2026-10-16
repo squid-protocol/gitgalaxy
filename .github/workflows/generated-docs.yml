@@ -4,7 +4,7 @@ name: Generated Docs
 # docs/language_status/oracle_assumptions.md (register entries, tests/tools/register.py) and
 # docs/language_status/cics_spec_status.md (the CICS spec, translator, stub and cics_spec_status.json) and
 # docs/language_status/cobolrt_rules.md (the cobolrt rule catalogue, tests/tools/cobolrt_rules.py, #4711) and
-# docs/language_status/progress.md / progress.json (the burned-estate ladder and burn-down, tests/tools/progress_report.py, #5280) -- are no longer
+# docs/language_status/progress.md / progress.json / progress.svg (the burned-estate ladder and burn-down, tests/tools/progress_report.py, #5280; the status slide, tests/tools/progress_slide.py, #5286) -- are no longer
 # committed. Every PR re-rendered and committed them, and parallel PRs conflicted on them for hours. The list of pages
 # lives in tests/tools/generated_docs.py (PAGES).
 #
@@ -33,6 +33,8 @@ on:
       - "tests/tools/cobolrt_rules.py"
       - "tests/tools/readiness_report.py"
       - "tests/tools/progress_report.py"
+      - "tests/tools/progress_slide.py"
+      - "gitgalaxy/tools/readiness/era_tags.py"
       - "docs/language_status/mutation_scores.json"
       - "tests/cics_crucible/coverage.json"
       - "tests/estate_crucible/baseline.json"
@@ -42,6 +44,8 @@ on:
       - ".github/workflows/generated-docs.yml"
   push:
     branches: [main]
+  schedule:
+    - cron: "17 5 * * *"  # #5286: nightly, so the GitHub-fed numbers of the status slide (milestones, issue counts) stay fresh
   workflow_dispatch:
 
 permissions:
@@ -164,5 +168,6 @@ jobs:
             docs/language_status/cobolrt_rules.md \
             docs/language_status/readiness_report.md \
             docs/language_status/progress.md \
-            docs/language_status/progress.json
+            docs/language_status/progress.json \
+            docs/language_status/progress.svg
           echo "published the generated pages from main $GITHUB_SHA: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status" >> "$GITHUB_STEP_SUMMARY"

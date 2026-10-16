@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 35 | 0 | 0 | 35 |
 | forge-compile | 35 | 0 | 0 | 35 |
-| cobol-stub | 111 | 4 | 16 | 131 |
+| cobol-stub | 111 | 5 | 15 | 131 |
 | java | 0 | 131 | 0 | 131 |
 | java-ported | 48 | 83 | 0 | 131 |
 | java-facade | 48 | 83 | 0 | 131 |
-| **all** | **277** | **301** | **16** | **594** |
+| **all** | **277** | **302** | **15** | **594** |
 
 ## By trap and case
 
@@ -70,6 +70,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-channel-containers` | CACHERR | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHSUB | 1 | 4/4 | 0/0 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHXB | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
+| `ca-container-ccsid` | CACCBIT | 0 | 0/3 | 0/0 | 0/0 | 0 | -- |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
@@ -119,6 +120,12 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 ### Live code no scenario reaches
 
 Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected log, like every other. Dead code is not a gap: nothing can reach it.
+
+#### `ca-container-ccsid` CACCBIT
+
+- paragraph `MAIN-PARA` (line 21)
+- paragraph `LOG-GET` (line 56)
+- paragraph `LOG-RESP` (line 59)
 
 #### `gt-assign-startcode` GTASGN
 
@@ -198,22 +205,20 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (16 unsupported)
+### cobol-stub (15 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | ADDRESS | 3 | 3 | 3 |
+| 1 | ADDRESS COMMAREA | 3 | 3 | 3 |
 | 2 | RETURN CHANNEL | 3 | 3 | 6 |
 | 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 9 |
 | 4 | FREEMAIN DATA | 2 | 1 | 10 |
 | 5 | GET CONTAINER BYTEOFFSET | 2 | 1 | 11 |
 | 6 | GETMAIN | 1 | 0 | 12 |
-| 7 | PUT CONTAINER PREPEND | 1 | 0 | 13 |
-| 8 | GET CONTAINER INTOCCSID | 2 | 0 | 13 |
-| 9 | PUT CONTAINER FROMCCSID | 2 | 0 | 14 |
-| 10 | PUT CONTAINER DATATYPE | 1 | 0 | 15 |
-| 11 | REWRITE event | 3 | 0 | 15 |
-| 12 | UNLOCK event | 2 | 0 | 16 |
+| 7 | PUT CONTAINER DATATYPE | 1 | 1 | 13 |
+| 8 | PUT CONTAINER PREPEND | 1 | 0 | 14 |
+| 9 | REWRITE event | 3 | 0 | 14 |
+| 10 | UNLOCK event | 2 | 0 | 15 |
 
 ### java (0 unsupported)
 
@@ -248,14 +253,12 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | feature | cells | harness work |
 |---|---|---|
 | stub: REWRITE event | 3 | REWRITE event |
-| translator: ADDRESS | 3 | ADDRESS |
+| translator: ADDRESS COMMAREA | 3 | ADDRESS COMMAREA |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
 | translator: RETURN CHANNEL | 3 | RETURN CHANNEL |
 | stub: UNLOCK event | 2 | UNLOCK event |
 | translator: FREEMAIN DATA | 2 | FREEMAIN DATA |
 | translator: GET CONTAINER BYTEOFFSET | 2 | GET CONTAINER BYTEOFFSET |
-| translator: GET CONTAINER INTOCCSID | 2 | GET CONTAINER INTOCCSID |
-| translator: PUT CONTAINER FROMCCSID | 2 | PUT CONTAINER FROMCCSID |
 | translator: GETMAIN | 1 | GETMAIN |
 | translator: PUT CONTAINER DATATYPE | 1 | PUT CONTAINER DATATYPE |
 | translator: PUT CONTAINER PREPEND | 1 | PUT CONTAINER PREPEND |
@@ -290,6 +293,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | cobol-stub | WRITEQ-TS missing | 2 |
 | cobol-stub | resp differs | 2 |
+| cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 131 |
 | java-ported | not ported | 83 |
 | java-facade | not ported | 83 |
@@ -298,15 +302,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | cell | status | first divergence / reason |
 |---|---|---|
-| `ca-address-commarea/eib-view/cobol-stub` | unsupported | translator: ADDRESS |
+| `ca-address-commarea/eib-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/eib-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/eib-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/eib-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/link-view/cobol-stub` | unsupported | translator: ADDRESS |
+| `ca-address-commarea/link-view/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/link-view/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/link-view/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/link-view/java-ported` | fail | no port of any of its programs |
-| `ca-address-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS |
+| `ca-address-commarea/no-commarea/cobol-stub` | unsupported | translator: ADDRESS COMMAREA |
 | `ca-address-commarea/no-commarea/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-address-commarea/no-commarea/java-facade` | fail | no port of any of its programs |
 | `ca-address-commarea/no-commarea/java-ported` | fail | no port of any of its programs |
@@ -324,11 +328,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-container-byteoffset/read/java` | fail | task 1 (CA09) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-byteoffset/read/java-facade` | fail | no port of any of its programs |
 | `ca-container-byteoffset/read/java-ported` | fail | no port of any of its programs |
-| `ca-container-ccsid/bit-container/cobol-stub` | unsupported | translator: GET CONTAINER INTOCCSID; translator: PUT CONTAINER FROMCCSID |
+| `ca-container-ccsid/bit-container/cobol-stub` | fail | task 1 (CA08) event 4: data byte 14: '6 ' expected, got '0 ' |
 | `ca-container-ccsid/bit-container/java` | fail | task 1 (CA08) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-ccsid/bit-container/java-facade` | fail | no port of any of its programs |
 | `ca-container-ccsid/bit-container/java-ported` | fail | no port of any of its programs |
-| `ca-container-ccsid/convert/cobol-stub` | unsupported | translator: GET CONTAINER INTOCCSID; translator: PUT CONTAINER FROMCCSID; translator: PUT CONTAINER DATATYPE |
+| `ca-container-ccsid/convert/cobol-stub` | unsupported | translator: PUT CONTAINER DATATYPE |
 | `ca-container-ccsid/convert/java` | fail | task 1 (CA07) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-ccsid/convert/java-facade` | fail | no port of any of its programs |
 | `ca-container-ccsid/convert/java-ported` | fail | no port of any of its programs |

@@ -663,7 +663,7 @@ def test_options_honoured_without_code_say_why():
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL", "BELOW", "EXECUTABLE"}  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -1016,6 +1016,7 @@ _RESP_SAMPLES = {
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
+    "INQUIRE TDQUEUE": "INQUIRE TDQUEUE(KEY) TYPE(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
     "REWIND COUNTER": "REWIND COUNTER(KEY)", "UPDATE COUNTER": "UPDATE COUNTER(KEY) VALUE(7)",
@@ -1044,7 +1045,13 @@ _RESP_ELSEWHERE = {
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
+    **dict.fromkeys(
+        ("POST", "WAIT EVENT", "CONVERSE"),
+        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
+    ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
+    "SET TDQUEUE": "needs the generator's int_expr, which this double lacks: test_td_openstatus_translate_5168.py",
 }
 
 
@@ -1228,6 +1235,36 @@ def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     assert out[0] == "CicsTask.ContainerResult cont1 = task.deleteContainer(null, CN.strip());"
 
 
+def test_container_ccsid_options_pass_the_ccsid_to_the_task():
+    """#4270 (X17), IBM PUT CONTAINER FROMCCSID and GET CONTAINER INTOCCSID / CONVERTST / CCSID: the CCSID (a data value) is the
+    task's last argument; a command without one calls the
+    short form, so every port that names no CCSID is generated as before. CONVERTST(NOCONVERT) reads the container's own
+    CCSID; CCSID(area) is stored with FLENGTH, on NORMAL and LENGERR."""
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1140)", "")
+    assert out[1].endswith("flen2, null, false, INT(1140));")
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(WS-CS) APPEND", "")
+    assert out[1].endswith("flen2, null, true, INT(WS-CS));")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), INT(1140), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) NODATA FLENGTH(FL) INTOCCSID(WS-CS)", "")
+    assert out[0].endswith("task.getContainer(null, CN.strip(), -1, INT(WS-CS), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), -1, true);")
+    assert "if (cont1.length() >= 0) STORE(CS, BigDecimal.valueOf(task.containerCcsid()));" in out
+    assert ", -1" not in _ChanCics().command("GET CONTAINER(CN) INTO(AREA)", "")[0]
+
+
+def test_container_ccsid_options_refuse_a_region_page_other_than_037():
+    """The conversion tables read a program's bytes as CCSID 037, the port's default region page (#4528): an estate that
+    declares another EBCDIC page (cp273 ...) cannot use them."""
+    c = _ChanCics()
+    c.region = "IBM273"
+    with pytest.raises(C.CicsError, match="CCSID 037, not IBM273"):
+        c.command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    out = c.command("GET CONTAINER(CN) INTO(AREA)", "")  # no CCSID option: as before
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20));")
+
+
 def test_move_container_is_a_rename_across_channels():
     """IBM, MOVE CONTAINER (CHANNEL): CONTAINER and AS, CHANNEL and TOCHANNEL (omitted: the current channel); the
     answer is CicsTask's, with RESP2 (INVREQ 4, CHANNELERR 2, CONTAINERERR 10), through RESP / HANDLE CONDITION."""
@@ -1402,13 +1439,20 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     with pytest.raises(C.CicsError, match="without an origin option"):
         c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
-    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert (
+        q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
         "QUERY COUNTER(KEY) VALUE(REC)", ""
     )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
-    assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
+    assert (
+        g[0].startswith("long[] counter")
+        and ".getCounter(" in g[0]
+        and "task.fullwordGet(" in g[1]
+        and g[2].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
     d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]
@@ -1899,9 +1943,11 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
-        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
-        ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "IANA code-page names"),
+        ("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ISO-8859-1')", "IANA code-page names"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
+        ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
+        ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),

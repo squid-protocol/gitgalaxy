@@ -50,6 +50,9 @@ Traps `--check` exists for:
 - [ ] **Translator** (`det/cics.py`): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
       does not honour refused BY NAME with the entry's reason; conditions through
       `outcome()` / `conditions()` with the RESP2 IBM documents; HANDLE CONDITION / NOHANDLE / RESP all honoured.
+      Read IBM's command page (WebFetch `ibm.com/docs/en/cics-ts/6.x?topic=summary-...`) for a condition's exact
+      semantics before modelling it as REFUSED: LENGERR on GET / QUERY COUNTER is a warning that completes the
+      operation (#5213).
       A failing test first in `tests/cobol_mainframe/test_det_translate.py`.
 - [ ] **BOTH runtimes**, the same semantics: the Java `CicsTask` / `DetCics` (cobolrt) AND the stub
       `tests/equivalence/cics/ggcics.c` (+ `tests/tools/equivalence_cics.py`). A fact the runtime cannot know (a
@@ -100,6 +103,8 @@ Traps `--check` exists for:
 - **IBM macro reference** (#5153): FCT/DCT/TST macros are in the CICS TS for OS/390 R3 Resource Definition Guide
   (publibfp.dhe.ibm.com/epubs/pdf/dfha400.pdf, ch.13 macros, ch.16 macro->RDO table). PCT/PPT macros are in no
   reachable IBM doc: say so rather than guess.
+  IBM doc URLs guessed from topic names return the docs index, and IBM PDFs come back unreadable through WebFetch:
+  a search result is not an opened page, so never mark a cite verified from one (#5266).
 - **test_tool_regex_redos** (#4477) is flaky under load: rerun once before blaming your regex.
 - **The full-suite OS grid does not run on PRs** (#4518). For a path- or OS-sensitive harness change dispatch it:
   `gh workflow run full-suite-gate.yml --ref <branch>`.
@@ -113,6 +118,13 @@ Traps `--check` exists for:
 - **A stub refusal prints "not modelled" on stdout and exits nonzero**: strip that line when comparing stub output with CicsTask's (#5189).
 - **The harness trims trailing spaces from a SEND TEXT event's text**: a hand-traced expected string with trailing spaces fails even when the case is proven (#5196).
 - **After a cics-crucible pin bump**, run `tests/tools/evidence.py prove` on the stale `crucible:` keys as well as `crucible_port_provenance.py reprove`; reprove leaves `evidence.json` stale (#5192).
+- **The stub receives `LENGTH OF RIDFLD` as keylen when the program codes no KEYLENGTH**: a stub check that needs to know KEYLENGTH was given must get it as a GG-FLAGS word set in `tests/tools/equivalence_cics.py` (#5201).
+- **`equivalence_cics.outputs()` collects a WRITEQ-TD record only when its resp is 0**, else a failed write shifts later records (#5202).
+- **Abend vs SYNCPOINT in unit scenarios**: a test expecting an abend to restore a LOGICAL queue must touch it after the last SYNCPOINT (#5202).
+- **Failed CICS writes (INVREQ, NOTOPEN) belong in the e2e program**, not only the stub unit lists: harness bugs show only end to end (#5202).
+- **An `Outcome` with `resp2=None` (e.g. the shared `_NOTFND`) must be replaced once both runtimes record a RESP2**, or the "spec states each RESP2" tests fail (#5204).
+- **A new ggcics stub event for an INVREQ logs RIDFLD with zero bytes, not KEYLENGTH bytes**: KEYLENGTH may exceed the buffer (#5204).
+- **ASSIGN STARTCODE values are a closed list** in `gitgalaxy/standards/cics/commands/assign.py`: a DPL (LINKed) case needs `D` stated there plus the X19 summary edit (#5251).
 
 ## 3. Release flow (cics-crucible RELEASING.md, done for v0.4.0 and v0.5.0)
 
@@ -150,7 +162,7 @@ are fine). `cics_census.py` warns about a census-root corpus that is not on the 
   `proof.log`; `cics_crucible.py --out O` -> `O/results.json` + `O/report.md`, `--report-dir R` -> `R/report.json`
   (a port proof); `--keep W` keeps `W/<case>/{forge,cobol,java}`.
 - **Re-proving evidence:** `$PY tests/tools/evidence.py status` shows what is stale; re-prove with
-  `evidence.py prove KEY ...` (or `refresh --stale`) (do not commit the rendered report under `docs/language_status/evidence_report/`: the bot regenerates it, #4703). Never hand-edit an evidence record or
+  `evidence.py prove KEY ...` (or `refresh --stale`) (main holds no rendered report: it is published on `generated`, read it via `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`, #5206). Never hand-edit an evidence record or
   a `reproven` entry, and never drop or write an approval -- only a person runs `evidence.py approve`.
 - Debugging a differing scenario, Db2 cases and the checklists for a translator / runtime / harness change: the
   `det-port` skill.

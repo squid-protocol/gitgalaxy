@@ -114,3 +114,13 @@ def test_the_spec_models_every_counter_class_member():
     for o in ("REDUCE", "COMPAREMIN", "COMPAREMAX"):
         assert o in SPEC["GET COUNTER"].options and o not in SPEC["GET COUNTER"].refused
     assert set(SPEC["UPDATE COUNTER"].refused) == {"COMPAREMIN", "COMPAREMAX"}
+
+
+def test_the_det_port_reads_a_fullword_counter_through_the_lengerr_helper_only_for_the_fullword_form():
+    """#4770 (X30): GET COUNTER may meet a counter a DCOUNTER made past 31 bits (LENGERR, the low 32 bits written); GET DCOUNTER never."""
+    c = _LenCics().command("GET COUNTER(KEY) VALUE(V) NOHANDLE", "")
+    assert any("task.fullwordGet(" in x for x in c) and any("[0] == 22" in x for x in c)
+    d = _LenCics().command("GET DCOUNTER(KEY) VALUE(V) NOHANDLE", "")
+    assert not any("fullwordGet" in x or "== 22" in x for x in d)
+    q = " ".join(_LenCics().command("QUERY COUNTER(KEY) VALUE(V) NOHANDLE", ""))
+    assert "[0] == 22" in q

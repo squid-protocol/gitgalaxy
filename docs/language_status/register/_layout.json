@@ -46,6 +46,14 @@
   "family": "Q"
  },
  {
+  "part": "11a-ims-dl-i-ggdli-c.md",
+  "family": "I"
+ },
+ {
+  "part": "16-ibm-mq-ggmq-c.md",
+  "family": "W"
+ },
+ {
   "part": "12-the-java-side.md",
   "family": "J"
  },

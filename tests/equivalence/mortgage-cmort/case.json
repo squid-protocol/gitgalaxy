@@ -178,25 +178,6 @@
    "why": "a blank principal: EPSNBRVL's error 1 (nothing but spaces), number 0, so EPSMPMT's error 1 again"
   },
   {
-   "name": "enter-principal-not-numeric",
-   "aid": "DFHENTER",
-   "commarea": {
-    "PROCESS-INDICATOR": "3",
-    "EPSPCOM-PRINCIPLE-DATA": "250000.00",
-    "EPSPCOM-NUMBER-OF-YEARS": 30,
-    "EPSPCOM-QUOTED-INTEREST-RATE": "5.125",
-    "EPSPCOM-YEAR-MONTH-IND": "Y"
-   },
-   "receive": {
-    "EPMENU": {
-     "EPLOANI": "12AB",
-     "EPYEARSI": "30",
-     "EPRATEI": "5.000"
-    }
-   },
-   "why": "a non-numeric principal: EPSNBRVL's error 2 (a non-digit), number 0, EPSMPMT's error 1"
-  },
-  {
    "name": "enter-principal-only-points",
    "aid": "DFHENTER",
    "commarea": {

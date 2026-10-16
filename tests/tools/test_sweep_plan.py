@@ -23,7 +23,8 @@ INPUT_PATHS = [
     "gitgalaxy/standards/language_standards/languages/cobol.py",
     "gitgalaxy/core/detector.py",
     "gitgalaxy/galaxyscope.py",
-    "gitgalaxy/tools/cobol_to_java/det/emit.py",  # under gitgalaxy/: the whole engine is an input
+    "gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py",  # under gitgalaxy/ and in the closure (or not listed): an input
+    "gitgalaxy/core/cics_macro_level.py",  # under gitgalaxy/, outside the closure but unlisted: an input
     "gitgalaxy/core/README.md",
     "tests/extraction/languages/test_python.py",
     "tests/extraction/languages/_strict_harness.py",
@@ -207,3 +208,97 @@ def test_the_workflow_plans_then_deselects_with_golden_crucible_kept():
     assert wf["full-suite"]["needs"] == ["tested-tree", "full-suite-part"]
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "redos_sweep" not in gate and "sweep_plan" not in gate
+
+
+# the engine parts outside the sweeps' import closure (#5166): a change there keeps no sweep
+ENGINE_NON_INPUT_PATHS = [
+    "gitgalaxy/tools/cobol_to_java/det/emit.py",
+    "gitgalaxy/tools/cobol_to_java/det/copy/DFHAID.cpy",
+    "gitgalaxy/tools/cobol_to_java/README.md",
+    "gitgalaxy/tools/terabyte_log_scanning/README.md",
+    "gitgalaxy/standards/cics/commands/send.py",
+    "gitgalaxy/cobol_to_java_controller.py",
+    "gitgalaxy/cobol_refractor_controller.py",
+]
+
+
+@pytest.mark.parametrize("path", ENGINE_NON_INPUT_PATHS)
+def test_an_engine_part_outside_the_import_closure_deselects_the_sweeps(path):
+    assert sp.plan([path], "pull_request")["mode"] == "none"
+    assert sp.plan([path], "push")["mode"] == "full"
+
+
+@pytest.mark.parametrize("path", ["gitgalaxy/core/detector.py", "gitgalaxy/standards/language_standards/x.py"])
+def test_an_engine_input_among_engine_non_inputs_runs_the_sweeps(path):
+    assert sp.plan([ENGINE_NON_INPUT_PATHS[0], path], "pull_request")["mode"] == "full"
+
+
+def _sweep_import_closure():
+    """gitgalaxy modules the extraction tests import, transitively (function-level imports and parent packages too)."""
+
+    def mod_file(name):
+        p = ROOT / Path(*name.split("."))
+        if (p / "__init__.py").is_file():
+            return p / "__init__.py"
+        return p.with_suffix(".py") if p.with_suffix(".py").is_file() else None
+
+    def imports(path, pkg):
+        out = set()
+        for n in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(n, ast.Import):
+                out |= {a.name for a in n.names}
+            elif isinstance(n, ast.ImportFrom):
+                if n.level:
+                    parts = pkg.split(".")
+                    m = ".".join(parts[: len(parts) - (n.level - 1)] + ([n.module] if n.module else []))
+                else:
+                    m = n.module or ""
+                out |= {m, *(f"{m}.{a.name}" for a in n.names)}
+        return out
+
+    todo = [
+        m for f in (ROOT / "tests" / "extraction").rglob("*.py") for m in imports(f, "") if m.startswith("gitgalaxy")
+    ]
+    seen = set()
+    while todo:
+        m = todo.pop()
+        f = mod_file(m) if m not in seen else None
+        if f is None:
+            continue
+        seen.add(m)
+        parts = m.split(".")
+        todo += [".".join(parts[:i]) for i in range(1, len(parts))]
+        pkg = m if f.name == "__init__.py" else m.rpartition(".")[0]
+        todo += [x for x in imports(f, pkg) if x.startswith("gitgalaxy")]
+    return {mod_file(m).relative_to(ROOT).as_posix() for m in seen}
+
+
+def test_no_engine_non_input_is_in_the_sweeps_import_closure():
+    """ENGINE_NON_INPUTS name what the sweeps do not import; a module they do import there would make that wrong."""
+    closure = _sweep_import_closure()
+    assert "gitgalaxy/core/detector.py" in closure  # the walk works
+    bad = sorted(f for f in closure if not sp.is_input(f))
+    assert not bad, bad
+    # every pattern still names something that exists, so a rename cannot leave a dead exception behind
+    for pat in sp.ENGINE_NON_INPUTS:
+        assert any(
+            sp.matches(p.relative_to(ROOT).as_posix(), (pat,)) for p in (ROOT / "gitgalaxy").rglob("*") if p.is_file()
+        ), pat
+
+
+def test_a_pull_request_ignores_cobol_mainframe_once_and_nothing_else_does():
+    """Ground Truth runs tests/cobol_mainframe/ on a PR; the parts drop it there only, via the plan step's env file."""
+    yaml = pytest.importorskip("yaml")
+    wf = yaml.safe_load((ROOT / ".github" / "workflows" / "smoke-test.yml").read_text(encoding="utf-8"))["jobs"]
+    job = wf["full-suite-part"]
+    plan_step = next(s for s in job["steps"] if s.get("id") == "sweeps")
+    run_step = next(s for s in job["steps"] if s.get("name", "").startswith("Golden Record Integration Test"))
+    assert 'if [ "$GITHUB_EVENT_NAME" = "pull_request" ]' in plan_step["run"]
+    assert "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" in plan_step["run"]
+    assert "cobol_mainframe/test_evidence_components.py" in run_step["run"]  # the older ignore is unchanged
+    assert "PYTEST_ADDOPTS" not in run_step["run"]
+    gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
+    assert "PYTEST_ADDOPTS" not in gate
+    gt = yaml.safe_load((ROOT / ".github" / "workflows" / "mainframe-ground-truth.yml").read_text(encoding="utf-8"))
+    tests = " ".join(m["tests"] for m in gt["jobs"]["ground-truth-part"]["strategy"]["matrix"]["include"])
+    assert "tests/cobol_mainframe/ " in tests  # the job that now owns the directory still runs all of it

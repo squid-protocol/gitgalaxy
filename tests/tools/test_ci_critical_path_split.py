@@ -70,6 +70,14 @@ def test_evidence_deltas_is_advisory_and_off_the_required_check():
     assert any("evidence_report.py --deltas" in str(s.get("run")) for s in deltas["steps"])
 
 
+def test_full_suite_parts_are_balanced_by_least_duration():
+    """#5133: the default duration_based_chunks cuts contiguous slices, which put tests/cobol_mainframe all in part 1."""
+    steps = _jobs("smoke-test.yml")["full-suite-part"]["steps"]
+    runs = [str(s.get("run")) for s in steps if "--splits 3" in str(s.get("run"))]
+    assert runs
+    assert all("--splitting-algorithm least_duration" in r for r in runs)
+
+
 def test_every_artifact_download_waits_on_a_job_that_can_upload_it():
     """#5176: a download job gated only on an aggregate that passes when the uploader was skipped fails on a green run."""
     for path in sorted(WORKFLOWS.glob("*.yml")):

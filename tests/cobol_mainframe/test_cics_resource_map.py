@@ -143,3 +143,51 @@ def test_single_source_resources_are_named_only_in_when_both_sources_exist(both)
     assert only[("FILE", "MACONLY")] == "MACRO"
     assert only[("FILE", "CSDONLY")] == "CSD"
     assert ("FILE", "ACCTDAT") not in only
+
+
+def test_an_assembler_step_with_a_sysin_member_joins_that_members_tables(tmp_path_factory):
+    """#5154: `//SYSIN DD DSN=lib(MEMBER)` names the member whose tables the step assembles."""
+    ir = _ir(tmp_path_factory, "jcl_member")
+    got = {r["step"]: r for r in ir.job_macro_tables()}
+    assert set(got) == {"ASM1", "ASM2", "ASM3"}  # ASM4 has no member, COMP is not an assembler
+    asm1 = got["ASM1"]
+    assert (asm1["file"], asm1["job"], asm1["member"], asm1["member_file"]) == (
+        "ASMJOB.jcl",
+        "ASMJOB",
+        "DFHFCT01",
+        "DFHFCT01.asm",
+    )
+    assert [(r["resource_type"], r["name"], r["macro_table"], r["defined_in"]) for r in asm1["resources"]] == [
+        ("FILE", "ACCTDAT", "DFHFCT01", "DFHFCT01.asm")
+    ]
+    assert got["ASM2"]["member_file"] is None and got["ASM2"]["resources"] == []  # named, not found: a finding
+    assert [r["name"] for r in got["ASM3"]["resources"]] == ["U4321"]  # member name matched case-blind
+    assert ("FILE", "ACCTDAT") in {
+        (e["resource_type"], e["name"]) for e in ir.resource_map()
+    }  # counted once, in the file
+    (d,) = next(e for e in ir.resource_map() if e["name"] == "ACCTDAT")["definitions"]
+    assert d["defined_in"] == "DFHFCT01.asm"
+
+
+def test_sysin_member_join_covers_every_shape_and_member_state(tmp_path_factory):
+    """#5154 (#5218): SYSIN shape x member state, each with its `status`."""
+    ir = _ir(tmp_path_factory, "jcl_sysin_shapes")
+    got = [(r["step"], r["member"], r["status"], r["member_file"]) for r in ir.job_macro_tables()]
+    assert got == [
+        ("DIRECT", "TBL01", "joined", "lib/TBL01.asm"),
+        ("EMPTY", "EMPTY01", "no_tables", "lib/EMPTY01.asm"),  # found and read: nothing to join
+        ("MISSING", "NOSUCH", "not_found", None),
+        ("TWOFILES", "DUP01", "ambiguous", None),  # two files of that name: a finding, not a guess
+        ("CONCAT", "TBL01", "joined", "lib/TBL01.asm"),  # concatenated, unnamed DDs: each its own entry
+        ("CONCAT", "EMPTY01", "no_tables", "lib/EMPTY01.asm"),
+        ("CONCAT", "NOSUCH", "not_found", None),
+        ("AUPLE", "TBL01", "joined", "lib/TBL01.asm"),  # DFHAUPLE, //ASSEM.SYSIN override
+    ]
+    # not read: MYASM (an unknown wrapper proc), PSTEP.ASM.SYSIN (a qualified name we do not
+    # resolve), a DSN with no member, in-stream SYSIN (the job's own rows), a non-assembler step
+    by = {(r["step"], r["member"]): r for r in ir.job_macro_tables()}
+    assert [(x["resource_type"], x["name"], x["defined_in"]) for x in by["DIRECT", "TBL01"]["resources"]] == [
+        ("FILE", "ACCTDAT", "lib/TBL01.asm")
+    ]
+    for key in (("EMPTY", "EMPTY01"), ("MISSING", "NOSUCH"), ("TWOFILES", "DUP01")):
+        assert by[key]["resources"] == []

@@ -109,7 +109,7 @@ def render(corpus: str, estate: dict[str, Any], report: dict[str, Any] | None) -
     lines += ["", "## Missing inputs", ""]
     missing = missing_copybooks(report) if report else {}
     if report is None:
-        lines.append("No committed evidence report for this estate: copybooks not checked.")
+        lines.append("No published evidence report for this estate: copybooks not checked.")
     elif missing:
         lines += ["| copybook | needed by | checklist |", "|---|---|---|"]
         for name, programs in missing.items():
@@ -123,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("corpus")
     ap.add_argument("--options-dir", type=Path, default=OPTIONS_DIR)
-    ap.add_argument("--report", type=Path, help="evidence report.json (default: the committed one for the corpus)")
+    ap.add_argument("--report", type=Path, help="evidence report.json (default: the one published on `generated`)")
     args = ap.parse_args(argv)
     path = args.options_dir / f"{args.corpus}.json"
     if not path.is_file():

@@ -34,6 +34,15 @@
   },
   "carddemo-cobdatft": {
    "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
+  "ims-apis": {
+   "title": "IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)"
+  },
+  "ims-ap": {
+   "title": "IBM IMS Application Programming (DB PCB masks, current position in the database)"
+  },
+  "ims-codes": {
+   "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
   }
  },
  "options": {
@@ -156,7 +165,8 @@
    "prefix": "FUNC",
    "title": "intrinsic functions",
    "files": [
-    "Funcs.java"
+    "Funcs.java",
+    "Accept.java"
    ],
    "done": true,
    "about": "The intrinsic functions the translator calls.",
@@ -213,6 +223,57 @@
    "done": true,
    "about": "The date / time services and COBDATFT, as the harness's C models do them.",
    "plumbing": []
+  },
+  {
+   "id": "DLI",
+   "prefix": "DLI",
+   "title": "IMS DL/I database calls",
+   "files": [
+    "dli/DetDli.java"
+   ],
+   "done": true,
+   "about": "A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the twin of the harness's ggdli.c (register family I).",
+   "plumbing": [
+    "refuse",
+    "dir",
+    "name8",
+    "findSeg",
+    "findFld",
+    "keyCmp",
+    "keyAt",
+    "fullword",
+    "text",
+    "dbFirst",
+    "descends",
+    "descendsType",
+    "lastInSubtree",
+    "ancestorOfType"
+   ]
+  },
+  {
+   "id": "MQ",
+   "prefix": "MQ",
+   "title": "IBM MQ (MQI from CICS)",
+   "files": [
+    "mq/QueueManager.java",
+    "cics/DetMq.java"
+   ],
+   "done": true,
+   "about": "The queue manager a CICS task's MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE reach, and the glue that joins it to the task (#4892).",
+   "plumbing": [
+    "be32",
+    "put32",
+    "bytesAre",
+    "zero",
+    "fill",
+    "pad",
+    "name48",
+    "mdInt",
+    "comp",
+    "done",
+    "r",
+    "event"
+   ]
   },
   {
    "id": "DATA",
@@ -1870,6 +1931,22 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-FUNC-ACCEPT-DATE",
+   "family": "FUNC",
+   "title": "ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item",
+   "methods": [
+    "from"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ACCEPT statement: Format 2 (system date and time)"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-POINTER-IN-COMMAREA",
    "family": "CICS",
    "title": "A POINTER in a COMMAREA DTO: NULL as all zero bytes; an address, which names storage the port does not have, stops the run by name",
@@ -2852,6 +2929,188 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-DLI-ENTRY",
+   "family": "DLI",
+   "title": "ENTRY 'DLITCBL': each DB PCB of the PSB bound to the area IMS passes, its mask filled (DBD name, level 00, blank status, PROCOPT, sensitive segments, key feedback zero)",
+   "methods": [
+    "enter"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-STATE",
+   "family": "DLI",
+   "title": "The stated database: DBD / PSB configuration and seed loaded in hierarchic sequence (refused when out of order), new twins placed by segment type and sequence field, each database written at the step's end",
+   "methods": [
+    "load",
+    "loadDb",
+    "linkChild",
+    "leave",
+    "dump"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Hierarchic sequence"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I2",
+    "I6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SSA",
+   "family": "DLI",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused",
+   "methods": [
+    "parseSsas",
+    "chain"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "Segment search arguments (SSAs)"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-QUALIFY",
+   "family": "DLI",
+   "title": "A qualification compares the field's stored bytes (C / X); a P field only where packed and logical comparison agree (both valid, one positive sign)",
+   "methods": [
+    "qualifies",
+    "packedSign",
+    "satisfies"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "SSA relational operators"
+   },
+   "options": [],
+   "register": [
+    "I2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-FEEDBACK",
+   "family": "DLI",
+   "title": "The PCB mask after a call: status code, segment level, segment name, concatenated key and its length",
+   "methods": [
+    "feedback",
+    "status"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-GET",
+   "family": "DLI",
+   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call",
+   "methods": [
+    "get",
+    "firstSatisfying",
+    "deepest",
+    "nextInSeq"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "GU / GHU, GN / GHN, GNP / GHNP calls"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-ISRT",
+   "family": "DLI",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
+   "methods": [
+    "isrt"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "ISRT call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CHANGE",
+   "family": "DLI",
+   "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
+   "methods": [
+    "change"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "REPL call; DLET call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CALL",
+   "family": "DLI",
+   "title": "CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused",
+   "methods": [
+    "call",
+    "findPcb",
+    "allows"
+   ],
+   "ibm": {
+    "doc": "ims-codes",
+    "section": "DL/I status codes"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-DATA-BINARY-SIZE",
    "family": "DATA",
    "title": "A COMP / COMP-4 / BINARY / COMP-5 item of 1-4 digits is a halfword, 5-9 a fullword, 10-18 a doubleword",
@@ -3177,6 +3436,136 @@
     "L2"
    ],
    "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-QUEUE-MANAGER",
+   "family": "MQ",
+   "title": "The task's queue manager: local queues, CCSID and messages from the case's mq.cfg; a name it does not hold is MQRC_UNKNOWN_OBJECT_NAME",
+   "methods": [
+    "attach",
+    "qm",
+    "qname"
+   ],
+   "ibm": null,
+   "ibm_note": "the queues are the case's facts, not a z/OS queue manager's",
+   "options": [],
+   "register": [
+    "W1",
+    "W3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-CONNECTION",
+   "family": "MQ",
+   "title": "Only a CICS MQI call with Hconn MQHC_DEF_HCONN (0) is modelled; any other Hconn or MQI verb is refused by name",
+   "methods": [
+    "hconnOk",
+    "refused"
+   ],
+   "ibm": null,
+   "ibm_note": "the runtime stops by name outside the modelled calls",
+   "options": [],
+   "register": [
+    "W6"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-OPEN",
+   "family": "MQ",
+   "title": "MQOPEN: resolves the object descriptor, makes the object handle (1, 2, 3 ... in the order opened)",
+   "methods": [
+    "mqopen",
+    "resolveOd",
+    "handle"
+   ],
+   "ibm": null,
+   "ibm_note": "the handle value is opaque in IBM's; the runtime's numbering is the oracle's",
+   "options": [],
+   "register": [
+    "W3",
+    "W4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-CLOSE",
+   "family": "MQ",
+   "title": "MQCLOSE: the handle becomes MQHO_UNUSABLE_HOBJ (-1)",
+   "methods": [
+    "mqclose"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents the handle's reset; the options handled are those the model gives meaning to",
+   "options": [],
+   "register": [
+    "W4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-GET",
+   "family": "MQ",
+   "title": "MQGET (destructive): highest priority first, first in first out within it; WAIT on an empty queue ends at once with 2033, MQWI_UNLIMITED refused; MQGMO_CONVERT a no-op where the message is as asked, refused otherwise",
+   "methods": [
+    "mqget",
+    "before",
+    "add"
+   ],
+   "ibm": null,
+   "ibm_note": "no concurrent producer is assumed; conversion beyond the identity is refused",
+   "options": [],
+   "register": [
+    "W2",
+    "W3",
+    "W5",
+    "W7"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-PUT",
+   "family": "MQ",
+   "title": "MQPUT / MQPUT1: MsgId GGMQ + a counter, the put context (PutApplType, PutDate / PutTime from the pinned clock, identity placeholders), the message queued under the unit of work",
+   "methods": [
+    "mqput",
+    "mqput1",
+    "put",
+    "putEvent"
+   ],
+   "ibm": null,
+   "ibm_note": "the MsgId form and identity-context placeholders are the oracle's",
+   "options": [],
+   "register": [
+    "W3",
+    "W4",
+    "W8"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-UNIT-OF-WORK",
+   "family": "MQ",
+   "title": "The MQ unit of work is the CICS task's: SYNCPOINT commits, SYNCPOINT ROLLBACK and an abend back out (BackoutCount raised), the task's end commits",
+   "methods": [
+    "uowEnd",
+    "end"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed",
+   "options": [],
+   "register": [
+    "W5"
+   ],
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   }
  ]

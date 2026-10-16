@@ -25,8 +25,8 @@ one or more gap classes:
                            (tests/equivalence/infeasible_outcomes.json, #4602) are taken out of its branch total and
                            printed; one the proof reached is the gap `infeasible outcome reached`
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
-                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN only under a
-                           crucible case: the equivalence harness states it, oracle_assumptions X21), an ASSIGN option
+                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN and EIBDS only under a
+                           crucible case: the equivalence harness states them, oracle_assumptions X21, X64), an ASSIGN option
                            whose fact an equivalence case cannot state yet (STARTCODE unless every scenario states it, #5077;
                            FACILITY / TERMCHK unless every scenario states a "termid", #5126;
                            USERID unless every scenario states a "userid", SCRNHT / SCRNWD unless every one states a
@@ -81,7 +81,10 @@ STATED_EIB = frozenset({"EIBTIME", "EIBDATE", "EIBTRNID", "EIBTRMID", "EIBCALEN"
 # #4270: the EIB fields that are a stated fact of the run (the CICS spec's EIB_FACTS: EIBTASKN, $GGCICS_TASKN /
 # CicsTask.withTaskNumber). The equivalence harness states them for every task (a case's or scenario's "taskn", else
 # the spec's default); the crucible runner does not yet, so a crucible case's program still has the gap.
-CASE_STATED_EIB = frozenset(EIB_FACTS)
+# #5126 (X64): EIBDS too -- a file control command sets it to its file on both sides (the stub's driver moves it; the
+# det port does in a program that reads it), so an equivalence case proves what the program does with it. The crucible
+# runner's committed ports predate that, so a crucible case's program keeps the gap.
+CASE_STATED_EIB = frozenset(EIB_FACTS) | {"EIBDS"}
 EIB_FIELDS = frozenset({
     "EIBTIME", "EIBDATE", "EIBTRNID", "EIBTASKN", "EIBTRMID", "EIBCPOSN", "EIBCALEN", "EIBAID", "EIBFN", "EIBRCODE",
     "EIBDS", "EIBREQID", "EIBRSRCE", "EIBSYNC", "EIBFREE", "EIBRECV", "EIBSEND", "EIBATT", "EIBEOC", "EIBFMH",
@@ -437,10 +440,13 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 def facts_needed(text: str) -> dict[str, set[str]]:
     """The runtime facts a program reads, by kind: `eib` (EIB fields no harness states), `assign_task` (ASSIGN
     options an equivalence case cannot state yet), `assign_region` (ASSIGN APPLID / SYSID). Names only."""
-    code = cc.fixed_format_text(text)
-    eib = {m for m in _EIB.findall(_LITERAL.sub(" ", code)) if m in EIB_FIELDS and m not in STATED_EIB}
+    code = _LITERAL.sub(" ", cc.fixed_format_text(text))
+    eib = {m for m in _EIB.findall(code) if m in EIB_FIELDS and m not in STATED_EIB}
     task, region = set(), set()
-    for cmd in cc.commands(text):
+    # #5089: every fact keyword is read outside string literals: the ASSIGN scan blanks them per line (length-preserving,
+    # as cc.commands cuts the sequence area itself; a literal continued onto the next line is not blanked)
+    plain = "\n".join(_LITERAL.sub(lambda m: " " * len(m.group()), ln) for ln in text.splitlines())
+    for cmd in cc.commands(plain):
         opts = cc.options_of(cmd, ["ASSIGN"])
         for o in opts or ():
             if o in ASSIGN_TASK_FACTS:

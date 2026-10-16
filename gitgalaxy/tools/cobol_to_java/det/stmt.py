@@ -363,9 +363,10 @@ def parse(lines: list[Line]) -> Procedure:
     if not paragraphs[0].body:
         paragraphs.pop(0)
     first = next((p.body[0] for p in paragraphs if p.body), None)
-    if first is not None and first.kind == "ENTRY" and not using:
+    if first is not None and first.kind == "ENTRY" and (not using or first.data["name"].upper() == "DLITCBL"):
         # #4462: the program's first statement (DL/I's ENTRY 'DLITCBL' USING pcb ...): where the caller enters it,
-        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing
+        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing.
+        # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
         using = [r.name for r in first.data["using"]]
     return Procedure(paragraphs, execs, using)
@@ -794,13 +795,33 @@ def _divide(p: E.Parser, text: str, line: int) -> Stmt:
     raise E.ExprError("DIVIDE without INTO / BY")
 
 
+# #4892: the categories INITIALIZE ... REPLACING names (IBM Enterprise COBOL, INITIALIZE statement; NATIONAL / DBCS and
+# their edited forms are not modelled)
+INITIALIZE_CATEGORIES = ("ALPHABETIC", "ALPHANUMERIC", "NUMERIC", "ALPHANUMERIC-EDITED", "NUMERIC-EDITED")
+
+
 def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
     refs = []
     while not p.done() and p.up() not in ("REPLACING", "WITH", "ALL", "TO"):
         refs.append(p.ref())
+    replacing: dict[str, object] = {}
+    # #4892: REPLACING category [DATA] BY value ... -- only the elementary items of a named category are set, each as
+    # by MOVE value (IBM: "The REPLACING phrase ... only for items of the category specified")
+    if p.accept("REPLACING"):
+        while not p.done() and (cat := p.up()) is not None and cat in INITIALIZE_CATEGORIES:
+            p.accept(cat)
+            p.accept("DATA")
+            if not p.accept("BY") or cat in replacing:
+                return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
+            value = p.operand()
+            if not isinstance(value, (E.Lit, E.Fig)) or (isinstance(value, E.Fig) and value.all_literal is not None):
+                return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING with an item or ALL literal"})
+            replacing[cat] = value
+        if not replacing:
+            return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
     if not p.done():
         return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
-    return Stmt("INITIALIZE", line, text, {"refs": refs})
+    return Stmt("INITIALIZE", line, text, {"refs": refs, **({"replacing": replacing} if replacing else {})})
 
 
 def _set(p: E.Parser, text: str, line: int) -> Stmt:

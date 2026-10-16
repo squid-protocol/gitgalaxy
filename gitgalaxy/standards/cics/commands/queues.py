@@ -22,6 +22,8 @@ from gitgalaxy.standards.cics.model import (
     Command,
     EngineFacts,
     Outcome,
+    Refusal,
+    RuntimeRefusal,
     at_most_one,
     one_of,
     required,
@@ -38,7 +40,12 @@ WRITEQ_TD = Command(
     status="modelled",
     options={"QUEUE": Arg("name", width=4), "FROM": Arg("area_in"), "LENGTH": Arg("value"), **RESP_OPTIONS},
     refused={"SYSID": SYSID_REMOTE},
-    outcomes=(Outcome("NORMAL", 0, ""), Outcome("QIDERR", None, "the CSD does not define the queue")),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("QIDERR", None, "the CSD does not define the queue"),
+        Outcome("NOTOPEN", None, "an extrapartition queue is closed"),  # #5168 (X61)
+        Outcome("INVREQ", None, "an extrapartition queue is open for input"),
+    ),
     state=("handle_table",),
     engine=EngineFacts(resource="QUEUE", access="write"),
 )
@@ -187,4 +194,87 @@ DELETEQ_TD = Command(
     engine=EngineFacts(resource="QUEUE", access="delete"),
 )
 
-COMMANDS = (WRITEQ_TD, WRITEQ_TS, READQ_TS, DELETEQ_TS, READQ_TD, DELETEQ_TD)
+# #5168 round 3, register X61. IBM (CICS TS 6.x, SET TDQUEUE): OPENSTATUS (extrapartition queues only) says whether the data set "is
+# to be opened" (OPEN) or "closed" (CLOSED); QIDERR RESP2 1, INVREQ RESP2 8 (an invalid CVDA), 9 (OPENSTATUS for an intrapartition
+# queue), 16 (the JCL DDNAME not found: taken as found). ENABLESTATUS, ATIFACILITY, TRIGGERLEVEL and the rest are not modelled.
+_TDQUEUE_REST = Refusal("only an extrapartition queue's open state is modelled", "X61")
+SET_TDQUEUE = Command(
+    key="SET TDQUEUE",
+    ibm=ibm("CICS SPI command SET TDQUEUE", "commands-set-tdqueue"),
+    status="modelled",
+    register="X61",
+    options={"TDQUEUE": Arg("name", width=4), "OPENSTATUS": Arg("cvda"), **RESP_OPTIONS},
+    default_refusal=_TDQUEUE_REST,
+    groups=(
+        required("TDQUEUE", msg="SET TDQUEUE without TDQUEUE"),
+        requires(("TDQUEUE",), any_of=("OPENSTATUS",), msg="SET TDQUEUE without OPENSTATUS"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("QIDERR", 1, "The queue cannot be found"),
+        Outcome("INVREQ", 8, "OPENSTATUS has an invalid CVDA value", raised_by=("OPENSTATUS",)),
+        Outcome("INVREQ", 9, "OPENSTATUS was specified for an intrapartition queue", raised_by=("OPENSTATUS",)),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "SET OPENSTATUS of an INDIRECT or REMOTE queue: IBM names only intrapartition",
+            "X61",
+            java="SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue",
+            c="SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue",
+        ),
+        RuntimeRefusal(
+            "an invalid OPENSTATUS CVDA on a queue that is not extrapartition: IBM does not order the conditions",
+            "X61",
+            java="SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition",
+            c="SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition",
+        ),
+        RuntimeRefusal(
+            "OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE INPUT / OUTPUT",
+            "X61",
+            java="SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE",
+            c="SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE",
+        ),
+        RuntimeRefusal(
+            "OPENSTATUS(OPEN) of an input queue that has been read: reopening restarts the data set",
+            "X61",
+            java="SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read",
+            c="SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+# IBM (INQUIRE TDQUEUE): OPENSTATUS (extrapartition queues only) is OPEN / CLOSED, or CLOSING / OPENING (never reached: one task),
+# NOTAPPLIC "the queue is not extrapartition"; TYPE is EXTRA / INDIRECT / INTRA / REMOTE; QIDERR RESP2 1. No INVREQ is documented.
+INQUIRE_TDQUEUE = Command(
+    key="INQUIRE TDQUEUE",
+    ibm=ibm("CICS SPI command INQUIRE TDQUEUE", "commands-inquire-tdqueue"),
+    status="modelled",
+    register="X61",
+    options={
+        "TDQUEUE": Arg("name", width=4),
+        "OPENSTATUS": Arg("area_out", width=4, binary=True),
+        "TYPE": Arg("area_out", width=4, binary=True),
+        **RESP_OPTIONS,
+    },
+    default_refusal=_TDQUEUE_REST,
+    groups=(
+        required("TDQUEUE", msg="INQUIRE TDQUEUE without TDQUEUE"),
+        requires(("TDQUEUE",), any_of=("OPENSTATUS", "TYPE"), msg="INQUIRE TDQUEUE without OPENSTATUS or TYPE"),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("OPENSTATUS", "TYPE")),
+        Outcome("QIDERR", 1, "The named queue cannot be found"),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a queue with no TYPE stated",
+            "X61",
+            java="INQUIRE TDQUEUE of a queue with no TYPE stated",
+            c="INQUIRE TDQUEUE of a queue with no TYPE stated",
+        ),
+    ),
+    state=("handle_table",),
+)
+
+COMMANDS = (WRITEQ_TD, WRITEQ_TS, READQ_TS, DELETEQ_TS, READQ_TD, DELETEQ_TD, SET_TDQUEUE, INQUIRE_TDQUEUE)

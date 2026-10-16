@@ -164,6 +164,10 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     CicsTask.withTaskNumber): the equivalence harness states it for every task, so neither a case nor a program with
     no case yet has the gap; the crucible runner does not state it, so a crucible case's program keeps it."""
     assert "EIBTASKN" in pb.CASE_STATED_EIB and "EIBRCODE" not in pb.CASE_STATED_EIB
+    # #5126 (X64): an equivalence case states EIBDS, a crucible cell does not
+    assert "EIBDS" in pb.CASE_STATED_EIB and "EIBDS" not in pb.STATED_EIB
+    # the other EIB resource fields stay open, refused by name (X64)
+    assert not {"EIBFN", "EIBRCODE", "EIBCPOSN", "EIBREQID", "EIBRSRCE", "EIBERR", "EIBERRCD"} & pb.CASE_STATED_EIB
     facts = {"eib": {"EIBTASKN"}}
     assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
     assert pb.fact_gaps(facts, None) == set()
@@ -185,6 +189,19 @@ def test_eib_names_match_whole_words_outside_literals_and_comments():
                  "    MOVE EIBRCODE(1:1) TO C", "    MOVE 'EIBAID' TO D")  # fmt: skip
     assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBRCODE", "EIBERR"}
     assert pb.facts_needed(fixed("    MOVE 'A' TO X EIBDS."))["eib"] == {"EIBDS"}
+
+
+def test_assign_options_inside_a_literal_or_comment_are_no_fact_read():
+    """#5089: the fact scan skips string literals for every keyword, not just EIB fields: an ASSIGN written inside a
+    literal (a message, a generated-command template) or a comment line is no read of USERID / STARTCODE / APPLID."""
+    for src in (
+        fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC' TO X"),
+        fixed('    DISPLAY "EXEC CICS ASSIGN STARTCODE(S) END-EXEC"'),
+        "000100*    EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC\n",
+    ):
+        assert pb.facts_needed(src) == {"eib": set(), "assign_task": set(), "assign_region": set()}, src
+    real = fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) END-EXEC' TO X", "    EXEC CICS ASSIGN USERID(U) END-EXEC.")
+    assert pb.facts_needed(real)["assign_task"] == {"USERID"} and not pb.facts_needed(real)["assign_region"]
 
 
 def test_a_case_that_states_startcode_drops_the_gap(tmp_path):

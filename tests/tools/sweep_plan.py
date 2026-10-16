@@ -9,8 +9,8 @@ deselects them (mode "none": the full-suite parts run `-m "not golden_crucible a
 runs and reports. Every event that is not a pull_request (main push, nightly, manual), the `shepherd:full` label, and an
 unreadable or empty diff are "full".
 
-The sweeps read the whole engine (gitgalaxy/), the extraction tests and their harness, the suite's own config and the
-dependency pins, so this is an ALLOW-list of what they provably do not read, not a list of what they do: a file that
+The sweeps read the engine (gitgalaxy/, minus ENGINE_NON_INPUTS: the parts outside their import closure), the
+extraction tests and their harness, the suite's own config and the dependency pins, so this is an ALLOW-list of what they provably do not read, not a list of what they do: a file that
 matches nothing is an input (as ground_truth_plan.py, #5164). INPUTS win over NON_INPUTS. Stdlib only: the step runs
 before anything is installed.
 
@@ -43,6 +43,17 @@ INPUTS = (
     "tests/tools/test_sweep_plan.py",
 )
 
+# Parts of gitgalaxy/ that the sweeps provably do not import: none of these is in the (static, function-level imports
+# included) import closure of tests/extraction, which test_sweep_plan.py recomputes. They win over INPUTS' `gitgalaxy/*`.
+# A directory with any module in that closure (core/, metrics/, recorders/, security/, standards/ ...) stays an input.
+ENGINE_NON_INPUTS = (
+    "gitgalaxy/tools/cobol_to_java/*",  # the deterministic COBOL -> Java translator, its runtime and copybooks
+    "gitgalaxy/tools/terabyte_log_scanning/*",
+    "gitgalaxy/standards/cics/*",  # the CICS command spec
+    "gitgalaxy/cobol_to_java_controller.py",
+    "gitgalaxy/cobol_refractor_controller.py",
+)
+
 # What the sweeps do not read. Anything matching neither list is an input.
 NON_INPUTS = (
     "docs/*",
@@ -61,6 +72,8 @@ def matches(path: str, patterns: tuple[str, ...]) -> bool:
 
 def is_input(path: str) -> bool:
     """True unless `path` is provably something the sweeps do not read (when in doubt, an input)."""
+    if matches(path, ENGINE_NON_INPUTS):
+        return False
     return matches(path, INPUTS) or not matches(path, NON_INPUTS)
 
 

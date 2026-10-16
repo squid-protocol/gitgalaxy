@@ -29,6 +29,19 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
 
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); the stub's twin is equivalence_cics.EIBDS_VERBS
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(statements) -> bool:
+    """#5126 (X64): does any statement text name EIBDS -- a whole word, not the front of a hyphenated user name
+    (EIBDS-X) and not a literal's text ('EIBDS: ')?"""
+    return any(EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+
+
 class CicsError(Exception):
     pass
 
@@ -119,8 +132,8 @@ def command_key(words: list[str], opts: dict) -> str:
 _FORM_OPTION = {
     "RECEIVE": ("MAP",),
     "GET": ("COUNTER",),
-    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
-    "SET": ("TERMINAL",),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP", "TDQUEUE"),
+    "SET": ("TERMINAL", "TDQUEUE"),
     "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
     "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
@@ -157,7 +170,12 @@ def _arg(v: str | None) -> str:
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
 # a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
-_SECOND_OPTIONS = {"READ": ("UPDATE",), "READNEXT": ("UPDATE",), "READPREV": ("UPDATE",)}
+_SECOND_OPTIONS = {
+    "READ": ("UPDATE",),
+    "READNEXT": ("UPDATE",),
+    "READPREV": ("UPDATE",),
+    "POST": ("AFTER", "AT"),  # #5079 (X63): POST AFTER SECONDS(n)
+}
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -454,6 +472,7 @@ class Cics:
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
         self.region = region_page(None)
@@ -845,12 +864,26 @@ class Cics:
 
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
+        """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
+        set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
+        lines = self._command(text, ind)
+        if self.eibds_read:
+            words, opts = parse_exec(text)
+            file = opts.get("FILE") or opts.get("DATASET")
+            if words[:1] and " ".join(words) in EIBDS_VERBS and file:
+                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+        return lines
+
+    def _command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         if not words and next(iter(opts), None) == "WAIT":
             # #5079: WAIT is a bare option (RETRIEVE ... WAIT) to the parser, so a command that starts with it (WAIT EVENT,
             # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
             words = ["WAIT"]
             del opts["WAIT"]
+            if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
+                words = ["WAIT", "EVENT"]
+                del opts["EVENT"]
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -868,6 +901,12 @@ class Cics:
             return self.free_child(opts, ind)
         if verb.split()[0] == "DELAY":  # #4950: the wait at which RUN children are dispatched
             return self.delay(opts, ind)
+        if key == "POST":  # #5079 (X63): a timer-event control area
+            return self.post(opts, ind)
+        if key == "WAIT EVENT":
+            return self.wait_event(opts, ind)
+        if key == "CONVERSE":
+            return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
         if (
@@ -875,8 +914,11 @@ class Cics:
         ):  # #5089 (X60): CicsTask.enq -- NORMAL, or the ENQBUSY a scenario plans for the RESOURCE as written
             res = re.sub(r"\s+", "", (opts.get("RESOURCE") or "").upper())
             r = self.g.tmpname("enq")
-            return [f"{ind}int {r} = DetCics.resp(task.enq({G_jstr(res)}, {'true' if 'NOSUSPEND' in opts else 'false'}));",
-                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+            # LENGTH / MAXLIFETIME (X60): LENGERR 1 outside 1-255, INVREQ 2 for a CVDA that is not UOW / TASK
+            opt = {o: f"Integer.valueOf({self._number(_arg(opts[o]))})" if opts.get(o) else "null" for o in ("LENGTH", "MAXLIFETIME")}  # fmt: skip
+            nos = "true" if "NOSUSPEND" in opts else "false"
+            call = f"{ind}int[] {r} = task.enqChecked({G_jstr(res)}, {nos}, {opt['LENGTH']}, {opt['MAXLIFETIME']});"
+            return [call, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -904,8 +946,12 @@ class Cics:
                 if "DCOUNTER" in opts
                 else f"BigDecimal.valueOf({v}[2])"
             )
+            full = (
+                "COUNTER" in opts
+            )  # #4770 (X30): a fullword GET of a counter past 31 bits is LENGERR with the low 32 bits
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
-                    f"{ind}if ({v}[0] == 0) {{",
+                    *([f"{ind}{v} = task.fullwordGet({pool}, {nm}, {v});"] if full else []),
+                    f"{ind}if ({v}[0] == 0{' || ' + v + '[0] == 22' if full else ''}) {{",
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
@@ -940,8 +986,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
@@ -956,8 +1004,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
@@ -1235,6 +1285,28 @@ class Cics:
                     f"{ind}if ({r}[0] == 0) "
                     + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if key in ("INQUIRE TDQUEUE", "SET TDQUEUE"):  # #5168 round 3 (X61): an extrapartition queue's open state
+            for o in ("TDQUEUE", "OPENSTATUS") if key == "SET TDQUEUE" else ("TDQUEUE",):
+                if not opts.get(o):
+                    raise CicsError(
+                        _msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o)
+                    )
+            r = g.tmpname("tdq")
+            queue = self.name(_arg(opts["TDQUEUE"]))
+            if key == "SET TDQUEUE":
+                return [f"{ind}int[] {r} = task.setTdQueueOpenStatus({queue}, {self.int_(_arg(opts['OPENSTATUS']))});",
+                        *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+            wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+            if not wanted:
+                raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
+            wants = ", ".join(str(o in wanted).lower() for o in ("OPENSTATUS", "TYPE"))
+            lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3)):
+                if o in wanted:
+                    lines.append(
+                        ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
             prog = self.name(_arg(opts["PROGRAM"]))
@@ -1748,37 +1820,62 @@ class Cics:
             n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
+            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{', ' + from_ccsid if from_ccsid else ''});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
+            convert = _convertst(opts)
+            if convert and "INTOCCSID" in opts:
+                raise CicsError(_msg("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"))
+            if "CCSID" in opts and convert is None:
+                raise CicsError(_msg("GET CONTAINER", "requires", "CCSID"))
+            conv = f", {into_ccsid or '-1'}, {str(bool(convert)).lower()}" if into_ccsid or convert else ""
             if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
                 if not settable:
                     raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
                 ptr = self.pointer(opts["SET"])
-                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name});",
+                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name}{conv});",
                         f"{ind}CicsTask.ContainerResult {r} = {r}s.result();",
                         f"{ind}if ({r}s.handle() != 0) DetCics.setPointer({ptr}, {r}s.handle());"]  # fmt: skip
             elif nodata:
-                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
+                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1{conv});")
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
                 out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}));"),
+                         f"DetCics.containerLimit({target}, {most}){conv});"),
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+            if "CCSID" in opts:  # the container's own CCSID (0: BIT), set with FLENGTH: on NORMAL and LENGERR
+                set_ccsid = g.store_into(
+                    self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False
+                )
+                out.append(f"{ind}if ({r}.length() >= 0) {set_ccsid}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def container_ccsid(self, opts: dict, option: str, verb: str) -> str | None:
+        """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
+        37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
+        conversion assumes is CCSID 037: another declared page refuses the option."""
+        if option not in opts:
+            return None
+        if self.region != region_page(None):
+            raise CicsError(
+                f"{verb} {option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}"
+            )
+        return self.int_(_arg(opts[option]))
 
     def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
@@ -2010,6 +2107,79 @@ class Cics:
         else:
             ms, what = "0L", "DELAY"
         return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
+
+    def post(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS,
+        EXEC CICS POST) on CicsTask.post. SET: the pointer takes the new timer-event control area's handle (the 4 bytes
+        SET ADDRESS OF reads, zero until posted); EXPIRED and INVREQ RESP2 4 / 5 / 6 leave it as it was. No REQID: IBM
+        "generates one" and returns it in EIBREQID, which gets CicsTask's POSTnnnn (ASSUMED). No expiry option:
+        INTERVAL(0). The conditions go through RESP / HANDLE CONDITION."""
+        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+        if len(whens) > 1:
+            raise CicsError(_msg("POST", "at_most_one", "INTERVAL", " and ".join(whens)))
+        when = whens[0] if whens else "INTERVAL"
+        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+        if (when in ("AFTER", "AT")) != bool(hms):
+            raise CicsError(_msg("POST", "requires", "HOURS", when, " ".join(hms)))
+        vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
+        hhmmss = self._number(_arg(opts[when])) if when in ("INTERVAL", "TIME") and when in opts else "0"
+        reqid = self.name(_arg(opts["REQID"])) if "REQID" in opts else "null"
+        r = self.g.tmpname("post")
+        out = [f'{ind}CicsTask.PostResult {r} = task.post("{when}", {hhmmss}, {", ".join(vals)}, {reqid});']
+        if "SET" in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.setPointer({self.pointer(opts['SET'])}, {r}.handle());")
+        if "REQID" not in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.putPadded({self.field('EIBREQID')}, {r}.reqid(), CS);")
+        return [*out, *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]
+
+    def wait_event(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): WAIT EVENT ECADDR(ptr) [NAME] (IBM CICS TS, EXEC CICS WAIT EVENT) on CicsTask.waitEvent: the area
+        a POST made is posted at its expiry (the clock runs to it; a task takes no time, X4), so the task resumes at once;
+        INVREQ RESP2 2 for a null pointer. An address that is no POST's area, or one a later POST / CANCEL / START /
+        DELAY ended, is refused when it runs. NAME only labels the waiting task (INQUIRE TASK): it changes nothing."""
+        if not opts.get("ECADDR"):
+            raise CicsError(_msg("WAIT EVENT", "required", "ECADDR"))
+        r = self.g.tmpname("waited")
+        return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
+                *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+
+    def converse(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
+        (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first
+        FROMLENGTH bytes, else FROM's length), then a terminal RECEIVE of the reply (as `receive`: the most taken is
+        MAXLENGTH, else TOLENGTH's value, else INTO's length; TOLENGTH set to the reply's length, or the original length
+        under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
+        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
+        name by the spec entry."""
+        for req in ("FROM", "INTO"):
+            if not opts.get(req):
+                raise CicsError(_msg("CONVERSE", "required", req))
+        frm = _arg(opts["FROM"])
+        sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
+        length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
+        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
+        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        g = self.g
+        n = self.int_(sent) if sent else str(self.size(frm))
+        fixed = self.constant_int(sent) if sent else None
+        t, r = g.tmpname("text"), g.tmpname("conversed")
+        text = (
+            "Cobol.text({}, CS)"
+            if not sent or (fixed is not None and fixed <= self.size(frm))
+            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
+        ).format(self.read_field(frm), n)
+        target = self.field(opts["INTO"])
+        limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+        out = [f"{ind}String {t} = {text};",
+               (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
+                f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
+               f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
+        if settable and length is not None:
+            out.append(
+                f"{ind}if ({r}.length() >= 0) "
+                + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+            )
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
@@ -2915,6 +3085,17 @@ def _option(opts: dict, name: str) -> str | None:
     if name not in opts:
         return None
     return _arg(opts[name])
+
+
+def _convertst(opts: dict) -> bool | None:
+    """#4270 (X17): GET CONTAINER CONVERTST -- True for DFHVALUE(NOCONVERT) (734), the only value IBM documents; None when
+    not given."""
+    named = _option(opts, "CONVERTST")
+    if named is None:
+        return None
+    if re.fullmatch(r"(?is)\s*(DFHVALUE\s*\(\s*NOCONVERT\s*\)|734)\s*", named) is None:
+        raise CicsError(f"GET CONTAINER CONVERTST({named}): only DFHVALUE(NOCONVERT) is modelled")
+    return True
 
 
 def _datatype(opts: dict) -> str | None:

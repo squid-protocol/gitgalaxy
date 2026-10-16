@@ -88,11 +88,12 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 
 - `pr_check.py N` before merging (CI, mergeability, the ratchet files a PR must touch); `pr_check.py N --merge`
   squash-merges only when green; a draft is only marked ready by the first call and merged by a second once its CI is green. Drafts first; the merge is the orchestrator's call.
-- The purchaser-facing evidence report (#4601, `docs/language_status/evidence_report/`) reads the det-sweep and
+- The purchaser-facing evidence report (#4601; published on `generated`, read it with `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`) reads the det-sweep and
   crucible baselines, `cics_spec_status.json`, the cases, the evidence records and `oracle_assumptions.md`: a PR that
   changes one does NOT commit the rendered report (#4703): the evidence-refresh bot regenerates it on main and PR CI
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
-  baseline. Burned estates only; it never writes an evidence record.
+  baseline. Burned estates only; it never writes an evidence record. To see real drift use the non-live
+  `evidence_report.py --check`: `--live` fails against the published copy even when current (#5207).
 - `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
@@ -107,13 +108,19 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - **ruff is pinned at 0.16.0** (CI's): a different local ruff reformats unrelated lines. `ruff format` only the
   files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
 - **GnuCOBOL source in tests stays within column 72**: fixed-form COBOL drops columns 73-80, so a long line in a
-  test fixture silently loses its tail (and now trips the #4590 refusal).
+  test fixture silently loses its tail (and now trips the #4590 refusal). A test program built from EXEC CICS
+  command strings must wrap them (`textwrap.wrap`) or the layout reader fails with "source text past column 72
+  truncates ..." before the translator runs (#5216).
 - **A duplicate rosetta-audit run** on a PR gets cancelled by the concurrency group; the other run is the real one.
   A cancelled run is not a failure.
 - `cics_census.py survey` uses `$CICS_CENSUS_CORPORA` even when `--no-census` is given: unset it for a survey of
   one extra root only.
 - Census repos are read only through translator output and counts; nothing from them is committed but counts.
   Never open `docs/language_status/estate4_candidates.json`.
+  Commit aggregate counts only: no program names, per-program tells, lines or source; a census repo gets an opaque
+  hashed label (#5215).
+- `feature_inventory.scan_estate` on an unfamiliar estate can hit a `.cbl` that is not COBOL (an ISPF screen dump,
+  `NotCobol`): list it as unparsed, never let it crash the scan (#5215).
 - JDK 17 (`equivalence_env.py` exports it), `importorskip("tree_sitter_language_pack")` in any translator test, and
   the other traps in `cics-command-slice` section 2.
 

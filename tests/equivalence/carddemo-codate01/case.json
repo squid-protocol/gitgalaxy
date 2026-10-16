@@ -1,0 +1,168 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CODATE01",
+ "program_source": "app/app-vsam-mq/cbl/CODATE01.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "transid": "CDRD",
+ "clock": "2022/07/18 10:30:15.00",
+ "region": {
+  "applid": "CARDDEMO",
+  "sysid": "CICA"
+ },
+ "commarea": null,
+ "screens": {},
+ "mq": {
+  "qmgr": "CSQ1",
+  "ccsid": 37,
+  "queues": {
+   "CARDDEMO.REQUEST.QUEUE": {
+    "messages": []
+   },
+   "CARD.DEMO.REPLY.DATE": {},
+   "CARD.DEMO.ERROR": {}
+  }
+ },
+ "start_data": [
+  {
+   "mqtm": {
+    "qname": "CARDDEMO.REQUEST.QUEUE",
+    "processname": "CARDDEMO.DATE.PROCESS",
+    "applid": "CDRD"
+   }
+  }
+ ],
+ "scenarios": [
+  {
+   "name": "no-trigger-data",
+   "start_data": [],
+   "why": "RETRIEVE answers ENDDATA: 'CICS RETRIEVE' to the error queue, then 8000-TERMINATION"
+  },
+  {
+   "name": "no-request",
+   "why": "the request queue is empty: MQGET 2033 ends the loop at once"
+  },
+  {
+   "name": "one-request",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "one request: the date reply put under syncpoint, committed by the SYNCPOINT before the next get"
+  },
+  {
+   "name": "three-requests",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     },
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0002",
+      "msgid": "CLIENT-MSG-0002"
+     },
+     {
+      "data": "DATE AGAIN",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE"
+     }
+    ]
+   },
+   "why": "three requests, each replied to with its own MsgId and CorrelId, one SYNCPOINT after each"
+  },
+  {
+   "name": "priority-order",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "LOW",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "priority": 1
+     },
+     {
+      "data": "HIGH",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "priority": 7
+     }
+    ]
+   },
+   "why": "the higher-priority request is got first (MSGDLVSQ(PRIORITY), W3)"
+  },
+  {
+   "name": "request-too-long",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE"
+     }
+    ]
+   },
+   "why": "a 1001-byte request into a 1000-byte buffer: MQRC_TRUNCATED_MSG_FAILED (2080, MQCC_WARNING), the message stays on the queue; 'INP MQGET ERR:' to the error queue"
+  },
+  {
+   "name": "unknown-request-queue",
+   "start_data": [
+    {
+     "mqtm": {
+      "qname": "CARDDEMO.NO.SUCH.QUEUE"
+     }
+    }
+   ],
+   "why": "the trigger names a queue the queue manager has not: MQOPEN 2085, 'INP MQOPEN ERR' to the error queue"
+  },
+  {
+   "name": "no-reply-queue",
+   "mq": {
+    "qmgr": "CSQ1",
+    "ccsid": 37,
+    "queues": {
+     "CARDDEMO.REQUEST.QUEUE": {
+      "messages": []
+     },
+     "CARD.DEMO.ERROR": {}
+    }
+   },
+   "why": "the reply queue is not defined: MQOPEN 2085, 'OUT MQOPEN ERR' to the error queue"
+  },
+  {
+   "name": "no-error-queue",
+   "mq": {
+    "qmgr": "CSQ1",
+    "ccsid": 37,
+    "queues": {
+     "CARDDEMO.REQUEST.QUEUE": {
+      "messages": []
+     },
+     "CARD.DEMO.REPLY.DATE": {}
+    }
+   },
+   "why": "the error queue is not defined: its MQOPEN fails first and the error is DISPLAYed"
+  }
+ ],
+ "notes": "CardDemo's MQ date inquiry (transaction CDRD, program CODATE01, app-vsam-mq): each request on the trigger's queue is answered on CARD.DEMO.REPLY.DATE with the ASKTIME / FORMATTIME date and time (the case's pinned clock), a SYNCPOINT after each; errors go to CARD.DEMO.ERROR. The queue manager is a stated fact (\"mq\": its name CSQ1 and CCSID 37 are illustrative, CardDemo fixes neither; the request, reply and error queues the program names), given alike to both sides (register W3). The task is started by the CKTI trigger monitor in production; here its START data is stated: an MQTM (\"start_data\", CMQTML layout) naming the request queue (W8). The MQ copybooks are GitGalaxy-written stand-ins (W1); every MQI call is an event compared on both sides with its completion and reason code, and the queues the task leaves (its normal end commits it, W5) are compared. A wait on the empty request queue ends at once with MQRC_NO_MSG_AVAILABLE (W2). Branch coverage is under-reported: GnuCOBOL's trace gives an EVALUATE / IF that follows an unterminated CALL ... USING the CALL's last line, so cobol_coverage does not see it taken (every MQ call's EVALUATE is reached by these scenarios). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

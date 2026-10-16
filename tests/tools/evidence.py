@@ -101,12 +101,13 @@ MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the gen
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py", "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
-           "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py")  # fmt: skip
+           "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
+           "tests/tools/equivalence_ims.py")  # fmt: skip
 CRUCIBLE_HARNESS = (*HARNESS, "tests/tools/cics_crucible.py", "tests/tools/cics_crucible_compare.py")
 ORACLE = ("tests/equivalence/gnucobol.Dockerfile", "tests/equivalence/gnucobol-db2.Dockerfile",
           "tests/equivalence/odbc_cli.pin",
           "tests/equivalence/cics/**", "tests/equivalence/le/**", "tests/equivalence/faults/**",
-          "tests/equivalence/db2/**", "tests/tools/equivalence_sql.py")  # fmt: skip
+          "tests/equivalence/db2/**", "tests/tools/equivalence_sql.py", "tests/equivalence/ims/ggdli.c")  # fmt: skip
 GENERATOR = ("gitgalaxy/tools/cobol_to_java/**",)  # #4048 Q2 (default): the Java generator, not the whole engine
 NOT_PORT = ("*/provenance.json", f"*/{RECORD_NAME}")
 EMPTY_SHA = hashlib.sha256(b"").hexdigest()
@@ -200,6 +201,7 @@ class Use:
     db2: bool
     programs: bool = False
     port_text: Callable[[], str] = lambda: ""
+    ims: bool = False  # #4893: a batch DL/I case (its "ims" section)
 
     @property
     def crucible(self) -> bool:
@@ -286,6 +288,20 @@ COMPONENTS: tuple[Component, ...] = (
         "ggsql.c / ggsqlrun.c, the Db2 units of work and the SQL precompiler: Db2 cases only",
     ),
     Component(
+        "harness:ims",
+        "harness",
+        ("tests/tools/equivalence_ims.py",),
+        lambda u: u.ims,
+        "the DL/I databases' DBD / PSB reading, seeds and comparison: IMS cases only",
+    ),
+    Component(
+        "oracle:ims",
+        "oracle",
+        ("tests/equivalence/ims/ggdli.c",),
+        lambda u: u.ims,
+        "ggdli.c, the DL/I model: linked into IMS cases only",
+    ),
+    Component(
         "oracle:file-io",
         "oracle",
         ("tests/equivalence/faults/ggfault.c",),
@@ -362,7 +378,7 @@ def component_shas(
             if p.endswith(".java")
         )
 
-    u = Use(t.kind, t.db2, t.programs, functools.lru_cache(maxsize=1)(port_text))
+    u = Use(t.kind, t.db2, t.programs, functools.lru_cache(maxsize=1)(port_text), t.ims)
     out: dict[str, str] = {}
     for c in COMPONENTS:
         if c.name in parts and (u.crucible or c.uses(u)):
@@ -419,6 +435,7 @@ class Target:
     specs: dict[str, dict[str, Any]] = field(default_factory=dict)
     corpus: dict[str, str] = field(default_factory=dict)
     db2: bool = False
+    ims: bool = False  # #4893: the case states IMS DL/I databases
     programs: bool = False  # the case LINKs programs, whose Java the proof translates with det (linked_programs)
 
     @property
@@ -469,7 +486,7 @@ def equivalence_target(case: str) -> Target:
     return Target(key=case, kind=data.get("kind", "batch"), case=case, program=data["program"].upper(),
                   record=CASES / case / RECORD_NAME, port_dir=CASES / port_case / "port", specs=specs,
                   corpus={"name": corpus, "ref": _corpus_refs().get(corpus, "")}, db2=bool(data.get("db2")),
-                  programs=bool(data.get("programs")))  # fmt: skip
+                  ims=bool(data.get("ims")), programs=bool(data.get("programs")))  # fmt: skip
 
 
 def crucible_target(case: str, program: str) -> Target:

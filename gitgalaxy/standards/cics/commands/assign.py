@@ -87,7 +87,7 @@ ASSIGN = Command(
             env="GGCICS_STARTCODE",
             region_default=None,
             options=("STARTCODE",),
-            values=("TD", "S", "SD"),
+            values=("TD", "S", "SD", "D"),
         ),
         Fact("userid", java="withUserid", env="GGCICS_USERID", region_default="CICSUSER", options=("USERID",)),
         Fact("facility", java=None, env="GGCICS_FACILITY", region_default=None, options=("FACILITY",)),

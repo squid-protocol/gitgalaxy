@@ -274,10 +274,9 @@ are always shown
 | L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
 | L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (not yet measured, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
 
-**Where it stands** (2026-10-12): across **6 public estates and 127 programs, 96 are at L2
-or better and 34 at L4**, all det-ported with no model. The
-[per-estate evidence report](docs/language_status/evidence_report/README.md) is regenerated on
-every push to main, so read the current numbers there. The det ports include COACTUPC
+**Where it stands**: across 6 public estates and 127 programs, all det-ported with no model. The
+[per-estate evidence report](docs/language_status/evidence_report/README.md) is published on the `generated`
+branch, regenerated on every push to main and nightly, so the current level counts are there and nowhere on main. The det ports include COACTUPC
 (account update, 4,236 lines), which no model ported in one answer; CICS programs that LINK
 to others in the same task (proven together); and named counters, SYNCPOINT ROLLBACK and
 abend backout across files and Db2. The design and runtime contract are in

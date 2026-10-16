@@ -88,6 +88,8 @@ IMPORTERS: set[str] = {
     "tests/tools/equivalence_cics.py",
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",
+    "tests/tools/blocker_report.py",  # #5054: the blocker signatures' vocabulary is the spec's command and option words
+    "gitgalaxy/tools/readiness/schema.py",  # #4726: the spec's command and option words are assess's CICS vocabulary
 }
 _IMPORTS_SPEC = re.compile(
     r"^\s*(?:from\s+gitgalaxy\.standards(?:\.cics\b|\s+import\s+cics\b)|import\s+gitgalaxy\.standards\.cics\b)", re.M
@@ -169,7 +171,7 @@ def test_resp_tables():
 # ---- the CLI -------------------------------------------------------------------------------------------------------
 def test_cli_check_and_emit(capsys):
     assert cli.main(["check"]) == 0
-    assert "255 commands, ok" in capsys.readouterr().out
+    assert "257 commands, ok" in capsys.readouterr().out
     assert cli.main(["emit", "--json", "SEND MAP"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert list(data["commands"]) == ["SEND MAP"]
@@ -237,7 +239,7 @@ def test_the_runtimes_keep_no_hand_copy_of_the_generated_tables():
 
 
 def test_python_m_runs_the_cli():
-    assert "cics spec: 255 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
+    assert "cics spec: 257 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
                                                "try:\n    runpy.run_module('gitgalaxy.standards.cics', run_name='__main__')\n"
                                                "except SystemExit as e:\n    assert e.code == 0")  # fmt: skip
 
@@ -247,10 +249,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 95 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 100 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
     # IBM's CICS TS 6.x command summary: 259 API command names, 57 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS; #5039: REWIND COUNTER, UPDATE COUNTER, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 158 name-only
-    assert len(by_status["refused"]) == 158
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 155 name-only
+    assert len(by_status["refused"]) == 155
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.refused and not c.outcomes, key

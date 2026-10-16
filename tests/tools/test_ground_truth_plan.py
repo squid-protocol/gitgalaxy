@@ -126,9 +126,11 @@ def _closure():
         TOOLS / "mainframe_corpus.py",
     ]
 
+    word_re = re.compile(r"\w+")
+    mod_names = mods.keys()
+
     def named(path):
-        text = read_source(path).text
-        return {m for m in mods if re.search(rf"\b{re.escape(m)}\b", text)}
+        return mod_names & set(word_re.findall(read_source(path).text))
 
     seen: set[str] = set()
     for s in seeds:

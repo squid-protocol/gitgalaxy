@@ -280,6 +280,8 @@ public class CicsTask {
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private final Map<String, Object> resources = new HashMap<>();  // #4892: resource managers joined (the root's)
+    private final List<Consumer<Boolean>> uowParticipants = new ArrayList<>();  // #4892: told as its unit of work ends
     private int children;                                   // #4270: the RUN TRANSID children it attached
     private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
     private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
@@ -1227,6 +1229,8 @@ public class CicsTask {
             throw refused("WEB SEND of an empty container");
         } else if (k.bit) {
             throw refused("WEB SEND of a DATATYPE BIT container");
+        } else if (k.ccsid != REGION_CCSID) {
+            throw refused("WEB SEND of a container in a CCSID other than the region's");
         }
         return webSendBody(pre != null ? "" : new String(k.data, cs), mediaType, action, status, statusText, statusLength,
                 conv, false, null, 0, pre);
@@ -2219,7 +2223,14 @@ public class CicsTask {
         if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
             throw new UnsupportedOperationException("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
         }
-        return "DEFERRED".equals(tdAttr(q, "OPENTIME")) ? 2 : file.equals("INPUT") ? 0 : 1;
+        return tdExtraClosed(q) ? 2 : file.equals("INPUT") ? 0 : 1;
+    }
+
+    /** #5168 round 3 (X61): true when an extrapartition queue's data set is closed: the state a SET TDQUEUE OPENSTATUS left, else
+     *  OPENTIME DEFERRED; INITIAL, or none stated (ASSUMED), is open. */
+    private boolean tdExtraClosed(String q) {
+        Boolean set = root().tempStorage.tdOpen.get(q);
+        return set != null ? !set : "DEFERRED".equals(tdAttr(q, "OPENTIME"));
     }
 
     /** #5168 (X61): RECOVSTATUS. LOGICAL: the queue as it was at the end of the last unit of work comes back on a rollback (the
@@ -2233,6 +2244,33 @@ public class CicsTask {
             root.tdUow.computeIfAbsent(q, k -> now == null ? new java.util.ArrayDeque<>() : new java.util.ArrayDeque<>(now));
         } else if ("PHYSICAL".equals(recov)) {
             root.tdPhysical.add(q);
+        }
+    }
+
+    /** #4892 (register W5): a resource manager the runner joins to the task -- cobolrt.mq's queue manager ("mq") --
+     *  found again by resource(name), and told as the task's unit of work ends: SYNCPOINT (false); SYNCPOINT ROLLBACK
+     *  and the backout of an abend that ends the task (true), as the stub's uow_end tells tests/equivalence/mq/ggmq.c. */
+    public CicsTask withResource(String name, Object manager, Consumer<Boolean> uowEnd) {
+        root().resources.put(name, manager);
+        if (uowEnd != null) {
+            root().uowParticipants.add(uowEnd);
+        }
+        return this;
+    }
+
+    /** #4892: the resource manager joined under `name`, or null. */
+    public Object resource(String name) {
+        return root().resources.get(name);
+    }
+
+    /** #4892: an event a resource manager records in the task's stream (an MQI call, as ggmq.c's ggcics_event). */
+    public void resourceEvent(String kind, Object... kv) {
+        event(kind, kv);
+    }
+
+    private void resourceUowEnd(boolean rollback) {
+        for (Consumer<Boolean> p : root().uowParticipants) {
+            p.accept(rollback);
         }
     }
 
@@ -2256,6 +2294,96 @@ public class CicsTask {
         root.tdPhysical.clear();
     }
 
+    /** #5168 (X61): WRITEQ TD to an extrapartition queue: NOTOPEN (19) when closed (OPENTIME DEFERRED), INVREQ (16) when open for
+     *  input; a queue with no TYPEFILE (or RDBACK) is taken as open for output (ASSUMED), as before. */
+    private int tdExtraWriteResp(String q) {
+        if (tdExtraClosed(q)) {
+            return 19;
+        }
+        return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
+    }
+
+    /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
+    private int tdTypeCvda(String q, int kind) {
+        if (kind == 1) {
+            return 222;
+        }
+        if (kind == 2) {
+            return 221;
+        }
+        String type = root().tdTypes == null ? "" : root().tdTypes.getOrDefault(q, "");
+        if (type.equals("INDIRECT")) {
+            return 122;
+        }
+        if (type.equals("REMOTE")) {
+            return 4;
+        }
+        throw new UnsupportedOperationException("INQUIRE TDQUEUE of a queue with no TYPE stated: not modelled");
+    }
+
+    /** SET TDQUEUE(q) OPENSTATUS(cvda) (#5168 round 3, X61; IBM CICS TS 6.x SET TDQUEUE): an extrapartition queue's data set "is to
+     *  be opened" (OPEN 18) or "closed" (CLOSED 19); the state replaces OPENTIME and outlives the task. Returns {RESP, RESP2}:
+     *  QIDERR (44) RESP2 1, INVREQ (16) RESP2 9 for an intrapartition queue, RESP2 8 for an invalid CVDA. Setting the state a queue is
+     *  in is NORMAL (ASSUMED). Refused: an INDIRECT / REMOTE queue, an invalid CVDA on a queue that is not extrapartition (IBM does
+     *  not order the conditions), OPEN with no TYPEFILE INPUT / OUTPUT, OPEN of an input queue already read, RESP2 16 (the DDNAME
+     *  is taken as found). */
+    public int[] setTdQueueOpenStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 18 || cvda == 19;
+        if (!valid && kind != 2) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition: "
+                    + "IBM does not say which condition comes first: not modelled");
+        }
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind == 1) {
+            return new int[] {16, 9};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 8};
+        }
+        if (cvda == 18) {
+            String file = tdAttr(q, "TYPEFILE");
+            if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE "
+                        + "INPUT / OUTPUT: not modelled");
+            }
+            if ("INPUT".equals(file) && root().tempStorage.tdRead.contains(q)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read: reopening "
+                        + "restarts the data set: not modelled");
+            }
+        }
+        root().tempStorage.tdOpen.put(q, cvda == 18);
+        return new int[] {0, 0};
+    }
+
+    /** INQUIRE TDQUEUE(q) OPENSTATUS(area) TYPE(area) (#5168 round 3, X61): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA}. QIDERR (44)
+     *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
+     *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1, 0, 0};
+        }
+        int typeCvda = type ? tdTypeCvda(q, kind) : 0;
+        int status = 0;
+        if (openStatus) {
+            if (kind == 2) {
+                status = tdExtraClosed(q) ? 19 : 18;
+            } else {
+                tdTypeCvda(q, kind);
+                status = 1;
+            }
+        }
+        return new int[] {0, 0, status, typeCvda};
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
      *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
      *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
@@ -2266,7 +2394,7 @@ public class CicsTask {
         String t = tdResolve(q);
         int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0] : kind == 0 ? 44 : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
             tdTouch(t);
@@ -2309,6 +2437,9 @@ public class CicsTask {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
+            if (kind == 2) {
+                tempStorage.tdRead.add(t);
+            }
             resp = record.length() > maxLength ? "LENGERR" : "NORMAL";
         } else if (resp.equals("LENGERR")) {
             data = "";
@@ -2739,6 +2870,9 @@ public class CicsTask {
             e.put("resp2", 1);
         }
         e.put("expires", at == null ? null : at.format(ISO));
+        if ("NORMAL".equals(resp)) {
+            task.releasePost();  // #5079 (X63): IBM, POST: a local START ends the POST's timer-event control area
+        }
         add(e);
         return new StartResult(resp, at, resp2);
     }
@@ -2841,7 +2975,7 @@ public class CicsTask {
     /** #4950: a copy of a channel's containers, under `name`. */
     private static Channel copyOf(Channel from, String name) {
         Channel ch = new Channel(name);
-        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit)));
+        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit, v.ccsid)));
         return ch;
     }
 
@@ -2953,6 +3087,7 @@ public class CicsTask {
      *  of time is refused (what it means for the children's order is not modelled). */
     public void delay(long millis, String what) {
         CicsTask task = root();
+        task.releasePost();  // #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's timer-event control area
         if (millis < 0) {
             if (!task.kids.isEmpty() || task.dispatched) {
                 throw new UnsupportedOperationException("DELAY in a task with RUN TRANSID children (or in a child): "
@@ -3214,9 +3349,115 @@ public class CicsTask {
         String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
         if ("NORMAL".equals(resp)) {
             task.ownRequests.remove(reqid);
+            if (reqid.equals(task.postReqid)) {
+                task.postCancelled();  // #5079 (X63): IBM, POST: a CANCEL of the POST posts its area
+            }
         }
         event("CANCEL", "reqid", reqid, "resp", resp);
         return resp;
+    }
+
+    // ---- #5079 (register X63): POST and WAIT EVENT -- a timer-event control area, on the stated clock -------------------
+    private long postBlock;  // the live POST's area (a block of task storage), 0 when none
+    private LocalDateTime postAt;  // when it expires
+    private String postReqid;  // its REQID
+    private int postSeq;  // the REQIDs CICS generated (POST with no REQID)
+    private final java.util.Set<Long> postAreas = new java.util.HashSet<>();  // every area a POST made
+    private final java.util.Set<Long> postReleased = new java.util.HashSet<>();  // those a later command ended
+
+    /** A POST's outcome: its condition, RESP2, the handle of the new area (0: none) and the REQID it runs under. */
+    public record PostResult(String resp, int resp2, long handle, String reqid) {
+    }
+
+    /** POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS, EXEC CICS
+     *  POST): "This 4-byte control area is initialized to binary zeros" and posted ("its first byte is set to X'40' and
+     *  its third byte to X'80'") when the time expires or the POST is CANCELled. `how` INTERVAL, TIME, AFTER or AT
+     *  (the hours, minutes, seconds null when not given). INVREQ RESP2 4 / 5 / 6 for hours, minutes, seconds out of
+     *  range; EXPIRED for a TIME already past (nothing is made). A task takes no time (X4), so the area is posted only
+     *  by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL. A POST with no REQID runs under POSTnnnn
+     *  (ASSUMED: IBM "generates one"). A task has one live POST: a later POST, a local START or a DELAY ends it. */
+    public PostResult post(String how, int hhmmss, Integer hours, Integer minutes, Integer seconds, String reqid) {
+        CicsTask task = root();
+        int resp2 = 0;
+        if ("AFTER".equals(how) || "AT".equals(how)) {
+            hhmmss = hhmmss(hours, minutes, seconds);
+            if (hhmmss < 0) {
+                resp2 = -hhmmss;
+            }
+        } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+            resp2 = 4;
+        } else if (hhmmss / 100 % 100 > 59) {
+            resp2 = 5;
+        } else if (hhmmss % 100 > 59) {
+            resp2 = 6;
+        }
+        if (resp2 != 0) {
+            return new PostResult("INVREQ", resp2, 0, reqid);
+        }
+        LocalDateTime clock = now();
+        int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+        LocalDateTime at;
+        if ("TIME".equals(how) || "AT".equals(how)) {
+            at = clock.toLocalDate().atStartOfDay().plusHours(hh).plusMinutes(mm).plusSeconds(ss);
+            if (hh <= 23 && at.isBefore(clock)) {
+                return new PostResult("EXPIRED", 0, 0, reqid);
+            }
+        } else {
+            at = clock.plusSeconds(hh * 3600L + mm * 60L + ss);
+        }
+        String id = reqid == null ? String.format(java.util.Locale.ROOT, "POST%04d", ++task.postSeq) : reqid;
+        task.releasePost();
+        task.postBlock = acquireSet(null, new byte[4]);
+        task.postAt = at;
+        task.postReqid = id;
+        task.postAreas.add(task.postBlock);
+        task.ownRequests.put(id, at);
+        return new PostResult("NORMAL", 0, task.postBlock, id);
+    }
+
+    private void releasePost() {
+        if (postBlock != 0) {
+            postReleased.add(postBlock);
+            ownRequests.remove(postReqid);
+            postBlock = 0;
+            postReqid = null;
+        }
+    }
+
+    private void postArea(long handle) {
+        byte[] b = blocks.get(handle).bytes;
+        b[0] = 0x40;
+        b[2] = (byte) 0x80;
+    }
+
+    private void postCancelled() {
+        postArea(postBlock);
+        releasePost();
+    }
+
+    /** WAIT EVENT ECADDR(ptr) (IBM CICS TS, EXEC CICS WAIT EVENT): {RESP, RESP2}. INVREQ RESP2 2 for a null pointer. An
+     *  area not yet posted is posted at its expiry: the RUN children not yet run are dispatched and the scheduler's
+     *  clock runs to the expiry (a task takes no time, X4). An area already posted returns at once (ASSUMED: IBM does
+     *  not say). Refused: an address that is no POST's area, an area a later POST, CANCEL, local START or DELAY ended
+     *  (IBM: "unpredictable"). */
+    public int[] waitEvent(long handle) {
+        CicsTask task = root();
+        if (handle == 0) {
+            return new int[] {16, 2};
+        }
+        if (!task.postAreas.contains(handle)) {
+            throw refused("WAIT EVENT on an address that is no POST's timer-event control area");
+        }
+        if (task.postReleased.contains(handle)) {
+            throw refused("WAIT EVENT on a timer-event control area a later POST, CANCEL, START or DELAY ended");
+        }
+        if (task.blocks.get(handle).bytes[0] != 0x40) {
+            task.dispatchChildren();
+            task.waited += Math.max(0L, java.time.Duration.between(now(), task.postAt).toMillis());
+            task.postArea(handle);
+            task.ownRequests.remove(task.postReqid);
+        }
+        return new int[] {0, 0};
     }
 
     /** ENQ RESOURCE(resource) (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) --
@@ -3234,6 +3475,26 @@ public class CicsTask {
         }
         event("ENQ", "resource", resource, "resp", respName(planned[0]));
         return respName(planned[0]);
+    }
+
+    /** ENQ's own operands (#5089, register X60): LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that
+     *  is no CVDA of ENQ (UOW 246, TASK 233) is INVREQ RESP2 2 (IBM EXEC CICS ENQ "Conditions"); otherwise enq(). A null
+     *  length / maxlife is an option the program did not write. Two bad operands at once: IBM names no order, so refused.
+     *  Returns {RESP, RESP2}; the failed ENQ records the event with its RESP2. */
+    public int[] enqChecked(String resource, boolean nosuspend, Integer length, Integer maxlife) {
+        boolean badLength = length != null && (length < 1 || length > 255);
+        boolean badLife = maxlife != null && maxlife != 246 && maxlife != 233;
+        if (badLength && badLife) {
+            throw new UnsupportedOperationException("ENQ with LENGTH outside 1-255 and an invalid MAXLIFETIME: which "
+                    + "condition IBM raises first is not stated, not modelled");
+        }
+        if (badLength || badLife) {
+            int resp = badLength ? 22 : 16;
+            int resp2 = badLength ? 1 : 2;
+            event("ENQ", "resource", resource, "resp", respName(resp), "resp2", resp2);
+            return new int[] {resp, resp2};
+        }
+        return new int[] {CicsSpec.resp(enq(resource, nosuspend)), 0};
     }
 
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
@@ -3280,11 +3541,74 @@ public class CicsTask {
     private static final class Container {
         private byte[] data;
         private final boolean bit;
+        private final int ccsid;  // a CHAR container's CCSID (the first PUT's, else the region's); 0 for BIT
 
         private Container(byte[] data, boolean bit) {
+            this(data, bit, bit ? 0 : REGION_CCSID);
+        }
+
+        private Container(byte[] data, boolean bit, int ccsid) {
             this.data = data;
             this.bit = bit;
+            this.ccsid = ccsid;
         }
+    }
+
+    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages
+    // that keep a container's length) and 1208 (UTF-8) for ASCII data, one byte a character. The bytes a program holds in its
+    // storage are read as the region's page (the port's convention, #4528): an area's byte is the character the region's
+    // page gives the byte it encodes to, and a conversion is the character-to-character map between the two pages, applied
+    // to the storage's bytes (a 1208 byte is the ASCII character itself, kept in storage as the region's page decodes it). A
+    // character the target page lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by
+    // a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is a 1208 byte or character beyond
+    // ASCII (a multibyte sequence changes the length).
+    private static final int REGION_CCSID = 37;
+    private int lastContainerCcsid;
+
+    private static java.nio.charset.Charset ccsidCharset(int ccsid, String what) {
+        switch (ccsid) {
+            case 37:
+                return java.nio.charset.Charset.forName("Cp037");
+            case 500:
+                return java.nio.charset.Charset.forName("Cp500");
+            case 1140:
+                return java.nio.charset.Charset.forName("Cp1140");
+            case 1208:
+                return java.nio.charset.StandardCharsets.UTF_8;
+            default:
+                throw refused(what + "(" + ccsid + "): only the CCSIDs 37, 500, 1140 and 1208 are modelled (CCSIDERR RESP2 1 / "
+                        + "2 for another)");
+        }
+    }
+
+    /** `data` (storage bytes holding CCSID `from` data) as CCSID `to` data; the same bytes when the CCSIDs are equal. */
+    static byte[] convertContainer(byte[] data, int from, int to, String what) {
+        java.nio.charset.Charset f = ccsidCharset(from, what);
+        java.nio.charset.Charset t = ccsidCharset(to, what);
+        if (from == to) {
+            return data;
+        }
+        java.nio.charset.Charset region = ccsidCharset(REGION_CCSID, what);
+        byte[] out = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
+            if (from == 1208 && real < 0) {
+                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            }
+            String c = new String(new byte[] {real}, f);
+            if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {
+                throw refused(what + (to == 1208 ? " code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte "
+                        + "sequence)" : " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
+                        + "does not say what the command then stores or sets)"));
+            }
+            out[i] = (byte) new String(c.getBytes(t), region).charAt(0);
+        }
+        return out;
+    }
+
+    /** The CCSID of the container the last GET CONTAINER read (0: a BIT container): GET CONTAINER CCSID(area). */
+    public int containerCcsid() {
+        return lastContainerCcsid;
     }
 
     /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
@@ -3413,6 +3737,14 @@ public class CicsTask {
      *  The data replaces the container's, or with APPEND follows it. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append) {
+        return putContainer(channel, container, data, flength, type, append, -1);
+    }
+
+    /** PUT CONTAINER ... FROMCCSID(fromCcsid) / FROMCODEPAGE (`fromCcsid` the CCSID, -1: none): the data is CHAR in that
+     *  CCSID ("DATATYPE(DFHVALUE(CHAR)) is implied"). A new container takes it as its CCSID; the data put on an existing CHAR
+     *  container is converted to the container's ("converted (if required)"). BIT with FROMCCSID is INVREQ RESP2 34. */
+    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
+                                        boolean append, int fromCcsid) {
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -3439,8 +3771,22 @@ public class CicsTask {
         }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
         String name = channelName(container, "container");
+        if (ch == null && fromCcsid >= 0 && type != null) {
+            throw refused("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and "
+                    + "IBM ranks neither");
+        }
         if (ch == null) {
-            return new ContainerResult("INVREQ", type == null ? 4 : 1, -1, null);
+            return new ContainerResult("INVREQ", fromCcsid >= 0 ? 2 : type == null ? 4 : 1, -1, null);
+        }
+        if (fromCcsid >= 0) {
+            ccsidCharset(fromCcsid, "PUT CONTAINER FROMCCSID");
+            if (flength < 0) {
+                throw refused("PUT CONTAINER FROMCCSID with a negative FLENGTH: which condition IBM raises first is not "
+                        + "documented");
+            }
+            if ("BIT".equals(type)) {
+                return new ContainerResult("INVREQ", 34, -1, null);
+            }
         }
         if (flength < 0) {
             return new ContainerResult("LENGERR", 1, -1, null);
@@ -3454,15 +3800,23 @@ public class CicsTask {
             throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
                     + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
         }
+        if (c != null && c.bit && fromCcsid >= 0) {
+            throw refused("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
+        }
+        boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
         if (c == null) {
-            ch.containers.put(name, new Container(data.clone(), !"CHAR".equals(type)));
+            ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));
             ch.shape++;
-        } else if (append) {
-            byte[] joined = Arrays.copyOf(c.data, c.data.length + data.length);
-            System.arraycopy(data, 0, joined, c.data.length, data.length);
+            return new ContainerResult("NORMAL", 0, -1, null);
+        }
+        byte[] put = c.bit ? data : convertContainer(data, fromCcsid >= 0 ? fromCcsid : REGION_CCSID, c.ccsid,
+                "PUT CONTAINER");
+        if (append) {
+            byte[] joined = Arrays.copyOf(c.data, c.data.length + put.length);
+            System.arraycopy(put, 0, joined, c.data.length, put.length);
             c.data = joined;
         } else {
-            c.data = data.clone();
+            c.data = put.clone();
         }
         return new ContainerResult("NORMAL", 0, -1, null);
     }
@@ -3478,7 +3832,16 @@ public class CicsTask {
      *  CONTAINER, a MOVE CONTAINER, the channel leaving scope or a DELETE CHANNEL. Refused: a PUT or MOVE onto the
      *  container while the pointer is held (IBM does not say what the pointer then sees). Handle 0: no block. */
     public SetBlock getContainerSet(String channel, String container) {
-        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE);
+        return getContainerSet(channel, container, -1, false);
+    }
+
+    /** GET CONTAINER SET with INTOCCSID / INTOCODEPAGE (`intoCcsid`, -1: none) or CONVERTST(NOCONVERT) (`noConvert`). */
+    public SetBlock getContainerSet(String channel, String container, int intoCcsid, boolean noConvert) {
+        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE, intoCcsid, noConvert);
+        if ("CCSIDERR".equals(r.resp())) {
+            throw refused("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say "
+                    + "whether a block is then acquired");
+        }
         if (!"NORMAL".equals(r.resp())) {
             return new SetBlock(r, 0);
         }
@@ -3496,23 +3859,45 @@ public class CicsTask {
      *  CONTAINERERR RESP2 10 for a container the channel does not have. Longer data is truncated to INTO with
      *  LENGERR RESP2 11; FLENGTH "returns the length of the data in the container" (NORMAL, LENGERR). */
     public ContainerResult getContainer(String channel, String container, int maxLength) {
+        return getContainer(channel, container, maxLength, -1, false);
+    }
+
+    /** GET CONTAINER ... INTOCCSID(intoCcsid) / INTOCODEPAGE (-1: none) | CONVERTST(NOCONVERT) (`noConvert`): the data as
+     *  CCSID `intoCcsid` (else the region's; a CHAR container's own with NOCONVERT) -- "conversion applies only to character
+     *  data". A BIT container is returned as it is when INTOCCSID names a CCSID, with CCSIDERR RESP2 3 ("The data was returned
+     *  without any code page conversion"); FLENGTH is then left alone (ASSUMED: IBM does not say), and a BIT container longer than
+     *  INTO is refused (LENGERR or CCSIDERR first is not documented).
+     *  The container's CCSID (0: BIT) is containerCcsid(). */
+    public ContainerResult getContainer(String channel, String container, int maxLength, int intoCcsid,
+                                        boolean noConvert) {
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+            return channel == null ? new ContainerResult("INVREQ", intoCcsid >= 0 ? 2 : 4, -1, null)
                     : new ContainerResult("CHANNELERR", 2, -1, null);
         }
         Container c = ch.containers.get(name);
         if (c == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
+        lastContainerCcsid = c.bit ? 0 : c.ccsid;
+        if (c.bit && intoCcsid >= 0) {
+            // IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated
+            if (maxLength >= 0 && c.data.length > maxLength) {
+                throw refused("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins "
+                        + "is not documented");
+            }
+            return new ContainerResult("CCSIDERR", 3, -1, maxLength < 0 ? null : c.data.clone());
+        }
+        byte[] data = c.bit || noConvert ? c.data
+                : convertContainer(c.data, c.ccsid, intoCcsid >= 0 ? intoCcsid : REGION_CCSID, "GET CONTAINER");
         if (maxLength < 0) {
-            return new ContainerResult("NORMAL", 0, c.data.length, null);
+            return new ContainerResult("NORMAL", 0, data.length, null);
         }
-        if (c.data.length > maxLength) {
-            return new ContainerResult("LENGERR", 11, c.data.length, Arrays.copyOf(c.data, maxLength));
+        if (data.length > maxLength) {
+            return new ContainerResult("LENGERR", 11, data.length, Arrays.copyOf(data, maxLength));
         }
-        return new ContainerResult("NORMAL", 0, c.data.length, c.data.clone());
+        return new ContainerResult("NORMAL", 0, data.length, data.clone());
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
@@ -3592,6 +3977,9 @@ public class CicsTask {
         }
         if (dst != null && dst.bit != src.bit) {
             throw refused("MOVE CONTAINER onto a container of the other data type");
+        }
+        if (dst != null && dst.ccsid != src.ccsid) {
+            throw refused("MOVE CONTAINER onto a container of another CCSID");
         }
         if (dst != null && heldSet(containerKey(to, target))) {
             throw refused("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
@@ -4056,10 +4444,39 @@ public class CicsTask {
         if (lim == null && limits) {
             throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
         }
-        if (v < 0 || v > 2147483647L) {
-            throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
+        if (lim != null && limits && (lim[0] < 0 || lim[0] > 2147483647L || lim[1] < 0 || lim[1] > 2147483647L)) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
         }
-        return new int[] {0, 0, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+        int le = fullwordLengerr(lim, v);
+        return new int[] {le == 0 ? 0 : 22, le, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+    }
+
+    /** LENGERR RESP2 of a fullword (COUNTER) command whose counter holds `v`, an unsigned doubleword (IBM CICS TS, GET COUNTER and
+     *  QUERY COUNTER; #4770, X30): 0 when v fits a signed fullword, or when the counter is at its limit (MAXIMUM + 1: "LENGERR can't
+     *  occur at counter-at-limit", the value is the maximum plus one in 32 bits). Else LENGERR for a counter DCOUNTER made too
+     *  large: RESP2 1 the value overflowed into the sign bit (no bit above the low word), 2 "too large ... by only 1 bit; the
+     *  overflow value is exactly 1" (the high word is 1), 3 greater than 1 (ASSUMED: IBM does not say how a value that is both
+     *  is numbered; the high word decides). The operation completes: VALUE is the low-order 32 bits. */
+    private static int fullwordLengerr(long[] lim, long v) {
+        if (v >= 0 && v <= 2147483647L) {
+            return 0;
+        }
+        if (lim != null && lim[1] != -1L && Long.compareUnsigned(v, lim[1]) > 0) {
+            return 0;
+        }
+        long high = v >>> 32;
+        return high == 0 ? 1 : high == 1 ? 2 : 3;
+    }
+
+    /** The result {RESP, RESP2, value} of a GET COUNTER (fullword form) as IBM's LENGERR warning has it (#4770, X30): RESP 22 with
+     *  RESP2 1 / 2 / 3 and VALUE the low-order 32 bits (a signed number) for a counter that holds more than a fullword; any other
+     *  result as it is. The counter has been advanced: "the named counter server completes the operation". */
+    public long[] fullwordGet(String pool, String name, long[] r) {
+        if (r[0] != 0) {
+            return r;
+        }
+        int le = fullwordLengerr(root().counterLimits.get(counterKey(pool, name)), r[2]);
+        return le == 0 ? r : new long[] {22, le, (int) r[2]};
     }
 
     public int[] queryCounter(String pool, String name) {
@@ -4180,6 +4597,22 @@ public class CicsTask {
         }
         event("RECEIVE", "resp", resp, "length", length, "data", data);
         return new Received(resp, length, data);
+    }
+
+    /** #5079 (X63): CONVERSE FROM FROMLENGTH INTO ... (IBM, EXEC CICS CONVERSE (default)): the data written to the terminal,
+     *  recorded as a plain SEND records it (`text`, `length` as the program gave them), then the terminal RECEIVE of the
+     *  reply (`maxLength`, `notruncate` as receive). A negative FROMLENGTH is LENGERR with nothing sent and nothing read
+     *  (ASSUMED: IBM calls the value out of range; the length it returns is -1: no TOLENGTH is set). Refused: an LUTYPE2
+     *  terminal (its reply's last byte raises EOC, which IBM does not list for CONVERSE). */
+    public Received converse(String text, int length, int maxLength, boolean notruncate) {
+        if (root().endOfChain) {
+            throw refused("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
+        }
+        if (length < 0) {
+            return new Received("LENGERR", -1, null);
+        }
+        sendText(text, length);
+        return receive(maxLength, notruncate);
     }
 
     /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its
@@ -4780,6 +5213,7 @@ public class CicsTask {
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         tdUowEnd(false);  // #5168
+        resourceUowEnd(false);  // #4892
         event("SYNCPOINT");
     }
 
@@ -4796,6 +5230,7 @@ public class CicsTask {
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         tdUowEnd(true);  // #5168
+        resourceUowEnd(true);  // #4892
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -4954,6 +5389,10 @@ public class CicsTask {
         private final Map<String, Integer> next = new HashMap<>();
         /** The intrapartition transient-data queues' records (#5079): first in first out. */
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
+        /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
+        final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
+        final java.util.Set<String> tdRead = new java.util.HashSet<>();
 
         /** A transient-data queue's records as they are before the conversation starts (#5168). */
         public TempStorage seedTd(String queue, List<String> records) {
@@ -5577,6 +6016,8 @@ public class CicsTask {
             if (!root().syncpointed && root().rollbackHook != null) {
                 root().rollbackHook.run();
             }
+            tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
+            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"

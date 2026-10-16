@@ -2808,6 +2808,9 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
     typed: dict[str, Any] = {}
     width = {f["name"]: f["bytes"] for f in fields}
     for field, text in values.items():
+        if "(" in field:  # #5076: the Java side's typed values are keyed by the BMS name, not by a subscript
+            raise Unsupported(f"RECEIVE MAP: {field} -- typing into one occurrence of a repeated field is not "
+                              "modelled", ["BMS OCCURS input"])  # fmt: skip
         placed = (
             justified(text, width[field], justify[field]) if justify and field in justify and field in width else text
         )
@@ -3101,15 +3104,23 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 
 
 def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, Any]]:
-    """A symbolic map's layout (one side's record), as a screen is compared: each field once. #4778: a map whose
-    fields repeat (BMS OCCURS=, an OCCURS in its symbolic map) is refused by name -- a screen's fields are compared
-    by their single-occurrence layout, which would read only the first of them -- until the screen compare names
-    every occurrence, as a COMMAREA's (#4765) does. No case's map has one yet; test_call_compare_4778 keeps it so."""
-    fields = common.layout_fields(corpus, copybook, record)
-    if any(f.get("subscripts") for f in common.layout_fields(corpus, copybook, record, occurrences=True)):
-        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS -- its repeated fields would be compared "
-                          "at their first occurrence only", ["BMS OCCURS"])  # fmt: skip
+    """A symbolic map's layout (one side's record), as a screen is compared: every occurrence of a repeated field
+    (BMS OCCURS=, an OCCURS in its symbolic map) is a field of its own, named by its subscript (ACCOUNTO(3)), as a
+    COMMAREA's (#4765) is -- a compare that read only the first would call a differing second occurrence equal
+    (#4778, #5076). `screen_key` gives each its screen name. An OCCURS DEPENDING ON in a map is refused by name: a
+    generated symbolic map has none, and which occurrences a screen holds would be a guess."""
+    fields = common.layout_fields(corpus, copybook, record, occurrences=True)
+    if any(f.get("odo") for f in fields):
+        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS DEPENDING ON -- which occurrences the "
+                          "screen holds is not stated", ["BMS OCCURS DEPENDING ON"])  # fmt: skip
     return fields
+
+
+def screen_key(f: dict[str, Any]) -> tuple[str, str]:
+    """(screen name, kind letter) of a symbolic-map field: ACCOUNTO(3) -> ("ACCOUNT.3", "O"), COMPANYO -> ("COMPANY",
+    "O"). The name is the BMS field's, the occurrence after a dot, as the generated screen's screenValues() keys it."""
+    base = f.get("base") or f["name"]
+    return base[:-1] + "".join(f".{k}" for k in f.get("subscripts") or []), base[-1:]
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
@@ -3933,7 +3944,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
-            res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")},
+            keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
+            res["screens"].append({"map": kv["map"],
+                                   "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
                                    "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
@@ -4007,10 +4020,10 @@ def map_subfields(
     scr = case["screens"][map_name]
     layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
                for side in ("input", "output")]  # fmt: skip
-    data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
+    data_names = {screen_key(f)[0] for f in layouts[1] if screen_key(f)[1] == "O"}
     space = " ".encode(enc)
     for f in (x for layout in layouts for x in layout):
-        name, kind = f["name"][:-1], f["name"][-1:]
+        name, kind = screen_key(f)  # #5076: ACCOUNT.3 for ACCOUNTA(3)
         if name not in data_names or f["offset"] + f["bytes"] > len(data):
             continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]

@@ -1,0 +1,18 @@
+*  #4893 level fixture: a three-level HIDAM database written for the DL/I model's level test (no estate's).
+*  DEPT (root) -- EMP -- SKILL, and DEPT -- PROJ: every child type order, three key types (C, X, P search).
+         DBD     NAME=LVLDBD,ACCESS=(HIDAM,VSAM)
+         DATASET DD1=LVLDBD
+         SEGM    NAME=DEPT,PARENT=0,BYTES=20
+         FIELD   NAME=(DEPTNO,SEQ,U),START=1,BYTES=4,TYPE=C
+         FIELD   NAME=DNAME,START=5,BYTES=16,TYPE=C
+         SEGM    NAME=EMP,PARENT=DEPT,BYTES=20
+         FIELD   NAME=(EMPNO,SEQ,U),START=1,BYTES=4,TYPE=C
+         FIELD   NAME=ENAME,START=5,BYTES=10,TYPE=C
+         FIELD   NAME=SAL,START=15,BYTES=3,TYPE=P
+         SEGM    NAME=SKILL,PARENT=EMP,BYTES=8
+         FIELD   NAME=(SKCODE,SEQ,U),START=1,BYTES=2,TYPE=C
+         SEGM    NAME=PROJ,PARENT=DEPT,BYTES=12
+         FIELD   NAME=(PROJNO,SEQ,U),START=1,BYTES=2,TYPE=X
+         DBDGEN
+         FINISH
+         END

@@ -45,7 +45,8 @@ copybook under `copybooks`; a tell only a copybook shows is `via_copybook` (its 
 is null) and can raise the program's `era`, in which case `program_era` keeps the era of the program's own text. The keys
 `via_copybook`, `copybooks`, `program_era` and the summary's `raised_by_copybook` appear only when set, so an estate with
 no copybook tell is byte for byte what it was. A program whose expansion is refused (a missing copybook, macro level) keeps
-its own-text tag. On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
+its own-text tag and carries `copybook_skipped` (the reason: `CopyNotFound`, `MacroLevelCics`, an exception class), counted in
+the summary; assembler members are tagged the same way under `eras.assembler` through their COPY and macro members (#5195). On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
 example) the copybook tells found are `exec-sql` (Db2 DCLGEN members, CardDemo and CBSA) and `resp` (CBSA); each is also in the
 program that copies it, so no tell is `via_copybook` and no program's era moves.
 

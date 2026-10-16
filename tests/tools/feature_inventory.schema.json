@@ -50,6 +50,7 @@
               "earliest": { "type": ["integer", "null"], "minimum": 0 },
               "mixed": { "type": "boolean" },
               "program_era": { "type": ["integer", "null"], "minimum": 0 },
+              "copybook_skipped": { "type": "string", "minLength": 1 },
               "tells": {
                 "type": "array",
                 "items": {
@@ -71,6 +72,7 @@
             "additionalProperties": false
           }
         },
+        "assembler": { "$ref": "#/$defs/eras/properties/programs" },
         "summary": {
           "type": "object",
           "properties": {
@@ -78,6 +80,7 @@
             "by_era": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
             "mixed": { "type": "integer", "minimum": 0 },
             "raised_by_copybook": { "type": "integer", "minimum": 1 },
+            "copybook_skipped": { "type": "integer", "minimum": 1 },
             "tells": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
           },
           "required": ["programs", "by_era", "mixed", "tells"],

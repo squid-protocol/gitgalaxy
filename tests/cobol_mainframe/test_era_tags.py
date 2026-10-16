@@ -265,3 +265,21 @@ def test_every_tell_cites_an_ibm_release():
     for tell, c in et.CITE.items():
         assert c["ibm"] and isinstance(c["verified"], bool), tell  # noqa: S101
         assert not c["verified"] or c["source"].startswith("https://"), tell  # noqa: S101
+        # #5195: a cite is either backed by an opened IBM page or says what was tried; never a bare unverified claim
+        assert c["verified"] or c.get("note"), tell  # noqa: S101
+        assert "source" not in c or c["source"].split("/")[2].endswith("ibm.com"), tell  # noqa: S101
+
+
+def test_skipped_marker_is_added_only_when_set():
+    tag = et.tag_program(PLAIN)
+    assert "copybook_skipped" not in tag  # noqa: S101
+    marked = et.mark_skipped(tag, "CopyNotFound")
+    assert marked["copybook_skipped"] == "CopyNotFound" and marked["tells"] == tag["tells"]  # noqa: S101
+    assert et.mark_skipped(marked, "Other")["copybook_skipped"] == "CopyNotFound"  # noqa: S101  (first reason stands)
+
+
+def test_summary_counts_skipped_programs_only_when_any():
+    plain = {"a.cbl": et.tag_program(PLAIN)}
+    assert "copybook_skipped" not in et.summarise(plain)  # noqa: S101
+    plain["b.cbl"] = et.mark_skipped(et.tag_program(PLAIN), "CopyNotFound")
+    assert et.summarise(plain)["copybook_skipped"] == 1  # noqa: S101

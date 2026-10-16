@@ -31,7 +31,14 @@ sys.path.insert(0, str(REPO))
 
 SUMMARY_FILE = REPO / "tests" / "fixtures" / "era_distribution" / "summary.json"
 PINNED_NON_BURNED = ("dsf", "zopeneditor-sample")
-KEYS = ("programs", "by_era", "mixed", "tells", "raised_by_copybook")  # the only keys a summary may carry
+KEYS = (
+    "programs",
+    "by_era",
+    "mixed",
+    "tells",
+    "raised_by_copybook",
+    "copybook_skipped",
+)  # the only keys a summary may carry
 ABOUT = (
     "Counts only (#5117). Estates here are not burned: no per-program data is committed, so their first-contact "
     "numbers stay first-contact. `census-*` labels are opaque."

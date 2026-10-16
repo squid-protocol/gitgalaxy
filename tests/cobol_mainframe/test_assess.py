@@ -95,6 +95,7 @@ STRUCTURE = {
     "redacted", "totals", "eras", "features", "other", "copybook_gaps", "programs", "parsed", "unparsed",
     "refused_by_family", "assembler_members", "by_era", "mixed", "tells", "count", "keys", "name", "kind", "status",
     "reason", "copybook", "era", "earliest", "program_era", "via_copybook", "tell", "none", "raised_by_copybook",
+    "copybook_skipped",
 }  # fmt: skip
 
 
@@ -240,6 +241,26 @@ def test_an_unparsed_reason_prints_its_class_never_its_message():
     assert "SECRET" not in json.dumps(report) and SC.validate(report) == []
     inv["unparsed_programs"][0]["reason"] = "MOVE X TO Y - quoted"
     assert SC.project(inv)["programs"][0]["reason"] == "unreadable"
+
+
+def test_a_skipped_copybook_pass_prints_its_reason_code_never_a_message():
+    """#5195: `copybook_skipped` reaches the report as a class-like code on a COBOL row and on an assembler member's row."""
+    tag = {"era": None, "earliest": None, "mixed": False, "tells": [], "copybook_skipped": "CopyNotFound"}
+    asm = {"era": 0, "earliest": 0, "mixed": False, "tells": [], "copybook_skipped": "CopyCycle"}
+    inv = {
+        "eras": {"programs": {"A.cbl": tag}, "assembler": {"M.asm": asm}, "summary": {"copybook_skipped": 1}},
+        "refusal_families": {"macro-level CICS": {"count": 1, "programs": ["M.asm"]}},
+        "unparsed_programs": [],
+    }
+    report = SC.project(inv)
+    rows = {r["kind"]: r for r in report["programs"]}
+    assert rows["cobol"]["copybook_skipped"] == "CopyNotFound" and rows["assembler"]["copybook_skipped"] == "CopyCycle"
+    assert report["eras"]["copybook_skipped"] == 1 and SC.validate(report) == []
+    tag["copybook_skipped"] = "MOVE SECRET TO X"
+    clean = SC.project(inv)
+    assert "copybook_skipped" not in {k for r in clean["programs"] if r["kind"] == "cobol" for k in r}
+    clean["programs"][0]["copybook_skipped"] = "MOVE SECRET TO X"
+    assert any("copybook_skipped" in p for p in SC.validate(clean))
 
 
 def test_validate_refuses_a_widened_report():

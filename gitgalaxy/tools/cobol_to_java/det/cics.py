@@ -889,8 +889,11 @@ class Cics:
         ):  # #5089 (X60): CicsTask.enq -- NORMAL, or the ENQBUSY a scenario plans for the RESOURCE as written
             res = re.sub(r"\s+", "", (opts.get("RESOURCE") or "").upper())
             r = self.g.tmpname("enq")
-            return [f"{ind}int {r} = DetCics.resp(task.enq({G_jstr(res)}, {'true' if 'NOSUSPEND' in opts else 'false'}));",
-                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+            # LENGTH / MAXLIFETIME (X60): LENGERR 1 outside 1-255, INVREQ 2 for a CVDA that is not UOW / TASK
+            opt = {o: f"Integer.valueOf({self._number(_arg(opts[o]))})" if opts.get(o) else "null" for o in ("LENGTH", "MAXLIFETIME")}  # fmt: skip
+            nos = "true" if "NOSUSPEND" in opts else "false"
+            call = f"{ind}int[] {r} = task.enqChecked({G_jstr(res)}, {nos}, {opt['LENGTH']}, {opt['MAXLIFETIME']});"
+            return [call, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):

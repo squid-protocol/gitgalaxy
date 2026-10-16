@@ -187,6 +187,19 @@ def test_eib_names_match_whole_words_outside_literals_and_comments():
     assert pb.facts_needed(fixed("    MOVE 'A' TO X EIBDS."))["eib"] == {"EIBDS"}
 
 
+def test_assign_options_inside_a_literal_or_comment_are_no_fact_read():
+    """#5089: the fact scan skips string literals for every keyword, not just EIB fields: an ASSIGN written inside a
+    literal (a message, a generated-command template) or a comment line is no read of USERID / STARTCODE / APPLID."""
+    for src in (
+        fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC' TO X"),
+        fixed('    DISPLAY "EXEC CICS ASSIGN STARTCODE(S) END-EXEC"'),
+        "000100*    EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC\n",
+    ):
+        assert pb.facts_needed(src) == {"eib": set(), "assign_task": set(), "assign_region": set()}, src
+    real = fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) END-EXEC' TO X", "    EXEC CICS ASSIGN USERID(U) END-EXEC.")
+    assert pb.facts_needed(real)["assign_task"] == {"USERID"} and not pb.facts_needed(real)["assign_region"]
+
+
 def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
     """#5077: STARTCODE is stated by a case's (or every scenario's) "startcode"; a case that leaves one scenario
     without it, or states none, keeps the gap. USERID stays a gap either way."""

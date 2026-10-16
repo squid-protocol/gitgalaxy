@@ -3894,6 +3894,18 @@ int GGCENQ(gg_cics *c) {
     c->resp = NORMAL;
     c->resp2 = 0;
     trim(c->flags, 40, res);
+    /* X60: GG-NAME2 'L' = LENGTH written (GG-LEN), 'M' = MAXLIFETIME written (GG-NUM, a CVDA: UOW 246, TASK 233).
+     * LENGTH outside 1-255 is LENGERR RESP2 1; a CVDA that is neither is INVREQ RESP2 2; both at once is refused. */
+    int bad_len = memchr(c->name2, 'L', 8) && (c->len < 1 || c->len > 255);
+    int bad_life = memchr(c->name2, 'M', 8) && c->num != 246 && c->num != 233;
+    if (bad_len && bad_life) refuse("ENQ with LENGTH outside 1-255 and an invalid MAXLIFETIME (IBM states no order)");
+    if (bad_len || bad_life) {
+        c->resp = bad_len ? LENGERR : INVREQ;
+        c->resp2 = bad_len ? 1 : 2;
+        snprintf(ev, sizeof ev, "ENQ resource=%s resp=%d resp2=%d", res, c->resp, c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
     if (!injected("ENQ", res, &fresp, &fresp2)) return 0;
     if (strncmp(c->name1, "NOSUSPEN", 8) != 0) {
         snprintf(ev, sizeof ev, "ENQ on a planned-busy resource without NOSUSPEND: %s (the task would be suspended)", res);

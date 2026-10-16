@@ -437,10 +437,13 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 def facts_needed(text: str) -> dict[str, set[str]]:
     """The runtime facts a program reads, by kind: `eib` (EIB fields no harness states), `assign_task` (ASSIGN
     options an equivalence case cannot state yet), `assign_region` (ASSIGN APPLID / SYSID). Names only."""
-    code = cc.fixed_format_text(text)
-    eib = {m for m in _EIB.findall(_LITERAL.sub(" ", code)) if m in EIB_FIELDS and m not in STATED_EIB}
+    code = _LITERAL.sub(" ", cc.fixed_format_text(text))
+    eib = {m for m in _EIB.findall(code) if m in EIB_FIELDS and m not in STATED_EIB}
     task, region = set(), set()
-    for cmd in cc.commands(text):
+    # #5089: every fact keyword is read outside string literals: the ASSIGN scan blanks them per line (length-preserving,
+    # as cc.commands cuts the sequence area itself; a literal continued onto the next line is not blanked)
+    plain = "\n".join(_LITERAL.sub(lambda m: " " * len(m.group()), ln) for ln in text.splitlines())
+    for cmd in cc.commands(plain):
         opts = cc.options_of(cmd, ["ASSIGN"])
         for o in opts or ():
             if o in ASSIGN_TASK_FACTS:

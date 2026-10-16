@@ -129,6 +129,78 @@ def test_cics_task_answers_as_the_stub_does(tmp_path):
     assert out[-1] == "NORMAL"
 
 
+# ---- ENQ's own operands (X60): LENGTH outside 1-255 is LENGERR RESP2 1, a MAXLIFETIME CVDA that is neither UOW (246) nor
+# TASK (233) is INVREQ RESP2 2; both at once is refused; an absent option is no condition ---------------------------------
+_UOW, _TASK = 246, 233
+# (LENGTH or None, MAXLIFETIME or None) -> "RESP/RESP2"
+_OPERANDS = {
+    (None, None): "0/0", (1, None): "0/0", (255, None): "0/0", (0, None): "22/1", (256, None): "22/1", (-1, None): "22/1",
+    (32767, None): "22/1", (None, _UOW): "0/0", (None, _TASK): "0/0", (None, 0): "16/2", (None, 1): "16/2",
+    (None, 247): "16/2", (8, _UOW): "0/0", (8, 7): "16/2", (0, _TASK): "22/1",
+}  # fmt: skip
+
+_OPERANDS_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len; char qname[16]; int item;
+                 int num; } gg_cics;
+int GGCENQ(gg_cics *c);
+int main(int argc, char **argv) {
+    gg_cics c;
+    for (int i = 1; i + 1 < argc; i += 2) {
+        memset(&c, ' ', sizeof c);
+        c.resp = -1; c.resp2 = -1; c.len = 0; c.num = 0;
+        memcpy(c.flags, "WS-RES", 6);
+        if (strcmp(argv[i], "-") != 0) { c.len = atoi(argv[i]); c.name2[0] = 'L'; }
+        if (strcmp(argv[i + 1], "-") != 0) { c.num = atoi(argv[i + 1]); c.name2[c.name2[0] == 'L' ? 1 : 0] = 'M'; }
+        GGCENQ(&c);
+        printf("%d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_checks_enq_length_and_maxlifetime(tmp_path):
+    exe = _stub(tmp_path, _OPERANDS_MAIN)
+    (tmp_path / "out").mkdir()
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    argv = [str(v) if v is not None else "-" for k in _OPERANDS for v in k]
+    run = subprocess.run([str(exe), *argv], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+    assert run.stdout.split() == list(_OPERANDS.values())
+    bad = subprocess.run([str(exe), "0", "7"], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert bad.returncode == 98 and "IBM states no order" in bad.stdout
+
+
+@needs_javac
+def test_cics_task_checks_enq_length_and_maxlifetime_as_the_stub_does(tmp_path):
+    def arg(v):
+        return "null" if v is None else f"Integer.valueOf({v})"
+
+    body = ['CicsTask t = new CicsTask("HC01", "ENTER", null, null);']
+    body += [
+        f'{{ int[] r = t.enqChecked("WS-RES", false, {arg(a)}, {arg(b)}); System.out.println(r[0] + "/" + r[1]); }}'
+        for a, b in _OPERANDS
+    ]
+    body += ['try { t.enqChecked("WS-RES", false, 0, 7); } catch (UnsupportedOperationException e) '
+             '{ System.out.println("refused"); }']  # fmt: skip
+    out = _cics_task(tmp_path, "\n".join(body)).splitlines()
+    assert out == [*_OPERANDS.values(), "refused"]
+
+
+def test_the_enq_statement_passes_length_and_maxlifetime_to_the_stub():
+    text = "\n".join(ec.translate_command("ENQ RESOURCE(WS-RES) LENGTH(300) MAXLIFETIME(DFHVALUE(TASK)) NOHANDLE"))
+    assert (
+        "MOVE 300 TO GG-LEN" in text and "MOVE DFHVALUE(TASK) TO GG-NUM" in text
+    )  # (the CVDA number is spliced in at the end) and "MOVE 'LM' TO GG-NAME2" in text
+    only = "\n".join(ec.translate_command("ENQ RESOURCE(WS-RES) LENGTH(8) NOHANDLE"))
+    assert "MOVE 8 TO GG-LEN" in only and "MOVE 'L' TO GG-NAME2" in only and "GG-NUM" not in only
+    neither = "\n".join(ec.translate_command("ENQ RESOURCE(WS-RES) NOHANDLE"))
+    assert "MOVE SPACES TO GG-NAME2" in neither and "GG-LEN" not in neither
+
+
 # ---- ENQ / DEQ in a RUN TRANSID child (#5089, X18): only on a data area the child's own WORKING-STORAGE declares ----------------
 def _program(cmd: str, *, ws: str = "01 WS-RES PIC X(8).", linkage: str = "") -> str:
     pad = "       "

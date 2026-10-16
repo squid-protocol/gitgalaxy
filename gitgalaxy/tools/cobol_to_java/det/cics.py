@@ -16,7 +16,6 @@ from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands import whole_refusal
 from gitgalaxy.standards.cics.commands.api import COUNTER
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
-from gitgalaxy.standards.cics.commands.containers import CODEPAGE_CCSIDS
 from gitgalaxy.standards.cics.commands.handles import AID_KEYS
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
@@ -1796,7 +1795,7 @@ class Cics:
             n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
-            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "FROMCODEPAGE", "PUT CONTAINER")
+            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
@@ -1807,9 +1806,9 @@ class Cics:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
-            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "INTOCODEPAGE", "GET CONTAINER")
+            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
             convert = _convertst(opts)
-            if convert and ("INTOCCSID" in opts or "INTOCODEPAGE" in opts):
+            if convert and "INTOCCSID" in opts:
                 raise CicsError(_msg("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"))
             if "CCSID" in opts and convert is None:
                 raise CicsError(_msg("GET CONTAINER", "requires", "CCSID"))
@@ -1833,33 +1832,25 @@ class Cics:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
             if "CCSID" in opts:  # the container's own CCSID (0: BIT), set with FLENGTH: on NORMAL and LENGERR
-                set_ccsid = g.store_into(self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False)
+                set_ccsid = g.store_into(
+                    self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False
+                )
                 out.append(f"{ind}if ({r}.length() >= 0) {set_ccsid}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
 
-    def container_ccsid(self, opts: dict, ccsid_option: str, codepage_option: str, verb: str) -> str | None:
-        """#4270 (X17): PUT's FROMCCSID / FROMCODEPAGE, GET's INTOCCSID / INTOCODEPAGE as a Java int expression, None when
-        neither is given. The CCSID is a data value (the runtime refuses one outside 37 / 500 / 1140); the code page is an
-        IANA name, a literal, of one of those three. The port's storage is read as the region's page (#4528), which the
-        conversion's tables assume is CCSID 037: another declared page refuses the option."""
-        if ccsid_option not in opts and codepage_option not in opts:
+    def container_ccsid(self, opts: dict, option: str, verb: str) -> str | None:
+        """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
+        37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
+        conversion assumes is CCSID 037: another declared page refuses the option."""
+        if option not in opts:
             return None
-        if ccsid_option in opts and codepage_option in opts:
-            raise CicsError(_msg(verb, "at_most_one", ccsid_option, f"{ccsid_option} and {codepage_option}"))
         if self.region != region_page(None):
-            raise CicsError(f"{verb} {ccsid_option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}")
-        if ccsid_option in opts:
-            return self.int_(_arg(opts[ccsid_option]))
-        named = _arg(opts[codepage_option]).strip()
-        m = re.fullmatch(r"""(?s)(['"])(.*)\1""", named)
-        ccsid = CODEPAGE_CCSIDS.get(m.group(2).strip().upper()) if m else None
-        if ccsid is None:
             raise CicsError(
-                f"{verb} {codepage_option}({named}): only the IANA names IBM037, IBM500 and IBM01140, as a literal, are modelled"
+                f"{verb} {option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}"
             )
-        return str(ccsid)
+        return self.int_(_arg(opts[option]))
 
     def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's

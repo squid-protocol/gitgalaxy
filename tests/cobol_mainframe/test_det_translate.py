@@ -1212,20 +1212,16 @@ def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
 
 
 def test_container_ccsid_options_pass_the_ccsid_to_the_task():
-    """#4270 (X17), IBM PUT CONTAINER FROMCCSID / FROMCODEPAGE and GET CONTAINER INTOCCSID / INTOCODEPAGE / CONVERTST /
-    CCSID: the CCSID (a data value, or the IANA name's) is the task's last argument; a command without one calls the
+    """#4270 (X17), IBM PUT CONTAINER FROMCCSID and GET CONTAINER INTOCCSID / CONVERTST / CCSID: the CCSID (a data value) is the
+    task's last argument; a command without one calls the
     short form, so every port that names no CCSID is generated as before. CONVERTST(NOCONVERT) reads the container's own
     CCSID; CCSID(area) is stored with FLENGTH, on NORMAL and LENGERR."""
     out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1140)", "")
     assert out[1].endswith("flen2, null, false, INT(1140));")
     out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(WS-CS) APPEND", "")
     assert out[1].endswith("flen2, null, true, INT(WS-CS));")
-    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ibm500')", "")
-    assert out[1].endswith("flen2, null, false, 500);")
     out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
     assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), INT(1140), false);")
-    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('IBM037')", "")
-    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), 37, false);")
     out = _ChanCics().command("GET CONTAINER(CN) NODATA FLENGTH(FL) INTOCCSID(WS-CS)", "")
     assert out[0].endswith("task.getContainer(null, CN.strip(), -1, INT(WS-CS), false);")
     out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)", "")
@@ -1923,14 +1919,11 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "only the IANA names"),
-        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE(WS-PAGE)", "only the IANA names"),
-        ("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ISO-8859-1')", "only the IANA names"),
-        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) INTOCODEPAGE('IBM01140')", "one target code page"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "IANA code-page names"),
+        ("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ISO-8859-1')", "IANA code-page names"),
         ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
         ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
         ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
-        ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(37) FROMCODEPAGE('IBM037')", "one code page"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),

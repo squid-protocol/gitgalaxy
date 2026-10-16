@@ -104,7 +104,7 @@ enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGE
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
        PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, DUPKEY = DFHRESP_DUPKEY, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
        END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR,
-       SUPPRESSED = DFHRESP_SUPPRESSED };
+       SUPPRESSED = DFHRESP_SUPPRESSED, CCSIDERR = DFHRESP_CCSIDERR };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -2582,29 +2582,54 @@ static long long container_seq = 0;
 #define REGION_CCSID 37
 static void ccsid_ok(int ccsid, const char *what) {
     char msg[96];
-    if (ccsid != 37 && ccsid != 500 && ccsid != 1140) {
-        snprintf(msg, sizeof msg, "%s(%d): only the CCSIDs 37, 500 and 1140 are modelled", what, ccsid);
+    if (ccsid != 37 && ccsid != 500 && ccsid != 1140 && ccsid != 1208) {
+        snprintf(msg, sizeof msg, "%s(%d): only the CCSIDs 37, 500, 1140 and 1208 are modelled", what, ccsid);
         refuse(msg);
     }
 }
 static const unsigned char ccsid_500_from[7] = {0xA2, 0x7C, 0x21, 0xAC, 0x5E, 0x5B, 0x5D}; /* in 037 ... */
 static const unsigned char ccsid_500_to[7]   = {0x5E, 0x5D, 0x7C, 0x5B, 0xAC, 0xA2, 0x21}; /* ... as 500 reads them */
+/* CCSID 1208 (UTF-8) data is ASCII here, one byte a character: the region's page decodes an EBCDIC byte below X'80' as these characters */
+static const unsigned char EBCDIC037_LOW[128] = {
+    0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+    0x10, 0x11, 0x12, 0x13, 0x9D, 0x85, 0x08, 0x87, 0x18, 0x19, 0x92, 0x8F, 0x1C, 0x1D, 0x1E, 0x1F,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x0A, 0x17, 0x1B, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x05, 0x06, 0x07,
+    0x90, 0x91, 0x16, 0x93, 0x94, 0x95, 0x96, 0x04, 0x98, 0x99, 0x9A, 0x9B, 0x14, 0x15, 0x9E, 0x1A,
+    0x20, 0xA0, 0xE2, 0xE4, 0xE0, 0xE1, 0xE3, 0xE5, 0xE7, 0xF1, 0xA2, 0x2E, 0x3C, 0x28, 0x2B, 0x7C,
+    0x26, 0xE9, 0xEA, 0xEB, 0xE8, 0xED, 0xEE, 0xEF, 0xEC, 0xDF, 0x21, 0x24, 0x2A, 0x29, 0x3B, 0xAC,
+    0x2D, 0x2F, 0xC2, 0xC4, 0xC0, 0xC1, 0xC3, 0xC5, 0xC7, 0xD1, 0xA6, 0x2C, 0x25, 0x5F, 0x3E, 0x3F,
+    0xF8, 0xC9, 0xCA, 0xCB, 0xC8, 0xCD, 0xCE, 0xCF, 0xCC, 0x60, 0x3A, 0x23, 0x40, 0x27, 0x3D, 0x22,
+};
+static unsigned char ccsid_perm500(unsigned char b, int to500) {
+    for (int j = 0; j < 7; j++) {
+        if (to500 && b == ccsid_500_from[j]) return ccsid_500_to[j];
+        if (!to500 && b == ccsid_500_to[j]) return ccsid_500_from[j];
+    }
+    return b;
+}
 static void ccsid_convert(char *d, int len, int from, int to, const char *what) {
     if (from == to) return;
     ccsid_ok(from, what);
     ccsid_ok(to, what);
-    int base_from = from == 500 ? 500 : 37, base_to = to == 500 ? 500 : 37;
     for (int i = 0; i < len; i++) {
-        unsigned char b = (unsigned char)d[i];
-        if (b == 0xA4 && (from == 1140 || to == 1140)) refuse("code-page conversion of a character the target CCSID lacks");
-        if (base_from == base_to) continue;
-        for (int j = 0; j < 7; j++) {
-            if (base_to == 500 && b == ccsid_500_from[j]) { d[i] = (char)ccsid_500_to[j]; break; }
-            if (base_to == 37 && b == ccsid_500_to[j]) { d[i] = (char)ccsid_500_from[j]; break; }
+        unsigned char b = (unsigned char)d[i], ch = b;
+        if (from == 1208) {
+            int real = -1;  /* the byte the region's page encodes b as, when it is below X'80' */
+            for (int j = 0; j < 128; j++) if (EBCDIC037_LOW[j] == b) { real = j; break; }
+            if (real < 0) refuse("code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            ch = (unsigned char)real;
+        } else if (from == 500) {
+            ch = ccsid_perm500(b, 0);  /* the character CCSID 500 reads at the byte the region's page reads as b */
         }
+        if (to == 1208) {
+            if (ch >= 0x80) refuse("code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte sequence)");
+            d[i] = (char)EBCDIC037_LOW[ch];
+            continue;
+        }
+        if (ch == 0xA4 && (from == 1140 || to == 1140)) refuse("code-page conversion of a character the target CCSID lacks");
+        d[i] = (char)(to == 500 ? ccsid_perm500(ch, 1) : ch);
     }
 }
-
 
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
     gg_container *free_slot = NULL;
@@ -2658,8 +2683,8 @@ int GGCPUTC(gg_cics *c, char *from) {
         c->resp = CONTAINERERR; c->resp2 = 18;
         return 0;
     }
-    if (from_ccsid >= 0 && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("PUT CONTAINER FROMCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
-    ch = command_channel(c, 1, bit || chr ? 1 : 4);
+    if (from_ccsid >= 0 && (bit || chr) && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and IBM ranks neither");
+    ch = command_channel(c, 1, from_ccsid >= 0 ? 2 : bit || chr ? 1 : 4);
     if (!ch) return 0;
     if (from_ccsid >= 0) {
         ccsid_ok(from_ccsid, "PUT CONTAINER FROMCCSID");
@@ -2714,12 +2739,21 @@ int GGCGETC(gg_cics *c, char *into) {
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
     int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1; /* GG-NUM in: INTOCCSID / INTOCODEPAGE (#4270, X17) */
-    if (into_ccsid >= 0 && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("GET CONTAINER INTOCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
-    ch = command_channel(c, 0, 4);
+    ch = command_channel(c, 0, into_ccsid >= 0 ? 2 : 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
-    if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER INTOCCSID on a BIT container: CCSIDERR RESP2 3 returns the data unconverted, and IBM does not say what FLENGTH holds");
+    if (k->bit && into_ccsid >= 0) {
+        /* IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated */
+        if (!strstr(flags, "NODATA")) {
+            if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+            if (k->len > c->len) refuse("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins is not documented");
+            memcpy(into, k->data ? k->data : "", (size_t)k->len);
+        }
+        c->num = 0;
+        c->resp = CCSIDERR; c->resp2 = 3;
+        return 0;
+    }
     char *conv = malloc((size_t)k->len + 1);
     if (!conv) refuse("out of memory");
     memcpy(conv, k->data ? k->data : "", (size_t)k->len);
@@ -5884,7 +5918,7 @@ int GGCGETS(gg_cics *c, void **slot) {
         char flags[41];
         trim(c->flags, 40, flags);
         int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1;
-        if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER INTOCCSID on a BIT container: CCSIDERR RESP2 3 returns the data unconverted, and IBM does not say what FLENGTH holds");
+        if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say whether a block is then acquired");
         char *conv = malloc((size_t)k->len + 1);
         if (!conv) refuse("out of memory");
         memcpy(conv, k->data ? k->data : "", (size_t)k->len);

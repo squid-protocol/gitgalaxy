@@ -44,7 +44,6 @@ from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.eib import EIB_FACTS, TASKN_MAX
 from gitgalaxy.standards.cics.commands import whole_refusal
 from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
-from gitgalaxy.standards.cics.commands.containers import CODEPAGE_CCSIDS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
@@ -2064,19 +2063,10 @@ def _counter_areas(
     return pre, out
 
 
-def _container_ccsid(key: str, opts: dict[str, str | None], ccsid_option: str, codepage_option: str) -> list[str]:
-    """#4270 (X17): the CCSID option of a PUT / GET CONTAINER (FROMCCSID / INTOCCSID, or the IANA name of
-    FROMCODEPAGE / INTOCODEPAGE) as `MOVE value TO GG-NUM` (the flag in GG-FLAGS is the caller's); none given: no lines."""
-    if ccsid_option in opts:
-        return [f"MOVE {opts[ccsid_option]} TO GG-NUM"]
-    if codepage_option not in opts:
-        return []
-    m = re.fullmatch(r"""(?s)\s*(['"])(.*)\1\s*""", opts[codepage_option] or "")
-    ccsid = CODEPAGE_CCSIDS.get(m.group(2).strip().upper()) if m else None
-    if ccsid is None:
-        raise Unsupported(f"{key} {codepage_option}({opts[codepage_option]}): only the IANA names IBM037, IBM500 and IBM01140, "
-                          "as a literal, are modelled", [f"{key} {codepage_option}"])  # fmt: skip
-    return [f"MOVE {ccsid} TO GG-NUM"]
+def _container_ccsid(opts: dict[str, str | None], option: str) -> list[str]:
+    """#4270 (X17): the CCSID option of a PUT / GET CONTAINER (FROMCCSID / INTOCCSID) as `MOVE value TO GG-NUM` (the flag in
+    GG-FLAGS is the caller's); not given: no lines."""
+    return [f"MOVE {opts[option]} TO GG-NUM"] if option in opts else []
 
 
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -2115,9 +2105,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
         if len(types) > 1:
             raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
         flags += types + (["APPEND"] if "APPEND" in opts else [])
-        if "FROMCCSID" in opts and "FROMCODEPAGE" in opts:
-            raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "FROMCCSID", "FROMCCSID and FROMCODEPAGE"), [feature])
-        code = _container_ccsid("PUT CONTAINER", opts, "FROMCCSID", "FROMCODEPAGE")
+        code = _container_ccsid(opts, "FROMCCSID")
         flags += ["FROMCCSID"] if code else []
         return (lines + code + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
                          f"MOVE {flength or f'LENGTH OF {frm}'} TO GG-LEN"]
@@ -2154,10 +2142,12 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
 
 
 def _container_get_options(opts: dict[str, str | None], flags: list[str]) -> list[str]:
-    """#4270 (X17): GET CONTAINER's INTOCCSID / INTOCODEPAGE (GG-NUM in, flag INTOCCSID) and CONVERTST(NOCONVERT) (flag
-    NOCONVERT); `flags` gains the flag. As the translator: one target code page, CCSID only with CONVERTST."""
-    if sum(o in opts for o in ("INTOCCSID", "INTOCODEPAGE", "CONVERTST")) > 1:
-        raise Unsupported(_rule("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and INTOCODEPAGE"), ["GET CONTAINER"])
+    """#4270 (X17): GET CONTAINER's INTOCCSID (GG-NUM in, flag INTOCCSID) and CONVERTST(NOCONVERT) (flag NOCONVERT); `flags` gains
+    the flag. As the translator: one target code page, CCSID only with CONVERTST."""
+    if "INTOCCSID" in opts and "CONVERTST" in opts:
+        raise Unsupported(
+            _rule("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"), ["GET CONTAINER"]
+        )
     if "CCSID" in opts and "CONVERTST" not in opts:
         raise Unsupported(_rule("GET CONTAINER", "requires", "CCSID"), ["GET CONTAINER"])
     if "CONVERTST" in opts:
@@ -2166,7 +2156,7 @@ def _container_get_options(opts: dict[str, str | None], flags: list[str]) -> lis
                               ["GET CONTAINER CONVERTST"])  # fmt: skip
         flags.append("NOCONVERT")
         return []
-    code = _container_ccsid("GET CONTAINER", opts, "INTOCCSID", "INTOCODEPAGE")
+    code = _container_ccsid(opts, "INTOCCSID")
     flags += ["INTOCCSID"] if code else []
     return code
 

@@ -3525,12 +3525,14 @@ public class CicsTask {
         }
     }
 
-    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140, single-byte EBCDIC pages
-    // that keep a container's length. The bytes a program holds in its storage are read as the region's page (the port's
-    // convention, #4528): an area's byte is the character the region's page gives the byte it encodes to, and a conversion
-    // is the character-to-character map between the two pages, applied to the storage's bytes. A character the target page
-    // lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by a blank"), which IBM
-    // does not say what FLENGTH or a PUT then do with: refused.
+    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages
+    // that keep a container's length) and 1208 (UTF-8) for ASCII data, one byte a character. The bytes a program holds in its
+    // storage are read as the region's page (the port's convention, #4528): an area's byte is the character the region's
+    // page gives the byte it encodes to, and a conversion is the character-to-character map between the two pages, applied
+    // to the storage's bytes (a 1208 byte is the ASCII character itself, kept in storage as the region's page decodes it). A
+    // character the target page lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by
+    // a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is a 1208 byte or character beyond
+    // ASCII (a multibyte sequence changes the length).
     private static final int REGION_CCSID = 37;
     private int lastContainerCcsid;
 
@@ -3542,9 +3544,11 @@ public class CicsTask {
                 return java.nio.charset.Charset.forName("Cp500");
             case 1140:
                 return java.nio.charset.Charset.forName("Cp1140");
+            case 1208:
+                return java.nio.charset.StandardCharsets.UTF_8;
             default:
-                throw refused(what + "(" + ccsid + "): only the CCSIDs 37, 500 and 1140 are modelled (CCSIDERR RESP2 1 / 2 "
-                        + "for another)");
+                throw refused(what + "(" + ccsid + "): only the CCSIDs 37, 500, 1140 and 1208 are modelled (CCSIDERR RESP2 1 / "
+                        + "2 for another)");
         }
     }
 
@@ -3559,10 +3563,14 @@ public class CicsTask {
         byte[] out = new byte[data.length];
         for (int i = 0; i < data.length; i++) {
             byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
+            if (from == 1208 && real < 0) {
+                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            }
             String c = new String(new byte[] {real}, f);
-            if (!t.newEncoder().canEncode(c)) {
-                throw refused(what + " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: "
-                        + "IBM does not say what the command then stores or sets)");
+            if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {
+                throw refused(what + (to == 1208 ? " code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte "
+                        + "sequence)" : " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
+                        + "does not say what the command then stores or sets)"));
             }
             out[i] = (byte) new String(c.getBytes(t), region).charAt(0);
         }
@@ -3734,11 +3742,12 @@ public class CicsTask {
         }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
         String name = channelName(container, "container");
-        if (ch == null && fromCcsid >= 0) {
-            throw refused("PUT CONTAINER FROMCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
+        if (ch == null && fromCcsid >= 0 && type != null) {
+            throw refused("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and "
+                    + "IBM ranks neither");
         }
         if (ch == null) {
-            return new ContainerResult("INVREQ", type == null ? 4 : 1, -1, null);
+            return new ContainerResult("INVREQ", fromCcsid >= 0 ? 2 : type == null ? 4 : 1, -1, null);
         }
         if (fromCcsid >= 0) {
             ccsidCharset(fromCcsid, "PUT CONTAINER FROMCCSID");
@@ -3800,6 +3809,10 @@ public class CicsTask {
     /** GET CONTAINER SET with INTOCCSID / INTOCODEPAGE (`intoCcsid`, -1: none) or CONVERTST(NOCONVERT) (`noConvert`). */
     public SetBlock getContainerSet(String channel, String container, int intoCcsid, boolean noConvert) {
         ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE, intoCcsid, noConvert);
+        if ("CCSIDERR".equals(r.resp())) {
+            throw refused("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say "
+                    + "whether a block is then acquired");
+        }
         if (!"NORMAL".equals(r.resp())) {
             return new SetBlock(r, 0);
         }
@@ -3828,22 +3841,23 @@ public class CicsTask {
                                         boolean noConvert) {
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
-        if (ch == null && intoCcsid >= 0) {
-            throw refused("GET CONTAINER INTOCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
-        }
         if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+            return channel == null ? new ContainerResult("INVREQ", intoCcsid >= 0 ? 2 : 4, -1, null)
                     : new ContainerResult("CHANNELERR", 2, -1, null);
         }
         Container c = ch.containers.get(name);
         if (c == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
-        if (c.bit && intoCcsid >= 0) {
-            throw refused("GET CONTAINER INTOCCSID on a BIT container: CCSIDERR RESP2 3 returns the data unconverted, and IBM "
-                    + "does not say what FLENGTH then holds");
-        }
         lastContainerCcsid = c.bit ? 0 : c.ccsid;
+        if (c.bit && intoCcsid >= 0) {
+            // IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated
+            if (maxLength >= 0 && c.data.length > maxLength) {
+                throw refused("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins "
+                        + "is not documented");
+            }
+            return new ContainerResult("CCSIDERR", 3, -1, maxLength < 0 ? null : c.data.clone());
+        }
         byte[] data = c.bit || noConvert ? c.data
                 : convertContainer(c.data, c.ccsid, intoCcsid >= 0 ? intoCcsid : REGION_CCSID, "GET CONTAINER");
         if (maxLength < 0) {

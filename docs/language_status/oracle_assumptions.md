@@ -171,6 +171,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X61 | CICS | READQ TD SET(ptr) LENGTH(data-area) puts the record in a new block valid to the next READQ TD (X58's pointer lane), LENGTH the record's length; NOSUSPEND is accepted and changes nothing (QBUSY needs a second task writing a logically recoverable queue). An extrapartition queue (TYPE EXTRA) answers by its definition: OPENTIME(DEFERRED) is closed, so NOTOPEN (19); TYPEFILE(OUTPUT) open, INVREQ (16); TYPEFILE(INPUT) open reads its records first in first out, QZERO at the end. A case seeds (text the data encoding holds whole, non-ASCII included) the records of an intrapartition queue or an input data set ("td"). WRITEQ TD to an extrapartition queue: INVREQ (16) when it is open for input, NOTOPEN (19) when closed (#5168 round 2). RECOVSTATUS(LOGICAL): SYNCPOINT ROLLBACK, or a task's abend, puts the queue back as it was at the last SYNCPOINT (reads, writes and DELETEQ alike); NO commits at once. An INDIRECT queue routes READQ / WRITEQ / DELETEQ to its INDIRECTNAME, itself possibly indirect. Refused by name: SYSID and REMOTE queues, IOERR (no data set), RDBACK or no TYPEFILE, RECOVSTATUS(PHYSICAL) with a SYNCPOINT ROLLBACK, a WRITEQ TD that brings a queue with a TRANSID to its TRIGGERLEVEL (automatic task initiation), an INDIRECT queue with no INDIRECTNAME / an undefined target / a loop, a SYNCPOINT ROLLBACK after a SYNCPOINT (CicsTask). SET TDQUEUE(q) OPENSTATUS(OPEN | CLOSED) opens or closes an extrapartition queue at run time (the state replaces OPENTIME and outlives the task) and INQUIRE TDQUEUE(q) OPENSTATUS / TYPE reads them (#5168 round 3): QIDERR RESP2 1, INVREQ RESP2 8 (invalid CVDA) and 9 (intrapartition queue); every other SET / INQUIRE TDQUEUE option, an INDIRECT or REMOTE queue, OPEN with no TYPEFILE, OPEN of an input queue already read, and an invalid CVDA on a queue that is not extrapartition are refused by name | ASSUMED (REFUSED where IBM is silent) | no corpus program issues these forms yet; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5168.py, 17 scenarios), the translators' shapes and refusals (tests/cobol_mainframe/test_equivalence_cics.py, test_det_translate.py) and end to end against GnuCOBOL (tests/cobol_mainframe/test_td_queue_e2e_5168.py, test_td_openstatus_e2e_5168.py); round 3: 35 scenarios in the same file and tests/cobol_mainframe/test_td_openstatus_translate_5168.py |
 | X62 | CICS | The resource map is built from definition sources in the repository (CSD decks, assembled macro tables, including tables in JCL assembler SYSIN). What a running region installed, enabled or changed through CEDA, CEMT or EXEC CICS SET / CSD commands is not in a source tree, so no scan can state it; the map names that limit instead of guessing | REFUSED | no (a static property: nothing to reach) |
 | X63 | CICS | EXEC CICS POST makes a 4-byte timer-event control area (binary zeros) and, with SET, hands its address to the program; WAIT EVENT ECADDR waits for it and the area is then posted (first byte X'40', third byte X'80'). A task takes no time (X4), so the area is posted only by a WAIT EVENT, which runs the stated clock to the expiry, or by a CANCEL of the POST. POST raises INVREQ (RESP2 4 / 5 / 6) and EXPIRED, WAIT EVENT INVREQ RESP2 2. CONVERSE (default) writes FROM to the terminal and reads the reply INTO, TOLENGTH set, LENGERR for a longer reply. Refused by name: a WAIT on an area a later POST, CANCEL, START or DELAY ended, an ECB that is no POST's, CONVERSE on an LUTYPE2 terminal and CONVERSE SET / the conversation options | ASSUMED (REFUSED where IBM is silent) | no corpus program issues them (0 uses in the 18 corpora, #5079); proven end to end on GnuCOBOL with the stub and on the det port with a hand-traced program (tests/cobol_mainframe/test_post_wait_converse_e2e_5079.py), the translators' shapes, every option and refusal and both runtimes' conditions (tests/cobol_mainframe/test_post_wait_converse_5079.py) |
+| X64 | CICS | EIBDS is the FILE / DATASET of the last file control request on both runtimes (before the request runs); EIBFN, EIBRCODE, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR and EIBERRCD are INITIALIZEd on both sides and stay `fact:` gaps in proof_blockers | ASSUMED (EIBDS) / REFUSED (the other EIB resource and response fields) | EIBDS: only ZECS001 reads it (a program with holes, no case yet); the others: ZECS001's EIBRCODE (the same program) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -3187,6 +3188,46 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Reached by no corpus program yet, so no port moves. cics-crucible cases to add (separate queue
   items): POST AFTER + WAIT EVENT + CANCEL NOTFND; a POST then a second POST (the first area ended: refused); CONVERSE with a reply that fits and one that is cut
   (LENGERR, TOLENGTH the original length); WAIT EVENT on a null pointer (INVREQ RESP2 2); POST TIME already past (EXPIRED).
+
+### X64. EIB fields no command sets: EIBDS is modelled; EIBFN, EIBRCODE, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR / EIBERRCD stay unmodelled and are named (#5126)
+- **What IBM documents** (CICS TS 6.x, EIB fields, https://www.ibm.com/docs/en/cics-ts/6.x?topic=reference-eib-fields):
+  - EIBDS "Contains the symbolic identifier of the last data set referred to in a file control request." COBOL
+    PIC X(8).
+  - EIBFN "Contains a code that identifies the last CICS command issued by the task." PIC X(2); the values are IBM's
+    "Function codes of EXEC CICS commands" table.
+  - EIBRCODE "Contains the CICS response code returned after the function requested by the last CICS command ...
+    has been completed." PIC X(6); "For a normal response, this field contains hexadecimal zeros (6 X'00')". A
+    condition's value is a row of IBM's EIBFN / EIBRCODE / condition table, with seven notes (SYSIDERR, SESSIONERR,
+    SYSBUSY, INVREQ and LENGERR of terminal control, ILLOGIC / IOERR of file control carrying a BDAM or VSAM return
+    code, INVMPSZ).
+  - EIBRSRCE "the symbolic identifier of the resource being accessed by the latest executed command", by command type
+    (a map name, a file name, a transaction, a journal, a program, a TS or TD queue, a terminal); EIBREQID the request
+    identifier CICS assigned to an interval control command; EIBCPOSN the cursor address of the last terminal or BMS
+    input; EIBERR / EIBERRCD an APPC conversation's error (X'FF' and its code).
+- **EIBDS (modelled).** A file control command (READ, READNEXT, READPREV, RESETBR, STARTBR, ENDBR, WRITE, REWRITE,
+  DELETE, UNLOCK) with a FILE or DATASET operand moves that operand into EIBDS before the request runs, on both sides
+  in a program that reads EIBDS (the stub's driver, `equivalence_cics.translate`; the det port, `Cics.command`); a
+  program that never reads it keeps its text. The MOVE pads or truncates to 8 characters as IBM's X(8)
+  does. ASSUMED: IBM says "referred to", not "completed", so a request that fails (FILENOTFOUND, NOTFND ...) still
+  names its file; a command that is refused is refused as before and sets nothing. No other command touches EIBDS.
+- **Not modelled, refused by name.** EIBFN, EIBRCODE, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR and EIBERRCD are
+  INITIALIZEd on both sides (spaces / zero): equal, but not z/OS's value. EIBFN and EIBRCODE need IBM's full function
+  code and condition tables, row by row, for every command a program can issue; EIBRSRCE a per-command-type resource
+  (a map name is 7 characters, a journal number a halfword); EIBCPOSN the 3270 cursor, which no scenario states;
+  EIBREQID a CICS-assigned request id; EIBERR / EIBERRCD an APPC conversation (no APPC model). A program that reads
+  one keeps its `fact: NAME` gap in `proof_blockers.py`, so no proof says anything about the value it reads. Even
+  EIBRCODE's documented normal value (6 X'00') is not set, because a half-set field would turn the gap into a wrong
+  claim after any non-normal response.
+- **Reached.** Burned estates: ZECS001 reads EIBDS and EIBRCODE (`9100-FILE-ERROR`, `9200-KEY-ERROR`, and eight
+  `MOVE EIBDS(1:8)` after a failed file request), a program the det port translates with holes and no
+  case runs yet; no other burned program reads any of the seven. Pinned by
+  `tests/cobol_mainframe/test_eibds_5126.py` (both translators, every file verb and spelling, the programs that do
+  not read EIBDS) and `tests/tools/test_proof_blockers.py`.
+- **Evidence level.** Translated on both sides and pinned at the translator (the text each side emits); NOT
+  executed-equivalent: no case's program reads EIBDS, so no scenario ran the stub's MOVE against the port's. The
+  detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).
+- **So a proof says:** a case's program that reads EIBDS sees the file it last named, on both sides. It does NOT say
+  anything about EIBFN / EIBRCODE / the rest, which stay gaps.
 
 ## Language Environment
 

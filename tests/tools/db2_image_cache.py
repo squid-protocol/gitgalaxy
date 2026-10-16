@@ -54,8 +54,8 @@ def load(directory: Path) -> bool:
     if loaded.returncode != 0 or zstd_rc != 0:
         print(f"db2 image cache: load failed (docker {loaded.returncode}, zstd {zstd_rc}); falling back to a pull")
         return False
-    got = re.search(r"Loaded image ID: (sha256:[0-9a-f]{64})", loaded.stdout.decode(errors="replace"))
-    if not want.startswith("sha256:") or not got or got.group(1) != want or _image_id(got.group(1)) != want:
+    got = re.search(rb"Loaded image ID: (sha256:[0-9a-f]{64})", loaded.stdout)
+    if not want.startswith("sha256:") or not got or got.group(1).decode("ascii") != want or _image_id(want) != want:
         print("db2 image cache: the loaded image id is not the recorded one; falling back to a pull")
         return False
     subprocess.run(["docker", "tag", want, ALIAS], check=True)  # noqa: S603, S607

@@ -2152,6 +2152,13 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    if "BYTEOFFSET" in opts:  # #5005 (X17): GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
+        if not into:
+            need = next(g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",))
+            raise Unsupported(need, [feature])
+        for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+            if other in opts:
+                raise Unsupported(_rule("GET CONTAINER", "at_most_one", "BYTEOFFSET", other), [feature])
     if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
         if not settable:
             raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
@@ -2164,13 +2171,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
         return (lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}"] + _container_ccsid_out(opts)
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     flags += ["NODATA"] if nodata else []
-    if "BYTEOFFSET" in opts:  # #5005 (X17): GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
-        if not into:
-            need = next(g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",))
-            raise Unsupported(need, [feature])
-        for other in ("INTOCCSID", "CONVERTST", "CCSID"):
-            if other in opts:
-                raise Unsupported(_rule("GET CONTAINER", "at_most_one", "BYTEOFFSET", other), [feature])
+    if "BYTEOFFSET" in opts:  # GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
         flags.append("BYTEOFFSET")
         lines.append(f"MOVE {opts['BYTEOFFSET']} TO GG-NUM")
     lines += _container_get_options(opts, flags)

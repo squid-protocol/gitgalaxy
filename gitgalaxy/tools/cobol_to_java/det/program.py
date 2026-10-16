@@ -19,6 +19,7 @@ from typing import Any
 from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import dli as DLI
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
@@ -634,6 +635,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.alphabets, gen.program_collating = alphabets(lines)
     _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.dli_pcbs = None if is_cics else DLI.entry_pcbs(proc)  # #4893: IMS enters it at ENTRY 'DLITCBL' (det/dli.py)
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -882,7 +884,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     extra_imports: list[str] = []
     using = [u for u in proc.using if u != "BY"]
     parm_code = []
-    if using:
+    if gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
+        parm_code = [f"        DetDli.enter({', '.join(gen.field_expr(E.Ref(n)) for n in gen.dli_pcbs)});"]
+        extra_imports.append(f"{package}.cobolrt.dli.DetDli")
+    elif using:
         u0 = next((r for r in linkage if r.name == using[0]), None)
         if u0 is not None:
             st = _storage_name(roots[id(u0)])
@@ -1225,6 +1230,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "        } catch (Goback g) {",
                 "            // the program ended",
                 "        }",
+                *(["        DetDli.leave();  // the step ended: its databases, as it left them"]
+                  if gen.dli_pcbs is not None else []),
                 f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
                 "    }",
                 "",

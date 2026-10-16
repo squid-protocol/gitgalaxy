@@ -14,6 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from gitgalaxy.tools.cobol_to_java.det import dli
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
@@ -2666,6 +2667,10 @@ class Gen:
                 f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
             )
             return out
+        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog != "CBLTDLI":
+                raise Untranslatable(dli.REFUSED_BY_NAME[prog])
+            return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):

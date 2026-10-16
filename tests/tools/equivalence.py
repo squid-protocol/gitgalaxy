@@ -99,6 +99,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
 import equivalence_db2
+import equivalence_ims
 import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
@@ -265,7 +266,18 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
-    (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
+    ims = case.get("ims")
+    if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
+        try:
+            pcbs = equivalence_ims.stage(case, corpus, source, work / "dli")
+        except equivalence_ims.Unsupported as e:
+            raise RuntimeError(f"not runnable faithfully: {e}") from e
+        (src / "EQDRIVER.cbl").write_text(_cbl(equivalence_ims.cobol_driver("DLITCBL", pcbs)), encoding="ascii")
+        shutil.copy(equivalence_ims.STUB, src / "ggdli.c")
+        shutil.rmtree(work / "dliout", ignore_errors=True)
+        (work / "dliout").mkdir()
+    else:
+        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     models = sorted(LE_MODELS.glob("*.c"))
@@ -273,6 +285,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         shutil.copy(m, src / m.name)
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
     sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
+    sql += " src/ggdli.c" if ims else ""
     le = "".join(f" src/{m.name}" for m in models)
     script.append(
         f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}"
@@ -291,6 +304,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
+    sqlenv += "GGDLI_DIR=/work/dli GGDLI_OUT=/work/dliout " if ims else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
         sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_OUTCOMES=/work/sqlout.txt GGSQL_FAULTS_LOG=/work/FAULTS "
@@ -326,6 +340,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         for t in db2.get("compare", []):
             f = saved / f"DB2_{t}"
             outs[f"DB2 {t}"] = f.read_bytes() if f.is_file() else b""
+    for name in (ims or {}).get("compare", []):  # #4893: each database as the step left it (ggdli.c GGDLIEND)
+        f = work / "dliout" / f"{name}.out"
+        outs[f"IMS {name}"] = f.read_bytes() if f.is_file() else b""
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
     if db2 and db2.get("compare_sql"):  # #4507: what Db2 answered the step's statements
         outs["SQL"] = (work / "sqlout.txt").read_bytes() if (work / "sqlout.txt").is_file() else b""
@@ -614,6 +631,11 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
         _compare_tables(case, cobol, java, run, why)
+        for name in (case.get("ims") or {}).get("compare", []):  # #4893: each database, segment by segment
+            d = equivalence_ims.diff_db(case, corpus, name, cobol.get(f"IMS {name}", b""), java.get(f"IMS {name}", b""))
+            run["outputs"][f"IMS {name}"] = d
+            if d["diffs"]:
+                why.append(f"IMS {name}: {d['records'] - len(d['diffs'])}/{d['records']} segments equal")
         # #4507: what Db2 answered each side's statements (not a run with planned SQL faults: those are compared as
         # fired faults)
         if (case.get("db2") or {}).get("compare_sql") and not (fault or {}).get("sql_plan"):

@@ -1688,9 +1688,13 @@ class Gen:
             return f"Cobol.move({self.num(src)}, {ft}, CS);"
         raise Untranslatable(f"MOVE from {type(src).__name__}")
 
-    def initialize(self, ref: E.Ref) -> list[str]:
-        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero."""
+    def initialize(self, ref: E.Ref, replacing: dict | None = None) -> list[str]:
+        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero; with
+        REPLACING (#4892), only the items of a named category, each to its value as by MOVE, the others unchanged."""
         lo = self.lift(ref)
+        if lo and replacing is not None:
+            value = replacing.get(_replacing_category(self.resolve(ref)))
+            return [] if value is None else [self.move(value, ref)]
         if lo:
             return [self.move(E.Fig("SPACES" if lo[0] == "X" else "ZEROS"), ref)]
         it = self.resolve(ref)
@@ -1723,25 +1727,37 @@ class Gen:
                     out.append(f"Cobol.moveFigurative(Figurative.LOW_VALUES, Field.group({base}.storage(), "
                                f"{base}.offset() + {rel}, {x.size}), CS);")  # fmt: skip
                 return
-            out.append(self._init_one(x, base, it))
+            out.append(self._init_one(x, base, it, replacing=replacing))
 
         def walk_occ(c: L.Item, k: int) -> None:
             # a table element: its own offset plus k strides, relative to the INITIALIZE target
             for leaf in c.walk():
                 if leaf.children or leaf.name == "FILLER" or leaf.redefines:
                     continue
-                out.append(self._init_one(leaf, base, it, extra=k * c.size))
+                out.append(self._init_one(leaf, base, it, extra=k * c.size, replacing=replacing))
 
         walk(it, False, "")
-        return out
+        return [x for x in out if x]
 
-    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0, replacing: dict | None = None) -> str:
+        if replacing is not None and _replacing_category(x) not in replacing:
+            return ""  # REPLACING names another category: the item is left as it is
         why = p_unmodelled(x)
         if why:
             raise Untranslatable(f"INITIALIZE {why}")
-        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
-        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
+        field = self.factory(x, f"{base}.storage()", f"{base}.offset() + {rel}")
+        if replacing is not None:
+            value = replacing[_replacing_category(x)]
+            if isinstance(value, E.Fig):
+                return f"Cobol.moveFigurative(Figurative.{self.fig(value.kind)}, {field}, CS);"
+            if isinstance(value.value, str):
+                return f"Cobol.move({jstr(value.value)}, {field}, CS);"
+            if isinstance(value.value, Decimal):
+                return f"Cobol.move({self.const(value.value)}, {field}, CS);"
+            raise Untranslatable("INITIALIZE REPLACING BY a hexadecimal literal")
+        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
+        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {field}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
@@ -1953,7 +1969,7 @@ class Gen:
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:
-                out += [ind + x for x in self.initialize(r)]
+                out += [ind + x for x in self.initialize(r, s.data.get("replacing"))]
             return out
         if k == "SET-TRUE":
             out = [c]
@@ -2680,6 +2696,10 @@ class Gen:
             if prog in LIBRARY_CHARSET:
                 refs.append("CS")
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
+        from gitgalaxy.tools.cobol_to_java.det import mq
+
+        if mq.handles(prog):  # #4892: an MQI call, on the task's queue manager (det/mq.py, register W)
+            return mq.call(self, prog, args, ind)
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 
         if prog in REFUSED_BY_NAME:
@@ -3183,6 +3203,11 @@ def camel(cobol: str) -> str:
     if not parts:
         return "x"
     return parts[0].lower() + "".join(p[:1].upper() + p[1:].lower() for p in parts[1:])
+
+
+def _replacing_category(it: L.Item) -> str:
+    """#4892: the INITIALIZE REPLACING category of an elementary item (an internal float is of the numeric category)."""
+    return "NUMERIC" if it.category == "FLOAT" else it.category
 
 
 def _fig(kind: str) -> str:

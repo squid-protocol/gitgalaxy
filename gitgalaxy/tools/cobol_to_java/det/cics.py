@@ -1795,37 +1795,62 @@ class Cics:
             n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
+            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{', ' + from_ccsid if from_ccsid else ''});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
+            convert = _convertst(opts)
+            if convert and "INTOCCSID" in opts:
+                raise CicsError(_msg("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"))
+            if "CCSID" in opts and convert is None:
+                raise CicsError(_msg("GET CONTAINER", "requires", "CCSID"))
+            conv = f", {into_ccsid or '-1'}, {str(bool(convert)).lower()}" if into_ccsid or convert else ""
             if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
                 if not settable:
                     raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
                 ptr = self.pointer(opts["SET"])
-                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name});",
+                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name}{conv});",
                         f"{ind}CicsTask.ContainerResult {r} = {r}s.result();",
                         f"{ind}if ({r}s.handle() != 0) DetCics.setPointer({ptr}, {r}s.handle());"]  # fmt: skip
             elif nodata:
-                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
+                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1{conv});")
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
                 out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}));"),
+                         f"DetCics.containerLimit({target}, {most}){conv});"),
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+            if "CCSID" in opts:  # the container's own CCSID (0: BIT), set with FLENGTH: on NORMAL and LENGERR
+                set_ccsid = g.store_into(
+                    self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False
+                )
+                out.append(f"{ind}if ({r}.length() >= 0) {set_ccsid}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def container_ccsid(self, opts: dict, option: str, verb: str) -> str | None:
+        """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
+        37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
+        conversion assumes is CCSID 037: another declared page refuses the option."""
+        if option not in opts:
+            return None
+        if self.region != region_page(None):
+            raise CicsError(
+                f"{verb} {option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}"
+            )
+        return self.int_(_arg(opts[option]))
 
     def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
@@ -3016,6 +3041,17 @@ def _option(opts: dict, name: str) -> str | None:
     if name not in opts:
         return None
     return _arg(opts[name])
+
+
+def _convertst(opts: dict) -> bool | None:
+    """#4270 (X17): GET CONTAINER CONVERTST -- True for DFHVALUE(NOCONVERT) (734), the only value IBM documents; None when
+    not given."""
+    named = _option(opts, "CONVERTST")
+    if named is None:
+        return None
+    if re.fullmatch(r"(?is)\s*(DFHVALUE\s*\(\s*NOCONVERT\s*\)|734)\s*", named) is None:
+        raise CicsError(f"GET CONTAINER CONVERTST({named}): only DFHVALUE(NOCONVERT) is modelled")
+    return True
 
 
 def _datatype(opts: dict) -> str | None:

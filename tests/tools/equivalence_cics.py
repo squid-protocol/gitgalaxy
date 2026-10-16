@@ -2063,6 +2063,12 @@ def _counter_areas(
     return pre, out
 
 
+def _container_ccsid(opts: dict[str, str | None], option: str) -> list[str]:
+    """#4270 (X17): the CCSID option of a PUT / GET CONTAINER (FROMCCSID / INTOCCSID) as `MOVE value TO GG-NUM` (the flag in
+    GG-FLAGS is the caller's); not given: no lines."""
+    return [f"MOVE {opts[option]} TO GG-NUM"] if option in opts else []
+
+
 def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC. The container's name in GG-QNAME, the
     channel's in GG-CHAN (GG-FLAGS 'CHANNEL'; none: the current channel), the data type, APPEND and NODATA in
@@ -2099,7 +2105,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
         if len(types) > 1:
             raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
         flags += types + (["APPEND"] if "APPEND" in opts else [])
-        return (lines + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
+        code = _container_ccsid(opts, "FROMCCSID")
+        flags += ["FROMCCSID"] if code else []
+        return (lines + code + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
                          f"MOVE {flength or f'LENGTH OF {frm}'} TO GG-LEN"]
                 + _past_from(flength, frm, "PUT CONTAINER") + _call("GGCPUTC", [f"BY REFERENCE {frm}"])
                 + _resp(opts, True, labels))  # fmt: skip
@@ -2110,13 +2118,16 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
         if not settable:
             raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
+        lines += _container_get_options(opts, flags)
         lines += [
             "MOVE SPACES TO GG-FLAGS" if not flags else f"MOVE '{' '.join(flags)}' TO GG-FLAGS",
             "MOVE 0 TO GG-LEN",
         ]
         lines += _call("GGCGETS", [f"BY REFERENCE {_pointer('GET CONTAINER', opts['SET'])}"])
-        return lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}", "END-IF"] + _resp(opts, True, labels)
+        return (lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}"] + _container_ccsid_out(opts)
+                + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     flags += ["NODATA"] if nodata else []
+    lines += _container_get_options(opts, flags)
     lines += [
         f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
         "MOVE 0 TO GG-LEN" if nodata else f"MOVE {flength or f'LENGTH OF {into}'} TO GG-LEN",
@@ -2124,9 +2135,35 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if into and flength:
         lines += _past_from(flength, into, "GET CONTAINER")
     lines += _call("GGCGETC", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
-    if settable:
-        lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {flength}", "END-IF"]
+    if settable or "CCSID" in opts:
+        lines += ["IF GG-RESP = 0 OR GG-RESP = 22"] + ([f"    MOVE GG-LEN TO {flength}"] if settable else [])
+        lines += _container_ccsid_out(opts) + ["END-IF"]
     return lines + _resp(opts, True, labels)
+
+
+def _container_get_options(opts: dict[str, str | None], flags: list[str]) -> list[str]:
+    """#4270 (X17): GET CONTAINER's INTOCCSID (GG-NUM in, flag INTOCCSID) and CONVERTST(NOCONVERT) (flag NOCONVERT); `flags` gains
+    the flag. As the translator: one target code page, CCSID only with CONVERTST."""
+    if "INTOCCSID" in opts and "CONVERTST" in opts:
+        raise Unsupported(
+            _rule("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"), ["GET CONTAINER"]
+        )
+    if "CCSID" in opts and "CONVERTST" not in opts:
+        raise Unsupported(_rule("GET CONTAINER", "requires", "CCSID"), ["GET CONTAINER"])
+    if "CONVERTST" in opts:
+        if re.fullmatch(r"(?is)\s*(DFHVALUE\s*\(\s*NOCONVERT\s*\)|734)\s*", opts["CONVERTST"] or "") is None:
+            raise Unsupported(f"GET CONTAINER CONVERTST({opts['CONVERTST']}): only DFHVALUE(NOCONVERT) is modelled",
+                              ["GET CONTAINER CONVERTST"])  # fmt: skip
+        flags.append("NOCONVERT")
+        return []
+    code = _container_ccsid(opts, "INTOCCSID")
+    flags += ["INTOCCSID"] if code else []
+    return code
+
+
+def _container_ccsid_out(opts: dict[str, str | None]) -> list[str]:
+    """GET CONTAINER CCSID(area): the container's CCSID (0: BIT), which the stub leaves in GG-NUM."""
+    return [f"    MOVE GG-NUM TO {opts['CCSID']}"] if "CCSID" in opts else []
 
 
 def _container_browse_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:

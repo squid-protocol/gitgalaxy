@@ -322,7 +322,7 @@ jobs:
 
       - name: Keep this part's results for the db2 job
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-part-${{ strategy.job-index }}
           path: ${{ runner.temp }}/db2-out
@@ -331,7 +331,7 @@ jobs:
 
       - name: Keep the Db2 proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -427,7 +427,7 @@ jobs:
 
       - name: Keep the Db2 results for the refresh job
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-results
           path: ${{ runner.temp }}/db2-out
@@ -557,7 +557,7 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-sweep-shard-${{ strategy.job-index }}
           path: ${{ runner.temp }}/sweep/sweep.json
@@ -566,7 +566,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -726,7 +726,7 @@ jobs:
 
       - name: Keep this shard's records
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-records-${{ strategy.job-index }}
           path: ${{ runner.temp }}/records-out
@@ -851,7 +851,7 @@ jobs:
 
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blockers-survey
           path: ${{ runner.temp }}/blockers-cache/
@@ -970,7 +970,7 @@ jobs:
       # #4963: the rendered report is published to the `generated` branch by the publish-report job, not committed on main.
       - name: Keep the rendered evidence reports for the publish job
         if: always() && steps.report.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: evidence-report
           path: gitgalaxy/docs/language_status/evidence_report
@@ -1157,7 +1157,7 @@ jobs:
 
       - name: Keep the preview
         if: github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blockers-generated-preview
           path: ${{ runner.temp }}/generated-preview/

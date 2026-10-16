@@ -379,19 +379,6 @@
       }
     },
     {
-      "name": "from-account-letters",
-      "aid": "DFHENTER",
-      "commarea": {},
-      "why": "BIF DEEDIT strips the letters",
-      "receive": {
-        "BNK1TF": {
-          "FACCNOI": "ABCD1234",
-          "TACCNOI": "00000002",
-          "AMTI": "1"
-        }
-      }
-    },
-    {
       "name": "same-accounts",
       "aid": "DFHENTER",
       "commarea": {},

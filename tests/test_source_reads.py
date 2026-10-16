@@ -43,6 +43,7 @@ ESTATE_READERS = (
     "gitgalaxy/security/",
     "gitgalaxy/metrics/",
     "gitgalaxy/standards/language_lens.py",
+    "gitgalaxy/tools/readiness/",  # #4726: `gitgalaxy assess` reads the customer's estate and its options file
 )
 
 ALLOWED: dict[tuple[str, str, str], str] = {

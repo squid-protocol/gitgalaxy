@@ -164,6 +164,10 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     CicsTask.withTaskNumber): the equivalence harness states it for every task, so neither a case nor a program with
     no case yet has the gap; the crucible runner does not state it, so a crucible case's program keeps it."""
     assert "EIBTASKN" in pb.CASE_STATED_EIB and "EIBRCODE" not in pb.CASE_STATED_EIB
+    # #5126 (X64): an equivalence case states EIBDS, a crucible cell does not
+    assert "EIBDS" in pb.CASE_STATED_EIB and "EIBDS" not in pb.STATED_EIB
+    # the other EIB resource fields stay open, refused by name (X64)
+    assert not {"EIBFN", "EIBRCODE", "EIBCPOSN", "EIBREQID", "EIBRSRCE", "EIBERR", "EIBERRCD"} & pb.CASE_STATED_EIB
     facts = {"eib": {"EIBTASKN"}}
     assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
     assert pb.fact_gaps(facts, None) == set()

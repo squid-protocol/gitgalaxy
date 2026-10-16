@@ -9,10 +9,11 @@ Per failed check: its triage -- `main` (a real failure of a check that also fail
 main's to fix, not this PR's), `dirty` (`action_required` on a PR that conflicts with main: no checks ran; merge
 origin/main and regenerate the generated files with their tools, never hand-merge them), `infra` (the runner, not the code: cancelled / startup failure / lost runner / disk /
 rate limit, or (#5273) a check whose job dependency failed as infra; rerun it once), `flake` (a test listed in FLAKY
-failed and nothing else did, or only the time ratchet failed on tests outside the PR diff or within RATCHET_SLACK x their
-limit; rerun it once) or `real` (a fixer's job). A roll-up check (full-suite, ground-truth, det) takes the triage of its
-failed part jobs. `main` is also a stale base (#5273): the failing tests' files changed on origin/main since the PR's
-merge-base, so `git merge origin/main` is the whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
+failed and nothing else did, only the time ratchet failed on tests outside the PR diff or within RATCHET_SLACK x their
+limit, or the first attempt of a check the flake-history cache learned is flaky failed; rerun it once) or `real` (a fixer's job).
+A roll-up check (full-suite, ground-truth, det) takes the triage of its failed part jobs. `main` is also a stale base
+(#5273): the failing tests' files changed on origin/main since the PR's merge-base, so `git merge origin/main` is the
+whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
 local command for that check from REPRO (pr_gates' own gate and ratchet names where one exists, otherwise the tool),
 filled with what the log names (the failing pytest node ids, the det cases not proven). A check with no local
 equivalent (CodeQL, Muninn, the dead-key audit ...) says so.
@@ -181,6 +182,14 @@ def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool = False
     return GATES + " --fast"
 
 
+def _completed_names(runs: list[dict[str, Any]]) -> tuple[set[str], set[str]]:
+    """(failed_names, all_completed_names) for a commit's check runs."""
+    c = pr_check.classify(runs, [])
+    failed = {x.rsplit(" (", 1)[0] for x in c["failed"]}
+    neutral = {x.rsplit(" (", 1)[0] for x in c["neutral"]}
+    return failed, set(c["passed"]) | failed | neutral
+
+
 def changed_files(api: pr_check.Api, path: str) -> set[str] | None:
     """The file names of a files listing; None when unreadable (the callers then keep `real`)."""
     try:
@@ -210,18 +219,56 @@ def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str])
     return next(k for k in NON_REAL if k in parts)
 
 
-def main_failures(api: pr_check.Api) -> set[str]:
-    """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main."""
+def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
+    """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
+    Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
+    walk up to `lookback` first-parent commits on main so checks not yet completed on tip retain their last known
+    completed main status instead of causing a false 'real' failure during the post-merge CI window."""
     try:
-        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
+        commit = api(f"repos/{REPO_SLUG}/commits/main")
+        sha = commit["sha"]
         runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     except (SystemExit, KeyError, TypeError):
         return set()
-    return pr_check.failed_names(runs)
+    failed, decided = _completed_names(runs)
+    pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]}
+    parents = commit.get("parents") or []
+    steps = 0
+    while steps < lookback and parents and (pending - decided or not runs):
+        parent_sha = (parents[0] or {}).get("sha")
+        if not parent_sha:
+            break
+        try:
+            p_commit = api(f"repos/{REPO_SLUG}/commits/{parent_sha}")
+            p_runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{parent_sha}/check-runs", "check_runs")
+        except (SystemExit, KeyError, TypeError):
+            break
+        p_failed, p_decided = _completed_names(p_runs)
+        failed |= p_failed - decided
+        decided |= p_decided
+        if p_runs and not (pending - decided):
+            break
+        parents = p_commit.get("parents") or [] if isinstance(p_commit, dict) else []
+        steps += 1
+    return failed
 
 
-def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) -> dict[str, Any]:
-    on_main = main_failures(api)
+def first_attempt(api: pr_check.Api, job_id: int) -> bool:
+    """True when the job ran in its workflow run's first attempt (unknown counts as not)."""
+    try:
+        return (api(f"repos/{REPO_SLUG}/actions/jobs/{job_id}").get("run_attempt") or 0) == 1
+    except (SystemExit, AttributeError):
+        return False
+
+
+def digest(
+    n: int,
+    api: pr_check.Api = pr_check.gh_api,
+    logs: Logs = job_log,
+    on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
+) -> dict[str, Any]:
+    on_main = main_failures(api) if on_main is None else on_main
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
@@ -257,6 +304,8 @@ def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) ->
             if mine is not None and files & files_since_merge_base(api, sha) and not files & mine:
                 kind, stale = "main", True  # main fixed these tests since the merge-base (#5273)
         ids = RUN_JOB.search(r.get("details_url") or "")
+        if kind == "real" and flaky and name in flaky and ids and first_attempt(api, int(ids.group(2))):
+            kind = "flake"  # a learned flake's first failure gets one rerun; a second failure is real
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
                     "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,
                     "triage": kind, "repro": repro(name, ex, kind, stale), **ex})  # fmt: skip

@@ -26,8 +26,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 
 | command | entry | det translator | stub | X-register | stated facts | census use | crucible cases |
 |---|---|---|---|---|---|---|---|
-| PUT CONTAINER | full | yes (11 options, 3 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
-| GET CONTAINER | full | yes (9 options, 5 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
+| PUT CONTAINER | full | yes (12 options, 2 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
+| GET CONTAINER | full | yes (12 options, 2 refused by name) | yes | X17 | — | 22 (7 / 15) | ca-channel-containers |
 | DELETE CONTAINER | full | yes (5 options) | yes | X17 | — | 0 | ca-channel-containers |
 | MOVE CONTAINER | full | yes (7 options) | yes | X17, X42 | — | 0 | — |
 | STARTBROWSE CONTAINER | full | yes (5 options) | yes | X17, X42 | — | 2 (1 / 1) | — |

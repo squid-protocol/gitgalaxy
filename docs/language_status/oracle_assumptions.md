@@ -124,7 +124,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
-| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); BYTEOFFSET, PREPEND, RETURN CHANNEL, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
@@ -1320,15 +1320,45 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   / deleteContainer / linkChannel / xctlChannel / assignChannel.
 - **Assumed.** A container holds the program's bytes. A BIT container is never converted; a CHAR one put and got
   with no CCSID option is in the region's CCSID both ways, so it is not converted either -- the port keeps the bytes
-  in its storage's page and the stub in its own, as each side keeps every other area. A channel is in the scope of
+  in its storage's page and the stub in its own, as each side keeps every other area.
+- **Code-page conversion (#4270, FROMCCSID / FROMCODEPAGE / INTOCCSID / INTOCODEPAGE / CONVERTST / CCSID).** IBM: FROMCCSID
+  or FROMCODEPAGE implies DATATYPE(CHAR) ("A data-type of BIT is invalid with the FROMCCSID option": INVREQ RESP2 34);
+  the container's CCSID is "the value that was specified, or defaulted, on the first PUT CONTAINER command for this
+  container" (the region's, 037, when none); data put on an existing CHAR container is "converted (if required)";
+  GET converts to INTOCCSID, else to "the CCSID of the region"; CONVERTST(NOCONVERT) returns the data unconverted and
+  CCSID(area) "the CCSID of the data as returned under CONVERTST(NOCONVERT)" (zero for BIT); IANA names in
+  FROMCODEPAGE / INTOCODEPAGE are converted to a CCSID and "the subsequent data conversion process is identical". Modelled
+  for the CCSIDs 37, 500, 1140 and 1208 only. IBM lists all four as conversion CCSIDs ("Conversion CCSIDs for CICS TS",
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=reference-conversion-ccsids-cics-ts: Table 23 "037 ... ibm037", "500 ...
+  ibm500", "1140 ... ibm01140 ... with euro"; Table 38 "1208 UTF-8 ... Unicode"). 37, 500 and 1140 are single-byte EBCDIC
+  pages, so a conversion never changes a length; 1208 (UTF-8) is modelled for ASCII bytes only, one byte a character, so the
+  length is kept there too -- a 1208 byte at or above X'80', or a character beyond ASCII converted to 1208 (a multibyte
+  sequence), is refused. INTOCCSID on a BIT container is CCSIDERR RESP2 3, "The data was created with a data type of BIT" and
+  "The data was returned without any code page conversion" (GET CONTAINER page): both runtimes return CCSIDERR/3 with the
+  data in INTO unconverted and leave FLENGTH and CCSID(area) alone -- ASSUMED: the page says FLENGTH is set to the length of
+  the data, but not whether that holds under this condition, and the case's hand-traced log does not log it either. A program's
+  bytes are read as the region's page 037 (the port's convention, #4528; the translator refuses the options for a program
+  whose declared page is another EBCDIC one), and a conversion is the character-to-character map between the two pages
+  applied to those bytes: 500 reads seven characters of 037 differently (cent sign, broken bar, exclamation mark, not
+  sign, circumflex, the square brackets), 1140 is 037 with the euro where 037 has the currency sign. The expected maps
+  in `tests/cics_crucible/test_container_ccsid_4270.py` come from Python's cp037 / cp500 / cp1140 codecs, not from either
+  runtime; the stub (ggcics.c, a small permutation) and CicsTask (the JDK's Cp037 / Cp500 / Cp1140) both reproduce them. A channel is in the scope of
   the level that created it and of a level it is LINKed or XCTLed to; the LINKed program's channels die with its
   level. A GET's data goes into INTO's first bytes and leaves the rest as it was; FLENGTH is set back on NORMAL and
   LENGERR only (on another condition IBM does not say).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
-  time): FROMCCSID, FROMCODEPAGE, INTOCCSID, INTOCODEPAGE, CONVERTST, CCSID (code-page conversion of a CHAR
-  container); GET SET (a pointer to CICS's copy); BYTEOFFSET and PREPEND (no corpus program uses them); RETURN
+  time): BYTEOFFSET and PREPEND (no corpus program uses them); RETURN
   CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); LINK / XCTL with both CHANNEL and COMMAREA. At run
-  time: a PUT naming the other data type for an existing container (IBM says DATATYPE "applies only to new
+  time: a CCSID other than 37, 500, 1140 and 1208 (IBM: CCSIDERR RESP2 1 outside the valid range, 2 for an unsupported pair; a
+  real region converts many more); a CCSID 1208 byte beyond ASCII, or a character beyond ASCII converted to 1208 (multibyte:
+  the length would change); a character the target CCSID lacks (037 / 500 <-> 1140: the currency sign and the euro),
+  which IBM answers with CCSIDERR RESP2 4 and a blank in the converted data, without saying what FLENGTH or a PUT then do;
+  INTOCCSID on a BIT container longer than INTO (whether LENGERR or CCSIDERR wins is not said) and GET CONTAINER SET with
+  INTOCCSID on a BIT container (whether a block is acquired is not said);
+  FROMCCSID onto an existing BIT container, with a negative FLENGTH, or with a data type and no channel in scope (INVREQ
+  RESP2 1 and 2 both fit and IBM ranks neither; FROMCCSID or INTOCCSID alone with no channel is INVREQ RESP2 2, modelled); CONVERTST with INTOCCSID / INTOCODEPAGE, CCSID without
+  CONVERTST(NOCONVERT) (the translator); MOVE CONTAINER onto a container of another CCSID; WEB SEND of a container in a
+  CCSID other than the region's; a PUT naming the other data type for an existing container (IBM says DATATYPE "applies only to new
   containers" and also lists INVREQ RESP2 33 for "an attempt ... to change the data-type"); a channel an XCTL left
   behind (IBM's scope tables do not say); an FLENGTH past FROM / INTO, or a negative one on GET; a name that is
   blank, longer than 16, or holds a character outside IBM's set on a command whose page says nothing of one (GET /
@@ -1343,6 +1373,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   current channel, truncation and LENGERR, NODATA, CONTAINERERR / CHANNELERR / INVREQ by RESP and by HANDLE
   CONDITION, AEZJ by default), cobol-stub and the det port both passing the hand-written logs (crucible branch
   `cases/channel-containers`, not yet released or pinned).
+- **Reached, code-page conversion (#4270).** cics-crucible `ca-container-ccsid` (hand-traced, v0.8.0; two program-source fixes in
+  cics-crucible#36): `bit-container` (INVREQ RESP2 34, CCSIDERR RESP2 3 with the data returned, the same bytes without
+  INTOCCSID) passes on cobol-stub and java-ported; `convert` matches IBM's log up to its event 10 (INVREQ RESP2 2, FROMCCSID 037
+  read back as 1208 / 037 / the region's) and then both sides differ identically at event 11: its container `TWO` is 1208 data
+  built from a hex literal, which the port and GnuCOBOL's ASCII storage keep as the characters 'ABC123' (a TS write encodes them
+  as X'C1C2C3F1F2F3', not the X'414243313233' the program meant). That is the hex-literal / TS-page convention of #4528, shared by
+  both sides, not a container defect.
 
 ### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL

@@ -8,7 +8,8 @@
 Per failed check: its triage -- `main` (a real failure of a check that also fails on main's newest commit:
 main's to fix, not this PR's), `dirty` (`action_required` on a PR that conflicts with main: no checks ran; merge
 origin/main and regenerate the generated files with their tools, never hand-merge them), `infra` (the runner, not the code: cancelled / startup failure / lost runner / disk /
-rate limit; rerun it once), `flake` (a test listed in FLAKY failed and nothing else did; rerun it once) or `real` (a
+rate limit; rerun it once), `flake` (a test listed in FLAKY failed and nothing else did, or the first attempt of a
+check flake_history learned is flaky failed; rerun it once) or `real` (a
 fixer's job) -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
 local command for that check from REPRO (pr_gates' own gate and ratchet names where one exists, otherwise the tool),
 filled with what the log names (the failing pytest node ids, the det cases not proven). A check with no local
@@ -178,11 +179,20 @@ def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
     return failed
 
 
+def first_attempt(api: pr_check.Api, job_id: int) -> bool:
+    """True when the job ran in its workflow run's first attempt (unknown counts as not)."""
+    try:
+        return (api(f"repos/{REPO_SLUG}/actions/jobs/{job_id}").get("run_attempt") or 0) == 1
+    except (SystemExit, AttributeError):
+        return False
+
+
 def digest(
     n: int,
     api: pr_check.Api = pr_check.gh_api,
     logs: Logs = job_log,
     on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
 ) -> dict[str, Any]:
     on_main = main_failures(api) if on_main is None else on_main
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
@@ -202,6 +212,8 @@ def digest(
         if kind == "real" and name in on_main:
             kind = "main"  # the same check fails on main: fix main, not this PR
         ids = RUN_JOB.search(r.get("details_url") or "")
+        if kind == "real" and flaky and name in flaky and ids and first_attempt(api, int(ids.group(2))):
+            kind = "flake"  # a learned flake's first failure gets one rerun; a second failure is real
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
                     "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,
                     "triage": kind, "repro": repro(name, ex, kind), **ex})  # fmt: skip

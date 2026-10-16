@@ -308,3 +308,58 @@ def test_main_failures_keeps_the_last_known_verdict_while_main_tip_is_still_runn
         return docs[path.split("/commits/", 1)[1].split("?")[0]]
 
     assert ci_digest.main_failures(api) == {"full-suite"}  # lint passed on the tip: the tip's verdict wins
+
+
+def test_a_learned_flake_gets_one_rerun_on_its_first_attempt_only():
+    ci_digest = cs.ci_digest
+    attempt = [1]
+
+    def api(path):
+        if path.endswith("/commits/main"):
+            return {"sha": "m", "parents": []}
+        if "/commits/m/check-runs" in path:
+            return {"check_runs": []}
+        if "/check-runs" in path:
+            return {"check_runs": [{"id": 1, "name": "smoke", "status": "completed", "conclusion": "failure",
+                                    "details_url": "https://github.com/o/r/actions/runs/7/job/8"}]}
+        if "/actions/jobs/8" in path:
+            return {"run_attempt": attempt[0]}
+        return {"head": {"sha": "h"}, "mergeable_state": "clean"}
+
+    def triage(flaky):
+        return ci_digest.digest(1, api, logs=lambda i: "FAILED tests/t.py::test_x", flaky=flaky)["failed"][0]["triage"]
+
+    assert triage(set()) == "real"
+    assert triage({"smoke"}) == "flake"
+    attempt[0] = 2  # the rerun failed too: real
+    assert triage({"smoke"}) == "real"
+
+
+def test_one_fixer_per_pass_and_the_pr_others_wait_on_goes_first(monkeypatch, tmp_path):
+    gh, started = Gh(), []
+    state = {"queue": [1, 2, 3], "after": {"3": 2}, "seen": {}}
+    for n in (1, 2):
+        gh.pr(n, sha=str(n) * 40, runs=[("full-suite", "failure")])
+    gh.pr(3, sha="3" * 40, runs=[("full-suite", None)])  # #3 waits on #2 (--after): #2 is the most useful fix
+    monkeypatch.setenv("CI_SHEPHERD_FIXER", "fix-it")
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    reads = []
+    monkeypatch.setattr(cs, "box_verdict", lambda: reads.append(1) or "GREEN")
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: started.append(argv[1]))
+    did = step(gh, state, failing("real"))
+    assert started == ["2"] and len(reads) == 1
+    assert any("#1 fixer queued" in d for d in did)
+    step(gh, state, failing("real"))
+    assert started == ["2", "1"]
+
+
+def test_a_stale_flake_cache_is_refreshed_in_the_background_at_most_hourly(monkeypatch, tmp_path):
+    spawned = []
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: spawned.append(argv))
+    state = {}
+    assert cs.learned_flakes(state, t=100_000.0) == set()
+    assert cs.learned_flakes(state, t=100_600.0) == set()
+    assert len(spawned) == 1 and "--refresh-only" in spawned[0]
+    (tmp_path / "flake_history.json").write_text('{"updated": 100700, "days": {"d": {"smoke": [2, 0]}}}')
+    assert cs.learned_flakes(state, t=110_000.0) == {"smoke"} and len(spawned) == 1

@@ -42,6 +42,7 @@ from typing import Any
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 import ci_digest  # noqa: E402
+import flake_history  # noqa: E402
 import pr_check  # noqa: E402
 
 STATE = Path(os.environ.get("CI_SHEPHERD_STATE", Path.home() / ".cache" / "gitgalaxy" / "ci_shepherd.json"))
@@ -102,6 +103,8 @@ RETRY_GAP = 15 * 60  # seconds between reruns of the same check on the same head
 # promoter affinity: at most this many drafts are marked ready (their CI started) in one pass
 MAX_IN_FLIGHT = int(os.environ.get("CI_SHEPHERD_MAX_IN_FLIGHT", "4"))
 MAX_LEDGER = 200  # epigenetic memory cap
+MAX_FIXERS = int(os.environ.get("CI_SHEPHERD_MAX_FIXERS", "1"))  # fixers started per pass: the box is read before them
+FLAKE_MAX_AGE = 6 * 3600  # seconds before the learned-flake cache is refreshed (in the background)
 
 
 def record_event(state: dict[str, Any], n: int, sha: str, event: str, detail: str = "") -> None:
@@ -127,6 +130,46 @@ def box_verdict() -> str:
     except Exception as e:  # an unreadable box never blocks a fixer, but say so
         log(f"box_verdict: unreadable ({e!r}), treating as GREEN")
         return "GREEN"
+
+
+def learned_flakes(state: dict[str, Any], t: float | None = None) -> set[str]:
+    """The checks flake_history learned are flaky, from its cache beside the state file. A stale cache is refreshed by
+    a detached `flake_history --refresh-only` (at most one an hour) so a pass never waits on it; no cache, no flakes."""
+    t = now() if t is None else t
+    path = STATE.parent / "flake_history.json"
+    cache = flake_history.load(path)
+    if t - float(cache.get("updated") or 0) > FLAKE_MAX_AGE and t - state.get("flake_refresh", 0) > 3600:
+        state["flake_refresh"] = t
+        subprocess.Popen([sys.executable, flake_history.__file__, "--refresh-only", "--cache", str(path)],  # noqa: S603
+                         start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # fmt: skip
+    return flake_history.learned(cache)
+
+
+def fixer_priority(state: dict[str, Any], cand: tuple[int, str, dict[str, Any]]) -> tuple[int, int, int]:
+    """Most useful fix first: the PR most others wait on (--after), then the fewest failing checks, then the oldest."""
+    n, _, real = cand
+    waiting = sum(1 for base in state["after"].values() if str(base) == str(n))
+    return (-waiting, len(real["failed"]), n)
+
+
+def start_fixers(state: dict[str, Any], cands: list[tuple[int, str, dict[str, Any]]], fixer: str, did: list[str]) -> None:
+    """Start at most MAX_FIXERS of the pass's fixer candidates, most useful first, when the box reads GREEN. The box
+    is read once: a fixer just started has not loaded it yet, so a second reading in the same pass would lie."""
+    cands = sorted(cands, key=lambda c: fixer_priority(state, c))
+    verdict = box_verdict()
+    for i, (n, sha, real) in enumerate(cands):
+        if verdict in ("RED", "YELLOW"):
+            did.append(f"#{n} fixer deferred: box is {verdict} (catabolite repression)")
+            if once(state, n, sha, "note:fixer-deferred"):
+                record_event(state, n, sha, "fixer_deferred", f"box {verdict}")
+        elif i >= MAX_FIXERS:
+            did.append(f"#{n} fixer queued: {MAX_FIXERS} started this pass (most useful first), next pass")
+        elif once(state, n, sha, "fixer:real"):
+            path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
+            path.write_text(json.dumps(real, indent=1), encoding="utf-8")
+            subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
+            did.append(f"#{n} fixer started: {fixer} {n} {path}")
+            record_event(state, n, sha, "fixer_started", fixer)
 
 
 def now() -> float:
@@ -189,6 +232,7 @@ def _pass_one(
     settle: float,
     did: list[str],
     in_flight: list[int] | None = None,
+    fixers: list[tuple[int, str, dict[str, Any]]] | None = None,
 ) -> None:
     """One open PR's part of a pass. Appends what it did, or why it did nothing."""
     base = state["after"].get(str(n))
@@ -293,16 +337,10 @@ def _pass_one(
             record_event(state, n, sha, "real_failure", ", ".join(f["check"] for f in real["failed"]))
         fixer = os.environ.get("CI_SHEPHERD_FIXER")
         if fixer and not has_seen(state, n, sha, "fixer:real"):
-            verdict = box_verdict()
-            if verdict in ("RED", "YELLOW"):
-                did.append(f"#{n} fixer deferred: box is {verdict} (catabolite repression)")
-                record_event(state, n, sha, "fixer_deferred", f"box {verdict}")
-            elif once(state, n, sha, "fixer:real"):
-                path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
-                path.write_text(json.dumps(real, indent=1), encoding="utf-8")
-                subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
-                did.append(f"#{n} fixer started: {fixer} {n} {path}")
-                record_event(state, n, sha, "fixer_started", fixer)
+            if fixers is None:
+                start_fixers(state, [(n, sha, real)], fixer, did)
+            else:
+                fixers.append((n, sha, real))  # step() starts the pass's most useful ones
 
 
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
@@ -311,14 +349,18 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
     line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837)."""
     on_main_cache: list[set[str]] = []
 
+    flaky_cache: list[set[str]] = []
+
     def _default_digest(n: int) -> dict[str, Any]:
         if not on_main_cache:
             on_main_cache.append(ci_digest.main_failures(api))
-        return ci_digest.digest(n, api, on_main=on_main_cache[0])
+            flaky_cache.append(learned_flakes(state))
+        return ci_digest.digest(n, api, on_main=on_main_cache[0], flaky=flaky_cache[0])
 
     digest_fn = digest or _default_digest
     did: list[str] = []
     in_flight = [0]
+    fixers: list[tuple[int, str, dict[str, Any]]] = []
     for n in list(state["queue"]):
         res = pr_check.check(n, api)
         if res["state"] != "open":
@@ -326,13 +368,15 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
             did.append(f"#{n} {res['state']}: left the queue")
             continue
         before = len(did)
-        _pass_one(state, n, res, api, run, digest_fn, settle, did, in_flight=in_flight)
+        _pass_one(state, n, res, api, run, digest_fn, settle, did, in_flight=in_flight, fixers=fixers)
         if len(did) == before:  # the fallback: no code path returns silently for a PR
             failed = ", ".join(res["checks"]["failed"]) or "none"
             did.append(
                 f"#{n} no action: head {res['head_sha'][:12]}, mergeable_state {res['mergeable_state']}, "
                 f"failed: {failed}, pending: {len(res['checks']['pending'])}"
             )
+    if fixers:
+        start_fixers(state, fixers, os.environ.get("CI_SHEPHERD_FIXER", ""), did)
     return did
 
 

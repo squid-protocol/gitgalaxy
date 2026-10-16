@@ -206,16 +206,28 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
+      # #5262: the pinned image comes from actions/cache (key = its digest) so no shard asks icr.io; only main saves
+      # (below), a pull request restores main's entry and never writes its own multi-GB copy. A miss pulls as before.
+      - name: Name the Db2 image cache entry (#5262)
+        id: db2key
+        run: echo "key=$(python3 gitgalaxy/tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the pinned Db2 image from the cache (#5262)
+        id: db2image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
+
       # #5048: the pull is retried (bounded); a final failure is only logged here, the harness pulls again (pull_image).
-      # The registry pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest
-      # (#4733), pulled by that name so the harness starts the container from it.
-      - name: Pull the pinned Db2 image in the background (#4733, #4901)
+      # The pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest (#4733).
+      - name: Load or pull the pinned Db2 image in the background (#4733, #4901, #5262)
         run: |
           image=$(grep -oE 'icr\.io/db2_community/db2@sha256:[0-9a-f]{64}' gitgalaxy/tests/tools/equivalence_db2.py | head -1)
-          echo "Db2 image: $image"
-          echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Db2 image: $image (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})"
+          echo "DB2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
           date +%s > "$RUNNER_TEMP/t0"
-          setsid nohup gitgalaxy/tests/tools/ci_retry.sh 4 15 -- bash -c "docker pull -q '$image' && date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
+          setsid nohup bash -c "python3 gitgalaxy/tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || gitgalaxy/tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -355,6 +367,19 @@ jobs:
           done
           cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
           [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" = "0" ] || { echo "::error title=Db2::the background Db2 start did not finish"; exit 1; }
+
+      # #5262: the cache writer is main's runs (schedule / dispatch on main), one shard, and only on a miss. Docker save
+      # runs here, after the wait: the background pull is finished by then (Db2 started from the image).
+      - name: Save the pinned Db2 image to the cache (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        run: python3 gitgalaxy/tests/tools/db2_image_cache.py save "$RUNNER_TEMP/db2-image-cache"
+
+      - name: Store the Db2 image cache entry (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
 
       - name: Re-prove this shard's Db2 det ports
         id: sweep

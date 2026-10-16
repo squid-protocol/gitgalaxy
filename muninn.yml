@@ -34,6 +34,11 @@ suppressions:
       Intentional frankenstein test corpus with synthetic vulnerabilities
       for security-auditing tool validation.
     expires: ""
+  - id: .test_durations
+    rule-id: private-key
+    reason: >
+      Per-test seconds keyed by test id; a few ids carry the text of a PEM header (the private-key-prose tests), no key material.
+    expires: ""
   - id: tests/core_engine/test_licensing.py
     rule-id: generic-api-key
     reason: Mock enterprise license keys in licensing unit tests.

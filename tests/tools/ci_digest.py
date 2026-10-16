@@ -8,8 +8,11 @@
 Per failed check: its triage -- `main` (a real failure of a check that also fails on main's newest commit:
 main's to fix, not this PR's), `dirty` (`action_required` on a PR that conflicts with main: no checks ran; merge
 origin/main and regenerate the generated files with their tools, never hand-merge them), `infra` (the runner, not the code: cancelled / startup failure / lost runner / disk /
-rate limit; rerun it once), `flake` (a test listed in FLAKY failed and nothing else did; rerun it once) or `real` (a
-fixer's job) -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
+rate limit, or (#5273) a check whose job dependency failed as infra; rerun it once), `flake` (a test listed in FLAKY
+failed and nothing else did, or only the time ratchet failed on tests outside the PR diff or within RATCHET_SLACK x their
+limit; rerun it once) or `real` (a fixer's job). A roll-up check (full-suite, ground-truth, det) takes the triage of its
+failed part jobs. `main` is also a stale base (#5273): the failing tests' files changed on origin/main since the PR's
+merge-base, so `git merge origin/main` is the whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
 local command for that check from REPRO (pr_gates' own gate and ratchet names where one exists, otherwise the tool),
 filled with what the log names (the failing pytest node ids, the det cases not proven). A check with no local
 equivalent (CodeQL, Muninn, the dead-key audit ...) says so.
@@ -84,7 +87,22 @@ FAILED_TEST = re.compile(r"^FAILED (\S+::\S+)")
 RUN_JOB = re.compile(r"/actions/runs/(\d+)/job/(\d+)")
 UNPROVEN = re.compile(r"^\s*det (\S+)\s+NOT PROVEN")
 
+# #5273 time_ratchet.py lines: `FAIL <nodeid>: 16.2s is over 15s and has no ...` / `... is over 2x its baseline 10.0s (...)`
+RATCHET_FAIL = re.compile(r"^FAIL (\S+): ([\d.]+)s is over (?:([\d.]+)x its baseline ([\d.]+)s|([\d.]+)s and has no)")
+EXIT_LINE = re.compile(r"Process completed with exit code")
+RATCHET_SLACK = 1.5  # an overage within this multiple of its limit is runner noise, in the PR diff or not
+
+# A roll-up / dependent check -> the part jobs it only summarises; it takes their non-real triage (#5273). The
+# check-runs API carries no `needs`, so this mirrors smoke-test.yml, mainframe-ground-truth.yml and det-sweep.yml.
+PARTS: dict[str, str] = {
+    "full-suite": r"^full-suite part \d+/\d+$",
+    "ground-truth": r"^ground-truth part \d+/\d+$",
+    "det": r"^(shard \d+/\d+|db2 \d+/\d+|plan)$",
+}
+NON_REAL = ("main", "flake", "infra")  # a roll-up with no real part takes the first of these any failed part has
+
 Logs = Callable[[int], str]
+Files = Callable[[], set[str] | None]
 
 
 def job_log(job_id: int) -> str:
@@ -108,22 +126,49 @@ def extract(log: str, tail: int = 40, max_errors: int = 25) -> dict[str, Any]:
             errors.append(x)
     tests = sorted({m.group(1) for x in lines if (m := FAILED_TEST.match(x))})
     cases = sorted({m.group(1) for x in lines if (m := UNPROVEN.match(x))})
+    ratchet: dict[str, list[float]] = {}  # nodeid -> [seconds, limit]
+    for x in lines:
+        if m := RATCHET_FAIL.match(x):
+            limit = float(m.group(3)) * float(m.group(4)) if m.group(3) else float(m.group(5))
+            ratchet[m.group(1)] = [float(m.group(2)), limit]
+    other = [x for x in errors if not RATCHET_FAIL.match(x) and not EXIT_LINE.search(x)]
     return {"errors": errors[:max_errors], "more_errors": max(0, len(errors) - max_errors), "tail": lines[-tail:],
-            "tests": tests, "cases": cases}  # fmt: skip
+            "tests": tests, "cases": cases, "ratchet": ratchet,
+            "ratchet_only": bool(ratchet) and not tests and not other}  # fmt: skip
 
 
-def triage(conclusion: str, log: str, tests: list[str], mergeable_state: str | None = None) -> str:
+def ratchet_triage(ratchet: dict[str, list[float]], diff_files: Files | None) -> str:
+    """#5273: `flake` unless an over-limit test is in the PR diff (or the diff is unknown) AND over RATCHET_SLACK x its limit."""
+    diff = diff_files() if diff_files else None
+    for nodeid, (seconds, limit) in ratchet.items():
+        if (diff is None or nodeid.split("::")[0] in diff) and seconds > RATCHET_SLACK * limit:
+            return "real"
+    return "flake"
+
+
+def triage(
+    conclusion: str,
+    log: str,
+    tests: list[str],
+    mergeable_state: str | None = None,
+    ex: dict[str, Any] | None = None,
+    diff_files: Files | None = None,
+) -> str:
     if conclusion == "action_required" and mergeable_state == "dirty":
         return "dirty"
     if conclusion in INFRA_CONCLUSIONS or INFRA_LOG.search(log):
         return "infra"
+    if ex and ex.get("ratchet_only"):
+        return ratchet_triage(ex["ratchet"], diff_files)
     names = {t.split("::")[-1].split("[")[0] for t in tests}
     if names and names <= FLAKY:
         return "flake"
     return "real"
 
 
-def repro(name: str, ex: dict[str, Any], kind: str = "real") -> str | None:
+def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool = False) -> str | None:
+    if kind == "main" and stale:
+        return "stale base (main changed these tests since this branch): git merge origin/main"
     if kind == "main":
         return "fails on main too: fix main (then merge origin/main here)"
     if kind == "dirty":
@@ -134,6 +179,35 @@ def repro(name: str, ex: dict[str, Any], kind: str = "real") -> str | None:
         if re.search(pat, name):
             return cmd.format(tests=" ".join(ex["tests"]) or "tests", cases=",".join(ex["cases"]) or "<case>")
     return GATES + " --fast"
+
+
+def changed_files(api: pr_check.Api, path: str) -> set[str] | None:
+    """The file names of a files listing; None when unreadable (the callers then keep `real`)."""
+    try:
+        return {f["filename"] for f in pr_check.paged(api, path, limit=30)}
+    except (SystemExit, KeyError, TypeError):
+        return None
+
+
+def files_since_merge_base(api: pr_check.Api, sha: str) -> set[str]:
+    """Files changed on main since the merge-base of main and the PR head (#5273)."""
+    try:
+        base = api(f"repos/{REPO_SLUG}/compare/main...{sha}")["merge_base_commit"]["sha"]
+        return {f["filename"] for f in api(f"repos/{REPO_SLUG}/compare/{base}...main").get("files", [])}
+    except (SystemExit, KeyError, TypeError):
+        return set()
+
+
+def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str]) -> str:
+    """#5273: a `real` roll-up check (full-suite, ground-truth, det) whose failed part jobs are all non-real takes theirs:
+    a Db2 image pull leaves `det` with "shard did not report", a suite part is over its time limit."""
+    pat = PARTS.get(name)
+    if kind != "real" or not pat or ex["tests"] or ex["cases"]:
+        return kind
+    parts = [k for part, k in kinds.items() if re.search(pat, part)]
+    if not parts or any(k not in NON_REAL for k in parts):
+        return kind
+    return next(k for k in NON_REAL if k in parts)
 
 
 def main_failures(api: pr_check.Api) -> set[str]:
@@ -156,18 +230,36 @@ def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) ->
     for r in sorted(runs, key=lambda r: r.get("id", 0)):
         if r["name"] in failed and r.get("conclusion") not in pr_check.NEUTRAL | {None}:
             newest[r["name"]] = r
-    out = []
+    lazy: dict[str, set[str] | None] = {}
+
+    def diff_files() -> set[str] | None:  # fetched once, and only when a verdict needs the PR's files
+        if "pr" not in lazy:
+            lazy["pr"] = changed_files(api, f"repos/{REPO_SLUG}/pulls/{n}/files")
+        return lazy["pr"]
+
+    first = []
     for name, r in sorted(newest.items()):
         actions = (r.get("app") or {}).get("slug") == "github-actions"
         log = logs(r["id"]) if actions else ""
         ex = extract(log)
-        kind = triage(r.get("conclusion") or "", log, ex["tests"], pr.get("mergeable_state"))
+        kind = triage(r.get("conclusion") or "", log, ex["tests"], pr.get("mergeable_state"), ex, diff_files)
+        first.append((name, r, ex, kind))
+    kinds = {name: kind for name, _, _, kind in first}
+    out = []
+    for name, r, ex, kind in first:
+        kind = rollup_kind(name, kind, ex, kinds)
+        stale = False
         if kind == "real" and name in on_main:
             kind = "main"  # the same check fails on main: fix main, not this PR
+        elif kind == "real" and ex["tests"]:
+            files = {t.split("::")[0] for t in ex["tests"]}
+            mine = diff_files()
+            if mine is not None and files & files_since_merge_base(api, sha) and not files & mine:
+                kind, stale = "main", True  # main fixed these tests since the merge-base (#5273)
         ids = RUN_JOB.search(r.get("details_url") or "")
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
                     "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,
-                    "triage": kind, "repro": repro(name, ex, kind), **ex})  # fmt: skip
+                    "triage": kind, "repro": repro(name, ex, kind, stale), **ex})  # fmt: skip
     return {"number": n, "head_sha": sha, "mergeable_state": pr.get("mergeable_state"), "failed": out}
 
 

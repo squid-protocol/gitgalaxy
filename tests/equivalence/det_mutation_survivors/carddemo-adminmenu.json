@@ -578,15 +578,6 @@
    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
   },
   {
-   "id": "4fcdbabacd",
-   "op": "NEG",
-   "line": 1189,
-   "before": "} else if ((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0)) {",
-   "after": "} else if (!((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0))) {",
-   "verdict": "unreachable",
-   "reason": "EVALUATE WS-IDX's WHEN 7 is tested only when WS-IDX is not 1-6, and BUILD-MENU-OPTIONS' loop runs WS-IDX 1 to CDEMO-ADMIN-OPT-COUNT, the constant 6 (infeasible_outcomes.json, carddemo-adminmenu 241:WHEN@254)"
-  },
-  {
    "id": "64bc9340be",
    "op": "NEG",
    "line": 1189,
@@ -605,25 +596,7 @@
    "reason": "BUILD-MENU-OPTIONS' WHEN 8 arm needs WS-IDX = 8, but the loop runs to CDEMO-ADMIN-OPT-COUNT, a COADM02Y constant VALUE 6 the program never changes."
   },
   {
-   "id": "62ba997b65",
-   "op": "DEL",
-   "line": 1194,
-   "before": "Cobol.move(f12_WS_ADMIN_OPT_TXT, f268_OPTN008O, CS);",
-   "after": "/* Cobol.move(f12_WS_ADMIN_OPT_TXT, f268_OPTN008O, CS); */",
-   "verdict": "unreachable",
-   "reason": "BUILD-MENU-OPTIONS' WHEN 8 arm needs WS-IDX = 8, but the loop runs to CDEMO-ADMIN-OPT-COUNT, a COADM02Y constant VALUE 6 the program never changes."
-  },
-  {
    "id": "1c7539d994",
-   "op": "DEL",
-   "line": 1197,
-   "before": "Cobol.move(f12_WS_ADMIN_OPT_TXT, f274_OPTN009O, CS);",
-   "after": "/* Cobol.move(f12_WS_ADMIN_OPT_TXT, f274_OPTN009O, CS); */",
-   "verdict": "unreachable",
-   "reason": "WHEN 9's MOVE to OPTN009O: WS-IDX is only 1-6 (CDEMO-ADMIN-OPT-COUNT VALUE 6, never written; infeasible_outcomes.json 241:WHEN@258)"
-  },
-  {
-   "id": "2e39a77d6e",
    "op": "DEL",
    "line": 1197,
    "before": "Cobol.move(f12_WS_ADMIN_OPT_TXT, f274_OPTN009O, CS);",

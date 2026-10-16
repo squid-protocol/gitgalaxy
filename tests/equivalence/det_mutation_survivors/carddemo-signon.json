@@ -665,7 +665,7 @@
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
-   "reason": "condition() returns a value only for a condition with a HANDLE CONDITION / IGNORE, an ERROR handler, a HANDLE ABEND label or one ignored by default; COSGN00C sets no handler and an XCTL's PGMIDERR is none of those, so condition() throws (the abend) and `to` is never tested."
+   "reason": "condition() returns a value only for a condition with a HANDLE CONDITION / IGNORE, an ERROR handler, a HANDLE ABEND label or one ignored by default (EOC only); COSGN00C sets no handler and an XCTL never raises EOC, so condition() throws (the abend) and `to` is never tested."
   },
   {
    "id": "6e96d21c7e",

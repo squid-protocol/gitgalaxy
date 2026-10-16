@@ -55,6 +55,18 @@ def _readiness_report() -> str:
     return readiness_report.render()
 
 
+def _progress_md() -> str:
+    import progress_report  # tests/tools/progress_report.py (#5280)
+
+    return progress_report.render_page()
+
+
+def _progress_json() -> str:
+    import progress_report
+
+    return progress_report.render_json_page()
+
+
 # repo-relative path -> its renderer. A page added here must also be git-ignored and published by generated-docs.yml
 # (test_generated_docs.py checks both).
 PAGES: dict[str, Callable[[], str]] = {
@@ -62,6 +74,8 @@ PAGES: dict[str, Callable[[], str]] = {
     "docs/language_status/cics_spec_status.md": _cics_spec_status,
     "docs/language_status/cobolrt_rules.md": _cobolrt_rules,
     "docs/language_status/readiness_report.md": _readiness_report,
+    "docs/language_status/progress.md": _progress_md,
+    "docs/language_status/progress.json": _progress_json,
 }
 
 

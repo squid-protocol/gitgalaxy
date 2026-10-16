@@ -21,3 +21,5 @@
   naming a `tests/tools/` path counts as a ground-truth plan input (#5264).
 * **`pytest_split` is not in the selfscan venv:** replay `least_duration` by hand (heaviest first into the lightest
   group) or use the CI venv (#5264).
+* **A module-scoped fixture's cost lands on whichever test runs first in a CI split part,** so any consumer of an
+  expensive fixture can trip the per-test time ratchet (#5269).

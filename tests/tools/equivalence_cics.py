@@ -3004,7 +3004,23 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
-_CICS_NAME = re.compile(r"[^ ]{1,16}")
+# #4950 (X18): the characters IBM's PUT CONTAINER page allows in a channel / container name ("A-Z a-z 0-9 $ @ # / % ?
+# ! : | " = , ; > . - and _"). RUN TRANSID's page also lists & < and the not sign, PUT CONTAINER's does not: the pages
+# disagree, so the harness refuses them, as both runtimes do (ggcics.c, the forge's NAME_CHARS)
+_CICS_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + '$@#/%?!:|"=,;>.-_'
+
+
+def _cics_name_problem(name: Any) -> str | None:
+    """Why `name` is not a channel / container name the harness hands both runtimes, or None when it is."""
+    if not isinstance(name, str) or not 1 <= len(name) <= 16:
+        return "a name of 1 to 16 characters"
+    for ch in name:
+        if ch in "&<\u00ac":
+            return (f"character {ch!r}: IBM's RUN TRANSID page allows it, its PUT CONTAINER page does not "
+                    "(the pages disagree, so it is refused)")  # fmt: skip
+        if ch not in _CICS_NAME_CHARS:
+            return f"character {ch!r}, outside IBM's set (A-Z a-z 0-9 $ @ # / % ? ! : | \" = , ; > . - _; no blank)"
+    return None
 
 
 def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
@@ -3017,13 +3033,18 @@ def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]
     if ch is None:
         return None
     where = f"scenario {sc['name']}: channel"
-    if not isinstance(ch, dict) or not _CICS_NAME.fullmatch(str(ch.get("name", ""))):
-        raise Unsupported(f"{where}: a name of 1 to 16 characters with no blank", ["CHANNEL"])
+    if not isinstance(ch, dict):
+        raise Unsupported(f"{where}: an object with a name", ["CHANNEL"])
+    problem = _cics_name_problem(ch.get("name", ""))
+    if problem:
+        raise Unsupported(f"{where} name {ch.get('name')!r}: {problem}", ["CHANNEL"])
     out = []
     for name, spec in (ch.get("containers") or {}).items():
-        if not _CICS_NAME.fullmatch(name) or not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
-            raise Unsupported(f"{where} container {name!r}: a name of 1 to 16 characters and one of text / hex",
-                              ["CHANNEL"])  # fmt: skip
+        problem = _cics_name_problem(name)
+        if problem:
+            raise Unsupported(f"{where} container {name!r}: {problem}", ["CHANNEL"])
+        if not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
+            raise Unsupported(f"{where} container {name!r}: one of text / hex", ["CHANNEL"])
         if spec.get("datatype", "BIT") not in ("BIT", "CHAR"):
             raise Unsupported(f"{where} container {name}: datatype BIT or CHAR", ["CHANNEL"])
         data = spec["text"].encode(common.data_encoding(case)) if "text" in spec else bytes.fromhex(spec["hex"])

@@ -29,6 +29,19 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
 
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); the stub's twin is equivalence_cics.EIBDS_VERBS
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(statements) -> bool:
+    """#5126 (X64): does any statement text name EIBDS -- a whole word, not the front of a hyphenated user name
+    (EIBDS-X) and not a literal's text ('EIBDS: ')?"""
+    return any(EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+
+
 class CicsError(Exception):
     pass
 
@@ -459,6 +472,7 @@ class Cics:
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
         self.region = region_page(None)
@@ -850,6 +864,17 @@ class Cics:
 
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
+        """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
+        set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
+        lines = self._command(text, ind)
+        if self.eibds_read:
+            words, opts = parse_exec(text)
+            file = opts.get("FILE") or opts.get("DATASET")
+            if words[:1] and " ".join(words) in EIBDS_VERBS and file:
+                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+        return lines
+
+    def _command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         if not words and next(iter(opts), None) == "WAIT":
             # #5079: WAIT is a bare option (RETRIEVE ... WAIT) to the parser, so a command that starts with it (WAIT EVENT,

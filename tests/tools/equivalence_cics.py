@@ -1383,7 +1383,26 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     return lines + _call("GGCWCNV", args) + after + _resp(opts, True, labels)
 
 
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); every other EIB resource field stays unmodelled.
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+
+
 def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
+    """One EXEC CICS body -> the COBOL statements that replace it, led by `MOVE <file> TO EIBDS` for a file control
+    command (#5126, X64): set before the command runs, so a failed request leaves its file named, as the request
+    "referred to" it. See _translate_command for the rest."""
+    lines = _translate_command(body, labels, handle_aid)
+    pairs = _options(body)
+    opts = dict(pairs)
+    file = opts.get("FILE") or opts.get("DATASET")
+    if pairs and pairs[0][0] in EIBDS_VERBS and file:
+        return [f"MOVE {file} TO EIBDS", *lines]
+    return lines
+
+
+def _translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
     command's own. `handle_aid`: the program issues HANDLE AID, so its input commands consult it (#4007)."""

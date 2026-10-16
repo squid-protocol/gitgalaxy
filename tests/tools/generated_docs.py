@@ -49,12 +49,19 @@ def _cobolrt_rules() -> str:
     return cobolrt_rules.render()
 
 
+def _readiness_report() -> str:
+    import readiness_report  # tests/tools/readiness_report.py (#4725)
+
+    return readiness_report.render()
+
+
 # repo-relative path -> its renderer. A page added here must also be git-ignored and published by generated-docs.yml
 # (test_generated_docs.py checks both).
 PAGES: dict[str, Callable[[], str]] = {
     "docs/language_status/oracle_assumptions.md": _register,
     "docs/language_status/cics_spec_status.md": _cics_spec_status,
     "docs/language_status/cobolrt_rules.md": _cobolrt_rules,
+    "docs/language_status/readiness_report.md": _readiness_report,
 }
 
 

@@ -106,3 +106,18 @@ with their owners, the missing system copybooks (a configuration fix: name SCSQC
 program calls that are not modelled (MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892, register W), and what is unknown, for triage.
 `tests/cobol_mainframe/test_support_matrix.py` fails when a refusal or hole of a committed report matches no entry of
 `refusal_map.json` (or more than one): a new one after an evidence refresh is added there with its owner.
+
+## Readiness report (#4725)
+`tests/tools/readiness_report.py` is the customer-readable page for each burned estate, from the same committed outputs
+(the evidence report and the inventory's era tags): the evidence ladder with counts (L0-L5, translated whole, with
+holes, refused by reason; a whole-translated program whose CALL / LINK target has holes is counted apart and stays below
+L2), the era mix, the **rules to land** ranked by `cics_census.blockers()` (the `cics_census.py blockers` order, each
+rule with the era mix of the programs it alone blocks), the missing inputs of `estate_intake.py`, the register entries
+the commands name, and the charter bars. It is rendered to `docs/language_status/readiness_report.md` by
+`generated_docs.py` and published to `generated`, not committed.
+```bash
+python tests/tools/readiness_report.py [ESTATE ...] [--json] [--previous EARLIER.json] [--top N] [--out FILE]
+```
+Output is deterministic (no date, path or host); `--json` output fed back as `--previous` adds a "Since the previous
+run" section (ladder counts and rule rank moves). Levels are evidence levels, never a bare "proven"; the oracle is
+GnuCOBOL plus our stub, not z/OS.

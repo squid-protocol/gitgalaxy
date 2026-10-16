@@ -474,7 +474,10 @@ def error_key(error: str) -> str:
 
 
 def gap_classes(r: dict[str, Any]) -> set[str]:
-    """The distinct gap classes keeping one survey row from translating whole (empty: whole)."""
+    """The distinct gap classes keeping one survey row from translating whole (empty: whole). A row that already
+    carries `gap_classes` (an evidence report's `translation`, #4725) is read as it stands."""
+    if "gap_classes" in r:
+        return set(r["gap_classes"])
     if "error" in r:
         return {error_key(r["error"])}
     if "statements" not in r:

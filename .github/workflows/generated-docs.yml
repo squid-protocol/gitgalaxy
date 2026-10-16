@@ -30,6 +30,7 @@ on:
       - "tests/tools/register.py"
       - "tests/tools/cics_spec_status.py"
       - "tests/tools/cobolrt_rules.py"
+      - "tests/tools/readiness_report.py"
       - "tests/tools/det_port.py"
       - "tests/tools/generated_docs.py"
       - "tests/tools/generated_branch.py"
@@ -150,5 +151,6 @@ jobs:
             --message "generated docs as of main $GITHUB_SHA" \
             docs/language_status/oracle_assumptions.md \
             docs/language_status/cics_spec_status.md \
-            docs/language_status/cobolrt_rules.md
+            docs/language_status/cobolrt_rules.md \
+            docs/language_status/readiness_report.md
           echo "published the generated pages from main $GITHUB_SHA: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status" >> "$GITHUB_STEP_SUMMARY"

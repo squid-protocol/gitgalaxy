@@ -120,6 +120,7 @@ MOVED = {
         "docs/language_status/oracle_assumptions.md",
         "docs/language_status/cics_spec_status.md",
         "docs/language_status/cobolrt_rules.md",  # #4711
+        "docs/language_status/readiness_report.md",  # #4725
     ],
 }
 

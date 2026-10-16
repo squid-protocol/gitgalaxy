@@ -3745,6 +3745,14 @@ public class CicsTask {
      *  container is converted to the container's ("converted (if required)"). BIT with FROMCCSID is INVREQ RESP2 34. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append, int fromCcsid) {
+        return putContainer(channel, container, data, flength, type, append, fromCcsid, false);
+    }
+
+    /** #5005 (X17): PUT CONTAINER ... PREPEND (`prepend`; IBM "6.2 and later"): "the data passed to the container is prepended
+     *  to the existing data in the container". On a new container it is the data alone. BIT containers only: IBM counts a CHAR
+     *  container's data in its code page, so PREPEND with CHAR, FROMCCSID or onto a CHAR container is refused. */
+    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
+                                        boolean append, int fromCcsid, boolean prepend) {
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -3804,6 +3812,9 @@ public class CicsTask {
             throw refused("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
         }
         boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
+        if (prepend && (chars || (c != null && !c.bit))) {
+            throw refused("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
+        }
         if (c == null) {
             ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));
             ch.shape++;
@@ -3811,7 +3822,11 @@ public class CicsTask {
         }
         byte[] put = c.bit ? data : convertContainer(data, fromCcsid >= 0 ? fromCcsid : REGION_CCSID, c.ccsid,
                 "PUT CONTAINER");
-        if (append) {
+        if (prepend) {
+            byte[] joined = Arrays.copyOf(put, put.length + c.data.length);
+            System.arraycopy(c.data, 0, joined, put.length, c.data.length);
+            c.data = joined;
+        } else if (append) {
             byte[] joined = Arrays.copyOf(c.data, c.data.length + put.length);
             System.arraycopy(put, 0, joined, c.data.length, put.length);
             c.data = joined;
@@ -3898,6 +3913,40 @@ public class CicsTask {
             return new ContainerResult("LENGERR", 11, data.length, Arrays.copyOf(data, maxLength));
         }
         return new ContainerResult("NORMAL", 0, data.length, data.clone());
+    }
+
+    /** #5005 (X17): GET CONTAINER ... INTO FLENGTH BYTEOFFSET(offset) (IBM, EXEC CICS GET CONTAINER (CHANNEL)): "The data
+     *  returned begins at the offset"; "If the value specified is less than zero, zero is assumed"; "The maximum length returned is
+     *  equal to the length of the data in the container minus the BYTEOFFSET value", and FLENGTH is set to "the length of the data
+     *  returned". An offset "greater than, or equal to, the length of the container" is LENGERR RESP2 12 (FLENGTH and INTO left
+     *  alone: ASSUMED, IBM states FLENGTH per option, not per condition). Refused: a CHAR container (IBM counts the offset in the
+     *  requested code page) and an FLENGTH below the data left (LENGERR RESP2 11, and whether FLENGTH then holds the length
+     *  returned or the container's is not said). On NORMAL the result's length is the length returned. */
+    public ContainerResult getContainerAt(String channel, String container, int maxLength, int byteOffset) {
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        if (ch == null) {
+            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+                    : new ContainerResult("CHANNELERR", 2, -1, null);
+        }
+        Container c = ch.containers.get(name);
+        if (c == null) {
+            return new ContainerResult("CONTAINERERR", 10, -1, null);
+        }
+        lastContainerCcsid = c.bit ? 0 : c.ccsid;
+        if (!c.bit) {
+            throw refused("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
+        }
+        int at = Math.max(byteOffset, 0);
+        if (at >= c.data.length) {
+            return new ContainerResult("LENGERR", 12, -1, null);
+        }
+        int left = c.data.length - at;
+        if (left > maxLength) {
+            throw refused("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length "
+                    + "returned or the container's is not documented");
+        }
+        return new ContainerResult("NORMAL", 0, left, Arrays.copyOfRange(c.data, at, c.data.length));
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR

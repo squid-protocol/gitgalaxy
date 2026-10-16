@@ -103,16 +103,17 @@ PUT_CONTAINER = Command(
         # #4270 (X17): the data's CCSID (CHAR is implied): 037, 500, 1140 or 1208 (ASCII)
         "FROMCCSID": Arg("value"),
         "APPEND": Arg("flag"),
+        "PREPEND": Arg("flag"),  # #5005 (X17): BIT containers only ("6.2 and later")
         **RESP_OPTIONS,
     },
     refused={
         "FROMCODEPAGE": _CODEPAGE_NAME,
-        "PREPEND": Refusal("not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
         required("CONTAINER", msg=NEEDS_ARGUMENT),
         required("FROM", msg=NEEDS_ARGUMENT),
         at_most_one("BIT", "CHAR", "DATATYPE", msg="PUT CONTAINER {}: one data type"),
+        at_most_one("APPEND", "PREPEND", msg="PUT CONTAINER {}: APPEND and PREPEND together are not modelled (IBM does not say)"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
@@ -149,6 +150,12 @@ PUT_CONTAINER = Command(
             c="PUT CONTAINER changing an existing container's data type",
         ),
         RuntimeRefusal("an FLENGTH past FROM's end", "X17", java="PUT CONTAINER FLENGTH "),
+        RuntimeRefusal(
+            "PREPEND on a CHAR container (or with FROMCCSID): IBM counts a CHAR container's data in its code page",
+            "X17",
+            java="PUT CONTAINER PREPEND on a CHAR container",
+            c="PUT CONTAINER PREPEND on a CHAR container",
+        ),
         *_CCSID_REFUSALS,
         RuntimeRefusal(
             "FROMCCSID with a data type and no channel in scope: INVREQ RESP2 1 and RESP2 2 both fit, and IBM ranks neither",
@@ -193,11 +200,12 @@ GET_CONTAINER = Command(
         "INTOCCSID": Arg("value"),
         "CONVERTST": Arg("cvda"),
         "CCSID": Arg("area_out", width=4, binary=True),
+        # #5005 (X17): "the offset in bytes where the data returned starts" (a fullword; below zero: zero), BIT containers with INTO
+        "BYTEOFFSET": Arg("value"),
         **RESP_OPTIONS,
     },
     refused={
         "INTOCODEPAGE": _CODEPAGE_NAME,
-        "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
         required("CONTAINER", msg=NEEDS_ARGUMENT),
@@ -208,6 +216,14 @@ GET_CONTAINER = Command(
         at_most_one(
             "INTOCCSID", "CONVERTST", msg="GET CONTAINER {}: one target code page (INTOCCSID, CONVERTST(NOCONVERT))"
         ),
+        requires(("BYTEOFFSET",), any_of=("INTO",), msg="GET CONTAINER BYTEOFFSET needs INTO (NODATA and SET are not modelled with it)"),
+        at_most_one(
+            "BYTEOFFSET",
+            "INTOCCSID",
+            "CONVERTST",
+            "CCSID",
+            msg="GET CONTAINER BYTEOFFSET with {}: not modelled (IBM counts the offset in the requested code page)",
+        ),
         requires(
             ("CCSID",),
             any_of=("CONVERTST",),
@@ -217,6 +233,7 @@ GET_CONTAINER = Command(
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "SET", "FLENGTH", "CCSID")),
         Outcome("LENGERR", 11, "the data is longer than INTO takes: truncated", writes=("INTO", "FLENGTH", "CCSID")),
+        Outcome("LENGERR", 12, "BYTEOFFSET at or past the end of the container's data", raised_by=("BYTEOFFSET",)),
         Outcome("CHANNELERR", 2, "the channel is not in the program's scope"),
         Outcome("INVREQ", 4, "no CHANNEL and no current channel"),
         Outcome("INVREQ", 2, "INTOCCSID with no CHANNEL and no current channel", raised_by=("INTOCCSID",)),

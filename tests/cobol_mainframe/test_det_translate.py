@@ -1217,6 +1217,25 @@ def test_put_container_is_the_programs_bytes_on_the_task_channel():
     assert ", null, false);" in _ChanCics().command("PUT CONTAINER(CN) FROM(REC)", "")[1]
 
 
+def test_byteoffset_and_prepend_pass_to_the_task():  # noqa: E302
+    """#5005 (X17), IBM GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND: BYTEOFFSET (a data value) calls getContainerAt with the
+    most INTO takes; FLENGTH is set back from the length returned. PREPEND is the task's last argument, after the FROMCCSID (-1:
+    none); a command without either is generated as before."""
+    out = _ChanCics().command("GET CONTAINER(CN) CHANNEL(CH) INTO(AREA) FLENGTH(FL) BYTEOFFSET(OFF) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult cont1 = task.getContainerAt(CH.strip(), CN.strip(), "
+                   "DetCics.containerLimit(f_AREA, INT(FL)), INT(OFF));",
+                   "if (cont1.data() != null) DetCics.put(f_AREA, cont1.data());",
+                   "if (cont1.length() >= 0) STORE(FL, BigDecimal.valueOf(cont1.length()));",
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    assert "getContainerAt(null, CN.strip(), DetCics.containerLimit(f_AREA, 20), INT(4));" in _ChanCics().command(
+        "GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", ""
+    )[0]
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) BIT PREPEND", "")
+    assert out[1].endswith('flen2, "BIT", false, -1, true);')
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) PREPEND", "")
+    assert out[1].endswith("flen2, null, false, -1, true);")
+
+
 def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     """IBM, GET CONTAINER (CHANNEL): FLENGTH in -- the most INTO takes (else INTO's length) -- and out, "the length
     of the data in the container", set back on NORMAL and LENGERR (CicsTask's length is -1 otherwise); NODATA moves
@@ -1948,8 +1967,13 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
         ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
         ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
-        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
-        ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
+        ("GET CONTAINER(CN) NODATA BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),  # #5005 (X17)
+        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL) BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) INTOCCSID(500)", "BYTEOFFSET with INTOCCSID"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))", "BYTEOFFSET with CONVERTST"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)", "BYTEOFFSET with CONVERTST"),
+        ("PUT CONTAINER(CN) FROM(REC) PREPEND APPEND", "APPEND and PREPEND together"),
+        ("PUT CONTAINER(CN) FROM(REC) APPEND PREPEND", "APPEND and PREPEND together"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
         ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
         ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),

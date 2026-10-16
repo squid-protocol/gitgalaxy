@@ -211,7 +211,7 @@ def _java_body(steps: list[tuple]) -> str:
             )
             lines.append(
                 f'{{ CicsTask.ContainerResult r = {call}; String o = "{label}=" + r.resp() + "/" + r.resp2() + "/" '
-                f'+ (r.length() < 0 ? {arg} : r.length()); '
+                f"+ (r.length() < 0 ? {arg} : r.length()); "
                 f'if (r.resp().equals("NORMAL")) o += "/" + hex.apply(r.data()); System.out.println(o); }}'
             )
     return "\n".join(lines)

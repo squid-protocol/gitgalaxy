@@ -1871,8 +1871,10 @@ class Cics:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
                 if "BYTEOFFSET" in opts:
-                    call = (f"task.getContainerAt({chan}, {name}, DetCics.containerLimit({target}, {most}), "
-                            f"{self.int_(_arg(opts['BYTEOFFSET']))})")
+                    call = (
+                        f"task.getContainerAt({chan}, {name}, DetCics.containerLimit({target}, {most}), "
+                        f"{self.int_(_arg(opts['BYTEOFFSET']))})"
+                    )
                 else:
                     call = f"task.getContainer({chan}, {name}, DetCics.containerLimit({target}, {most}){conv})"
                 out += [f"{ind}CicsTask.ContainerResult {r} = {call};",

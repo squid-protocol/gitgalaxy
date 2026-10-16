@@ -2154,7 +2154,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
     if "BYTEOFFSET" in opts:  # #5005 (X17): GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
         if not into:
-            need = next(g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",))
+            need = next(
+                g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",)
+            )
             raise Unsupported(need, [feature])
         for other in ("INTOCCSID", "CONVERTST", "CCSID"):
             if other in opts:

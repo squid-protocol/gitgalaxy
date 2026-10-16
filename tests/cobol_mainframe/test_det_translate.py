@@ -1227,9 +1227,10 @@ def test_byteoffset_and_prepend_pass_to_the_task():  # noqa: E302
                    "if (cont1.data() != null) DetCics.put(f_AREA, cont1.data());",
                    "if (cont1.length() >= 0) STORE(FL, BigDecimal.valueOf(cont1.length()));",
                    "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
-    assert "getContainerAt(null, CN.strip(), DetCics.containerLimit(f_AREA, 20), INT(4));" in _ChanCics().command(
-        "GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", ""
-    )[0]
+    assert (
+        "getContainerAt(null, CN.strip(), DetCics.containerLimit(f_AREA, 20), INT(4));"
+        in _ChanCics().command("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "")[0]
+    )
     out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) BIT PREPEND", "")
     assert out[1].endswith('flen2, "BIT", false, -1, true);')
     out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) PREPEND", "")
@@ -1971,7 +1972,10 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL) BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) INTOCCSID(500)", "BYTEOFFSET with INTOCCSID"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))", "BYTEOFFSET with CONVERTST"),
-        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)", "BYTEOFFSET with CONVERTST"),
+        (
+            "GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)",
+            "BYTEOFFSET with CONVERTST",
+        ),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND APPEND", "APPEND and PREPEND together"),
         ("PUT CONTAINER(CN) FROM(REC) APPEND PREPEND", "APPEND and PREPEND together"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),

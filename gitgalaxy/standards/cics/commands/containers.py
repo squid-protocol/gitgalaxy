@@ -113,7 +113,9 @@ PUT_CONTAINER = Command(
         required("CONTAINER", msg=NEEDS_ARGUMENT),
         required("FROM", msg=NEEDS_ARGUMENT),
         at_most_one("BIT", "CHAR", "DATATYPE", msg="PUT CONTAINER {}: one data type"),
-        at_most_one("APPEND", "PREPEND", msg="PUT CONTAINER {}: APPEND and PREPEND together are not modelled (IBM does not say)"),
+        at_most_one(
+            "APPEND", "PREPEND", msg="PUT CONTAINER {}: APPEND and PREPEND together are not modelled (IBM does not say)"
+        ),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
@@ -216,7 +218,11 @@ GET_CONTAINER = Command(
         at_most_one(
             "INTOCCSID", "CONVERTST", msg="GET CONTAINER {}: one target code page (INTOCCSID, CONVERTST(NOCONVERT))"
         ),
-        requires(("BYTEOFFSET",), any_of=("INTO",), msg="GET CONTAINER BYTEOFFSET needs INTO (NODATA and SET are not modelled with it)"),
+        requires(
+            ("BYTEOFFSET",),
+            any_of=("INTO",),
+            msg="GET CONTAINER BYTEOFFSET needs INTO (NODATA and SET are not modelled with it)",
+        ),
         at_most_one(
             "BYTEOFFSET",
             "INTOCCSID",

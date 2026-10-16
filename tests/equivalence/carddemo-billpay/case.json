@@ -543,6 +543,58 @@
      "why": "14 (RESP2 150, IBM's WRITE condition for a key already in the file; DUPKEY is a read condition: see xref-aix-dupkey) on the payment's WRITE (line 533): 'Tran ID already exist...'"
     }
    ]
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL fails and, with no RESP, CICS abends the task (the model port used to RETURN)"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
   }
  ],
  "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

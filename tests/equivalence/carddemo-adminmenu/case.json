@@ -251,6 +251,110 @@
      "OPTIONI": "1"
     }
    }
+  },
+  {
+   "name": "option-1-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR00C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH on the option's XCTL; HANDLE CONDITION names only PGMIDERR, so CICS abends the task (AEY7)"
+  },
+  {
+   "name": "option-1-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR on the option's XCTL: HANDLE CONDITION PGMIDERR shows 'This option is not installed ...'"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH on the sign-off XCTL (line 168): only PGMIDERR is handled, so CICS abends the task (AEY7)"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR on the sign-off XCTL (line 168): HANDLE CONDITION PGMIDERR shows 'This option is not installed ...'"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

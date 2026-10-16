@@ -151,7 +151,9 @@ def fixer_priority(state: dict[str, Any], cand: tuple[int, str, dict[str, Any]])
     return (-waiting, len(real["failed"]), n)
 
 
-def start_fixers(state: dict[str, Any], cands: list[tuple[int, str, dict[str, Any]]], fixer: str, did: list[str]) -> None:
+def start_fixers(
+    state: dict[str, Any], cands: list[tuple[int, str, dict[str, Any]]], fixer: str, did: list[str]
+) -> None:
     """Start at most MAX_FIXERS of the pass's fixer candidates, most useful first, when the box reads GREEN. The box
     is read once: a fixer just started has not loaded it yet, so a second reading in the same pass would lie."""
     cands = sorted(cands, key=lambda c: fixer_priority(state, c))

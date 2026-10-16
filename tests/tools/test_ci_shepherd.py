@@ -304,6 +304,7 @@ def test_main_failures_keeps_the_last_known_verdict_while_main_tip_is_still_runn
         "p": {"sha": "p", "parents": []},
         "p/check-runs": {"check_runs": [run("lint", "failure"), run("full-suite", "failure")]},
     }
+
     def api(path):
         return docs[path.split("/commits/", 1)[1].split("?")[0]]
 
@@ -320,8 +321,17 @@ def test_a_learned_flake_gets_one_rerun_on_its_first_attempt_only():
         if "/commits/m/check-runs" in path:
             return {"check_runs": []}
         if "/check-runs" in path:
-            return {"check_runs": [{"id": 1, "name": "smoke", "status": "completed", "conclusion": "failure",
-                                    "details_url": "https://github.com/o/r/actions/runs/7/job/8"}]}
+            return {
+                "check_runs": [
+                    {
+                        "id": 1,
+                        "name": "smoke",
+                        "status": "completed",
+                        "conclusion": "failure",
+                        "details_url": "https://github.com/o/r/actions/runs/7/job/8",
+                    }
+                ]
+            }
         if "/actions/jobs/8" in path:
             return {"run_attempt": attempt[0]}
         return {"head": {"sha": "h"}, "mergeable_state": "clean"}

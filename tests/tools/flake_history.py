@@ -173,7 +173,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--refresh-only", action="store_true")
     ap.add_argument("--no-refresh", action="store_true", help="report from the cache without calling GitHub")
-    ap.add_argument("--file-issues", action="store_true", help="open one issue per learned-flaky job (writes to GitHub)")
+    ap.add_argument(
+        "--file-issues", action="store_true", help="open one issue per learned-flaky job (writes to GitHub)"
+    )
     a = ap.parse_args(argv)
     cache = load(a.cache) if a.no_refresh else refresh(pr_check.gh_api, a.cache)
     if a.refresh_only:
@@ -187,8 +189,10 @@ def main(argv: list[str] | None = None) -> int:
         for r in rows:
             mark = "FLAKY " if r["learned_flaky"] else "      "
             why = ", ".join(f"{k} {v}" for k, v in r["causes"].items())
-            print(f"  {mark}{r['job']}: passed on rerun {r['passed_on_rerun']}, failed again {r['failed_again']}"
-                  + (f" ({why})" if why else ""))
+            print(
+                f"  {mark}{r['job']}: passed on rerun {r['passed_on_rerun']}, failed again {r['failed_again']}"
+                + (f" ({why})" if why else "")
+            )
         if not rows:
             print("  no reruns")
     if a.file_issues:

@@ -211,11 +211,29 @@ jobs:
           # #4834: the all-estates feature-inventory --check is nightly / manual only, not per PR
           GITGALAXY_NIGHTLY: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
           OMP_NUM_THREADS: 1  # #4902: -n auto already uses every core; no BLAS threads on top
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
           # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
           # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
           PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
+
+      # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
+      # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the
+      # only PR run that times them (#5240, #5248 were found on main). Part of the required `ground-truth` job.
+      - name: Per-test time ratchet (#5166)
+        run: |
+          cd gitgalaxy
+          python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-ground-truth-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's test times (#5166)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-ground-truth-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Keep the history for the publish job
         if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')

@@ -37,7 +37,7 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     """CALL 'CBLTDLI' USING function pcb io-area [ssa-1 ... ssa-15]: DetDli.call, then RETURN-CODE 0."""
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
-    pcbs = getattr(gen, "dli_pcbs", None)
+    pcbs = gen.dli_pcbs
     if pcbs is None:
         raise Untranslatable(f"CALL {CALL}: a program IMS does not enter at ENTRY '{ENTRY}' (BMP, MPP or CICS) "
                              "is not modelled")  # fmt: skip

@@ -240,6 +240,7 @@ class Gen:
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
+        self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service

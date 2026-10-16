@@ -17,7 +17,3 @@
   `test_java_subprocess_utf8.py` scans every `tests/` file and the ground-truth CI job fails otherwise (#5232).
 * **`time_ratchet.py check --times .test_durations` skips the source slow-mark read** and false-fails tests whose cost is
   a shared fixture; run it with no `--times` to check the committed file (#5255).
-* **`test_the_workflow_reads_nothing_the_planner_skips` scans the whole workflow text, comments included:** a comment
-  naming a `tests/tools/` path counts as a ground-truth plan input (#5264).
-* **`pytest_split` is not in the selfscan venv:** replay `least_duration` by hand (heaviest first into the lightest
-  group) or use the CI venv (#5264).

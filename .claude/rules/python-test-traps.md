@@ -21,5 +21,3 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   boundaries that exclude `_` (#5231).
 * **A guard wrapping `socket.connect` also catches stdlib loopback plumbing** (Windows `socketpair` emulation): test
   socket guards on a Windows leg (#5253).
-* **CI helper scripts the workflows call before the project is installed** (e.g. `tests/tools/db2_image_cache.py`)
-  must stay stdlib-only (#5265).

@@ -103,8 +103,6 @@ Traps `--check` exists for:
 - **IBM macro reference** (#5153): FCT/DCT/TST macros are in the CICS TS for OS/390 R3 Resource Definition Guide
   (publibfp.dhe.ibm.com/epubs/pdf/dfha400.pdf, ch.13 macros, ch.16 macro->RDO table). PCT/PPT macros are in no
   reachable IBM doc: say so rather than guess.
-  IBM doc URLs guessed from topic names return the docs index, and IBM PDFs come back unreadable through WebFetch:
-  a search result is not an opened page, so never mark a cite verified from one (#5266).
 - **test_tool_regex_redos** (#4477) is flaky under load: rerun once before blaming your regex.
 - **The full-suite OS grid does not run on PRs** (#4518). For a path- or OS-sensitive harness change dispatch it:
   `gh workflow run full-suite-gate.yml --ref <branch>`.

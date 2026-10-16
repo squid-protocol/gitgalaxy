@@ -3,12 +3,14 @@
 
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import era_tags as et  # tests/tools/era_tags.py
 
+IBM_HOSTS = {"www.ibm.com", "ibm.com", "www.redbooks.ibm.com", "redbooks.ibm.com", "publibfp.dhe.ibm.com"}
 HEAD = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 PROC = "       PROCEDURE DIVISION.\n"
 
@@ -267,7 +269,7 @@ def test_every_tell_cites_an_ibm_release():
         assert not c["verified"] or c["source"].startswith("https://"), tell  # noqa: S101
         # #5195: a cite is either backed by an opened IBM page or says what was tried; never a bare unverified claim
         assert c["verified"] or c.get("note"), tell  # noqa: S101
-        assert "source" not in c or c["source"].split("/")[2].endswith("ibm.com"), tell  # noqa: S101
+        assert "source" not in c or urlparse(c["source"]).hostname in IBM_HOSTS, tell  # noqa: S101
 
 
 def test_skipped_marker_is_added_only_when_set():

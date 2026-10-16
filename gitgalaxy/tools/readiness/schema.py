@@ -89,7 +89,19 @@ INTRINSIC_FUNCTIONS = frozenset({
 })  # fmt: skip
 TELL_NAMES = frozenset(t[0] for t in TELLS)
 ROW_KEYS = frozenset(
-    {"name", "kind", "status", "reason", "copybook", "era", "earliest", "mixed", "program_era", "tells"}
+    {
+        "name",
+        "kind",
+        "status",
+        "reason",
+        "copybook",
+        "era",
+        "earliest",
+        "mixed",
+        "program_era",
+        "copybook_skipped",
+        "tells",
+    }
 )
 _OPTION_VALUE = re.compile(r"^-?[A-Z0-9]{1,10}$")
 _MEMBER = re.compile(r"^[A-Za-z0-9@#$_-]{1,30}$")
@@ -174,6 +186,10 @@ def _tag(tag: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {k: tag.get(k) for k in ("era", "earliest", "mixed")}
     if "program_era" in tag:
         out["program_era"] = tag["program_era"]
+    if tag.get("copybook_skipped") and _EXC_CLASS.match(
+        str(tag["copybook_skipped"])
+    ):  # #5195: a reason code, no message
+        out["copybook_skipped"] = tag["copybook_skipped"]
     out["tells"] = [
         {
             "tell": t["tell"],
@@ -223,6 +239,7 @@ def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: 
                 families[p] = fam
     unparsed = {u["program"]: u["reason"] for u in inv.get("unparsed_programs", [])}
     tags = inv.get("eras", {}).get("programs", {})
+    asm_tags = inv.get("eras", {}).get("assembler", {})  # #5195: the era tags of assembler members
 
     programs = []
     for p in sorted(set(tags) | set(families)):
@@ -238,6 +255,8 @@ def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: 
             row["status"] = PARSED
         if p in tags:
             row.update(_tag(tags[p]))
+        elif p in asm_tags:
+            row.update(_tag(asm_tags[p]))
         programs.append(row)
     programs.sort(key=lambda r: r["name"])
 
@@ -250,7 +269,9 @@ def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: 
         "assembler_members": len(programs) - len(cobol),
     }
     summary = inv.get("eras", {}).get("summary", {})
-    eras = {k: summary[k] for k in ("programs", "by_era", "mixed", "raised_by_copybook") if k in summary}
+    eras = {
+        k: summary[k] for k in ("programs", "by_era", "mixed", "raised_by_copybook", "copybook_skipped") if k in summary
+    }
     eras["tells"] = {t: n for t, n in summary.get("tells", {}).items() if t in TELL_NAMES}
     report: dict[str, Any] = {
         "schema": SCHEMA,
@@ -350,6 +371,8 @@ def validate(report: dict[str, Any]) -> list[str]:
         if extra:
             p.append(f"program {r.get('name')!r}: keys {sorted(extra)}")
         _ints({k: r[k] for k in ("era", "earliest", "program_era") if k in r}, f"program {r.get('name')!r}", p)
+        if "copybook_skipped" in r and not _EXC_CLASS.match(str(r["copybook_skipped"])):
+            p.append(f"program {r.get('name')!r}: copybook_skipped")
         p.extend(
             f"program {r.get('name')!r}: tell {t.get('tell')!r}"
             for t in r.get("tells", [])

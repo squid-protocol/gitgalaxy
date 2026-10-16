@@ -29,6 +29,10 @@ is still written today), so the tag is evidence, not a verdict. This detects onl
 macro-level refusal (#5121) are separate. The program's own text is read first, then the copybooks its COPY statements resolved
 (`tag_program(text, copybooks)`): a tell found in one lists it under `copybooks`, and `via_copybook` marks a tell the
 program text alone does not show. The tag then also carries `program_era`, the era of the program's own text.
+An assembler member is tagged the same way through the COPY and macro members it pulls in (`asm_members`; nested ones
+too, a macro call only when an estate member has that name). A program whose copybook pass was refused or cut short
+(a missing member, a COPY loop, macro level, an unreadable member) carries `copybook_skipped: <reason code>` (#5195):
+its tells are the program's own text, so a tell in a copybook may be missing.
 """
 
 from __future__ import annotations
@@ -36,8 +40,11 @@ from __future__ import annotations
 import re
 import sys
 from collections import Counter
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+from gitgalaxy.core import cics_macro_level as ML
 
 ERAS = (0, 1, 2, 3, 4)
 
@@ -53,7 +60,12 @@ def _word(name: str) -> str:
 # (tell, era, scope, pattern). scope: "asm" = the file as written, only `*` lines dropped (assembler macro text), "raw" = the COBOL lines as written (CALL targets, CBL cards), "code" = the
 # program text without comments, sequence area and string literals, "cics" = inside EXEC CICS blocks, "cbl" = the CBL / PROCESS cards.
 TELLS: tuple[tuple[str, int, str, re.Pattern[str]], ...] = (
-    ("dfh-macro-call", 0, "asm", re.compile(r"^(?:[A-Z0-9@#$]+\s+)?DFH[A-Z]{2}\s+(?:TYPE\s*=|[A-Z]+\s*=)", _I | re.M)),
+    (
+        "dfh-macro-call",
+        0,
+        "asm",
+        re.compile(r"^(?:[A-Z0-9@#$]*[ \t]+)?DFH[A-Z]{2}[ \t]+(?:TYPE\s*=|[A-Z]+\s*=)", _I | re.M),
+    ),
     ("csa-tca-dsect", 0, "code", re.compile(r"(?<![A-Z0-9-])DFH(?:CSADS|TCADS)(?![A-Z0-9-])", _I)),
     ("bll-cells", 1, "code", re.compile(_word("BLL") + r"|(?<![A-Z0-9-])BLL\d+(?![A-Z0-9-])", _I)),
     ("service-reload", 1, "code", re.compile(r"\bSERVICE\s+RELOAD\b", _I)),
@@ -89,40 +101,100 @@ TELLS: tuple[tuple[str, int, str, re.Pattern[str]], ...] = (
     ("arith-extend", 4, "cbl", re.compile(r"\bARITH\s*\(\s*EXTEND\s*\)", _I)),
 )
 
-# The IBM release or manual behind each tell. `verified` is True only where the statement was checked against an IBM
-# page (see `source`); the rest is the release as IBM's documentation names it, still to be checked against the manual.
+# The IBM release or manual behind each tell. `verified` is True only where an opened IBM page states it (see `source`);
+# the rest is still to be checked, and `note` says what was tried and what IBM leaves unstated (never invent a cite).
 CITE: dict[str, dict[str, Any]] = {
     "dfh-macro-call": {
         "ibm": "CICS macro-level API; support dropped from CICS/ESA 3.2 (1991), replaced by EXEC CICS command level",
         "verified": True,
         "source": "https://www.ibm.com/support/pages/history-cics-transaction-server",
+        "note": "Opened when #5117 landed; on 2026-10-16 (#5195) this URL answered HTTP 404, so it could not be re-opened. Re-check it.",
     },
     "csa-tca-dsect": {
         "ibm": "CICS macro-level CSA / TCA dsects (DFHCSADS, DFHTCADS); gone with macro level",
         "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no IBM page that states the DFHCSADS / DFHTCADS dsects or their withdrawal was opened.",
     },
     "bll-cells": {
         "ibm": "OS/VS COBOL Base Locator for Linkage; replaced by ADDRESS OF in COBOL II (1.x)",
         "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states BLL cells or that ADDRESS OF replaced them; the OS/VS COBOL manuals were not reachable.",
     },
-    "service-reload": {"ibm": "OS/VS COBOL SERVICE RELOAD; withdrawn with OS/VS COBOL", "verified": False},
+    "service-reload": {
+        "ibm": "OS/VS COBOL SERVICE RELOAD; withdrawn with OS/VS COBOL",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states SERVICE RELOAD or its withdrawal.",
+    },
     "handle-condition": {
         "ibm": "CICS command level HANDLE family; RESP / RESP2 are the later style",
         "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states that RESP / RESP2 are the later style; the HANDLE family page was not reached.",
     },
-    "dli": {"ibm": "IMS DL/I call interface (CBLTDLI) and EXEC DLI under CICS", "verified": False},
-    "langlvl-1": {"ibm": "OS/VS COBOL language level option LANGLVL(1) (COBOL 74 rules)", "verified": False},
-    "address-of": {"ibm": "COBOL II Release 1: ADDRESS OF special register", "verified": False},
-    "set-address": {"ibm": "COBOL II Release 1: SET ADDRESS OF", "verified": False},
-    "resp": {"ibm": "CICS command-level RESP / RESP2 options (CICS/MVS 2.1 and later)", "verified": False},
-    "exec-sql": {"ibm": "Db2 precompiler EXEC SQL host-language support", "verified": False},
-    "dpl-link-sysid": {"ibm": "CICS distributed program link (LINK ... SYSID)", "verified": False},
-    "cmpr2": {"ibm": "COBOL for OS/390 and later: CMPR2 compiler option, COBOL II compatibility", "verified": False},
-    "langlvl-2": {"ibm": "COBOL II LANGLVL(2) (COBOL 85 rules)", "verified": False},
-    "mq-call": {"ibm": "IBM MQ MQI calls from COBOL (MQSeries)", "verified": False},
-    "exci": {"ibm": "CICS external call interface (EXCI), DFHXCIS", "verified": False},
-    "bridge-3270": {"ibm": "CICS 3270 bridge (DFHBRARC and related copybooks)", "verified": False},
-    "le-callable": {"ibm": "Language Environment callable services (CEExxxx), LE for OS/390", "verified": False},
+    "dli": {
+        "ibm": "IMS DL/I call interface (CBLTDLI) and EXEC DLI under CICS",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states CBLTDLI or EXEC DLI under CICS.",
+    },
+    "langlvl-1": {
+        "ibm": "OS/VS COBOL language level option LANGLVL(1) (COBOL 74 rules)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the Enterprise COBOL 6.4 LANGLVL page was opened and says nothing about LANGLVL(1) or its release.",
+    },
+    "address-of": {
+        "ibm": "COBOL II Release 1: ADDRESS OF special register",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the Enterprise COBOL 6.4 ADDRESS OF page was opened and states neither the register nor the COBOL II release.",
+    },
+    "set-address": {
+        "ibm": "COBOL II Release 1: SET ADDRESS OF",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states SET ADDRESS OF or the COBOL II release it arrived with.",
+    },
+    "resp": {
+        "ibm": "CICS command-level RESP / RESP2 options (CICS/MVS 2.1 and later)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states RESP / RESP2 or CICS/MVS 2.1; the 6.x documentation index was reached, not the option page.",
+    },
+    "exec-sql": {
+        "ibm": "Db2 precompiler EXEC SQL host-language support",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states the Db2 precompiler's EXEC SQL host-language support.",
+    },
+    "dpl-link-sysid": {
+        "ibm": "CICS distributed program link (LINK ... SYSID)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the CICS 6.x documentation index was reached; no page that states DPL or LINK SYSID was opened.",
+    },
+    "cmpr2": {
+        "ibm": "COBOL for OS/390 and later: CMPR2 compiler option, COBOL II compatibility",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the Enterprise COBOL V3R3 customization guide was opened: no CMPR2 entry was readable, so no release is stated.",
+    },
+    "langlvl-2": {
+        "ibm": "COBOL II LANGLVL(2) (COBOL 85 rules)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the Enterprise COBOL 6.4 LANGLVL page was opened and says nothing about LANGLVL(2) or COBOL 85 rules.",
+    },
+    "mq-call": {
+        "ibm": "IBM MQ MQI calls from COBOL (MQSeries)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states the MQI calls from COBOL or the MQSeries name.",
+    },
+    "exci": {
+        "ibm": "CICS external call interface (EXCI), DFHXCIS",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): IBM's 'Using EXCI' PDFs exist but their text was not readable; no opened page states DFHXCIS or the release.",
+    },
+    "bridge-3270": {
+        "ibm": "CICS 3270 bridge (DFHBRARC and related copybooks)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the CICS 6.x '3270 bridge' page was opened: it names no release and none of the DFHBR* copybooks.",
+    },
+    "le-callable": {
+        "ibm": "Language Environment callable services (CEExxxx), LE for OS/390",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states the CEExxxx callable services or LE for OS/390.",
+    },
     "channel-container": {
         "ibm": "CICS TS 3.1: channels and containers",
         "verified": True,
@@ -131,15 +203,29 @@ CITE: dict[str, dict[str, Any]] = {
     "web-soap": {
         "ibm": "CICS web support (EXEC CICS WEB) and web services (SOAPFAULT, INVOKE SERVICE)",
         "verified": False,
+        "note": "Checked 2026-10-16 (#5195): no opened IBM page states EXEC CICS WEB, SOAPFAULT or INVOKE SERVICE.",
     },
     "json-xml": {
         "ibm": "Enterprise COBOL 6.1 JSON GENERATE, 6.2 JSON PARSE (XML PARSE / GENERATE are older)",
         "verified": True,
         "source": "https://www.ibm.com/support/pages/system/files/support/swg/swgdocs.nsf/0/a1f5f4c663a37eb58525818a00320a76/$FILE/COBOL%20V6.2%20Whats%20New.pdf",
     },
-    "async": {"ibm": "CICS asynchronous API (RUN TRANSID, FETCH, FREE CHILD)", "verified": False},
-    "named-counter": {"ibm": "CICS named counter facility (GET / UPDATE / DEFINE / DELETE COUNTER)", "verified": False},
-    "arith-extend": {"ibm": "Enterprise COBOL ARITH(EXTEND) compiler option", "verified": False},
+    "async": {
+        "ibm": "CICS asynchronous API (RUN TRANSID, FETCH, FREE CHILD)",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the CICS 6.x documentation index was reached; no page that states RUN TRANSID / FETCH / FREE CHILD was opened.",
+    },
+    "named-counter": {
+        "ibm": "CICS named counter facility (GET / UPDATE / DEFINE / DELETE COUNTER, fullword and DCOUNTER doubleword)",
+        "verified": True,
+        "source": "https://www.ibm.com/docs/en/cics-ts/6.x?topic=servers-using-named-counter-exec-interface",
+        "note": "The page states the commands, not a release; the era (4) is this tool's reading, not an IBM date.",
+    },
+    "arith-extend": {
+        "ibm": "Enterprise COBOL ARITH(EXTEND) compiler option",
+        "verified": False,
+        "note": "Checked 2026-10-16 (#5195): the Enterprise COBOL V3R3 customization guide lists an ARITH option but its text was not readable, so the release that added EXTEND is not stated.",
+    },
 }
 
 
@@ -231,20 +317,21 @@ def _verdict(found: list[dict[str, Any]]) -> tuple[int | None, int | None, bool]
     return era, earliest, era is not None and earliest < era
 
 
-def tag_program(text: str, copybooks: dict[str, str] | None = None) -> dict[str, Any]:
+def tag_program(text: str, copybooks: dict[str, str] | None = None, asm: bool = False) -> dict[str, Any]:
     """The era tag of one program's source text: {era, earliest, mixed, tells: [{tell, era, count, first_line}]}.
 
     `copybooks` (#5117) maps each copybook the program's COPY statements resolved (the expansion's member files) to its
     text. Its tells are read the same way, except assembler macro text: a tell it shares with the program lists the
     copybook under `copybooks`; one only it has is a tell of the program too (`via_copybook`, count over the copybooks,
-    no line). Those keys, `program_era` (when it differs from `era`) and `copybooks` are present only when non-empty."""
+    no line). Those keys, `program_era` (when it differs from `era`) and `copybooks` are present only when non-empty.
+    `asm` (an assembler member, #5195): its members are macro / COPY text too, so their assembler tells count."""
     found = _scan(text)
     program_era = _verdict(found)[0]
     by_tell = {t["tell"]: t for t in found}
     books = copybooks or {}
     for name in sorted(books):
         for t in _scan(books[name]):
-            if t["tell"] in _ASM_TELLS:
+            if t["tell"] in _ASM_TELLS and not asm:
                 continue
             mine = by_tell.get(t["tell"])
             if mine is None:
@@ -262,6 +349,70 @@ def tag_program(text: str, copybooks: dict[str, str] | None = None) -> dict[str,
     return out
 
 
+_COPY_DEPTH = 8  # nested COPY / macro members read before the pass is refused (a deeper chain is a loop in practice)
+
+
+def asm_members(
+    text: str, find: Callable[[str], tuple[str, str] | None], depth: int = _COPY_DEPTH
+) -> tuple[dict[str, str], str | None]:
+    """(members, skipped) of an assembler source (#5195): the COPY members and macro members it pulls in, nested ones too.
+
+    `find(name)` returns (key, text) of the estate member of that name, or None. `COPY X` must resolve: a missing member
+    is `CopyNotFound`. A macro call is expanded only when its name is an estate member; any other name is an instruction
+    or a system macro (DFHPC, ...) and is no gap -- IBM's own macros are never shipped. A COPY loop is `CopyCycle`, a
+    chain past `depth` levels `CopyDepth`; the members read so far are kept. `skipped` is the first such reason or None."""
+    books: dict[str, str] = {}
+    state: dict[str, str | None] = {"skipped": None}
+    looked: dict[str, tuple[str, str] | None] = {}
+
+    def walk(body: str, path: tuple[str, ...]) -> None:
+        after_macro = False
+        for _line, stmt in ML._asm_statements(body.splitlines()):
+            m = ML._ASM_STATEMENT.match(stmt)
+            if not m:
+                continue
+            op = m.group(2).upper()
+            if after_macro:  # the prototype statement names the macro being defined, not a call
+                after_macro = False
+                continue
+            if op == "MACRO":
+                after_macro = True
+                continue
+            is_copy = op == "COPY"
+            name = ML._first_operand(m.group(3) or "") if is_copy else op
+            if not name:
+                continue
+            if name in path:
+                if is_copy:  # a macro may call itself (HLASM recursion); a COPY may not
+                    state["skipped"] = state["skipped"] or "CopyCycle"
+                continue
+            if name not in looked:
+                looked[name] = find(name)
+            hit = looked[name]
+            if hit is None:
+                if is_copy:
+                    state["skipped"] = state["skipped"] or "CopyNotFound"
+                continue
+            key, member = hit
+            if key in books:  # a member two paths reach is read once
+                continue
+            if len(path) >= depth:
+                state["skipped"] = state["skipped"] or "CopyDepth"
+                continue
+            books[key] = member
+            walk(member, (*path, name))
+
+    walk(text, ())
+    return books, state["skipped"]
+
+
+def mark_skipped(tag: dict[str, Any], reason: str) -> dict[str, Any]:
+    """#5195: the tag of a program whose copybook pass did not run (or did not finish): its tells are the program's own
+    text only (or the members read before the stop), so a copybook tell may be missing. `copybook_skipped` is the
+    reason (an exception class or `CopyNotFound`, `CopyCycle`, `CopyDepth`, `UnreadableCopybook`), never a message."""
+    return {**tag, "copybook_skipped": tag.get("copybook_skipped") or reason}
+
+
 def summarise(programs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """The estate summary of per-program tags: programs per era, mixed, untagged, programs per tell."""
     by_era = Counter("none" if t["era"] is None else str(t["era"]) for t in programs.values())
@@ -277,6 +428,9 @@ def summarise(programs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     raised = sum("program_era" in t for t in programs.values())
     if raised:  # present only when a copybook raised some program's era
         out["raised_by_copybook"] = raised
+    skipped = sum("copybook_skipped" in t for t in programs.values())
+    if skipped:  # present only when some program's copybook pass was skipped (#5195)
+        out["copybook_skipped"] = skipped
     return out
 
 

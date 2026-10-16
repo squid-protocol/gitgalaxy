@@ -243,8 +243,10 @@ def test_channels_and_containers_become_stub_calls():
     assert ec.translate_command("ASSIGN CHANNEL(WS-CUR)")[:2] == ["CALL 'GGCASCH' USING GG-CICS",
                                                                  "MOVE GG-CHAN TO WS-CUR"]  # fmt: skip
     for bad in (
-        "GET CONTAINER(C) INTO(A) INTOCCSID(1140)",
-        "PUT CONTAINER(C) FROM(A) FROMCCSID(37)",
+        "GET CONTAINER(C) INTO(A) INTOCODEPAGE('UTF-8')",
+        "PUT CONTAINER(C) FROM(A) FROMCCSID(37) FROMCODEPAGE('IBM037')",
+        "GET CONTAINER(C) INTO(A) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))",
+        "GET CONTAINER(C) INTO(A) CCSID(N)",
         "GET CONTAINER(C) FLENGTH(L)",
         "RETURN TRANSID('T') CHANNEL(C)",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
@@ -257,6 +259,23 @@ def test_channels_and_containers_become_stub_calls():
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
+
+
+def test_container_ccsid_options_become_stub_arguments():
+    """#4270 (X17): FROMCCSID / INTOCCSID (a value, or an IANA name's CCSID) travel in GG-NUM with a flag word in GG-FLAGS;
+    CONVERTST(NOCONVERT) is the flag NOCONVERT; CCSID(area) is read back from GG-NUM with FLENGTH on RESP 0 or LENGERR."""
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) FROMCCSID(1140)")
+    assert put[2:4] == ["MOVE 1140 TO GG-NUM", "MOVE 'FROMCCSID' TO GG-FLAGS"]
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) CHAR FROMCODEPAGE('ibm500') APPEND")
+    assert "MOVE 500 TO GG-NUM" in put and "MOVE 'CHAR APPEND FROMCCSID' TO GG-FLAGS" in put
+    get = ec.translate_command("GET CONTAINER(C) INTO(WS-A) INTOCCSID(WS-CS) FLENGTH(WS-N)")
+    assert "MOVE WS-CS TO GG-NUM" in get and "MOVE 'INTOCCSID' TO GG-FLAGS" in get
+    raw = ec.translate_command("GET CONTAINER(C) INTO(WS-A) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)")
+    i = raw.index("CALL 'GGCGETC' USING GG-CICS")
+    assert "MOVE 'NOCONVERT' TO GG-FLAGS" in raw
+    assert raw[i + 2 : i + 5] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-NUM TO WS-CCSID", "END-IF"]
+    sets = ec.translate_command("GET CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCODEPAGE('IBM01140')")
+    assert "MOVE 1140 TO GG-NUM" in sets and "CALL 'GGCGETS' USING GG-CICS" in "\n".join(sets)
 
 
 def test_move_container_and_the_container_browse_call_the_stub():

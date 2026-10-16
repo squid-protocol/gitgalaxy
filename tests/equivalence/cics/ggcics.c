@@ -2474,7 +2474,7 @@ int GGCLRET(gg_cics *c) {
  * (#4270, X24) the containers a task leaves on its first program's current channel are compared at its end. */
 #define MAX_CHANNELS 64
 #define MAX_CONTAINERS 64
-typedef struct { char name[17]; int bit; char *data; int len; int used; long long order; } gg_container; /* order: creation order (#4951) */
+typedef struct { char name[17]; int bit; int ccsid; char *data; int len; int used; long long order; } gg_container; /* order: creation order (#4951); ccsid: a CHAR container's CCSID (#4270, X17), 0 for BIT */
 typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; int shape; } gg_channel; /* shape: containers added + removed (#4951) */
 static gg_channel chans[MAX_CHANNELS];
 static int nchans = 0;
@@ -2574,6 +2574,38 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
 
 static long long container_seq = 0;
 
+/* #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 -- as CicsTask.convertContainer:
+ * a program's byte is read as the region's page (037), and a conversion is the character-to-character map between the pages.
+ * 500 permutes seven characters of 037's repertoire (the cent sign, the broken bar, the exclamation mark, the not sign, the
+ * circumflex and the two square brackets); 1140 is 037 with the euro for the currency sign, so that character has no image in
+ * 037 or 500 and nothing converts to or from it. */
+#define REGION_CCSID 37
+static void ccsid_ok(int ccsid, const char *what) {
+    char msg[96];
+    if (ccsid != 37 && ccsid != 500 && ccsid != 1140) {
+        snprintf(msg, sizeof msg, "%s(%d): only the CCSIDs 37, 500 and 1140 are modelled", what, ccsid);
+        refuse(msg);
+    }
+}
+static const unsigned char ccsid_500_from[7] = {0xA2, 0x7C, 0x21, 0xAC, 0x5E, 0x5B, 0x5D}; /* in 037 ... */
+static const unsigned char ccsid_500_to[7]   = {0x5E, 0x5D, 0x7C, 0x5B, 0xAC, 0xA2, 0x21}; /* ... as 500 reads them */
+static void ccsid_convert(char *d, int len, int from, int to, const char *what) {
+    if (from == to) return;
+    ccsid_ok(from, what);
+    ccsid_ok(to, what);
+    int base_from = from == 500 ? 500 : 37, base_to = to == 500 ? 500 : 37;
+    for (int i = 0; i < len; i++) {
+        unsigned char b = (unsigned char)d[i];
+        if (b == 0xA4 && (from == 1140 || to == 1140)) refuse("code-page conversion of a character the target CCSID lacks");
+        if (base_from == base_to) continue;
+        for (int j = 0; j < 7; j++) {
+            if (base_to == 500 && b == ccsid_500_from[j]) { d[i] = (char)ccsid_500_to[j]; break; }
+            if (base_to == 37 && b == ccsid_500_to[j]) { d[i] = (char)ccsid_500_from[j]; break; }
+        }
+    }
+}
+
+
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
     gg_container *free_slot = NULL;
     for (int i = 0; i < MAX_CONTAINERS; i++) {
@@ -2596,10 +2628,11 @@ static gg_container *container_named(gg_channel *ch, const char *name, int creat
  * type for an existing one is refused, below). The data replaces the container's, or follows it. */
 int GGCPUTC(gg_cics *c, char *from) {
     char flags[41], name[17];
-    int bit, chr, ch;
+    int bit, chr, ch, from_ccsid;
     trim(c->flags, 40, flags);
     bit = strstr(flags, "BIT") != NULL;
     chr = strstr(flags, "CHAR") != NULL;
+    from_ccsid = strstr(flags, "FROMCCSID") != NULL ? c->num : -1; /* GG-NUM: the CCSID of FROM's data (#4270, X17) */
     c->resp = NORMAL;
     c->resp2 = 0;
     int bad_name = cics_name_check(c->qname, name, "container");
@@ -2625,8 +2658,14 @@ int GGCPUTC(gg_cics *c, char *from) {
         c->resp = CONTAINERERR; c->resp2 = 18;
         return 0;
     }
+    if (from_ccsid >= 0 && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("PUT CONTAINER FROMCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
     ch = command_channel(c, 1, bit || chr ? 1 : 4);
     if (!ch) return 0;
+    if (from_ccsid >= 0) {
+        ccsid_ok(from_ccsid, "PUT CONTAINER FROMCCSID");
+        if (c->len < 0) refuse("PUT CONTAINER FROMCCSID with a negative FLENGTH: which condition IBM raises first is not documented");
+        if (bit) { c->resp = INVREQ; c->resp2 = 34; return 0; }
+    }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (k) {
@@ -2637,21 +2676,28 @@ int GGCPUTC(gg_cics *c, char *from) {
     /* the other data type for an existing container: IBM says both that DATATYPE "applies only to new
      * containers" and that changing it is INVREQ RESP2 33 -- not settled, refused */
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
+    if (k && k->bit && from_ccsid >= 0) refuse("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
+    chr = chr || from_ccsid >= 0;
+    int fresh = k == NULL;
     if (!k) {
         k = container_named(&chans[ch - 1], name, 1);
         k->bit = !chr;
+        k->ccsid = chr ? (from_ccsid >= 0 ? from_ccsid : REGION_CCSID) : 0;
     }
+    char *put = malloc((size_t)c->len + 1);
+    if (!put) refuse("out of memory");
+    memcpy(put, from, (size_t)c->len);
+    if (!fresh && !k->bit) ccsid_convert(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER");
     if (strstr(flags, "APPEND")) {
         char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
         if (!joined) refuse("out of memory");
-        memcpy(joined + k->len, from, (size_t)c->len);
+        memcpy(joined + k->len, put, (size_t)c->len);
         k->data = joined;
         k->len += c->len;
+        free(put);
     } else {
         free(k->data);
-        k->data = malloc((size_t)c->len + 1);
-        if (!k->data) refuse("out of memory");
-        memcpy(k->data, from, (size_t)c->len);
+        k->data = put;
         k->len = c->len;
     }
     return 0;
@@ -2667,16 +2713,25 @@ int GGCGETC(gg_cics *c, char *into) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
+    int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1; /* GG-NUM in: INTOCCSID / INTOCODEPAGE (#4270, X17) */
+    if (into_ccsid >= 0 && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("GET CONTAINER INTOCCSID with no channel: INVREQ RESP2 2 and RESP2 4 both fit, and IBM ranks neither");
     ch = command_channel(c, 0, 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER INTOCCSID on a BIT container: CCSIDERR RESP2 3 returns the data unconverted, and IBM does not say what FLENGTH holds");
+    char *conv = malloc((size_t)k->len + 1);
+    if (!conv) refuse("out of memory");
+    memcpy(conv, k->data ? k->data : "", (size_t)k->len);
+    if (!k->bit && !strstr(flags, "NOCONVERT")) ccsid_convert(conv, k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER");
+    c->num = k->bit ? 0 : k->ccsid; /* GG-NUM out: the container's CCSID (CCSID(area)) */
     if (!strstr(flags, "NODATA")) {
         if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
         int n = k->len < c->len ? k->len : c->len;
-        memcpy(into, k->data, (size_t)n);
+        memcpy(into, conv, (size_t)n);
         if (k->len > c->len) { c->resp = LENGERR; c->resp2 = 11; }
     }
+    free(conv);
     c->len = k->len;
     return 0;
 }
@@ -2777,6 +2832,7 @@ int GGCMOVC(gg_cics *c) {
     gg_container *dst = to ? container_named(&chans[to - 1], target, 0) : NULL;
     if (to == from && strcmp(name, target) == 0) refuse("MOVE CONTAINER onto itself");
     if (dst && dst->bit != src->bit) refuse("MOVE CONTAINER onto a container of the other data type");
+    if (dst && dst->ccsid != src->ccsid) refuse("MOVE CONTAINER onto a container of another CCSID");
     if (dst) {
         char key[96];
         container_key(key, sizeof key, chans[to - 1].name, target);
@@ -2791,6 +2847,7 @@ int GGCMOVC(gg_cics *c) {
     if (!dst) {
         dst = container_named(&chans[to - 1], target, 1);
         dst->bit = src->bit;
+        dst->ccsid = src->ccsid;
     } else {
         free(dst->data);
     }
@@ -2906,7 +2963,7 @@ static int channel_in; /* a channel.cfg was read: the task's containers are writ
 /* A channel.cfg-format file (its name line, then `NAME BIT|CHAR HEX` per container, '-' for no bytes) as a channel in
  * the current level's scope, named `as` (NULL: the file's own name); its index + 1, 0 when there is no file. */
 static int load_channel(const char *path, const char *as) {
-    char name[17], word[32], type[8];
+    char name[17], word[32], type[16];
     size_t size = 1 << 20;
     FILE *f = fopen(path, "r");
     if (!f) return 0;
@@ -2917,9 +2974,10 @@ static int load_channel(const char *path, const char *as) {
     while (fgets(line, (int)size, f)) {
         char *hex = malloc(size);
         if (!hex) refuse("out of memory");
-        if (sscanf(line, "%31s %7s %s", word, type, hex) != 3 || strlen(word) > 16) refuse("channel.cfg: a container line");
+        if (sscanf(line, "%31s %15s %s", word, type, hex) != 3 || strlen(word) > 16) refuse("channel.cfg: a container line");
         gg_container *k = container_named(&chans[ch - 1], word, 1);
-        k->bit = strcmp(type, "CHAR") != 0;
+        k->bit = strncmp(type, "CHAR", 4) != 0;
+        k->ccsid = k->bit ? 0 : (type[4] == ':' ? atoi(type + 5) : REGION_CCSID); /* CHAR:n, a CCSID other than the region's */
         size_t n = strcmp(hex, "-") == 0 ? 0 : strlen(hex) / 2;
         k->data = malloc(n + 1);
         if (!k->data) refuse("out of memory");
@@ -2939,7 +2997,10 @@ static void save_channel(const gg_channel *ch, const char *path) {
     fprintf(f, "%s\n", ch->name);
     for (int i = 0; i < MAX_CONTAINERS; i++) {
         if (!ch->c[i].used) continue;
-        fprintf(f, "%s %s ", ch->c[i].name, ch->c[i].bit ? "BIT" : "CHAR");
+        fprintf(f, "%s ", ch->c[i].name);
+        if (ch->c[i].bit) fprintf(f, "BIT ");
+        else if (ch->c[i].ccsid == REGION_CCSID) fprintf(f, "CHAR ");
+        else fprintf(f, "CHAR:%d ", ch->c[i].ccsid);
         if (!ch->c[i].len) fprintf(f, "-");
         for (int j = 0; j < ch->c[i].len; j++) fprintf(f, "%02X", (unsigned char)ch->c[i].data[j]);
         fprintf(f, "\n");
@@ -5270,6 +5331,7 @@ int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
     else if (c->mins != 0 && k->bit) { pre = INVREQ; pre2 = 150; }
     else if (k->len == 0) refuse("WEB SEND of an empty container");
     else if (k->bit) refuse("WEB SEND of a DATATYPE BIT container");
+    else if (k->ccsid != REGION_CCSID) refuse("WEB SEND of a container in a CCSID other than the region's");
     return web_send_body(c, pre ? "" : k->data, pre ? 0 : k->len, media, mediacap, stext, stextcap, 0, -1, 0, pre, pre2);
 }
 
@@ -5818,8 +5880,20 @@ int GGCGETS(gg_cics *c, void **slot) {
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
-    container_key(key, sizeof key, chans[ch - 1].name, name);
-    *slot = blk_set_new(key, k->data ? k->data : "", (size_t)k->len, 0);
+    {
+        char flags[41];
+        trim(c->flags, 40, flags);
+        int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1;
+        if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER INTOCCSID on a BIT container: CCSIDERR RESP2 3 returns the data unconverted, and IBM does not say what FLENGTH holds");
+        char *conv = malloc((size_t)k->len + 1);
+        if (!conv) refuse("out of memory");
+        memcpy(conv, k->data ? k->data : "", (size_t)k->len);
+        if (!k->bit && !strstr(flags, "NOCONVERT")) ccsid_convert(conv, k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER");
+        container_key(key, sizeof key, chans[ch - 1].name, name);
+        *slot = blk_set_new(key, conv, (size_t)k->len, 0);
+        free(conv);
+        c->num = k->bit ? 0 : k->ccsid;
+    }
     c->len = k->len;
     return 0;
 }

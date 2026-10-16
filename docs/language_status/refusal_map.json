@@ -12,7 +12,9 @@
     "not-cobol": "a file that is not COBOL",
     "missing-copy": "COPY members not in the estate",
     "ibm-undefined": "CICS and Db2 options IBM leaves undefined",
-    "cobol-unmodelled": "COBOL features the det port does not model"
+    "cobol-unmodelled": "COBOL features the det port does not model",
+    "cics-macro-level": "macro-level CICS programs",
+    "cics-assembler": "CICS Assembler programs"
   },
   "entries": [
     {
@@ -23,7 +25,7 @@
         "name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)",
         "issue": 4892
       },
-      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The program then calls MQI, which the runtime does not model (#4892, #4514): translates, not provable."
+      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6)."
     },
     {
       "id": "le-copybooks",
@@ -37,6 +39,18 @@
       "match": "^missing copybook (?!CMQ|CEE)",
       "charter": "missing-copy",
       "note": "A COPY member the estate does not ship (not an IBM product library member)."
+    },
+    {
+      "id": "cics-macro-level",
+      "match": "macro-level CICS not supported",
+      "charter": "cics-macro-level",
+      "note": "A program written to CICS's pre-command-level macro API (DFHPC / DFHFC / DFHTC / DFHSC ... TYPE= calls, CSA / TCA addressing; era 0, #5121, register X55): named and refused, never translated."
+    },
+    {
+      "id": "cics-assembler",
+      "match": "CICS Assembler not supported",
+      "charter": "cics-assembler",
+      "note": "An assembler program written for CICS (DFHEIENT / DFHEISTG / EXEC CICS in HLASM, or macro level; #5121, register X55): the translator reads COBOL only; named and refused."
     },
     {
       "id": "ims-dli",
@@ -211,6 +225,15 @@
       "match": "SET TO ENTRY: procedure / function pointers",
       "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
       "issue": 5106
+    },
+    {
+      "id": "bll-cells",
+      "match": "^OS/VS COBOL BLL addressing: ",
+      "issue": 5119,
+      "features": [
+        "statements: SERVICE"
+      ],
+      "note": "OS/VS COBOL's BLL cells and SERVICE RELOAD (era 1) are lowered onto the pointer lane by IBM's conversion to VS COBOL II, chained storage areas included (register X56); an idiom the lowering cannot keep exactly is refused whole by name."
     },
     {
       "id": "soap",

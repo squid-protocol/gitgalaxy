@@ -23,7 +23,7 @@ name: Generated Java Compiles
 # porting tickets, worklists or audits needs no compile. Any build-input difference,
 # or a side that fails to generate, builds -- from the projects the check already
 # generated, so the corpus is not refactored (or scanned) a third time. The four
-# generations run side by side, and the base's are cached per base commit, so a
+# generations run side by side, and the base's are cached per content hash of the generation inputs, so a
 # second push to the same PR generates only the head. Pushes, the weekly run and
 # manual runs always build from scratch.
 
@@ -69,8 +69,10 @@ jobs:
   # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
   # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
   # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -179,7 +181,10 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/java_base_cache
-          key: java-same-base-${{ matrix.corpus }}-${{ github.event.pull_request.base.sha || github.sha }}
+          # #5142: keyed on the CONTENT of the files that decide the generation (the paths: list above), of the base checkout on a PR
+          # and of main's own checkout on a push. The old key was the base COMMIT, which has an entry only for the ~43 pct of
+          # main commits that touch those paths (the push run is path-filtered), so most PRs missed and regenerated both sides.
+          key: java-same-base-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/cobol_to_java_controller.py', 'base/gitgalaxy/cobol_refractor_controller.py', 'base/gitgalaxy/tools/cobol_to_java/**', 'base/gitgalaxy/tools/cobol_to_cobol/**', 'base/gitgalaxy/standards/yaml_reader.py', 'base/gitgalaxy/standards/fact_channel_confidence.json', 'base/tests/tools/java_target_matrix.py', 'base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py') || hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
       - name: Keep this commit's generation for the pull requests based on it (main)
         id: keep-gen
@@ -205,7 +210,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/java_base_cache
-          key: java-same-base-${{ matrix.corpus }}-${{ github.sha }}
+          key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
       - name: Is the generated Java unchanged? (pull requests)
         id: same

@@ -11,6 +11,15 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import support_matrix as sm  # tests/tools/support_matrix.py
 
+FIXTURE_REPORTS = Path(__file__).resolve().parents[1] / "fixtures" / "evidence_report"
+
+
+@pytest.fixture(autouse=True)
+def _snapshot_reports(monkeypatch):
+    """#5206: the evidence report is published on `generated`, not committed; these tests read a frozen snapshot."""
+    monkeypatch.setattr(sm, "REPORTS", FIXTURE_REPORTS)
+
+
 GETMAIN_HOLE = "EXEC EXEC CICS: EXEC CICS GETMAIN not modelled (storage CICS acquires for the task is not modelled)"
 
 
@@ -33,6 +42,34 @@ INVENTORY = {
     "copybook_resolution_gaps": {
         "unknown": {"count": 0, "programs": []},
         **feat(**{"COPY CMQGMOV": ["P4.cbl"], "COPY CEEIGZCT": ["P5.cbl"], "COPY ACCTREC": ["P6.cbl"]}),
+    },
+    "eras": {
+        "programs": {
+            "P1.cbl": {
+                "era": 4,
+                "earliest": 1,
+                "mixed": True,
+                "tells": [
+                    {"tell": "handle-condition", "era": 1, "count": 1, "first_line": 9},
+                    {"tell": "channel-container", "era": 4, "count": 1, "first_line": 10},
+                ],
+            },
+            "P2.cbl": {
+                "era": 2,
+                "earliest": 2,
+                "mixed": False,
+                "tells": [
+                    {"tell": "resp", "era": 2, "count": 3, "first_line": None},
+                ],
+            },
+            "P3.cbl": {"era": None, "earliest": None, "mixed": False, "tells": []},
+        },
+        "summary": {
+            "programs": 3,
+            "by_era": {"0": 0, "1": 0, "2": 1, "3": 0, "4": 1, "none": 1},
+            "mixed": 1,
+            "tells": {"channel-container": 1, "handle-condition": 1, "resp": 1},
+        },
     },
     "unparsed_programs": [{"program": "P4.cbl", "reason": "CopyNotFound: COPY CMQGMOV"}],
 }
@@ -265,6 +302,38 @@ def test_every_refusal_map_entry_has_an_owner(rmap):
 def test_no_burned_estate_has_an_unowned_refusal():
     for estate, m in sm.build()["estates"].items():
         assert (m["needs_issue"], m["unmapped"]) == ([], {}), estate
+
+
+def test_era_section_has_the_distribution_the_mixed_programs_and_their_tells(bare, rmap):
+    """#5117: the era tag reaches the matrix, and is not mistaken for a feature category."""
+    assert not [f for f in bare["features"] if f["feature"].startswith("eras")]  # noqa: S101
+    assert bare["eras"]["summary"]["by_era"]["4"] == 1  # noqa: S101
+    assert bare["eras"]["mixed"] == {"P1.cbl": ["handle-condition (era 1)", "channel-container (era 4)"]}  # noqa: S101
+    assert bare["eras"]["programs"]["none"] == ["P3.cbl"]  # noqa: S101
+    page = "\n".join(sm.render_estate(bare))
+    assert "### Era" in page and "| 4 | 1 | 33% |" in page  # noqa: S101
+    assert "P1.cbl: handle-condition (era 1), channel-container (era 4)" in page  # noqa: S101
+    assert "resp 1" in page  # noqa: S101
+
+
+def test_era_section_names_programs_raised_by_a_copybook_only_when_there_are_some(bare, rmap):
+    """#5117: the copybook line is rendered only for an estate whose summary carries `raised_by_copybook`."""
+    assert "COPY" not in "\n".join(sm.render_eras(bare["eras"]))  # noqa: S101
+    inv = json.loads(json.dumps(INVENTORY))
+    inv["eras"]["summary"]["raised_by_copybook"] = 2
+    m = sm.build_estate("synthetic", inv, REPORT, rmap, None)
+    assert "2 programs have a higher era than their own text shows" in "\n".join(sm.render_eras(m["eras"]))  # noqa: S101
+
+
+def test_an_inventory_without_era_tags_renders_no_era_section(rmap):
+    inv = {k: v for k, v in INVENTORY.items() if k != "eras"}
+    m = sm.build_estate("synthetic", inv, REPORT, rmap, None)
+    assert m["eras"] is None and "### Era" not in "\n".join(sm.render_estate(m))  # noqa: S101
+
+
+def test_every_burned_estate_has_an_era_section(capsys):
+    assert sm.main([]) == 0
+    assert capsys.readouterr().out.count("### Era") == len(sm.estates())  # noqa: S101
 
 
 def test_burned_estates_are_the_inventory_fixtures():

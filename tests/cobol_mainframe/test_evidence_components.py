@@ -21,7 +21,9 @@ def _find(pred):
     return next(t for t in ev.targets() if pred(t))
 
 
-BATCH = _find(lambda t: t.kind == "batch" and not t.db2)
+BATCH = _find(lambda t: t.kind == "batch" and not t.db2 and not t.ims)
+# #4893: a batch DL/I case (none has a committed port yet: the batch one, as if it stated databases)
+IMS = next((t for t in ev.targets() if t.ims), None) or ev.Target(**{**BATCH.__dict__, "key": "ims", "ims": True})
 CALL = _find(lambda t: t.kind == "call")
 ONLINE = _find(lambda t: t.kind == "cics" and not t.db2 and not t.programs)
 DB2_ONLINE = _find(lambda t: t.kind == "cics" and t.db2)
@@ -67,7 +69,7 @@ def test_the_components_partition_each_input():
     """No file escapes: every file the whole-input fingerprint covers is in some component, so a change to it moves the
     component fingerprints of the targets that use that component (representatives of each kind, a crucible port among
     them, which uses everything it has)."""
-    reps = (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL)
+    reps = (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS)
     for name in ev.COMPONENT_INPUTS:
         every = {p for t in reps for p in ev._match(ev._files_now(), t.specs[name]["paths"], t.specs[name]["exclude"])}
         for path in sorted(every):

@@ -28,7 +28,9 @@ record that holds them is stale on that input only when a component it uses chan
 #4731) keeps the whole-input comparison. `migrate` adds them where that is sound; `evidence_history.py replay` measures.
 
 Unproven methods (#4255, owner decision Q7): proof_reach sorts the methods no proof runs into stubs, left as
-generated, and ported_unproven (behaviour the port added that no proof runs). PORTED_UNPROVEN_POLICY = "block": a
+generated, det_helper (#5082: a det translator's own helper -- runProgram, the in_X / out_X codecs ... -- in a file
+marked as a det port; proven by the cells that reach its class) and ported_unproven (behaviour the port added that no
+proof runs). PORTED_UNPROVEN_POLICY = "block": a
 record with any ported_unproven method is NOT proven. "report" (the other value) keeps them as counts only. Stubs and
 left-as-generated methods are always counts only.
 
@@ -99,12 +101,13 @@ MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the gen
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py", "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
-           "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py")  # fmt: skip
+           "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
+           "tests/tools/equivalence_ims.py")  # fmt: skip
 CRUCIBLE_HARNESS = (*HARNESS, "tests/tools/cics_crucible.py", "tests/tools/cics_crucible_compare.py")
 ORACLE = ("tests/equivalence/gnucobol.Dockerfile", "tests/equivalence/gnucobol-db2.Dockerfile",
           "tests/equivalence/odbc_cli.pin",
           "tests/equivalence/cics/**", "tests/equivalence/le/**", "tests/equivalence/faults/**",
-          "tests/equivalence/db2/**", "tests/tools/equivalence_sql.py")  # fmt: skip
+          "tests/equivalence/db2/**", "tests/tools/equivalence_sql.py", "tests/equivalence/ims/ggdli.c")  # fmt: skip
 GENERATOR = ("gitgalaxy/tools/cobol_to_java/**",)  # #4048 Q2 (default): the Java generator, not the whole engine
 NOT_PORT = ("*/provenance.json", f"*/{RECORD_NAME}")
 EMPTY_SHA = hashlib.sha256(b"").hexdigest()
@@ -136,11 +139,21 @@ def _files_at(commit: str) -> tuple[str, ...] | None:
     return None if out is None else tuple(sorted(p for p in out.split("\0") if p))
 
 
-def _match(files: tuple[str, ...], patterns: list[str], exclude: list[str]) -> list[str]:
-    def hit(p: str, pats: list[str]) -> bool:
-        return any(p == pat or fnmatch.fnmatchcase(p, pat) for pat in pats)
+@functools.lru_cache(maxsize=4096)
+def _match_cached(files: tuple[str, ...], patterns: tuple[str, ...], exclude: tuple[str, ...]) -> tuple[str, ...]:
+    def matcher(pats: tuple[str, ...]) -> Any:
+        exact = frozenset(pats)  # a path equal to the pattern matches even when it holds glob characters
+        rx = re.compile("|".join(fnmatch.translate(p) for p in pats)).match if pats else None
+        return lambda p: p in exact or (rx is not None and rx(p) is not None)
 
-    return [p for p in files if hit(p, patterns) and not hit(p, exclude)]
+    hit, skip = matcher(patterns), matcher(exclude)
+    return tuple(p for p in files if hit(p) and not skip(p))
+
+
+def _match(files: tuple[str, ...], patterns: list[str], exclude: list[str]) -> list[str]:
+    """The files a spec's patterns select (fnmatchcase or equal), minus its excludes. One compiled alternation per list
+    and the result memoised per (files, spec): a ledger check asks for every case's specs over the same file list."""
+    return list(_match_cached(tuple(files), tuple(patterns), tuple(exclude)))
 
 
 def tree_sha256(paths: list[str], read: Any = None) -> str:
@@ -188,6 +201,7 @@ class Use:
     db2: bool
     programs: bool = False
     port_text: Callable[[], str] = lambda: ""
+    ims: bool = False  # #4893: a batch DL/I case (its "ims" section)
 
     @property
     def crucible(self) -> bool:
@@ -274,6 +288,20 @@ COMPONENTS: tuple[Component, ...] = (
         "ggsql.c / ggsqlrun.c, the Db2 units of work and the SQL precompiler: Db2 cases only",
     ),
     Component(
+        "harness:ims",
+        "harness",
+        ("tests/tools/equivalence_ims.py",),
+        lambda u: u.ims,
+        "the DL/I databases' DBD / PSB reading, seeds and comparison: IMS cases only",
+    ),
+    Component(
+        "oracle:ims",
+        "oracle",
+        ("tests/equivalence/ims/ggdli.c",),
+        lambda u: u.ims,
+        "ggdli.c, the DL/I model: linked into IMS cases only",
+    ),
+    Component(
         "oracle:file-io",
         "oracle",
         ("tests/equivalence/faults/ggfault.c",),
@@ -350,7 +378,7 @@ def component_shas(
             if p.endswith(".java")
         )
 
-    u = Use(t.kind, t.db2, t.programs, functools.lru_cache(maxsize=1)(port_text))
+    u = Use(t.kind, t.db2, t.programs, functools.lru_cache(maxsize=1)(port_text), t.ims)
     out: dict[str, str] = {}
     for c in COMPONENTS:
         if c.name in parts and (u.crucible or c.uses(u)):
@@ -407,6 +435,7 @@ class Target:
     specs: dict[str, dict[str, Any]] = field(default_factory=dict)
     corpus: dict[str, str] = field(default_factory=dict)
     db2: bool = False
+    ims: bool = False  # #4893: the case states IMS DL/I databases
     programs: bool = False  # the case LINKs programs, whose Java the proof translates with det (linked_programs)
 
     @property
@@ -457,7 +486,7 @@ def equivalence_target(case: str) -> Target:
     return Target(key=case, kind=data.get("kind", "batch"), case=case, program=data["program"].upper(),
                   record=CASES / case / RECORD_NAME, port_dir=CASES / port_case / "port", specs=specs,
                   corpus={"name": corpus, "ref": _corpus_refs().get(corpus, "")}, db2=bool(data.get("db2")),
-                  programs=bool(data.get("programs")))  # fmt: skip
+                  ims=bool(data.get("ims")), programs=bool(data.get("programs")))  # fmt: skip
 
 
 def crucible_target(case: str, program: str) -> Target:
@@ -706,7 +735,7 @@ def _generated_originals(work: Path | None) -> list[Path]:
 
 
 def reach_section(t: Target, work: Path | None = None, entries: Iterable[str] = ()) -> dict[str, Any]:
-    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its three kinds. `entries`:
+    """#4255: which of the port's methods the proof runs (proof_reach), sorted into its four kinds (#5082: det_helper). `entries`:
     the methods the proof also drove the program through (a batch case's entry runs), roots beside PROOF_ROOTS."""
     from gitgalaxy.tools.cobol_to_java import proof_reach  # noqa: PLC0415 -- the engine's, only when a record is made
 
@@ -718,9 +747,13 @@ def reach_section(t: Target, work: Path | None = None, entries: Iterable[str] = 
     unproven = []
     for cls, r in sorted(report.items()):
         for m in r["unproven"]:
-            kind = "stub" if m["stub"] else "left_as_generated" if m["generated"] else "ported_unproven"
+            kind = ("stub" if m["stub"] else "left_as_generated" if m["generated"]
+                    else "det_helper" if m["det_helper"] else "ported_unproven")  # fmt: skip
             unproven.append({"class": cls, "method": m["method"], "line": m["line"], "kind": kind})
-    counts = {k: sum(1 for m in unproven if m["kind"] == k) for k in ("stub", "left_as_generated", "ported_unproven")}
+    counts = {
+        k: sum(1 for m in unproven if m["kind"] == k)
+        for k in ("stub", "left_as_generated", "det_helper", "ported_unproven")
+    }
     return {"entry_points": sorted({root for r in report.values() for root in r["roots"]}),
             "unproven": unproven, "counts": counts,
             "generated_compared": bool(generated),  # False: "left as generated" could not be told from "ported"
@@ -1007,7 +1040,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
         parts.append(f"Proven through **{' / '.join(r['entry_points']) or '(no entry point)'}** only; "
                      f"**{k['ported_unproven']} ported method(s) that no proof runs**"
                      + (f" ({', '.join(ported)})" if ported else "")
-                     + f", {k['left_as_generated']} left as generated, {k['stub']} stubs.")  # fmt: skip
+                     + f", {k['left_as_generated']} left as generated, {k.get('det_helper', 0)} det helpers (proven by the cells "
+                     f"that reach their class), {k['stub']} stubs.")  # fmt: skip
     tail = f"Status: **{st['status']}**"
     if st["reasons"]:
         tail += " (" + "; ".join(st["reasons"]) + ")"
@@ -1215,7 +1249,7 @@ def validate(rec: dict[str, Any]) -> list[str]:
     r = rec.get("reach")
     if r is not None:
         for m in r.get("unproven", []):
-            if m.get("kind") not in ("stub", "left_as_generated", "ported_unproven"):
+            if m.get("kind") not in ("stub", "left_as_generated", "det_helper", "ported_unproven"):
                 errs.append(f"reach.unproven kind {m.get('kind')!r}")
     if not isinstance(rec.get("differences"), list):
         errs.append("differences is not a list")

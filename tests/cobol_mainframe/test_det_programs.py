@@ -6,11 +6,14 @@ The port runs on its own (runProgram) with the standalone runtime; nothing of a 
 
 from __future__ import annotations
 
+import atexit
+import functools
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -1229,6 +1232,52 @@ def _all_data(items) -> list[str]:
 
 
 PROGRAMS["CMPALL"] = program("CMPALL", _all_data(ALL_ITEMS), _all_proc(ALL_ITEMS, ALL_LITERALS))
+# #4892 (CardDemo CODATE01): INITIALIZE ... REPLACING -- only the elementary items of each named category are set, as
+# by MOVE of the value (IBM Enterprise COBOL, INITIALIZE statement); the others, FILLER, a REDEFINES and a table's
+# other items are left as they are; an elementary target is set only when it is of a named category
+PROGRAMS["INITREPL"] = program(
+    "INITREPL",
+    [
+        "01 GRP.",
+        "   05 G-NAME PIC X(6) VALUE 'KEEP'.",
+        "   05 G-NUM PIC 9(4) VALUE 1234.",
+        "   05 G-RD REDEFINES G-NUM PIC X(4).",
+        "   05 G-PK PIC S9(5) COMP-3 VALUE -77.",
+        "   05 G-BIN PIC S9(4) COMP VALUE 12.",
+        "   05 G-ED PIC ZZ9.99 VALUE '  5.00'.",
+        "   05 G-AL PIC A(3) VALUE 'ABC'.",
+        "   05 FILLER PIC 9(2) VALUE 42.",
+        "01 TBL.",
+        "   05 G-TAB OCCURS 2.",
+        "      10 G-T PIC 9(2) VALUE 9.",
+        "      10 G-TX PIC X(2) VALUE 'TT'.",
+        "01 NUMS PIC 9(3) VALUE 5.",
+        "01 OUTP PIC -9(5).",
+        "01 OUTB PIC -9(4).",
+    ],
+    [
+        "INITIALIZE GRP REPLACING NUMERIC BY ZEROES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "MOVE 'KEEP' TO G-NAME",
+        "INITIALIZE GRP REPLACING ALPHANUMERIC DATA BY 'XY'",
+        "    NUMERIC-EDITED BY 7 ALPHABETIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "INITIALIZE GRP REPLACING NUMERIC BY 42 ALPHANUMERIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB ' [' G-ED ']'",
+        "MOVE 31 TO G-T(2) MOVE 'AB' TO G-TX(2)",
+        "INITIALIZE TBL REPLACING NUMERIC BY 5 ALPHANUMERIC BY 'Q'",
+        "DISPLAY G-T(1) G-TX(1) G-T(2) G-TX(2)",
+        "INITIALIZE NUMS REPLACING NUMERIC BY 9",
+        "DISPLAY NUMS",
+        "INITIALIZE NUMS REPLACING ALPHANUMERIC BY 'Q'",
+        "DISPLAY NUMS",
+    ],
+)
 # the same under a PROGRAM COLLATING SEQUENCE (EBCDIC; letters and spaces only, which IBM and GnuCOBOL order alike),
 # and with an ALSO alphabet where an equality consults the sequence too
 _ALL_LETTERS = [i for i in ALL_ITEMS if i[0][0] != "N"]
@@ -1265,7 +1314,7 @@ def _pscale_proc() -> list[str]:
                  f"COMPUTE {x} = {comp}", f"MOVE {x} TO E", f"DISPLAY '{x} C ' E",
                  f"ADD {add} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} A ' E",
                  f"COMPUTE {x} ROUNDED = {rnd}", f"MOVE {x} TO E", f"DISPLAY '{x} R ' E",
-                 f"COMPUTE W = {x} * 7", f"MOVE W TO E", f"DISPLAY '{x} O ' E",
+                 f"COMPUTE W = {x} * 7", "MOVE W TO E", f"DISPLAY '{x} O ' E",
                  f"IF {x} = {eq} DISPLAY '{x} EQ' ELSE DISPLAY '{x} NE' END-IF",
                  f"IF {x} > {gt} DISPLAY '{x} GT' ELSE DISPLAY '{x} LE' END-IF",
                  f"IF {x} < W DISPLAY '{x} LTW' ELSE DISPLAY '{x} GEW' END-IF",
@@ -1344,6 +1393,54 @@ def _cobol(src: str, work: Path, raw: bool = False, flags: str = "") -> str:
     return run.stdout
 
 
+def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
+    """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
+    from the batch forge's own templates, without Spring: what a det port with files runs on."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
+
+    for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
+        text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
+        text = text.replace("{record_charset}", charset)
+        text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
+        text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
+        (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
+
+
+@functools.cache
+def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-det-rt-"))
+    atexit.register(shutil.rmtree, base, True)
+    srcdir = base / "java"
+    runtime = {k: v for k, v in P.runtime_files(PKG, batch=batch).items() if not k.startswith("cobolrt/cics/")}
+    if batch:
+        runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
+        _batch_package(srcdir, charset)
+    for rel, text in runtime.items():
+        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / rel).write_text(text)
+    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
+    rec.parent.mkdir(parents=True, exist_ok=True)
+    cs_expr = (
+        "java.nio.charset.StandardCharsets.ISO_8859_1"
+        if not batch and charset == "ISO-8859-1"
+        else f'java.nio.charset.Charset.forName("{charset}")'
+    )
+    rec.write_text(
+        f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
+        f"Charset charset() {{\n        return {cs_expr};\n    }}\n}}\n"
+    )
+    jdk = _java()
+    classes = base / "classes"
+    files = [str(f) for f in srcdir.rglob("*.java")]
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True
+    )  # noqa: S603
+    return classes
+
+
 def _java_run(
     name: str,
     src: str,
@@ -1366,41 +1463,26 @@ def _java_run(
     r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
                     typed=typed, groups=groups, unit=unit)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(False, "ISO-8859-1")
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    # the runtime without its CICS boundary (it needs a generated CicsTask)
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=False).items() if not k.startswith("cobolrt/cics/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    # the generated project's record charset, as the harness runs it: ISO-8859-1
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
     trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
-    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
-                                      f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
+    main_java = srcdir / "Main.java"
+    main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
+                         f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
-
-
-def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
-    """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
-    from the batch forge's own templates, without Spring: what a det port with files runs on."""
-    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
-
-    for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
-        text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
-        text = text.replace("{record_charset}", charset)
-        text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
-        text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
-        (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
+    classes = work / "classes"
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 def _java_run_batch(
@@ -1424,31 +1506,30 @@ def _java_run_batch(
     r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
                     typed=typed, groups=groups)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(True, charset)
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=True).items() if not k.startswith("cobolrt/cics/")}
-    runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    _batch_package(srcdir, charset)
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.Charset.forName(\"" + charset + "\");\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     data = work / "datasets"
     data.mkdir()
     b = f"{PKG}.batch"
     dd_list = ", ".join(f'new {b}.Dd("{d}", "{d}", "NEW", "CATLG", null)' for d in dds)
-    (srcdir / "Main.java").write_text(
+    main_java = srcdir / "Main.java"
+    main_java.write_text(
         f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}("
         f'new {b}.DatasetResolver("{data}"), new {b}.CobolFiles("", ""), new {b}.MainframeClock("", "UTC"))'
         f".runBatch(java.util.List.of({dd_list}), null); }} }}\n"
     )
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
+    classes = work / "classes"
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
@@ -1922,3 +2003,34 @@ def test_a_second_01_of_the_same_name_declares_one_storage_or_is_refused(tmp_pat
         assert java.count("Storage s_D ") == 1, java
     with pytest.raises(ValueError, match="second 01 group named D"):
         translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9.", "01 D.", "   05 D1 PIC 9."])
+
+
+def test_repeated_01_filler_groups_each_get_their_own_storage(tmp_path):
+    """#4767: zECS ZECS001 declares `01 FILLER.` four times, each with named children. Nothing can name a FILLER, so no
+    reference is ambiguous (unlike a repeated real name): each group keeps its own storage and its children bind to it.
+    The first keeps `s_FILLER` (ports of programs with one `01 FILLER` do not move)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "t"
+    src.mkdir()
+    (src / "FILX.cbl").write_text(
+        program(
+            "FILX",
+            [
+                "01 FILLER.",
+                "   05 A PIC X(3) VALUE 'abc'.",
+                "01 FILLER.",
+                "   05 B PIC X(3) VALUE 'xyz'.",
+                "01 FILLER.",
+                "   05 C PIC 9(2) VALUE 7.",
+            ],
+            ["DISPLAY A B C"],
+        )  # fmt: skip
+    )
+    (src / "project").mkdir()
+    java = P.translate(src / "FILX.cbl", [], "public class FilxService {\n}\n", PKG, None, src / "project").java
+    assert java.count("Storage s_FILLER ") == 1, java
+    assert java.count("Storage s_FILLER_") == 2, java
+    if _java() is not None:  # the port compiles and each group's children read their own bytes
+        assert _java_run("FILX", (src / "FILX.cbl").read_text(), tmp_path) == "abcxyz07\n"

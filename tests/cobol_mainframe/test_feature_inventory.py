@@ -16,6 +16,34 @@ CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / 
 
 
 SNIPPETS = {
+    "era_mixed": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 BLL-CELLS PIC X.
+       PROCEDURE DIVISION.
+           EXEC CICS HANDLE CONDITION NOTFND(E1) END-EXEC.
+           EXEC CICS PUT CONTAINER('C') CHANNEL('CH')
+               FROM(BLL-CELLS) END-EXEC.
+           GOBACK.
+""",
+    "era_copy": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY ERACPY.
+       PROCEDURE DIVISION.
+           GOBACK.
+""",
+    "era_unparsed": """       ID DIVISION.
+       PROGRAM-ID. P.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY NOSUCHCPY.
+       PROCEDURE DIVISION.
+           EXEC SQL COMMIT END-EXEC.
+           GOBACK.
+""",
     "statements": "       ID DIVISION.\n       PROGRAM-ID. P.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC 9.\n       PROCEDURE DIVISION.\n           ADD 1 TO X.\n           GOBACK.\n",
     "data_types": """       ID DIVISION.
        PROGRAM-ID. P.
@@ -83,6 +111,17 @@ SNIPPETS = {
 }  # one program per feature category, all scanned together ONCE (a full engine scan is 18-33 s)
 
 
+COPYBOOKS = {"ERACPY": "       01 BLL-CELLS PIC X.\n"}  # a tell that only a copybook shows
+# #5195 assembler members: a COPY member, a macro member called by name, nested ones, and a COPY that resolves to nothing
+ASM = {
+    "era_asm.asm": "ASMMAIN  CSECT\n         COPY  ASMBOOK\n         ASMMAC X\n         END\n",
+    "ASMBOOK.mac": "         COPY  ASMDEEP\n",
+    "ASMDEEP.mac": "         DFHPC TYPE=LINK,PROGRAM=SUB\n",
+    "ASMMAC.mac": "         MACRO\n         ASMMAC &A\n         DFHTC TYPE=WRITE\n         MEND\n",
+    "era_asm_gap.asm": "GAPMAIN  CSECT\n         COPY  NOSUCH\n         END\n",
+}
+
+
 @pytest.fixture(scope="module")
 def synthetic(tmp_path_factory):
     """(estate dir, db dir, inventory) for the combined synthetic estate; tmp_path_factory keeps it xdist-safe."""
@@ -91,6 +130,10 @@ def synthetic(tmp_path_factory):
     d.mkdir()
     for name, code in SNIPPETS.items():
         (d / f"{name}.cbl").write_text(code)
+    for name, code in COPYBOOKS.items():
+        (d / f"{name}.cpy").write_text(code)
+    for name, code in ASM.items():
+        (d / name).write_text(code)
     db_dir = base / "db"
     db_dir.mkdir()
     return d, db_dir, scan_estate(d, db_dir)
@@ -121,6 +164,61 @@ def test_data_types(synthetic):
     assert has(inv, "data_types", "COMP-1", "data_types")  # noqa: S101
     assert has(inv, "data_types", "COMP-2", "data_types")  # noqa: S101
     assert has(inv, "data_types", "NATIONAL", "data_types")  # noqa: S101
+
+
+def test_era_tags(synthetic):
+    """#5117: every scanned program is tagged, a mixed one says so, and a program the parser refuses is still tagged."""
+    eras = synthetic[2]["eras"]
+    assert sorted(eras["programs"]) == sorted(f"{n}.cbl" for n in SNIPPETS)  # noqa: S101
+    mixed = eras["programs"]["era_mixed.cbl"]
+    assert (mixed["era"], mixed["earliest"], mixed["mixed"]) == (4, 1, True)  # noqa: S101
+    unparsed = eras["programs"]["era_unparsed.cbl"]
+    assert (unparsed["era"], unparsed["mixed"]) == (2, False)  # noqa: S101
+    assert "era_unparsed.cbl" in {u["program"] for u in synthetic[2]["unparsed_programs"]}  # noqa: S101
+    assert eras["programs"]["statements.cbl"]["era"] is None  # noqa: S101
+    copy = eras["programs"]["era_copy.cbl"]  # the tell is in the copybook only: seen through the COPY expansion
+    assert (copy["era"], copy["earliest"], copy["mixed"]) == (1, 1, False)  # noqa: S101
+    assert copy["tells"] == [  # noqa: S101
+        {
+            "tell": "bll-cells",
+            "era": 1,
+            "count": 1,
+            "first_line": None,
+            "via_copybook": True,
+            "copybooks": ["ERACPY.cpy"],
+        }
+    ]
+    assert copy["program_era"] is None and "program_era" not in mixed  # noqa: S101
+    assert not synthetic[2]["copybook_resolution_gaps"]["unknown"]["count"]  # noqa: S101
+    s = eras["summary"]
+    assert s["programs"] == len(SNIPPETS) and s["mixed"] == 1 and s["by_era"]["4"] == 1  # noqa: S101
+
+
+def test_copybook_pass_skipped_is_marked_on_the_tag(synthetic):
+    """#5195: a program whose COPY expansion is refused carries `copybook_skipped`; one whose expansion ran does not."""
+    eras = synthetic[2]["eras"]
+    assert eras["programs"]["copybook_gap.cbl"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    assert eras["programs"]["fallback.cbl"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    marked = {p for p, t in eras["programs"].items() if "copybook_skipped" in t}
+    assert marked == {"copybook_gap.cbl", "fallback.cbl", "era_unparsed.cbl"}  # noqa: S101  (era_copy's expansion ran)
+    assert eras["summary"]["copybook_skipped"] == 3  # noqa: S101
+
+
+def test_assembler_members_are_era_tagged_through_their_copy_and_macro_members(synthetic):
+    asm = synthetic[2]["eras"]["assembler"]
+    tag = asm["era_asm.asm"]
+    assert (tag["era"], "copybook_skipped" in tag) == (0, False)  # noqa: S101
+    # the tell is in two members the program never mentions in its own text: both are listed, ASMDEEP through ASMBOOK
+    by_tell = {t["tell"]: t for t in tag["tells"]}
+    assert by_tell["dfh-macro-call"]["via_copybook"] is True  # noqa: S101
+    assert by_tell["dfh-macro-call"]["copybooks"] == ["ASMDEEP.mac", "ASMMAC.mac"]  # noqa: S101
+    assert asm["era_asm_gap.asm"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    # a member that only COPYs another is a member too: it sees the tell through ASMDEEP, and ASMDEEP holds it itself
+    assert (
+        asm["ASMBOOK.mac"]["tells"][0]["copybooks"] == ["ASMDEEP.mac"]
+        and "via_copybook" in asm["ASMBOOK.mac"]["tells"][0]
+    )  # noqa: S101
+    assert "via_copybook" not in asm["ASMDEEP.mac"]["tells"][0]  # noqa: S101
 
 
 def test_cics_commands_and_options(synthetic):
@@ -164,7 +262,15 @@ def test_fallback(synthetic):
     assert has(inv, "statements", "GOBACK", "fallback")  # noqa: S101
 
 
-TYPES = {"object": dict, "array": list, "string": str, "integer": int, "number": (int, float), "boolean": bool}
+TYPES = {
+    "object": dict,
+    "array": list,
+    "string": str,
+    "integer": int,
+    "number": (int, float),
+    "boolean": bool,
+    "null": type(None),
+}
 
 
 def check_schema(data, node, root, where="$"):
@@ -174,8 +280,9 @@ def check_schema(data, node, root, where="$"):
         node = root["$defs"][node["$ref"].split("/")[-1]]
     t = node.get("type")
     if t:
-        assert isinstance(data, TYPES[t]) and not (t == "integer" and isinstance(data, bool)), f"{where}: not {t}"  # noqa: S101
-    if "minimum" in node:
+        ok = [x for x in ([t] if isinstance(t, str) else t) if isinstance(data, TYPES[x])]
+        assert ok and not (ok == ["integer"] and isinstance(data, bool)), f"{where}: not {t}"  # noqa: S101
+    if "minimum" in node and data is not None:
         assert data >= node["minimum"], f"{where}: below {node['minimum']}"  # noqa: S101
     if isinstance(data, dict):
         for k in node.get("required", []):
@@ -200,6 +307,23 @@ def test_schema_over_fixtures():
     assert len(fixtures) == 6  # noqa: S101 -- one per burned estate
     for f in fixtures:
         check_schema(json.loads(f.read_text()), schema, schema, f.name)
+    for f in fixtures:  # #5117: every program the inventory counts has an era tag, and the summary adds up
+        d = json.loads(f.read_text())
+        counted = {
+            p
+            for c, v in d.items()
+            if c
+            not in (
+                "eras",
+                "unparsed_programs",
+                "refusal_families",
+            )  # (#5121: assembler members carry no COBOL era tag)
+            for x in v.values()
+            for p in x["programs"]
+        }
+        assert counted <= set(d["eras"]["programs"]), f.name  # noqa: S101
+        s = d["eras"]["summary"]
+        assert s["programs"] == len(d["eras"]["programs"]) == sum(s["by_era"].values()), f.name  # noqa: S101
     with pytest.raises(AssertionError):
         check_schema({"statements": "not an object"}, schema, schema)
 

@@ -205,22 +205,6 @@
    }
   },
   {
-   "name": "option-not-numeric",
-   "aid": "DFHENTER",
-   "commarea": {
-    "CDEMO-FROM-TRANID": "CC00",
-    "CDEMO-FROM-PROGRAM": "COSGN00C",
-    "CDEMO-USER-ID": "ADMIN001",
-    "CDEMO-USER-TYPE": "A",
-    "CDEMO-PGM-CONTEXT": 1
-   },
-   "receive": {
-    "COADM1A": {
-     "OPTIONI": "A"
-    }
-   }
-  },
-  {
    "name": "option-empty",
    "aid": "DFHENTER",
    "commarea": {
@@ -388,5 +372,5 @@
    "why": "#4628 (det-port mutant 6311acc336): every field of COADM1A is ASKIP/BRT with FSET, so a real terminal returns them all on ENTER; option 7 is refused and the menu is re-sent over the received map"
   }
  ],
- "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6, zero or not numeric is refused. Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

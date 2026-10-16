@@ -56,6 +56,7 @@ PROVEN, UNPROVEN, REFUSED, UNKNOWN = (
 )
 STATUSES = (PROVEN, UNPROVEN, REFUSED, UNKNOWN)
 PROVEN_LEVELS = ("L2", "L3", "L4", "L5")
+FAMILIES = "refusal_families"  # #5121: programs refused by name by family (macro-level CICS, CICS Assembler)
 GAPS = "copybook_resolution_gaps"  # not features: read as `missing copybook NAME` refusals
 RULE_ORDER = ("MATCHED", "ASSUMED", "DIFFERS", "REFUSED")  # worst last
 SEQUENCE_FRAGMENT = re.compile(r"\b\d{6,8}\b")  # a key holding a sequence-area number (columns 1-6 / 73-80)
@@ -87,7 +88,11 @@ def _load(path: Path) -> Any:
 
 
 def estates() -> list[str]:
-    """The burned estates: only theirs are committed under evidence_report/ (evidence_report.py), with an inventory."""
+    """The burned estates: only theirs are published under evidence_report/ (evidence_report.py), with an inventory."""
+    if not any(REPORTS.glob("*/report.json")):  # #5206: the report is published on `generated`, not committed
+        import evidence_report
+
+        evidence_report.materialize()
     return sorted(
         d.name for d in REPORTS.iterdir() if (d / "report.json").is_file() and (INVENTORY / f"{d.name}.json").is_file()
     )
@@ -186,6 +191,25 @@ def _texts(row: dict[str, Any]) -> list[str]:
     return ([t["refused"]] if t.get("refused") else []) + list(t.get("holes") or [])
 
 
+def _eras(inventory: dict[str, Any]) -> dict[str, Any] | None:
+    """#5117: the estate's era distribution, its mixed programs and the programs behind each era (None: an inventory
+    from before era tags). Each program lists the tells its tag used."""
+    e = inventory.get("eras")
+    if not e:
+        return None
+    progs = e["programs"]
+    return {
+        "summary": e["summary"],
+        "mixed": {
+            p: [t["tell"] + f" (era {t['era']})" for t in v["tells"]] for p, v in sorted(progs.items()) if v["mixed"]
+        },
+        "programs": {
+            era: sorted(p for p, v in progs.items() if str(v["era"] if v["era"] is not None else "none") == era)
+            for era in ("0", "1", "2", "3", "4", "none")
+        },
+    }
+
+
 def build_estate(
     estate: str,
     inventory: dict[str, Any],
@@ -210,9 +234,16 @@ def build_estate(
             if (text, found[0] if len(found) == 1 else None) not in hits[p]:
                 hits[p].append((text, found[0] if len(found) == 1 else None))
 
+    for key, v in inventory.get(FAMILIES, {}).items():  # read as `<family> not supported`, like a gap
+        text = f"{key} not supported"
+        found = classify(text, rmap)
+        for p in v["programs"]:
+            if (text, found[0] if len(found) == 1 else None) not in hits[p]:
+                hits[p].append((text, found[0] if len(found) == 1 else None))
+
     features = []
     for category in sorted(inventory):
-        if category in (GAPS, "unparsed_programs"):
+        if category in (GAPS, FAMILIES, "unparsed_programs", "eras"):
             continue
         for key, v in sorted(inventory[category].items()):
             if key == "unknown":
@@ -299,7 +330,7 @@ def build_estate(
         "buckets": {
             c: {"count": v["unknown"]["count"], "programs": v["unknown"]["programs"]}
             for c, v in sorted(inventory.items())
-            if c != "unparsed_programs" and v.get("unknown", {}).get("count")
+            if c not in ("unparsed_programs", "eras") and v.get("unknown", {}).get("count")
         },
         "unparsed_programs": inventory.get("unparsed_programs", []),
         "sequence_fragments": [f["feature"] for f in features if f["sequence_fragment"]],
@@ -314,6 +345,7 @@ def build_estate(
         "features": features,
         "refusals": dict(sorted(refusals.items())),
         "unmapped": {k: sorted(v) for k, v in sorted(unmapped.items())},
+        "eras": _eras(inventory),
         "needs_issue": sorted(k for k, r in refusals.items() if r["label"] == NEEDS_ISSUE),
         "unknown": unknown,
     }
@@ -338,7 +370,15 @@ def build(names: list[str] | None = None, catalogue_path: Path | None = CATALOGU
         inv = _load(INVENTORY / f"{name}.json")
         rep = _load(REPORTS / name / "report.json")
         out["estates"][name] = build_estate(name, inv, rep, rmap, catalogue, register)
+    if names is None and (nb := _non_burned_eras()):  # present only when non-empty (#5117)
+        out["non_burned_eras"] = nb
     return out
+
+
+def _non_burned_eras() -> dict[str, Any]:
+    """#5117: era distributions of the non-burned estates, counts only (tests/tools/era_distribution.py)."""
+    path = TOOLS.parent / "fixtures" / "era_distribution" / "summary.json"
+    return _load(path)["estates"] if path.is_file() else {}
 
 
 def _cell(x: Any) -> str:
@@ -350,6 +390,39 @@ def _progs(ps: list[str], n: int = 4) -> str:
     return ", ".join(names[:n]) + (f" (+{len(names) - n})" if len(names) > n else "")
 
 
+def render_eras(e: dict[str, Any] | None) -> list[str]:
+    """#5117: the era section -- programs per era with the tells that placed them, and the mixed programs."""
+    if not e:
+        return []
+    s = e["summary"]
+    L = ["", "### Era (from the source's own tells, not dates)", ""]
+    L.append(
+        f"{s['programs']} programs; {s['mixed']} mixed (tells from more than one era: layered code). A program's era "
+        "is the latest era any of its tells reaches; none = no tell."
+    )
+    L += ["", "| era | programs | share | examples |", "|---|---|---|---|"]
+    for era, n in s["by_era"].items():
+        share = f"{100 * n / s['programs']:.0f}%" if s["programs"] else "-"
+        L.append(f"| {era} | {n} | {share} | {_progs(e['programs'][era])} |")
+    if s.get("raised_by_copybook"):  # present only when a copybook raised a program's era (#5117)
+        L += [
+            "",
+            f"{s['raised_by_copybook']} programs have a higher era than their own text shows: a copybook they COPY carries the tell.",
+        ]
+    if s.get("copybook_skipped"):  # present only when a program's copybook pass was skipped (#5195)
+        L += [
+            "",
+            f"{s['copybook_skipped']} programs were tagged without their copybooks (the COPY expansion was refused): a tell in one is not counted.",
+        ]
+    L += ["", "Tells used (programs): " + (", ".join(f"{k} {v}" for k, v in s["tells"].items()) or "none") + ".", ""]
+    if e["mixed"]:
+        L += ["Mixed programs:", ""]
+        L += [f"- {p}: {', '.join(t)}" for p, t in list(e["mixed"].items())[:20]]
+        if len(e["mixed"]) > 20:
+            L.append(f"- ... and {len(e['mixed']) - 20} more (see `--json`)")
+    return L
+
+
 def render_estate(m: dict[str, Any]) -> list[str]:
     L = [f"## {m['estate']}", ""]
     L.append(
@@ -359,6 +432,7 @@ def render_estate(m: dict[str, Any]) -> list[str]:
     )
     L += ["", "| status | features |", "|---|---|"]
     L += [f"| {s} | {n} |" for s, n in m["counts"].items()]
+    L += render_eras(m.get("eras"))
     L += ["", "### Features", ""]
     L += [
         "| feature | programs | status | best level | proving cases | rules (worst status; register caveats) | not yet met (charter section 5) |",
@@ -427,6 +501,24 @@ def render_estate(m: dict[str, Any]) -> list[str]:
     return [*L, ""]
 
 
+def render_non_burned_eras(nb: dict[str, Any]) -> list[str]:
+    """#5117: one table of the non-burned estates' era counts. Counts only: nothing per program is committed for them."""
+    L = ["## Era, non-burned estates (counts only)", ""]
+    L.append(
+        "Not burned, so no per-program data is committed (first-contact numbers stay first-contact); `census-*` labels "
+        "are opaque. A program's era is the latest era any of its tells reaches; none = no tell."
+    )
+    L += ["", "| estate | programs | 0 | 1 | 2 | 3 | 4 | none | mixed |", "|---|---|---|---|---|---|---|---|---|"]
+    for name, e in sorted(nb.items()):
+        b = e["by_era"]
+        L.append(
+            f"| {name} | {e['programs']} | "
+            + " | ".join(str(b[k]) for k in ("0", "1", "2", "3", "4", "none"))
+            + f" | {e['mixed']} |"
+        )
+    return [*L, ""]
+
+
 def render(matrix: dict[str, Any] | None = None) -> str:
     m = matrix or build()
     catalogue = (
@@ -461,6 +553,8 @@ def render(matrix: dict[str, Any] | None = None) -> str:
     ]
     for e in m["estates"].values():
         L += render_estate(e)
+    if m.get("non_burned_eras"):
+        L += render_non_burned_eras(m["non_burned_eras"])
     return "\n".join(L).rstrip() + "\n"
 
 

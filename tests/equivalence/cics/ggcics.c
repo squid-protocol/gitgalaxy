@@ -104,7 +104,7 @@ enum { NORMAL = DFHRESP_NORMAL, NOTFND = DFHRESP_NOTFND, LENGERR = DFHRESP_LENGE
        MAPFAIL = DFHRESP_MAPFAIL, ITEMERR = DFHRESP_ITEMERR, QIDERR = DFHRESP_QIDERR, INVREQ = DFHRESP_INVREQ,
        PGMIDERR = DFHRESP_PGMIDERR, ENDDATA = DFHRESP_ENDDATA, DUPREC = DFHRESP_DUPREC, DUPKEY = DFHRESP_DUPKEY, ENDFILE = DFHRESP_ENDFILE, ILLOGIC = DFHRESP_ILLOGIC,
        END = DFHRESP_END, TOKENERR = DFHRESP_TOKENERR, CONTAINERERR = DFHRESP_CONTAINERERR, CHANNELERR = DFHRESP_CHANNELERR,
-       SUPPRESSED = DFHRESP_SUPPRESSED };
+       SUPPRESSED = DFHRESP_SUPPRESSED, CCSIDERR = DFHRESP_CCSIDERR };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -122,10 +122,11 @@ static const char *current_program(void);
 static void refuse(const char *what);
 
 /* #4950 (X18, R1): a RUN TRANSID child its parent's wait dispatched ($GGCICS_CHILDOF) records only the end of its
- * task and the programs it runs; any other event is a region resource's or a terminal's, whose order against its
+ * task and the programs it runs -- and (#5089) its own RUN / FETCH / FREE CHILD and the CHILD of its own children,
+ * which concern only the tasks it started; any other event is a region resource's or a terminal's, whose order against its
  * parent's and its siblings' commands is not modelled. */
 static void child_may(const char *line, int verb) {
-    static const char *const ok[] = {"RETURN", "ABEND", "LINK", "XCTL"};
+    static const char *const ok[] = {"RETURN", "ABEND", "LINK", "XCTL", "RUN", "FETCH", "FREE-CHILD", "CHILD"};
     char msg[160];
     if (!getenv("GGCICS_CHILDOF")) return;
     for (size_t i = 0; i < sizeof ok / sizeof ok[0]; i++)
@@ -154,6 +155,9 @@ static void event(const char *line, const char *data, int len) {
         if (f) { fwrite(data, 1, (size_t)len, f); fclose(f); }
     }
 }
+
+/* #4892: an event of a model linked beside the stub (ggmq.c's MQI calls), in the task's own stream. */
+void ggcics_event(const char *line, const char *data, int len) { event(line, data, len); }
 
 /* ---- the task's inputs ------------------------------------------------------------ */
 int GGCLOAD(char *area, int maxlen) {
@@ -297,6 +301,22 @@ static int held_key(const char *file, const char *key, int klen) {
         }
     }
     return 0;
+}
+
+/* #5042 (register X58): the SET(ptr) blocks (defined with the pointer lane, below) that a command ends or must not change */
+static void blk_invalidate(const char *key);
+static void file_set_end(const char *kind, const char *file); /* ends the SET(ptr) blocks of "READ file" / "BROWSE file" */
+static void blk_invalidate_prefix(const char *prefix);
+static int blk_held(const char *key);
+static void *blk_set_new(const char *key, const void *data, size_t n, int sync);
+static void blk_invalidate_sync(void);
+static void file_set_end(const char *kind, const char *file) {
+    char key[96];
+    snprintf(key, sizeof key, "%s %s", kind, file);
+    blk_invalidate(key);
+}
+static void container_key(char *out, size_t n, const char *chan, const char *name) {
+    snprintf(out, n, "CONTAINER %s %s", chan, name);
 }
 
 static int has_hold(const char *file) {  /* #5092: a tokenless READ UPDATE holds a record of the file */
@@ -531,6 +551,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
             c->resp = NORMAL;
         }
     }
+    if (c->resp == NORMAL) file_set_end("READ", want);  /* IBM: a READ SET pointer is valid until a corresponding REWRITE completes */
     file_event("REWRITE", want, key, have ? klen : 0, c->resp);
     return 0;
 }
@@ -539,10 +560,16 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
  * A weak no-op DEFINITION, which ggsql.c's strong one overrides at link time. (A weak undefined REFERENCE checked
  * against NULL links on ELF but not on macOS, whose linker still requires it to resolve.) */
 __attribute__((weak)) void ggsql_uow_end(int rollback) { (void)rollback; }
+/* #4892 (W5): and the MQ model's (tests/equivalence/mq/ggmq.c), when a program CALLs MQI: the same weak default. */
+__attribute__((weak)) void ggmq_uow_end(int rollback) { (void)rollback; }
+
+static void td_uow_end(int rollback); /* #5168 */
 
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
     ggsql_uow_end(rollback);
+    ggmq_uow_end(rollback);
+    td_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
         if (!uow_saved[i][0]) continue;
@@ -552,6 +579,7 @@ static void uow_end(int rollback) {
         uow_saved[i][0] = 0;
     }
     release(NULL);
+    blk_invalidate_sync();  /* #5042: a READ UPDATE SET's, a browse SET's pointer */
 }
 
 static void browses_end(void); /* #4951 */
@@ -579,12 +607,11 @@ static char *load_records(const char *path, int reclen, long long *n);
  * for a record that has the same key (complete or generic) as that specified in the RIDFLD option is unsuccessful,
  * the first record that has a greater key is retrieved". Of the records whose key's first `cmp` bytes equal RIDFLD's
  * (or, GTEQ, are greater), the first in key order (the browse's byte order); -1 when none: NOTFND, RESP2 80. A GENERIC
- * KEYLENGTH not shorter than the key (INVREQ RESP2 25) or not above zero (42; zero undocumented) stops the run. */
+ * KEYLENGTH not shorter than the key or below zero is INVREQ (RESP2 25 / 42, GGCREAD); zero is undocumented and stops the run. */
 static long long read_search(gg_cics *c, const char *path, int reclen, int keyoff, int klen, const char *ridfld,
                              int keylen, char **all) {
     int gteq = strstr(c->flags, "GTEQ") != NULL, generic = strstr(c->flags, "GENERIC") != NULL;
-    if (generic && (keylen >= klen || keylen <= 0))
-        refuse("READ GENERIC KEYLENGTH not shorter than the key or not above zero");
+    if (generic && keylen == 0) refuse("READ GENERIC KEYLENGTH not above zero (zero is undocumented)");
     int cmp = generic ? keylen : klen;
     long long n, best = -1;
     *all = load_records(path, reclen, &n);
@@ -611,7 +638,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         c->resp = fresp;
         c->resp2 = fresp2;
         char key[256];
-        int shown = keylen < 200 ? keylen : 200;
+        int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
         memcpy(key, ridfld, (size_t)shown);
         key[shown] = '\0';
         snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
@@ -625,11 +652,21 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         while (fgets(line, sizeof line, cfg)) {
             if (sscanf(line, "%63s %2999s %d %d %d", name, path, &reclen, &keyoff, &klen) != 5) continue;
             if (strcmp(name, want) != 0) continue;
+            /* #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 (GENERIC KEYLENGTH "greater than or equal to the length of a
+             * full key"), 42 ("less than zero"), 26 (a KEYLENGTH without GENERIC that is not the key's length); GENERIC
+             * always carries KEYLENGTH. Nothing is read or held. */
+            int generic = strstr(c->flags, "GENERIC") != NULL, given = generic || strstr(c->flags, "KEYLENGTH") != NULL;
+            int bad = !given ? 0 : generic ? (keylen < 0 ? 42 : keylen >= klen ? 25 : 0) : keylen != klen ? 26 : 0;
+            if (bad) {
+                c->resp = INVREQ;
+                c->resp2 = bad;
+                break;
+            }
             c->resp = NOTFND;
+            c->resp2 = 80;  /* IBM: NOTFND RESP2 80, "an attempt to retrieve a record based on the search argument ... is unsuccessful" */
             int search = strstr(c->flags, "GTEQ") || strstr(c->flags, "GENERIC");
             char *found = NULL;
             long long at = search ? read_search(c, path, reclen, keyoff, klen, ridfld, keylen, &found) : -1;
-            if (search && at < 0) c->resp2 = 80;
             FILE *data = search ? NULL : fopen(path, "rb");
             char *rec = malloc((size_t)reclen);
             if (search && at >= 0 && rec) memcpy(rec, found + at * reclen, (size_t)reclen);
@@ -658,7 +695,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         fclose(cfg);
     }
     char key[256];
-    int shown = keylen < 200 ? keylen : 200;
+    int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
     memcpy(key, ridfld, (size_t)shown);
     key[shown] = '\0';
     dupkey_apply(c);
@@ -993,6 +1030,7 @@ int GGCENBR(gg_cics *c) {
     } else {
         br[s].active = 0;
         c->resp = NORMAL;
+        file_set_end("BROWSE", want);  /* IBM: "no longer valid after an ENDBR" */
     }
     snprintf(ev, sizeof ev, "ENDBR file=%s resp=%d", want, c->resp);
     event(ev, NULL, 0);
@@ -1001,8 +1039,10 @@ int GGCENBR(gg_cics *c) {
 
 /* DELETE FILE(name1) [RIDFLD]: the record with that key, or (no RIDFLD: GG-FLAGS 'HELD') the one a READ UPDATE
  * holds -- INVREQ when none is held; NOTFND when the key is not there. #4771: GG-FLAGS 'GENERIC', every record whose key
- * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none; a KEYLENGTH not shorter than the key, or not above
- * zero, refused: IBM's INVREQ 25 / 42, X22). */
+ * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none). #5092 (X22), IBM, EXEC CICS DELETE, INVREQ RESP2:
+ * 21 a DELETE of an ESDS, 22 a generic one of a non-KSDS (an ESDS here), 25 a GENERIC KEYLENGTH "greater than or equal to the
+ * length of a full key", 42 one below zero, 26 a KEYLENGTH without GENERIC (GG-FLAGS 'KEYLENGTH') that is not the key's
+ * length. Nothing is deleted or released. A GENERIC KEYLENGTH of zero is undocumented and stops the run. */
 int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -1016,13 +1056,28 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    keyed_on_esds("DELETE", want);
+    int generic = strstr(c->flags, "GENERIC") != NULL;
+    if (is_esds(want)) {  /* #5092: IBM INVREQ 21 (ESDS), 22 (generic delete of a non-KSDS); the key is not logged: an ESDS has none */
+        c->resp = INVREQ;
+        c->resp2 = generic ? 22 : 21;
+        file_event("DELETE", want, ridfld, 0, c->resp);
+        return 0;
+    }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    if (strstr(c->flags, "GENERIC") && (keylen <= 0 || keylen >= klen)) refuse("DELETE GENERIC KEYLENGTH");
+    int bad = 0;
+    if (generic) bad = keylen < 0 ? 42 : keylen >= klen ? 25 : 0;
+    else if (!by_hold && strstr(c->flags, "KEYLENGTH") && keylen != klen) bad = 26;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        file_event("DELETE", want, ridfld, 0, c->resp);  /* the key is not logged: KEYLENGTH may exceed RIDFLD */
+        return 0;
+    }
+    if (generic && keylen == 0) refuse("DELETE GENERIC KEYLENGTH not above zero (zero is undocumented)");
     char key[256];
     memset(key, 0, sizeof key);
     int s = -1;
@@ -1056,6 +1111,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         c->resp = gone ? NORMAL : NOTFND;
         c->resp2 = gone ? 0 : 80;
         free(all);
+        if (c->resp == NORMAL) file_set_end("READ", want);
         file_event("DELETE", want, key, keylen, c->resp);
         return 0;
     }
@@ -1076,6 +1132,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         c->resp = NORMAL;
     }
     free(all);
+    if (c->resp == NORMAL) file_set_end("READ", want);
     file_event("DELETE", want, key, klen, c->resp);
     return 0;
 }
@@ -1094,6 +1151,7 @@ int GGCUNLK(gg_cics *c) {
     if (!strstr(c->flags, "TOKEN")) {
         release(want);
         c->resp = NORMAL;
+        file_set_end("READ", want);  /* IBM: until a corresponding UNLOCK completes */
         return 0;
     }
     int ti = token_find(c->num, want);
@@ -1103,6 +1161,7 @@ int GGCUNLK(gg_cics *c) {
     } else {
         tokens[ti].id = 0;
         c->resp = NORMAL;
+        file_set_end("READ", want);
     }
     return 0;
 }
@@ -1394,6 +1453,30 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
     snprintf(ev, sizeof ev, "SEND-TEXT len=%d opts=%s", len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
+    return 0;
+}
+
+/* CONVERSE FROM FROMLENGTH INTO ... (#5079, X63; IBM, EXEC CICS CONVERSE (default)), as CicsTask.converse: the data written to the
+ * terminal (`from`, `fromlen` bytes), recorded as a plain SEND records it, then the terminal RECEIVE of the reply INTO `into` (GG-LEN the
+ * most taken, GG-FLAGS NOTRUNCATE; on return GG-LEN the reply's length). A negative `fromlen` is LENGERR with nothing sent and nothing
+ * read (GG-LEN -1: ASSUMED). Refused on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE). */
+int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
+    char saved[40];
+    int most = c->len;
+    if (getenv("GGCICS_LU2") != NULL) refuse("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
+    if (fromlen < 0) {
+        c->resp = LENGERR;
+        c->resp2 = 0;
+        c->len = -1;
+        return 0;
+    }
+    memcpy(saved, c->flags, sizeof saved);
+    memset(c->flags, ' ', sizeof saved);
+    memcpy(c->flags, "DATA", 4);
+    GGCSTXT(c, from, fromlen);
+    memcpy(c->flags, saved, sizeof saved);
+    c->len = most;
+    terminal_receive(c, into);
     return 0;
 }
 
@@ -1766,30 +1849,425 @@ int GGCASGN(gg_cics *c) {
     return 0;
 }
 
+/* ---- transient data (#5079, register X57) ---------------------------------------------------------------
+ * An intrapartition queue is a first-in first-out file: <ts root>/td-<hex of the name>/NNNNNN.bin, the records from
+ * `head` (the first one not yet read) on. tdqueues.cfg lists the CSD's queues, `NAME [TYPE]` (TYPE EXTRA: an
+ * extrapartition queue; any other, or none: intrapartition); absent, every queue is defined and intrapartition. */
+static void td_dir(const char *queue, char *dir, size_t size) {
+    const char *root = getenv("GGCICS_TS");
+    char hex[40];
+    hex[0] = '\0';
+    for (int i = 0; queue[i] && i < 16; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
+    if (root) snprintf(dir, size, "%s/td-%s", root, hex);
+    else snprintf(dir, size, "%s/ts/td-%s", dir_in(), hex);
+}
+
+/* 0: the CSD does not define the queue, 1: intrapartition (TYPE INTRA, or no TYPE column), 2: extrapartition, 3: any
+ * other TYPE, or none stated ("-"): a queue READQ TD / DELETEQ TD do not model. */
+static int td_kind(const char *queue) {
+    char path[4096], line[256], name[32], type[32];
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 1;
+    int kind = 0;
+    while (fgets(line, sizeof line, cfg)) {
+        type[0] = '\0';
+        if (sscanf(line, "%31s %31s", name, type) >= 1 && strcmp(name, queue) == 0)
+            kind = !type[0] || strcmp(type, "INTRA") == 0 ? 1 : strcmp(type, "EXTRA") == 0 ? 2 : 3;
+    }
+    fclose(cfg);
+    return kind;
+}
+
+static int td_head(const char *dir) {
+    char path[4200];
+    int head = 1;
+    snprintf(path, sizeof path, "%s/head", dir);
+    FILE *f = fopen(path, "r");
+    if (f) { if (fscanf(f, "%d", &head) != 1) head = 1; fclose(f); }
+    return head;
+}
+
+static int td_tail(const char *dir, int head) {
+    struct stat st;
+    char path[4200];
+    int n = head;
+    for (;;) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, n);
+        if (stat(path, &st) != 0) return n;
+        n++;
+    }
+}
+
+/* #5168: a queue's CSD attribute -- a KEY=VALUE word after NAME TYPE on its tdqueues.cfg line (RECOVSTATUS, TYPEFILE,
+ * OPENTIME, INDIRECTNAME, TRIGGERLEVEL, TRANSID: the cases write only the ones the definition states). 1 and `out` when stated. */
+static int td_attr(const char *queue, const char *key, char *out, size_t size) {
+    char path[4096], line[256], name[32];
+    int found = 0;
+    size_t klen = strlen(key);
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 0;
+    while (fgets(line, sizeof line, cfg)) {
+        char *w = strtok(line, " \t\r\n");
+        if (!w) continue;
+        snprintf(name, sizeof name, "%s", w);
+        if (strcmp(name, queue) != 0) continue;
+        found = 0;
+        out[0] = '\0';
+        strtok(NULL, " \t\r\n"); /* TYPE */
+        while ((w = strtok(NULL, " \t\r\n")) != NULL) {
+            if (strncmp(w, key, klen) == 0 && w[klen] == '=') { snprintf(out, size, "%s", w + klen + 1); found = 1; }
+        }
+    }
+    fclose(cfg);
+    return found;
+}
+
+/* The queue's own TYPE word ("" when none is stated or the CSD does not define it). */
+static int td_type_word(const char *queue, char *type, size_t size) {
+    char path[4096], line[256], name[32], t[32];
+    int found = 0;
+    type[0] = '\0';
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (!cfg) return 0;
+    while (fgets(line, sizeof line, cfg)) {
+        t[0] = '\0';
+        if (sscanf(line, "%31s %31s", name, t) >= 1 && strcmp(name, queue) == 0) {
+            found = 1;
+            snprintf(type, size, "%s", t);
+        }
+    }
+    fclose(cfg);
+    return found;
+}
+
+/* #5168 (X61): an INDIRECT queue routes to the queue its INDIRECTNAME names ("the name of the transient data queue to which
+ * this indirect queue routes data"; the target may itself be indirect). `target` is the queue that holds the records. Refused
+ * by name: an INDIRECT queue with no INDIRECTNAME, one whose target the CSD does not define, a chain that loops. */
+static void td_resolve(const char *queue, char *target) {
+    char type[32], next[32];
+    snprintf(target, 17, "%s", queue);
+    for (int hops = 0;; hops++) {
+        if (!td_type_word(target, type, sizeof type) || strcmp(type, "INDIRECT") != 0) return;
+        if (!td_attr(target, "INDIRECTNAME", next, sizeof next)) refuse("an INDIRECT TD queue without INDIRECTNAME: not modelled");
+        if (hops >= 8) refuse("a chain of INDIRECT TD queues that loops: not modelled");
+        if (!td_type_word(next, type, sizeof type)) refuse("an INDIRECT TD queue whose target the CSD does not define: not modelled");
+        snprintf(target, 17, "%s", next);
+    }
+}
+
+/* #5168 round 3 (X61): the run-time open state a SET TDQUEUE OPENSTATUS left, in a file beside the queue's directory (so it
+ * outlives the task, as the queue's records do): -1 none was set, 0 closed, 1 open. It overrides the CSD's OPENTIME. */
+static int td_open_override(const char *queue) {
+    char dir[4096], path[4200], word[16] = "";
+    td_dir(queue, dir, sizeof dir);
+    snprintf(path, sizeof path, "%s.open", dir);
+    FILE *f = fopen(path, "r");
+    if (!f) return -1;
+    if (fscanf(f, "%15s", word) != 1) word[0] = '\0';
+    fclose(f);
+    return strcmp(word, "OPEN") == 0 ? 1 : strcmp(word, "CLOSED") == 0 ? 0 : -1;
+}
+
+/* 1 when an extrapartition queue's data set is closed: the SET TDQUEUE state if there is one, else OPENTIME DEFERRED ("the data
+ * set remains closed until you indicate that you want to open it"); INITIAL (or none stated: ASSUMED) is open. */
+static int td_extra_closed(const char *queue) {
+    char open[16];
+    int set = td_open_override(queue);
+    if (set >= 0) return !set;
+    return td_attr(queue, "OPENTIME", open, sizeof open) && strcmp(open, "DEFERRED") == 0;
+}
+
+/* #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed (td_extra_closed). Refused: a
+ * TYPEFILE other than INPUT / OUTPUT (RDBACK, or none stated). */
+static int td_extra_state(const char *queue) {
+    char file[16];
+    if (!td_attr(queue, "TYPEFILE", file, sizeof file) || (strcmp(file, "INPUT") != 0 && strcmp(file, "OUTPUT") != 0))
+        refuse("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
+    if (td_extra_closed(queue)) return 2;
+    return strcmp(file, "INPUT") == 0 ? 0 : 1;
+}
+
+/* #5168 (X61): automatic task initiation is not modelled: a WRITEQ TD that brings a queue with a TRANSID to its TRIGGERLEVEL
+ * (default 1; 0 turns ATI off) would start that task. */
+static void td_ati_check(const char *queue, int records_after) {
+    char transid[16], level[16];
+    int n = 1;
+    if (!td_attr(queue, "TRANSID", transid, sizeof transid)) return;
+    if (td_attr(queue, "TRIGGERLEVEL", level, sizeof level)) n = atoi(level);
+    if (n > 0 && records_after >= n) refuse("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task initiation is not modelled");
+}
+
+static void td_base(void) {
+    const char *root = getenv("GGCICS_TS");
+    char base[4096];
+    if (root) snprintf(base, sizeof base, "%s", root);
+    else snprintf(base, sizeof base, "%s/ts", dir_in());
+    MKDIR(base);
+}
+
+static void td_clear(const char *dir) {
+    char path[4200];
+    int head = td_head(dir), tail = td_tail(dir, head);
+    for (int i = head; i < tail; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/head", dir);
+    remove(path);
+    RMDIR(dir);
+}
+
+static void td_copy_dir(const char *from, const char *to) {
+    char a[4200], b[4200];
+    int head = td_head(from), tail = td_tail(from, head);
+    MKDIR(to);
+    for (int i = head; i < tail; i++) {
+        snprintf(a, sizeof a, "%s/%06d.bin", from, i);
+        snprintf(b, sizeof b, "%s/%06d.bin", to, i);
+        copy_file(a, b);
+    }
+    if (head != tail) {
+        snprintf(b, sizeof b, "%s/head", to);
+        FILE *f = fopen(b, "w");
+        if (f) { fprintf(f, "%d\n", head); fclose(f); }
+    }
+}
+
+/* #5168 (X61): RECOVSTATUS. LOGICAL: "restored to the state at the end of the last completed unit of work" -- the first read, write or
+ * delete of the queue since the last SYNCPOINT saves it aside (<dir>.uow), SYNCPOINT drops the copy, SYNCPOINT ROLLBACK puts it back.
+ * NO (and none stated: ASSUMED) commits at once, as X57. PHYSICAL ("the last READQ is backed out if its unit of work did not commit"):
+ * a SYNCPOINT ROLLBACK after touching one is refused by name. */
+#define MAX_TD_UOW 16
+static char td_uow_q[MAX_TD_UOW][17];
+static int td_uow_logical[MAX_TD_UOW], td_uow_n;
+
+static void td_touch(const char *queue) {
+    char rec[16], dir[4096], aside[4200];
+    int logical;
+    if (!td_attr(queue, "RECOVSTATUS", rec, sizeof rec)) return;
+    logical = strcmp(rec, "LOGICAL") == 0;
+    if (!logical && strcmp(rec, "PHYSICAL") != 0) return;
+    for (int i = 0; i < td_uow_n; i++) if (strcmp(td_uow_q[i], queue) == 0) return;
+    if (td_uow_n >= MAX_TD_UOW) refuse("a unit of work that touches more than 16 recoverable TD queues");
+    snprintf(td_uow_q[td_uow_n], sizeof td_uow_q[0], "%s", queue);
+    td_uow_logical[td_uow_n++] = logical;
+    if (logical) {
+        td_base();
+        td_dir(queue, dir, sizeof dir);
+        snprintf(aside, sizeof aside, "%s.uow", dir);
+        td_clear(aside);
+        td_copy_dir(dir, aside);
+    }
+}
+
+static void td_uow_end(int rollback) {
+    char dir[4096], aside[4200];
+    for (int i = 0; i < td_uow_n; i++) {
+        if (!td_uow_logical[i]) {
+            if (rollback) refuse("SYNCPOINT ROLLBACK after a READQ / WRITEQ / DELETEQ TD of a PHYSICALLY recoverable queue: not modelled");
+            continue;
+        }
+        td_dir(td_uow_q[i], dir, sizeof dir);
+        snprintf(aside, sizeof aside, "%s.uow", dir);
+        if (rollback) {
+            td_clear(dir);
+            td_copy_dir(aside, dir);
+        }
+        td_clear(aside);
+    }
+    td_uow_n = 0;
+}
+
 /* WRITEQ TD QUEUE(qname) FROM LENGTH(GG-LEN): one record on a transient-data queue -- recorded with its data and
- * compared (CardDemo's CORPT00C submits JCL through the JOBS queue). QIDERR for a queue the CSD does not define
- * (tdqueues.cfg; absent, every queue is defined). */
+ * compared (CardDemo's CORPT00C submits JCL through the JOBS queue), and appended to an intrapartition queue for a
+ * READQ TD to read. QIDERR for a queue the CSD does not define (tdqueues.cfg; absent, every queue is defined). */
 int GGCWRTD(gg_cics *c, char *from) {
-    char queue[17], line[256], name[32], ev[96], path[4096];
-    int fresp, fresp2, defined = 1;
+    char queue[17], target[17], ev[96], dir[4096], path[4200];
+    int fresp, fresp2, kind;
     trim(c->qname, 16, queue);
     c->resp = NORMAL;
     c->resp2 = 0;
-    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
-    FILE *cfg = fopen(path, "r");
-    if (cfg) {
-        defined = 0;
-        while (fgets(line, sizeof line, cfg)) if (sscanf(line, "%31s", name) == 1 && strcmp(name, queue) == 0) defined = 1;
-        fclose(cfg);
-    }
+    td_resolve(queue, target); /* #5168: an INDIRECT queue holds its records on its target */
+    kind = td_kind(target);
     if (injected("WRITEQ-TD", queue, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-    } else if (!defined) {
+    } else if (!kind) {
         c->resp = QIDERR;
+    } else if (kind == 2) {
+        /* #5168 (X61): IBM WRITEQ TD: INVREQ for an extrapartition queue opened for input, NOTOPEN for a closed one. A queue with no
+         * TYPEFILE (or RDBACK) is still taken as open for output (ASSUMED), as before. */
+        char file[16];
+        if (td_extra_closed(target)) c->resp = DFHRESP_NOTOPEN;
+        else if (td_attr(target, "TYPEFILE", file, sizeof file) && strcmp(file, "INPUT") == 0) c->resp = INVREQ;
+    }
+    if (c->resp == NORMAL && kind == 1) {
+        td_base();
+        td_dir(target, dir, sizeof dir);
+        td_touch(target);
+        td_ati_check(target, td_tail(dir, td_head(dir)) - td_head(dir) + 1);
+        MKDIR(dir);
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, td_tail(dir, td_head(dir)));
+        FILE *f = fopen(path, "wb");
+        if (f) { if (c->len > 0) fwrite(from, 1, (size_t)c->len, f); fclose(f); }
     }
     snprintf(ev, sizeof ev, "WRITEQ-TD queue=%s len=%d resp=%d", queue, c->len, c->resp);
     event(ev, c->resp == NORMAL ? from : NULL, c->resp == NORMAL ? c->len : 0);
+    return 0;
+}
+
+/* READQ TD QUEUE INTO LENGTH(c->len) (IBM, EXEC CICS READQ TD): a destructive read, first in first out. QIDERR when the
+ * CSD does not define the queue; QZERO when it holds no record; LENGERR for a LENGTH below zero (nothing is read) or a
+ * record longer than LENGTH (the record is read, so lost, and INTO gets its first LENGTH bytes; LENGTH 0: none); LENGTH
+ * is set to the record's own length. An extrapartition queue, a record moved past INTO: refused (X57, X6). */
+int GGCRDTD(gg_cics *c, char *into, int intolen) {
+    char queue[17], hex[40], dir[4096], path[4200], ev[160], buf[32768];
+    char target[17];
+    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0;
+    trim(c->qname, 16, queue);
+    hex[0] = '\0';
+    for (int i = 0; queue[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    td_resolve(queue, target); /* #5168 */
+    kind = td_kind(target);
+    if (kind == 3) refuse("READQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+    if (kind == 2) state = td_extra_state(target); /* #5168: closed NOTOPEN, open for output INVREQ; IOERR: refused, no data set */
+    if (!kind) {
+        c->resp = QIDERR;
+    } else if (state == 2) {
+        c->resp = DFHRESP_NOTOPEN;
+    } else if (state == 1) {
+        c->resp = INVREQ;
+    } else if (max < 0) {
+        c->resp = LENGERR;
+    } else {
+        td_touch(target);
+        td_dir(target, dir, sizeof dir);
+        int head = td_head(dir), tail = td_tail(dir, head);
+        if (head == tail) {
+            c->resp = DFHRESP_QZERO;
+        } else {
+            snprintf(path, sizeof path, "%s/%06d.bin", dir, head);
+            FILE *f = fopen(path, "rb");
+            if (f) { n = (int)fread(buf, 1, sizeof buf, f); fclose(f); }
+            copied = n < max ? n : max;
+            if (copied > intolen) refuse("READQ TD INTO LENGTH: a record moved past INTO");
+            memcpy(into, buf, (size_t)copied);
+            c->resp = n > max ? LENGERR : NORMAL;
+            c->len = shown = n;
+            remove(path);
+            snprintf(path, sizeof path, "%s/head", dir);
+            f = fopen(path, "w");
+            if (f) { fprintf(f, "%d\n", head + 1); fclose(f); }
+        }
+    }
+    snprintf(ev, sizeof ev, "READQ-TD queue=%s resp=%d len=%d copied=%d", hex, c->resp, shown, copied);
+    event(ev, into, copied);
+    return 0;
+}
+
+/* DELETEQ TD QUEUE (IBM, EXEC CICS DELETEQ TD): every record of an intrapartition queue; QIDERR when the CSD does not
+ * define it, INVREQ (RESP2 0: IBM lists none) for an extrapartition queue. */
+int GGCDLTD(gg_cics *c) {
+    char queue[17], target[17], dir[4096], path[4200];
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    td_resolve(queue, target); /* #5168 */
+    int kind = td_kind(target);
+    if (!kind) { c->resp = QIDERR; return 0; }
+    if (kind == 2) { c->resp = INVREQ; return 0; }
+    if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+    td_touch(target);
+    td_dir(target, dir, sizeof dir);
+    int head = td_head(dir), tail = td_tail(dir, head);
+    for (int i = head; i < tail; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/head", dir);
+    remove(path);
+    RMDIR(dir);
+    return 0;
+}
+
+/* READQ TD SET(ptr) LENGTH (#5168, X61): the record as one block, valid until the next READQ TD ("until the next READQ TD or the end of
+ * the task"); answers as the INTO form does (the same conditions and event). */
+int GGCRDTS(gg_cics *c, void **slot) {
+    static char buf[32768];
+    c->len = (int)sizeof buf;
+    GGCRDTD(c, buf, (int)sizeof buf);
+    if (c->resp == NORMAL) *slot = blk_set_new("READQ TD", buf, (size_t)c->len, 0);
+    return 0;
+}
+
+/* ---- #5168 round 3 (X61): SET / INQUIRE TDQUEUE OPENSTATUS (IBM CICS TS 6.x, SET TDQUEUE, INQUIRE TDQUEUE) ----
+ * The queue is in GG-QNAME. CVDAs: OPEN 18, CLOSED 19, NOTAPPLIC 1; TYPE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4.
+ * SET OPENSTATUS (extrapartition queues only; the data set "is to be opened / closed"): QIDERR RESP2 1 (the queue cannot be
+ * found), INVREQ RESP2 9 for an intrapartition queue, RESP2 8 for an invalid CVDA. The state outlives the task (td_open_override)
+ * and replaces OPENTIME. Setting the state a queue is already in is NORMAL (ASSUMED). Refused by name: an INDIRECT / REMOTE queue
+ * (IBM names only intrapartition), an invalid CVDA on a queue that is not extrapartition (IBM does not order RESP2 8 / 9 / QIDERR),
+ * OPEN with no TYPEFILE INPUT / OUTPUT (no direction to open it in), OPEN of an input queue that has been read (reopening
+ * restarts the data set; the records are consumed), RESP2 16 (the DDNAME is taken as found). INQUIRE: QIDERR RESP2 1; OPENSTATUS
+ * (GG-NUM) OPEN / CLOSED for an extrapartition queue, NOTAPPLIC ("the queue is not extrapartition") for the others; TYPE (GG-LEN);
+ * GG-FLAGS says which are wanted, and a queue with no TYPE stated is refused for either. */
+static int td_type_cvda(const char *queue, int kind, char *word, size_t size) {
+    td_type_word(queue, word, size);
+    if (kind == 1) return 222;
+    if (kind == 2) return 221;
+    if (strcmp(word, "INDIRECT") == 0) return 122;
+    if (strcmp(word, "REMOTE") == 0) return 4;
+    refuse("INQUIRE TDQUEUE of a queue with no TYPE stated");
+    return 0;
+}
+
+int GGCSTDQ(gg_cics *c) {
+    char queue[17], file[16], dir[4096], path[4200];
+    int cvda = c->num, kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (cvda != 18 && cvda != 19 && kind != 2)
+        refuse("SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition: IBM does not say which condition comes first");
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (kind == 1) { c->resp = INVREQ; c->resp2 = 9; return 0; }
+    if (kind == 3) refuse("SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue");
+    if (cvda != 18 && cvda != 19) { c->resp = INVREQ; c->resp2 = 8; return 0; }
+    td_dir(queue, dir, sizeof dir);
+    if (cvda == 18) {
+        if (!td_attr(queue, "TYPEFILE", file, sizeof file) || (strcmp(file, "INPUT") != 0 && strcmp(file, "OUTPUT") != 0))
+            refuse("SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE INPUT / OUTPUT");
+        if (strcmp(file, "INPUT") == 0 && td_head(dir) != 1)
+            refuse("SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read: reopening restarts the data set");
+    }
+    td_base();
+    snprintf(path, sizeof path, "%s.open", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%s\n", cvda == 18 ? "OPEN" : "CLOSED"); fclose(f); }
+    return 0;
+}
+
+int GGCITDQ(gg_cics *c) {
+    char queue[17], word[32];
+    int kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (strstr(c->flags, "TYPE")) c->len = td_type_cvda(queue, kind, word, sizeof word);
+    if (strstr(c->flags, "OPENSTATUS")) {
+        if (kind == 2) c->num = td_extra_closed(queue) ? 19 : 18;
+        else {
+            td_type_cvda(queue, kind, word, sizeof word);
+            c->num = 1;
+        }
+    }
     return 0;
 }
 
@@ -2019,7 +2497,7 @@ int GGCLRET(gg_cics *c) {
  * (#4270, X24) the containers a task leaves on its first program's current channel are compared at its end. */
 #define MAX_CHANNELS 64
 #define MAX_CONTAINERS 64
-typedef struct { char name[17]; int bit; char *data; int len; int used; long long order; } gg_container; /* order: creation order (#4951) */
+typedef struct { char name[17]; int bit; int ccsid; char *data; int len; int used; long long order; } gg_container; /* order: creation order (#4951); ccsid: a CHAR container's CCSID (#4270, X17), 0 for BIT */
 typedef struct { char name[17]; gg_container c[MAX_CONTAINERS]; int shape; } gg_channel; /* shape: containers added + removed (#4951) */
 static gg_channel chans[MAX_CHANNELS];
 static int nchans = 0;
@@ -2119,6 +2597,63 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
 
 static long long container_seq = 0;
 
+/* #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140, and 1208 (UTF-8) for ASCII bytes only -- as CicsTask.convertContainer:
+ * a program's byte is read as the region's page (037), and a conversion is the character-to-character map between the pages.
+ * 500 permutes seven characters of 037's repertoire (the cent sign, the broken bar, the exclamation mark, the not sign, the
+ * circumflex and the two square brackets); 1140 is 037 with the euro for the currency sign, so that character has no image in
+ * 037 or 500 and nothing converts to or from it; a 1208 byte or character beyond ASCII (multibyte) is refused. */
+#define REGION_CCSID 37
+static void ccsid_ok(int ccsid, const char *what) {
+    char msg[96];
+    if (ccsid != 37 && ccsid != 500 && ccsid != 1140 && ccsid != 1208) {
+        snprintf(msg, sizeof msg, "%s(%d): only the CCSIDs 37, 500, 1140 and 1208 are modelled", what, ccsid);
+        refuse(msg);
+    }
+}
+static const unsigned char ccsid_500_from[7] = {0xA2, 0x7C, 0x21, 0xAC, 0x5E, 0x5B, 0x5D}; /* in 037 ... */
+static const unsigned char ccsid_500_to[7]   = {0x5E, 0x5D, 0x7C, 0x5B, 0xAC, 0xA2, 0x21}; /* ... as 500 reads them */
+/* CCSID 1208 (UTF-8) data is ASCII here, one byte a character: the region's page decodes an EBCDIC byte below X'80' as these characters */
+static const unsigned char EBCDIC037_LOW[128] = {
+    0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+    0x10, 0x11, 0x12, 0x13, 0x9D, 0x85, 0x08, 0x87, 0x18, 0x19, 0x92, 0x8F, 0x1C, 0x1D, 0x1E, 0x1F,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x0A, 0x17, 0x1B, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x05, 0x06, 0x07,
+    0x90, 0x91, 0x16, 0x93, 0x94, 0x95, 0x96, 0x04, 0x98, 0x99, 0x9A, 0x9B, 0x14, 0x15, 0x9E, 0x1A,
+    0x20, 0xA0, 0xE2, 0xE4, 0xE0, 0xE1, 0xE3, 0xE5, 0xE7, 0xF1, 0xA2, 0x2E, 0x3C, 0x28, 0x2B, 0x7C,
+    0x26, 0xE9, 0xEA, 0xEB, 0xE8, 0xED, 0xEE, 0xEF, 0xEC, 0xDF, 0x21, 0x24, 0x2A, 0x29, 0x3B, 0xAC,
+    0x2D, 0x2F, 0xC2, 0xC4, 0xC0, 0xC1, 0xC3, 0xC5, 0xC7, 0xD1, 0xA6, 0x2C, 0x25, 0x5F, 0x3E, 0x3F,
+    0xF8, 0xC9, 0xCA, 0xCB, 0xC8, 0xCD, 0xCE, 0xCF, 0xCC, 0x60, 0x3A, 0x23, 0x40, 0x27, 0x3D, 0x22,
+};
+static unsigned char ccsid_perm500(unsigned char b, int to500) {
+    for (int j = 0; j < 7; j++) {
+        if (to500 && b == ccsid_500_from[j]) return ccsid_500_to[j];
+        if (!to500 && b == ccsid_500_to[j]) return ccsid_500_from[j];
+    }
+    return b;
+}
+static void ccsid_convert(char *d, int len, int from, int to, const char *what) {
+    if (from == to) return;
+    ccsid_ok(from, what);
+    ccsid_ok(to, what);
+    for (int i = 0; i < len; i++) {
+        unsigned char b = (unsigned char)d[i], ch = b;
+        if (from == 1208) {
+            int real = -1;  /* the byte the region's page encodes b as, when it is below X'80' */
+            for (int j = 0; j < 128; j++) if (EBCDIC037_LOW[j] == b) { real = j; break; }
+            if (real < 0) refuse("code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            ch = (unsigned char)real;
+        } else if (from == 500) {
+            ch = ccsid_perm500(b, 0);  /* the character CCSID 500 reads at the byte the region's page reads as b */
+        }
+        if (to == 1208) {
+            if (ch >= 0x80) refuse("code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte sequence)");
+            d[i] = (char)EBCDIC037_LOW[ch];
+            continue;
+        }
+        if (ch == 0xA4 && (from == 1140 || to == 1140)) refuse("code-page conversion of a character the target CCSID lacks");
+        d[i] = (char)(to == 500 ? ccsid_perm500(ch, 1) : ch);
+    }
+}
+
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
     gg_container *free_slot = NULL;
     for (int i = 0; i < MAX_CONTAINERS; i++) {
@@ -2141,10 +2676,11 @@ static gg_container *container_named(gg_channel *ch, const char *name, int creat
  * type for an existing one is refused, below). The data replaces the container's, or follows it. */
 int GGCPUTC(gg_cics *c, char *from) {
     char flags[41], name[17];
-    int bit, chr, ch;
+    int bit, chr, ch, from_ccsid;
     trim(c->flags, 40, flags);
     bit = strstr(flags, "BIT") != NULL;
     chr = strstr(flags, "CHAR") != NULL;
+    from_ccsid = strstr(flags, "FROMCCSID") != NULL ? c->num : -1; /* GG-NUM: the CCSID of FROM's data (#4270, X17) */
     c->resp = NORMAL;
     c->resp2 = 0;
     int bad_name = cics_name_check(c->qname, name, "container");
@@ -2170,34 +2706,63 @@ int GGCPUTC(gg_cics *c, char *from) {
         c->resp = CONTAINERERR; c->resp2 = 18;
         return 0;
     }
-    ch = command_channel(c, 1, bit || chr ? 1 : 4);
+    if (from_ccsid >= 0 && (bit || chr) && !strstr(flags, "CHANNEL") && !levels[lvl].cur) refuse("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and IBM ranks neither");
+    ch = command_channel(c, 1, from_ccsid >= 0 ? 2 : bit || chr ? 1 : 4);
     if (!ch) return 0;
+    if (from_ccsid >= 0) {
+        ccsid_ok(from_ccsid, "PUT CONTAINER FROMCCSID");
+        if (c->len < 0) refuse("PUT CONTAINER FROMCCSID with a negative FLENGTH: which condition IBM raises first is not documented");
+        if (bit) { c->resp = INVREQ; c->resp2 = 34; return 0; }
+    }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     gg_container *k = container_named(&chans[ch - 1], name, 0);
+    if (k) {
+        char key[96];
+        container_key(key, sizeof key, chans[ch - 1].name, name);
+        if (blk_held(key)) refuse("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees");
+    }
     /* the other data type for an existing container: IBM says both that DATATYPE "applies only to new
      * containers" and that changing it is INVREQ RESP2 33 -- not settled, refused */
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
+    if (k && k->bit && from_ccsid >= 0) refuse("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
+    chr = chr || from_ccsid >= 0;
+    int prepend = strstr(flags, "PREPEND") != NULL; /* #5005 (X17): BIT containers only */
+    if (prepend && (chr || (k && !k->bit))) refuse("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
+    int fresh = k == NULL;
     if (!k) {
         k = container_named(&chans[ch - 1], name, 1);
         k->bit = !chr;
+        k->ccsid = chr ? (from_ccsid >= 0 ? from_ccsid : REGION_CCSID) : 0;
     }
-    if (strstr(flags, "APPEND")) {
-        char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
+    char *put = malloc((size_t)c->len + 1);
+    if (!put) refuse("out of memory");
+    memcpy(put, from, (size_t)c->len);
+    if (!fresh && !k->bit) ccsid_convert(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER");
+    if (prepend && !fresh) {
+        char *joined = malloc((size_t)(k->len + c->len) + 1);
         if (!joined) refuse("out of memory");
-        memcpy(joined + k->len, from, (size_t)c->len);
+        memcpy(joined, put, (size_t)c->len);
+        if (k->len > 0) memcpy(joined + c->len, k->data, (size_t)k->len);
+        free(k->data);
+        free(put);
         k->data = joined;
         k->len += c->len;
+    } else if (strstr(flags, "APPEND")) {
+        char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
+        if (!joined) refuse("out of memory");
+        memcpy(joined + k->len, put, (size_t)c->len);
+        k->data = joined;
+        k->len += c->len;
+        free(put);
     } else {
         free(k->data);
-        k->data = malloc((size_t)c->len + 1);
-        if (!k->data) refuse("out of memory");
-        memcpy(k->data, from, (size_t)c->len);
+        k->data = put;
         k->len = c->len;
     }
     return 0;
 }
 
-/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH | NODATA (GG-FLAGS); GG-LEN in: the most INTO
+/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH [BYTEOFFSET: GG-NUM] | NODATA (GG-FLAGS); GG-LEN in: the most INTO
  * takes; out: the container's length (NORMAL, LENGERR; else left as it came). CHANNELERR RESP2 2,
  * INVREQ RESP2 4, CONTAINERERR RESP2 10; longer data truncated, LENGERR RESP2 11. */
 int GGCGETC(gg_cics *c, char *into) {
@@ -2207,16 +2772,46 @@ int GGCGETC(gg_cics *c, char *into) {
     c->resp = NORMAL;
     c->resp2 = 0;
     cics_name(c->qname, name, "container");
-    ch = command_channel(c, 0, 4);
+    int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1; /* GG-NUM in: INTOCCSID / INTOCODEPAGE (#4270, X17) */
+    ch = command_channel(c, 0, into_ccsid >= 0 ? 2 : 4);
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    if (k->bit && into_ccsid >= 0) {
+        /* IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated */
+        if (!strstr(flags, "NODATA")) {
+            if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+            if (k->len > c->len) refuse("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins is not documented");
+            memcpy(into, k->data ? k->data : "", (size_t)k->len);
+        }
+        c->num = 0;
+        c->resp = CCSIDERR; c->resp2 = 3;
+        return 0;
+    }
+    if (strstr(flags, "BYTEOFFSET")) {
+        /* #5005 (X17), as CicsTask.getContainerAt: from the offset (below zero: zero); at or past the end LENGERR RESP2 12 with
+         * FLENGTH and INTO left alone (ASSUMED); FLENGTH set to the length returned */
+        if (!k->bit) refuse("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
+        if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+        int at = c->num < 0 ? 0 : c->num, left = k->len - at;
+        if (at >= k->len) { c->resp = LENGERR; c->resp2 = 12; return 0; }
+        if (left > c->len) refuse("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length returned or the container's is not documented");
+        memcpy(into, k->data + at, (size_t)left);
+        c->len = left;
+        return 0;
+    }
+    char *conv = malloc((size_t)k->len + 1);
+    if (!conv) refuse("out of memory");
+    memcpy(conv, k->data ? k->data : "", (size_t)k->len);
+    if (!k->bit && !strstr(flags, "NOCONVERT")) ccsid_convert(conv, k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER");
+    c->num = k->bit ? 0 : k->ccsid; /* GG-NUM out: the container's CCSID (CCSID(area)) */
     if (!strstr(flags, "NODATA")) {
         if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
         int n = k->len < c->len ? k->len : c->len;
-        memcpy(into, k->data, (size_t)n);
+        memcpy(into, conv, (size_t)n);
         if (k->len > c->len) { c->resp = LENGERR; c->resp2 = 11; }
     }
+    free(conv);
     c->len = k->len;
     return 0;
 }
@@ -2232,6 +2827,11 @@ int GGCDELC(gg_cics *c) {
     if (!ch) return 0;
     gg_container *k = container_named(&chans[ch - 1], name, 0);
     if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    {
+        char key[96];
+        container_key(key, sizeof key, chans[ch - 1].name, name);
+        blk_invalidate(key);  /* IBM: GET CONTAINER SET's data area is kept until "deleted by a DELETE CONTAINER" */
+    }
     free(k->data);
     memset(k, 0, sizeof *k);
     chans[ch - 1].shape++;
@@ -2251,6 +2851,11 @@ int GGCDELH(gg_cics *c) {
     int ch = channel_named(name, 0);
     if (!ch) { c->resp = CHANNELERR; c->resp2 = 2; return 0; }
     if (ch == levels[lvl].cur) refuse("DELETE CHANNEL of the current channel");
+    {
+        char key[96];
+        container_key(key, sizeof key, chans[ch - 1].name, "");
+        blk_invalidate_prefix(key);  /* IBM: until "deleted by a DELETE CHANNEL command" */
+    }
     for (int i = 0; i < MAX_CONTAINERS; i++) {
         if (chans[ch - 1].c[i].used) free(chans[ch - 1].c[i].data);
         memset(&chans[ch - 1].c[i], 0, sizeof chans[ch - 1].c[i]);
@@ -2307,10 +2912,22 @@ int GGCMOVC(gg_cics *c) {
     gg_container *dst = to ? container_named(&chans[to - 1], target, 0) : NULL;
     if (to == from && strcmp(name, target) == 0) refuse("MOVE CONTAINER onto itself");
     if (dst && dst->bit != src->bit) refuse("MOVE CONTAINER onto a container of the other data type");
+    if (dst && dst->ccsid != src->ccsid) refuse("MOVE CONTAINER onto a container of another CCSID");
+    if (dst) {
+        char key[96];
+        container_key(key, sizeof key, chans[to - 1].name, target);
+        if (blk_held(key)) refuse("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees");
+    }
+    {
+        char key[96];
+        container_key(key, sizeof key, chans[from - 1].name, name);
+        blk_invalidate(key);  /* IBM: until "moved by a MOVE CONTAINER command" */
+    }
     if (!to) to = channel_named(tn, 1);
     if (!dst) {
         dst = container_named(&chans[to - 1], target, 1);
         dst->bit = src->bit;
+        dst->ccsid = src->ccsid;
     } else {
         free(dst->data);
     }
@@ -2426,7 +3043,7 @@ static int channel_in; /* a channel.cfg was read: the task's containers are writ
 /* A channel.cfg-format file (its name line, then `NAME BIT|CHAR HEX` per container, '-' for no bytes) as a channel in
  * the current level's scope, named `as` (NULL: the file's own name); its index + 1, 0 when there is no file. */
 static int load_channel(const char *path, const char *as) {
-    char name[17], word[32], type[8];
+    char name[17], word[32], type[16];
     size_t size = 1 << 20;
     FILE *f = fopen(path, "r");
     if (!f) return 0;
@@ -2437,9 +3054,10 @@ static int load_channel(const char *path, const char *as) {
     while (fgets(line, (int)size, f)) {
         char *hex = malloc(size);
         if (!hex) refuse("out of memory");
-        if (sscanf(line, "%31s %7s %s", word, type, hex) != 3 || strlen(word) > 16) refuse("channel.cfg: a container line");
+        if (sscanf(line, "%31s %15s %s", word, type, hex) != 3 || strlen(word) > 16) refuse("channel.cfg: a container line");
         gg_container *k = container_named(&chans[ch - 1], word, 1);
-        k->bit = strcmp(type, "CHAR") != 0;
+        k->bit = strncmp(type, "CHAR", 4) != 0;
+        k->ccsid = k->bit ? 0 : (type[4] == ':' ? atoi(type + 5) : REGION_CCSID); /* CHAR:n, a CCSID other than the region's */
         size_t n = strcmp(hex, "-") == 0 ? 0 : strlen(hex) / 2;
         k->data = malloc(n + 1);
         if (!k->data) refuse("out of memory");
@@ -2459,7 +3077,10 @@ static void save_channel(const gg_channel *ch, const char *path) {
     fprintf(f, "%s\n", ch->name);
     for (int i = 0; i < MAX_CONTAINERS; i++) {
         if (!ch->c[i].used) continue;
-        fprintf(f, "%s %s ", ch->c[i].name, ch->c[i].bit ? "BIT" : "CHAR");
+        fprintf(f, "%s ", ch->c[i].name);
+        if (ch->c[i].bit) fprintf(f, "BIT ");
+        else if (ch->c[i].ccsid == REGION_CCSID) fprintf(f, "CHAR ");
+        else fprintf(f, "CHAR:%d ", ch->c[i].ccsid);
         if (!ch->c[i].len) fprintf(f, "-");
         for (int j = 0; j < ch->c[i].len; j++) fprintf(f, "%02X", (unsigned char)ch->c[i].data[j]);
         fprintf(f, "\n");
@@ -2700,6 +3321,30 @@ int GGCDELQ(gg_cics *c) {
 static struct { char reqid[17]; time_t expires; int cancelled; int data; } own[64];
 static int nown = 0;
 
+/* ---- #5079 (register X63): POST and WAIT EVENT, as CicsTask.post / waitEvent. The timer-event control area is a 4-byte block of
+ * task storage (blk_set_new), posted (first byte X'40', third X'80') by a WAIT EVENT, which runs the stated clock to the expiry, or by
+ * a CANCEL of the POST. A task has one live POST: a later POST, a local START or a DELAY ends it (IBM, POST), and a WAIT EVENT on
+ * an area so ended is refused. */
+static struct { void *area; int released; } post_areas[64];
+static int npost_areas = 0, post_seq = 0;
+static void *post_live = NULL;
+static time_t post_at = 0;
+static char post_reqid[17] = "";
+
+static void post_release(void) {
+    if (!post_live) return;
+    for (int i = 0; i < npost_areas; i++) if (post_areas[i].area == post_live) post_areas[i].released = 1;
+    for (int i = 0; i < nown; i++) if (strcmp(own[i].reqid, post_reqid) == 0) own[i].cancelled = 1;
+    post_live = NULL;
+    post_reqid[0] = '\0';
+}
+
+static void post_area(void *area) {
+    unsigned char *b = (unsigned char *)area;
+    b[0] = 0x40;
+    b[2] = 0x80;
+}
+
 /* #4270: AFTER / AT's HOURS, MINUTES, SECONDS (-1: not given) as hhmmss, or -4 / -5 / -6 (INVREQ's RESP2,
  * negated) for the first one out of range (IBM, EXEC CICS START, AFTER: "A combination of at least two of
  * HOURS(0 - 99), MINUTES(0 - 59), and SECONDS(0 - 59)", or "one of HOURS(0 - 99), MINUTES(0 - 5999), or
@@ -2831,6 +3476,7 @@ int GGCSTRT(gg_cics *c, char *from) {
         at = now + hh * 3600 + mm * 60 + ss;
     }
     if (c->resp == NORMAL) {
+        post_release();  /* #5079 (X63): IBM, POST: a local START ends the POST's area */
         iso(at, expires, sizeof expires);
         if (reqid[0] && nown < 64) {
             snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
@@ -2974,6 +3620,12 @@ int GGCRTRV(gg_cics *c, char *into) {
  * never waits ends with it not run -- as CicsTask.runTransid has it. The token's bytes are the harness's own (IBM does
  * not document them), the same on both sides. */
 #define MAX_KIDS 64
+#define MAX_RUN_DEPTH 3 /* #5089: generations below a task RUN children go (CicsTask.MAX_RUN_DEPTH) */
+/* #5089: 0 for a task, its parent's + 1 for a RUN child ($GGCICS_DEPTH, set by the parent's dispatch) */
+static int run_depth(void) {
+    const char *d = getenv("GGCICS_DEPTH");
+    return d ? atoi(d) : 0;
+}
 typedef struct {
     char token[17], transid[9], abcode[5];
     int number, dispatched, fetched, freed, abended;
@@ -3025,7 +3677,9 @@ int GGCRUNT(gg_cics *c, char *child) {
     char transid[9], ev[96], token[17], name[17], dir[4096], path[4200];
     int bad = 0;
     trim(c->name1, 8, transid);
-    if (getenv("GGCICS_CHILDOF")) refuse("RUN TRANSID in a RUN TRANSID child task (a grandchild)");
+    if (run_depth() >= MAX_RUN_DEPTH) /* #5089 (X18): a child may RUN children of its own, to a stated depth */
+        refuse("RUN TRANSID in a RUN TRANSID child task 3 levels below a task (a great-great-grandchild): the depth the "
+               "harness models ends here");
     if (strstr(c->flags, "CHANNEL")) bad = !handed_channel(c, name);
     c->resp = NORMAL;
     c->resp2 = 0;
@@ -3101,6 +3755,7 @@ static void dispatch_children(void) {
         copy_cfg("region.cfg", dir);
         copy_cfg("programs.cfg", dir);
         copy_cfg("transactions.cfg", dir);
+        copy_cfg("childprogs.cfg", dir); /* #5089: the child's own children run the case's programs too */
         snprintf(path, sizeof path, "%s/eib.in", dir);
         FILE *f = fopen(path, "w");
         FILE *e = NULL;
@@ -3127,6 +3782,8 @@ static void dispatch_children(void) {
             setenv("GGCICS_TASKN", num, 1);
             setenv("GGCICS_RUNCHILD", "1", 1);
             setenv("GGCICS_CHILDOF", "1", 1);
+            snprintf(num, sizeof num, "%d", run_depth() + 1);
+            setenv("GGCICS_DEPTH", num, 1);
             setenv("GGCICS_CHILDPROG", program, 1);
             if (getenv("COB_TRACE_FILE")) setenv("COB_TRACE_FILE", trace, 1); /* (its own: the parent's stays open) */
             const char *gone[] = {"GGCICS_FACILITY", "GGCICS_STARTCODE", "GGCICS_ORIGIN", "GGCICS_UCTRANST",
@@ -3201,6 +3858,7 @@ int GGCDLAY(gg_cics *c) {
     char msg[96];
     c->resp = NORMAL;
     c->resp2 = 0;
+    post_release();  /* #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's area */
     if (strstr(c->flags, "INTERVAL")) {
         long long v = c->num;
         if (v >= 0 && v / 10000 <= 99 && v / 100 % 100 <= 59 && v % 100 <= 59)
@@ -3224,6 +3882,95 @@ int GGCDLAY(gg_cics *c) {
     }
     dispatch_children();
     waited += ms;
+    return 0;
+}
+
+/* POST INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM) | AFTER / AT HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS; GG-FLAGS says
+ * which) [REQID(qname)] SET(ptr) (IBM, EXEC CICS POST): the 4-byte timer-event control area, binary zeros until posted. INVREQ
+ * RESP2 4 / 5 / 6 for hours / minutes / seconds out of range; EXPIRED for a TIME already past (no area, the pointer as it was). A
+ * POST with no REQID runs under POSTnnnn (ASSUMED: IBM "generates one"), returned in GG-NAME1 for EIBREQID. */
+int GGCPOST(gg_cics *c, void **slot) {
+    char flags[41], reqid[17];
+    int hhmmss = c->num, resp2 = 0, after, is_time;
+    time_t now = now_epoch(), at;
+    trim(c->flags, 40, flags);
+    trim(c->qname, 8, reqid);
+    after = flag_word(flags, "AFTER") || flag_word(flags, "AT");
+    is_time = flag_word(flags, "TIME") || flag_word(flags, "AT");
+    if (after) {
+        hhmmss = hms(c->hours, c->mins, c->secs);
+        if (hhmmss < 0) resp2 = -hhmmss;
+    } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+        resp2 = 4;
+    } else if (hhmmss / 100 % 100 > 59) {
+        resp2 = 5;
+    } else if (hhmmss % 100 > 59) {
+        resp2 = 6;
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (resp2) {
+        c->resp = INVREQ;
+        c->resp2 = resp2;
+        return 0;
+    }
+    int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+    if (is_time) {
+        struct tm t;
+        gmtime_r(&now, &t);
+        t.tm_hour = 0;
+        t.tm_min = 0;
+        t.tm_sec = 0;
+        at = timegm(&t) + hh * 3600 + mm * 60 + ss;
+        if (hh <= 23 && at < now) {
+            c->resp = DFHRESP_EXPIRED;
+            return 0;
+        }
+    } else {
+        at = now + hh * 3600 + mm * 60 + ss;
+    }
+    if (!reqid[0]) snprintf(reqid, sizeof reqid, "POST%04d", ++post_seq);
+    if (npost_areas >= 64 || nown >= 64) refuse("more than 64 POSTs in a task");
+    post_release();
+    post_live = blk_set_new(NULL, "\0\0\0\0", 4, 0);
+    post_areas[npost_areas].area = post_live;
+    post_areas[npost_areas++].released = 0;
+    post_at = at;
+    snprintf(post_reqid, sizeof post_reqid, "%s", reqid);
+    snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
+    own[nown].expires = at;
+    own[nown].data = 0;
+    own[nown++].cancelled = 0;
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, reqid, strlen(reqid) < 8 ? strlen(reqid) : 8);
+    *slot = post_live;
+    return 0;
+}
+
+/* WAIT EVENT ECADDR(ptr) (IBM, EXEC CICS WAIT EVENT), as CicsTask.waitEvent: INVREQ RESP2 2 for a null pointer. An area not yet
+ * posted is posted at its expiry -- the RUN children not yet run are dispatched, the scheduler's clock runs to it (a task takes no
+ * time, X4); one already posted returns at once (ASSUMED). Refused: an address that is no POST's area, an area a later POST,
+ * CANCEL, local START or DELAY ended (IBM: "unpredictable"). */
+int GGCWEVT(gg_cics *c, void **slot) {
+    void *area = *slot;
+    int i;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (area == NULL) {
+        c->resp = INVREQ;
+        c->resp2 = 2;
+        return 0;
+    }
+    for (i = 0; i < npost_areas && post_areas[i].area != area; i++) {}
+    if (i == npost_areas) refuse("WAIT EVENT on an address that is no POST's timer-event control area");
+    if (post_areas[i].released) refuse("WAIT EVENT on a timer-event control area a later POST, CANCEL, START or DELAY ended");
+    if (((unsigned char *)area)[0] != 0x40) {
+        long long ms = (long long)(post_at - now_epoch()) * 1000;
+        dispatch_children();
+        waited += ms > 0 ? ms : 0;
+        post_area(area);
+        for (int k = 0; k < nown; k++) if (strcmp(own[k].reqid, post_reqid) == 0) own[k].cancelled = 1;
+    }
     return 0;
 }
 
@@ -3353,9 +4100,48 @@ int GGCCNCL(gg_cics *c) {
         if (sscanf(line, "%63s %lld", word, &expires) == 2 && strcmp(word, reqid) == 0 && expires > now) found = 1;
     }
     if (f) fclose(f);
+    if (found && post_live && strcmp(reqid, post_reqid) == 0) {  /* #5079 (X63): a CANCEL of the POST posts its area */
+        post_area(post_live);
+        post_release();
+    }
     c->resp = found ? NORMAL : NOTFND;
     c->resp2 = 0;
     snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);
+    event(ev, NULL, 0);
+    return 0;
+}
+
+/* ENQ RESOURCE (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) -- or ENQBUSY when
+ * faults.cfg plans it. IBM raises ENQBUSY only "when an ENQ command specifies a resource that is unavailable and the
+ * NOSUSPEND option is specified" (or a HANDLE CONDITION ENQBUSY is active); without NOSUSPEND the task would be
+ * suspended, which is not modelled. IBM states no RESP2 for ENQBUSY: 0. GG-FLAGS holds the resource as the program
+ * writes it (the fault's name), GG-NAME1 'NOSUSPEND' when given. */
+int GGCENQ(gg_cics *c) {
+    char res[41], ev[96];
+    int fresp, fresp2;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    trim(c->flags, 40, res);
+    /* X60: GG-NAME2 'L' = LENGTH written (GG-LEN), 'M' = MAXLIFETIME written (GG-NUM, a CVDA: UOW 246, TASK 233).
+     * LENGTH outside 1-255 is LENGERR RESP2 1; a CVDA that is neither is INVREQ RESP2 2; both at once is refused. */
+    int bad_len = memchr(c->name2, 'L', 8) && (c->len < 1 || c->len > 255);
+    int bad_life = memchr(c->name2, 'M', 8) && c->num != 246 && c->num != 233;
+    if (bad_len && bad_life) refuse("ENQ with LENGTH outside 1-255 and an invalid MAXLIFETIME (IBM states no order)");
+    if (bad_len || bad_life) {
+        c->resp = bad_len ? LENGERR : INVREQ;
+        c->resp2 = bad_len ? 1 : 2;
+        snprintf(ev, sizeof ev, "ENQ resource=%s resp=%d resp2=%d", res, c->resp, c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
+    if (!injected("ENQ", res, &fresp, &fresp2)) return 0;
+    if (strncmp(c->name1, "NOSUSPEN", 8) != 0) {
+        snprintf(ev, sizeof ev, "ENQ on a planned-busy resource without NOSUSPEND: %s (the task would be suspended)", res);
+        refuse(ev);
+    }
+    c->resp = fresp;
+    c->resp2 = fresp2;
+    snprintf(ev, sizeof ev, "ENQ resource=%s resp=%d", res, c->resp);
     event(ev, NULL, 0);
     return 0;
 }
@@ -3495,6 +4281,16 @@ static void put32(unsigned char *p, unsigned long long v) {
     for (int i = 3; i >= 0; i--) { p[i] = (unsigned char)(v & 255); v >>= 8; }
 }
 
+/* LENGERR RESP2 of a fullword (COUNTER) command whose counter holds v (#4770, X30; IBM, GET COUNTER and QUERY COUNTER): 0 when v fits
+ * a signed fullword or the counter is at its limit (v past MAXIMUM: "LENGERR can't occur at counter-at-limit"); else 1 (no bit above
+ * the low word: the sign bit), 2 (the high word is 1), 3 (above 1). The operation completes: VALUE is the low 32 bits. As
+ * CicsTask.fullwordLengerr. */
+static int counter_lengerr(const counter_row *r, unsigned long long v) {
+    if (v <= 2147483647ULL) return 0;
+    if (r->limited && r->max != ~0ULL && v > r->max) return 0;
+    return (v >> 32) == 0 ? 1 : (v >> 32) == 1 ? 2 : 3;
+}
+
 /* GET COUNTER(qname) POOL(name1) VALUE(value) INCREMENT(inc) [WRAP] (IBM CICS TS, GET COUNTER; X30, #5039, X50): the
  * value before the increment is written big-endian (signed fullword) into `value`, after which the counter is the
  * increment more; `wrap` is WRAP. See counter_step for the limits. As CicsTask.getCounter(pool, name, increment, wrap). */
@@ -3530,6 +4326,7 @@ int GGCGCNT(gg_cics *c, unsigned char *value, int valuelen, unsigned char *inc, 
         }
         put32(value, v);
         counters_write(rows, n);
+        if ((c->resp2 = counter_lengerr(&rows[at], v))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -3612,8 +4409,10 @@ static int get_counter_x(gg_cics *c, int width, unsigned char *value, int valuel
             c->resp2 = st == 1 ? 101 : 103;
             return 0;
         }
+        unsigned long long got = v;
         for (int i = width - 1; i >= 0; i--) { value[i] = (unsigned char)(v & 255); v >>= 8; }
         counters_write(rows, n);
+        if (width == 4 && (c->resp2 = counter_lengerr(&rows[at], got))) c->resp = LENGERR;
     }
     return 0;
 }
@@ -3786,7 +4585,8 @@ int GGCQDCN(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
 /* QUERY COUNTER(qname) POOL(name1) VALUE MINIMUM MAXIMUM (IBM CICS TS, EXEC CICS QUERY COUNTER; #4415 slice 2, X29; #5039, X50):
  * the named counter's value and limits, signed fullwords written big-endian into the areas given (length 0: not asked for);
  * the value is unchanged. A counter not there is INVREQ RESP2 201 "Named counter not found". MINIMUM / MAXIMUM of a counter with
- * no limits, and a value beyond a fullword (IBM's LENGERR), are refused. As CicsTask.queryCounter. */
+ * no limits, and limits beyond a fullword, are refused; a value beyond a fullword is IBM's LENGERR (#4770, X30): RESP2 1 / 2 / 3, the
+ * low 32 bits written. As CicsTask.queryCounter. */
 int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int lolen, unsigned char *hi, int hilen) {
     char want[17], pool[9], shown[9];
     counter_row rows[MAXCNT];
@@ -3806,8 +4606,9 @@ int GGCQCNT(gg_cics *c, unsigned char *val, int vallen, unsigned char *lo, int l
     } else {
         if ((lolen || hilen) && !rows[at].limited)
             refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
-        if (rows[at].value > 2147483647ULL)
-            refuse("QUERY COUNTER of a value beyond a fullword");
+        if ((lolen && rows[at].min > 2147483647ULL) || (hilen && rows[at].max > 2147483647ULL))
+            refuse("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
+        if ((c->resp2 = counter_lengerr(&rows[at], rows[at].value))) c->resp = LENGERR;
         if (vallen) put32(val, rows[at].value);
         if (lolen) put32(lo, rows[at].min);
         if (hilen) put32(hi, rows[at].max);
@@ -4484,7 +5285,7 @@ static void web_flush(void) {
 }
 
 static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int mediacap, char *stext, int stextcap,
-                         int ofdoc, int doc_i, int docstatus) {
+                         int ofdoc, int doc_i, int docstatus, int pre, int pre2) {
     char flags[41], mt[57], ev[WEB_TXT * 4 + 200], hx[2][WEB_TXT * 2 + 2];
     int eventual, action = c->item, status = c->num, sl = c->hours, conv = c->mins, mtl = 0, conds = 0, hasm, hast, i;
     trim(c->flags, 40, flags);
@@ -4507,6 +5308,7 @@ static int web_send_body(gg_cics *c, const char *from, int fl, char *media, int 
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (pre) { c->resp = pre; c->resp2 = pre2; conds++; } /* a container send's own conditions */
     if (ofdoc && doc_i < 0) { c->resp = NOTFND; c->resp2 = 1; conds++; }
     if (action != 0 && action != 2 && action != 3) { c->resp = INVREQ; c->resp2 = 11; conds++; }
     if (ofdoc && docstatus != 0 && docstatus != 295 && docstatus != 296) { c->resp = INVREQ; c->resp2 = 143; conds++; }
@@ -4556,7 +5358,7 @@ int GGCWSND(gg_cics *c, char *from, int fromcap, char *media, int mediacap, char
     hast = strstr(flags, "STEXT") != NULL;
     if (fl <= 0 || (hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
     if (fl > fromcap || (hast && sl > stextcap)) refuse("WEB SEND length beyond its area");
-    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0);
+    return web_send_body(c, from, fl, media, mediacap, stext, stextcap, 0, -1, 0, 0, 0);
 }
 
 /* WEB SEND DOCTOKEN(tok) (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response is the document the token names,
@@ -4582,7 +5384,35 @@ int GGCWSDC(gg_cics *c, char *tok, int toklen, char *media, int mediacap, char *
     if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
     if (i == ndocs || doc_dead[i]) i = -1; /* NOTFND 1: not created, deleted or wrongly named (IBM lists one RESP2) */
     return web_send_body(c, i < 0 ? "" : (const char *)docs[i], i < 0 ? 0 : doc_len[i], media, mediacap, stext, stextcap, 1,
-                         i, c->secs);
+                         i, c->secs, 0, 0);
+}
+
+/* WEB SEND CONTAINER(GG-QNAME) [CHANNEL(GG-CHAN)] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body is
+ * the container's data as it is now. CONTAINERERR RESP2 2, CHANNELERR RESP2 2, INVREQ RESP2 145 (no CHANNEL, no current
+ * channel), INVREQ RESP2 150 (conversion of a BIT container); an empty container and a BIT container sent as it is are refused.
+ * As CicsTask.webSendContainer. */
+int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
+    char flags[41], name[17];
+    int sl = c->hours, hast, ch, pre = 0, pre2 = 0;
+    gg_container *k = NULL;
+    const char *env = getenv("GGCICS_WEBREQ");
+    FILE *f;
+    if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
+    fclose(f);
+    if (web_sent) refuse("WEB SEND after a response was sent");
+    trim(c->flags, 40, flags);
+    hast = strstr(flags, "STEXT") != NULL;
+    if ((hast && sl == 0) || sl < -1) refuse("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+    if (hast && sl > stextcap) refuse("WEB SEND length beyond its area");
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 145);
+    if (!ch) { pre = c->resp; pre2 = c->resp2; }
+    else if (!(k = container_named(&chans[ch - 1], name, 0))) { pre = CONTAINERERR; pre2 = 2; }
+    else if (c->mins != 0 && k->bit) { pre = INVREQ; pre2 = 150; }
+    else if (k->len == 0) refuse("WEB SEND of an empty container");
+    else if (k->bit) refuse("WEB SEND of a DATATYPE BIT container");
+    else if (k->ccsid != REGION_CCSID) refuse("WEB SEND of a container in a CCSID other than the region's");
+    return web_send_body(c, pre ? "" : k->data, pre ? 0 : k->len, media, mediacap, stext, stextcap, 0, -1, 0, pre, pre2);
 }
 
 /* ---- #4767 zECS: the server reading the request it serves (IBM CICS TS, EXEC CICS WEB EXTRACT, WEB RECEIVE, WEB READ
@@ -4862,7 +5692,7 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
  * WEB RECEIVE SET hands it out (the pointer item `slot` then holds its address), so FREEMAIN can tell storage GETMAIN returned
  * from any other address. A freed block is kept (never reused), so a second FREEMAIN of it is recognised and refused. */
 enum { BLK_GETMAIN = 0, BLK_RECEIVED = 1, BLK_FREED = 2 };
-static struct { void *p; int kind; } blks[8192];
+static struct { void *p; int kind; size_t n; char key[96]; int sync; } blks[8192];
 static int nblks = 0;
 
 static void *blk_new(size_t n, int kind) {
@@ -4872,7 +5702,59 @@ static void *blk_new(size_t n, int kind) {
     if (!p) refuse("GETMAIN length beyond the limit");
     blks[nblks].p = p;
     blks[nblks].kind = kind;
+    blks[nblks].n = n;
+    blks[nblks].key[0] = '\0';
     nblks++;
+    return p;
+}
+
+/* #5042 (register X58): ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer
+ * valid"; the storage reads as zeros through any record already addressing it (ASSUMED), as CicsTask.invalidateSet. */
+static void blk_invalidate(const char *key) {
+    for (int i = 0; key && i < nblks; i++) {
+        if (blks[i].kind == BLK_RECEIVED && strcmp(blks[i].key, key) == 0) {
+            memset(blks[i].p, 0, blks[i].n);
+            blks[i].key[0] = '\0';
+        }
+    }
+}
+
+/* A SYNCPOINT ends the blocks IBM says it does (READ UPDATE SET, READNEXT / READPREV SET); as CicsTask.invalidateSyncSet. */
+static void blk_invalidate_sync(void) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind == BLK_RECEIVED && blks[i].key[0] && blks[i].sync) {
+            memset(blks[i].p, 0, blks[i].n);
+            blks[i].key[0] = '\0';
+        }
+    }
+}
+
+static void blk_invalidate_prefix(const char *prefix) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind == BLK_RECEIVED && blks[i].key[0] && strncmp(blks[i].key, prefix, strlen(prefix)) == 0) {
+            memset(blks[i].p, 0, blks[i].n);
+            blks[i].key[0] = '\0';
+        }
+    }
+}
+
+static int blk_held(const char *key) {
+    for (int i = 0; i < nblks; i++) {
+        if (blks[i].kind == BLK_RECEIVED && blks[i].key[0] && strcmp(blks[i].key, key) == 0) return 1;
+    }
+    return 0;
+}
+
+/* A SET(ptr) block of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or a file read, holding the n bytes of `data`: the earlier one
+ * of the same `key` ends first (a NULL key: valid to the task's end). As CicsTask.acquireSet. */
+static void *blk_set_new(const char *key, const void *data, size_t n, int sync) {
+    void *p;
+    if (n > 268435456U) refuse("SET(ptr) data beyond the limit");
+    blk_invalidate(key);
+    p = blk_new(n, BLK_RECEIVED);
+    memcpy(p, data, n);
+    if (key) snprintf(blks[nblks - 1].key, sizeof blks[0].key, "%s", key);
+    blks[nblks - 1].sync = sync;
     return p;
 }
 
@@ -4911,6 +5793,58 @@ int GGCFREM(gg_cics *c, void **slot) {
     return 0;
 }
 
+/* ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword). `MOVE cell TO fullword` is
+ * CALL 'GGCBLLP' USING cell fullword, `MOVE fullword TO cell` CALL 'GGCBLLG' USING fullword cell. A real address does not fit a
+ * fullword here, so the fullword holds a token (ASSUMED): 0 for NULL, the n-th distinct address moved into data n * 65536 (at most
+ * 1525: 8 digits), 4 bytes big-endian, numbered as CicsTask.bllToken. A block is never reused (blk_new), so one address is one block. */
+static void *bll_tok[1525];
+static int nbll_tok = 0;
+
+int GGCBLLP(void **cell, unsigned char *data) {
+    unsigned int v = 0;
+    int i;
+    if (*cell) {
+        for (i = 0; i < nbll_tok && bll_tok[i] != *cell; i++) {
+        }
+        if (i == nbll_tok) {
+            if (nbll_tok >= 1525) refuse("more than 1525 BLL addresses held in data");
+            bll_tok[nbll_tok++] = *cell;
+        }
+        v = (unsigned int)(i + 1) * 65536U;
+    }
+    for (i = 3; i >= 0; i--) {
+        data[i] = (unsigned char)(v & 0xFF);
+        v >>= 8;
+    }
+    return 0;
+}
+
+int GGCBLLG(unsigned char *data, void **cell) {
+    long long v = (long long)(signed char)data[0];
+    int i;
+    for (i = 1; i < 4; i++) v = (v << 8) | data[i];
+    if (v == 0) {
+        *cell = NULL;
+        return 0;
+    }
+    if (v < 0 || v % 65536 != 0 || v / 65536 > nbll_tok) refuse("an address in data that no BLL cell gave");
+    *cell = bll_tok[v / 65536 - 1];
+    return 0;
+}
+
+/* GGCADDR: ADDRESS EIB(ptr) | COMMAREA(ptr) (X59). `area` is the EIB or the program's DFHCOMMAREA; the pointer takes its address (NORMAL:
+ * the command has no condition). GG-FLAGS COMMAREA with GG-NUM (EIBCALEN) 0: refused -- IBM sets X'FF000000', which is no COBOL NULL, and
+ * a LINKAGE item the caller did not pass names no storage. */
+int GGCADDR(gg_cics *c, void **slot, void *area) {
+    char flags[41];
+    trim(c->flags, 40, flags);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (strstr(flags, "COMMAREA") != NULL && c->num == 0) refuse("ADDRESS COMMAREA with no COMMAREA");
+    *slot = area;
+    return 0;
+}
+
 /* WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH(n)] [MEDIATYPE(area)] (X38, X47): the body as a new block the pointer addresses; GG-NUM
  * MAXLENGTH (2147483647 when not given); GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. LENGERR 16 leaves the pointer
  * as it was (ASSUMED); a body cut at MAXLENGTH is LENGERR 57 with the pointer set. */
@@ -4938,6 +5872,109 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
         memset(media, ' ', 56);
         memcpy(media, webreq.media, strlen(webreq.media));
     }
+    return 0;
+}
+
+/* ---- #5042 (register X58): SET(ptr) on RECEIVE, RETRIEVE, READQ TS, GET CONTAINER and the file reads. Each answers as its INTO form
+ * does (the same conditions and events), then, where data was delivered, puts a copy in a new block the pointer addresses
+ * (blk_set_new; the key says what ends the pointer, as CicsTask.acquireSet). Where nothing was delivered the pointer is as it was
+ * (ASSUMED: IBM does not say). */
+
+/* RECEIVE SET(ptr) MAXLENGTH LENGTH (GG-LEN the most in, the length out): the block holds the bytes delivered; valid until the
+ * next RECEIVE ("until the next receive command or the end of task"). */
+int GGCRECP(gg_cics *c, void **slot) {
+    memset(set_buf, 0, sizeof set_buf);
+    int copied = terminal_receive(c, set_buf);
+    if (copied >= 0) *slot = blk_set_new("RECEIVE", set_buf, (size_t)copied, 0);
+    return 0;
+}
+
+/* RETRIEVE SET(ptr) LENGTH (flags as GGCRTRV's, INTO among them): the data of the START as one block, valid to the task's end
+ * (IBM states no end: ASSUMED). The most is the stub's own 32768 bytes (GGCRTRV's buffer). */
+int GGCRTRS(gg_cics *c, void **slot) {
+    static char buf[32768];
+    c->len = (int)sizeof buf;
+    GGCRTRV(c, buf);
+    if (c->resp == NORMAL) *slot = blk_set_new(NULL, buf, (size_t)c->len, 0);
+    return 0;
+}
+
+/* READQ TS SET(ptr) LENGTH: the item as one block, valid until the next READQ TS. */
+int GGCRDQS(gg_cics *c, void **slot) {
+    static char buf[32768];
+    c->len = (int)sizeof buf;
+    GGCREADQ(c, buf);
+    if (c->resp == NORMAL) *slot = blk_set_new("READQ", buf, (size_t)c->len, 0);
+    return 0;
+}
+
+/* READ SET(ptr) [LENGTH] (flags as GGCREAD's; UPDATE / TOKEN among them): the record as one block, valid until the next READ of the
+ * file, a corresponding REWRITE / DELETE / UNLOCK, or -- for a READ UPDATE -- a SYNCPOINT; GG-LEN the record's length.
+ * The record goes through GGCREAD into the stub's own 32768 bytes (a longer record is refused there). */
+int GGCRDST(gg_cics *c, char *ridfld, int keylen, void **slot) {
+    static char buf[32768];
+    char want[9], key[96];
+    trim(c->name1, 8, want);
+    c->len = (int)sizeof buf;
+    GGCREAD(c, ridfld, keylen, buf, (int)sizeof buf);
+    if (c->resp == NORMAL || c->resp == DUPKEY) {
+        snprintf(key, sizeof key, "READ %s", want);
+        *slot = blk_set_new(key, buf, (size_t)c->len, strstr(c->flags, "UPDATE") || strstr(c->flags, "TOKEN"));
+    }
+    return 0;
+}
+
+/* READNEXT (dir 1) / READPREV (dir -1) SET(ptr) (RIDFLD set to the key read): the record as one block, valid until the next
+ * READNEXT / READPREV SET of the file's browse, its ENDBR or a SYNCPOINT. RBA browses are refused (as the translator does). */
+static int browse_read_set(gg_cics *c, int dir, char *ridfld, int keylen, void **slot) {
+    static char buf[32768];
+    char want[9], path[3000], key[96];
+    int reclen, keyoff, klen;
+    trim(c->name1, 8, want);
+    if (strstr(c->flags, "RBA")) refuse("READNEXT / READPREV SET in an RBA browse");
+    browse_read(c, dir, ridfld, keylen, buf, (int)sizeof buf);
+    if ((c->resp == NORMAL || c->resp == DUPKEY) && file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        snprintf(key, sizeof key, "BROWSE %s", want);
+        *slot = blk_set_new(key, buf, (size_t)reclen, 1);
+    }
+    return 0;
+}
+
+int GGCRDNS(gg_cics *c, char *ridfld, int keylen, void **slot) {
+    return browse_read_set(c, 1, ridfld, keylen, slot);
+}
+
+int GGCRDPS(gg_cics *c, char *ridfld, int keylen, void **slot) {
+    return browse_read_set(c, -1, ridfld, keylen, slot);
+}
+
+/* GET CONTAINER SET(ptr) FLENGTH (GG-QNAME the container): a copy of the container's data as one block, valid until the next
+ * GET CONTAINER SET of the container, its DELETE / MOVE or its channel's DELETE; FLENGTH (GG-LEN) the length of the data. */
+int GGCGETS(gg_cics *c, void **slot) {
+    char name[17], key[96];
+    int ch;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    cics_name(c->qname, name, "container");
+    ch = command_channel(c, 0, 4);
+    if (!ch) return 0;
+    gg_container *k = container_named(&chans[ch - 1], name, 0);
+    if (!k) { c->resp = CONTAINERERR; c->resp2 = 10; return 0; }
+    {
+        char flags[41];
+        trim(c->flags, 40, flags);
+        int into_ccsid = strstr(flags, "INTOCCSID") != NULL ? c->num : -1;
+        if (k->bit && into_ccsid >= 0) refuse("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say whether a block is then acquired");
+        char *conv = malloc((size_t)k->len + 1);
+        if (!conv) refuse("out of memory");
+        memcpy(conv, k->data ? k->data : "", (size_t)k->len);
+        if (!k->bit && !strstr(flags, "NOCONVERT")) ccsid_convert(conv, k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER");
+        container_key(key, sizeof key, chans[ch - 1].name, name);
+        *slot = blk_set_new(key, conv, (size_t)k->len, 0);
+        free(conv);
+        c->num = k->bit ? 0 : k->ccsid;
+    }
+    c->len = k->len;
     return 0;
 }
 

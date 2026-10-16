@@ -40,7 +40,10 @@ _WEB = "CICS web support (HTTP server / client) is not modelled"
 _WEB_SERVICE = "web services (SOAP / WS-Addressing) are not modelled"
 _TRANSFORM = "XML / JSON transformation (TRANSFORM) is not modelled"
 _SPOOL = "the JES spool interface is not modelled"
-_EVENT_WAIT = "event control blocks and waiting on them are not modelled (one task runs at a time)"
+_EVENT_WAIT = (
+    "waiting on an event control block other than a POST's timer-event control area (WAIT EVENT, X63) is not modelled"
+    " (one task runs at a time)"
+)
 _LOGICAL_MESSAGE = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
 _PARTITION = "partitions / logical device codes: the region's terminal is one unpartitioned display"
 _OTEL = "OpenTelemetry spans are not modelled"
@@ -106,7 +109,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("ALLOCATE", "allocate-appc", _DTP),
     ("BUILD ATTACH", "build-attach-mro", _DTP),
     ("CONNECT PROCESS", None, _DTP),
-    ("CONVERSE", "converse-default", "CONVERSE (send, then receive, on a terminal or a conversation) is not modelled"),
     ("EXTRACT ATTACH", "extract-attach-mro", _DTP),
     ("EXTRACT ATTRIBUTES", "extract-attributes-appc", _DTP),
     ("EXTRACT PROCESS", None, _DTP),
@@ -166,15 +168,8 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # storage and addresses
     ("GETMAIN64", None, _STORAGE),
     ("FREEMAIN64", None, _STORAGE),
-    (
-        "ADDRESS",
-        None,
-        "the addresses of CICS areas (EIB, COMMAREA, CWA, TWA, TCTUA) set into pointers are not modelled",
-    ),
     ("ADDRESS SET", None, "setting a pointer from a data area's address (or the reverse) is not modelled"),
     # queues and files beyond the modelled ones
-    ("READQ TD", None, "reading a transient-data queue is not modelled (only WRITEQ TD)"),
-    ("DELETEQ TD", None, "deleting a transient-data queue is not modelled"),
     ("RESETBR", None, "repositioning a browse (RESETBR) is not modelled"),
     # journals
     ("JOURNAL", None, _JOURNAL),
@@ -221,8 +216,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("SPOOLREAD", None, _SPOOL),
     ("SPOOLWRITE", None, _SPOOL),
     # event control, trace, monitoring, the rest
-    ("POST", None, _EVENT_WAIT),
-    ("WAIT EVENT", None, _EVENT_WAIT),
     ("WAIT EXTERNAL", None, _EVENT_WAIT),
     ("WAITCICS", None, _EVENT_WAIT),
     ("ENTER TRACENUM", None, _TRACE),
@@ -242,12 +235,21 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("CONVERTTIME", None, "converting a date and time string to ABSTIME (CONVERTTIME) is not modelled"),
 )
 
+# #5079 (X59): the old-style commands refused by name with a register entry citing IBM's page for each
+_REGISTER = {
+    "SEND PAGE": "X59",
+    "PURGE MESSAGE": "X59",
+    "WAIT EXTERNAL": "X63",
+    "WAITCICS": "X63",
+}
+
 COMMANDS = tuple(
     Command(
         key=name,
         ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
         status="refused",
         why=why,
+        register=_REGISTER.get(name),
     )
     for name, topic, why in _NAME_ONLY
 )

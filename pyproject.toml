@@ -100,6 +100,9 @@ cobol-refractor = "gitgalaxy.cobol_refractor_controller:main"
 cobol-to-java = "gitgalaxy.cobol_to_java_controller:main"
 batch-test-harness = "gitgalaxy.tools.cobol_to_java.batch_test_harness:main"
 
+# --- THE READINESS SCANNER (#4726): `gitgalaxy assess ESTATE`, offline and read only ---
+gitgalaxy = "gitgalaxy.cli:main"
+
 # --- THE SPOKES (Individual Legacy Forges) ---
 cobol-compiler-forge = "gitgalaxy.tools.cobol_to_cobol.cobol_compiler_forge:main"
 cobol-dag-architect = "gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect:main"
@@ -190,6 +193,8 @@ testpaths = [
 markers = [
     "smoke: quick core engine tests for CI/CD pipelines",
     "nightly: slow all-corpora check, skipped unless GITGALAXY_NIGHTLY is set (the scheduled ground-truth run sets it)",
+    "slow(reason): a test over 10 s that is meant to be; the reason is required (test-time ratchet, tests/tools/time_ratchet.py)",
+    "redos_sweep: an extraction ReDoS sweep (tests/extraction, name has redos / linear_on_pathological), applied by tests/conftest.py; a pull request that changes no sweep input deselects it (tests/tools/sweep_plan.py, #5166)",
     "golden_crucible: opt-in end-to-end regression test against the language-crucible corpus; needs a local checkout. Run explicitly via `pytest -m golden_crucible`.",
 ]
 addopts = "-m 'not golden_crucible'"

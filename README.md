@@ -16,13 +16,13 @@ a named, ranked fix.
 <td align="center" width="190"><h2>51 s</h2></td>
 <td align="center" width="190"><h2>53</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
-<td align="center" width="190"><h2>96 / 127</h2></td>
+<td align="center" width="190"><h2>L0 to L5</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
 <td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />66 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS and batch programs proven equal</strong><br />no model; 6 public estates<br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+<td align="center" valign="top"><sub><strong>CICS and batch programs, by evidence level</strong><br />no model; <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">live counts</a><br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
 </table>
 
@@ -201,7 +201,7 @@ a compiling Spring Boot project, and an equivalence harness proves each ported p
 against the original COBOL: same inputs, byte-identical outputs. A port that is not proven
 is not done, and a person approves every port.
 
-**Iterably solvable.** On six public estates, the engine and its proof harness have turned
+**Iterably solvable.** On the public burned estates, the engine and its proof harness have turned
 CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
 ranked fix: a construct the translator refuses by name, a failed proof, a fuzz difference, a
 coverage hole, or a written-down assumption. One fix to the shared runtime repairs every
@@ -274,12 +274,13 @@ are always shown
 | L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
 | L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (not yet measured, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
 
-**Where it stands** (2026-10-12): across **6 public estates and 127 programs, 96 are at L2
-or better and 34 at L4**, all det-ported with no model. The
-[per-estate evidence report](docs/language_status/evidence_report/README.md) is regenerated on
-every push to main, so read the current numbers there. The det ports include COACTUPC
+**Where it stands**: the public estates are det-ported with no model, and the current level counts, the CICS
+commands modelled, the mutation kill rate and the crucibles are on the generated
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md), each number with its source and the commit it was rendered at (this README
+holds none, so it cannot drift). The [per-estate evidence report](docs/language_status/evidence_report/README.md) is
+published on the `generated` branch, regenerated on every push to main and nightly. The det ports include COACTUPC
 (account update, 4,236 lines), which no model ported in one answer; CICS programs that LINK
-to others in the same task (proven together); and named counters, SYNCPOINT ROLLBACK and
+to others in the same task (checked together); and named counters, SYNCPOINT ROLLBACK and
 abend backout across files and Db2. The design and runtime contract are in
 [det_port_design.md](docs/language_status/det_port_design.md).
 
@@ -315,8 +316,8 @@ abend backout across files and Db2. The design and runtime contract are in
 </details>
 
 On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
-applications built around known migration traps, all 17 programs are proven on 44 scenarios.
-The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
+applications built around known migration traps, the programs and scenarios are counted on the
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
 5.5: 9 on the first attempt, 7 on the second, 1 on the third.
 
 What these levels do not show:
@@ -328,7 +329,7 @@ What these levels do not show:
   is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
   ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
   [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
-- **These are burned estates.** The six estates and the crucible are public, and the
+- **These are burned estates.** The burned estates and the crucible are public, and the
   translator and porting rules were built on them, so their levels are not first-try results.
   The real test is a blind estate seen for the first time; no such trial has run yet
   ([trial protocol](docs/language_status/fresh_estate_trials.md)).

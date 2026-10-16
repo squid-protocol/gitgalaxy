@@ -364,6 +364,18 @@ public final class DetCics {
         return lengerr ? 22 : 0;
     }
 
+    /** #5079 (X57): READQ TD QUEUE INTO: the record's bytes (already cut to LENGTH) go INTO, the rest of INTO left as it
+     *  was. Refused, as not modelled, a record moved past INTO (CICS writes the storage that follows it, which GnuCOBOL
+     *  lays out unlike IBM's compiler: oracle_assumptions.md X6), as READ INTO's is. */
+    // [rule RT-CICS-READQ-TD-INTO]
+    public static void readTd(Field into, byte[] record) {
+        if (record.length > into.length()) {
+            throw new UnsupportedOperationException("READQ TD INTO LENGTH: " + record.length + " bytes past INTO's "
+                    + into.length() + ": not modelled");
+        }
+        System.arraycopy(record, 0, into.storage().bytes, into.offset(), record.length);
+    }
+
     /** #4415 slice 1: EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n) (IBM CICS TS, "BIF DEEDIT"): the first `n` bytes of the
      *  field, as the region's EBCDIC page (`region`) holds them, edited in place -- the characters other than the
      *  digits X'F0'-X'F9' removed, the digits right-aligned and padded on the left with zeros; a field that ends in a
@@ -677,6 +689,22 @@ public final class DetCics {
         setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
     }
 
+    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X58): a new block of task storage holding the
+     *  data, its handle in the pointer. `key` is what ends the pointer's validity (CicsTask.acquireSet). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data) {
+        setPointer(ptr, task.acquireSet(key, data));
+    }
+
+    /** As above; `syncEnds`: a SYNCPOINT also ends the pointer (a READ UPDATE SET, a READNEXT / READPREV SET). */
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data, boolean syncEnds) {
+        setPointer(ptr, task.acquireSet(key, data, syncEnds));
+    }
+
+    public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
+        setBlock(task, ptr, key, data.getBytes(cs));
+    }
+
     /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
@@ -697,6 +725,44 @@ public final class DetCics {
     public static void setPointerToRecord(CicsTask task, Field ptr, Field record) {
         wholeRecord(record, "ADDRESS OF");
         setPointer(ptr, task.addressOf(record.storage().bytes));
+    }
+
+    /** ADDRESS COMMAREA(ptr) (X59): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA (EIBCALEN 0) is
+     *  refused (IBM sets X'FF000000', not the COBOL NULL a handle can hold). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCommarea(CicsTask task, Field ptr, Field record, int eibcalen) {
+        if (eibcalen == 0) {
+            throw new PastFrom("ADDRESS COMMAREA with no COMMAREA: not modelled");
+        }
+        setPointerToRecord(task, ptr, record);
+    }
+
+    /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword
+     *  takes the token standing for the cell's address (CicsTask.bllToken), 4 bytes big-endian. */
+    // [rule RT-CICS-BLL-ADDRESS]
+    public static void bllToData(CicsTask task, Field cell, Field data) {
+        int v = task.bllToken(pointerValue(cell));
+        for (int i = 3; i >= 0; i--) {
+            data.storage().bytes[data.offset() + i] = (byte) v;
+            v >>>= 8;
+        }
+    }
+
+    /** #5119 (X56): `MOVE fullword TO cell`: the cell takes the address the fullword's token stands for (0: NULL). */
+    public static void bllFromData(CicsTask task, Field data, Field cell) {
+        int v = 0;
+        for (int i = 0; i < 4; i++) {
+            v = (v << 8) | (data.storage().bytes[data.offset() + i] & 0xFF);
+        }
+        setPointer(cell, task.bllPointer(v));
+    }
+
+    /** #5119 (X56): a paragraph name re-addresses a record through its BLL cell (IBM: "Insertion of a paragraph name causes
+     *  the compiler to generate code to reestablish addressability"); a null cell leaves the record as it is (ASSUMED). */
+    public static void bllReload(CicsTask task, Field record, Field cell) {
+        if (pointerValue(cell) != 0) {
+            setAddress(task, record, cell);
+        }
     }
 
     private static void wholeRecord(Field record, String what) {

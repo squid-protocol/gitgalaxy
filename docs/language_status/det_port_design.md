@@ -458,7 +458,9 @@ Only generator output, never a test case:
   The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN, refused
   first by its COPY DATEWS collision until #4486, now translates. *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
   is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
-  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
+  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. Since #4893
+  `ENTRY 'DLITCBL'` as the first statement is the entry even when PROCEDURE DIVISION has a USING of its own (IMS
+  enters a DL/I program there, with that ENTRY's list): see "IMS DL/I" below. A reference
   modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to
   the grammar as an argument list of the same length; expr reads it as the reference modification, and gen takes the
   substring of an alphanumeric function's text (it had dropped the modification). Newly read: CardDemo DBUNLDGS,
@@ -520,7 +522,7 @@ Only generator output, never a test case:
   | source defects, #4735 (`translator-refuses-source-defect`) | NexusBank NEND-DAY (census, non-burned) | program text past column 72 of a fixed-form line cuts a host variable (`:HV-SO-IM` \| `PORTO,`) or loses a separator comma: `source defect: source text past column 72 (`PORTO,`) truncates `:HV-SO-IM``. Fixed-form COBOL, the Db2 precompiler and the coprocessor read columns 8-72 only, so the statement as compiled is the cut one; the translator never reads the lost text back in. Identification-area tags (`COF00010`, a lone `-`) and `*>` comments past column 72 lose nothing and are not flagged (the cut literal of #4590 is its own wording) |
 | not a COBOL program (`NotCobol`, census: `generation failed: not a COBOL program: ISPF editor screen`) | cobol-db2-cursor, cobol_db2_stringsearch | the one `.cbl` is a saved ISPF edit panel (menu bar, `Command ===>` line, `Top of Data` banners; two markers needed). It had ended as `generation failed: SystemExit: 0`; the refactor controller and the survey now name it |
 | undeclared item / paragraph (a hole, not a refusal of the program) | cobol-db2-refatorado ALTERAR, EXCLUIR (`DB2-CODFUN`, `SQLCA`, `TRATA-SQLCODE`) | no data entry, COPY or INCLUDE declares the name: `X: undeclared item` / `X: undeclared paragraph` (was `no such item`). The CICS / DL/I interface blocks (`DFH*`, `EIB*`, `DIB*`) the translator itself must supply stay `no such item`, a translator gap. The statement stays a hole; nothing is declared on a guess |
-| vendor copybooks not in the estate (`translator-refuses-vendor-copybook`) | CardDemo COPAUA0C, COACCT01, CODATE01 (IBM MQ `CMQ*`); CBSA CRECUST (LE `CEEIGZCT`) | the estate ships no such member; the engine records the COPY unresolved, the translator refuses rather than lay out a guessed record |
+| vendor copybooks not in the estate (was `translator-refuses-vendor-copybook`; none left) | CardDemo COPAUA0C, COACCT01, CODATE01 (IBM MQ `CMQ*`: GitGalaxy-written stand-ins since #4892, register W1, ledger cause `translator-uses-mq-stand-ins`); CBSA CRECUST (LE `CEEIGZCT`: stand-in since #4884, `translator-uses-stand-in-copybook`) | a stand-in ships only with the model behind it (owner policy); a vendor copybook with no model stays refused, the engine records the COPY unresolved |
   | a COPY of a program member (`translator-copy-program-member`) | estate-crucible ORDMAIN (COPY ORDPRICE), SHPINQ / SHPINQO (COPY SHPRATE) | by design (horror H-0053, its key: "no compiler finds it"): no copy library holds the member, only a program source of that name. Engine copy resolution (#4468) reports the gap; the refusal is correct |
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
   region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
@@ -539,6 +541,11 @@ Only generator output, never a test case:
   column `VSAM_RECORD`) beside its typed columns, and `toRecord` re-encodes only a field whose value changed since:
   a non-digit in a zoned field, a non-preferred packed sign and FILLER survive a READ / REWRITE, while a value a
   service sets is still stored as MOVE stores it. A declared difference was rejected: it would loosen the proof.
+- **CardDemo CODATE01, the first MQ program (#4892, register W).** Its proof found two gaps outside MQ. The harness's
+  `DFHRESP(x)` substitution shortened a line whose columns 73-80 hold a sequence number (CardDemo app-vsam-mq numbers
+  every line), pulling the number into the code area: cobc refused `IF ... = 0 01450012`. The substitution now runs on
+  the code area only and pads back to column 72 (`equivalence_cics._numbered`). And `INITIALIZE ... REPLACING NUMERIC
+  BY ZEROES` was a hole: REPLACING now sets only the named categories' items, each as by MOVE, the others unchanged.
 
 ### Keyed reads
 
@@ -820,6 +827,32 @@ NULL is distinct.
     reads to the end of the caller's record only (`Cobol.commarea`, register X10) and a det caller passes the bytes
     themselves (`CicsTask.link(..., area)`).
 
+## IMS DL/I (batch DL/I calls, #4893)
+
+**Slice 1: CALL 'CBLTDLI' through a DB PCB, proven on a stated database.** A batch DL/I program (IMS enters its
+`ENTRY 'DLITCBL' USING pcb ...`; CMPAT=NO, a DLI region) translates whole. Its CALLs run through the det runtime's
+`cobolrt/dli/DetDli` (det/dli.py emits them; RETURN-CODE 0 after each, register I1), and the oracle's through
+`tests/equivalence/ims/ggdli.c`, the same rules and refusals on both sides (register family I, rule family DLI).
+
+- **The database is stated, not connected.** A case's `"ims"` section names its DBD and PSB sources (read by the
+  engine's `core/ims_gen.py`) and a seed: the corpus's own HD unload, or segments the case writes
+  (`tests/tools/equivalence_ims.py`). Both sides start from it, and the database each leaves is compared segment by
+  segment, every field of the segment's layout.
+- **Modelled.** GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET; unqualified SSAs and SSAs qualified by one field;
+  the PCB mask's feedback; position and parentage; status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD and AM.
+- **The level fixture.** `tests/equivalence/ims/fixture` (LVLDBD, LVLPSB, DLILVL, expected.txt) is a three-level
+  database with every modelled call and status. Its expected output was written from IBM's documentation and
+  committed before either runtime ran it (policy: level estates first). On its first run both runtimes printed it line
+  for line (51/51) and left the same database (`tests/cobol_mainframe/test_det_dli.py`, EQUIVALENCE_E2E=1).
+- **Proven.** CardDemo PAUDBUNL (`carddemo-paudbunl`) unloads the corpus's own DBPAUTP0 unload (22 roots, 202
+  children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
+  paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`cobolrt/Accept.java`): the
+  translator had emitted a call to a method the runtime did not have.
+- **Refused (register I5).** EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
+  other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
+  relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
+  DBUNLDGS (GSAM PCBs), and CBPAUP0C, COPAUA0C, COPAUS0C, COPAUS1C (EXEC DLI).
+
 ## In port_runner
 
 The combined method runs in the porting loop like any other backend, and every event lands in
@@ -855,9 +888,13 @@ The combined method runs in the porting loop like any other backend, and every e
   it is now untyped (`det/cics.py` `_typed`) and the record's own DTO carries it, bytes beside it. A program entered with
   another program's DTO as its COMMAREA reads it through the DTO's layout (`DetCics.layoutBytes`, #4449) instead of ignoring it.
   The four pc-return-immediate programs are committed det ports (`tests/cics_crucible/ports/pc-return-immediate`, no model).
-  PCCONF now translates whole but is not committed: its proof fails on RECEIVE MAP, which does not apply the field's DFHMDF
-  JUSTIFY (AMT is `JUSTIFY=(RIGHT,ZERO)`), and the generated screen model carries no JUSTIFY to apply.
-- **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
+  PCCONF translates whole. Its proof failed on RECEIVE MAP, which did not apply the field's DFHMDF JUSTIFY (AMT is
+  `JUSTIFY=(RIGHT,ZERO)`) and the generated screen model carried none (#5082): `ScreenField.justify` now carries it and
+  `DetCics.typedJustified` places the input (register X54; a field with no JUSTIFY still goes through `DetCics.typed`, so
+  no other port moves; #5116: a NUM field with no JUSTIFY is IBM's RIGHT,ZERO, so `ScreenField.justify` carries that too and a port that RECEIVEs a NUM field goes through `DetJustify.place`). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
+  `handleLink` ...: `proof_reach.DET_HELPERS`, only in a file marked as a det port) as `det_helper`, proven by the cells that
+  reach the class, not as `ported_unproven`.
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
   re-proves every det and model port and compares the result with the cases not proven on purpose.

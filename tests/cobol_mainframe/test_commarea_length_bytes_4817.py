@@ -119,12 +119,28 @@ def test_return_and_xctl_pass_length_bytes_and_the_byte_answer_is_by_design(tmp_
     )
     (src / "Main.java").write_text(MAIN)
     subprocess.run(
-        [str(jdk / "bin" / "javac"), "-d", str(tmp_path / "classes"), *map(str, src.glob("*.java"))], check=True
+        [
+            str(jdk / "bin" / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-d",
+            str(tmp_path / "classes"),
+            *map(str, src.glob("*.java")),
+        ],
+        check=True,
     )  # noqa: S603
     res = subprocess.run(
-        [str(jdk / "bin" / "java"), "-cp", str(tmp_path / "classes"), "com.squid.gitgalaxy.cics.Main"],
+        [
+            str(jdk / "bin" / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path / "classes"),
+            "com.squid.gitgalaxy.cics.Main",
+        ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     )  # noqa: S603
     out = dict(line.split("=", 1) for line in res.stdout.splitlines() if "=" in line)

@@ -138,7 +138,8 @@ def test_merge_marks_ready_then_squashes_pinned_to_the_head():
 
     # #5104: a draft is marked ready and NOT merged (its skipped checks read as green)
     errs = pc.merge({"number": 7, "draft": True, "head_sha": SHA, "node_id": "PR_x"}, ok)
-    assert len(errs) == 1 and "not merged" in errs[0]
+    assert len(errs) == 1 and "not merged" in errs[0] and pc.draft_marked_ready(errs)
+    assert not pc.draft_marked_ready([]) and not pc.draft_marked_ready(["gh pr merge failed: x"])
     assert [a[:3] for a in seen] == [["gh", "pr", "ready"]]
 
     seen.clear()

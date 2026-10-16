@@ -90,6 +90,10 @@ def test_compare_follows_the_ebcdic_bytes(tmp_path):
         "    }\n}\n",
         encoding="utf-8",
     )
-    subprocess.run(["javac", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True)
-    run = subprocess.run(["java", "-cp", str(tmp_path), "com.test.util.Runner"], capture_output=True, text=True)
-    assert run.returncode == 0, run.stderr
+    subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True)
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
+    run = subprocess.run(
+        ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path), "com.test.util.Runner"],
+        capture_output=True,
+    )
+    assert run.returncode == 0, run.stderr.decode("utf-8")

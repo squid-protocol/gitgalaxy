@@ -120,6 +120,9 @@ MOVED = {
         "docs/language_status/oracle_assumptions.md",
         "docs/language_status/cics_spec_status.md",
         "docs/language_status/cobolrt_rules.md",  # #4711
+        "docs/language_status/readiness_report.md",  # #4725
+        "docs/language_status/progress.md",  # #5280
+        "docs/language_status/progress.json",  # #5280
     ],
 }
 
@@ -183,6 +186,7 @@ def test_the_evidence_report_is_published_not_committed_by_the_refresh_bot():
     assert "docs/language_status/evidence_report" in publish
     assert "create-pull-request" not in publish and "gh pr merge" not in publish
     assert re.search(r"persist-credentials:\s*true", publish)
+    assert 'EVIDENCE_REPORT_WRITE_INDEX: "1"' in code  # #5206: the index is written in the refresh job only
 
 
 def test_the_ground_truth_pr_job_holds_no_write_token():

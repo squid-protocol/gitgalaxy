@@ -167,6 +167,34 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     return row
 
 
+def assembler_rows(corpus: Path, only: set[str] | None = None) -> list[dict[str, Any]]:
+    """#5158: one row per CICS Assembler / macro-level assembler member of `corpus` (.asm / .mac ..., the suffixes of
+    gitgalaxy.core.cics_macro_level), refused by name exactly as det refuses the same text (source.assembler_refusal),
+    so the census counts them with the COBOL programs. A member with no evidence (a macro table, a BMS map source, a plain
+    assembler program, a non-CICS .mac) has no row. `only`: corpus-relative paths."""
+    from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.det import source as S
+
+    rows = []
+    members = sorted(
+        p
+        for p in corpus.rglob("*")
+        if p.is_file() and p.suffix.lower() in ASSEMBLER_SUFFIXES and ".git" not in p.relative_to(corpus).parts
+    )
+    for member in members:
+        rel = member.relative_to(corpus).as_posix()
+        if only is not None and rel not in only:
+            continue
+        try:
+            why = S.assembler_refusal(read_source(member).text.splitlines(), str(member))
+        except OSError:
+            continue
+        if why:
+            rows.append({"program": rel, "error": f"{S.MacroLevelCics.__name__}: {why}", "kind": "assembler"})
+    return rows
+
+
 def compile_port(row: dict[str, Any], work: Path, runtime: Path, cp: str) -> None:
     src = work / "ports" / work_key(row["program"])
     out = work / "classes" / work_key(row["program"])
@@ -175,7 +203,7 @@ def compile_port(row: dict[str, Any], work: Path, runtime: Path, cp: str) -> Non
     files = [str(p) for p in src.rglob("*.java")] + [str(p) for p in runtime.rglob("*.java")]
     try:
         res = subprocess.run([str(Path(jdk()) / "bin/javac"), "-nowarn", "-encoding", "UTF-8", "--release", "17",  # noqa: S603
-                              "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True,
+                              "-proc:none", "-cp", cp, "-d", str(out), *files], capture_output=True, text=True, encoding="utf-8",
                              check=False, timeout=JAVAC_PORT_TIMEOUT)  # fmt: skip
         row["compiles"] = res.returncode == 0
         if res.returncode:
@@ -283,6 +311,8 @@ def main() -> int:
             wanted = {Path(p).as_posix() for p in args.program}
             progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
         rows = [survey_program(p, corpus, project, dirs, work, args.unmask) for p in progs]
+        if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
+            rows += assembler_rows(corpus, {Path(p).as_posix() for p in args.program} if args.program else None)
         if built and not args.no_compile:
             cp = classpath(project)
             todo = [r for r in rows if "statements" in r]

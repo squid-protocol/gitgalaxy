@@ -84,6 +84,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # #3351-#3354: CICS resource operations (FILE/MAP/QUEUE/CONTAINER/CHANNEL) live in
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
+from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.compiler_options import compiler_options, effective
@@ -666,6 +667,12 @@ _CONDITION_LEVELS = (66, 88)
 # A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck and
 # the inline pass is skipped entirely.
 _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
+# #5154: a job that assembles CICS macro tables -- an assembler step (HLASM ASMA90, its
+# IEV90 alias, the older assemblers) or CICS's DFHAUPLE assemble-and-link procedure.
+_JCL_ASSEMBLER = re.compile(
+    r"^//(?!\*)[^\n]*?(?:\bPGM=(?:ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR)\b|\bEXEC\s+(?:PROC=)?DFHAUPLE\b|\bPROC\s+DFHAUPLE\b)",
+    re.I | re.M,
+)
 # A CSD command opens a line (tolerating a leading blank column or JCL-inline
 # indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
 # Only DEFINE carries a resource we capture; the rest merely terminate the record
@@ -2410,6 +2417,16 @@ def _jcl_csd_resources(code_stream: str) -> list[dict[str, Any]]:
     return _csd_resources(code_stream)
 
 
+def _jcl_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
+    """The CICS macro tables (DFHFCT ... DFHMCT) in the inline SYSIN of a JCL assembler step (#5154), or [].
+
+    Gated on an assembler step so a DFHxxx word elsewhere in a job reads nothing; a step
+    whose SYSIN is a separate member yields nothing here (that member is read as assembler)."""
+    if not _JCL_ASSEMBLER.search(code_stream):
+        return []
+    return cics_macro_table_resources(code_stream)
+
+
 def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
     """PL/I name -> its `INIT`/`VALUE` string (first declaration wins), the PL/I
     analog of `_cobol_value_map` for CICS operand resolution (#3351-#3354).
@@ -2645,6 +2662,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
+    #5120: hlasm also carries `csd_resources` from the DFHFCT / DFHPCT / DFHPPT /
+    DFHDCT / DFHTST macro tables, with `source` / `macro_table` provenance.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
     PROC calls, and each DSN DD's disposition and GDG generation (job_flow).
     """
@@ -2679,7 +2698,9 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary = _jcl_boundary(code_stream)
         boundary["records"] = []
         boundary["transactions"] = _jcl_csd_transactions(code_stream)
-        boundary["csd_resources"] = _jcl_csd_resources(code_stream)  # #3356
+        boundary["csd_resources"] = _jcl_csd_resources(code_stream) + _jcl_macro_table_resources(
+            code_stream
+        )  # #3356, #5154
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
@@ -2704,6 +2725,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": [],
             "transactions": [],
             "ims_gen": ims_gen_macros(code_stream),
+            # #5120: DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro tables, as CSD-shaped rows.
+            "csd_resources": cics_macro_table_resources(code_stream),
             "cics_resources": _cics_resources(stream, dc, "hlasm"),
             "cics_tasks": _cics_tasks(stream, dc, [], "hlasm"),
             "uow_handlers": _uow_handlers(stream, dc),

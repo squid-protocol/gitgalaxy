@@ -9,14 +9,20 @@ import ci_digest as cd  # noqa: E402
 SHA = "a" * 40
 
 
-def fake_api(runs, mergeable_state="clean", main_runs=()):
+def fake_api(runs, mergeable_state="clean", main_runs=(), pr_files=(), main_files=()):
     def api(path):
         if path.endswith("/commits/main"):
             return {"sha": "m" * 40}
         if "/commits/" + "m" * 40 in path:
             return {"check_runs": list(main_runs)}
+        if "/pulls/7/files" in path:
+            return [{"filename": f} for f in pr_files]
         if path.endswith("/pulls/7"):
             return {"head": {"sha": SHA}, "mergeable_state": mergeable_state}
+        if path.endswith(f"/compare/main...{SHA}"):
+            return {"merge_base_commit": {"sha": "b" * 40}}
+        if path.endswith("/compare/" + "b" * 40 + "...main"):
+            return {"files": [{"filename": f} for f in main_files]}
         if "/check-runs" in path:
             return {"check_runs": runs}
         raise AssertionError(path)
@@ -106,3 +112,130 @@ def test_a_suite_part_and_the_prism_timing_test(monkeypatch):
     assert cd.triage("failure", "", ex["tests"]) == "real"
     monkeypatch.setattr(cd, "FLAKY", {"test_prism_suppression_regex_bomb"})
     assert cd.triage("failure", "", ex["tests"]) == "flake"
+
+
+def test_the_infrastructure_marker_of_ci_retry_and_the_db2_pull_triages_as_infra():  # #5048
+    marker = "::error::INFRASTRUCTURE (not a code defect): 'docker pull -q x' failed after 4 attempts (exit 1)"
+    assert cd.triage("failure", marker, []) == "infra"
+    assert cd.triage("failure", "FileNotFoundError: INFRASTRUCTURE (not a code defect): could not pull", []) == "infra"
+
+
+def ratchet_log(*rows):
+    """A suite part whose only failing step is `time_ratchet.py check`: (nodeid, seconds, limit-text) rows."""
+    lines = ["2026-10-15T10:00:00.0000000Z ##[group]Per-test time ratchet"]
+    lines += [f"2026-10-15T10:00:01.0000000Z FAIL {n}: {sec}s is over {lim}" for n, sec, lim in rows]
+    lines += ["2026-10-15T10:00:02.0000000Z 900 tests checked, 1 over the per-test limit, 0 warned",
+              "2026-10-15T10:00:02.0000000Z ##[error]Process completed with exit code 1."]  # fmt: skip
+    return "\n".join(lines)
+
+
+UNMARKED = "15s and has no @pytest.mark.slow(reason=...) and no entry in tests/test_time_baseline.json"
+BASELINED = "2x its baseline 10.0s (make it faster, or mark it slow with a reason)"
+T_IN, T_OUT = "tests/in_diff/test_a.py::test_slow", "tests/elsewhere/test_b.py::test_slow"
+
+
+def part(log, pr_files=(), **kw):
+    api = fake_api([run(1, "full-suite part 1/3", "failure")], pr_files=pr_files, **kw)
+    return cd.digest(7, api, lambda i: log)["failed"][0]
+
+
+def test_a_ratchet_only_red_outside_the_pr_diff_is_a_flake():
+    f = part(ratchet_log((T_OUT, 31.0, UNMARKED)), pr_files=["tests/in_diff/test_a.py"])
+    assert f["triage"] == "flake" and f["ratchet"] == {T_OUT: [31.0, 15.0]}
+
+
+def test_a_ratchet_only_red_inside_the_diff_is_real_over_1_5x_and_flake_under():
+    over = part(ratchet_log((T_IN, 22.6, UNMARKED)), pr_files=["tests/in_diff/test_a.py"])  # 1.51 x 15 s
+    assert over["triage"] == "real"
+    under = part(ratchet_log((T_IN, 22.4, UNMARKED)), pr_files=["tests/in_diff/test_a.py"])
+    assert under["triage"] == "flake"
+    base_over = part(ratchet_log((T_IN, 31.0, BASELINED)), pr_files=["tests/in_diff/test_a.py"])  # limit 20 s
+    assert base_over["triage"] == "real" and base_over["ratchet"][T_IN] == [31.0, 20.0]
+    base_under = part(ratchet_log((T_IN, 29.0, BASELINED)), pr_files=["tests/in_diff/test_a.py"])
+    assert base_under["triage"] == "flake"
+
+
+def test_one_in_diff_overage_among_outside_ones_keeps_the_ratchet_red_real():
+    log = ratchet_log((T_OUT, 40.0, UNMARKED), (T_IN, 40.0, UNMARKED))
+    assert part(log, pr_files=["tests/in_diff/test_a.py"])["triage"] == "real"
+
+
+def test_an_unreadable_pr_file_list_keeps_a_big_overage_real():
+    def api(path):
+        if "/pulls/7/files" in path:
+            raise SystemExit("gh api failed")
+        return fake_api([run(1, "full-suite part 1/3", "failure")])(path)
+
+    d = cd.digest(7, api, lambda i: ratchet_log((T_OUT, 40.0, UNMARKED)))
+    assert d["failed"][0]["triage"] == "real"
+
+
+def test_a_ratchet_overage_beside_a_failed_test_or_another_error_stays_real():
+    both = ratchet_log((T_OUT, 31.0, UNMARKED)) + "\nFAILED tests/x.py::test_y - AssertionError"
+    assert part(both)["triage"] == "real"
+    other = ratchet_log((T_OUT, 31.0, UNMARKED)) + "\nTraceback (most recent call last):"
+    assert part(other)["triage"] == "real"
+
+
+def test_the_full_suite_roll_up_is_triaged_by_its_parts():
+    runs = [run(1, "full-suite part 1/3", "failure"), run(2, "full-suite", "failure")]
+    logs = {1: ratchet_log((T_OUT, 31.0, UNMARKED)), 2: "##[error]Process completed with exit code 1."}
+    d = cd.digest(7, fake_api(runs), lambda i: logs[i])
+    assert {f["check"]: f["triage"] for f in d["failed"]} == {"full-suite": "flake", "full-suite part 1/3": "flake"}
+    runs.append(run(3, "full-suite part 2/3", "failure"))
+    logs[3] = "FAILED tests/x.py::test_y - AssertionError"
+    d = cd.digest(7, fake_api(runs), lambda i: logs[i])
+    assert {f["check"]: f["triage"] for f in d["failed"]}["full-suite"] == "real"  # one real part keeps it real
+
+
+def test_the_ground_truth_roll_up_follows_an_infra_part():
+    runs = [run(1, "ground-truth part 2/2", "cancelled"), run(2, "ground-truth", "failure")]
+    d = cd.digest(7, fake_api(runs), lambda i: "##[error]Process completed with exit code 1.")
+    assert {f["check"]: f["triage"] for f in d["failed"]} == {"ground-truth": "infra", "ground-truth part 2/2": "infra"}
+
+
+def test_det_after_a_db2_infra_failure_is_an_infra_knock_on():  # 5089-20261015T2217Z
+    pull = "::error::INFRASTRUCTURE (not a code defect): 'docker pull -q db2' failed after 4 attempts (exit 1)"
+    knock = "det Z: no result (its shard did not report)\n##[error]Process completed with exit code 1."
+    runs = [run(1, "db2 1/1", "failure"), run(2, "det", "failure")]
+    d = cd.digest(7, fake_api(runs), lambda i: {1: pull, 2: knock}[i])
+    assert {f["check"]: f["triage"] for f in d["failed"]} == {"db2 1/1": "infra", "det": "infra"}
+    runs.append(run(3, "shard 1/6", "failure"))  # a real shard failure beside it: det is a real red
+    d = cd.digest(7, fake_api(runs), lambda i: {1: pull, 2: knock, 3: "det A NOT PROVEN"}[i])
+    assert {f["check"]: f["triage"] for f in d["failed"]}["det"] == "real"
+
+
+def test_det_with_no_failed_part_stays_real():
+    d = cd.digest(7, fake_api([run(2, "det", "failure")]), lambda i: "det Z: no result (its shard did not report)")
+    assert d["failed"][0]["triage"] == "real"
+
+
+FIXED = "tests/core_engine/test_x.py"
+STALE_LOG = f"FAILED {FIXED}::test_y - AssertionError"
+
+
+def test_a_stale_base_main_red_is_main_with_a_merge_repro():  # 5134-20261014T1831Z
+    api = fake_api(
+        [run(1, "full-suite part 1/3", "failure")], main_files=[FIXED, "docs/a.md"], pr_files=["gitgalaxy/z.py"]
+    )
+    (f,) = cd.digest(7, api, lambda i: STALE_LOG)["failed"]
+    assert f["triage"] == "main" and f["repro"].startswith("stale base") and "git merge origin/main" in f["repro"]
+
+
+def test_a_failing_test_main_did_not_touch_or_the_pr_edited_stays_real():
+    untouched = fake_api([run(1, "full-suite part 1/3", "failure")], main_files=["tests/other/test_o.py"])
+    assert cd.digest(7, untouched, lambda i: STALE_LOG)["failed"][0]["triage"] == "real"
+    edited = fake_api([run(1, "full-suite part 1/3", "failure")], main_files=[FIXED], pr_files=[FIXED])
+    assert cd.digest(7, edited, lambda i: STALE_LOG)["failed"][0]["triage"] == "real"
+
+
+def test_real_failures_still_triage_real():
+    """No change to how real failures are triaged (#5273): a failed test, a det case, a lint error, a big overage."""
+    assert cd.triage("failure", PYTEST_LOG, ["tests/x.py::test_y"]) == "real"
+    ex = cd.extract(ratchet_log((T_IN, 90.0, UNMARKED)))
+    assert cd.triage("failure", "", [], ex=ex, diff_files=lambda: {"tests/in_diff/test_a.py"}) == "real"
+    assert cd.triage("failure", "##[error]E501 x.py:3", []) == "real"
+    d = cd.digest(7, fake_api([run(3, "shard 2/6", "failure")]), lambda i: "  det carddemo-acctupdate  NOT PROVEN")
+    assert d["failed"][0]["triage"] == "real"
+    inside = fake_api([run(1, "full-suite part 1/3", "failure")], pr_files=["tests/in_diff/test_a.py"])
+    assert cd.digest(7, inside, lambda i: ratchet_log((T_IN, 90.0, UNMARKED)))["failed"][0]["triage"] == "real"

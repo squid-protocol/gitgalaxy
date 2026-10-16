@@ -147,6 +147,38 @@
      "runTask",
      "handleLink"
     ]
+   },
+   {
+    "at": "2026-10-15T13:25:37+00:00",
+    "crucible_ref": "v0.8.0 (afc1db0f)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1"
+    },
+    "port_sha256": "9c47123e2d46cad9ea0abd956a66cee93e67ca74f9422598a26d33657e46ccd0",
+    "harness_commit": "d38dc2b72cc89b1b3ea3ba2bb0a662078575dc94",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CASUB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
+   },
+   {
+    "at": "2026-10-16T18:22:52+00:00",
+    "crucible_ref": "v0.9.0 (3ca75ae0)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1"
+    },
+    "port_sha256": "9c47123e2d46cad9ea0abd956a66cee93e67ca74f9422598a26d33657e46ccd0",
+    "harness_commit": "f47c7b187d4d7e72fcb0993486b256d60827f223",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CASUB --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleLink"
+    ]
    }
   ]
  },

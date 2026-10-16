@@ -1,0 +1,187 @@
+"""#5133: the CI critical path -- the ground-truth job in 2 parts and the advisory evidence deltas in their own job.
+
+`ground-truth` and `full-suite` are required checks (the ruleset names them), so each stays one job that aggregates its
+parts. The parts must together cover everything the single job ran, and nothing advisory may hold the required check back.
+"""
+
+from pathlib import Path
+
+import pytest
+
+yaml = pytest.importorskip("yaml")
+
+ROOT = Path(__file__).resolve().parents[2]
+WORKFLOWS = ROOT / ".github" / "workflows"
+
+
+def _jobs(name):
+    return yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))["jobs"]
+
+
+def _steps(job):
+    return {s.get("name"): s for s in job["steps"]}
+
+
+def test_ground_truth_is_the_aggregate_of_its_parts():
+    jobs = _jobs("mainframe-ground-truth.yml")
+    assert "ground-truth" in jobs and "ground-truth-part" in jobs
+    assert "ground-truth-part" in jobs["ground-truth"]["needs"]
+    assert "ground-truth" in jobs["publish-history"]["needs"] or jobs["publish-history"]["needs"] == "ground-truth"
+    publish = jobs["publish-history"]
+    assert "ground-truth-part" in publish["needs"]  # #5176: a tested-tree skip uploads no history artifact
+    assert "needs.ground-truth-part.result == 'success'" in publish["if"]
+    assert "name" not in jobs["ground-truth"]  # the check is named by its key: `ground-truth`
+
+
+def test_the_parts_partition_tests_cobol_mainframe():
+    part = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]
+    include = part["strategy"]["matrix"]["include"]
+    assert [i["group"] for i in include] == [1, 2]
+    assert part["strategy"]["fail-fast"] is False
+    carved = [
+        "tests/cobol_mainframe/test_evidence_components.py",
+        "tests/cobol_mainframe/test_det_nondigit_zoned.py",
+    ]
+    assert all((ROOT / f).is_file() for f in carved)
+    rest, only = (i["tests"].split() for i in include)
+    assert rest == ["tests/cobol_mainframe/", *(f"--ignore={f}" for f in carved)]
+    assert only == carved
+    run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
+    pytest_line = next(ln for ln in run.splitlines() if "-m pytest" in ln)
+    assert "${{ matrix.tests }}" in pytest_line and "tests/cobol_mainframe" not in pytest_line
+
+
+def test_ledger_gate_and_history_stay_in_part_1_only():
+    steps = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth-part"])
+    for name in (
+        "Gate against the ground-truth ledger",
+        "Restore the published history from the generated branch",
+        "Keep the history for the publish job",
+    ):
+        assert "matrix.group == 1" in steps[name]["if"], name
+
+
+def test_evidence_deltas_is_advisory_and_off_the_required_check():
+    jobs = _jobs("smoke-test.yml")
+    deltas = jobs["evidence-deltas"]
+    assert deltas["continue-on-error"] is True
+    assert "evidence-deltas" not in jobs["full-suite"]["needs"]
+    assert not any("evidence_report" in str(s.get("run")) for s in jobs["full-suite-part"]["steps"])
+    assert any("evidence_report.py --deltas" in str(s.get("run")) for s in deltas["steps"])
+
+
+def test_full_suite_parts_are_balanced_by_least_duration():
+    """#5133: the default duration_based_chunks cuts contiguous slices, which put tests/cobol_mainframe all in part 1."""
+    steps = _jobs("smoke-test.yml")["full-suite-part"]["steps"]
+    runs = [str(s.get("run")) for s in steps if "--splits 3" in str(s.get("run"))]
+    assert runs
+    assert all("--splitting-algorithm least_duration" in r for r in runs)
+
+
+def test_every_artifact_download_waits_on_a_job_that_can_upload_it():
+    """#5176: a download job gated only on an aggregate that passes when the uploader was skipped fails on a green run."""
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        jobs = yaml.safe_load(path.read_text(encoding="utf-8"))["jobs"]
+        text = path.read_text(encoding="utf-8")
+        if "skip_tested_tree" not in text:
+            continue
+        for name, job in jobs.items():
+            if not any("download-artifact" in str(s.get("uses", "")) for s in job.get("steps", [])):
+                continue
+            needs = job.get("needs", [])
+            needs = [needs] if isinstance(needs, str) else needs
+            uploaders = [
+                n for n in jobs if any("upload-artifact" in str(s.get("uses", "")) for s in jobs[n].get("steps", []))
+            ]
+            gate = str(job.get("if", ""))
+            assert any(
+                n in needs and (f"needs.{n}.result == 'success'" in gate or "success()" in gate) for n in uploaders
+            ), f"{path.name}:{name} downloads an artifact without requiring its uploader to have succeeded"
+
+
+# ---- #5132: fewer PR jobs ------------------------------------------------------------------------------------------
+
+
+def _on(name):
+    doc = yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
+    return doc.get(True) or doc.get("on")
+
+
+def _glob(pattern):
+    """GitHub's filter glob: `**` crosses directories, `*` does not, a leading `!` excludes."""
+    import re
+
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
+
+
+def _starts(name, changed):
+    """Whether a PR that changes only `changed` starts the workflow (GitHub: any path matches, last pattern wins)."""
+    patterns = _on(name)["pull_request"]["paths"]
+    for f in changed:
+        hit = False
+        for p in patterns:
+            if _glob(p.lstrip("!")).match(f):
+                hit = not p.startswith("!")
+        if hit:
+            return True
+    return False
+
+
+ENGINE = "gitgalaxy/core/detector.py"
+TRANSLATOR = "gitgalaxy/tools/cobol_to_java/det/emit.py"
+ONLY_TESTS_AND_DOCS = ["tests/tools/test_x.py", "docs/ci.md", "README.md", "tests/cobol_mainframe/answer_key/a.json"]
+
+
+@pytest.mark.parametrize("name", ["muninn.yml", "codeql.yml"])
+def test_security_scans_run_on_prs_only_for_engine_dependency_or_workflow_changes(name):
+    assert "schedule" in _on(name)  # the backstop that covers everything the PR filter skips
+    assert "paths-ignore" not in _on(name)["pull_request"]
+    for changed in (
+        ENGINE,
+        "pyproject.toml",
+        "ci/requirements/test.txt",
+        ".github/workflows/smoke-test.yml",
+        "action.yml",
+    ):
+        assert _starts(name, [changed]), changed
+    for changed in ONLY_TESTS_AND_DOCS:
+        assert not _starts(name, [changed]), changed
+
+
+def test_golden_crucible_skips_translator_only_and_prose_changes():
+    name = "golden-crucible.yml"
+    assert _starts(name, [ENGINE]) and _starts(name, ["tests/golden_master_audit/_groups.json"])
+    assert _starts(name, ["tests/crucible_pins.toml"]) and _starts(name, [".github/workflows/golden-crucible.yml"])
+    assert not _starts(name, [TRANSLATOR, "gitgalaxy/cobol_to_java_controller.py"])
+    assert not _starts(name, ["gitgalaxy/README.md", *ONLY_TESTS_AND_DOCS])
+    assert _starts(name, [TRANSLATOR, ENGINE])  # one engine file among translator files still runs it
+
+
+def test_golden_crucible_paths_cover_every_file_the_test_imports():
+    """The sibling modules tests/test_golden_crucible.py imports bare must be in the filter, or editing one skips the check."""
+    import re
+
+    text = (ROOT / "tests" / "test_golden_crucible.py").read_text(encoding="utf-8")
+    for mod in re.findall(r"^import (golden_\w+|_crucible_pin)$", text, re.M):
+        assert _starts("golden-crucible.yml", [f"tests/{mod}.py"]), mod
+
+
+def test_the_three_pre_gates_are_one_job():
+    jobs = _jobs("gitgalaxy.yml")
+    assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
+    steps = jobs["pre-gate"]["steps"]
+    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
+    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    # each gate runs even when an earlier one failed, and none may swallow its own failure
+    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert not any(s.get("continue-on-error") for s in steps)

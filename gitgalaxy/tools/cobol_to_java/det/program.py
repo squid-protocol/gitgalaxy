@@ -17,7 +17,9 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.aperture import DET_PORT_MARKER
+from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import dli as DLI
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
@@ -562,6 +564,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
     lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
+    # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
+    lines = B.lower(lines, str(program))
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)
@@ -631,6 +635,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.alphabets, gen.program_collating = alphabets(lines)
     _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.dli_pcbs = None if is_cics else DLI.entry_pcbs(proc)  # #4893: IMS enters it at ENTRY 'DLITCBL' (det/dli.py)
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -643,6 +648,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         execs = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"]
         gen.cics.handle_aid = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+AID\b", t) for t in execs)
         gen.cics.push_handle = any(re.match(r"(?is)\s*EXEC\s+CICS\s+(PUSH|POP)\s+HANDLE\b", t) for t in execs)
+        # #5126 (X64): EIBDS is set by a file control command only in a program that reads it (a port that never does
+        # keeps its text)
+        gen.cics.eibds_read = C.reads_eibds(s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind != "EXEC")
     if gen.cics is not None:
         gen.dto_codecs = gen.cics
     elif project is not None:
@@ -809,11 +817,18 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages: list[tuple[str, str]] = []
     seen = set()
+    fillers = 0
     for rec in records:
         r = roots[id(rec)]
         if id(r) in seen or id(r) in gen.lifted:  # a lifted item is a typed field, not storage
             continue
         seen.add(id(r))
+        if r.name.upper() == "FILLER" and r.section != "FILE":
+            # #4767 (zECS ZECS001 declares `01 FILLER.` four times): no reference can name a FILLER, so unlike a repeated
+            # real name nothing is ambiguous -- each group's named children are reached through their own storage
+            fillers += 1
+            if fillers > 1:
+                r.storage_alias = f"FILLER_{r.line}"
         img = L.image(r) if r.section != "FILE" else b" " * sizes[id(r)]
         img = img.ljust(sizes[id(r)], b"\x00" if r.section != "FILE" else b" ")
         name = _storage_name(r)
@@ -872,7 +887,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     extra_imports: list[str] = []
     using = [u for u in proc.using if u != "BY"]
     parm_code = []
-    if using:
+    if gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
+        parm_code = [f"        DetDli.enter({', '.join(gen.field_expr(E.Ref(n)) for n in gen.dli_pcbs)});"]
+        extra_imports.append(f"{package}.cobolrt.dli.DetDli")
+    elif using:
         u0 = next((r for r in linkage if r.name == using[0]), None)
         if u0 is not None:
             st = _storage_name(roots[id(u0)])
@@ -1215,6 +1233,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "        } catch (Goback g) {",
                 "            // the program ended",
                 "        }",
+                *(
+                    ["        DetDli.leave();  // the step ended: its databases, as it left them"]
+                    if gen.dli_pcbs is not None
+                    else []
+                ),
                 f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
                 "    }",
                 "",
@@ -1247,6 +1270,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Funcs;\nimport {pkg}.cobolrt.Hfp;\n", 1
+        )
+    if (
+        "Accept.from(" in java
+    ):  # #4893: ACCEPT FROM DATE / DAY / TIME, imported only where it is used (no other port changes)
+        java = java.replace(
+            f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Accept;\nimport {pkg}.cobolrt.Funcs;\n", 1
         )
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
@@ -1300,7 +1329,7 @@ def sync_code(gen: G.Gen, records: list, roots: dict) -> list[str]:
 
 
 def _storage_name(rec: L.Item) -> str:
-    return "s_" + G.jname(rec.name)
+    return "s_" + G.jname(rec.storage_alias or rec.name)
 
 
 def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,

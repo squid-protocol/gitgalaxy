@@ -12,9 +12,10 @@ the COBOL run by GnuCOBOL. Read first:
 ## Environment
 
 ```sh
-cd /nvme-data/projects/gitgalaxy-worktrees/<worktree>
+PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}   # gitgalaxy-pr-worker.md Setup 1
+cd $PRIMARY/../gitgalaxy-worktrees/<worktree>
 PY=../porting-loop/.venv/bin/python             # the shared venv: an EDITABLE gitgalaxy install of another checkout
-export GITGALAXY_MAINFRAME_CORPORA=/nvme-data/projects/gitgalaxy/.mainframe_corpora
+export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER
 ```
 
@@ -41,8 +42,9 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 |---|---|
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
-| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
+| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it, but a change to the shared `CicsTask.java` marks every port changed in `check`: re-prove the ones that can reach the changed code and name them in the report (#5147); `check` also marks every port changed after any `DetCics.java` edit, so read the per-port diff line (`DetCics.java N lines`) before assuming behaviour moved. `CicsTask.java` is the string `CICS_TASK_JAVA` in `cobol_to_java_transaction_forge.py`: re-prove only the ports whose `*Service.java` moved, plus a sample using the touched verb (#5185, #5187, #5204) |
 | structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
+| **run a det case** | `det_port.py run`: only it applies the deterministic port. `equivalence.py run` uses the generated skeleton, not the deterministic port (#5147) |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
@@ -157,3 +159,8 @@ A translator fix is never a hand edit of a port.
   GitGalaxy's aperture admits it past the generated-noise gates (wiki 02-03, "Declared ports"); without that line a
   default scan drops most ports as machine output. Keep that line first, and keep emitted lines under 500
   characters where it is free: storage images go one 400-character piece per line.
+- **Equivalence case traps.** A case's `"commarea"` is `{"segments": [{"copybook", "record"}]}` or null, never a name, and the segment's copybook field names must match the program's DFHCOMMAREA (#5185). A scenario meant to stay on a validation path must be checked in the COBOL trace (`proof/cobol/scenarios/*/trace.txt`): an EPSNBRVL error text does not zero the number it returns (#5188). When a field's justification changes, check what it does to every scenario's meaning (a NUM field with the length-typed assumption turns a short typed value into leading zeros under `<f>I(1:<f>L)`), not only which scenarios fail (#5193). In a proof run the GnuCOBOL oracle side refuses before the Java side runs, so fixing a Java failure can surface a different refusal (#5193).
+- **A pointer tested for NULL needs no runtime change.** `Cobol.compareFigurative(Field, LOW_VALUES, CS)` already tests a pointer for NULL (all-zero handle) (#5203).
+- **A relation involving NULL must skip `cond_relations` / `self.relation()`**, or the OSVS plan list goes out of step (#5203).
+- **`docker save <name>@sha256:...` + `docker load` drops the digest name** (a digest cannot be a local tag): a
+  cache-restored digest-pinned image needs a local alias; check `docker image inspect <digest-ref>` after a load (#5265).

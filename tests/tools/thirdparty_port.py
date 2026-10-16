@@ -151,7 +151,7 @@ def adapter_classes(work: Path, classpath: str) -> Path:
     out = work / "tpadapter-classes"
     if not (out / "tpadapter" / "ProgramLauncher.class").is_file():
         out.mkdir(parents=True, exist_ok=True)
-        p = dp.run([dp.tool(None, "javac"), "--release", "17", "-d", str(out),
+        p = dp.run([dp.tool(None, "javac"), "--release", "17", "-encoding", "UTF-8", "-d", str(out),
                     *map(str, ADAPTER.rglob("*.java"))])  # fmt: skip
         if p.returncode:
             raise RuntimeError(decode_bytes(p.stderr))
@@ -260,7 +260,7 @@ def run_lightyear(port: dict[str, Any], prog: dict[str, Any], case: dict[str, An
     outdir.mkdir(parents=True, exist_ok=True)
     clock = datetime.strptime(case["clock"][:19], "%Y/%m/%d %H:%M:%S")
     launcher = dp.adapter_classes(work, None)  # Devin's EnvLauncher: locale and time zone, then their main
-    argv = [dp.tool(None, "java"), "-cp", f"{launcher}:{tree / LIGHTYEAR_JAR}", "devinadapter.EnvLauncher",
+    argv = [dp.tool(None, "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", f"{launcher}:{tree / LIGHTYEAR_JAR}", "devinadapter.EnvLauncher",
             env["locale"], env["tz"], "org.springframework.boot.loader.launch.JarLauncher",
             f"--carddemo.input-dir={run_dir / 'in'}", f"--carddemo.output-dir={outdir}",
             f"--carddemo.processing-date={case['parm']}",
@@ -277,7 +277,7 @@ def run_sentinel(port: dict[str, Any], prog: dict[str, Any], case: dict[str, Any
     dds = stage(case, corpus, run_dir, None, absent)
     args = [case["parm"] if a == "PARM" else str(dds[a]) for a in prog["args"]]
     launcher = adapter_classes(work, classpath)
-    argv = [dp.tool(None, "java"), "-cp", f"{launcher}:{classpath}", "tpadapter.ProgramLauncher", env["locale"],
+    argv = [dp.tool(None, "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", f"{launcher}:{classpath}", "tpadapter.ProgramLauncher", env["locale"],
             env["tz"], str(LOGBACK), f"com.cardemo.cbl.{program}", *args]  # fmt: skip
     proc = dp.run(argv, cwd=run_dir, timeout=600)
     outs = read_outputs(case, dds)
@@ -390,7 +390,7 @@ def devin_external_faults(work: Path, jdk21: Path | None) -> list[dict[str, Any]
                 outdir = run_dir / "out"
                 outdir.mkdir()
                 env = ej.environment("default")
-                argv = [dp.tool(jdk, "java"), "-cp", f"{adapter}:{classpath}", "devinadapter.EnvLauncher",
+                argv = [dp.tool(jdk, "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", f"{adapter}:{classpath}", "devinadapter.EnvLauncher",
                         env["locale"], env["tz"], port["main"], *dp.command(port, template, case, dds, outdir)]  # fmt: skip
                 proc = dp.run(argv, cwd=run_dir, timeout=600)
                 java = dp.java_outputs(case, port, dds, outdir, proc)

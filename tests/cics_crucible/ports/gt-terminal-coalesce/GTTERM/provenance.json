@@ -156,6 +156,40 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-15T13:26:46+00:00",
+    "crucible_ref": "v0.8.0 (afc1db0f)",
+    "summary": {
+     "cancel-in-time": "1/1",
+     "cancel-too-late": "1/1",
+     "staggered": "1/1",
+     "three-in-one": "1/1"
+    },
+    "port_sha256": "d69ff00288d03761e93595254bda014a1cd2ae3256e1276049a2b0c26b5e009b",
+    "harness_commit": "d38dc2b72cc89b1b3ea3ba2bb0a662078575dc94",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTTERM --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-10-16T18:24:00+00:00",
+    "crucible_ref": "v0.9.0 (3ca75ae0)",
+    "summary": {
+     "cancel-in-time": "1/1",
+     "cancel-too-late": "1/1",
+     "staggered": "1/1",
+     "three-in-one": "1/1"
+    },
+    "port_sha256": "d69ff00288d03761e93595254bda014a1cd2ae3256e1276049a2b0c26b5e009b",
+    "harness_commit": "f47c7b187d4d7e72fcb0993486b256d60827f223",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program GTTERM --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

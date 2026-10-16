@@ -63,8 +63,77 @@ def test_merge_names_a_case_with_no_result(tmp_path):
     assert sorted(merged["det"]) == ["a", "b", "c"]
     assert ps.missing_cases(merged, ["a", "b", "c"]) == []
     assert ps.missing_cases(merged, ["a", "z"]) == ["det z: no result (its shard did not report)"]
-    with pytest.raises(ValueError, match="in two shards"):
-        ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])
+    assert sorted(ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])["det"]) == [
+        "a",
+        "b",
+    ]  # a repeat is not a conflict (#5107)
+
+
+def _shard_file(tmp_path, name, sweeps):
+    d = tmp_path / name
+    d.mkdir()
+    (d / "sweep.json").write_text(json.dumps(sweeps), encoding="utf-8")
+    return d
+
+
+_ROW = {
+    "proved": True,
+    "coverage": "9/10",
+    "called_holes": 0,
+    "translated": "10/10",
+    "seconds": 1.0,
+    "uncovered": [],
+    "linked": [],
+}
+
+
+def test_a_case_in_two_shards_with_the_same_result_merges_once(tmp_path):
+    """#5107: two shards that split on different durations both prove a case; only the timing differs."""
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}, "model": {"m": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, "seconds": 99.0}}, "model": {"m": _ROW}})
+    merged = ps.merge_sweeps([a, b])
+    assert merged == {"det": {"x": _ROW}, "model": {"m": _ROW}}  # the first copy is kept, in every sweep
+
+
+@pytest.mark.parametrize(
+    ("field", "other"),
+    [
+        ("proved", False),
+        ("coverage", "5/10"),
+        ("called_holes", 2),
+        ("translated", "9/10"),
+        ("uncovered", ["L1"]),
+        ("linked", ["P"]),
+        ("brand_new_field", 1),
+    ],
+)
+def test_a_case_in_two_shards_with_different_results_still_fails(tmp_path, field, other):
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, field: other}}})
+    with pytest.raises(ValueError, match=rf"det x: in two shards with conflicting results.*{field}"):
+        ps.merge_sweeps([a, b])
+
+
+def test_shards_split_on_different_durations_merge_and_a_gap_is_still_named(tmp_path):
+    """The #5107 scenario: shard 3 split on a newer durations file than shards 1 and 2, so it re-proves shard 1's cases
+    and the cases only it should have run are never proven. The merge accepts the repeat; missing_cases names the gap."""
+    cases = [f"c{i}" for i in range(9)]
+    early = {c: float(i + 1) for i, c in enumerate(cases)}
+    late = {c: float(9 - i) for i, c in enumerate(cases)}
+    runs = [
+        ps.shard_cases(cases, (1, 3), early),
+        ps.shard_cases(cases, (2, 3), early),
+        ps.shard_cases(cases, (3, 3), late),
+    ]
+    proved = sorted(set(sum(runs, [])))
+    assert len(sum(runs, [])) > len(proved)  # the premise: two shards proved a case
+    files = [_shard_file(tmp_path, str(i), {"det": {c: _ROW for c in run}}) for i, run in enumerate(runs)]
+    merged = ps.merge_sweeps(files)
+    assert sorted(merged["det"]) == proved
+    assert ps.missing_cases(merged, cases) == [
+        f"det {c}: no result (its shard did not report)" for c in cases if c not in proved
+    ]
+    assert ps.missing_cases(merged, proved) == []
 
 
 # ---- the plan ----------------------------------------------------------------------------------------------
@@ -181,7 +250,7 @@ def test_db2_cases_are_not_planned_and_the_runner_count_follows_the_plan():
     assert p["db2_cases"] == ["dbcase"] and plan.db2_shards_for(p) == ["1/1"]  # #4901: the db2 job proves it
     assert plan.shards_for({"mode": "narrow", "cases": ["a"]}) == ["1/1"]
     assert plan.shards_for({"mode": "narrow", "cases": list("abcdefg")}) == ["1/3", "2/3", "3/3"]
-    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/20" for i in range(1, 21)]  # #4814
+    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/6" for i in range(1, 7)]  # #4814, #5135
 
 
 def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
@@ -335,3 +404,29 @@ def test_a_generator_class_a_port_names_moves_that_port(tmp_path):
     # a base translated before the snapshot existed has no generated/: only the port itself is compared
     shutil.rmtree(tmp_path / "base" / "a" / "generated")
     assert det_port.compare(tmp_path / "base", tmp_path / "new")[0]["status"] == "unchanged"
+
+
+def test_the_split_is_a_partition_whatever_the_plan_and_shard_count():
+    """#5135 / #5114: with every case in exactly one shard (the real 110 cases, durations known or not), a smaller
+    shard count cannot leave one unproved (`missing_cases`) or prove one twice."""
+    names = sorted(plan.case_dirs())
+    assert len(names) > plan.MAX_SHARDS * plan.PER_SHARD
+    recorded = ps.load_durations()
+    for durations in (recorded, {}, {n: float(i % 7) for i, n in enumerate(names)}):
+        for p in (
+            {"mode": "full", "cases": "all"},
+            {"mode": "narrow", "cases": names[:5]},
+            {"mode": "narrow", "cases": names},
+        ):
+            matrix = plan.shards_for(p)
+            assert len(matrix) <= plan.MAX_SHARDS
+            want = names if p["cases"] == "all" else p["cases"]
+            got = [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]
+            assert sorted(got) == sorted(want)  # none missing, none twice
+            assert got == [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]  # stable
+
+
+def test_a_full_sweep_plus_db2_fits_the_job_pool():
+    """#5135: a full run is shards + db2 jobs (+ plan + det), which must not exceed the 20-job pool."""
+    full = {"mode": "full", "cases": "all", "db2_cases": "all"}
+    assert len(plan.shards_for(full)) + len(plan.db2_shards_for(full)) + 2 <= 20

@@ -6,7 +6,27 @@ on:
     branches:
       - main
       - v6-dev
-    paths-ignore: ["docs/**"]
+    # #5132: what the scan and its fixtures read. The COBOL-to-Java translator and its entry point are never read by a
+    # scan (same exclusion as crucible-path-independence.yml), so a translator-only PR starts neither leg.
+    paths:
+      - "gitgalaxy/**"
+      - "tests/golden_master_audit/**"
+      - "tests/golden_master_zero_dep_audit/**"
+      - "tests/test_golden_crucible.py"
+      - "tests/conftest.py"
+      - "tests/golden_diff.py"
+      - "tests/golden_store.py"
+      - "tests/golden_*_snapshot.py"
+      - "tests/golden_timeout_guard.py"
+      - "tests/_crucible_pin.py"
+      - "tests/crucible_pins.toml"
+      - "tests/tools/crucible_pins.py"
+      - "pyproject.toml"
+      - "ci/requirements/**"
+      - ".github/workflows/golden-crucible.yml"
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
 
 concurrency:
   # One run per workflow per PR (or per ref outside a PR). Without this, a PR

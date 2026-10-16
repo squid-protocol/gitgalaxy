@@ -146,6 +146,38 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-10-15T13:27:42+00:00",
+    "crucible_ref": "v0.8.0 (afc1db0f)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "b415c27220a00f5b415fd83d7f480871618b29b514746fe2cfcd0887b1b139e9",
+    "harness_commit": "d38dc2b72cc89b1b3ea3ba2bb0a662078575dc94",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXEXT --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-10-16T18:24:57+00:00",
+    "crucible_ref": "v0.9.0 (3ca75ae0)",
+    "summary": {
+     "bad-account": "1/1",
+     "good-entry": "1/1",
+     "pf5-blink": "1/1"
+    },
+    "port_sha256": "b415c27220a00f5b415fd83d7f480871618b29b514746fe2cfcd0887b1b139e9",
+    "harness_commit": "f47c7b187d4d7e72fcb0993486b256d60827f223",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HXEXT --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

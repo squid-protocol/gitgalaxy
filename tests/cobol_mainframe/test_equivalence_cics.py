@@ -23,7 +23,7 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db 
 def test_a_read_becomes_a_stub_call_and_its_resp_is_the_programs():
     got = ec.translate_command(" READ DATASET (LIT-ACCTFILENAME) RIDFLD (WS-KEY) KEYLENGTH (LENGTH OF WS-KEY)"
                                " INTO (ACCOUNT-RECORD) RESP (WS-RESP-CD) RESP2 (WS-REAS-CD) ")  # fmt: skip
-    assert got[:4] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "MOVE SPACES TO GG-FLAGS",  # not UPDATE: holds nothing
+    assert got[:4] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "MOVE 'KEYLENGTH' TO GG-FLAGS",  # not UPDATE: holds nothing; a given KEYLENGTH (#5092)
                        "MOVE LENGTH OF ACCOUNT-RECORD TO GG-LEN", "CALL 'GGCREAD' USING GG-CICS"]  # fmt: skip
     assert "    BY VALUE LENGTH OF WS-KEY" in got and "    BY REFERENCE ACCOUNT-RECORD" in got
     assert got[-2:] == ["MOVE GG-RESP TO WS-RESP-CD", "MOVE GG-RESP2 TO WS-REAS-CD"]
@@ -112,7 +112,7 @@ def test_interval_control_commands_become_stub_calls():
                      "    BY REFERENCE WS-DATA", "IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN"]  # fmt: skip
     assert ec.translate_command("CANCEL REQID('GTREQ001')")[:2] == ["MOVE 'GTREQ001' TO GG-QNAME",
                                                                    "CALL 'GGCCNCL' USING GG-CICS"]  # fmt: skip
-    for body in ("RETRIEVE SET(P) LENGTH(L)", "CANCEL", "START INTERVAL(0)", "START TRANSID('X') SYSID('R')",
+    for body in ("CANCEL", "START INTERVAL(0)", "START TRANSID('X') SYSID('R')",
                  "START TRANSID('X') AFTER", "START TRANSID('X') HOURS(1)", "START TRANSID('X') INTERVAL(1) AT HOURS(1)",
                  "RETRIEVE LENGTH(L)", "RETRIEVE RTRANSID(T) LENGTH(L)", "RETRIEVE INTO(A) WAIT"):  # fmt: skip
         with pytest.raises(ec.Unsupported):
@@ -243,9 +243,10 @@ def test_channels_and_containers_become_stub_calls():
     assert ec.translate_command("ASSIGN CHANNEL(WS-CUR)")[:2] == ["CALL 'GGCASCH' USING GG-CICS",
                                                                  "MOVE GG-CHAN TO WS-CUR"]  # fmt: skip
     for bad in (
-        "GET CONTAINER(C) INTO(A) INTOCCSID(1140)",
-        "PUT CONTAINER(C) FROM(A) FROMCCSID(37)",
-        "GET CONTAINER(C) SET(P) FLENGTH(L)",
+        "GET CONTAINER(C) INTO(A) INTOCODEPAGE('UTF-8')",
+        "PUT CONTAINER(C) FROM(A) FROMCODEPAGE('IBM037')",
+        "GET CONTAINER(C) INTO(A) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))",
+        "GET CONTAINER(C) INTO(A) CCSID(N)",
         "GET CONTAINER(C) FLENGTH(L)",
         "RETURN TRANSID('T') CHANNEL(C)",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
@@ -255,6 +256,42 @@ def test_channels_and_containers_become_stub_calls():
         "GETNEXT CONTAINER(N)",
         "ENDBROWSE CONTAINER",
         "PUT CONTAINER(C) FROM(A) BIT CHAR",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
+def test_container_ccsid_options_become_stub_arguments():
+    """#4270 (X17): FROMCCSID / INTOCCSID travel in GG-NUM with a flag word in GG-FLAGS;
+    CONVERTST(NOCONVERT) is the flag NOCONVERT; CCSID(area) is read back from GG-NUM with FLENGTH on RESP 0 or LENGERR."""
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) FROMCCSID(1140)")
+    assert put[2:4] == ["MOVE 1140 TO GG-NUM", "MOVE 'FROMCCSID' TO GG-FLAGS"]
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) CHAR FROMCCSID(500) APPEND")
+    assert "MOVE 500 TO GG-NUM" in put and "MOVE 'CHAR APPEND FROMCCSID' TO GG-FLAGS" in put
+    get = ec.translate_command("GET CONTAINER(C) INTO(WS-A) INTOCCSID(WS-CS) FLENGTH(WS-N)")
+    assert "MOVE WS-CS TO GG-NUM" in get and "MOVE 'INTOCCSID' TO GG-FLAGS" in get
+    raw = ec.translate_command("GET CONTAINER(C) INTO(WS-A) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)")
+    i = raw.index("CALL 'GGCGETC' USING GG-CICS")
+    assert "MOVE 'NOCONVERT' TO GG-FLAGS" in raw
+    assert raw[i + 2 : i + 5] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-NUM TO WS-CCSID", "END-IF"]
+    sets = ec.translate_command("GET CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)")
+    assert "MOVE 1140 TO GG-NUM" in sets and "CALL 'GGCGETS' USING GG-CICS" in "\n".join(sets)
+
+
+def test_container_byteoffset_and_prepend_become_stub_arguments():
+    """#5005 (X17): BYTEOFFSET travels in GG-NUM with the flag BYTEOFFSET (INTO only; no CCSID option, NODATA or SET); PREPEND is a
+    flag word (not with APPEND)."""
+    get = ec.translate_command("GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) FLENGTH(WS-N) BYTEOFFSET(WS-OFF)")
+    assert "MOVE 'CHANNEL BYTEOFFSET' TO GG-FLAGS" in get and "MOVE WS-OFF TO GG-NUM" in get
+    assert get.index("MOVE WS-OFF TO GG-NUM") < get.index("CALL 'GGCGETC' USING GG-CICS")
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) BIT PREPEND")
+    assert "MOVE 'BIT PREPEND' TO GG-FLAGS" in put
+    for bad in (
+        "GET CONTAINER(C) NODATA BYTEOFFSET(4)",
+        "GET CONTAINER(C) SET(PTR) FLENGTH(WS-N) BYTEOFFSET(4)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) INTOCCSID(500)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
@@ -369,16 +406,20 @@ def test_a_delete_generic_is_named_to_the_stub():
     got = ec.translate_command("DELETE FILE(ZF-FCT) RIDFLD(ZF-KEY-16) KEYLENGTH(DELETE-LENGTH) GENERIC NOHANDLE")
     assert got[:3] == ["MOVE ZF-FCT TO GG-NAME1", "MOVE 'GENERIC' TO GG-FLAGS", "CALL 'GGCDELT' USING GG-CICS"]
     assert got[3:5] == ["    BY REFERENCE ZF-KEY-16", "    BY VALUE DELETE-LENGTH"]
+    # #5092 (X22): a given KEYLENGTH without GENERIC is named to the stub (INVREQ 26 unless it is the key's length); none, not
+    keyed = ec.translate_command("DELETE FILE(F) RIDFLD(K) KEYLENGTH(2) NOHANDLE")
+    assert keyed[1] == "MOVE 'KEYLENGTH' TO GG-FLAGS" and "    BY VALUE 2" in keyed
+    assert ec.translate_command("DELETE FILE(F) RIDFLD(K) NOHANDLE")[1] == "MOVE SPACES TO GG-FLAGS"
     for bad, why in (("DELETE FILE(F) RIDFLD(K) GENERIC", "without KEYLENGTH"),
                      ("DELETE FILE(F) KEYLENGTH(2) GENERIC", "without RIDFLD")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
 
-@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
+@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", 
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN OPID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
-                                  "READQ TD QUEUE(Q) INTO(A)",
+                                  "READQ TD QUEUE(Q) SET(P)",
                                   "RECEIVE INTO(X) LENGTH(L) BUFFER", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
                                   "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2) NUMREC(N)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
@@ -419,7 +460,7 @@ def test_a_program_is_translated_whole():
 
 def test_an_unknown_command_in_a_program_names_its_line():
     with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS READQ TD"):
-        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "READQ TD QUEUE('CSSL') INTO(WS-KEY)"))
+        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "READQ TD QUEUE('CSSL') SET(WS-KEY)"))
 
 
 CSD = """\
@@ -852,6 +893,24 @@ def test_send_text_terminal_translates_as_send_text():
         assert e.value.features == [f"SEND TEXT {opt.split('(')[0]}"]
 
 
+def test_a_tasks_userid_and_screen_are_stated_only_when_given():
+    """#5126 (X19): "userid" (1 to 8 characters) and "screen" ([rows, columns], of a stated termid) -- the scenario's,
+    else the case's; absent from the result unless stated, malformed refused."""
+    case = {"termid": "T001", "userid": "CICSUSER", "screen": [24, 80]}
+    got = ec.terminal_facts(case, {"name": "s"})
+    assert (got["userid"], got["screen"]) == ("CICSUSER", [24, 80])
+    got = ec.terminal_facts(case, {"name": "s", "userid": "BOB", "screen": [43, 80]})
+    assert (got["userid"], got["screen"]) == ("BOB", [43, 80])
+    assert "userid" not in ec.terminal_facts({"termid": "T001"}, {"name": "s"})
+    assert "screen" not in ec.terminal_facts({}, {"name": "s"})
+    for bad in ({"userid": ""}, {"userid": "NINECHARS"}, {"userid": "A B"}, {"userid": "A,B"}, {"userid": 7},
+                {"termid": "T001", "screen": [24]}, {"termid": "T001", "screen": [24, 0]},
+                {"termid": "T001", "screen": [24, "80"]}, {"termid": "T001", "screen": "24 80"},
+                {"screen": [24, 80]}):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.terminal_facts({}, {"name": "s", **bad})
+
+
 def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""
@@ -932,6 +991,113 @@ def test_a_case_states_an_esds_the_estate_does_not_define():
                   {"organization": "ESDS", "reclen": 56}):  # fmt: skip
         with pytest.raises(ec.Unsupported):
             ec.stub_files(_NoDefineIR(), "p.cbl", {"EPSMORTF": {"csd": wrong}})
+
+
+class _SymbolicIR:
+    """An estate whose CSD names a file with install symbols and whose IDCAMS job the engine does not read as a define
+    (zECS: ZCEXPIRE.idcams is not JCL), as `record_format` says."""
+
+    files: dict = {}
+
+    def __init__(self, dsname="@ECS_HLQ@.ZCEXPIRE.@ENVIRONMENT@", record_format="V"):
+        self.dsname, self.record_format = dsname, record_format
+
+    @staticmethod
+    def vsam_stores():
+        return []
+
+    def cics_file_lineage(self):
+        return [{"program": "p.cbl", "name": "ZCEXPIRE", "definitions": [
+            {"file": "ZCEXPIRE", "dsname": self.dsname, "record_format": self.record_format}]}]  # fmt: skip
+
+
+_SYMBOLS = {"values": {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST"}, "why": "this install"}
+_VSAM = {"key_offset": 0, "key_length": 4, "reclen": 70, "variable": True, "why": "ZCEXPIRE.idcams KEYS(4 0)"}
+
+
+def test_install_symbols_are_stated_by_the_case_never_guessed():
+    """#5089: `@NAME@` placeholders in a dataset name resolve only to what the case's install_symbols state (names are
+    not case-sensitive); the stated file keeps the resolved name; anything unstated or malformed is refused."""
+    symbols = ec.install_symbols(_SYMBOLS)
+    assert symbols == {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST"}
+    assert ec.install_symbols(None) == {}
+    assert ec.substitute_install_symbols("@ecs_hlq@.ZCEXPIRE.@environment@", symbols) == "ZECS.ZCEXPIRE.TEST"
+    assert ec.substitute_install_symbols("@ECS_HLQ@.@OTHER@", symbols) == "ZECS.@OTHER@"  # left: refused by the caller
+    assert ec.substitute_install_symbols("PLAIN.NAME", symbols) == "PLAIN.NAME"
+    assert ec.substitute_install_symbols("@A@.@A@", {"A": "X"}) == "X.X"  # every occurrence
+    assert ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}}, symbols) == [
+        {
+            "file": "ZCEXPIRE",
+            "dsname": "ZECS.ZCEXPIRE.TEST",
+            "base": "ZECS.ZCEXPIRE.TEST",
+            "key_offset": 0,
+            "key_length": 4,
+            "reclen": 70,
+            "via": ["the case's install_symbols", "the case's vsam"],
+        }  # fmt: skip
+    ]
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"values": {"ECS_HLQ": "ZECS"}},  # no why
+        {"values": {"ECS_HLQ": "ZECS"}, "why": ""},
+        {"values": {}, "why": "x"},
+        {"values": {"ECS_HLQ": "zecs"}, "why": "x"},  # not upper case
+        {"values": {"ECS_HLQ": 3}, "why": "x"},
+        {"values": {"ECS HLQ": "ZECS"}, "why": "x"},
+        {"values": {"A": "X", "a": "Y"}, "why": "x"},  # twice
+        {"values": {"A": "X"}, "why": "x", "extra": 1},
+        ["ECS_HLQ"],
+        {"ECS_HLQ": "ZECS"},  # the values are one level down
+    ],
+)
+def test_malformed_install_symbols_are_refused(bad):
+    with pytest.raises(ec.Unsupported):
+        ec.install_symbols(bad)
+
+
+def test_an_unstated_install_symbol_or_a_missing_vsam_is_refused():
+    """#5089: a symbol the case does not state, no stated KEYS / RECORDSIZE, a V file not acknowledged as stood in for
+    by a fixed record length -- each stops the case by name; a stale key (a symbol no name uses) is not an error."""
+    only_hlq = ec.install_symbols({"values": {"ECS_HLQ": "ZECS"}, "why": "x"})
+    with pytest.raises(ec.Unsupported, match="install symbol the case does not state"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}}, only_hlq)
+    symbols = ec.install_symbols(_SYMBOLS)
+    for datasets in ({}, {"ZECS.ZCEXPIRE.TEST": {}}, {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "why": ""}}},
+                     {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "reclen": "70"}}},
+                     {"ZECS.ZCEXPIRE.TEST": {"vsam": {k: v for k, v in _VSAM.items() if k != "key_length"}}}):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+            ec.stub_files(_SymbolicIR(), "p.cbl", datasets, symbols)
+    with pytest.raises(ec.Unsupported, match="variable-length"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "variable": False}}}, symbols)
+    fixed = ec.stub_files(_SymbolicIR(record_format="F"), "p.cbl",
+                          {"ZECS.ZCEXPIRE.TEST": {"vsam": {**_VSAM, "variable": False}}}, symbols)  # fmt: skip
+    assert fixed[0]["reclen"] == 70
+    # no symbols stated: the name stays symbolic and is refused as before (the engine's candidate join is separate)
+    with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+        ec.stub_files(_SymbolicIR(), "p.cbl", {"ZECS.ZCEXPIRE.TEST": {"vsam": _VSAM}})
+    # a name with no symbols at all is not touched by the stated ones
+    with pytest.raises(ec.Unsupported, match="no IDCAMS DEFINE"):
+        ec.stub_files(_SymbolicIR(dsname="PLAIN.ZCEXPIRE"), "p.cbl", {"PLAIN.ZCEXPIRE": {"vsam": _VSAM}}, symbols)
+
+
+def test_a_retrieve_is_compared_as_the_task_records_it():
+    """#5089: RETRIEVE's resp, length and data (INTO) and the RTRANSID / RTERMID / QUEUE it returned, from the stub's
+    log and from CicsTask's event -- ENDDATA, a NORMAL record, a LENGERR truncation and a RETRIEVE with no INTO."""
+    import base64
+
+    assert ec._cobol_retrieve({"resp": "29", "len": "-1", "copied": "0", "into": "1"}, b"", "cp037") == {
+        "resp": "ENDDATA", "length": None, "data": None}  # fmt: skip
+    got = ec._cobol_retrieve({"resp": "0", "len": "3", "copied": "3", "into": "1", "rtransid": "5a583031"}, b"abc",
+                             "ascii")  # fmt: skip
+    assert got == {"resp": "NORMAL", "length": 3, "data": "abc", "rtransid": "ZX01"}
+    assert ec._cobol_retrieve({"resp": "22", "len": "9", "copied": "2", "into": "1"}, b"ab", "ascii")["length"] == 9
+    assert ec._cobol_retrieve({"resp": "0", "len": "0", "copied": "0", "into": "0"}, b"", "ascii")["length"] is None
+    java = {"event": "RETRIEVE", "resp": "NORMAL", "length": 3, "data": base64.b64encode(b"\xc1\xc2\xc3").decode()}
+    assert ec.java_retrieve_as_compared(java)["data"] == "ABC"  # the region's EBCDIC page
+    assert ec.java_retrieve_as_compared({"resp": "ENDDATA", "data": None})["data"] is None
 
 
 def test_an_esds_is_compared_in_arrival_order():
@@ -1208,6 +1374,14 @@ def test_web_send_becomes_a_stub_call():
     assert t[:7] == ["MOVE WS-FL TO GG-LEN", "MOVE WS-A TO GG-ITEM", "MOVE WS-S TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 1 TO GG-MINS", "MOVE 'MEDIA STEXT' TO GG-FLAGS", "CALL 'GGCWSND' USING GG-CICS"]  # fmt: skip
     assert t[7:9] == ["    BY REFERENCE WS-F", "    BY VALUE LENGTH OF WS-F"]
+    ct = ec.translate_command("WEB SEND CONTAINER(WS-K) CHANNEL(WS-C) MEDIATYPE(WS-M) ACTION(WS-A) NOHANDLE")
+    assert ct[:7] == ["MOVE 0 TO GG-LEN", "MOVE WS-A TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
+                      "MOVE 0 TO GG-MINS", "MOVE 'MEDIA CHANNEL' TO GG-FLAGS", "MOVE WS-K TO GG-QNAME"]  # fmt: skip
+    assert ct[7] == "MOVE WS-C TO GG-CHAN" and "CALL 'GGCWSCT' USING GG-CICS" in ct  # (#5037 X37: a container's data)
+    cn = ec.translate_command("WEB SEND CONTAINER(WS-K) ACTION(WS-A) NOHANDLE")
+    assert (
+        "MOVE 'CHANNEL' TO GG-FLAGS" not in cn and "MOVE SPACES TO GG-FLAGS" in cn
+    )  # (no CHANNEL: the current channel)
     d = ec.translate_command("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) NOHANDLE")
     assert d[:6] == ["MOVE WS-FL TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE -1 TO GG-NUM", "MOVE -1 TO GG-HOURS",
                      "MOVE 0 TO GG-MINS", "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
@@ -1220,14 +1394,23 @@ def test_web_send_becomes_a_stub_call():
         "    BY REFERENCE WS-D",
         "    BY VALUE LENGTH OF WS-D",
     ]
-    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs one of FROM and DOCTOKEN"),
-                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs one of FROM and DOCTOKEN"),
+    for bad, why in (("WEB SEND FROMLENGTH(WS-FL)", "needs exactly one of FROM"),
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCTOKEN(WS-D)", "needs exactly one of FROM"),
                      ("WEB SEND DOCTOKEN(WS-D) FROMLENGTH(WS-FL)", "FROMLENGTH without FROM"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) DOCSTATUS(WS-X)", "DOCSTATUS without DOCTOKEN"),
                      ("WEB SEND FROM(WS-F)", "FROM without FROMLENGTH"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) STATUSLEN(WS-SL)", "STATUSLEN without STATUSTEXT"),
-                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response")):  # fmt: skip
+                     ("WEB SEND FROM(WS-F) FROMLENGTH(WS-FL) CHUNKING(WS-C)", "chunked response"),
+                     ("WEB SEND CONTAINER(WS-K) FROM(WS-F) FROMLENGTH(WS-FL)", "needs exactly one of FROM"),
+                     ("WEB SEND CONTAINER(WS-K) DOCTOKEN(WS-D)", "needs exactly one of FROM"),
+                     ("WEB SEND CHANNEL(WS-C) FROM(WS-F) FROMLENGTH(WS-FL)", "CHANNEL without CONTAINER"),
+                     ("WEB SEND CONTAINER(WS-K) CHUNKING(WS-C)", "chunked response"),
+                     ("WEB SEND CONTAINER(WS-K) HOSTCODEPAGE(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CHARACTERSET(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CLNTCODEPAGE(WS-H)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(WS-K) CLOSESTATUS(WS-H)", "closing the connection"),
+                     ("WEB SEND CONTAINER(WS-K) LENGTH(WS-H)", "LENGTH is kept for upgrade only")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
             ec.translate_command(bad)
 
@@ -1760,9 +1943,11 @@ def test_a_scenario_states_startcode_terminal_input_and_ts_queues():
     assert ec.task_facts(case, {"name": "a"}) == ("TD", "LGCF")
     assert ec.task_facts(case, {"name": "b", "startcode": "SD", "terminal": "X"}) == ("SD", "X")
     assert ec.task_facts({}, {"name": "c"}) == (None, None)
+    # D: a LINKed-to program's COMMAREA path (#4174)
+    assert ec.task_facts({"startcode": "D"}, {"name": "d"}) == ("D", None)
     assert ec.ts_seed(case, {"name": "a"}) == {"GENACNTL": ["**** GENAPP CNTL"]}
     assert ec.ts_seed(case, {"name": "b", "ts": {}}) == {}
-    for bad in ({"startcode": "D"}, {"terminal": 5}):
+    for bad in ({"startcode": "X"}, {"startcode": "d"}, {"terminal": 5}):
         with pytest.raises(ec.Unsupported):
             ec.task_facts(bad, {"name": "x"})
     with pytest.raises(ec.Unsupported):
@@ -1934,6 +2119,38 @@ def test_a_scenario_states_the_channel_its_task_starts_with():
     ):
         with pytest.raises(ec.Unsupported):
             ec.scenario_channel(_channel_case(), {"name": "s", "channel": bad})
+
+
+@pytest.mark.parametrize("bad", ["^", "~", "&", "<", "\u00ac", " ", "A B", " A", "", "X" * 17])
+def test_a_channel_or_container_name_outside_puts_character_set_is_refused(bad):
+    """#4950 (X18): IBM's PUT CONTAINER set; & < and the not sign (RUN TRANSID's page only) are refused too."""
+    name = "AB" + bad if bad.strip() and len(bad) == 1 else bad
+    for ch in ({"name": name}, {"name": "C", "containers": {name: {"text": "a"}}}):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_channel(_channel_case(), {"name": "s", "channel": ch})
+
+
+@pytest.mark.parametrize("good", ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:16], '$@#/%?!:|"=,;>.-', "a.b-c_d", "X" * 16, "9"])
+def test_a_channel_or_container_name_in_puts_character_set_is_accepted(good):
+    sc = {"name": "s", "channel": {"name": good, "containers": {good: {"text": "a"}}}}
+    got = ec.scenario_channel(_channel_case(), sc)
+    assert got["name"] == good
+    assert got["containers"][0]["name"] == good
+
+
+def test_no_committed_case_file_states_a_channel_name_the_harness_now_refuses():
+    import json
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[1] / "equivalence"
+    seen = 0
+    for f in sorted(root.glob("*/case.json")):
+        case = json.loads(f.read_text(encoding="utf-8"))
+        for sc in case.get("scenarios") or []:
+            if isinstance(sc, dict) and sc.get("channel") is not None:
+                ec.scenario_channel(case, sc)
+                seen += 1
+    assert seen
 
 
 def test_the_containers_a_task_leaves_are_compared_at_its_end_unless_it_abends(tmp_path):
@@ -2318,3 +2535,92 @@ def test_a_cases_maps_are_stated_as_the_stubs_mapsets():
     assert ec.mapsets_env({"maps": {"BNK1CC": {"mapset": "BNK1CCM"}}}) == "BNK1CCM=BNK1CC"
     assert (ec.mapsets_env({"maps": {"B": {"mapset": "MSB"}, "A2": {"mapset": "MSA"}, "A1": {"mapset": "MSA"}}})
             == "MSA=A1,A2;MSB=B")  # fmt: skip
+
+
+def test_map_input_justifies_a_field_as_its_dfhmdf_says_5082():
+    """X54: the oracle's RECEIVE MAP input is what BMS leaves in the field: JUSTIFY=(RIGHT,ZERO) right-justified and
+    zero-filled, (LEFT,ZERO) zero-filled behind the text; no JUSTIFY (a field absent from `justify`) as typed; the length
+    is the text typed's either way."""
+    fields = []
+    for i, n in enumerate("ABC"):
+        fields += [{"name": f"{n}L", "offset": i * 8, "bytes": 2, "pic": "S9(4)", "usage": "COMP"},
+                   {"name": f"{n}I", "offset": i * 8 + 2, "bytes": 6, "pic": "X(06)", "usage": None}]  # fmt: skip
+    got = ec.map_input(fields, {"AI": "42", "BI": "42", "CI": "42"}, justify={"AI": "RIGHT,ZERO", "BI": "LEFT,ZERO"})
+    assert got == b"\x00\x02000042" + b"\x00\x02420000" + b"\x00\x0242    "
+    assert ec.justified("  7 ", 4, "RIGHT") == "   7" and ec.justified("12345", 3, "RIGHT") == "345"
+    assert ec.justified("", 3, "RIGHT,ZERO") == "000" and ec.justified("ab", 4, ",ZERO") == "ab00"
+
+
+def test_readq_td_and_deleteq_td_become_stub_calls():
+    """#5079 (register X57): READQ TD -> GGCRDTD (the queue in GG-QNAME, LENGTH in GG-LEN, INTO and its size); a data
+    area LENGTH is set from GG-LEN on NORMAL and LENGERR; DELETEQ TD -> GGCDLTD. SET, SYSID and NOSUSPEND are refused by name."""
+    r = ec.translate_command("READQ TD QUEUE('JOBS') INTO(REC) RESP(R)")
+    assert r[:5] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCRDTD' USING GG-CICS",
+                     "    BY REFERENCE REC", "    BY VALUE LENGTH OF REC"]  # fmt: skip
+    assert "MOVE GG-RESP TO R" in r and not any("GG-LEN TO" in line for line in r)
+    n = ec.translate_command("READQ TD QUEUE(WS-Q) INTO(REC) LENGTH(WS-N)")
+    assert n[1] == "MOVE WS-N TO GG-LEN"
+    assert n[5:8] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-N", "END-IF"]
+    assert not any("MOVE GG-LEN TO" in line for line in ec.translate_command("READQ TD QUEUE(Q) INTO(R) LENGTH(8)"))
+    d = ec.translate_command("DELETEQ TD QUEUE('JOBS') RESP(R)")
+    assert d[:2] == ["MOVE 'JOBS' TO GG-QNAME", "CALL 'GGCDLTD' USING GG-CICS"] and "MOVE GG-RESP TO R" in d
+    for body, said in (("READQ TD QUEUE(Q) INTO(A) SYSID('S')", "SYSID"), ("DELETEQ TD QUEUE(Q) SYSID('S')", "SYSID"),
+                       ("READQ TD INTO(A)", "QUEUE"), ("READQ TD QUEUE(Q)", "INTO"), ("DELETEQ TD", "QUEUE")):  # fmt: skip
+        with pytest.raises(ec.Unsupported, match=said):
+            ec.translate_command(body)
+
+
+def test_readq_td_set_and_nosuspend_5168():
+    """#5168 (X61): READQ TD SET(ptr) LENGTH(area) is GGCRDTS (the record as a block, its length to the area); NOSUSPEND changes
+    nothing; INTO with SET, SET with no LENGTH area or a literal one are refused."""
+    r = ec.translate_command("READQ TD QUEUE('Q1') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)")
+    assert r[0] == "MOVE 'Q1' TO GG-QNAME" and "CALL 'GGCRDTS' USING GG-CICS" in r and "    BY REFERENCE PTR" in r
+    assert "    MOVE GG-LEN TO WS-N" in r and "MOVE GG-RESP TO R" in r
+    n = ec.translate_command("READQ TD QUEUE(Q) INTO(A) LENGTH(WS-N) NOSUSPEND")
+    assert "CALL 'GGCRDTD' USING GG-CICS" in n
+    for body in ("READQ TD QUEUE(Q) INTO(A) SET(P) LENGTH(N)", "READQ TD QUEUE(Q) SET(P)", "READQ TD QUEUE(Q) SET(P) LENGTH(8)",
+                 "READQ TD QUEUE(Q) SET(P(1)) LENGTH(N)"):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(body)
+
+
+def test_csd_tdqueue_attributes_5168(tmp_path):
+    (tmp_path / "c.csd").write_text(
+        "DEFINE TDQUEUE(AAAA) GROUP(G) TYPE(INTRA) RECOVSTATUS(LOGICAL) TRANSID(TRN1) TRIGGERLEVEL(3)\n"
+        "DEFINE TDQUEUE(XXXX) GROUP(G) TYPE(EXTRA) TYPEFILE(INPUT) OPENTIME(DEFERRED)\n"
+        "DEFINE TDQUEUE(IIII) GROUP(G) TYPE(INDIRECT) INDIRECTNAME(AAAA)\n"
+        "DEFINE TDQUEUE(BBBB) GROUP(G) TYPE(INTRA)\n",
+        encoding="ascii",
+    )
+    got = ec.csd_tdqueue_attrs(tmp_path, {"csd": "c.csd"})
+    assert got == {"AAAA": {"RECOVSTATUS": "LOGICAL", "TRANSID": "TRN1", "TRIGGERLEVEL": "3"},
+                   "XXXX": {"TYPEFILE": "INPUT", "OPENTIME": "DEFERRED"}, "IIII": {"INDIRECTNAME": "AAAA"}}  # fmt: skip
+    assert ec.csd_tdqueue_attrs(tmp_path, {}) == {}
+    assert ec.td_seed({}, {}) == {} and ec.td_seed({"td": {"Q": ["a"]}}, {"td": {"R": ["b"]}}) == {"R": ["b"]}
+    with pytest.raises(ec.Unsupported):
+        ec.td_seed({"td": {"TOOLONG": ["a"]}}, {})
+
+
+def test_a_td_seed_may_hold_any_text_its_data_encoding_holds_whole():
+    """#5168 (X61): a seeded record is text in the case's data page (Latin-1 by default, any single-space page): non-ASCII is fine
+    where the page holds it and decodes back to the same text; a character the page lacks is refused, never replaced."""
+    ec.td_seed({"td": {"Q": ["caf\u00e9", "\u00dcber"]}}, {})
+    assert ec.td_seed({"data_encoding": "cp037", "td": {"Q": ["\u00e9"]}}, {}) == {"Q": ["\u00e9"]}
+    for case in ({"td": {"Q": ["\u20ac"]}}, {"data_encoding": "cp037", "td": {"Q": ["\u4e2d"]}}):
+        with pytest.raises(ec.Unsupported):
+            ec.td_seed(case, {})
+    with pytest.raises(ec.Unsupported):
+        ec.td_seed({"td": {"Q\u00e9": ["a"]}}, {})
+
+
+def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
+    """#5079 (X57): `csd_tdqueue_types` is each DEFINE TDQUEUE's TYPE ("" when none), and `csd_tdqueues` its names."""
+    (tmp_path / "x.csd").write_text(
+        "DEFINE TDQUEUE(JOBS) GROUP(G) TYPE(EXTRA) DDNAME(JOBS)\n"
+        "DEFINE TDQUEUE(AUDQ)\n  GROUP(G)\n  TYPE(INTRA)\n"
+        "DEFINE TDQUEUE(NONE) GROUP(G)\n"
+        "DEFINE PROGRAM(P) TYPE(X)\n", encoding="latin-1")  # fmt: skip
+    case = {"csd": "x.csd"}
+    assert ec.csd_tdqueue_types(tmp_path, case) == {"JOBS": "EXTRA", "AUDQ": "INTRA", "NONE": ""}
+    assert ec.csd_tdqueues(tmp_path, case) == ["AUDQ", "JOBS", "NONE"]
+    assert ec.csd_tdqueue_types(tmp_path, {}) is None and ec.csd_tdqueues(tmp_path, {}) is None

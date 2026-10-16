@@ -9,10 +9,9 @@ name: Mainframe Ground Truth
 # listed one stops reproducing (an improvement -- ratchet it in with
 # `python tests/tools/ground_truth_ledger.py update`, then commit the ledger).
 #
-# Runs on every code PR (docs/markdown-only changes are skipped): the scores depend on the whole engine
+# Runs on every PR that changes a ground-truth input (#5164: the plan job skips the rest, still reporting `ground-truth`): the scores depend on the whole engine
 # (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
-# and the full fetch + scan + score of all three corpora takes well under a
-# minute. The same job also runs tests/cobol_mainframe/ with the corpora
+# and the fetch + scan + score of all three corpora takes 2-4 min on a cold scan (#5142: the "Gate against" step, measured 2026-10-15). The same job also runs tests/cobol_mainframe/ with the corpora
 # fetched, so the full-corpus refraction differential and the excerpt
 # byte-identity checks -- skipped in every other workflow -- run here too.
 #
@@ -42,8 +41,10 @@ concurrency:
 jobs:
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -66,11 +67,74 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
-  ground-truth:
-    needs: tested-tree
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
+  # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest, of which one test,
+  # test_evidence_components.py::test_the_components_partition_each_input, is ~1.7-5.7 min by itself). It runs as 2 parts
+  # on 2 runners. Part 2 takes the two corpus-free files that are ~half the directory's test seconds (--durations=0 on
+  # the first split: test_det_nondigit_zoned.py 1480 s over 436 javac tests, test_evidence_components.py 257 s of 3476 s
+  # total); part 1 the ledger gate (which warms the corpus scans) + every other test. `ground-truth` below
+  # stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
+  # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
+  # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
+  # .claude/, churn tooling, workflows and tests the job does not read: tests/tools/ground_truth_plan.py) proves nothing
+  # (mode none: the parts are skipped and `ground-truth` passes in about a minute). Any input, and every push / nightly /
+  # manual run, is the full check; a failed plan leaves `mode` empty, which also runs it in full.
+  plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          persist-credentials: false
+
+      - name: Plan the check
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/ground_truth_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Ground-truth plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  ground-truth:
+    needs: [tested-tree, plan, ground-truth-part]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part passed
+        env:
+          PARTS: ${{ needs.ground-truth-part.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
+          MODE: ${{ needs.plan.outputs.mode }}
+        run: |
+          echo "ground-truth parts: $PARTS (tested-tree skip: $SKIP, plan mode: $MODE)"
+          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
+          # #5164: ... or when the plan found no ground-truth input in the PR (mode none). An empty mode is not none.
+          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && { test "$SKIP" = "true" || test "$MODE" = "none"; }; }
+
+  ground-truth-part:
+    name: ground-truth part ${{ matrix.group }}/2
+    needs: [tested-tree, plan]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.outputs.mode != 'none') }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: 1
+            tests: "tests/cobol_mainframe/ --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_det_nondigit_zoned.py"
+          - group: 2
+            tests: "tests/cobol_mainframe/test_evidence_components.py tests/cobol_mainframe/test_det_nondigit_zoned.py"
+    timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
@@ -129,12 +193,13 @@ jobs:
       # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
       # also the only run that appends: the `--history` flag below).
       - name: Restore the published history from the generated branch
-        if: github.event_name == 'push' || github.event_name == 'schedule'
+        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
 
       - name: Gate against the ground-truth ledger
+        if: matrix.group == 1
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
@@ -146,14 +211,33 @@ jobs:
           # #4834: the all-estates feature-inventory --check is nightly / manual only, not per PR
           GITGALAXY_NIGHTLY: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
           OMP_NUM_THREADS: 1  # #4902: -n auto already uses every core; no BLAS threads on top
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
-          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
-          PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
+          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
+          # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
+
+      # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
+      # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the
+      # only PR run that times them (#5240, #5248 were found on main). Part of the required `ground-truth` job.
+      - name: Per-test time ratchet (#5166)
+        run: |
+          cd gitgalaxy
+          python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-ground-truth-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's test times (#5166)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-ground-truth-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Keep the history for the publish job
-        if: github.event_name == 'push' || github.event_name == 'schedule'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ground-truth-history
           path: gitgalaxy/docs/self_scan/ground_truth_history.jsonl
@@ -161,9 +245,10 @@ jobs:
 
   # #4963: output goes to the `generated` branch, never to main (no PR, no auto-merge). Main's code only: a push or the
   # nightly run on main, never a pull_request, which is why it is a job of its own with the write token.
+  # #5176: only when part 1 ran and uploaded the history; a tested-tree skip leaves the parts skipped and no artifact.
   publish-history:
-    needs: ground-truth
-    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
+    needs: [ground-truth, ground-truth-part]
+    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && needs.ground-truth-part.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -176,7 +261,7 @@ jobs:
           persist-credentials: true  # the publish step pushes to `generated` with this token
 
       - name: Download the history
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ground-truth-history
           path: ${{ runner.temp }}/history

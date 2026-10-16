@@ -541,6 +541,8 @@ def test_ts_queues_are_seeded_in_the_stubs_page_and_read_back_as_ebcdic(tmp_path
     assert (tmp_path / "ts" / "48435131" / "000002.bin").read_bytes() == b"AB"  # X'C1C2' is EBCDIC AB
     assert runner.read_ts(tmp_path / "ts") == {"HCQ1": [b"\xc1\xc2", b"\xc1\xc2"], "Q 2": []}
     assert runner.read_ts(tmp_path / "nothing") == {}
+    (tmp_path / "ts" / "td-48435131").mkdir()  # a TD queue the stub keeps beside the TS queues (hc-readq-td)
+    assert set(runner.read_ts(tmp_path / "ts")) == {"HCQ1", "Q 2"}
 
 
 def test_the_java_output_becomes_an_actual_log(tmp_path):

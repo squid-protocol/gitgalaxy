@@ -235,9 +235,9 @@ def test_db2_dates_formats_and_parses_as_db2(tmp_path, fmt, date, time):
     (pkg / "Db2Dates.java").write_text(db2_dates_source("t", fmt), encoding="utf-8")
     (tmp_path / "t" / "Runner.java").write_text(_RUNNER, encoding="utf-8")
     sources = [str(p) for p in tmp_path.rglob("*.java")]
-    subprocess.run([str(_JDK / "javac"), "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
-    out = subprocess.run([str(_JDK / "java"), "-cp", str(tmp_path / "out"), "t.Runner"],  # noqa: S603
-                         capture_output=True, text=True, check=False)  # fmt: skip
+    subprocess.run([str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
+    out = subprocess.run([str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "out"), "t.Runner"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert out.returncode == 0, out.stderr
     lines = out.stdout.splitlines()
     if fmt == "local":  # no exit patterns set yet: formatting refuses rather than guess

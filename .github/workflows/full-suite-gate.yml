@@ -92,33 +92,45 @@ jobs:
             # Release tag, or a manual run that asked for it: every supported
             # environment, untrimmed.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.10"},
-              {"os":"ubuntu-latest","python-version":"3.11"},
-              {"os":"ubuntu-latest","python-version":"3.12"},
+              {"os":"ubuntu-latest","python-version":"3.10","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.10","part":2,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
               {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.11","timeout":35},
-              {"os":"windows-latest","python-version":"3.12","timeout":35},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
               {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.10","part":2,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.11","timeout":28},
-              {"os":"macos-latest","python-version":"3.12","timeout":28}
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
             ]'
           else
             # plain manual re-run: full Python coverage on
             # ubuntu, floor+ceiling elsewhere.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.10"},
-              {"os":"ubuntu-latest","python-version":"3.11"},
-              {"os":"ubuntu-latest","python-version":"3.12"},
+              {"os":"ubuntu-latest","python-version":"3.10","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.10","part":2,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
+              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
               {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.12","timeout":35},
+              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
               {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.10","part":2,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.12","timeout":28}
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
             ]'
           fi
           echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
@@ -126,8 +138,8 @@ jobs:
   full-suite-matrix:
     needs: matrix
     runs-on: ${{ matrix.os }}
-    # #4903: ~1.5x each leg's measured time (main, 2026-10-11): ubuntu 12-21 min, windows 3.11/3.12 13-25, windows 3.10 in
-    # 2 parts, macOS 3.12 one leg ~17, macOS 3.10 in 2 parts. A leg that sets "timeout" overrides the default.
+    # #4903, #5152: ~1.5x each leg's measured time. Unsharded legs outgrew their caps (2026-10-14: ubuntu ~28-30 min, windows 3.12
+    # 33, macOS ~29, all cancelled/killed at 30/35/28), so every leg now runs in 2 parts. A leg that sets "timeout" overrides the default.
     timeout-minutes: ${{ matrix.timeout || 30 }}
     env:
       PYTHONUTF8: "1"

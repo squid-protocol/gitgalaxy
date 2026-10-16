@@ -119,7 +119,7 @@ REPO_ROOT = HERE_TOOLS.parents[1]
 sys.path.insert(0, str(HERE_TOOLS))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import mvn_executable  # noqa: E402
+from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
@@ -431,7 +431,7 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
     if env["JAVA_HOME"]:
         env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
     cmd = [mvn_executable(env), "-q", "-B", *(["-o"] if offline else []), *args]
-    proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(env), check=False)
     log.write_text(proc.stdout + proc.stderr, encoding="utf-8")
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
     return proc.returncode == 0, "\n".join(errors[:20]) or _tail(proc.stdout + proc.stderr, 20)
@@ -2008,6 +2008,8 @@ def read_ts(root: Path) -> dict[str, list[bytes]]:
     """#4002: every TS queue in the stub's store, its items as EBCDIC bytes (the `final` state)."""
     out: dict[str, list[bytes]] = {}
     for d in sorted(root.iterdir()) if root.is_dir() else []:
+        if d.name.startswith("td-"):
+            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir); `final` td_queues are not compared yet
         items, n = [], 1
         while (d / f"{n:06d}.bin").is_file():
             items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
@@ -2069,6 +2071,8 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
     src = work / "src"
     src.mkdir(exist_ok=True)
     for d in case.data["sources"]["copy"]:
+        if not (case.dir / d).is_dir():
+            continue  # a case with no copybooks declares a directory git cannot carry empty (hc-dcounters)
         for p in (case.dir / d).iterdir():
             if p.is_file():
                 shutil.copy(p, src / p.name)

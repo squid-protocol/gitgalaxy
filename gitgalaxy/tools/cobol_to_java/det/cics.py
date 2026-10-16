@@ -29,8 +29,29 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
 
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); the stub's twin is equivalence_cics.EIBDS_VERBS
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(statements) -> bool:
+    """#5126 (X64): does any statement text name EIBDS -- a whole word, not the front of a hyphenated user name
+    (EIBDS-X) and not a literal's text ('EIBDS: ')?"""
+    return any(EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+
+
 class CicsError(Exception):
     pass
+
+
+class KeylengthInvreq(CicsError):
+    """#5092 (X52): a KEYLENGTH IBM answers INVREQ (RESP2 25 / 26 / 42); READ emits the result, any other verb refuses."""
+
+    def __init__(self, msg: str, resp2: int):
+        super().__init__(msg)
+        self.resp2 = resp2
 
 
 # #4528: CICS's default CCSID, the region's page when the estate declares no EBCDIC one (cics-crucible SPEC 2: "every
@@ -111,8 +132,8 @@ def command_key(words: list[str], opts: dict) -> str:
 _FORM_OPTION = {
     "RECEIVE": ("MAP",),
     "GET": ("COUNTER",),
-    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
-    "SET": ("TERMINAL",),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP", "TDQUEUE"),
+    "SET": ("TERMINAL", "TDQUEUE"),
     "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
     "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
@@ -148,6 +169,13 @@ def _arg(v: str | None) -> str:
 
 # an option with no argument that can come first, so is never a verb word (#4413: RECEIVE NOTRUNCATE INTO(...))
 _BARE_OPTIONS = ("NOTRUNCATE", "NOHANDLE")  # (#4737: ASKTIME NOHANDLE)
+# a second word that is an option of the verb before it, never a verb word (#5119: IBM's own `READ UPDATE DATASET(...)`)
+_SECOND_OPTIONS = {
+    "READ": ("UPDATE",),
+    "READNEXT": ("UPDATE",),
+    "READPREV": ("UPDATE",),
+    "POST": ("AFTER", "AT"),  # #5079 (X63): POST AFTER SECONDS(n)
+}
 
 
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
@@ -186,7 +214,13 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
                 k += 1
             opts[name] = body[j + 1 : k].strip()
             i = k + 1
-        elif not opts and len(words) < 2 and name not in MAP_OPTIONS and name not in _BARE_OPTIONS:
+        elif (
+            not opts
+            and len(words) < 2
+            and name not in MAP_OPTIONS
+            and name not in _BARE_OPTIONS
+            and not (words and name in _SECOND_OPTIONS.get(words[0], ()))
+        ):
             words.append(name)
         else:
             opts[name] = None
@@ -405,7 +439,20 @@ class Generated:
 
     def screen_fields(self, cls: str) -> list[str]:
         text = self._file("dto/screen", cls).read_text(encoding="utf-8")
-        return re.findall(r'values\.put\("([A-Z0-9-]+)",', text)
+        return re.findall(r'values\.put\("([A-Z0-9-]+)"(?:,| \+ )', text)  # #5076: a repeated field: "NAME" + "." + i
+
+    def screen_occurs(self, cls: str) -> dict[str, int]:
+        """#5076: the BMS fields a map repeats (DFHMDF OCCURS=n), by name -> n, read off the screen class's LAYOUT
+        (`new ScreenField(name, ..., occurs, justify)`); a field without OCCURS is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        rows = re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, (\d+), (?:null|"[A-Z,]+")\)\)?[,;]?\s*$', text, re.M)
+        return {name: int(n) for name, n in rows if int(n) > 1}
+
+    def screen_justify(self, cls: str) -> dict[str, str]:
+        """#5082: a named field's DFHMDF JUSTIFY ("RIGHT", "RIGHT,ZERO", "LEFT,ZERO" ...), read off the screen class's
+        LAYOUT (cobol_to_java_screen_forge: `new ScreenField(name, ..., occurs, justify)`); a field without one is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        return dict(re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, "([A-Z,]+)"\)\)?[,;]?\s*$', text, re.M))
 
 
 def item_for(leaf: Leaf) -> L.Item:
@@ -432,6 +479,7 @@ class Cics:
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
         self.region = region_page(None)
@@ -823,7 +871,26 @@ class Cics:
 
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
+        """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
+        set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
+        lines = self._command(text, ind)
+        if self.eibds_read:
+            words, opts = parse_exec(text)
+            file = opts.get("FILE") or opts.get("DATASET")
+            if words[:1] and " ".join(words) in EIBDS_VERBS and file:
+                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+        return lines
+
+    def _command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
+        if not words and next(iter(opts), None) == "WAIT":
+            # #5079: WAIT is a bare option (RETRIEVE ... WAIT) to the parser, so a command that starts with it (WAIT EVENT,
+            # WAIT EXTERNAL, WAIT TERMINAL ...) read as no verb at all and crashed on the empty verb: WAIT is its verb
+            words = ["WAIT"]
+            del opts["WAIT"]
+            if "EVENT" in opts and opts["EVENT"] is None:  # #5079 (X63): WAIT EVENT ECADDR(ptr) is a command of its own
+                words = ["WAIT", "EVENT"]
+                del opts["EVENT"]
         verb = " ".join(words)
         check_options(words, opts)  # #4411: an option the translation would ignore is refused first
         key = command_key(words, opts)
@@ -841,8 +908,24 @@ class Cics:
             return self.free_child(opts, ind)
         if verb.split()[0] == "DELAY":  # #4950: the wait at which RUN children are dispatched
             return self.delay(opts, ind)
+        if key == "POST":  # #5079 (X63): a timer-event control area
+            return self.post(opts, ind)
+        if key == "WAIT EVENT":
+            return self.wait_event(opts, ind)
+        if key == "CONVERSE":
+            return self.converse(opts, ind)
         if verb in ("START", "RETRIEVE", "CANCEL"):  # #4270 slice 2: interval control
             return {"START": self.start, "RETRIEVE": self.retrieve, "CANCEL": self.cancel}[verb](opts, ind)
+        if (
+            verb == "ENQ"
+        ):  # #5089 (X60): CicsTask.enq -- NORMAL, or the ENQBUSY a scenario plans for the RESOURCE as written
+            res = re.sub(r"\s+", "", (opts.get("RESOURCE") or "").upper())
+            r = self.g.tmpname("enq")
+            # LENGTH / MAXLIFETIME (X60): LENGERR 1 outside 1-255, INVREQ 2 for a CVDA that is not UOW / TASK
+            opt = {o: f"Integer.valueOf({self._number(_arg(opts[o]))})" if opts.get(o) else "null" for o in ("LENGTH", "MAXLIFETIME")}  # fmt: skip
+            nos = "true" if "NOSUSPEND" in opts else "false"
+            call = f"{ind}int[] {r} = task.enqChecked({G_jstr(res)}, {nos}, {opt['LENGTH']}, {opt['MAXLIFETIME']});"
+            return [call, *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
             return self.outcome(opts, "0", "0", ind)  # (OPTIONS: one task in the region, nothing waits)
         if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):
@@ -870,8 +953,12 @@ class Cics:
                 if "DCOUNTER" in opts
                 else f"BigDecimal.valueOf({v}[2])"
             )
+            full = (
+                "COUNTER" in opts
+            )  # #4770 (X30): a fullword GET of a counter past 31 bits is LENGERR with the low 32 bits
             return [f"{ind}long[] {v} = task.getCounter({pool}, {nm}{inc});",
-                    f"{ind}if ({v}[0] == 0) {{",
+                    *([f"{ind}{v} = task.fullwordGet({pool}, {nm}, {v});"] if full else []),
+                    f"{ind}if ({v}[0] == 0{' || ' + v + '[0] == 22' if full else ''}) {{",
                     ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), val, False),
                     f"{ind}}}",
                     *self.outcome(opts, f"(int) {v}[0]", f"(int) {v}[1]", ind)]  # fmt: skip
@@ -906,8 +993,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}long[] {v} = task.queryDcounter({pool}, {self.name(_arg(opts['DCOUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
@@ -922,8 +1011,10 @@ class Cics:
             v = self.g.tmpname("counter")
             pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
             limits = "true" if opts.get("MINIMUM") or opts.get("MAXIMUM") else "false"
-            lines = [f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
-                   f"{ind}if ({v}[0] == 0) {{"]  # fmt: skip
+            lines = [
+                f"{ind}int[] {v} = task.queryCounter({pool}, {self.name(_arg(opts['COUNTER']))}, {limits});",
+                f"{ind}if ({v}[0] == 0 || {v}[0] == 22) {{",
+            ]  # fmt: skip  (#4770: LENGERR still writes the low 32 bits)
             for o, i in (("VALUE", 2), ("MINIMUM", 3), ("MAXIMUM", 4)):
                 if opts.get(o):
                     lines.append(
@@ -1201,6 +1292,28 @@ class Cics:
                     f"{ind}if ({r}[0] == 0) "
                     + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if key in ("INQUIRE TDQUEUE", "SET TDQUEUE"):  # #5168 round 3 (X61): an extrapartition queue's open state
+            for o in ("TDQUEUE", "OPENSTATUS") if key == "SET TDQUEUE" else ("TDQUEUE",):
+                if not opts.get(o):
+                    raise CicsError(
+                        _msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o)
+                    )
+            r = g.tmpname("tdq")
+            queue = self.name(_arg(opts["TDQUEUE"]))
+            if key == "SET TDQUEUE":
+                return [f"{ind}int[] {r} = task.setTdQueueOpenStatus({queue}, {self.int_(_arg(opts['OPENSTATUS']))});",
+                        *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+            wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+            if not wanted:
+                raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
+            wants = ", ".join(str(o in wanted).lower() for o in ("OPENSTATUS", "TYPE"))
+            lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3)):
+                if o in wanted:
+                    lines.append(
+                        ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
             prog = self.name(_arg(opts["PROGRAM"]))
@@ -1222,6 +1335,12 @@ class Cics:
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if verb == "DELETEQ TD":  # #5079 (X57): every record of an intrapartition queue
+            r = g.tmpname("resp")
+            return [f"{ind}int {r} = task.deleteqTd({self.name(_arg(opts['QUEUE']))});",
+                    *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if verb == "READQ TD":
+            return self.readq_td(opts, ind)
         if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ", "DELETEQ TS", "DELETEQ") \
                 and verb.startswith(("WRITEQ", "READQ", "DELETEQ")) and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
@@ -1239,6 +1358,8 @@ class Cics:
             return self.receive(opts, ind)
         if key in ("GETMAIN", "FREEMAIN"):  # #4771 (X47): task storage addressed by a pointer
             return self.storage(key, opts, ind)
+        if key == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
+            return self.address(opts, ind)
         if key in ("DOCUMENT CREATE", "DOCUMENT RETRIEVE"):  # #4769 (X33): the document handler
             return self.document(key, opts, ind)
         if key in ("WEB OPEN", "WEB CONVERSE", "WEB CLOSE"):  # #4767 (X35): CICS web support, HTTP client
@@ -1408,8 +1529,10 @@ class Cics:
         FROMLENGTH, MEDIATYPE's text, ACTION's value (0 when absent), STATUSCODE (-1), STATUSTEXT's text with STATUSLEN
         (-1: the whole area, ASSUMED) and the conversion flag; the response is recorded as WEB-SEND. Every option the
         spec entry does not model is refused by name (check_options)."""
-        if ("FROM" in opts) == ("DOCTOKEN" in opts):
+        if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
             raise CicsError(_msg(key, "one_of", "FROM"))
+        if "CHANNEL" in opts and "CONTAINER" not in opts:
+            raise CicsError(_requires(key, "CHANNEL", "CONTAINER"))
         if "FROM" in opts and "FROMLENGTH" not in opts:
             raise CicsError(_requires(key, "FROM", "FROMLENGTH"))
         if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -1429,6 +1552,12 @@ class Cics:
 
         conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
         r = self.g.tmpname("web")
+        if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data
+            chan = self.name(_arg(opts["CHANNEL"])) if "CHANNEL" in opts else "null"
+            call = (f"task.webSendContainer({chan}, {self.name(_arg(opts['CONTAINER']))}, {text('MEDIATYPE')}, "
+                    f"{num('ACTION', '0')}, {num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, "
+                    f"{conv}, CS)")  # fmt: skip
+            return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if "DOCTOKEN" in opts:  # #4767 (X37): the response is a document the task created (DOCUMENT CREATE)
             call = (f"task.webSendDocument({text('DOCTOKEN')}, {text('MEDIATYPE')}, {num('ACTION', '0')}, "
                     f"{num('STATUSCODE', '-1')}, {text('STATUSTEXT')}, {num('STATUSLEN', '-1')}, {conv}, "
@@ -1698,30 +1827,81 @@ class Cics:
             n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
+            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
+            if "PREPEND" in opts and "APPEND" in opts:  # #5005 (X17)
+                raise CicsError(_msg("PUT CONTAINER", "at_most_one", "APPEND", "PREPEND"))
+            tail = ""  # the trailing arguments: FROMCCSID (-1: none), then PREPEND
+            if "PREPEND" in opts:
+                tail = f", {from_ccsid or '-1'}, true"
+            elif from_ccsid:
+                tail = f", {from_ccsid}"
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{tail});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
-            if bool(into) == nodata:
+            if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
-            if nodata:
-                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
+            if "BYTEOFFSET" in opts:  # #5005 (X17): INTO only, a BIT container, the offset a fullword
+                if not into:
+                    raise CicsError(_requires("GET CONTAINER", "BYTEOFFSET", "INTO"))
+                for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+                    if other in opts:
+                        raise CicsError(_msg("GET CONTAINER", "at_most_one", "BYTEOFFSET", other))
+            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
+            convert = _convertst(opts)
+            if convert and "INTOCCSID" in opts:
+                raise CicsError(_msg("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"))
+            if "CCSID" in opts and convert is None:
+                raise CicsError(_msg("GET CONTAINER", "requires", "CCSID"))
+            conv = f", {into_ccsid or '-1'}, {str(bool(convert)).lower()}" if into_ccsid or convert else ""
+            if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
+                if not settable:
+                    raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
+                ptr = self.pointer(opts["SET"])
+                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name}{conv});",
+                        f"{ind}CicsTask.ContainerResult {r} = {r}s.result();",
+                        f"{ind}if ({r}s.handle() != 0) DetCics.setPointer({ptr}, {r}s.handle());"]  # fmt: skip
+            elif nodata:
+                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1{conv});")
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
-                out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}));"),
+                if "BYTEOFFSET" in opts:
+                    call = (
+                        f"task.getContainerAt({chan}, {name}, DetCics.containerLimit({target}, {most}), "
+                        f"{self.int_(_arg(opts['BYTEOFFSET']))})"
+                    )
+                else:
+                    call = f"task.getContainer({chan}, {name}, DetCics.containerLimit({target}, {most}){conv})"
+                out += [f"{ind}CicsTask.ContainerResult {r} = {call};",
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+            if "CCSID" in opts:  # the container's own CCSID (0: BIT), set with FLENGTH: on NORMAL and LENGERR
+                set_ccsid = g.store_into(
+                    self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False
+                )
+                out.append(f"{ind}if ({r}.length() >= 0) {set_ccsid}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def container_ccsid(self, opts: dict, option: str, verb: str) -> str | None:
+        """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
+        37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
+        conversion assumes is CCSID 037: another declared page refuses the option."""
+        if option not in opts:
+            return None
+        if self.region != region_page(None):
+            raise CicsError(
+                f"{verb} {option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}"
+            )
+        return self.int_(_arg(opts[option]))
 
     def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
@@ -1830,20 +2010,39 @@ class Cics:
         INTO's length) -- the data into INTO's first bytes, back in the storage's page; LENGTH, a data area, is set to
         the data's length on NORMAL and LENGERR ("On completion of the retrieval operation, the data area is set to
         the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
-        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET (a pointer) and WAIT are refused (OPTIONS)."""
+        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X58): the data in a new
+        block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
         into = opts.get("INTO")
         length = _one_of(opts, "LENGTH", "FLENGTH")
+        into_ptr = ""  # set by the SET branch below; read only under the same guard
         named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
-        if not into and (not named or length is not None):
+        if "SET" in opts:  # #5042 (X58): SET(pointer) LENGTH(data-area): the data in a new block of task storage
+            if into:
+                raise CicsError(_msg("RETRIEVE", "at_most_one", "INTO"))
+            if length is None:
+                raise CicsError(_msg("RETRIEVE", "requires", "SET"))
+            if re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is not None:
+                raise CicsError("RETRIEVE SET with a literal LENGTH: IBM says the argument must be a data area")
+            into_ptr = self.pointer(opts["SET"])
+        elif not into and (not named or length is not None):
             raise CicsError(_msg("RETRIEVE", "requires", "LENGTH"))
         g = self.g
         r = g.tmpname("retrieved")
         most = "null"
         if into:
             most = self.int_(length) if length else str(self.size(into))
+        elif "SET" in opts:
+            most = "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
         flags = ", ".join(str(o in named).lower() for o in ("RTRANSID", "RTERMID", "QUEUE"))
         out = [f"{ind}CicsTask.RetrieveResult {r} = task.retrieve({most}, {flags});"]
-        if into:
+        if "SET" in opts:
+            self.region_used = True
+            # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X58)
+            out.append(f"{ind}if ({r}.data() != null) DetCics.setBlock(task, {into_ptr}, null, "
+                       f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
+            set_back = g.store_into(self.ref(length or ""), f"BigDecimal.valueOf({r}.length())", False)
+            out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+        elif into:
             self.region_used = True
             out.append(f"{ind}if ({r}.data() != null) DetCics.put({self.field(into)}, "
                        f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
@@ -1935,6 +2134,79 @@ class Cics:
             ms, what = "0L", "DELAY"
         return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
 
+    def post(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS,
+        EXEC CICS POST) on CicsTask.post. SET: the pointer takes the new timer-event control area's handle (the 4 bytes
+        SET ADDRESS OF reads, zero until posted); EXPIRED and INVREQ RESP2 4 / 5 / 6 leave it as it was. No REQID: IBM
+        "generates one" and returns it in EIBREQID, which gets CicsTask's POSTnnnn (ASSUMED). No expiry option:
+        INTERVAL(0). The conditions go through RESP / HANDLE CONDITION."""
+        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+        if len(whens) > 1:
+            raise CicsError(_msg("POST", "at_most_one", "INTERVAL", " and ".join(whens)))
+        when = whens[0] if whens else "INTERVAL"
+        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+        if (when in ("AFTER", "AT")) != bool(hms):
+            raise CicsError(_msg("POST", "requires", "HOURS", when, " ".join(hms)))
+        vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
+        hhmmss = self._number(_arg(opts[when])) if when in ("INTERVAL", "TIME") and when in opts else "0"
+        reqid = self.name(_arg(opts["REQID"])) if "REQID" in opts else "null"
+        r = self.g.tmpname("post")
+        out = [f'{ind}CicsTask.PostResult {r} = task.post("{when}", {hhmmss}, {", ".join(vals)}, {reqid});']
+        if "SET" in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.setPointer({self.pointer(opts['SET'])}, {r}.handle());")
+        if "REQID" not in opts:
+            out.append(f"{ind}if ({r}.handle() != 0) DetCics.putPadded({self.field('EIBREQID')}, {r}.reqid(), CS);")
+        return [*out, *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]
+
+    def wait_event(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): WAIT EVENT ECADDR(ptr) [NAME] (IBM CICS TS, EXEC CICS WAIT EVENT) on CicsTask.waitEvent: the area
+        a POST made is posted at its expiry (the clock runs to it; a task takes no time, X4), so the task resumes at once;
+        INVREQ RESP2 2 for a null pointer. An address that is no POST's area, or one a later POST / CANCEL / START /
+        DELAY ended, is refused when it runs. NAME only labels the waiting task (INQUIRE TASK): it changes nothing."""
+        if not opts.get("ECADDR"):
+            raise CicsError(_msg("WAIT EVENT", "required", "ECADDR"))
+        r = self.g.tmpname("waited")
+        return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
+                *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+
+    def converse(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
+        (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first
+        FROMLENGTH bytes, else FROM's length), then a terminal RECEIVE of the reply (as `receive`: the most taken is
+        MAXLENGTH, else TOLENGTH's value, else INTO's length; TOLENGTH set to the reply's length, or the original length
+        under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
+        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
+        name by the spec entry."""
+        for req in ("FROM", "INTO"):
+            if not opts.get(req):
+                raise CicsError(_msg("CONVERSE", "required", req))
+        frm = _arg(opts["FROM"])
+        sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
+        length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
+        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
+        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        g = self.g
+        n = self.int_(sent) if sent else str(self.size(frm))
+        fixed = self.constant_int(sent) if sent else None
+        t, r = g.tmpname("text"), g.tmpname("conversed")
+        text = (
+            "Cobol.text({}, CS)"
+            if not sent or (fixed is not None and fixed <= self.size(frm))
+            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
+        ).format(self.read_field(frm), n)
+        target = self.field(opts["INTO"])
+        limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
+        out = [f"{ind}String {t} = {text};",
+               (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
+                f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
+               f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
+        if settable and length is not None:
+            out.append(
+                f"{ind}if ({r}.length() >= 0) "
+                + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
+            )
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
+
     def cancel(self, opts: dict, ind: str) -> list[str]:
         """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
         NOTFND when none matches "an unexpired interval control command"."""
@@ -2000,6 +2272,34 @@ class Cics:
         call = f"DetCics.getmain(task, {ptr}, {self.int_(opts[form])}, {halfword}, {self.read_field(opts['INITIMG'])})"
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
+    def address(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X59): ADDRESS EIB(ptr) / COMMAREA(ptr) (IBM, EXEC CICS ADDRESS: "a pointer reference set to the address of
+        the EXEC interface block" / "of the communication area (COMMAREA) available to the currently executing program").
+        The pointer holds the handle of the record's own bytes (DetCics.setPointerToRecord), so SET ADDRESS OF rec TO ptr
+        shares them: a later EIB update shows through it. COMMAREA needs the program's 01 DFHCOMMAREA to address, and a
+        task with none (EIBCALEN 0: IBM's X'FF000000', no COBOL NULL) is refused when it runs. The command has no
+        condition: NORMAL. CWA / TWA / TCTUA / ACEE and ADDRESS SET are refused by the spec entry (check_options)."""
+        from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+        if not (opts.get("EIB") or opts.get("COMMAREA")):
+            raise CicsError("ADDRESS without EIB or COMMAREA: the pointer to set")
+        out: list[str] = []
+        for option in ("EIB", "COMMAREA"):
+            if option not in opts:
+                continue
+            ptr = self.pointer(opts[option])
+            if option == "EIB":
+                out.append(f"{ind}DetCics.setPointerToRecord(task, {ptr}, {self.g.field_expr(E.Ref('DFHEIBLK'))});")
+                continue
+            try:
+                rec = self.g.address_record("DFHCOMMAREA")
+            except Untranslatable:
+                raise CicsError(
+                    "ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address"
+                ) from None
+            out.append(f"{ind}DetCics.addressCommarea(task, {ptr}, {rec}, {self.int_('EIBCALEN')});")
+        return [*out, *self.outcome(opts, "0", "0", ind)]
+
     def receive(self, opts: dict, ind: str) -> list[str]:
         """A terminal RECEIVE (IBM, EXEC CICS RECEIVE (3270 logical), (LUTYPE2/LUTYPE3)) on CicsTask.receive.
 
@@ -2019,23 +2319,30 @@ class Cics:
             put = "received"
         elif opts.get("SET") and "INTO" not in opts:
             m = re.fullmatch(r"(?is)ADDRESS\s+OF\s+([A-Z0-9-]+)", opts["SET"].strip())
-            if m is None:
-                raise CicsError(f"RECEIVE SET({opts['SET']}): pointers are not modelled, only SET(ADDRESS OF record)")
-            item = g.resolve(E.Ref(m.group(1).upper()))
-            if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
-                raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
             if not most:
                 raise CicsError("RECEIVE SET without MAXLENGTH: the most it takes is not documented")
             if not settable:
                 raise CicsError("RECEIVE SET without LENGTH(data-area)")
-            target = self.field(m.group(1))
             limit = self.int_(most)
-            put = "receivedSet"
+            if m is None:  # #5042 (X58): SET(pointer): the data in a new block of task storage the pointer addresses
+                target = self.pointer(opts["SET"])
+                put = "setBlock"
+            else:
+                item = g.resolve(E.Ref(m.group(1).upper()))
+                if getattr(item, "section", None) != "LINKAGE" or getattr(item, "level", None) != 1:
+                    raise CicsError(f"RECEIVE SET(ADDRESS OF {m.group(1)}): not a LINKAGE 01 record")
+                target = self.field(m.group(1))
+                put = "receivedSet"
         else:
             raise CicsError(_msg("RECEIVE", "one_of", "INTO"))
         r = g.tmpname("received")
+        store = (
+            f'DetCics.setBlock(task, {target}, "RECEIVE", {r}.data(), CS);'
+            if put == "setBlock"
+            else f"DetCics.{put}({target}, {r}.data(), CS);"
+        )
         out = [f"{ind}CicsTask.Received {r} = task.receive({limit}, {str('NOTRUNCATE' in opts).lower()});",
-               f"{ind}DetCics.{put}({target}, {r}.data(), CS);"]  # fmt: skip
+               f"{ind}{store}"]  # fmt: skip
         if settable and length is not None:
             out.append(ind + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False))
         return out + self.input_outcome(opts, f"DetCics.resp({r}.resp())", ind)
@@ -2101,6 +2408,37 @@ class Cics:
             out.append(f"{ind}}}")
         return out + self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)
 
+    def readq_td(self, opts: dict, ind: str) -> list[str]:
+        """#5079 (X57): READQ TD QUEUE INTO [LENGTH] -- a destructive read of the task's intrapartition queue. The record
+        goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
+        (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR.
+        #5168: SET(pointer) LENGTH(data-area) puts the record in a new block, valid to the next READQ TD; NOSUSPEND
+        changes nothing (no second task holds the queue)."""
+        g = self.g
+        r = g.tmpname("td")
+        setp = opts.get("SET")
+        if setp:
+            if opts.get("INTO"):
+                raise CicsError(_msg("READQ TD", "at_most_one", "INTO"))
+            if not opts.get("LENGTH"):
+                raise CicsError(_msg("READQ TD", "requires", "SET"))
+            if re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is not None:
+                raise CicsError("READQ TD SET with a literal LENGTH: IBM says LENGTH must then be a data area")
+            ptr = self.pointer(setp)
+            into, maxlen = None, "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
+        else:
+            into = self.field(_arg(opts["INTO"]))
+            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});"]
+        if setp:
+            out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ TD", {r}.data(), CS);')
+        else:
+            out.append(f"{ind}if ({r}.data() != null) DetCics.readTd({into}, {r}.data().getBytes(CS));")
+        if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
+            out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
+                       f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
+        return out + self.outcome(opts, f"{r}.resp()", "0", ind)
+
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
         """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes in the
         region's code page (#4528: REGION, region_page) -- written from the storage's page (CS) and read back into
@@ -2133,15 +2471,32 @@ class Cics:
                         f"{ind}Cobol.store({self.field(_arg(opts['ITEM']))}, BigDecimal.valueOf({r}.item()), false, CS);"
                     )
         else:
-            into = self.field(_arg(opts.get("INTO")))
-            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+            setp = opts.get("SET")
+            if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area): the item in a new block, valid to the next READQ TS
+                if opts.get("INTO"):
+                    raise CicsError(_msg("READQ TS", "at_most_one", "INTO"))
+                if not opts.get("LENGTH"):
+                    raise CicsError(_msg("READQ TS", "requires", "SET"))
+                if re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is not None:
+                    raise CicsError("READQ TS SET with a literal LENGTH: IBM says LENGTH must then be a data area")
+                ptr = self.pointer(setp)
+                into, maxlen = None, "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
+            else:
+                into = self.field(_arg(opts.get("INTO")))
+                maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
             if "NEXT" in opts or not opts.get("ITEM"):
                 out.append(f"{ind}CicsTask.TsResult {r} = task.readqTsNext({queue}, {maxlen});")
             else:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
                 )
-            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));")
+            if setp:
+                out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ", '
+                           f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
+            else:
+                out.append(
+                    f"{ind}if ({r}.data() != null) DetCics.put({into}, DetCics.fromRegion({r}.data(), REGION, CS));"
+                )
             # #4737: LENGTH(LENGTH OF x) / a literal is the most the program takes; CICS's length goes to a temporary
             if opts.get("LENGTH") and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", opts["LENGTH"].strip()) is None:
                 out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
@@ -2156,17 +2511,18 @@ class Cics:
             )
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
-    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None) -> str | None:
-        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None."""
+    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None, k: int | None = None) -> str | None:
+        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None. #5076 `k`: occurrence k
+        of a repeated field (ACCOUNTO(3))."""
         for rec in [*([record] if record else []), map_name + "I", map_name + "O"]:
-            found = self._field_or_none(name + suffix, rec)
+            found = self._field_or_none(name + suffix, rec, k)
             if found is not None:
                 return found
         return None
 
-    def _field_or_none(self, name: str, rec: str) -> str | None:
+    def _field_or_none(self, name: str, rec: str, subscript: int | None = None) -> str | None:
         try:
-            return self.g.field_expr(E.Ref(name, [rec]))
+            return self.g.field_expr(E.Ref(name, [rec], [] if subscript is None else [E.Lit(E.NumLit(str(subscript)))]))
         except Exception:
             return None
 
@@ -2230,6 +2586,14 @@ class Cics:
                 f"{ind}if ({lbl} == null) throw abended();",
                 f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
 
+    def screen_slots(self, cls: str) -> list[tuple[str, int | None]]:
+        """#5076: a screen class's fields as (name, occurrence): a repeated field once per occurrence (ACCOUNT, 3), any
+        other once (COMPANY, None)."""
+        repeated = self.gp.screen_occurs(cls)
+        return [
+            (n, k) for n in self.gp.screen_fields(cls) for k in (range(1, repeated[n] + 1) if n in repeated else [None])
+        ]
+
     def no_screen(self, m: str) -> CicsError:
         """Why map `m` has no generated screen, by name (a map of no BMS source we hold)."""
         return CicsError(f"no generated screen for map {m}")
@@ -2247,15 +2611,16 @@ class Cics:
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
         out = [*guard, f"{ind}java.util.Map<String, String> {v} = new java.util.LinkedHashMap<>();",
                f"{ind}CicsTask.MapSubfields {sub} = new CicsTask.MapSubfields();"]  # fmt: skip
-        for name in self.gp.screen_fields(cls):
-            o = self.symbolic(m, "O", name, frm)
+        for name, k in self.screen_slots(cls):  # #5076: a repeated field's every occurrence, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            o = self.symbolic(m, "O", name, frm, k)
             if o is None:
-                raise CicsError(f"map {m}: no {name}O")
-            out.append(f"{ind}{v}.put({G_jstr(name)}, Cobol.text({o}, CS));")
-            parts = [self.symbolic(m, s, name, None) for s in ("L", "A", "C", "H")]
+                raise CicsError(f"map {m}: no {name}O" + ("" if k is None else f"({k})"))
+            out.append(f"{ind}{v}.put({G_jstr(key)}, Cobol.text({o}, CS));")
+            parts = [self.symbolic(m, s, name, None, k) for s in ("L", "A", "C", "H")]
             if parts[1] is None:
-                parts[1] = self.symbolic(m, "F", name, None)
-            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(name)}, "
+                parts[1] = self.symbolic(m, "F", name, None, k)
+            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(key)}, "
                        f"{', '.join(p or 'null' for p in parts)}, CS);")  # fmt: skip
         if opts.get("CURSOR"):
             out.append(f"{ind}{sub}.cursorAt({self.int_(opts['CURSOR'])});")
@@ -2285,13 +2650,18 @@ class Cics:
                f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
-        for name in self.gp.screen_fields(cls):
-            i = self.symbolic(m, "I", name, into.name)
-            ln = self.symbolic(m, "L", name, into.name)
+        justify = self.gp.screen_justify(cls)
+        for name, k in self.screen_slots(cls):  # #5076: every occurrence of a repeated field, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            i = self.symbolic(m, "I", name, into.name, k)
+            ln = self.symbolic(m, "L", name, into.name, k)
             if i is None:
                 continue
-            out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
-            out.append(f"{ind}        DetCics.typed({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS);")
+            out.append(f"{ind}    if ({vals}.get({G_jstr(key)}) != null) {{")
+            # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
+            tail = f", {G_jstr(justify[name])}" if name in justify else ""
+            call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(key)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)
@@ -2370,17 +2740,23 @@ class Cics:
             return None
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal (IBM: INVREQ 42 for GENERIC)
+            n = -int(re.sub(r"\D", "", arg))
         name = self.constant(opts.get("DATASET") or opts.get("FILE"))
         mapped = self.gp.file(name) if name is not None else None
         if n is None or mapped is None:
             raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
         _, key = self.gp.entity_key(mapped[1], mapped[2])
+        # #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 GENERIC KEYLENGTH "greater than or equal to the length of a
+        # full key", 42 "less than zero", 26 a KEYLENGTH without GENERIC that is not the key's length; zero is undocumented
+        if generic and n < 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: INVREQ (RESP2 42)", 42)
         if generic and n >= key:
-            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled")
-        if generic and n <= 0:
+            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25)", 25)
+        if generic and n == 0:
             raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
         if not generic and n != key:
-            raise CicsError(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: a partial key is not modelled")
+            raise KeylengthInvreq(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 26)", 26)
         return n
 
     def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
@@ -2446,12 +2822,39 @@ class Cics:
         raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """READ / READNEXT / READPREV. #5042 (X58) SET(pointer): the record in a new block of task storage the pointer
+        addresses (DetCics.setBlock), valid -- IBM, EXEC CICS READ -- "until the next READ command for the same file or until
+        completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET";
+        READNEXT / READPREV: "until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the
+        same file ... no longer valid after an ENDBR or SYNCPOINT" (CicsTask.acquireSet / invalidateSet). RBA, a LENGTH on
+        a browse and a SET with INTO are refused by name; READ's LENGTH(data-area) is set to the record's length."""
+        if bool(opts.get("INTO")) == ("SET" in opts):
+            raise CicsError(_msg(verb, "one_of", "INTO", verb))
+        if "SET" in opts and ("RBA" in opts or "RRN" in opts or "XRBA" in opts):
+            raise CicsError(
+                f"{verb} SET with RBA / RRN / XRBA: not modelled (the block would hold a relative-byte record)"
+            )
         if self._rba(verb, opts):
             self._read_length(verb, opts)
             return self.rba_browse(verb, opts, ind)
         searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
-        if not searched:
+        if verb == "READ":
+            try:
+                self._keylength(verb, opts)
+            except (
+                KeylengthInvreq
+            ) as bad:  # #5092 (X52): the read is not done: INVREQ with IBM's RESP2 (CicsTask.readInvalid)
+                r = self.g.tmpname("read")
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
+                return [
+                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
+                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
+                ]
+        elif not searched:
             self._keylength(verb, opts)
+        if "SET" in opts:
+            return self.read_set(verb, opts, ind)
         length = self._read_length(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
@@ -2482,6 +2885,53 @@ class Cics:
                f"{ind}if ({r}.normal()) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    {st}.find({r}.key().getBytes(CS)).ifPresent(b -> DetCics.put({into}, b));",
+               f"{ind}}}"]  # fmt: skip
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+
+    def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """#5042 (X58): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
+        tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
+        record's length (IBM: "the LENGTH parameter contains the actual length of the record"); a LENGTH that is a
+        literal, on a browse, or with a READ UPDATE LENGERR has nothing to say here and is refused."""
+        g = self.g
+        ptr = self.pointer(opts["SET"])
+        st = self.store(opts)
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        rid = self.field(opts["RIDFLD"])
+        length = None
+        if "LENGTH" in opts:
+            arg = _arg(opts["LENGTH"])
+            if verb != "READ" or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None:
+                raise CicsError(f"{verb} SET with LENGTH({arg}): only a data area on READ is modelled (it is set to the "
+                                "record's length)")  # fmt: skip
+            length = arg
+        r, rec = g.tmpname("read"), g.tmpname("rec")
+        if verb == "READ":
+            update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
+            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
+            call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
+            search = self._search(opts, file, st, rec)
+            if search is not None:
+                call, held = search[0], search[1].format(r)
+            out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
+                   f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
+                   f"{ind}if ({r}.record() != null) {{",
+                   f'{ind}    DetCics.setBlock(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
+                   *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
+                   *self.token_out(opts, file, st, r, f"{ind}    ")]  # fmt: skip
+            if length is not None:
+                out.append(
+                    f"{ind}    " + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
+                )
+            out.append(f"{ind}}}")
+            return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+        fn = "readnext" if verb == "READNEXT" else "readprev"
+        got = g.tmpname("rec")
+        out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
+               f"{ind}if ({r}.normal()) {{",
+               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
+               f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
+               f'{ind}    if ({got} != null) DetCics.setBlock(task, {ptr}, "BROWSE " + {file}, {got}, true);',
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
@@ -2546,43 +2996,53 @@ class Cics:
 
     def delete_generic(self, opts: dict, ind: str) -> list[str]:
         """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
-        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.delete). KEYLENGTH a known value above
-        zero and shorter than the file's key (IBM's INVREQ RESP2 25 / 42 refused by name: here for a file the port knows,
-        at run time for one named at run time)."""
+        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.deleteGeneric). #5092 (X22), IBM INVREQ
+        RESP2: 42 a KEYLENGTH below zero, 25 one "greater than or equal to the length of a full key" (here when the file is
+        known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
+        undocumented and refused by name."""
         for o in ("KEYLENGTH", "RIDFLD"):
             if not opts.get(o):
                 raise CicsError(_requires("DELETE", "GENERIC", o))
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal
+            n = -int(re.sub(r"\D", "", arg))
         if n is None:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
-        if n <= 0:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        if n == 0:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        g = self.g
+        r = g.tmpname("resp")
+        bad = 42 if n < 0 else None
+        if name is not None and bad is None:
+            mapped = self.gp.file(name)
+            if mapped is None:
+                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
+            if n >= self.gp.entity_key(mapped[1], mapped[2])[1]:
+                bad = 25
+        if bad is not None:  # INVREQ: nothing is read from RIDFLD nor deleted (CicsTask.deleteInvalid)
+            return [
+                f"{ind}int {r} = task.deleteInvalid({file}, true, {bad});",
+                *self.outcome(opts, r, "task.resp2()", ind),
+            ]
         rid = _arg(opts["RIDFLD"])
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        g = self.g
-        r, gk, found = g.tmpname("resp"), g.tmpname("generic"), g.tmpname("found")
+        gk, found = g.tmpname("generic"), g.tmpname("found")
         out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
-        if name is not None:
-            mapped = self.gp.file(name)
-            if mapped is None:
-                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
-            key = self.gp.entity_key(mapped[1], mapped[2])[1]
-            if n >= key:
-                raise CicsError(
-                    f"DELETE GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled"
-                )
-        elif self.gp.files:  # named at run time: the key of the store the name picks then
-            out.append(f'{ind}if ({n} >= {self._runtime_keylength(file)}) throw new UnsupportedOperationException('
-                       f'"DELETE GENERIC KEYLENGTH {n} not shorter than the key of " + {file} + ": not modelled");')  # fmt: skip
-        out += [f"{ind}int {r} = task.delete({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
+        call = [f"task.deleteGeneric({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
                 f"{ind}    java.util.Optional<byte[]> {found};",
                 f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
-                f"{ind}}});"]  # fmt: skip
+                f"{ind}}})"]  # fmt: skip
+        if name is None and self.gp.files:  # named at run time: the key of the store the name picks then
+            out += [f"{ind}int {r};",
+                    f"{ind}if ({n} >= {self._runtime_keylength(file)}) {r} = task.deleteInvalid({file}, true, 25);",
+                    f"{ind}else {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]  # fmt: skip
+        else:
+            out += [f"{ind}int {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
     def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
@@ -2619,7 +3079,16 @@ class Cics:
             file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
             return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
-        self._keylength(verb, opts)
+        if verb == "DELETE":
+            try:
+                self._keylength(verb, opts)
+            except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                r = self.g.tmpname("resp")
+                return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
+                        *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
+        else:
+            self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
@@ -2653,6 +3122,17 @@ def _option(opts: dict, name: str) -> str | None:
     if name not in opts:
         return None
     return _arg(opts[name])
+
+
+def _convertst(opts: dict) -> bool | None:
+    """#4270 (X17): GET CONTAINER CONVERTST -- True for DFHVALUE(NOCONVERT) (734), the only value IBM documents; None when
+    not given."""
+    named = _option(opts, "CONVERTST")
+    if named is None:
+        return None
+    if re.fullmatch(r"(?is)\s*(DFHVALUE\s*\(\s*NOCONVERT\s*\)|734)\s*", named) is None:
+        raise CicsError(f"GET CONTAINER CONVERTST({named}): only DFHVALUE(NOCONVERT) is modelled")
+    return True
 
 
 def _datatype(opts: dict) -> str | None:

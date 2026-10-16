@@ -466,12 +466,18 @@ def error_key(error: str) -> str:
         return f"missing copybook {m.group(1).upper()}" + (" (ambiguous)" if error.startswith("CopyAmbiguous") else "")
     etype, _, msg = error.partition(": ")
     msg = re.sub(r"^\S+\.\w+:\d+:\s*", "", msg)  # the member and line it stopped at
+    fam = re.match(r"(macro-level CICS|CICS Assembler) not supported", msg)  # #5121: one gap per family, not per macro
+    if fam:
+        return f"refused: {fam.group(1)}"
     msg = re.sub(r"\s*\[[^\]]*\]", "", _AT_LINE.sub("", _PATH.sub("<path>", msg)))
     return f"refused: {etype}: {_generic(msg)}"[:120]
 
 
 def gap_classes(r: dict[str, Any]) -> set[str]:
-    """The distinct gap classes keeping one survey row from translating whole (empty: whole)."""
+    """The distinct gap classes keeping one survey row from translating whole (empty: whole). A row that already
+    carries `gap_classes` (an evidence report's `translation`, #4725) is read as it stands."""
+    if "gap_classes" in r:
+        return set(r["gap_classes"])
     if "error" in r:
         return {error_key(r["error"])}
     if "statements" not in r:
@@ -480,7 +486,10 @@ def gap_classes(r: dict[str, Any]) -> set[str]:
 
 
 def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
-    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them)."""
+    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them), and of
+    every CICS Assembler / macro-level assembler member (#5158: det_survey.assembler_rows, refused by name)."""
+    from det_survey import assembler_rows
+
     from gitgalaxy.core.source_text import read_source
 
     out = set()
@@ -492,6 +501,7 @@ def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
                         out.add((name, prog.relative_to(corpus).as_posix()))
                 except OSError:
                     continue
+        out.update((name, r["program"]) for r in assembler_rows(corpus))
     return out
 
 

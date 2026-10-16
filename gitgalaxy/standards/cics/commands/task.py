@@ -58,7 +58,25 @@ ENQ = Command(
     ibm=ibm("EXEC CICS ENQ", "summary-enq"),
     status="modelled",
     options={**_RESOURCE, "NOSUSPEND": Arg("flag"), **RESP_OPTIONS},
-    outcomes=(Outcome("NORMAL", 0, "one task in the region: the resource is never held by another"),),
+    outcomes=(
+        Outcome("NORMAL", 0, "one task in the region: the resource is never held by another"),
+        # #5089 (X60): only a scenario's plan raises it (IBM states no RESP2 for it: 0)
+        Outcome(
+            "ENQBUSY",
+            None,
+            "the resource is unavailable and NOSUSPEND is specified (or a HANDLE CONDITION ENQBUSY is active)",
+            raised_by=("NOSUSPEND",),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "a planned-busy resource without NOSUSPEND: IBM suspends the task until the resource is free (a HANDLE CONDITION "
+            "ENQBUSY would raise the condition instead; not told apart)",
+            "X60",
+            java="ENQ on a planned-busy resource without NOSUSPEND",
+            c="ENQ on a planned-busy resource without NOSUSPEND",
+        ),
+    ),
     engine=EngineFacts(task_verb="ENQ", target_option="RESOURCE"),
 )
 
@@ -187,6 +205,10 @@ GET_COUNTER = Command(
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE",)),
         # X45: a DEFINE DCOUNTER counter at its limit without WRAP: "the current number is not changed"
+        # X30 (#4770): a COUNTER command over a counter a DCOUNTER made past 31 bits: the operation completes, VALUE is the low 32 bits
+        Outcome("LENGERR", 1, "the value overflowed into the sign bit", writes=("VALUE",)),
+        Outcome("LENGERR", 2, "the value is too large for a fullword by exactly 1 bit", writes=("VALUE",)),
+        Outcome("LENGERR", 3, "the value is too large for a fullword by more than 1", writes=("VALUE",)),
         Outcome("SUPPRESSED", 101, "Counter at its limit: no numbers are available until a REWIND or WRAP"),
         Outcome("SUPPRESSED", 103, "The current value is outside the COMPAREMIN / COMPAREMAX range"),
         Outcome("INVREQ", 201, "Named counter not found"),
@@ -198,7 +220,7 @@ GET_COUNTER = Command(
 
 # #4415 slice 2, register X29: QUERY COUNTER reads a named counter's value without changing it. IBM (EXEC CICS QUERY COUNTER
 # and QUERY DCOUNTER): INVREQ RESP2 201 "Named counter not found", LENGERR (RESP2 1-3) for a value beyond a fullword
-# (refused by name: the region's counters are fullwords); MINIMUM / MAXIMUM (the counter's limits are not stated by the
+# (X30, #4770: the low 32 bits are written); MINIMUM / MAXIMUM (the counter's limits are not stated by the
 # run) and NOSUSPEND (BUSY needs a coupling facility) are refused
 QUERY_COUNTER = Command(
     key="QUERY COUNTER",
@@ -224,16 +246,20 @@ QUERY_COUNTER = Command(
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("VALUE", "MINIMUM", "MAXIMUM")),
+        # X30 (#4770): a DCOUNTER's value past 31 bits read by COUNTER: the operation completes, VALUE is the low 32 bits
+        Outcome("LENGERR", 1, "the value overflowed into the sign bit", writes=("VALUE",)),
+        Outcome("LENGERR", 2, "the value is too large for a fullword by exactly 1 bit", writes=("VALUE",)),
+        Outcome("LENGERR", 3, "the value is too large for a fullword by more than 1", writes=("VALUE",)),
         Outcome("INVREQ", 201, "Named counter not found"),
         Outcome("INVREQ", 403, "POOL contains invalid characters or embedded spaces"),
         Outcome("INVREQ", 404, "COUNTER contains invalid characters or embedded spaces"),
     ),
     runtime_refusals=(
         RuntimeRefusal(
-            "a counter value beyond a fullword: IBM's LENGERR (RESP2 1-3) returns the low-order 32 bits, not modelled",
-            "X29",
-            java="QUERY COUNTER of a value beyond a fullword",
-            c="QUERY COUNTER of a value beyond a fullword",
+            "QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits (a DEFINE DCOUNTER's) do not fit a fullword",
+            "X30",
+            java="QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword",
+            c="QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword",
         ),
         RuntimeRefusal(
             "QUERY DCOUNTER MINIMUM / MAXIMUM of a counter with no limits entry (DEFINE COUNTER's, or a scenario's)",

@@ -139,3 +139,125 @@ def test_curl_missing_or_hanging_is_infrastructure_too(tmp_path, monkeypatch):
     monkeypatch.setattr(db2.subprocess, "run", slow)
     with pytest.raises(db2.OdbcDownloadError, match="INFRASTRUCTURE"):
         db2.fetch_odbc_cli(tmp_path / "cli.tgz", _pin())
+
+
+# --- #5048: the siblings of #4980 (apt in the Dockerfiles, the Db2 image pull) ---------------------------------------
+
+
+@pytest.mark.parametrize("name", ["gnucobol.Dockerfile", "gnucobol-db2.Dockerfile"])
+def test_dockerfile_apt_retries_and_no_failure_is_swallowed(name):
+    text = (REPO / "tests" / "equivalence" / name).read_text(encoding="utf-8")
+    body = [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]
+    assert not any("|| true" in ln for ln in body), "a failed install must fail the build"
+    for ln in body:
+        for m in re.finditer(r"apt-get(?P<opts>[^&|;]*)", ln):
+            if re.search(r"\b(update|install)\b", m.group("opts")):
+                assert "Acquire::Retries=" in m.group("opts"), ln
+
+
+def _docker_script(monkeypatch, present: bool, failures: int, exc=None):
+    """Fake `docker`: `image inspect` finds the image or not; the first `failures` pulls fail."""
+    calls, sleeps = [], []
+
+    def run(cmd, **kwargs):
+        calls.append(cmd[1:])
+        if cmd[1:3] == ["image", "inspect"]:
+            return subprocess.CompletedProcess(cmd, 0 if present else 1, "sha256:abc\n" if present else "", "")
+        if cmd[1] == "pull":
+            if exc is not None:
+                raise exc
+            n = sum(1 for c in calls if c[0] == "pull")
+            if n <= failures:
+                return subprocess.CompletedProcess(cmd, 1, "", "net/http: TLS handshake timeout")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(db2.subprocess, "run", run)
+    monkeypatch.setattr(db2.time, "sleep", sleeps.append)
+    return calls, sleeps
+
+
+def _pulls(calls):
+    return [c for c in calls if c[0] == "pull"]
+
+
+def test_the_pull_keeps_the_digest_pin():
+    assert db2.pinned_by_digest(db2.IMAGE)
+
+
+def test_an_image_already_on_the_host_is_not_pulled(monkeypatch):
+    calls, _ = _docker_script(monkeypatch, present=True, failures=0)
+    db2.pull_image()
+    assert not _pulls(calls)
+
+
+def test_a_pull_is_one_call_with_the_pinned_digest(monkeypatch):
+    calls, sleeps = _docker_script(monkeypatch, present=False, failures=0)
+    db2.pull_image()
+    assert [c[-1] for c in _pulls(calls)] == [db2.IMAGE]
+    assert not sleeps
+
+
+def test_a_pull_that_fails_then_succeeds_is_retried_with_growing_backoff(monkeypatch):
+    calls, sleeps = _docker_script(monkeypatch, present=False, failures=2)
+    db2.pull_image()
+    assert len(_pulls(calls)) == 3
+    assert sleeps == [db2.PULL_BACKOFF, db2.PULL_BACKOFF * 2]
+
+
+def test_a_pull_that_never_works_stops_at_the_bound_and_says_infrastructure(monkeypatch):
+    calls, sleeps = _docker_script(monkeypatch, present=False, failures=99)
+    with pytest.raises(db2.Db2ImagePullError, match="INFRASTRUCTURE") as err:
+        db2.pull_image()
+    assert len(_pulls(calls)) == db2.PULL_ATTEMPTS
+    assert len(sleeps) == db2.PULL_ATTEMPTS - 1
+    assert db2.IMAGE in str(err.value) and "TLS handshake timeout" in str(err.value)
+
+
+@pytest.mark.parametrize("exc", [FileNotFoundError("docker"), subprocess.TimeoutExpired("docker", 1800)])
+def test_docker_missing_or_hanging_is_infrastructure_too(monkeypatch, exc):
+    _docker_script(monkeypatch, present=False, failures=0, exc=exc)
+    with pytest.raises(db2.Db2ImagePullError, match="INFRASTRUCTURE"):
+        db2.pull_image()
+
+
+# --- #5094: the sweep's parallel jobs share one fetch --------------------------------------------------------------
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="the fetch lock is a no-op without fcntl (the Db2 sweep is Linux-only)"
+)
+def test_concurrent_fetches_download_once_and_all_succeed(tmp_path, monkeypatch):
+    """#5094: four --jobs processes starting on a fresh runner each fetched into the same `.part` and deleted each
+    other's file ("sha256 no file"). One fetch runs at a time; the rest find the verified file."""
+    import threading
+    import time
+
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    dest = tmp_path / "cli.tgz"
+    calls, errors = [], []
+
+    def run(cmd, **kwargs):
+        calls.append(cmd)
+        part = Path(cmd[cmd.index("--output") + 1])
+        part.write_bytes(PAYLOAD[:3])
+        time.sleep(0.2)  # a slow download: the window the other jobs used to unlink the part in
+        part.write_bytes(PAYLOAD)
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(db2.subprocess, "run", run)
+
+    def job():
+        try:
+            assert db2.fetch_odbc_cli(dest, _pin()) == dest
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=job) for _ in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert errors == []
+    assert len(calls) == 1
+    assert dest.read_bytes() == PAYLOAD
+    assert not list(tmp_path.glob("*.part"))

@@ -224,14 +224,12 @@ def test_status_labels_clear_when_no_request_label_is_left():
     assert by_op(acts, "labels") == [{"op": "labels", "add": [], "remove": [sg.NEEDS]}]
 
 
-def test_behind_and_green_updates_the_branch_but_not_when_failing_or_held():
-    assert "update_branch" in kinds(sg.decide(snap(mergeable_state="behind")))  # labelled, behind, green
-    acts = sg.decide(snap(mergeable_state="behind", labels=[sg.MERGE, sg.HOLD]))
-    assert "update_branch" not in kinds(acts)
-    acts = sg.decide(snap(mergeable_state="behind", failed=[failure("real")]))
-    assert "update_branch" not in kinds(acts)
-    acts = sg.decide(snap(mergeable_state="behind", auto_merge=True))
-    assert "update_branch" in kinds(acts)
+def test_behind_main_is_never_acted_on_whatever_the_state():
+    """#5134 (option A): a push restarts CI, so the bot never updates a branch just because it is behind."""
+    for extra in ({}, {"labels": [sg.MERGE, sg.HOLD]}, {"failed": [failure("real")]}, {"auto_merge": True},
+                  {"labels": []}):  # fmt: skip
+        acts = sg.decide(snap(mergeable_state="behind", **extra))
+        assert "update_branch" not in kinds(acts), extra
 
 
 def test_dirty_pr_gets_the_merge_note_once():
@@ -491,19 +489,15 @@ def test_gather_reads_the_matrix_on_the_head_and_dispatches_only_when_none_ran()
     assert any(c[:3] == ["gh", "pr", "merge"] and "--auto" in c for c in gh.cmds)
 
 
-def test_update_branch_writes_the_marker_pair_around_the_push():
-    s = snap(mergeable_state="behind", head_sha="b" * 40)
-    log_cmds = []
+def test_apply_has_no_update_branch_op_any_more():
+    cmds = []
 
     def run(argv):
-        log_cmds.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "d" * 40 if "-q" in argv else "", "")
+        cmds.append(argv)
+        return subprocess.CompletedProcess(argv, 0, "", "")
 
-    lines = sg.apply(7, s, [{"op": "update_branch"}], run=run)
-    assert "shepherd-update from=" + "b" * 40 in " ".join(log_cmds[0])
-    assert log_cmds[1][:4] == ["gh", "pr", "update-branch", "7"]
-    assert "shepherd-update from=" + "b" * 40 + " to=" + "d" * 40 in " ".join(log_cmds[3])
-    assert all(line.endswith("ok") for line in lines)
+    sg.apply(7, snap(mergeable_state="behind", head_sha="b" * 40), [{"op": "update_branch"}], run=run)
+    assert cmds == []
 
 
 def test_event_facts_read_the_payload_as_data(tmp_path):
@@ -594,7 +588,7 @@ def test_rerun_det_failure_other_error_is_logged_as_failed():
 def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
     monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): skipped (already running)"]
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): skipped (already running)"]
     )
     assert sg.main(["reconcile"]) == 0
 
@@ -602,7 +596,7 @@ def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch
 def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
     monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, ev, dry_run: ["#7 rerun muninn (run 55): FAILED: server error"]
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): FAILED: server error"]
     )
     assert sg.main(["reconcile"]) == 1
 
@@ -841,3 +835,9 @@ def test_an_ordinary_new_commit_goes_to_reapproval():
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
     assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+
+
+def test_failed_matrix_legs_of_one_run_get_one_rerun():
+    legs = [failure("infra", check="muninn (1/2)"), failure("infra", check="muninn (2/2)")]
+    acts = sg.decide(snap(failed=legs, pending=0))
+    assert by_op(acts, "rerun") == [{"op": "rerun", "run_id": 55, "check": "muninn (1/2)"}]

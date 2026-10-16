@@ -14,7 +14,7 @@ runtimes, and the crucible proves it (cics_command_spec.md section 2.3)."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, POINTER, REMOTE, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, REMOTE, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -150,6 +150,9 @@ RETRIEVE = Command(
     event="RETRIEVE",
     options={
         "INTO": Arg("area_out"),
+        # #5042 (X58): "the pointer reference to be set to the address of the retrieved data"; "If you use SET you must also
+        # include LENGTH", a data area ("the data area is set to the length of the data")
+        "SET": Arg("pointer"),
         # "On completion of the retrieval operation, the data area is set to the original length of the data"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
@@ -159,7 +162,6 @@ RETRIEVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SET": Refusal(POINTER, "X18"),
         "WAIT": Refusal(
             "a RETRIEVE waiting for START data still to expire is not modelled (one task runs at a time)", "X18"
         ),
@@ -167,10 +169,16 @@ RETRIEVE = Command(
     groups=(
         at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         # INTO, unless the command asks only for RTRANSID / RTERMID / QUEUE (and then no LENGTH)
-        requires(("LENGTH", "FLENGTH"), any_of=("INTO",), msg="RETRIEVE without INTO"),
+        requires(("LENGTH", "FLENGTH"), any_of=("INTO", "SET"), msg="RETRIEVE without INTO"),
+        at_most_one("INTO", "SET", msg="RETRIEVE: INTO and SET are alternatives"),
+        requires(
+            ("SET",),
+            any_of=("LENGTH", "FLENGTH"),
+            msg='RETRIEVE SET without LENGTH (IBM: "If you use SET you must also include LENGTH")',
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
         Outcome(
             "LENGERR",
             None,
@@ -232,7 +240,9 @@ CANCEL = Command(
 # #4950 (X18, ASSUMED): the region's scheduler. A RUN child is dispatched at its parent's next wait -- a DELAY, or a FETCH
 # that waits -- in RUN order, and runs until it ends or waits before its parent resumes (one quasi-reentrant TCB: a
 # task keeps control until it waits). A task takes no processor time (X4): a child completes at its dispatch plus its
-# own DELAYs; the parent's clock moves by its DELAYs and its waits. A completion at the very instant the parent resumes
+# own DELAYs; the parent's clock moves by its DELAYs and its waits. #5089: the rule holds at every level -- a child
+# that RUNs children of its own dispatches them at its own waits, on its own clock (a grandchild completes at its
+# parent's dispatch time plus its own DELAYs, and the child at its parent's plus its own waits). A completion at the very instant the parent resumes
 # from a wait of its own is a tie IBM does not order: a FETCH whose answer turns on it is refused.
 _CHILD_RUNS = RuntimeRefusal(
     "a RUN TRANSID child's transaction whose program the case does not run", "X18", java="child transaction ",
@@ -283,10 +293,11 @@ RUN = Command(
     runtime_refusals=(
         _DFH_CHANNEL,
         RuntimeRefusal(
-            "a RUN TRANSID in a RUN TRANSID child task (a grandchild)",
+            "a RUN TRANSID in a task 3 generations below the issuing task (a great-great-grandchild): a child may RUN "
+            "children of its own, to the depth the harness states (IBM states none)",
             "X18",
-            java="RUN TRANSID in a RUN TRANSID child",
-            c="RUN TRANSID in a RUN TRANSID child",
+            java="RUN TRANSID in a RUN TRANSID child task",
+            c="RUN TRANSID in a RUN TRANSID child task",
         ),
         _BOTH_BAD,
         _CHILD_RUNS,
@@ -407,4 +418,73 @@ FREE_CHILD = Command(
     impl=Impl(translator="Cics.free_child", java="freeChild", c="GGCFREE", harness="_free_child"),
 )
 
-COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD)
+# #5079 (X63): POST and WAIT EVENT -- a timer-event control area on the stated clock. A task takes no time (X4), so the area is
+# posted only by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL of the POST.
+_POST_ENDED = RuntimeRefusal(
+    "a WAIT EVENT on an area a later POST, CANCEL, local START or DELAY of the task ended (IBM: its result is unpredictable)",
+    "X63",
+    java="a later POST, CANCEL, START or DELAY ended",
+    c="a later POST, CANCEL, START or DELAY ended",
+)
+_NOT_A_POST = RuntimeRefusal(
+    "a WAIT EVENT on an address that is no POST's timer-event control area (an ECB of another kind is not modelled)",
+    "X63",
+    java="no POST's timer-event control area",
+    c="no POST's timer-event control area",
+)
+
+POST = Command(
+    key="POST",
+    ibm=ibm("EXEC CICS POST", "summary-post"),
+    status="modelled",
+    register="X63",
+    options={
+        "INTERVAL": Arg("hhmmss"),  # none of INTERVAL / TIME / AFTER / AT: INTERVAL(0)
+        "TIME": Arg("hhmmss"),
+        "AFTER": Arg("flag"),
+        "AT": Arg("flag"),
+        "HOURS": Arg("value"),
+        "MINUTES": Arg("value"),
+        "SECONDS": Arg("value"),
+        "SET": Arg("pointer"),
+        "REQID": Arg("name", width=8),
+        **RESP_OPTIONS,
+    },
+    groups=(
+        at_most_one("INTERVAL", "TIME", "AFTER", "AT", msg="POST {}: one expiry option"),
+        requires(
+            ("HOURS", "MINUTES", "SECONDS"),
+            any_of=("AFTER", "AT"),
+            both_ways=True,
+            msg="POST {} {}: HOURS / MINUTES / SECONDS go with AFTER / AT",
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 4, "hours out of range (HOURS, or INTERVAL / TIME's hh)"),
+        Outcome("INVREQ", 5, "minutes out of range (MINUTES, or mm)"),
+        Outcome("INVREQ", 6, "seconds out of range (SECONDS, or ss)"),
+        Outcome("EXPIRED", None, "the specified time has already passed when the command is issued"),
+    ),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.post", java="post", c="GGCPOST", harness="_post"),
+)
+
+WAIT_EVENT = Command(
+    key="WAIT EVENT",
+    ibm=ibm("EXEC CICS WAIT EVENT", "summary-wait-event"),
+    status="modelled",
+    register="X63",
+    # NAME only labels the suspended task (SUSPENDVALUE / HVALUE of INQUIRE TASK): it changes nothing here
+    options={"ECADDR": Arg("pointer"), "NAME": Arg("name", width=8), **RESP_OPTIONS},
+    groups=(required("ECADDR", msg="WAIT EVENT without ECADDR"),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 2, "the ECB address is a null pointer"),
+    ),
+    runtime_refusals=(_NOT_A_POST, _POST_ENDED),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.wait_event", java="waitEvent", c="GGCWEVT", harness="_wait_event"),
+)
+
+COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT)

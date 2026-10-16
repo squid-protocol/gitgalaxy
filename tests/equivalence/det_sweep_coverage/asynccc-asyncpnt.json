@@ -1,0 +1,102 @@
+{
+ "format": "det-sweep-coverage/2",
+ "scenarios": 4,
+ "paragraphs": {
+  "covered": 3,
+  "live": 3
+ },
+ "branches": {
+  "covered": 4,
+  "total": 4
+ },
+ "linked": {
+  "CRDTCHK": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 2
+   }
+  },
+  "CSSTATS2": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 2
+   }
+  },
+  "GETADDR": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 2
+   }
+  },
+  "GETNAME": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 2
+   }
+  },
+  "GETPOL": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  },
+  "GETSPND": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  },
+  "UPDCSDB": {
+   "paragraphs": {
+    "covered": 0,
+    "live": 1
+   },
+   "branches": {
+    "covered": 0,
+    "total": 0
+   }
+  }
+ },
+ "inputs": {
+  "case": "24828754d0331c3909bc331018c5dfdf8225b1023a962caf4327e32a1e7ef5ab",
+  "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
+  "harness": "542c831932d00aae1b902f6652c92d972592f324457df652329e0275f42711de",
+  "oracle": "91c0225c8dbd4234978be35e6d48888c4bbdf84df0fc345ac69e500f153f5d11",
+  "components": {
+   "harness": {
+    "harness:cics": "0a63a7d95ef6bbb065b34af20a2a3c07e24c826a1b6efa38712aa83705e6ab43",
+    "harness:core": "abd72c4a49e3ea05992d272af958e724ae35975d3ecc8dd58211ab805950c25d"
+   },
+   "oracle": {
+    "oracle:cics-stub": "9bd0cd910f84fc9c7642a86ddaf75cb4f2a30673e1258a533856e1db92db8cc7",
+    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
+    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+   }
+  }
+ },
+ "measured_at": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2"
+}

@@ -79,3 +79,44 @@ def test_census_read_generated_uses_the_shared_reader(clone):
     assert json.loads(cc.read_generated(BLOCKERS)) == {"gaps": []}
     with pytest.raises(SystemExit, match="not published"):  # a branch that lacks the file
         cc.read_generated(f"{cc.GENERATED_DIR}/meta.json")
+
+
+@pytest.fixture
+def out_dir(clone, monkeypatch):
+    out = clone / "docs/language_status/evidence_report"
+    monkeypatch.setattr(er, "OUT", out)
+    monkeypatch.setattr(er, "DOCS_OUT", out)
+    return out
+
+
+def test_materialize_copies_the_published_report_and_keeps_the_stub(clone, out_dir):
+    """#5206: main commits no report, so the tools that read it fetch the published copy into the ignored directory."""
+    base = "docs/language_status/evidence_report"
+    for rel, text in (("est/report.json", "{}"), ("est/report.md", "# est"), ("README.md", "published index")):
+        (clone / base / rel).parent.mkdir(parents=True, exist_ok=True)
+        (clone / base / rel).write_text(text)
+    gb.publish([base], "m", root=clone)
+    (clone / REPORT).unlink()
+    (out_dir / "README.md").write_text("stub")
+    assert er.materialize(clone) == 2
+    assert (out_dir / "est/report.json").read_text() == "{}"
+    assert (out_dir / "README.md").read_text() == "stub"  # the index is not copied over the committed stub
+
+
+def test_materialize_fails_when_there_is_no_report_anywhere(clone, out_dir):
+    (clone / REPORT).unlink()
+    with pytest.raises(SystemExit, match="no evidence report"):  # no generated branch yet
+        er.materialize(clone)
+    git(clone, "remote", "remove", "origin")  # no origin at all
+    with pytest.raises(SystemExit, match="no evidence report"):
+        er.materialize(clone)
+
+
+def test_materialize_keeps_what_is_on_disk_when_the_branch_is_unreachable(clone, out_dir):
+    git(clone, "remote", "remove", "origin")
+    assert er.materialize(clone) == 0  # est/report.json is on disk
+
+
+def test_materialize_leaves_a_foreign_out_directory_alone(clone, tmp_path, monkeypatch):
+    monkeypatch.setattr(er, "OUT", tmp_path)
+    assert er.materialize(clone) == 0

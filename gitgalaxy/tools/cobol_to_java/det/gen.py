@@ -14,6 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from gitgalaxy.tools.cobol_to_java.det import dli
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
@@ -86,6 +87,9 @@ LIBRARY_CLOCK = {
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
+# #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
+# cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
+BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
 LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
@@ -236,6 +240,7 @@ class Gen:
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
+        self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
@@ -480,7 +485,7 @@ class Gen:
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel):
+        elif isinstance(c, E.Rel) and not self.null_relation(c):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1235,9 +1240,31 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
+            if self.null_relation(c):
+                return self.rel_null(c)
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    @staticmethod
+    def null_relation(c: E.Rel) -> bool:
+        """#5197 (X56): whether a relation has NULL for an operand (no arithmetic plan: it compares no number)."""
+        return any(isinstance(x, E.Fig) and x.kind == E.NULL_POINTER for x in (c.left, c.right))
+
+    def rel_null(self, c: E.Rel) -> str:
+        """#5197 (X56): `pointer = NULL` / `NULL = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and
+        NOT = between a pointer and NULL (or another pointer); a pointer holds a handle whose zero is NULL (X47), so the
+        test is all-zero bytes, the figurative's own comparison. Everything else is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer {c.op} NULL: only = and NOT = compare a pointer (IBM Enterprise COBOL relation conditions, X56)"
+            )
+        sides = [x for x in (c.left, c.right) if not (isinstance(x, E.Fig) and x.kind == E.NULL_POINTER)]
+        if len(sides) != 1:
+            raise Untranslatable("NULL compared with NULL (not a pointer comparison, X56)")
+        if not isinstance(sides[0], E.Ref) or sides[0].subscripts or sides[0].qualifiers or sides[0].refmod:
+            raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
+        return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
 
     def cmp_num(self, e) -> str:
         """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
@@ -1248,7 +1275,20 @@ class Gen:
                 return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
         return self.num(e)
 
+    def pointer_operand(self, e) -> bool:
+        try:
+            return isinstance(e, E.Ref) and self.resolve(e).usage == "POINTER"
+        except Untranslatable:
+            return False
+
     def rel(self, op: str, a, b) -> str:
+        # #5197 (X56): a pointer is compared only with NULL (rel_null); against a number, another pointer or with an
+        # ordering operator it is refused by name (pointer = pointer: #5042)
+        if self.pointer_operand(a) or self.pointer_operand(b):
+            other = "another pointer" if self.pointer_operand(a) and self.pointer_operand(b) else "a non-pointer"
+            raise Untranslatable(
+                f"a pointer compared with {other if op == '=' else op}: only = / NOT = with NULL is modelled (X56)"
+            )
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
         if self.has_float(a) or self.has_float(b):
             return self.rel_float(jop, a, b)
@@ -1650,9 +1690,13 @@ class Gen:
             return f"Cobol.move({self.num(src)}, {ft}, CS);"
         raise Untranslatable(f"MOVE from {type(src).__name__}")
 
-    def initialize(self, ref: E.Ref) -> list[str]:
-        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero."""
+    def initialize(self, ref: E.Ref, replacing: dict | None = None) -> list[str]:
+        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero; with
+        REPLACING (#4892), only the items of a named category, each to its value as by MOVE, the others unchanged."""
         lo = self.lift(ref)
+        if lo and replacing is not None:
+            value = replacing.get(_replacing_category(self.resolve(ref)))
+            return [] if value is None else [self.move(value, ref)]
         if lo:
             return [self.move(E.Fig("SPACES" if lo[0] == "X" else "ZEROS"), ref)]
         it = self.resolve(ref)
@@ -1685,25 +1729,46 @@ class Gen:
                     out.append(f"Cobol.moveFigurative(Figurative.LOW_VALUES, Field.group({base}.storage(), "
                                f"{base}.offset() + {rel}, {x.size}), CS);")  # fmt: skip
                 return
-            out.append(self._init_one(x, base, it))
+            out.append(self._init_one(x, base, it, replacing=replacing))
 
         def walk_occ(c: L.Item, k: int) -> None:
             # a table element: its own offset plus k strides, relative to the INITIALIZE target
+            if replacing is not None and k == 0:
+                # #4892 (register C17): GnuCOBOL sets a table's first occurrence and copies it over the others, so
+                # an item REPLACING does not name would take the first occurrence's value -- IBM leaves it as it is
+                other = sorted({_replacing_category(x) for x in c.walk() if not x.children} - set(replacing))
+                if other:
+                    raise Untranslatable(
+                        f"INITIALIZE REPLACING of the table {c.name}, which holds {', '.join(other)} "
+                        "items REPLACING does not name (the oracle copies its first occurrence: register C17)"
+                    )
             for leaf in c.walk():
                 if leaf.children or leaf.name == "FILLER" or leaf.redefines:
                     continue
-                out.append(self._init_one(leaf, base, it, extra=k * c.size))
+                out.append(self._init_one(leaf, base, it, extra=k * c.size, replacing=replacing))
 
         walk(it, False, "")
-        return out
+        return [x for x in out if x]
 
-    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0, replacing: dict | None = None) -> str:
+        if replacing is not None and _replacing_category(x) not in replacing:
+            return ""  # REPLACING names another category: the item is left as it is
         why = p_unmodelled(x)
         if why:
             raise Untranslatable(f"INITIALIZE {why}")
-        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
-        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
+        field = self.factory(x, f"{base}.storage()", f"{base}.offset() + {rel}")
+        if replacing is not None:
+            value = replacing[_replacing_category(x)]
+            if isinstance(value, E.Fig):
+                return f"Cobol.moveFigurative(Figurative.{self.fig(value.kind)}, {field}, CS);"
+            if isinstance(value.value, str):
+                return f"Cobol.move({jstr(value.value)}, {field}, CS);"
+            if isinstance(value.value, Decimal):
+                return f"Cobol.move({self.const(value.value)}, {field}, CS);"
+            raise Untranslatable("INITIALIZE REPLACING BY a hexadecimal literal")
+        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
+        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {field}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
@@ -1915,7 +1980,7 @@ class Gen:
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:
-                out += [ind + x for x in self.initialize(r)]
+                out += [ind + x for x in self.initialize(r, s.data.get("replacing"))]
             return out
         if k == "SET-TRUE":
             out = [c]
@@ -1945,11 +2010,10 @@ class Gen:
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
-            src = {"DATE": "Funcs.acceptDate(clock())", "DATE YYYYMMDD": "Funcs.acceptDate8(clock())",
-                   "TIME": "Funcs.acceptTime(clock())", "DAY": "Funcs.acceptDay(clock())",
-                   "DAY YYYYDDD": "Funcs.acceptDay7(clock())"}.get(frm)  # fmt: skip
-            if src is None:
+            # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Accept.from)
+            if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")
+            src = f"Accept.from({self.current_date_expr()}, {jstr(frm)})"
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]
@@ -2588,6 +2652,19 @@ class Gen:
             if code is None:
                 return [f'{ind}if (true) throw CobolAbend.user(0, "CEE3ABD");']
             return [f'{ind}if (true) throw CobolAbend.user({self.int_expr(code)}, "CEE3ABD");']
+        if prog in BLL_CALLS:  # #5119 (X56): det/bll.py's lowering of an address held in data / a paragraph reload
+            if (
+                self.cics is None
+                or len(args) != 2
+                or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args)
+            ):
+                raise Untranslatable(f"CALL {prog}: the BLL lowering's two items expected")
+            a, b = (x for _, x in args)
+            if prog == "GGCBLLP":
+                return [f"{ind}DetCics.bllToData(task, {self.pointer_item(a.name)}, {self.field_expr(b)});"]
+            if prog == "GGCBLLG":
+                return [f"{ind}DetCics.bllFromData(task, {self.field_expr(a)}, {self.pointer_item(b.name)});"]
+            return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
             if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
@@ -2615,6 +2692,10 @@ class Gen:
                 f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
             )
             return out
+        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog != "CBLTDLI":
+                raise Untranslatable(dli.REFUSED_BY_NAME[prog])
+            return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
@@ -2629,6 +2710,10 @@ class Gen:
             if prog in LIBRARY_CHARSET:
                 refs.append("CS")
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
+        from gitgalaxy.tools.cobol_to_java.det import mq
+
+        if mq.handles(prog):  # #4892: an MQI call, on the task's queue manager (det/mq.py, register W)
+            return mq.call(self, prog, args, ind)
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 
         if prog in REFUSED_BY_NAME:
@@ -3132,6 +3217,11 @@ def camel(cobol: str) -> str:
     if not parts:
         return "x"
     return parts[0].lower() + "".join(p[:1].upper() + p[1:].lower() for p in parts[1:])
+
+
+def _replacing_category(it: L.Item) -> str:
+    """#4892: the INITIALIZE REPLACING category of an elementary item (an internal float is of the numeric category)."""
+    return "NUMERIC" if it.category == "FLOAT" else it.category
 
 
 def _fig(kind: str) -> str:

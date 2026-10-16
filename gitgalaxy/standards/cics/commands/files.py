@@ -12,8 +12,8 @@ OPTIONS, #4436 READ LENGTH), on a KSDS by key and an ESDS by RBA (det/cics.py Ci
 
 RBA / RRN / XRBA are accepted by OPTIONS and then refused or browsed in Cics._rba (a hole by name there). A refused
 option shows no reason but SYSID's and a read's SET (the reasons the old global table gave them, true here too).
-RESP2: the runtimes record 0 but for READ's LENGERR (11) and the GTEQ / GENERIC search's NOTFND (80); IBM's documented
-values are stated in PR 6.
+RESP2: the runtimes record 0 but for READ's INVREQ (25 / 26 / 28 / 42, #5092) and NOTFND (80) and LENGERR (11); IBM's
+other documented values are stated in PR 6.
 
 #4270 READ GTEQ / GENERIC (oracle_assumptions.md X22), IBM CICS TS, EXEC CICS READ
 (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-read):
@@ -33,7 +33,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SET_POINTER, SYSID_REMOTE, ibm
+from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, SYSID_REMOTE, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -42,6 +42,7 @@ from gitgalaxy.standards.cics.model import (
     Refusal,
     RuntimeRefusal,
     at_most_one,
+    one_of,
     requires,
 )
 
@@ -57,7 +58,7 @@ _NAME_ONLY = {"DATASET": _FILE["DATASET"], "FILE": _FILE["FILE"]}
 # KEYLENGTH: honoured only as the file's full key (Cics._keylength); a shorter one is refused there
 _KEYLENGTH = Arg("value")
 _REMOTE: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE}
-_READ_REFUSED: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE, "SET": SET_POINTER}
+_READ_REFUSED: Mapping[str, Refusal] = {"SYSID": SYSID_REMOTE}
 # #5078 (X52): IBM lets READNEXT / READPREV take UPDATE (and TOKEN) -- a browse for update, "valid only for files accessed in RLS mode"
 _BROWSE_UPDATE = Refusal(
     "a browse for update (READNEXT / READPREV UPDATE [TOKEN]) is not modelled: the region has no RLS", "X52"
@@ -93,6 +94,9 @@ READ = _file(
     options={
         **_FILE,
         "INTO": Arg("area_out"),
+        # #5042 (X58): "CICS is to supply a buffer where the record is read, and specifies the pointer reference that is to
+        # contain the address of the retrieved record"
+        "SET": Arg("pointer"),
         "RIDFLD": Arg("area_in"),
         "UPDATE": Arg("flag"),
         # #5078 (X52): "a unique identifier for this READ UPDATE request" (a fullword out); "If you specify TOKEN it implies update"
@@ -110,18 +114,40 @@ READ = _file(
     groups=(
         # IBM's syntax diagram: EQUAL | GTEQ, one of them (EQUAL the default)
         at_most_one("EQUAL", "GTEQ", msg="READ {} and {} together"),
+        one_of("INTO", "SET", msg="READ needs one of INTO / SET"),
         # IBM, KEYLENGTH: "You must code KEYLENGTH if you specify GENERIC"
         requires(("GENERIC",), ("KEYLENGTH",), msg="READ GENERIC without KEYLENGTH"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "TOKEN")),
-        _NOTFND,
-        # #4270: the GTEQ / GENERIC search states IBM's RESP2 (the full-key READ still records 0, until spec PR 6)
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "TOKEN")),
+        # #5092 (X52), IBM, EXEC CICS READ: NOTFND RESP2 80 for every READ form (plain, UPDATE, TOKEN, GTEQ, GENERIC); a READ
+        # UPDATE that finds nothing holds nothing. NOTFND 81 (RBA / XRBA) and the other option-gated values are refused by name
         Outcome(
             "NOTFND",
             80,
             "An attempt to retrieve a record based on the search argument provided is unsuccessful",
-            raised_by=("GTEQ", "GENERIC"),
+        ),
+        # INVREQ 25 / 42 (GENERIC KEYLENGTH >= the full key / < 0) and 26 (KEYLENGTH without GENERIC, not the key's length): both
+        # runtimes answer them for a given KEYLENGTH; INVREQ 20 (READ not allowed by the file's definition) is ASSUMED never to
+        # arise (X52: files.cfg has no such attribute); 40, 44, 51-53, 55-57, 59 (BDAM, CFDT, RREPL, RBA / XRBA / CONSISTENT /
+        # REPEATABLE / NOSUSPEND) belong to options and files the region refuses
+        Outcome(
+            "INVREQ",
+            25,
+            "the length specified in the KEYLENGTH option is greater than or equal to the length of a full key",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
+        Outcome(
+            "INVREQ",
+            26,
+            "KEYLENGTH is specified without GENERIC and is not the length of the file's key",
+            raised_by=("KEYLENGTH",),
+        ),
+        Outcome(
+            "INVREQ",
+            42,
+            "the length specified in the KEYLENGTH option is less than zero",
+            raised_by=("GENERIC", "KEYLENGTH"),
         ),
         Outcome("LENGERR", 11, "the record is longer than LENGTH: truncated", writes=("INTO", "LENGTH")),
         # #5092 (X52): IBM, EXEC CICS READ: a READ UPDATE without TOKEN on a file with an earlier one not yet released
@@ -133,11 +159,9 @@ READ = _file(
         ),
     ),
     runtime_refusals=(
-        # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; the
-        # translator refuses such a KEYLENGTH by name (Cics._keylength), the stub when the program runs
-        RuntimeRefusal(
-            "a GENERIC KEYLENGTH not shorter than the key, or not above zero", "X22", c="READ GENERIC KEYLENGTH"
-        ),
+        # IBM documents INVREQ RESP2 25 (GENERIC KEYLENGTH >= the full key) and 42 (< 0), and nothing for 0; zero is
+        # refused by name, by the translator (Cics._keylength) and by the stub when the program runs
+        RuntimeRefusal("a GENERIC KEYLENGTH of zero", "X22", c="READ GENERIC KEYLENGTH"),
     ),
 )
 
@@ -149,14 +173,18 @@ READNEXT = _file(
     options={
         **_FILE,
         "INTO": Arg("area_out"),
+        "SET": Arg(
+            "pointer"
+        ),  # #5042 (X58): "valid until the next READNEXT or READPREV command specifies SET for the same browse"
         "RIDFLD": Arg("area_inout"),  # the key of the record read
         "KEYLENGTH": _KEYLENGTH,
         "LENGTH": Arg("value"),  # only INTO's own length (Cics._read_length)
         **RESP_OPTIONS,
     },
     refused={**_READ_REFUSED, "UPDATE": _BROWSE_UPDATE, "TOKEN": _BROWSE_UPDATE},
+    groups=(one_of("INTO", "SET", msg="{} needs one of INTO / SET"),),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the end of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),
@@ -169,8 +197,9 @@ READPREV = _file(
     register="X52",
     options=READNEXT.options,
     refused=READNEXT.refused,
+    groups=READNEXT.groups,
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "RIDFLD")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the start of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),
@@ -258,23 +287,36 @@ DELETE = _file(
     ),
     outcomes=(
         _NORMAL,
-        _NOTFND,
-        Outcome(
-            "NOTFND",
-            80,
-            "An attempt to delete a record based on the search argument provided is unsuccessful",
-            raised_by=("GENERIC",),
-        ),
+        # IBM: NOTFND RESP2 80 is the only NOTFND value, for the keyed and the generic delete alike (both runtimes record it)
+        Outcome("NOTFND", 80, "An attempt to delete a record based on the search argument provided is unsuccessful"),
         Outcome("INVREQ", 31, "no RIDFLD, and no READ UPDATE without a token holds a record"),
+        # #5092 (X22), IBM, EXEC CICS DELETE: INVREQ 21 a file that refers to a VSAM ESDS, 22 a generic delete of a file that
+        # is not a KSDS, 25 / 42 a GENERIC KEYLENGTH not shorter than the key / below zero, 26 a KEYLENGTH without GENERIC
+        # that is not the key's length. Nothing is deleted. 20, 27, 44, 51, 55-57 and 59 belong to options and files the
+        # region refuses or does not have (X22)
+        Outcome("INVREQ", 21, "DELETE is issued for a file that refers to a VSAM ESDS"),
+        Outcome("INVREQ", 22, "a generic delete is issued for a file that is not a VSAM KSDS", raised_by=("GENERIC",)),
+        Outcome(
+            "INVREQ",
+            25,
+            "the length specified in the KEYLENGTH option is greater than or equal to the length of a full key",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
+        Outcome(
+            "INVREQ",
+            26,
+            "KEYLENGTH is specified without GENERIC and is not the length of the file's key",
+            raised_by=("KEYLENGTH",),
+        ),
+        Outcome(
+            "INVREQ",
+            42,
+            "the length specified in the KEYLENGTH option is less than zero",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
         _INVREQ_TOKEN,
     ),
-    runtime_refusals=(
-        RuntimeRefusal(
-            "a GENERIC KEYLENGTH not shorter than the key, or not above zero",
-            "X22",
-            c="DELETE GENERIC KEYLENGTH",
-        ),
-    ),
+    runtime_refusals=(RuntimeRefusal("a GENERIC KEYLENGTH of zero", "X22", c="DELETE GENERIC KEYLENGTH"),),
 )
 
 # #5078 (X52), IBM CICS TS, EXEC CICS UNLOCK: releases the exclusive control a READ UPDATE took. TOKEN "associates the UNLOCK

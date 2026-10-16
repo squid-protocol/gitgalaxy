@@ -366,7 +366,6 @@ class _KeyCics(_RbaCics):
         "FORMATTIME ABSTIME(REC) YYYYMMDD(REC) DATE(KEY)",  # #4415 slice 3 (X46): the DATFORM order is the installation's
         "ASKTIME ABSTIME(REC) RESP(R)",
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
-        "READQ TS QUEUE('Q') SET(PTR)",
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
         "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
@@ -380,8 +379,8 @@ def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "a partial key"),  # (CICS: INVREQ)
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(LENGTH OF SHORTKEY)", "a partial key"),
+        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length on a known file"),
+        ("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "not a known length on a known file"),
         ("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length"),
         ("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(10)", "not a known length on a known file"),
         # #4436: a keyed READ's LENGTH is modelled; READNEXT / READPREV's and an RBA browse's are not
@@ -502,19 +501,43 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
 def test_delete_generic_deletes_every_record_with_the_generic_key():
     """#4771 zECS (ZECS003 3100-DELETE; IBM, EXEC CICS DELETE, register X22): GENERIC deletes every record whose key
     starts with RIDFLD's first KEYLENGTH bytes (CicsTask.delete: NOTFND RESP2 80 when none); on a file named at run time
-    a KEYLENGTH not shorter than that file's key is refused then. INVREQ 25 / 42 and an unknown KEYLENGTH refused."""
+    a KEYLENGTH not shorter than that file's key is INVREQ 25 then (#5092: 25 / 42 are answered, CicsTask.deleteInvalid;
+    22 for a non-KSDS and 26 for a KEYLENGTH without GENERIC likewise). Zero and an unknown KEYLENGTH are refused."""
     out = _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
     assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
-    assert out[1] == "int resp1 = task.delete('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    assert (
+        out[1]
+        == "int resp1 = task.deleteGeneric('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    )
     assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
                       "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
     assert "OUTCOME(resp1, task.resp2());" in out
     rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
-    assert rt[1].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
-    assert "not shorter than the key of" in rt[1]
+    assert rt[1] == "int resp1;"
+    assert rt[2].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.strip(), true, 25);")
+    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.strip(), ")
+    for text, want in (
+        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),  # the key is 10
+        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),
+        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+    ):
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(want) and "OUTCOME(" in got[1], got
+    for text, resp2 in (
+        ("KEYLENGTH(6)", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(0)", 26),
+    ):  # not GENERIC, not the key's 10
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(f"task.deleteInvalid('KSDS'.strip(), false, {resp2});"), got
+    assert (
+        "task.delete('KSDS'.strip(),"
+        in _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) RESP(R)", "")[0]
+    )
     for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
                      ("DELETE FILE('KSDS') KEYLENGTH(6) GENERIC", "GENERIC without RIDFLD"),
-                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(0) GENERIC", "not above zero"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
                      ("DELETE FILE('KSDS') RIDFLD(SHORTKEY) KEYLENGTH(8) GENERIC", "shorter than the 8-byte"),
@@ -529,16 +552,35 @@ def test_delete_generic_deletes_every_record_with_the_generic_key():
     [
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GTEQ EQUAL", "EQUAL and GTEQ together"),
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),  # not shorter than the key
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(0) GENERIC GTEQ", "not above zero"),
         ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
-        ("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) GTEQ", "a partial key"),  # not GENERIC: INVREQ 26
         ("READ FILE('KSDS') INTO(REC) RIDFLD(SHORTKEY) GTEQ", "shorter than the 10 bytes searched"),
     ],
 )
 def test_read_gteq_generic_refusals_by_name(text, why):
     with pytest.raises(C.CicsError, match=why):
         _LenCics().command(text, "")
+
+
+@pytest.mark.parametrize(
+    ("opts", "resp2"),
+    [
+        ("KEYLENGTH(6)", 26),  # no GENERIC, not the key's length (10)
+        ("KEYLENGTH(LENGTH OF SHORTKEY)", 26),
+        ("KEYLENGTH(6) GTEQ", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(10) GENERIC", 25),  # GENERIC, not shorter than the key
+        ("KEYLENGTH(11) GENERIC GTEQ", 25),
+        ("KEYLENGTH(-1) GENERIC", 42),  # GENERIC, below zero
+        ("KEYLENGTH(-3) GENERIC GTEQ UPDATE", 42),
+    ],
+)
+def test_read_keylength_invreq_is_a_result_with_ibms_resp2(opts, resp2):
+    """#5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 / 26 / 42 for a KEYLENGTH that is not the key's length (no
+    GENERIC), or for a GENERIC one not shorter than the key / below zero; the read is not done (CicsTask.readInvalid)."""
+    out = _LenCics().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {opts} RESP(R)", "")
+    assert out[0].endswith(f"task.readInvalid('KSDS'.strip(), {'true' if 'UPDATE' in opts else 'false'}, {resp2});")
+    assert not any("find(" in line or "search(" in line for line in out)
 
 
 def test_read_length_literal_is_the_limit_with_nothing_to_set_back():
@@ -621,7 +663,7 @@ def test_options_honoured_without_code_say_why():
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL", "BELOW", "EXECUTABLE"}  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -960,6 +1002,7 @@ _RESP_SAMPLES = {
     "ENDBR": "ENDBR FILE('KSDS')", "WRITE": "WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY)",
     "REWRITE": "REWRITE FILE('KSDS') FROM(REC)", "DELETE": "DELETE FILE('KSDS') RIDFLD(KEY)",
     "INQUIRE PROGRAM": "INQUIRE PROGRAM('P')", "WRITEQ TD": "WRITEQ TD QUEUE('Q') FROM(REC)",
+    "READQ TD": "READQ TD QUEUE('Q') INTO(REC)", "DELETEQ TD": "DELETEQ TD QUEUE('Q')",
     "WRITEQ TS": "WRITEQ TS QUEUE('Q') FROM(REC)", "READQ TS": "READQ TS QUEUE('Q') INTO(REC)",
     "GET COUNTER": "GET COUNTER(KEY) VALUE(REC)", "SYNCPOINT": "SYNCPOINT", "SYNCPOINT ROLLBACK": "SYNCPOINT ROLLBACK",
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
@@ -973,6 +1016,7 @@ _RESP_SAMPLES = {
     "START": "START TRANSID('T')", "RETRIEVE": "RETRIEVE INTO(REC)", "CANCEL": "CANCEL REQID('R')",
     "RUN": "RUN TRANSID('T') CHILD(REC)", "BIF DEEDIT": "BIF DEEDIT FIELD(REC)", "FREE CHILD": "FREE CHILD(REC)",
     "INQUIRE TERMINAL": "INQUIRE TERMINAL(KEY) UCTRANST(REC)",
+    "INQUIRE TDQUEUE": "INQUIRE TDQUEUE(KEY) TYPE(REC)",
     "DELETEQ TS": "DELETEQ TS QUEUE('Q')", "QUERY COUNTER": "QUERY COUNTER(KEY) VALUE(REC)", "INQUIRE ASSOCIATION": "INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID(REC)", "INQUIRE URIMAP": "INQUIRE URIMAP(REC) NEXT", "WRITE OPERATOR": "WRITE OPERATOR TEXT(REC)",
     "DEFINE COUNTER": "DEFINE COUNTER(KEY)", "DELETE COUNTER": "DELETE COUNTER(KEY)",
     "REWIND COUNTER": "REWIND COUNTER(KEY)", "UPDATE COUNTER": "UPDATE COUNTER(KEY) VALUE(7)",
@@ -1000,7 +1044,14 @@ _RESP_ELSEWHERE = {
     "LINK": "Cics.link ends in outcome() (covered by the CBSA / GenApp LINK proofs)",
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
+    "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
+    **dict.fromkeys(
+        ("POST", "WAIT EVENT", "CONVERSE"),
+        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
+    ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
+    "SET TDQUEUE": "needs the generator's int_expr, which this double lacks: test_td_openstatus_translate_5168.py",
 }
 
 
@@ -1081,7 +1132,6 @@ def test_receive_set_addresses_a_linkage_record_and_the_rest_is_refused():
                        "DetCics.receivedSet(f_LS-REC, received1.data(), CS);",
                        "STORE(RLEN, BigDecimal.valueOf(received1.length()));"]  # fmt: skip
     for bad, why in (
-        ("RECEIVE SET(PTR) LENGTH(RLEN) MAXLENGTH(80)", "pointers are not modelled"),
         ("RECEIVE SET(ADDRESS OF WS-REC) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-PART) LENGTH(RLEN) MAXLENGTH(80)", "not a LINKAGE 01"),
         ("RECEIVE SET(ADDRESS OF LS-REC) LENGTH(RLEN)", "without MAXLENGTH"),
@@ -1167,6 +1217,26 @@ def test_put_container_is_the_programs_bytes_on_the_task_channel():
     assert ", null, false);" in _ChanCics().command("PUT CONTAINER(CN) FROM(REC)", "")[1]
 
 
+def test_byteoffset_and_prepend_pass_to_the_task():  # noqa: E302
+    """#5005 (X17), IBM GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND: BYTEOFFSET (a data value) calls getContainerAt with the
+    most INTO takes; FLENGTH is set back from the length returned. PREPEND is the task's last argument, after the FROMCCSID (-1:
+    none); a command without either is generated as before."""
+    out = _ChanCics().command("GET CONTAINER(CN) CHANNEL(CH) INTO(AREA) FLENGTH(FL) BYTEOFFSET(OFF) RESP(R)", "")
+    assert out == ["CicsTask.ContainerResult cont1 = task.getContainerAt(CH.strip(), CN.strip(), "
+                   "DetCics.containerLimit(f_AREA, INT(FL)), INT(OFF));",
+                   "if (cont1.data() != null) DetCics.put(f_AREA, cont1.data());",
+                   "if (cont1.length() >= 0) STORE(FL, BigDecimal.valueOf(cont1.length()));",
+                   "OUTCOME(DetCics.resp(cont1.resp()), cont1.resp2());"]  # fmt: skip
+    assert (
+        "getContainerAt(null, CN.strip(), DetCics.containerLimit(f_AREA, 20), INT(4));"
+        in _ChanCics().command("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "")[0]
+    )
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) BIT PREPEND", "")
+    assert out[1].endswith('flen2, "BIT", false, -1, true);')
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) PREPEND", "")
+    assert out[1].endswith("flen2, null, false, -1, true);")
+
+
 def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     """IBM, GET CONTAINER (CHANNEL): FLENGTH in -- the most INTO takes (else INTO's length) -- and out, "the length
     of the data in the container", set back on NORMAL and LENGERR (CicsTask's length is -1 otherwise); NODATA moves
@@ -1183,6 +1253,36 @@ def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     assert out[0].endswith("task.getContainer(null, CN.strip(), -1);") and "STORE(FL" in out[1]
     out = _ChanCics().command("DELETE CONTAINER(CN) RESP(R)", "")
     assert out[0] == "CicsTask.ContainerResult cont1 = task.deleteContainer(null, CN.strip());"
+
+
+def test_container_ccsid_options_pass_the_ccsid_to_the_task():
+    """#4270 (X17), IBM PUT CONTAINER FROMCCSID and GET CONTAINER INTOCCSID / CONVERTST / CCSID: the CCSID (a data value) is the
+    task's last argument; a command without one calls the
+    short form, so every port that names no CCSID is generated as before. CONVERTST(NOCONVERT) reads the container's own
+    CCSID; CCSID(area) is stored with FLENGTH, on NORMAL and LENGERR."""
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1140)", "")
+    assert out[1].endswith("flen2, null, false, INT(1140));")
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(WS-CS) APPEND", "")
+    assert out[1].endswith("flen2, null, true, INT(WS-CS));")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), INT(1140), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) NODATA FLENGTH(FL) INTOCCSID(WS-CS)", "")
+    assert out[0].endswith("task.getContainer(null, CN.strip(), -1, INT(WS-CS), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), -1, true);")
+    assert "if (cont1.length() >= 0) STORE(CS, BigDecimal.valueOf(task.containerCcsid()));" in out
+    assert ", -1" not in _ChanCics().command("GET CONTAINER(CN) INTO(AREA)", "")[0]
+
+
+def test_container_ccsid_options_refuse_a_region_page_other_than_037():
+    """The conversion tables read a program's bytes as CCSID 037, the port's default region page (#4528): an estate that
+    declares another EBCDIC page (cp273 ...) cannot use them."""
+    c = _ChanCics()
+    c.region = "IBM273"
+    with pytest.raises(C.CicsError, match="CCSID 037, not IBM273"):
+        c.command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    out = c.command("GET CONTAINER(CN) INTO(AREA)", "")  # no CCSID option: as before
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20));")
 
 
 def test_move_container_is_a_rename_across_channels():
@@ -1359,13 +1459,20 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     with pytest.raises(C.CicsError, match="without an origin option"):
         c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
-    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert (
+        q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
         "QUERY COUNTER(KEY) VALUE(REC)", ""
     )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
-    assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
+    assert (
+        g[0].startswith("long[] counter")
+        and ".getCounter(" in g[0]
+        and "task.fullwordGet(" in g[1]
+        and g[2].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
     d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]
@@ -1432,10 +1539,16 @@ def test_web_send_is_the_response_to_the_stated_request():
     assert ".webSendDocument(Cobol.text(" in d[0] and d[0].endswith(
         ", 1, 0, CS);"
     )  # (#4767: the document the token names; #4941: DOCSTATUS 0 when not given)
+    ct = c.command("WEB SEND CONTAINER(KEY) CHANNEL(REC) MEDIATYPE(REC) ACTION(R2) SRVCONVERT NOHANDLE", "")
+    assert ".webSendContainer(REC.strip(), KEY.strip(), Cobol.text(" in ct[0] and ct[0].endswith(
+        ", 1, CS);"
+    )  # (#5037 X37: a container's data)
+    cc = c.command("WEB SEND CONTAINER(KEY) ACTION(R2) NOHANDLE", "")
+    assert ".webSendContainer(null, " in cc[0]  # (no CHANNEL: the current channel)
     ds = c.command("WEB SEND DOCTOKEN(KEY) ACTION(R2) DOCSTATUS(R) NOHANDLE", "")
     assert ds[0].endswith(", 0, INT(R), CS);")  # (#4941 X37: DOCSTATUS's CVDA, DOCDELETE / NODOCDELETE)
-    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs one of FROM and DOCTOKEN"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs one of FROM and DOCTOKEN"),
+    for bad, why in (("WEB SEND FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) DOCTOKEN(KEY)", "needs exactly one of FROM"),
                      ("WEB SEND DOCTOKEN(KEY) FROMLENGTH(R)", "FROMLENGTH without FROM"),
                      ("WEB SEND DOCTOKEN(KEY) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) DOCSTATUS(R)", "DOCSTATUS without DOCTOKEN"),
@@ -1444,7 +1557,16 @@ def test_web_send_is_the_response_to_the_stated_request():
                      ("WEB SEND FROM(REC) FROMLENGTH(R) STATUSLEN(R)", "STATUSLEN without STATUSTEXT"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHUNKING(R)", "chunked response"),
                      ("WEB SEND FROM(REC) FROMLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
-                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection")):  # fmt: skip
+                     ("WEB SEND FROM(REC) FROMLENGTH(R) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) FROM(REC) FROMLENGTH(R)", "needs exactly one of FROM"),
+                     ("WEB SEND CONTAINER(KEY) DOCTOKEN(KEY)", "needs exactly one of FROM"),
+                     ("WEB SEND CHANNEL(KEY) FROM(REC) FROMLENGTH(R)", "CHANNEL without CONTAINER"),
+                     ("WEB SEND CONTAINER(KEY) CHUNKING(R)", "chunked response"),
+                     ("WEB SEND CONTAINER(KEY) HOSTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CHARACTERSET(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLNTCODEPAGE(REC)", "code-page conversion"),
+                     ("WEB SEND CONTAINER(KEY) CLOSESTATUS(R)", "closing the connection"),
+                     ("WEB SEND CONTAINER(KEY) LENGTH(R)", "LENGTH is kept for upgrade only")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
 
@@ -1841,12 +1963,21 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
-        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
-        ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
-        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL)", "pointer"),
-        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
-        ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "IANA code-page names"),
+        ("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ISO-8859-1')", "IANA code-page names"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
+        ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
+        ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
+        ("GET CONTAINER(CN) NODATA BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),  # #5005 (X17)
+        ("GET CONTAINER(CN) SET(PTR) FLENGTH(FL) BYTEOFFSET(4)", "BYTEOFFSET needs INTO"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) INTOCCSID(500)", "BYTEOFFSET with INTOCCSID"),
+        ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))", "BYTEOFFSET with CONVERTST"),
+        (
+            "GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(WS-CCSID)",
+            "BYTEOFFSET with CONVERTST",
+        ),
+        ("PUT CONTAINER(CN) FROM(REC) PREPEND APPEND", "APPEND and PREPEND together"),
+        ("PUT CONTAINER(CN) FROM(REC) APPEND PREPEND", "APPEND and PREPEND together"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
         ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
         ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),
@@ -1926,7 +2057,6 @@ def test_retrieve_moves_the_data_its_length_and_the_values_asked_for():
         ("START TRANSID('T') AFTER", "go with AFTER / AT"),
         ("START INTERVAL(0)", "without TRANSID"),
         ("START TRANSID('T') LENGTH(4)", "LENGTH without FROM"),
-        ("RETRIEVE SET(P) LENGTH(L)", "pointer"),
         ("RETRIEVE INTO(AREA) WAIT", "WAIT"),
         ("RETRIEVE LENGTH(LN)", "without INTO"),
         ("CANCEL TRANSID('T')", "only CANCEL REQID"),
@@ -2681,11 +2811,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:5] == ["IBM037 E640C1", "true", "4120", "true", "850A"]  # NL is NEL, as Python's cp037 has it
     assert out[5] == bytes(range(256)).decode("latin-1").encode("cp037").hex().upper()  # the stub's own table
     assert out[6] == "refused: byte C3 is no character of UTF-8 on its own: not modelled"
@@ -2746,10 +2876,10 @@ public class Main {
     import subprocess
 
     built = subprocess.run([str(jdk / "javac"), "-nowarn", "-encoding", "UTF-8", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[:9] == ["[14-6704/B] -> [00146704B]", "[$25.68   ] -> [000002568]", "[123-] -> [012L]",
                        "[1.5CR] -> [0001N]", "[5-] -> [0N]", "[12}] -> [12}]", "[A] -> [A]",
                        "[ab12cd34] -> [00001234]", "[ab12cd34] -> [0012cd34]"]  # fmt: skip
@@ -2957,6 +3087,45 @@ def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6(
     assert "public static int within(Field f, int n, String what)" in rt
 
 
+def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():
+    """#5079 (register X57): READQ TD INTO [LENGTH] -> CicsTask.readqTd (the most INTO takes: LENGTH, else INTO's own
+    size), the record's text moved INTO by DetCics.readTd (a record past INTO refused), a data area LENGTH set to the
+    record's length when one was read; DELETEQ TD -> CicsTask.deleteqTd; SET / SYSID / NOSUSPEND refused by name."""
+    out = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(WS-N) RESP(R)", "")
+    assert out[0].startswith("CicsTask.TdResult td1 = task.readqTd('Q'.strip(), ") and "WS-N" in out[0]
+    assert out[1] == "if (td1.data() != null) DetCics.readTd(f_REC, td1.data().getBytes(CS));"
+    assert "td1.length() >= 0" in out[2] and "BigDecimal.valueOf(td1.length())" in out[2]
+    plain = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) RESP(R)", "")
+    assert "f_REC.length()" in plain[0] and not any("td1.length()" in line for line in plain)
+    literal = _ChanCics().command("READQ TD QUEUE('Q') INTO(REC) LENGTH(8) RESP(R)", "")
+    assert not any("td1.length()" in line for line in literal)
+    assert _ChanCics().command("DELETEQ TD QUEUE('Q') RESP(R)", "")[0] == "int resp1 = task.deleteqTd('Q'.strip());"
+    for body in ("READQ TD QUEUE('Q') SET(P)", "READQ TD QUEUE('Q') INTO(REC) SYSID('S')",
+                 "DELETEQ TD QUEUE('Q') SYSID('S')"):  # fmt: skip
+        with pytest.raises(Exception, match="not modelled|refused|SYSID|SET|NOSUSPEND"):
+            _ChanCics().command(body, "")
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    assert "public static void readTd(Field into, byte[] record)" in rt
+
+
+def test_readq_td_set_puts_the_record_in_a_block_and_nosuspend_changes_nothing_5168():
+    """#5168 (register X61): READQ TD SET(ptr) LENGTH(area) -> the record in a block valid to the next READQ TD
+    (DetCics.setBlock, key "READQ TD"), its length to the area; NOSUSPEND is accepted with no effect (no second task holds a queue);
+    INTO with SET, SET without a LENGTH area or with a literal one are refused."""
+    out = _PtrCics().command("READQ TD QUEUE('Q') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)", "")
+    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE);"
+    assert (
+        out[1].startswith("if (td1.data() != null) DetCics.setBlock(task, ") and '"READQ TD", td1.data(), CS' in out[1]
+    )
+    assert "td1.length() >= 0" in out[2] and "WS-N" in out[2]
+    nos = _PtrCics().command("READQ TD QUEUE('Q') INTO(REC) NOSUSPEND RESP(R)", "")
+    assert nos[0].startswith("CicsTask.TdResult td1 = task.readqTd(")
+    for body in ("READQ TD QUEUE('Q') INTO(REC) SET(PTR) LENGTH(WS-N)", "READQ TD QUEUE('Q') SET(PTR)",
+                 "READQ TD QUEUE('Q') SET(PTR) LENGTH(8)"):  # fmt: skip
+        with pytest.raises(Exception, match="SET|INTO|LENGTH"):
+            _PtrCics().command(body, "")
+
+
 def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     """#4270 (oracle_assumptions.md X23): a level-1 task whose runner states the COMMAREA is exactly EIBCALEN bytes
     (CicsTask.withExactCommarea: a scenario's `commarea_length`, shorter than the record) runs with DFHCOMMAREA's
@@ -3117,11 +3286,11 @@ public class Main {
     jdk = _javac()
     import subprocess
 
-    built = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
-                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["ABCDEFG..", "dto", "CDEFG.", "AByD|ExG"]
 
 

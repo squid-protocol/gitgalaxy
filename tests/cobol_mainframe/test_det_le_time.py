@@ -400,13 +400,23 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     (tmp_path / "src/Probe.java").write_text(JAVA_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
     feed = "\n".join(_java_line(s, a) for s, a, _ in VECTORS) + "\n"
     got = subprocess.run(  # noqa: S603
-        [str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"],
+        [
+            str(jdk / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path / "classes"),
+            "Probe",
+        ],
         input=feed,
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     ).stdout.splitlines()
     assert len(got) == len(VECTORS)

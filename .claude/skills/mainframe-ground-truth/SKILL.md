@@ -24,6 +24,8 @@ Environment: `GITGALAXY_MAINFRAME_CORPORA=<main checkout>/.mainframe_corpora` (i
 across worktrees; fetch once with `mainframe_corpus.py fetch`) and
 `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`. Scans are cached per engine commit plus a dirty hash,
 so a re-check on an unchanged engine takes seconds.
+Use a process pool, not threads, for concurrent `mainframe_corpus.scan`: it sets and restores PYTHONPATH process-wide
+(#5224). `evidence.status(..., live=True)` is fast (~1 s for all 49 records), so a roll-up can call it directly (#5231).
 
 ## A ledger failure in CI: triage
 
@@ -35,6 +37,7 @@ python tests/tools/ground_truth_ledger.py check          # what CI runs
 - **`no longer reproduces`** means you fixed something. Ratchet it in with `update`. That's the point of the gate: improvements get locked in.
 - **`UNTRIAGED` after `update`**: `assign CAUSE 'corpus :: side | field | * | fp'` with `--kind defect --issue N` (something to fix) or `--kind deliberate --issue N` (by design; the issue records the decision). **Never mark a defect deliberate to get green.** The kind is visible in every report.
 - **`cause … is used by no mismatch`**: `update` drops it, or it happened because a merge kept a cause that both sides emptied.
+- **`pr_gates --ratchets` fact-crosscheck prints only the first 20 NEW rows** (#5236): run `fact_crosscheck.py check --json FILE` and diff the disagreement ids against the ledger before assigning a cause.
 
 ## Merging and rebasing: the ledger and snapshots are generated
 
@@ -73,7 +76,7 @@ python tests/tools/cross_verify.py sign   --corpus <c> --dir <dir>/<c>/batch_NN 
 python tests/tools/cross_verify.py coverage --corpus <c>        # must reach 100%
 ```
 
-- **Reviewer.** Give a fresh-context agent **only** `brief.md` plus the staged source path. **Always `--stage`**: a brief pointing inside `/nvme-data/projects/gitgalaxy/…` contradicts its own "don't read gitgalaxy" rule, and the reviewer's reads get denied. One reviewer per batch, run in parallel.
+- **Reviewer.** Give a fresh-context agent **only** `brief.md` plus the staged source path. **Always `--stage`**: a brief pointing inside the gitgalaxy checkout (`$PRIMARY/…`) contradicts its own "don't read gitgalaxy" rule, and the reviewer's reads get denied. One reviewer per batch, run in parallel.
 - **Cross-family reviewer.** Gemini through `agy -p "$(cat brief.md)" --dangerously-skip-permissions …` is stronger evidence, but the auto-mode classifier blocks Claude from launching it. The user has to run it or allow it. Never route around that block.
 - **Rulings.** Rule `key_fixed` (the key was wrong: fix it and its reader, with a test) or `key_correct` (the reviewer was wrong, with the source evidence). `sign` refuses while anything is unruled or a `key_fixed` item still disagrees.
 - **Structural reachability.** Reachability is **structural**: every condition may go either way, with no value analysis. A reviewer's data-flow argument is `key_correct` (the INQACCCU AH999 precedent).
@@ -82,7 +85,30 @@ python tests/tools/cross_verify.py coverage --corpus <c>        # must reach 100
 - **Suites.** `--suite channels` (default) is the six #3445 channel sections over every COBOL source; `--suite files` is file control, VSAM defines and JCL job flow over every COBOL program and JCL member; `--suite calls` is CALL USING and DL/I (calls + IMS segment access) over every COBOL source. `coverage --suite <s>` reports each separately.
 - **Grader normalisations** (same fact, different spelling): a verb the kind fixes, blanks inside COND / IF / WHERE text, a bare generation `1`, `INTO(X)` / `FROM(X)` for the operand X, a DL/I function code (GN) for its access (read).
 - **A reviewer can be right.** The files census found a real reader bug that engine and key shared: a `//*` comment inside a continued JCL statement (BUILDONL.prc) ended the statement in both. Rule it `key_fixed`, fix both readers with a test, refresh the key, then `sign`, which re-grades against the current key.
+- **Engine and forge agree against the key? Suspect the key first.** Re-read the source before filing an engine defect.
+- **A reviewer skipped part of a long file:** re-run a fresh reviewer told "read each file to its end"; never hand-rule the rest. Sample procedure code only.
+- **A key refresh must DROP stale unvalidated entries.** Re-drafting a program drops its `commareas_validated`: re-run `add-commarea`.
+- **Don't file one issue per differential delta**: the `refraction_differential_baseline.json` is the baseline. Commit-message stats are recomputed from `grade.json`, never typed by hand.
 - **Census gate.** `test_small_corpus_keys_are_fully_censused` fails for any program lacking `verification.census`. Small corpora are censused; for a corpus too large to census, use sampled confidence (rule of three, reset per category on each `key_fixed`) and add a matching gate.
+
+## Parallel census PRs
+
+They edit the same `cross_verify_sections.py` dispatch lists and the same keys' `section_census`, so build them
+serially. On a conflict: take main's `cross_verify_sections.py` and re-insert your suite block and registrations;
+for the keys, take main's JSON and graft your section back. Verify with per-suite `coverage --suite <s>`,
+`ground_truth_ledger.py update` / `check`, and a ledger diff against main showing only your tier flips.
+
+## Pinning a new keyed corpus (in order)
+
+1. `corpora.json` entry + `mainframe_corpus.py fetch`.
+2. `cobol_answer_key.py draft` + every applicable `add-*`.
+3. `cobol_answer_key.py score`; triage the deltas against the source.
+4. `mainframe_corpus.py excerpt`, then `refraction_snapshot.py update --excerpts` and `--corpus <name>`.
+5. `refraction_differential.py --update-baseline` for both scopes (excerpts, and `--corpus <name>`).
+6. `cross_verify.py census` plus the `cross_verify_sections.py` suites; `grade` / `sign` until `coverage` is 100%.
+7. Set each signed program's `verification.status` to `validated`.
+8. `ground_truth_ledger.py update`, then `assign` every cause.
+9. Pin the new numbers in `tests/cobol_mainframe/test_completeness.py` (`PINNED`).
 
 ## Field testing: the defect protocol (every mainframe / CICS defect goes through here)
 
@@ -115,7 +141,9 @@ The rules. Apply them in the same PR as the change, not later:
    actually checked against truth there (reviewed, not just scanned). Never add a url, ref, path,
    program names or code. Defects found there are logged with anonymised summaries.
 7. **After any key, ledger or record change**, run `field_testing.py report --write`.
-8. **Quote coverage only from the generated report**, e.g. "units of work: tested on 6 public
+8. **A defect found by review** (not on a pinned estate) is logged with `found_by: "review"`, no `estate`, and
+   `after_round: N` (the last round checked before it).
+9. **Quote coverage only from the generated report**, e.g. "units of work: tested on 6 public
    estates, field-tested (3 clean fresh rounds, 2,111 facts)". Never say "field-tested" for a
    field the report calls `open`.
 
@@ -130,4 +158,7 @@ unseen corpora (with a census) or reviewing a private estate.
 - **A period on the next line.** Paragraph headers, COPY statements, REPLACING clauses.
 - **Any unconditional terminal sentence ends a unit**, not only the last one. `ALTER P TO PROCEED TO Q` makes Q a GO TO target.
 - **A literal is data except where it names a callee.** `CALL 'X'` is a callee (the engine's `_calls_out_literal_callee`); `DISPLAY 'CALL X'` is not.
+- **Assembler continuation** joins the rstripped columns 1-71 with columns 16-71 of the next line.
+- **Park literals before splitting statements**, or a period or keyword inside a literal splits it.
+- **In JCL, DISP decides create vs read**, not the GDG generation number.
 - **A data-only copybook that another program copies is a dependency, not a data dump.** The #3417 auditor exemption applies.

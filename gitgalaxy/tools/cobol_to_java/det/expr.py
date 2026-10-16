@@ -137,6 +137,7 @@ FIGURATIVES = {
     "LOW-VALUE": "LOW", "LOW-VALUES": "LOW", "HIGH-VALUE": "HIGH", "HIGH-VALUES": "HIGH", "QUOTE": "QUOTES",
     "QUOTES": "QUOTES",
 }  # fmt: skip
+NULL_POINTER = "NULLPTR"  # Fig.kind of NULL in a relation (#5197)
 REL_WORDS = {"=": "=", ">": ">", "<": "<", ">=": ">=", "<=": "<=", "<>": "<>"}
 ARITH_OPS = {"+", "-", "*", "/", "**", "("}
 CLASS_WORDS = {"NUMERIC", "ALPHABETIC", "ALPHABETIC-UPPER", "ALPHABETIC-LOWER", "POSITIVE", "NEGATIVE", "ZERO"}
@@ -205,7 +206,7 @@ class Parser:
             self.i += 1
             return Fig(FIGURATIVES[u])
         if u in ("NULL", "NULLS"):  # the pointer figurative: pointers are not modelled
-            raise ExprError("NULL: pointers are not modelled")
+            raise ExprError("NULL: only a pointer compared (= / NOT =) with NULL is modelled")
         if _is_number(tok):
             self.i += 1
             return Lit(NumLit(tok, tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
@@ -369,6 +370,13 @@ class Parser:
             return Not(self._not(previous))
         return self._simple(previous)
 
+    def _null_operand(self) -> Fig | None:
+        """#5197 (X56): NULL as one side of a relation -- the only place it is read (a pointer's test for no address)."""
+        if self.up() in ("NULL", "NULLS"):
+            self.i += 1
+            return Fig(NULL_POINTER)
+        return None
+
     def _rel_op_ahead(self, k: int) -> bool:
         u = self.up(k)
         return u in REL_WORDS or u in ("EQUAL", "EQUALS", "GREATER", "LESS")
@@ -393,7 +401,7 @@ class Parser:
                 obj = self.arith()
                 r = Rel(last.op, last.left, obj)
                 return Not(r) if negated else r
-        left = self.arith()
+        left = self._null_operand() or self.arith()
         if self.up() == "IS":
             self.i += 1
         neg = False
@@ -405,9 +413,11 @@ class Parser:
             return ClassCond(left, kind, neg)
         if self._rel_start():
             op, n2 = self._rel_op()
-            right = self.arith()
+            right = self._null_operand() or self.arith()
             r = Rel(op, left, right)
             return Not(r) if (n2 ^ neg) else r
+        if isinstance(left, Fig) and left.kind == NULL_POINTER:
+            raise ExprError("NULL: only compared (= / NOT =) with a pointer")
         if isinstance(left, Ref):
             cn = CondName(left)
             last, negated = _last_rel(previous) if previous is not None else (None, False)

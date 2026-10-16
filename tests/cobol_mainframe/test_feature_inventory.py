@@ -112,6 +112,14 @@ SNIPPETS = {
 
 
 COPYBOOKS = {"ERACPY": "       01 BLL-CELLS PIC X.\n"}  # a tell that only a copybook shows
+# #5195 assembler members: a COPY member, a macro member called by name, nested ones, and a COPY that resolves to nothing
+ASM = {
+    "era_asm.asm": "ASMMAIN  CSECT\n         COPY  ASMBOOK\n         ASMMAC X\n         END\n",
+    "ASMBOOK.mac": "         COPY  ASMDEEP\n",
+    "ASMDEEP.mac": "         DFHPC TYPE=LINK,PROGRAM=SUB\n",
+    "ASMMAC.mac": "         MACRO\n         ASMMAC &A\n         DFHTC TYPE=WRITE\n         MEND\n",
+    "era_asm_gap.asm": "GAPMAIN  CSECT\n         COPY  NOSUCH\n         END\n",
+}
 
 
 @pytest.fixture(scope="module")
@@ -124,6 +132,8 @@ def synthetic(tmp_path_factory):
         (d / f"{name}.cbl").write_text(code)
     for name, code in COPYBOOKS.items():
         (d / f"{name}.cpy").write_text(code)
+    for name, code in ASM.items():
+        (d / name).write_text(code)
     db_dir = base / "db"
     db_dir.mkdir()
     return d, db_dir, scan_estate(d, db_dir)
@@ -182,6 +192,33 @@ def test_era_tags(synthetic):
     assert not synthetic[2]["copybook_resolution_gaps"]["unknown"]["count"]  # noqa: S101
     s = eras["summary"]
     assert s["programs"] == len(SNIPPETS) and s["mixed"] == 1 and s["by_era"]["4"] == 1  # noqa: S101
+
+
+def test_copybook_pass_skipped_is_marked_on_the_tag(synthetic):
+    """#5195: a program whose COPY expansion is refused carries `copybook_skipped`; one whose expansion ran does not."""
+    eras = synthetic[2]["eras"]
+    assert eras["programs"]["copybook_gap.cbl"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    assert eras["programs"]["fallback.cbl"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    marked = {p for p, t in eras["programs"].items() if "copybook_skipped" in t}
+    assert marked == {"copybook_gap.cbl", "fallback.cbl", "era_unparsed.cbl"}  # noqa: S101  (era_copy's expansion ran)
+    assert eras["summary"]["copybook_skipped"] == 3  # noqa: S101
+
+
+def test_assembler_members_are_era_tagged_through_their_copy_and_macro_members(synthetic):
+    asm = synthetic[2]["eras"]["assembler"]
+    tag = asm["era_asm.asm"]
+    assert (tag["era"], "copybook_skipped" in tag) == (0, False)  # noqa: S101
+    # the tell is in two members the program never mentions in its own text: both are listed, ASMDEEP through ASMBOOK
+    by_tell = {t["tell"]: t for t in tag["tells"]}
+    assert by_tell["dfh-macro-call"]["via_copybook"] is True  # noqa: S101
+    assert by_tell["dfh-macro-call"]["copybooks"] == ["ASMDEEP.mac", "ASMMAC.mac"]  # noqa: S101
+    assert asm["era_asm_gap.asm"]["copybook_skipped"] == "CopyNotFound"  # noqa: S101
+    # a member that only COPYs another is a member too: it sees the tell through ASMDEEP, and ASMDEEP holds it itself
+    assert (
+        asm["ASMBOOK.mac"]["tells"][0]["copybooks"] == ["ASMDEEP.mac"]
+        and "via_copybook" in asm["ASMBOOK.mac"]["tells"][0]
+    )  # noqa: S101
+    assert "via_copybook" not in asm["ASMDEEP.mac"]["tells"][0]  # noqa: S101
 
 
 def test_cics_commands_and_options(synthetic):

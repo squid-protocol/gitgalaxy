@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.8.0 (afc1db0f)",
+ "crucible_ref": "v0.9.0 (3ca75ae0)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -63,6 +63,24 @@
    "live": 3,
    "outcomes": 0,
    "scenarios": {}
+  },
+  "ca-get-container-set/CAGCST": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {}
+  },
+  "ca-get-container-set/CAGCSX": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "errors": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
   },
   "ca-link-lengths/CALINK": {
    "live": 1,
@@ -756,6 +774,99 @@
     }
    }
   },
+  "hc-counter-increment-wrap/HCCWRP": {
+   "live": 10,
+   "outcomes": 8,
+   "scenarios": {
+    "incr": {
+     "units": [
+      "DEF-C1",
+      "HEX-VAL",
+      "INCR-PARA",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:WHEN@54",
+      "177:true",
+      "187:false"
+     ]
+    }
+   }
+  },
+  "hc-counter-shared-namespace/HCCNSP": {
+   "live": 16,
+   "outcomes": 8,
+   "scenarios": {
+    "big": {
+     "units": [
+      "BIG-PARA",
+      "DEF-C1",
+      "DEF-C2",
+      "DEF-C3",
+      "HEX-VAL",
+      "LOG-FW",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "QUERY-FW-C1",
+      "QUERY-FW-C2",
+      "QUERY-FW-C3"
+     ],
+     "outcomes": [
+      "55:WHEN@56",
+      "212:false",
+      "212:true",
+      "222:false",
+      "222:true"
+     ]
+    },
+    "fit": {
+     "units": [
+      "DEF-C1",
+      "FIT-PARA",
+      "GET-PLAIN",
+      "HEX-VAL",
+      "LOG-FW",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "QUERY-FW-C1"
+     ],
+     "outcomes": [
+      "55:WHEN@58",
+      "212:false",
+      "212:true",
+      "222:false",
+      "222:true"
+     ]
+    },
+    "dup": {
+     "units": [
+      "DEF-C1",
+      "DEF-C2",
+      "DUP-PARA",
+      "HEX-VAL",
+      "LOG-FW",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "QUERY-FW-C2"
+     ],
+     "outcomes": [
+      "55:WHEN@60",
+      "212:true",
+      "222:false",
+      "222:true"
+     ]
+    }
+   }
+  },
   "hc-dcounters/HCDCNT": {
    "live": 7,
    "outcomes": 7,
@@ -1221,6 +1332,11 @@
      "outcomes": []
     }
    }
+  },
+  "hc-readq-td/HCRQTD": {
+   "live": 9,
+   "outcomes": 7,
+   "scenarios": {}
   },
   "hc-resp-options/HCOPT": {
    "live": 7,

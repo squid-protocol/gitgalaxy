@@ -83,6 +83,11 @@ ALLOWLIST = {
     "build": "Cargo.toml [package] `build` script path, read from the scanned repo's manifest (#4544)",
     "workspace": "Cargo.toml dependency `workspace = true`, read from the scanned repo's manifest (#4544)",
     "inheritance_parents": "class_data DB column, copied into the restored class dict by the rehydrator's generic column loop, then folded into `inheritance` (#3786)",
+    # cobol_to_java_messaging_forge.py (#5168, X61) keys a TDQUEUE's attributes by the option words `_TD_ATTR.findall`
+    # captures from the CSD operand text, so these are written by the CSD deck, never by a literal in this repo.
+    "TYPEFILE": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
+    "INDIRECTNAME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
+    "OPENTIME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS

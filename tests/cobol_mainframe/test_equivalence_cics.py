@@ -387,6 +387,10 @@ def test_a_delete_generic_is_named_to_the_stub():
     got = ec.translate_command("DELETE FILE(ZF-FCT) RIDFLD(ZF-KEY-16) KEYLENGTH(DELETE-LENGTH) GENERIC NOHANDLE")
     assert got[:3] == ["MOVE ZF-FCT TO GG-NAME1", "MOVE 'GENERIC' TO GG-FLAGS", "CALL 'GGCDELT' USING GG-CICS"]
     assert got[3:5] == ["    BY REFERENCE ZF-KEY-16", "    BY VALUE DELETE-LENGTH"]
+    # #5092 (X22): a given KEYLENGTH without GENERIC is named to the stub (INVREQ 26 unless it is the key's length); none, not
+    keyed = ec.translate_command("DELETE FILE(F) RIDFLD(K) KEYLENGTH(2) NOHANDLE")
+    assert keyed[1] == "MOVE 'KEYLENGTH' TO GG-FLAGS" and "    BY VALUE 2" in keyed
+    assert ec.translate_command("DELETE FILE(F) RIDFLD(K) NOHANDLE")[1] == "MOVE SPACES TO GG-FLAGS"
     for bad, why in (("DELETE FILE(F) RIDFLD(K) GENERIC", "without KEYLENGTH"),
                      ("DELETE FILE(F) KEYLENGTH(2) GENERIC", "without RIDFLD")):  # fmt: skip
         with pytest.raises(ec.Unsupported, match=why):
@@ -1920,9 +1924,11 @@ def test_a_scenario_states_startcode_terminal_input_and_ts_queues():
     assert ec.task_facts(case, {"name": "a"}) == ("TD", "LGCF")
     assert ec.task_facts(case, {"name": "b", "startcode": "SD", "terminal": "X"}) == ("SD", "X")
     assert ec.task_facts({}, {"name": "c"}) == (None, None)
+    # D: a LINKed-to program's COMMAREA path (#4174)
+    assert ec.task_facts({"startcode": "D"}, {"name": "d"}) == ("D", None)
     assert ec.ts_seed(case, {"name": "a"}) == {"GENACNTL": ["**** GENAPP CNTL"]}
     assert ec.ts_seed(case, {"name": "b", "ts": {}}) == {}
-    for bad in ({"startcode": "D"}, {"terminal": 5}):
+    for bad in ({"startcode": "X"}, {"startcode": "d"}, {"terminal": 5}):
         with pytest.raises(ec.Unsupported):
             ec.task_facts(bad, {"name": "x"})
     with pytest.raises(ec.Unsupported):
@@ -2094,6 +2100,38 @@ def test_a_scenario_states_the_channel_its_task_starts_with():
     ):
         with pytest.raises(ec.Unsupported):
             ec.scenario_channel(_channel_case(), {"name": "s", "channel": bad})
+
+
+@pytest.mark.parametrize("bad", ["^", "~", "&", "<", "\u00ac", " ", "A B", " A", "", "X" * 17])
+def test_a_channel_or_container_name_outside_puts_character_set_is_refused(bad):
+    """#4950 (X18): IBM's PUT CONTAINER set; & < and the not sign (RUN TRANSID's page only) are refused too."""
+    name = "AB" + bad if bad.strip() and len(bad) == 1 else bad
+    for ch in ({"name": name}, {"name": "C", "containers": {name: {"text": "a"}}}):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_channel(_channel_case(), {"name": "s", "channel": ch})
+
+
+@pytest.mark.parametrize("good", ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:16], '$@#/%?!:|"=,;>.-', "a.b-c_d", "X" * 16, "9"])
+def test_a_channel_or_container_name_in_puts_character_set_is_accepted(good):
+    sc = {"name": "s", "channel": {"name": good, "containers": {good: {"text": "a"}}}}
+    got = ec.scenario_channel(_channel_case(), sc)
+    assert got["name"] == good
+    assert got["containers"][0]["name"] == good
+
+
+def test_no_committed_case_file_states_a_channel_name_the_harness_now_refuses():
+    import json
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[1] / "equivalence"
+    seen = 0
+    for f in sorted(root.glob("*/case.json")):
+        case = json.loads(f.read_text(encoding="utf-8"))
+        for sc in case.get("scenarios") or []:
+            if isinstance(sc, dict) and sc.get("channel") is not None:
+                ec.scenario_channel(case, sc)
+                seen += 1
+    assert seen
 
 
 def test_the_containers_a_task_leaves_are_compared_at_its_end_unless_it_abends(tmp_path):

@@ -287,23 +287,36 @@ DELETE = _file(
     ),
     outcomes=(
         _NORMAL,
-        _NOTFND,
-        Outcome(
-            "NOTFND",
-            80,
-            "An attempt to delete a record based on the search argument provided is unsuccessful",
-            raised_by=("GENERIC",),
-        ),
+        # IBM: NOTFND RESP2 80 is the only NOTFND value, for the keyed and the generic delete alike (both runtimes record it)
+        Outcome("NOTFND", 80, "An attempt to delete a record based on the search argument provided is unsuccessful"),
         Outcome("INVREQ", 31, "no RIDFLD, and no READ UPDATE without a token holds a record"),
+        # #5092 (X22), IBM, EXEC CICS DELETE: INVREQ 21 a file that refers to a VSAM ESDS, 22 a generic delete of a file that
+        # is not a KSDS, 25 / 42 a GENERIC KEYLENGTH not shorter than the key / below zero, 26 a KEYLENGTH without GENERIC
+        # that is not the key's length. Nothing is deleted. 20, 27, 44, 51, 55-57 and 59 belong to options and files the
+        # region refuses or does not have (X22)
+        Outcome("INVREQ", 21, "DELETE is issued for a file that refers to a VSAM ESDS"),
+        Outcome("INVREQ", 22, "a generic delete is issued for a file that is not a VSAM KSDS", raised_by=("GENERIC",)),
+        Outcome(
+            "INVREQ",
+            25,
+            "the length specified in the KEYLENGTH option is greater than or equal to the length of a full key",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
+        Outcome(
+            "INVREQ",
+            26,
+            "KEYLENGTH is specified without GENERIC and is not the length of the file's key",
+            raised_by=("KEYLENGTH",),
+        ),
+        Outcome(
+            "INVREQ",
+            42,
+            "the length specified in the KEYLENGTH option is less than zero",
+            raised_by=("GENERIC", "KEYLENGTH"),
+        ),
         _INVREQ_TOKEN,
     ),
-    runtime_refusals=(
-        RuntimeRefusal(
-            "a GENERIC KEYLENGTH not shorter than the key, or not above zero",
-            "X22",
-            c="DELETE GENERIC KEYLENGTH",
-        ),
-    ),
+    runtime_refusals=(RuntimeRefusal("a GENERIC KEYLENGTH of zero", "X22", c="DELETE GENERIC KEYLENGTH"),),
 )
 
 # #5078 (X52), IBM CICS TS, EXEC CICS UNLOCK: releases the exclusive control a READ UPDATE took. TOKEN "associates the UNLOCK

@@ -156,6 +156,9 @@ static void event(const char *line, const char *data, int len) {
     }
 }
 
+/* #4892: an event of a model linked beside the stub (ggmq.c's MQI calls), in the task's own stream. */
+void ggcics_event(const char *line, const char *data, int len) { event(line, data, len); }
+
 /* ---- the task's inputs ------------------------------------------------------------ */
 int GGCLOAD(char *area, int maxlen) {
     char path[4096];
@@ -557,12 +560,15 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
  * A weak no-op DEFINITION, which ggsql.c's strong one overrides at link time. (A weak undefined REFERENCE checked
  * against NULL links on ELF but not on macOS, whose linker still requires it to resolve.) */
 __attribute__((weak)) void ggsql_uow_end(int rollback) { (void)rollback; }
+/* #4892 (W5): and the MQ model's (tests/equivalence/mq/ggmq.c), when a program CALLs MQI: the same weak default. */
+__attribute__((weak)) void ggmq_uow_end(int rollback) { (void)rollback; }
 
 static void td_uow_end(int rollback); /* #5168 */
 
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
     ggsql_uow_end(rollback);
+    ggmq_uow_end(rollback);
     td_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
@@ -1033,8 +1039,10 @@ int GGCENBR(gg_cics *c) {
 
 /* DELETE FILE(name1) [RIDFLD]: the record with that key, or (no RIDFLD: GG-FLAGS 'HELD') the one a READ UPDATE
  * holds -- INVREQ when none is held; NOTFND when the key is not there. #4771: GG-FLAGS 'GENERIC', every record whose key
- * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none; a KEYLENGTH not shorter than the key, or not above
- * zero, refused: IBM's INVREQ 25 / 42, X22). */
+ * starts with RIDFLD's first `keylen` bytes (NOTFND RESP2 80 when none). #5092 (X22), IBM, EXEC CICS DELETE, INVREQ RESP2:
+ * 21 a DELETE of an ESDS, 22 a generic one of a non-KSDS (an ESDS here), 25 a GENERIC KEYLENGTH "greater than or equal to the
+ * length of a full key", 42 one below zero, 26 a KEYLENGTH without GENERIC (GG-FLAGS 'KEYLENGTH') that is not the key's
+ * length. Nothing is deleted or released. A GENERIC KEYLENGTH of zero is undocumented and stops the run. */
 int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -1048,13 +1056,28 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    keyed_on_esds("DELETE", want);
+    int generic = strstr(c->flags, "GENERIC") != NULL;
+    if (is_esds(want)) {  /* #5092: IBM INVREQ 21 (ESDS), 22 (generic delete of a non-KSDS); the key is not logged: an ESDS has none */
+        c->resp = INVREQ;
+        c->resp2 = generic ? 22 : 21;
+        file_event("DELETE", want, ridfld, 0, c->resp);
+        return 0;
+    }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
-    if (strstr(c->flags, "GENERIC") && (keylen <= 0 || keylen >= klen)) refuse("DELETE GENERIC KEYLENGTH");
+    int bad = 0;
+    if (generic) bad = keylen < 0 ? 42 : keylen >= klen ? 25 : 0;
+    else if (!by_hold && strstr(c->flags, "KEYLENGTH") && keylen != klen) bad = 26;
+    if (bad) {
+        c->resp = INVREQ;
+        c->resp2 = bad;
+        file_event("DELETE", want, ridfld, 0, c->resp);  /* the key is not logged: KEYLENGTH may exceed RIDFLD */
+        return 0;
+    }
+    if (generic && keylen == 0) refuse("DELETE GENERIC KEYLENGTH not above zero (zero is undocumented)");
     char key[256];
     memset(key, 0, sizeof key);
     int s = -1;

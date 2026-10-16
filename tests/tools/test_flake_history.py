@@ -3,10 +3,7 @@
 import subprocess
 from datetime import date
 
-try:
-    from squid_bot import flake_history as fh
-except ImportError:  # GitGalaxy: tests/tools on the path
-    import flake_history as fh
+import flake_history as fh
 
 
 def job(name, attempt, conclusion):
@@ -75,3 +72,21 @@ def test_file_issues_skips_a_job_that_already_has_an_open_issue():
     fh.file_issues(rows, run)
     created = [c for c in calls if c[:3] == ["gh", "issue", "create"]]
     assert [c[c.index("--title") + 1] for c in created] == ["Flaky CI job: det"]
+
+
+def test_default_cache_follows_ci_shepherd_state_and_needs_no_squid_bot(monkeypatch, tmp_path):
+    monkeypatch.setenv("CI_SHEPHERD_STATE", str(tmp_path / "ci_shepherd.json"))
+    assert fh.default_cache() == tmp_path / "flake_history.json"
+    monkeypatch.delenv("CI_SHEPHERD_STATE")
+    assert fh.default_cache().parts[-3:] == (".cache", "gitgalaxy", "flake_history.json")
+
+
+def test_no_squid_bot_reference_in_the_shepherd_tools():
+    from pathlib import Path
+
+    tools = Path(__file__).resolve().parent
+    banned = "squid" + "_bot"
+    for p in [*tools.glob("*.py"), *(tools / "box").glob("*.py")]:
+        if p.name == Path(__file__).name:
+            continue
+        assert banned not in p.read_text(encoding="utf-8"), p.name

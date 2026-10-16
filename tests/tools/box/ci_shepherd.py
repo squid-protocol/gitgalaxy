@@ -41,6 +41,7 @@ from typing import Any
 
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # box_status
 import ci_digest  # noqa: E402
 import flake_history  # noqa: E402
 import pr_check  # noqa: E402
@@ -120,10 +121,8 @@ def record_event(state: dict[str, Any], n: int, sha: str, event: str, detail: st
 def box_verdict() -> str:
     """Global metabolic headroom signal (cAMP-CRP) from box_status: 'GREEN', 'YELLOW', or 'RED'."""
     try:
-        try:
-            from squid_bot import box_status
-        except ImportError:
-            import box_status  # type: ignore[no-redef]
+        import box_status
+
         if not Path("/proc/meminfo").exists():
             return "GREEN"
         return str(box_status.snapshot(sample=0.1).get("verdict") or "GREEN")

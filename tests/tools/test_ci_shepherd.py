@@ -363,3 +363,12 @@ def test_a_stale_flake_cache_is_refreshed_in_the_background_at_most_hourly(monke
     assert len(spawned) == 1 and "--refresh-only" in spawned[0]
     (tmp_path / "flake_history.json").write_text('{"updated": 100700, "days": {"d": {"smoke": [2, 0]}}}')
     assert cs.learned_flakes(state, t=110_000.0) == {"smoke"} and len(spawned) == 1
+
+
+def test_box_verdict_reads_gitgalaxy_box_status(monkeypatch):
+    import box_status
+
+    if not Path("/proc/meminfo").exists():
+        pytest.skip("no /proc/meminfo")
+    monkeypatch.setattr(box_status, "snapshot", lambda sample=0.1: {"verdict": "RED"})
+    assert cs.box_verdict() == "RED"

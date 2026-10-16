@@ -3,7 +3,8 @@ name: Generated Docs
 # #5057 (the pattern of evidence-pages.yml #4825 and #4963): the aggregate pages rendered from committed sources --
 # docs/language_status/oracle_assumptions.md (register entries, tests/tools/register.py) and
 # docs/language_status/cics_spec_status.md (the CICS spec, translator, stub and cics_spec_status.json) and
-# docs/language_status/cobolrt_rules.md (the cobolrt rule catalogue, tests/tools/cobolrt_rules.py, #4711) -- are no longer
+# docs/language_status/cobolrt_rules.md (the cobolrt rule catalogue, tests/tools/cobolrt_rules.py, #4711) and
+# docs/language_status/progress.md / progress.json (the burned-estate ladder and burn-down, tests/tools/progress_report.py, #5280) -- are no longer
 # committed. Every PR re-rendered and committed them, and parallel PRs conflicted on them for hours. The list of pages
 # lives in tests/tools/generated_docs.py (PAGES).
 #
@@ -30,6 +31,11 @@ on:
       - "tests/tools/register.py"
       - "tests/tools/cics_spec_status.py"
       - "tests/tools/cobolrt_rules.py"
+      - "tests/tools/readiness_report.py"
+      - "tests/tools/progress_report.py"
+      - "docs/language_status/mutation_scores.json"
+      - "tests/cics_crucible/coverage.json"
+      - "tests/estate_crucible/baseline.json"
       - "tests/tools/det_port.py"
       - "tests/tools/generated_docs.py"
       - "tests/tools/generated_branch.py"
@@ -49,6 +55,9 @@ concurrency:
 
 jobs:
   render:
+    permissions:
+      contents: read
+      issues: read  # #5280: progress_report.py counts scope:* issues (main runs only; a PR render stays hermetic)
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -77,6 +86,8 @@ jobs:
       - name: Render the pages (must succeed and be deterministic)
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          # the issue counts of progress.md; PR code never sees the token, a PR page says "not measured"
+          GITHUB_TOKEN: ${{ github.event_name != 'pull_request' && secrets.GITHUB_TOKEN || '' }}
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/generated_docs.py check --out "$RUNNER_TEMP/pages"
@@ -150,5 +161,8 @@ jobs:
             --message "generated docs as of main $GITHUB_SHA" \
             docs/language_status/oracle_assumptions.md \
             docs/language_status/cics_spec_status.md \
-            docs/language_status/cobolrt_rules.md
+            docs/language_status/cobolrt_rules.md \
+            docs/language_status/readiness_report.md \
+            docs/language_status/progress.md \
+            docs/language_status/progress.json
           echo "published the generated pages from main $GITHUB_SHA: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status" >> "$GITHUB_STEP_SUMMARY"

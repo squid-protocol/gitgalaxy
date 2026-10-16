@@ -280,6 +280,8 @@ public class CicsTask {
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private final Map<String, Object> resources = new HashMap<>();  // #4892: resource managers joined (the root's)
+    private final List<Consumer<Boolean>> uowParticipants = new ArrayList<>();  // #4892: told as its unit of work ends
     private int children;                                   // #4270: the RUN TRANSID children it attached
     private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
     private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
@@ -2242,6 +2244,33 @@ public class CicsTask {
             root.tdUow.computeIfAbsent(q, k -> now == null ? new java.util.ArrayDeque<>() : new java.util.ArrayDeque<>(now));
         } else if ("PHYSICAL".equals(recov)) {
             root.tdPhysical.add(q);
+        }
+    }
+
+    /** #4892 (register W5): a resource manager the runner joins to the task -- cobolrt.mq's queue manager ("mq") --
+     *  found again by resource(name), and told as the task's unit of work ends: SYNCPOINT (false); SYNCPOINT ROLLBACK
+     *  and the backout of an abend that ends the task (true), as the stub's uow_end tells tests/equivalence/mq/ggmq.c. */
+    public CicsTask withResource(String name, Object manager, Consumer<Boolean> uowEnd) {
+        root().resources.put(name, manager);
+        if (uowEnd != null) {
+            root().uowParticipants.add(uowEnd);
+        }
+        return this;
+    }
+
+    /** #4892: the resource manager joined under `name`, or null. */
+    public Object resource(String name) {
+        return root().resources.get(name);
+    }
+
+    /** #4892: an event a resource manager records in the task's stream (an MQI call, as ggmq.c's ggcics_event). */
+    public void resourceEvent(String kind, Object... kv) {
+        event(kind, kv);
+    }
+
+    private void resourceUowEnd(boolean rollback) {
+        for (Consumer<Boolean> p : root().uowParticipants) {
+            p.accept(rollback);
         }
     }
 
@@ -4715,6 +4744,37 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): IBM, EXEC CICS DELETE: INVREQ RESP2 21, a file that refers to a VSAM ESDS
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
+     *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
+    public int deleteGeneric(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 22);
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ (#5092, X22): `resp2` 25 / 42 (a GENERIC KEYLENGTH
+     *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
+     *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
+    public int deleteInvalid(String file, boolean generic, int resp2) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        return done(16, root().esds.containsKey(file) ? (generic ? 22 : 21) : resp2);
+    }
+
+    private int deleteRecord(String file, boolean exists, Runnable remove) {
         if (!exists) {
             return done(13, 80);
         }
@@ -4728,6 +4788,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         if (!root().held.remove(file)) {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
@@ -4783,6 +4846,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         Object[] t = spendToken(file, token);
         if (t == null) {
@@ -5147,6 +5213,7 @@ public class CicsTask {
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         tdUowEnd(false);  // #5168
+        resourceUowEnd(false);  // #4892
         event("SYNCPOINT");
     }
 
@@ -5163,6 +5230,7 @@ public class CicsTask {
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         tdUowEnd(true);  // #5168
+        resourceUowEnd(true);  // #4892
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -5949,6 +6017,7 @@ public class CicsTask {
                 root().rollbackHook.run();
             }
             tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
+            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"

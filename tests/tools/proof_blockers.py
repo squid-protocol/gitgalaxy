@@ -25,8 +25,8 @@ one or more gap classes:
                            (tests/equivalence/infeasible_outcomes.json, #4602) are taken out of its branch total and
                            printed; one the proof reached is the gap `infeasible outcome reached`
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
-                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN only under a
-                           crucible case: the equivalence harness states it, oracle_assumptions X21), an ASSIGN option
+                           sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN and EIBDS only under a
+                           crucible case: the equivalence harness states them, oracle_assumptions X21, X64), an ASSIGN option
                            whose fact an equivalence case cannot state yet (STARTCODE unless every scenario states it, #5077;
                            FACILITY / TERMCHK unless every scenario states a "termid", #5126;
                            USERID unless every scenario states a "userid", SCRNHT / SCRNWD unless every one states a
@@ -81,7 +81,10 @@ STATED_EIB = frozenset({"EIBTIME", "EIBDATE", "EIBTRNID", "EIBTRMID", "EIBCALEN"
 # #4270: the EIB fields that are a stated fact of the run (the CICS spec's EIB_FACTS: EIBTASKN, $GGCICS_TASKN /
 # CicsTask.withTaskNumber). The equivalence harness states them for every task (a case's or scenario's "taskn", else
 # the spec's default); the crucible runner does not yet, so a crucible case's program still has the gap.
-CASE_STATED_EIB = frozenset(EIB_FACTS)
+# #5126 (X64): EIBDS too -- a file control command sets it to its file on both sides (the stub's driver moves it; the
+# det port does in a program that reads it), so an equivalence case proves what the program does with it. The crucible
+# runner's committed ports predate that, so a crucible case's program keeps the gap.
+CASE_STATED_EIB = frozenset(EIB_FACTS) | {"EIBDS"}
 EIB_FIELDS = frozenset({
     "EIBTIME", "EIBDATE", "EIBTRNID", "EIBTASKN", "EIBTRMID", "EIBCPOSN", "EIBCALEN", "EIBAID", "EIBFN", "EIBRCODE",
     "EIBDS", "EIBREQID", "EIBRSRCE", "EIBSYNC", "EIBFREE", "EIBRECV", "EIBSEND", "EIBATT", "EIBEOC", "EIBFMH",
@@ -95,7 +98,6 @@ ASSIGN_REGION_FACTS = ("APPLID", "SYSID")  # stated by a case's "region"
 
 # #5077: a whole COBOL word -- not the front of a hyphenated user name (EIBRCODE-NICE) or a literal's text ('EIBFN: ')
 _EIB = re.compile(r"(?<![A-Z0-9_-])EIB[A-Z0-9]+(?![A-Z0-9_-])")
-_LITERAL = re.compile(r"\"[^\"]*\"|'[^']*'")
 LINKED_NOT_MEASURED = "coverage: not measured for a LINKed program"  # #4270
 _COV = re.compile(r"(\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 _CRUCIBLE_PATH = re.compile(r"(?:^|/)cases/[^/]+/([^/]+)/src/([^/]+)\.(?:cbl|cob|cobol)$", re.I)
@@ -434,15 +436,53 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 
 
 # ---- runtime facts ----------------------------------------------------------------------------------------------
+def code_only(text: str) -> str:
+    """The program with every non-code span blanked, length-preserving, line structure kept: string literals
+    (including one continued onto the next line by a column-7 hyphen) and `*>` floating comment tails. Comment lines
+    (column 7 `*` or `/`) are left for `cc.fixed_format_text` to drop. #5089: one rule for every fact keyword."""
+    out, quote = [], ""
+    for ln in text.splitlines():
+        if len(ln) <= 6 or ln[6] in "*/":
+            out.append(ln)
+            quote = ""
+            continue
+        code = list(ln[:72])
+        i = 7
+        if quote:
+            if ln[6] != "-":
+                quote = ""
+            else:  # the continuation's first quote reopens the literal; the blanks before it are padding
+                while i < len(code) and code[i] == " ":
+                    i += 1
+                if i < len(code) and code[i] == quote:
+                    code[i] = " "
+                    i += 1
+                else:
+                    quote = ""
+        while i < len(code):
+            ch = code[i]
+            if quote:
+                if ch == quote:
+                    quote = ""
+                code[i] = " "
+            elif ch in "'\"":
+                quote = ch
+                code[i] = " "
+            elif ch == "*" and code[i + 1 : i + 2] == [">"]:
+                code[i:] = " " * (len(code) - i)
+                break
+            i += 1
+        out.append("".join(code) + ln[72:])
+    return "\n".join(out)
+
+
 def facts_needed(text: str) -> dict[str, set[str]]:
     """The runtime facts a program reads, by kind: `eib` (EIB fields no harness states), `assign_task` (ASSIGN
     options an equivalence case cannot state yet), `assign_region` (ASSIGN APPLID / SYSID). Names only."""
-    code = _LITERAL.sub(" ", cc.fixed_format_text(text))
+    plain = code_only(text)
+    code = cc.fixed_format_text(plain)
     eib = {m for m in _EIB.findall(code) if m in EIB_FIELDS and m not in STATED_EIB}
     task, region = set(), set()
-    # #5089: every fact keyword is read outside string literals: the ASSIGN scan blanks them per line (length-preserving,
-    # as cc.commands cuts the sequence area itself; a literal continued onto the next line is not blanked)
-    plain = "\n".join(_LITERAL.sub(lambda m: " " * len(m.group()), ln) for ln in text.splitlines())
     for cmd in cc.commands(plain):
         opts = cc.options_of(cmd, ["ASSIGN"])
         for o in opts or ():

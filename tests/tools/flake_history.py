@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -31,10 +32,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-try:
-    from squid_bot import pr_check
-except ImportError:
-    import pr_check  # noqa: E402
+import pr_check  # noqa: E402
 
 try:
     import ci_rerun_stats  # GitGalaxy's first-attempt cause classifier (#5137)
@@ -164,12 +162,9 @@ def file_issues(rows: list[dict[str, Any]], run: Any = subprocess.run) -> list[s
 
 
 def default_cache() -> Path:
-    try:
-        from squid_bot.config import get_state_path
-
-        return get_state_path().parent / "flake_history.json"
-    except Exception:  # noqa: BLE001 (GitGalaxy has no squid_bot.config)
-        return Path("/tmp/squid-bot/state/flake_history.json")  # noqa: S108
+    state = os.environ.get("CI_SHEPHERD_STATE")  # beside ci_shepherd's state file, where learned_flakes reads it
+    base = Path(state).parent if state else Path.home() / ".cache" / "gitgalaxy"
+    return base / "flake_history.json"
 
 
 def main(argv: list[str] | None = None) -> int:

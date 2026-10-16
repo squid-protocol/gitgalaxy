@@ -1820,6 +1820,22 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
         return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
+        key = f"{verb} TDQUEUE"
+        _check_spec(key, opts, (verb,), lambda bad: [key])
+        if not opts.get("TDQUEUE"):
+            raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
+        queue = name(opts["TDQUEUE"], "GG-QNAME")
+        if verb == "SET":
+            if not opts.get("OPENSTATUS"):
+                raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+            return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
+        wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+        if not wanted:
+            raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+        return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
+                + [f"    MOVE {'GG-NUM' if o == 'OPENSTATUS' else 'GG-LEN'} TO {opts[o]}" for o in wanted]
+                + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"
         _check_spec(key, opts, (verb,), lambda bad: [key])

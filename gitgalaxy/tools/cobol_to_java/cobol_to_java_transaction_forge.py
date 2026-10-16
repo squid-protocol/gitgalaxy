@@ -2219,7 +2219,14 @@ public class CicsTask {
         if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
             throw new UnsupportedOperationException("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
         }
-        return "DEFERRED".equals(tdAttr(q, "OPENTIME")) ? 2 : file.equals("INPUT") ? 0 : 1;
+        return tdExtraClosed(q) ? 2 : file.equals("INPUT") ? 0 : 1;
+    }
+
+    /** #5168 round 3 (X61): true when an extrapartition queue's data set is closed: the state a SET TDQUEUE OPENSTATUS left, else
+     *  OPENTIME DEFERRED; INITIAL, or none stated (ASSUMED), is open. */
+    private boolean tdExtraClosed(String q) {
+        Boolean set = root().tempStorage.tdOpen.get(q);
+        return set != null ? !set : "DEFERRED".equals(tdAttr(q, "OPENTIME"));
     }
 
     /** #5168 (X61): RECOVSTATUS. LOGICAL: the queue as it was at the end of the last unit of work comes back on a rollback (the
@@ -2259,10 +2266,91 @@ public class CicsTask {
     /** #5168 (X61): WRITEQ TD to an extrapartition queue: NOTOPEN (19) when closed (OPENTIME DEFERRED), INVREQ (16) when open for
      *  input; a queue with no TYPEFILE (or RDBACK) is taken as open for output (ASSUMED), as before. */
     private int tdExtraWriteResp(String q) {
-        if ("DEFERRED".equals(tdAttr(q, "OPENTIME"))) {
+        if (tdExtraClosed(q)) {
             return 19;
         }
         return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
+    }
+
+    /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
+    private int tdTypeCvda(String q, int kind) {
+        if (kind == 1) {
+            return 222;
+        }
+        if (kind == 2) {
+            return 221;
+        }
+        String type = root().tdTypes == null ? "" : root().tdTypes.getOrDefault(q, "");
+        if (type.equals("INDIRECT")) {
+            return 122;
+        }
+        if (type.equals("REMOTE")) {
+            return 4;
+        }
+        throw new UnsupportedOperationException("INQUIRE TDQUEUE of a queue with no TYPE stated: not modelled");
+    }
+
+    /** SET TDQUEUE(q) OPENSTATUS(cvda) (#5168 round 3, X61; IBM CICS TS 6.x SET TDQUEUE): an extrapartition queue's data set "is to
+     *  be opened" (OPEN 18) or "closed" (CLOSED 19); the state replaces OPENTIME and outlives the task. Returns {RESP, RESP2}:
+     *  QIDERR (44) RESP2 1, INVREQ (16) RESP2 9 for an intrapartition queue, RESP2 8 for an invalid CVDA. Setting the state a queue is
+     *  in is NORMAL (ASSUMED). Refused: an INDIRECT / REMOTE queue, an invalid CVDA on a queue that is not extrapartition (IBM does
+     *  not order the conditions), OPEN with no TYPEFILE INPUT / OUTPUT, OPEN of an input queue already read, RESP2 16 (the DDNAME
+     *  is taken as found). */
+    public int[] setTdQueueOpenStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 18 || cvda == 19;
+        if (!valid && kind != 2) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition: "
+                    + "IBM does not say which condition comes first: not modelled");
+        }
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind == 1) {
+            return new int[] {16, 9};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 8};
+        }
+        if (cvda == 18) {
+            String file = tdAttr(q, "TYPEFILE");
+            if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE "
+                        + "INPUT / OUTPUT: not modelled");
+            }
+            if ("INPUT".equals(file) && root().tempStorage.tdRead.contains(q)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read: reopening "
+                        + "restarts the data set: not modelled");
+            }
+        }
+        root().tempStorage.tdOpen.put(q, cvda == 18);
+        return new int[] {0, 0};
+    }
+
+    /** INQUIRE TDQUEUE(q) OPENSTATUS(area) TYPE(area) (#5168 round 3, X61): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA}. QIDERR (44)
+     *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
+     *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1, 0, 0};
+        }
+        int typeCvda = type ? tdTypeCvda(q, kind) : 0;
+        int status = 0;
+        if (openStatus) {
+            if (kind == 2) {
+                status = tdExtraClosed(q) ? 19 : 18;
+            } else {
+                tdTypeCvda(q, kind);
+                status = 1;
+            }
+        }
+        return new int[] {0, 0, status, typeCvda};
     }
 
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
@@ -2318,6 +2406,9 @@ public class CicsTask {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
+            if (kind == 2) {
+                tempStorage.tdRead.add(t);
+            }
             resp = record.length() > maxLength ? "LENGERR" : "NORMAL";
         } else if (resp.equals("LENGERR")) {
             data = "";
@@ -5101,6 +5192,10 @@ public class CicsTask {
         private final Map<String, Integer> next = new HashMap<>();
         /** The intrapartition transient-data queues' records (#5079): first in first out. */
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
+        /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
+        final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
+        final java.util.Set<String> tdRead = new java.util.HashSet<>();
 
         /** A transient-data queue's records as they are before the conversation starts (#5168). */
         public TempStorage seedTd(String queue, List<String> records) {

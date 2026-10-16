@@ -119,8 +119,8 @@ def command_key(words: list[str], opts: dict) -> str:
 _FORM_OPTION = {
     "RECEIVE": ("MAP",),
     "GET": ("COUNTER",),
-    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP"),
-    "SET": ("TERMINAL",),
+    "INQUIRE": ("PROGRAM", "TERMINAL", "ASSOCIATION", "URIMAP", "TDQUEUE"),
+    "SET": ("TERMINAL", "TDQUEUE"),
     "WEB READ": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4767 / #4940 (X38): the form word is an option
     "WEB WRITE": ("HTTPHEADER",),
     "WEB STARTBROWSE": ("HTTPHEADER", "FORMFIELD", "QUERYPARM"),  # #4940 (X38): the WEB browse forms
@@ -1260,6 +1260,28 @@ class Cics:
                     f"{ind}if ({r}[0] == 0) "
                     + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+        if key in ("INQUIRE TDQUEUE", "SET TDQUEUE"):  # #5168 round 3 (X61): an extrapartition queue's open state
+            for o in ("TDQUEUE", "OPENSTATUS") if key == "SET TDQUEUE" else ("TDQUEUE",):
+                if not opts.get(o):
+                    raise CicsError(
+                        _msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o)
+                    )
+            r = g.tmpname("tdq")
+            queue = self.name(_arg(opts["TDQUEUE"]))
+            if key == "SET TDQUEUE":
+                return [f"{ind}int[] {r} = task.setTdQueueOpenStatus({queue}, {self.int_(_arg(opts['OPENSTATUS']))});",
+                        *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
+            wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+            if not wanted:
+                raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
+            wants = ", ".join(str(o in wanted).lower() for o in ("OPENSTATUS", "TYPE"))
+            lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3)):
+                if o in wanted:
+                    lines.append(
+                        ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
+                    )
+            return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
             prog = self.name(_arg(opts["PROGRAM"]))

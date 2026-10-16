@@ -7,10 +7,13 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 * RECOVSTATUS(LOGICAL): SYNCPOINT ROLLBACK puts a queue back as it was at the end of the last unit of work (reads, writes and
   deletes alike); NO commits at once; PHYSICAL refuses a rollback by name;
 * INDIRECT queues route to INDIRECTNAME; no INDIRECTNAME, an undefined target, a loop, REMOTE: refused by name;
-* TRANSID with a TRIGGERLEVEL a write reaches (automatic task initiation): refused by name.
+* TRANSID with a TRIGGERLEVEL a write reaches (automatic task initiation): refused by name;
+* round 3: SET TDQUEUE OPENSTATUS(OPEN 18 / CLOSED 19) and INQUIRE TDQUEUE OPENSTATUS / TYPE (IBM, CICS TS 6.x): the run-time state
+  replaces OPENTIME; QIDERR RESP2 1, INVREQ RESP2 8 (invalid CVDA) and 9 (intrapartition); INDIRECT / REMOTE, an invalid CVDA on a
+  queue that is not extrapartition, OPEN with no TYPEFILE, OPEN of an input queue already read, and a queue with no TYPE: refused.
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
-SYNCPOINT, B a SYNCPOINT ROLLBACK."""
+SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE."""
 
 import subprocess
 import sys
@@ -114,6 +117,64 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
     ),
     "abend with a physical queue": ({"PPPP": "INTRA RECOVSTATUS=PHYSICAL"}, {}, ["W:PPPP:x", "A"], ["W:PPPP:x resp=0", "REFUSED"]),
     "ati default trigger level": ({"VVVV": "INTRA TRANSID=TRN1"}, {}, ["W:VVVV:a"], ["REFUSED"]),
+    "set open status of an output queue": (
+        {"OOOO": "EXTRA TYPEFILE=OUTPUT OPENTIME=INITIAL", "DDDD": "EXTRA TYPEFILE=OUTPUT OPENTIME=DEFERRED"}, {},
+        ["Q:OOOO", "W:OOOO:a", "O:OOOO:19", "Q:OOOO", "W:OOOO:b", "O:OOOO:19", "O:OOOO:18", "Q:OOOO", "W:OOOO:c", "O:OOOO:18",
+         "Q:DDDD", "W:DDDD:a", "O:DDDD:18", "Q:DDDD", "W:DDDD:b"],
+        ["Q:OOOO resp=0 resp2=0 open=18 type=221", "W:OOOO:a resp=0", "O:OOOO:19 resp=0 resp2=0",
+         "Q:OOOO resp=0 resp2=0 open=19 type=221", "W:OOOO:b resp=19", "O:OOOO:19 resp=0 resp2=0", "O:OOOO:18 resp=0 resp2=0",
+         "Q:OOOO resp=0 resp2=0 open=18 type=221", "W:OOOO:c resp=0", "O:OOOO:18 resp=0 resp2=0",
+         "Q:DDDD resp=0 resp2=0 open=19 type=221", "W:DDDD:a resp=19", "O:DDDD:18 resp=0 resp2=0",
+         "Q:DDDD resp=0 resp2=0 open=18 type=221", "W:DDDD:b resp=0"],
+    ),
+    "set open status of an input queue": (
+        {"IIII": "EXTRA TYPEFILE=INPUT OPENTIME=DEFERRED", "JJJJ": "EXTRA TYPEFILE=INPUT OPENTIME=INITIAL"},
+        {"IIII": ["x", "y"], "JJJJ": ["p", "q"]},
+        ["R:IIII:8", "O:IIII:18", "R:IIII:8", "W:IIII:w", "O:IIII:19", "R:IIII:8", "O:JJJJ:19", "R:JJJJ:8", "O:JJJJ:18", "R:JJJJ:8"],
+        [f"R:IIII:8 resp=19 len=-1 {R8}", "O:IIII:18 resp=0 resp2=0", "R:IIII:8 resp=0 len=1 into=x.......", "W:IIII:w resp=16",
+         "O:IIII:19 resp=0 resp2=0", f"R:IIII:8 resp=19 len=-1 {R8}", "O:JJJJ:19 resp=0 resp2=0", f"R:JJJJ:8 resp=19 len=-1 {R8}",
+         "O:JJJJ:18 resp=0 resp2=0", "R:JJJJ:8 resp=0 len=1 into=p......."],
+    ),
+    "reopening an input queue that was read": (
+        {"IIII": _E}, {"IIII": ["a", "b"]}, ["R:IIII:8", "O:IIII:19", "O:IIII:18"],
+        ["R:IIII:8 resp=0 len=1 into=a.......", "O:IIII:19 resp=0 resp2=0", "REFUSED"],
+    ),
+    "set open status of an intrapartition queue": (
+        {"AAAA": "INTRA"}, {},
+        ["O:AAAA:18", "O:AAAA:19", "Q:AAAA", "W:AAAA:a", "R:AAAA:8"],
+        ["O:AAAA:18 resp=16 resp2=9", "O:AAAA:19 resp=16 resp2=9", "Q:AAAA resp=0 resp2=0 open=1 type=222", "W:AAAA:a resp=0",
+         "R:AAAA:8 resp=0 len=1 into=a......."],
+    ),
+    "set open status with an invalid cvda": (
+        {"XXXX": "EXTRA TYPEFILE=OUTPUT"}, {}, ["O:XXXX:7", "O:XXXX:0", "Q:XXXX", "O:XXXX:21", "W:XXXX:a"],
+        ["O:XXXX:7 resp=16 resp2=8", "O:XXXX:0 resp=16 resp2=8", "Q:XXXX resp=0 resp2=0 open=18 type=221",
+         "O:XXXX:21 resp=16 resp2=8", "W:XXXX:a resp=0"],
+    ),
+    "invalid cvda on an intrapartition queue": ({"AAAA": "INTRA"}, {}, ["O:AAAA:7"], ["REFUSED"]),
+    "invalid cvda on an unknown queue": ({"AAAA": "INTRA"}, {}, ["O:ZZZZ:7"], ["REFUSED"]),
+    "set and inquire an unknown queue": (
+        {"AAAA": "INTRA"}, {}, ["O:ZZZZ:18", "O:ZZZZ:19", "Q:ZZZZ"],
+        ["O:ZZZZ:18 resp=44 resp2=1", "O:ZZZZ:19 resp=44 resp2=1", "Q:ZZZZ resp=44 resp2=1 open=0 type=0"],
+    ),
+    "inquire with no csd": (None, {}, ["Q:ANYQ", "O:ANYQ:18"], ["Q:ANYQ resp=0 resp2=0 open=1 type=222", "O:ANYQ:18 resp=16 resp2=9"]),
+    "inquire an indirect and a remote queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA", "RRRR": "REMOTE"}, {}, ["Q:IIII", "Q:RRRR", "Q:AAAA"],
+        ["Q:IIII resp=0 resp2=0 open=1 type=122", "Q:RRRR resp=0 resp2=0 open=1 type=4", "Q:AAAA resp=0 resp2=0 open=1 type=222"],
+    ),
+    "set open status of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["O:IIII:18"], ["REFUSED"]
+    ),
+    "set open status of a remote queue": ({"RRRR": "REMOTE"}, {}, ["O:RRRR:19"], ["REFUSED"]),
+    "inquire a queue with no type": ({"NNNN": "-"}, {}, ["Q:NNNN"], ["REFUSED"]),
+    "set open status with no typefile": (
+        {"XXXX": "EXTRA OPENTIME=DEFERRED"}, {}, ["Q:XXXX", "O:XXXX:19", "Q:XXXX", "O:XXXX:18"],
+        ["Q:XXXX resp=0 resp2=0 open=19 type=221", "O:XXXX:19 resp=0 resp2=0", "Q:XXXX resp=0 resp2=0 open=19 type=221", "REFUSED"],
+    ),
+    "set open status on a queue the rollback keeps": (
+        {"OOOO": "EXTRA TYPEFILE=OUTPUT", "LLLL": _L}, {}, ["O:OOOO:19", "W:LLLL:a", "B", "Q:OOOO", "S", "Q:OOOO"],
+        ["O:OOOO:19 resp=0 resp2=0", "W:LLLL:a resp=0", "B", "Q:OOOO resp=0 resp2=0 open=19 type=221", "S",
+         "Q:OOOO resp=0 resp2=0 open=19 type=221"],
+    ),
 }  # fmt: skip
 
 _MAIN = r"""
@@ -125,6 +186,8 @@ int GGCWRTD(gg_cics *c, char *from);
 int GGCRDTD(gg_cics *c, char *into, int intolen);
 int GGCRDTS(gg_cics *c, void **slot);
 int GGCDLTD(gg_cics *c);
+int GGCSTDQ(gg_cics *c);
+int GGCITDQ(gg_cics *c);
 int GGCSYNC(gg_cics *c);
 int GGCABND(gg_cics *c);
 int main(int argc, char **argv) {
@@ -153,6 +216,14 @@ int main(int argc, char **argv) {
             c.len = (int)strlen(text);
             GGCWRTD(&c, text);
             printf("%s resp=%d\n", a, c.resp);
+        } else if (a[0] == 'O') {
+            c.num = atoi(a + 7);
+            GGCSTDQ(&c);
+            printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
+        } else if (a[0] == 'Q') {
+            strcpy(c.flags, "OPENSTATUS TYPE");
+            GGCITDQ(&c);
+            printf("%s resp=%d resp2=%d open=%d type=%d\n", a, c.resp, c.resp2, c.num, c.len);
         } else if (a[0] == 'D') {
             GGCDLTD(&c);
             printf("%s resp=%d\n", a, c.resp);
@@ -241,6 +312,12 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                         System.out.println(op);
                     }} else if (p[0].equals("W")) {{
                         System.out.println(op + " resp=" + t.writeqTd(p[1], p[2]));
+                    }} else if (p[0].equals("O")) {{
+                        int[] r = t.setTdQueueOpenStatus(p[1], Long.parseLong(p[2]));
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
+                    }} else if (p[0].equals("Q")) {{
+                        int[] r = t.inquireTdQueue(p[1], true, true);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " open=" + r[2] + " type=" + r[3]);
                     }} else if (p[0].equals("D")) {{
                         System.out.println(op + " resp=" + t.deleteqTd(p[1]));
                     }} else if (p[0].equals("P")) {{

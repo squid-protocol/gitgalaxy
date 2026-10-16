@@ -10,7 +10,7 @@ main's to fix, not this PR's), `dirty` (`action_required` on a PR that conflicts
 origin/main and regenerate the generated files with their tools, never hand-merge them), `infra` (the runner, not the code: cancelled / startup failure / lost runner / disk /
 rate limit, or (#5273) a check whose job dependency failed as infra; rerun it once), `flake` (a test listed in FLAKY
 failed and nothing else did, only the time ratchet failed on tests outside the PR diff or within RATCHET_SLACK x their
-limit, or the first attempt of a check flake_history learned is flaky failed; rerun it once) or `real` (a fixer's job).
+limit, or the first attempt of a check the flake-history cache learned is flaky failed; rerun it once) or `real` (a fixer's job).
 A roll-up check (full-suite, ground-truth, det) takes the triage of its failed part jobs. `main` is also a stale base
 (#5273): the failing tests' files changed on origin/main since the PR's merge-base, so `git merge origin/main` is the
 whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the

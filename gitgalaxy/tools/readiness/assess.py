@@ -100,8 +100,11 @@ def run(args: argparse.Namespace) -> int:
     options = None
     if args.options is not None:
         from gitgalaxy.core.estate_options import validate
+        from gitgalaxy.core.source_text import read_source
 
-        options = json.loads(args.options.read_text(encoding="utf-8"))
+        options = json.loads(
+            read_source(args.options).text
+        )  # the site's file: a BOM or code page decodes as the estate's
         errs = validate(options)
         if errs:
             return _fail(f"{args.options}: " + "; ".join(errs))

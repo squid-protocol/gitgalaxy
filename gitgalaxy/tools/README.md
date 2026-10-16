@@ -1,43 +1,107 @@
-# GitGalaxy Tools: Decoupled Execution Controllers & DevSecOps Suite
+<div align="center">
 
-Welcome to the **GitGalaxy Tools** directory. 
+# GitGalaxy Tools
 
-These tools are specific operational deployments of the blAST engine. These are specialized, standalone execution controllers that leverage GitGalaxy's AST-free parsing to solve specific engineering, compliance, and legacy migration challenges.
+### Standalone execution controllers for CICS-to-Java migration, offline estate readiness, supply-chain defense, API auditing, and log streaming.
 
-Each sub-module is designed to execute strictly in $O(1)$ or linear $O(N)$ time complexity, making them uniquely suited for direct integration into high-velocity CI/CD pipelines without introducing latency or Out-Of-Memory (OOM) crashes.
+`gitgalaxy/tools/` contains the operational tool suites built on top of the GitGalaxy engine.
+Each package takes the structural facts extracted by the core scanner (or the deterministic COBOL/CICS
+parser) and turns them into concrete engineering outputs: an offline mainframe readiness assessment,
+a compiling Spring Boot project with byte-for-byte equivalence proofs against GnuCOBOL, a supply-chain
+and secrets firewall, an OpenAPI vs. code route auditor, or a streaming PII log scanner.
+
+<table>
+<tr>
+<td align="center" width="190"><h2>99 / 129</h2></td>
+<td align="center" width="190"><h2>0 bytes</h2></td>
+<td align="center" width="190"><h2>17 / 17</h2></td>
+<td align="center" width="190"><h2>5 suites</h2></td>
+</tr>
+<tr>
+<td align="center" valign="top"><sub><strong>CICS &amp; batch programs proven (L2+)</strong><br />110 translated whole · 6 burned estates<br /><em><a href="./cobol_to_java/README.md">cobol-to-java</a> · oracle is GnuCOBOL</em></sub></td>
+<td align="center" valign="top"><sub><strong>source leaked by <code>gitgalaxy assess</code></strong><br />socket guard + closed-vocabulary schema<br /><em><a href="./readiness/README.md">readiness scanner</a> · offline &amp; read-only</em></sub></td>
+<td align="center" valign="top"><sub><strong>Spring Boot target configs built</strong><br />Java 17 &amp; 21 · Maven &amp; Gradle · 5 DBs<br /><em><a href="./cobol_to_java/README.md#choosing-the-java-you-get-the-target-config">target matrix</a> · compiling ≠ proven</em></sub></td>
+<td align="center" valign="top"><sub><strong>standalone CLI tool suites</strong><br />local CLI &amp; CI/CD GitHub Action<br /><em><a href="#pick-your-suite">the 5 suites</a> · zero-dep core</em></sub></td>
+</tr>
+</table>
+
+<a href="#pick-your-suite"><strong>Suites</strong></a> ·
+<a href="#mainframe-modernization-and-cics-to-java"><strong>CICS to Java</strong></a> ·
+<a href="#security-network-and-log-auditing-suites"><strong>Security &amp; auditing</strong></a> ·
+<a href="#running-from-the-cli-or-ci"><strong>CLI &amp; CI/CD</strong></a>
+
+</div>
 
 ---
 
-## Ecosystem Suites & Tooling
+<a id="pick-your-suite"></a>
 
-### [Supply Chain & CI/CD Defense Suite](./supply_chain_security/README.md)
-Zero-Trust DevSecOps tools designed for pre-commit hooks and CI/CD pipeline blocking.
-* **Supply Chain Firewall:** Scans the physical execution graph of downloaded dependencies to block unauthorized network I/O, typosquatting, and RCE vulnerabilities during installation.
-* **Vault Sentinel:** Two-tier pre-commit hook for detecting exposed cryptographic keys and SaaS tokens.
-* **Binary Anomaly Detector:** A localized triage engine that utilizes Shannon Entropy to detect packed malware and execution headers hidden inside static binary artifacts.
+## Pick your suite
 
-### [High-Velocity Log Streaming & Incident Response](./terabyte_log_scanning/README.md)
-Unindexed binary streaming engines for processing massive data outputs without RAM exhaustion.
-* **PII Leak Hunter:** Streams terabytes of raw database/server logs to detect and redact accidentally exposed PII (SSNs, Credit Cards, AWS Keys).
-* **Terabyte Log Scanner:** Maps static architecture to dynamic runtime execution logs to identify dead code abandonment or isolate brute-force anomalies.
-
-### [API Network Auditing](./network_auditing/README.md)
-* **Full API Network Mapper:** Automatically extracts physical outbound and inbound API routing intents across 9+ frameworks (Spring, Express, FastAPI) and compares them against OpenAPI/Swagger docs to expose undocumented **Shadow APIs**.
-
-### [Mainframe Modernization Suite](./cobol_to_java/README.md) & [Structural Extraction](./cobol_to_cobol/README.md)
-Deterministic tools for mapping and migrating mainframe estates. The structure is generated from facts the engine verified. The business logic is ported per program by a person or a model the customer chooses, and every port is proven against the original COBOL before a person approves it.
-* **Deprecated Trails Analyzer & DAG Architect:** Identifies dead mainframe memory and mathematically derives execution topologies.
-* **Microservice Logic Extractor:** Performs recursive data-flow taint tracking to isolate COBOL business rules.
-* **COBOL to Java, with proof:** generates a Spring Boot project from the verified facts (entities and repositories for VSAM and DB2, Spring Batch jobs from JCL, REST endpoints and view models for CICS and BMS), writes a porting ticket per program with business logic, and proves each ported program byte for byte against the COBOL ([how, and what has been proven](./cobol_to_java/README.md)). A generated project compiles under each of the 17 target configs `tests/tools/java_target_matrix.py` builds. Compiling is not correctness: that is what the proof is for.
+| Suite | Directory | Primary CLI / Entry Point | What it does |
+|---|---|---|---|
+| **CICS to Java & Proof Harness** | [`cobol_to_java/`](./cobol_to_java/README.md) | `cobol-to-java`, `port_runner` | Generates a Spring Boot project from verified facts, translates COBOL/CICS deterministically (`det-port`) or via porting tickets, and proves equivalence against GnuCOBOL + CICS/Db2/LE models. |
+| **Offline Estate Readiness** | [`readiness/`](./readiness/README.md) | `gitgalaxy assess` | Runs an air-gapped, read-only assessment of a COBOL/CICS estate: tags programs across 5 CICS eras (`era_tags.py`), counts whole translations vs. holes, and validates zero source text leakage. |
+| **Mainframe Fact Extraction** | [`cobol_to_cobol/`](./cobol_to_cobol/README.md) | `cobol-refractor` | Expands copybooks, extracts `GalaxyIR` record layouts, parses CSD and CICS macro tables (`DFHSIT`/`PCT`/`PPT`/`FCT`/`DCT`), finds dead code, and generates PostgreSQL DDL & least-privilege JCL. |
+| **Supply Chain & Secrets Defense** | [`supply_chain_security/`](./supply_chain_security/README.md) | `supply-chain-firewall`, `vault-sentinel`, `xray-inspector` | Audits dependency install graphs for network/RCE patterns, scans commits for exposed keys, and flags high-entropy binary anomalies. |
+| **API Network Auditing** | [`network_auditing/`](./network_auditing/README.md) | `api-network-map` | Extracts inbound and outbound HTTP routing across web frameworks and diffs them against OpenAPI/Swagger specs to surface undocumented endpoints. |
+| **Streaming Log & PII Scanning** | [`terabyte_log_scanning/`](./terabyte_log_scanning/README.md) | `pii-leak-hunter`, `terabyte-log-scanner` | Streams large log files in bounded memory to redact PII patterns and correlate runtime log traces with static repository files. |
 
 ---
 
-## Execution & CI/CD Integration
+<a id="mainframe-modernization-and-cics-to-java"></a>
 
-The GitGalaxy decoupled architecture allows you to run these specialized tools using three distinct methods:
+## Mainframe modernization and CICS to Java
 
-### 1. GitHub Actions (The Universal Pipeline)
-You can trigger any of the standalone CLI tools securely in your CI/CD pipeline using our universal composite action. Simply change the `tool` parameter to the controller you want to execute:
+The mainframe toolchain spans three packages that run in sequence:
+
+1. **Assess ([`readiness/`](./readiness/README.md)):** `gitgalaxy assess /path/to/estate` runs locally with an active socket guard, classifies every program across **Era 0** (CICS macro level) through **Era 4** (Enterprise COBOL channels, containers, web, and async APIs), and outputs a schema-validated JSON report with optional keyed-hash identifier redaction (`--redact`).
+2. **Extract ([`cobol_to_cobol/`](./cobol_to_cobol/README.md)):** `cobol-refractor /path/to/estate --scan` joins the engine's structural database with copybook-expanded record layouts, BMS screen maps, JCL dataset bindings, and CICS CSD/macro tables into a verified `skeleton.json` staging directory.
+3. **Translate & Prove ([`cobol_to_java/`](./cobol_to_java/README.md)):**
+   - `cobol-to-java <staging-dir>` generates the Spring Boot skeleton (JPA/VSAM repositories, JDBC/Db2 repositories, Spring Batch jobs, REST controllers, BMS view models, and `migration_worklist.md` for any unverified fact).
+   - `port_runner run --backend det` translates the business logic with **no model** into calls against `cobolrt` (guided by the 257-command [CICS specification](../standards/cics/README.md)), or dispatches a scoped porting ticket to a model/human porter, with optional method-by-method LLM readability refinement (`port_runner refine`).
+   - `port_runner prove` executes both the original COBOL (under GnuCOBOL + CICS/Db2/LE models) and the Java port across normal and fault-injected scenarios, recording paragraph coverage (`L3`), branch coverage (`L4`), and mutation kill rates in a machine-checked `evidence.json` certificate.
+
+---
+
+<a id="security-network-and-log-auditing-suites"></a>
+
+## Security, network, and log auditing suites
+
+- **[Supply Chain & CI/CD Defense](./supply_chain_security/README.md):**
+  - `supply-chain-firewall`: inspects third-party packages for outbound network calls, typosquatting, and install-time execution hooks.
+  - `vault-sentinel`: two-stage regex + Shannon entropy scanner for secrets and credentials.
+  - `xray-inspector`: static binary header and entropy triage.
+- **[API Network Auditing](./network_auditing/README.md):**
+  - `api-network-map`: compares extracted controller routes (Spring, Express, FastAPI, Flask, Go, etc.) against committed OpenAPI/Swagger specifications.
+- **[High-Velocity Log Streaming](./terabyte_log_scanning/README.md):**
+  - `pii-leak-hunter` & `terabyte-log-scanner`: line-by-line streaming scanners for redacting sensitive tokens and mapping log events back to source files.
+
+*(Note: the core AI AppSec Sensor and Dev Agent Firewall run inside the main analysis engine and live in [`gitgalaxy/security/`](../security/README.md).)*
+
+---
+
+<a id="running-from-the-cli-or-ci"></a>
+
+## Running from the CLI or CI
+
+### 1. Local CLI
+
+Installing `gitgalaxy` registers the console scripts directly:
+
+```sh
+pip install gitgalaxy                     # zero-dependency core + CLI controllers
+pip install "gitgalaxy[translator]"       # + tree-sitter-language-pack for CICS-to-Java & gitgalaxy assess
+
+gitgalaxy assess ./estate --out readiness.json
+cobol-refractor ./estate --scan
+cobol-to-java ./estate_gitgalaxy_clean
+vault-sentinel .
+api-network-map ./src
+pii-leak-hunter ./logs/app.log
+```
+
+### 2. GitHub Actions
 
 ```yaml
       - name: Run GitGalaxy Tool
@@ -47,26 +111,15 @@ You can trigger any of the standalone CLI tools securely in your CI/CD pipeline 
           target: '.'
 ```
 
-### 2. Global CLI Execution
-If you have GitGalaxy installed via PyPI (`pip install gitgalaxy`), all the standalone tools are registered as global console scripts. You can run them instantly from your terminal during active incident response or local auditing:
-
-```bash
-vault-sentinel .
-api-network-map ./src
-pii-leak-hunter ./logs/dump.sql
-```
-
-> **Looking for the AI Guardrails?** The AI AppSec Sensor and Dev Agent Firewall are not standalone tools — they run inside the main analysis engine as core security phases, and now live in [`gitgalaxy/security/`](../security/README.md).
-
 ---
 
-## The GitGalaxy Ecosystem (Powered by the blAST Engine)
+## Explore further
 
-GitGalaxy Tools is the modular deployment layer of the broader **GitGalaxy Ecosystem**—an AST-free, LLM-free heuristic knowledge graph engine that scales to large repositories.
-
-Explore the ecosystem:
-
-* **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
-* **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
-* **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.
+| Resource | What it contains |
+|---|---|
+| [Root GitGalaxy README](../../README.md) | Overview of the scanner, speed benchmarks, accuracy validation, and CICS-to-Java summary |
+| [CICS to Java (`cobol_to_java/README.md`)](./cobol_to_java/README.md) | Full pipeline, `det` translator, CICS era coverage, and `L0–L5` / `E0–E4` evidence scorecards |
+| [Offline Readiness (`readiness/README.md`)](./readiness/README.md) | `gitgalaxy assess`, `era_tags.py`, and zero-leakage schema validation |
+| [Mainframe Extraction (`cobol_to_cobol/README.md`)](./cobol_to_cobol/README.md) | `cobol-refractor`, `GalaxyIR`, dead-code reaper, and JCL/DDL forges |
+| [CICS Command Spec (`../standards/cics/README.md`)](../standards/cics/README.md) | The 257-command CICS specification and generated Java/C runtime tables |
+| [GitGalaxy Standards (`../standards/README.md`)](../standards/README.md) | Language definitions, ReDoS bounds, and calibration constants |

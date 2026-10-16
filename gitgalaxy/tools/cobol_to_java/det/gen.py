@@ -14,6 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from gitgalaxy.tools.cobol_to_java.det import dli
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
@@ -239,6 +240,7 @@ class Gen:
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
+        self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
@@ -1983,11 +1985,10 @@ class Gen:
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
-            src = {"DATE": "Funcs.acceptDate(clock())", "DATE YYYYMMDD": "Funcs.acceptDate8(clock())",
-                   "TIME": "Funcs.acceptTime(clock())", "DAY": "Funcs.acceptDay(clock())",
-                   "DAY YYYYDDD": "Funcs.acceptDay7(clock())"}.get(frm)  # fmt: skip
-            if src is None:
+            # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Accept.from)
+            if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")
+            src = f"Accept.from({self.current_date_expr()}, {jstr(frm)})"
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]
@@ -2666,6 +2667,10 @@ class Gen:
                 f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
             )
             return out
+        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog != "CBLTDLI":
+                raise Untranslatable(dli.REFUSED_BY_NAME[prog])
+            return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):

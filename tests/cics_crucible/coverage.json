@@ -59,6 +59,11 @@
     }
    }
   },
+  "ca-container-ccsid/CACCBIT": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {}
+  },
   "ca-link-lengths/CALINK": {
    "live": 1,
    "outcomes": 4,

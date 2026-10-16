@@ -363,9 +363,10 @@ def parse(lines: list[Line]) -> Procedure:
     if not paragraphs[0].body:
         paragraphs.pop(0)
     first = next((p.body[0] for p in paragraphs if p.body), None)
-    if first is not None and first.kind == "ENTRY" and not using:
+    if first is not None and first.kind == "ENTRY" and (not using or first.data["name"].upper() == "DLITCBL"):
         # #4462: the program's first statement (DL/I's ENTRY 'DLITCBL' USING pcb ...): where the caller enters it,
-        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing
+        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing.
+        # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
         using = [r.name for r in first.data["using"]]
     return Procedure(paragraphs, execs, using)

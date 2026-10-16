@@ -59,6 +59,10 @@ _SHAPES = [
     ),  # fmt: skip
     ("GET CONTAINER(CN) CHANNEL(CH) SET(PTR) FLENGTH(FL)", ["task.getContainerSet(CH.strip(), CN.strip())"]),
     (
+        "GET CONTAINER(CN) SET(PTR) FLENGTH(FL) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)",
+        ["task.getContainerSet(null, CN.strip(), -1, true)", "task.containerCcsid()"],
+    ),  # fmt: skip
+    (
         "READ FILE('KSDS') SET(PTR) RIDFLD(KEY)",
         ["setBlock(task, f_PTR, \"READ \" + 'KSDS'.strip(), read1.record(), false);"],
     ),

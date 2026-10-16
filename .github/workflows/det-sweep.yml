@@ -176,7 +176,7 @@ jobs:
           fi
 
       - name: Hand the durations to the shards (#5048)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-durations
           path: tests/equivalence/det_sweep_durations.json
@@ -335,7 +335,7 @@ jobs:
       # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
       # miss made its slices differ from its neighbours' and a case was proven in two shards).
       - name: Download the plan's durations (#5048)
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: det-durations
           path: durations-plan
@@ -387,7 +387,7 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-${{ strategy.job-index }}
           path: ${{ runner.temp }}/sweep/sweep.json
@@ -396,7 +396,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-logs-${{ strategy.job-index }}
           path: |
@@ -506,7 +506,7 @@ jobs:
       # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
       # miss made its slices differ from its neighbours' and a case was proven in two shards).
       - name: Download the plan's durations (#5048)
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: det-durations
           path: durations-plan
@@ -537,7 +537,7 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-shard-${{ strategy.job-index }}
           path: ${{ runner.temp }}/sweep/sweep.json
@@ -546,7 +546,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -591,7 +591,7 @@ jobs:
 
       - name: Download the shards' results
         if: needs.plan.outputs.shards != '0'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: det-sweep-shard-*
           path: shards
@@ -599,7 +599,7 @@ jobs:
 
       - name: Download the Db2 shards' results (#4901)
         if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: det-sweep-db2-[0-9]*
           path: db2-shards
@@ -661,7 +661,7 @@ jobs:
       # thrown away, so hand the rewritten files on for whoever commits them.
       - name: Keep the re-recorded coverage ledger (#5084)
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-ledger
           path: tests/equivalence/det_sweep_coverage/

@@ -721,6 +721,11 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
             sqlout = area / "out" / "sqlout.txt"
             sqlout.unlink(missing_ok=True)
             props = f"{props} -Dgitgalaxy.db2.sqllog={sqlout}"
+    if case.get("ims"):  # #4893: the databases the COBOL side was given (equivalence_ims.stage), written back here
+        dliout = area / "out" / "dli"
+        shutil.rmtree(dliout, ignore_errors=True)
+        dliout.mkdir(parents=True)
+        props = f"{props} -Dgitgalaxy.dli.dir={inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
     out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
@@ -732,6 +737,9 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         if case["db2"].get("compare_sql"):
             sqlout = area / "out" / "sqlout.txt"
             read["SQL"] = sqlout.read_bytes() if sqlout.is_file() else b""
+    for name in (case.get("ims") or {}).get("compare", []):  # #4893: DetDli.leave's databases
+        f = area / "out" / "dli" / f"{name}.out"
+        read[f"IMS {name}"] = f.read_bytes() if f.is_file() else b""
     for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
         if extra in read:
             read[extra] = read[extra].strip()

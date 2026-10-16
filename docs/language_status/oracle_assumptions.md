@@ -125,7 +125,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
-| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); BYTEOFFSET, PREPEND, RETURN CHANNEL, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
@@ -1376,7 +1376,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   level. A GET's data goes into INTO's first bytes and leaves the rest as it was; FLENGTH is set back on NORMAL and
   LENGERR only (on another condition IBM does not say).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
-  time): BYTEOFFSET and PREPEND (no corpus program uses them); RETURN
+  time): BYTEOFFSET and PREPEND on a CHAR container (below); RETURN
   CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); LINK / XCTL with both CHANNEL and COMMAREA. At run
   time: a CCSID other than 37, 500, 1140 and 1208 (IBM: CCSIDERR RESP2 1 outside the valid range, 2 for an unsupported pair; a
   real region converts many more); a CCSID 1208 byte beyond ASCII, or a character beyond ASCII converted to 1208 (multibyte:
@@ -1394,6 +1394,22 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   DELETE CONTAINER, LINK / XCTL CHANNEL, the browse and MOVE commands); a name holding & < or the not sign (RUN
   TRANSID's page allows them in a channel name, PUT CONTAINER's does not); on PUT CONTAINER, two illegal names, or an
   illegal one with a negative FLENGTH or no channel in scope (which condition IBM raises first is not documented).
+- **BYTEOFFSET and PREPEND (#5005), BIT containers only.** GET CONTAINER (CHANNEL): BYTEOFFSET is "the offset in bytes where the
+  data returned starts" (a fullword); "If the value specified is less than zero, zero is assumed"; "The maximum length returned is
+  equal to the length of the data in the container minus the BYTEOFFSET value"; FLENGTH out is "the length of the data returned";
+  an offset "greater than, or equal to, the length of the container" is LENGERR RESP2 12. PUT CONTAINER (CHANNEL), PREPEND ("6.2
+  and later"): "the data passed to the container is prepended to the existing data in the container". Both runtimes
+  (`CicsTask.getContainerAt` / `putContainer(.., prepend)`, `GGCGETC` / `GGCPUTC`) return the bytes from the offset, set FLENGTH
+  to the length returned and put the new data in front, so a later offset sees the new layout; PREPEND on a new container is the
+  data alone. ASSUMED: after LENGERR RESP2 12 FLENGTH and INTO are left as they were (the page states FLENGTH per option, not per
+  condition; the cics-crucible case `ca-container-byteoffset` does not log them). REFUSED by name: BYTEOFFSET on a CHAR container
+  and PREPEND with CHAR, FROMCCSID or onto a CHAR container (IBM counts the offset in the requested code page, and the
+  conversion order is not said); an FLENGTH below the data left from the offset (LENGERR RESP2 11, and whether FLENGTH then holds
+  the length returned or the container's is not said); BYTEOFFSET with NODATA, SET (X58), INTOCCSID, CONVERTST or CCSID(area);
+  PREPEND together with APPEND (IBM does not say); at run time the stub and CicsTask refuse the data cases, the translator and
+  the harness the option combinations. Reached: cics-crucible `ca-container-byteoffset` (`read`, `past-end`) passes on cobol-stub;
+  `tests/cics_crucible/test_container_byteoffset_5005.py` runs offsets -2^31..2^31-1, FLENGTH equal to the data left and PREPEND on
+  a new, an empty and an existing container on both runtimes line for line.
 - **Names (#4950).** PUT CONTAINER (CHANNEL) documents the set: "A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _.
   Leading and embedded blank characters are not permitted", with CHANNELERR RESP2 1 for an illegal CHANNEL name and
   CONTAINERERR RESP2 18 for an illegal CONTAINER name. Both runtimes model exactly that (before, any name with no blank

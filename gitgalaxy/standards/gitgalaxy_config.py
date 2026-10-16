@@ -117,6 +117,9 @@ XRAY_BYPASS_PATHS = [
     "gitgalaxy/tools/network_auditing/full_api_network_map.py",
     "gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py",
     "gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py",
+    # #5274: CicsTask's containers family, split out of the transaction forge: IBM's channel-name character set
+    # (NAME_CHARS) is a dense Java literal that now falls in the first 8 KB X-Ray reads; the emitted Java is fixed
+    "gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
     "gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py",
     "gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py",
     "gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py",

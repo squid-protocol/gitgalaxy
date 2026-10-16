@@ -572,15 +572,16 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
         (src / "p/cobolrt/mq" / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"))
     (src / "Probe.java").write_text(JAVA_PROBE)
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *map(str, src.rglob("*.java"))],
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *map(str, src.rglob("*.java"))],
                    check=True)  # fmt: skip
     bad = []
     for name, st, steps in SCRIPTS:
         cfg = tmp_path / f"{name}.cfg"
         cfg.write_text(EQ.cfg(st, "latin-1"), encoding="ascii")
         java = subprocess.run(  # noqa: S603
-            [str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe", str(cfg), "20220718", "10301525"],
-            input=_feed(steps), capture_output=True, text=True, check=True,
+            [str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe", str(cfg),
+             "20220718", "10301525"],
+            input=_feed(steps), capture_output=True, text=True, encoding="utf-8", check=True,
         ).stdout.splitlines()  # fmt: skip
         c = _run_c(c_driver, name, st, steps, tmp_path)
         if java != c:

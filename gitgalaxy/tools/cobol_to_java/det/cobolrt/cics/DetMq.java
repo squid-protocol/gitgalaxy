@@ -17,6 +17,7 @@ public final class DetMq {
     }
 
     /** The runner's: the task's queue manager, from the case's mq.cfg, committed and backed out with the task (W5). */
+    // [rule RT-MQ-QUEUE-MANAGER]
     public static void attach(CicsTask task, Path cfg) throws IOException {
         LocalDateTime now = task.now();
         String date = String.format("%04d%02d%02d", now.getYear(), now.getMonthValue(), now.getDayOfMonth());

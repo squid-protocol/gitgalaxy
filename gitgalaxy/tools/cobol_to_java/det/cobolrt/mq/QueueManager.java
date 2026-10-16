@@ -164,6 +164,7 @@ public final class QueueManager {
     }
 
     /** The unit of work ends (W5): SYNCPOINT (false); SYNCPOINT ROLLBACK, or the backout of an abend (true). */
+    // [rule RT-MQ-UNIT-OF-WORK]
     public void uowEnd(boolean rollback) {
         for (Msg m : msgs) {
             if (m.state == PUT_PENDING) {
@@ -208,6 +209,7 @@ public final class QueueManager {
         return out;
     }
 
+    // [rule RT-MQ-CONNECTION]
     private static void hconnOk(String call, Ref hconn) {
         if (be32(hconn, 0) != 0) {  // MQHC_DEF_HCONN: CICS needs no MQCONN, W6
             throw refused(call, "an Hconn other than MQHC_DEF_HCONN (0) (MQCONN)");
@@ -253,6 +255,7 @@ public final class QueueManager {
     }
 
     /** MQOPEN (Hconn, ObjDesc, Options, Hobj, CompCode, Reason) */
+    // [rule RT-MQ-OPEN]
     public void mqopen(Ref hconn, Ref od, Ref options, Ref hobj, Ref cc, Ref rc) {
         hconnOk("MQOPEN", hconn);
         int o = be32(options, 0);
@@ -292,6 +295,7 @@ public final class QueueManager {
     }
 
     /** MQCLOSE (Hconn, Hobj, Options, CompCode, Reason) */
+    // [rule RT-MQ-CLOSE]
     public void mqclose(Ref hconn, Ref hobj, Ref options, Ref cc, Ref rc) {
         hconnOk("MQCLOSE", hconn);
         if (be32(options, 0) != 0) {
@@ -309,6 +313,7 @@ public final class QueueManager {
     }
 
     /** MQGET (Hconn, Hobj, MsgDesc, GetMsgOpts, BufferLength, Buffer, DataLength, CompCode, Reason) */
+    // [rule RT-MQ-GET]
     public void mqget(Ref hconn, Ref hobj, Ref md, Ref gmo, Ref buflen, Ref buffer, Ref datalen, Ref cc, Ref rc) {
         hconnOk("MQGET", hconn);
         if (!bytesAre(md, 0, "MD  ") || be32(md, 4) != 1) {
@@ -461,6 +466,7 @@ public final class QueueManager {
     }
 
     /** MQPUT (Hconn, Hobj, MsgDesc, PutMsgOpts, BufferLength, Buffer, CompCode, Reason) */
+    // [rule RT-MQ-PUT]
     public void mqput(Ref hconn, Ref hobj, Ref md, Ref pmo, Ref buflen, Ref buffer, Ref cc, Ref rc) {
         hconnOk("MQPUT", hconn);
         int h = handle(hobj);

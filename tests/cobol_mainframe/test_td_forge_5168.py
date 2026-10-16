@@ -148,12 +148,28 @@ def ran(tmp_path_factory):
     (data / "INCLOSED.txt").write_text("hidden\n", encoding="utf-8")
     sources = [str(p) for p in src.rglob("*.java")]
     out.mkdir()
-    subprocess.run([javac, "--release", "17", "-d", str(out), *sources], check=True, capture_output=True, text=True)
-    done = subprocess.run(
-        [java, "-cp", str(out), "app.messaging.Driver", str(data), ",".join(ESTATE_QUEUES)],
+    subprocess.run(
+        [javac, "-encoding", "UTF-8", "--release", "17", "-d", str(out), *sources],
         check=True,
         capture_output=True,
-        text=True,  # fmt: skip
+        text=True,
+        encoding="utf-8",
+    )
+    done = subprocess.run(
+        [
+            java,
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(out),
+            "app.messaging.Driver",
+            str(data),
+            ",".join(ESTATE_QUEUES),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
     )
     results: dict[tuple[str, str], list[str]] = {}
     for line in done.stdout.splitlines():

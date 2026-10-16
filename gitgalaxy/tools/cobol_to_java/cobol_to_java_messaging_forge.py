@@ -161,7 +161,7 @@ class MessagingForge:
                 refusal = "an INDIRECT TD queue whose target the CSD does not define"
             if refusal:
                 break
-            at = nxt
+            at = str(nxt)
         d = self.defs.get(at.upper()) or {}
         if not refusal and (d.get("TYPE") == "REMOTE" or d.get("SYSID")):
             refusal = "a REMOTE TD queue (SYSID / TYPE REMOTE)"

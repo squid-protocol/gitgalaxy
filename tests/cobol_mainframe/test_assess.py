@@ -403,6 +403,33 @@ def test_the_guard_refuses_the_network_and_keeps_local_sockets():
     assert res.stdout.split() == ["refused"] * 4 + ["ok"], res.stderr[-2000:]
 
 
+def test_the_guard_exempts_only_socketpair_loopback():
+    """The Windows socketpair emulation (AF_INET loopback connect) must work; a direct loopback connect must not."""
+    code = (
+        "import socket\n"
+        "from gitgalaxy.tools.readiness import offline\n"
+        "from gitgalaxy.tools.readiness.offline import OfflineViolation, install\n"
+        "install()\n"
+        "srv = socket.socket(); srv.bind(('127.0.0.1', 0)); srv.listen(1)\n"
+        "port = srv.getsockname()[1]\n"
+        "out = []\n"
+        "for exempt in (False, True, False):\n"
+        "    try:\n"
+        "        if exempt:\n"
+        "            with offline._allow_local():\n"
+        "                socket.socket().connect(('127.0.0.1', port))\n"
+        "        else:\n"
+        "            socket.socket().connect(('127.0.0.1', port))\n"
+        "        out.append('ok' if exempt else 'allowed')\n"
+        "    except OfflineViolation:\n"
+        "        out.append('refused')\n"
+        "a, b = socket.socketpair(); a.sendall(b'x'); out.append(b.recv(1).decode())\n"
+        "print(' '.join(out))\n"
+    )
+    res = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=_env(), check=False)  # noqa: S603
+    assert res.stdout.split() == ["refused", "ok", "refused", "x"], res.stderr[-2000:]
+
+
 def test_the_scan_child_runs_under_the_guard(tmp_path):
     """BOOTSTRAP installs the guard before galaxyscope's code runs: the same bootstrap, pointed at a probe module."""
     (tmp_path / "probe_mod.py").write_text(_PROBE)

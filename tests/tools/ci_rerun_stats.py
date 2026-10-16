@@ -5,8 +5,8 @@
 
 Counts runs with run_attempt > 1 per workflow per UTC day (the reruns/day measure) and classifies each failed first
 attempt from its failed/cancelled job and step: timeout (cancelled at the job's timeout-minutes), registry/network
-(an INFRASTRUCTURE marker or a registry error is not available from the job JSON, so a Db2 start step is reported as
-db2_start), ratchet, other. The classifier takes plain job dicts (the REST `jobs` shape), so it is tested offline.
+(a failed Db2 start step is db2_start; when the job's log carries the INFRASTRUCTURE marker of a failed image pull it
+is registry_pull, an external cause: --logs fetches that one log), ratchet, other. The classifier takes plain job dicts (the REST `jobs` shape), so it is tested offline.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ import sys
 from datetime import datetime
 
 REPO = "squid-protocol/gitgalaxy"
+PULL_MARKER = "INFRASTRUCTURE (not a code defect): could not pull"  # equivalence_db2.Db2ImagePullError (#5097)
 TIMEOUT_SLACK_S = 30  # a job cancelled this close to its cap (or over) hit timeout-minutes, not a person
 
 
@@ -31,9 +32,14 @@ def _secs(job: dict) -> float:
     return (b - a).total_seconds()
 
 
-def classify(jobs: list[dict], timeout_minutes: dict[str, int] | None = None) -> str:
-    """One cause for a failed attempt: timeout | db2_start | ratchet | artifact_missing | test_failure | other | none."""
+def classify(
+    jobs: list[dict], timeout_minutes: dict[str, int] | None = None, logs: dict[str, str] | None = None
+) -> str:
+    """One cause for a failed attempt: timeout | registry_pull | db2_start | ratchet | artifact_missing | test_failure | other | none.
+
+    `logs` maps a job name to its log text; only a failed Db2 step consults it (registry_pull vs db2_start)."""
     timeout_minutes = timeout_minutes or {}
+    logs = logs or {}
     bad = [j for j in jobs if j.get("conclusion") in ("failure", "cancelled", "timed_out")]
     if not bad:
         return "none"
@@ -49,7 +55,7 @@ def classify(jobs: list[dict], timeout_minutes: dict[str, int] | None = None) ->
                 continue
             name = step.get("name", "").lower()
             if "db2" in name:
-                return "db2_start"
+                return "registry_pull" if PULL_MARKER in logs.get(job.get("name", ""), "") else "db2_start"
             if "ratchet" in name:
                 return "ratchet"
             if name.startswith("download"):
@@ -80,9 +86,26 @@ def step_secs(jobs: list[dict], step_name: str) -> list[float]:
     ]
 
 
+def _gh_text(path: str, *flags: str) -> str:
+    return subprocess.run(["gh", "api", *flags, path], capture_output=True, text=True, check=True).stdout  # noqa: S603, S607
+
+
 def _gh(path: str) -> dict:
-    proc = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=True)  # noqa: S603, S607
-    return json.loads(proc.stdout)
+    return json.loads(_gh_text(path))
+
+
+def _db2_logs(jobs: list[dict]) -> dict[str, str]:
+    """Logs of the jobs whose failed step is a Db2 one (the only ones classify() reads a log for)."""
+    out: dict[str, str] = {}
+    for job in jobs:
+        if any(
+            st.get("conclusion") == "failure" and "db2" in st.get("name", "").lower() for st in job.get("steps", [])
+        ):
+            try:
+                out[job["name"]] = _gh_text(f"repos/{REPO}/actions/jobs/{job['id']}/logs", "--allow-escape-sequences")
+            except subprocess.CalledProcessError:
+                out[job["name"]] = ""  # an expired log: classify() falls back to db2_start
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -93,6 +116,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--step", help="also print the seconds each run's jobs spent in the step with this name (substring)"
     )
+    ap.add_argument(
+        "--logs", action="store_true", help="read the log of a failed Db2 step to tell a registry pull failure"
+    )
     args = ap.parse_args(argv)
     caps = {k: int(v) for k, v in (t.split("=") for t in args.timeout)}
     for wf in args.workflows:
@@ -101,7 +127,9 @@ def main(argv: list[str] | None = None) -> int:
         for run in runs:
             for attempt in range(1, int(run.get("run_attempt", 1))):
                 jobs = _gh(f"repos/{REPO}/actions/runs/{run['id']}/attempts/{attempt}/jobs?per_page=100")["jobs"]
-                print(f"  run {run['id']} attempt {attempt}: {classify(jobs, caps)}")
+                print(
+                    f"  run {run['id']} attempt {attempt}: {classify(jobs, caps, _db2_logs(jobs) if args.logs else None)}"
+                )
             if args.step:
                 jobs = _gh(f"repos/{REPO}/actions/runs/{run['id']}/jobs?per_page=100")["jobs"]
                 print(f"  run {run['id']} step '{args.step}' secs: {[round(x) for x in step_secs(jobs, args.step)]}")

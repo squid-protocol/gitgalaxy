@@ -111,7 +111,7 @@ def test_a_cics_stub_change_stales_no_batch_case():
 
 def test_a_cics_family_module_stales_what_its_host_file_does():
     """#5274: a command family split out of a CICS hot file is part of the same component as its host, so an edit to
-    either stales the same cases (the family modules are not imported or linked on their own)."""
+    either stales the same inputs of a target of each kind (the family modules are not imported or linked on their own)."""
     for host, family in (
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_containers.c"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),
@@ -119,7 +119,8 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_containers.py"),
     ):  # fmt: skip
-        assert stale_set(family) == stale_set(host), family
+        for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):
+            assert stale_after(t, family) == stale_after(t, host), (t.key, family)
 
 
 def test_a_detsql_change_stales_only_db2_cases_that_use_it():

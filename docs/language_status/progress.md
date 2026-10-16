@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `e9b4fdd8d` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `c768ed5c5` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -51,18 +51,18 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-16T20:28:00Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-16T21:16:00Z.
 
-- `scope:core`: 35 open, 17 closed.
-- Milestone 28: 23 open, 3 closed.
-- Last 7 days: 10 opened, 1 closed, net -9 closed.
-- ETA (open / net closure rate): **not converging**.
+- `scope:core`: 35 open, 111 closed.
+- Milestone 28: 23 open, 68 closed.
+- Last 7 days: 22 opened, 25 closed, net +3 closed.
+- ETA (open / net closure rate): **82 days**.
 
 ## 5. Gap Atlas
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 14 found in the last 7 days, 157 in total (84 open, 73 closed).
+- `scope:frontier`: 21 found in the last 7 days, 184 in total (84 open, 100 closed).
 - Milestone 30 (Gap Atlas): 43 issues.
-- `scope:sweep`: 21 open, 8 closed.
-- `scope:infra`: 49 open, 33 closed.
+- `scope:sweep`: 21 open, 66 closed.
+- `scope:infra`: 50 open, 174 closed.

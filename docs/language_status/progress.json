@@ -1,5 +1,5 @@
 {
- "commit": "cf0bcb927",
+ "commit": "3cc245254",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -156,21 +156,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-16T22:16:59Z",
+  "as_of": "2026-10-16T23:02:06Z",
   "core": {
-   "closed": 114,
-   "open": 32,
+   "closed": 116,
+   "open": 30,
    "total": 146
   },
   "core_last_window": {
-   "closed": 27,
-   "net_closed": 5,
+   "closed": 29,
+   "net_closed": 7,
    "opened": 22
   },
   "core_milestone": {
-   "closed": 71,
+   "closed": 73,
    "number": 28,
-   "open": 20,
+   "open": 18,
    "total": 91
   },
   "epics": {
@@ -180,7 +180,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "45 days",
+  "eta": "30 days",
   "frontier": {
    "closed": 100,
    "found_last_window": 21,
@@ -231,9 +231,9 @@
    {
     "closed": 32,
     "number": 6,
-    "open": 20,
+    "open": 21,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
-    "total": 52
+    "total": 53
    },
    {
     "closed": 170,
@@ -376,9 +376,9 @@
     "total": 21
    },
    {
-    "closed": 231,
+    "closed": 233,
     "number": 28,
-    "open": 22,
+    "open": 20,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 253
    },
@@ -399,8 +399,8 @@
   ],
   "sweep": {
    "closed": 66,
-   "open": 21,
-   "total": 87
+   "open": 22,
+   "total": 88
   },
   "title_counts": {
    "cics": {

@@ -3292,6 +3292,21 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   case runs yet; no other burned program reads any of the seven. Pinned by
   `tests/cobol_mainframe/test_eibds_5126.py` (both translators, every file verb and spelling, the programs that do
   not read EIBDS) and `tests/tools/test_proof_blockers.py`.
+- **Re-measured 2026-10-16 (#5077, origin/main cf0bcb927; `cics_census.py survey --baseline --no-census`, then
+  `proof_blockers.py --json`).** 98 of 106 burned-estate CICS programs translate whole; no whole program lists a
+  `fact:` gap of any kind (EIB field, ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, APPLID / SYSID). The
+  seven programs #5077 counted were false positives of the fact scan (EIB names inside literals and hyphenated data
+  names such as CBSA's `EIBRCODE-NICE`, fixed by #5125) plus cases that did not state STARTCODE (LGIPVS01, LGICVS01,
+  ASYNCPNT and SEQPNT state it). The one real EIBRCODE read, ZECS001's `MOVE EIBRCODE TO FE-RCODE`, is absent from the
+  gap list because ZECS001 is not translated whole (pointer arithmetic over REDEFINES'd addresses, `CALL ZUIDSTCK`),
+  so `proof_blockers` ranks it nowhere; no burned program reads EIBFN as a value (ZECS000, ZECS001 and ZECS003 name it
+  only in `VALUE 'EIBFN: '` literals).
+- **Why EIBFN / EIBRCODE stay unmodelled (decision, #5077).** The mainframe evidence policy (burned estates only) leaves
+  nothing to prove: the only reader is a program with holes and no case, and EIBRCODE's file-control values are VSAM
+  return codes inside ILLOGIC / IOERR that GnuCOBOL's file status cannot supply. A table copied from IBM with no
+  program to run it would be unexecuted claim. They remain `fact: NAME` gaps in `proof_blockers.py`, so a program that
+  starts reading one is listed at once; model them (EIBFN from IBM's function-code table, EIBRCODE per condition row)
+  when a whole burned program reads one.
 - **Evidence level.** Translated on both sides and pinned at the translator (the text each side emits); NOT
   executed-equivalent: no case's program reads EIBDS, so no scenario ran the stub's MOVE against the port's. The
   detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).

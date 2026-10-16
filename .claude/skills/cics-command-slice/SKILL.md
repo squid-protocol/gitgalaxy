@@ -137,6 +137,9 @@ Traps `--check` exists for:
 3. **Phase A** (gitgalaxy, ledger only): with the crucible checked out at the UNTAGGED commit and
    `CICS_CRUCIBLE_ALLOW_UNPINNED=1`, run `cics_crucible.py --update-baseline` and review every moved cell (new cells
    only for new cases; a newly failing cell on an unchanged case is a gitgalaxy regression). Do not move the pin.
+   `--update-baseline` refuses `--cases`: it needs the full run (can pass the 10-min foreground limit, so background
+   it) and rewrites `coverage.json` and `docs/language_status/cics_crucible.md` too; commit all three (#5285). On a
+   `cics_crucible.md` merge conflict take main's copy and regenerate it with `cics_crucible.py`, never hand-merge.
 4. **Tag** (crucible): only after the owner approves -- `git tag -a vX.Y.Z <commit>`, push, `gh release create`.
 5. **Phase B** (gitgalaxy, one PR): `PINNED_REF`, baseline / coverage, re-prove the committed ports
    (`crucible_port_provenance.py reprove`), evidence (`evidence.py prove`; no rendered report), then

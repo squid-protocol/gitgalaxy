@@ -37,6 +37,7 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_db2
 import equivalence_inputs  # #3804
+import equivalence_mq  # #4892
 import equivalence_oracle
 import equivalence_sql
 
@@ -1383,7 +1384,40 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     return lines + _call("GGCWCNV", args) + after + _resp(opts, True, labels)
 
 
-def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); every other EIB resource field stays unmodelled.
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+
+
+def translate_command(
+    body: str, labels: list[str] | None = None, handle_aid: bool = False, eibds: bool = False
+) -> list[str]:
+    """One EXEC CICS body -> the COBOL statements that replace it. `eibds`: the program reads EIBDS, so a file control
+    command leads with `MOVE <file> TO EIBDS` (#5126, X64) -- set before the command runs, so a failed request leaves
+    its file named, as the request "referred to" it. See _translate_command for the rest."""
+    lines = _translate_command(body, labels, handle_aid)
+    if not eibds:
+        return lines
+    pairs = _options(body)
+    opts = dict(pairs)
+    file = opts.get("FILE") or opts.get("DATASET")
+    if pairs and pairs[0][0] in EIBDS_VERBS and file:
+        return [f"MOVE {file} TO EIBDS", *lines]
+    return lines
+
+
+_EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(lines: list[str]) -> bool:
+    """#5126 (X64): does the source name EIBDS outside a comment line and a literal -- a whole word, not the front of
+    a hyphenated user name (EIBDS-X)? (The det port's scan is `det.cics.reads_eibds`: the same words, over statements.)"""
+    code = (ln[7:72].upper() for ln in lines if len(ln) > 6 and ln[6] not in "*/")
+    return any(_EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", ln)) for ln in code)
+
+
+def _translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
     command's own. `handle_aid`: the program issues HANDLE AID, so its input commands consult it (#4007)."""
@@ -2255,6 +2289,16 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         i = j + 1
 
 
+def _numbered(ln: str) -> str:
+    """DFHRESP(x) / DFHVALUE(x) replaced by their numbers in the line's code area only, padded back to column 72 when
+    columns 73-80 hold a sequence number (#4892: CardDemo app-vsam-mq numbers its lines there), so it stays there."""
+    head, tail = ln[:72], ln[72:]
+    new = _DFHVALUE.sub(
+        lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), head)
+    )
+    return (new.ljust(72) if tail and new != head else new) + tail
+
+
 def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
@@ -2274,6 +2318,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
+    eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []
     problems: list[str] = []
     features: list[str] = []
@@ -2285,7 +2330,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body, labels, handle_aid)
+            stmts = translate_command(body, labels, handle_aid, eibds)
         except Unsupported as e:
             msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
             problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC CICS ') else f'EXEC CICS {msg}'}")
@@ -2307,15 +2352,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         features.append(f"DFHVALUE({name})")
     if problems:
         raise Unsupported("; ".join(problems), features)
-    text = (
-        "\n".join(
-            _DFHVALUE.sub(
-                lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln)
-            )
-            for ln in out
-        )
-        + "\n"
-    )
+    text = "\n".join(_numbered(ln) for ln in out) + "\n"
     # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
     # INQACC-COMMAREA BY DFHCOMMAREA)
     has_commarea = bool(
@@ -3356,6 +3393,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    if equivalence_mq.MQ_CALL.search(source):  # #4892 (register W): the MQ model, and the stand-ins the estate lacks
+        shutil.copy(equivalence_mq.MODEL, src / equivalence_mq.MODEL.name)
+        subs.append(f"src/{equivalence_mq.MODEL.name}")
+        for name in equivalence_mq.STAND_INS:
+            if not (src / f"{name}.cpy").exists():
+                shutil.copy(DET_COPY / f"{name}.cpy", src / f"{name}.cpy")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
     # the program is; a LINK to any other is refused after the run (NOPROGRAM, below)
     linked: dict[str, bool] = {}
@@ -3465,6 +3508,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
+        for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
+            (d / f"retrieve_{i:03d}.bin").write_bytes(data)
+        if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
+            (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -3925,9 +3972,12 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
                 res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
             res.setdefault("retrieves", []).append(_cobol_retrieve(kv, data, enc))
+        elif verb in equivalence_mq.EVENTS:  # #4892: an MQI call, as QueueManager records it
+            res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
+    res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
@@ -4667,6 +4717,26 @@ class EquivalenceRunTest {{
 
     /** #4173: the task's SQL fault plan, through the det runtime's DetSql (its statements' executions counted
      *  afresh): false when a fault is planned and the port has no DetSql to take it (the task is then not run). */
+    /** #4892: the task's queue manager (cobolrt.cics.DetMq, the stub's ggmq.c), from the scenario's mq.cfg. */
+    static void mqAttach(CicsTask task, Path cfg) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("attach", CicsTask.class, Path.class).invoke(null, task, cfg);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a queue manager for a port with no cobolrt.mq", e);
+        }}
+    }}
+
+    /** #4892: the queues the task left (null: it had no queue manager), its normal end committing it. */
+    static Object mqEnd(CicsTask task) {{
+        try {{
+            return Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("end", CicsTask.class).invoke(null, task);
+        }} catch (ClassNotFoundException e) {{
+            return null;
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+    }}
+
     static boolean sqlFaultPlan(List<String> plan, Path log) {{
         try {{
             Class.forName("{pkg}.cobolrt.sql.DetSql").getMethod("withFaults", List.class, Path.class)
@@ -4716,6 +4786,14 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
+                List<byte[]> started = new ArrayList<>();
+                sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
+                task.withRetrieveData(started);
+            }}
+            if (sc.hasNonNull("mq")) {{  // #4892 (W): the queue manager its MQI calls reach, as the stub's mq.cfg
+                mqAttach(task, in.resolve(sc.get("mq").asText()));
+            }}
             if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
                 java.util.List<String[]> defs = new java.util.ArrayList<>();
                 sc.get("urimaps").forEach(u -> defs.add(new String[] {{u.get(0).asText(), u.get(1).asText(),
@@ -4853,6 +4931,13 @@ class EquivalenceRunTest {{
                 Map<String, String> data = new LinkedHashMap<>();
                 task.currentChannel().containers().forEach((k, v) -> data.put(k, java.util.HexFormat.of().withUpperCase().formatHex(v)));
                 left.put("containers", data);
+                events.add(left);
+            }}
+            Object mqLeft = sc.hasNonNull("mq") ? mqEnd(task) : null;
+            if (mqLeft != null) {{  // #4892: the queues the task left, as the stub's mq.out
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "MQ-QUEUES");
+                left.put("queues", mqLeft);
                 events.add(left);
             }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
@@ -5028,7 +5113,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc)})  # fmt: skip
+                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
+                          **_java_mq(case, sc, inputs, len(scenarios))})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -5054,6 +5140,22 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             if why.is_file():
                 facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
     return result
+
+
+def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
+    """#4892: the scenario's start data (hex, in the region's page: CicsTask.withRetrieveData, as the stub's
+    retrieve_NNN.bin) and its queue manager's mq.cfg (the stub's very file, under the runner's inputs); none: no key."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    enc, out = common.data_encoding(case), {}
+    data = equivalence_mq.start_data(case, sc, enc)
+    if data:
+        out["start_data"] = [d.decode(enc).encode(REGION_PAGE).hex().upper() for d in data]
+    st = equivalence_mq.state(case, sc)
+    if st is not None:
+        (inputs / f"mq_{n}.cfg").write_text(equivalence_mq.cfg(st, enc), encoding="ascii")
+        out["mq"] = f"mq_{n}.cfg"
+    return out
 
 
 def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
@@ -5333,6 +5435,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     starts = iter(res.get("starts", []))  # #4270: START
     retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
+    mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
@@ -5371,6 +5474,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "START", **next(starts)})
         elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
             out.append({"event": "RETRIEVE", **next(retrieves)})
+        elif verb in equivalence_mq.EVENTS:  # #4892
+            out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -5434,6 +5539,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
                         "events": cobol_events(next(children))})  # fmt: skip
     if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
         out.append({"event": "CONTAINERS", **res["containers"]})
+    if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
+        out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
@@ -5517,6 +5624,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] in (*equivalence_mq.EVENTS, "MQ-QUEUES"):  # #4892: the MQI call's outcome, the queues left
+            bad += equivalence_mq.compare(c, j)
         if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
             if c.get("channel") != j.get("channel"):
                 bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})
@@ -5861,6 +5970,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     import json
 
     import equivalence_cache
+
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
     ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)

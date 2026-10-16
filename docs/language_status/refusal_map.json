@@ -25,7 +25,7 @@
         "name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)",
         "issue": 4892
       },
-      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The program then calls MQI, which the runtime does not model (#4892, #4514): translates, not provable."
+      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6)."
     },
     {
       "id": "le-copybooks",

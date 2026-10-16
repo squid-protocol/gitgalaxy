@@ -60,6 +60,8 @@ definition).
 
 **After #4486** (a SYSLIB collision takes the first library's member, as the compiler and the engine do, with a warning; strict mode refuses it): the 9 collision refusals are gone. Eight programs translate and agree with the engine on every channel (ORDPRICE, ORDV#OLD, ORDVAL, ORDVALV2, ORDVOLD, TAXCALC, TAXCALC2, PAYMAIN); ORDMAIN now refuses on its real defect, COPY ORDPRICE (a gap, #4460).
 
+**After #4892** (the IBM MQ model ships GitGalaxy-written `CMQ*` stand-ins, register W1): CardDemo COPAUA0C, COACCT01 and CODATE01 no longer refuse on a vendor copybook (3 `status` entries gone). The translator now lays out their MQ groups (IBM's version-1 MQOD 168, MQMD 324, MQGMO 72, MQPMO 128, MQTM 684 bytes) and the engine, which has no `CMQ*` member to read, cannot size them: 380 `offsets` entries, definitional (`translator-uses-mq-stand-ins`).
+
 Plus 32 `status` entries: sources the translator refuses (never silently, #4411): 28 translator
 coverage gaps (#4462) and 4 vendor copybooks the estates do not ship (definitional).
 

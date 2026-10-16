@@ -130,7 +130,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
 | X21 | CICS | EIBTASKN: the task's number is a stated fact of the run (`$GGCICS_TASKN` / `CicsTask.withTaskNumber`, a case's or scenario's `"taskn"`, default 0), not the number CICS assigns; a value outside 0 to 9,999,999 refused | DIFFERS (the value) / MATCHED (both sides) | yes (every CICS task; read by CBSA's Db2 programs, GenApp LGICDB01) |
-| X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
+| X22 | CICS | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched | ASSUMED (REFUSED where IBM is silent or the layout decides) | yes (GenApp LGICVS01 genapp-lgicvs01) |
 | X23 | CICS | A COMMAREA of a stated length (a scenario's `commarea_length`, EIBCALEN shorter than the record): the program is given exactly those bytes; a reference past EIBCALEN refused on both sides, the task judged up to it | ASSUMED (REFUSED past EIBCALEN) | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01) |
 | X24 | CICS | A task started with a channel (a scenario's `channel`: what a RUN TRANSID CHANNEL parent or a LINK CHANNEL caller passed), made its first program's current channel; the containers left on that channel compared at the task's end (dropped on an abend), byte for byte; RUN TRANSID children not run | ASSUMED | yes (async credit-card CRDTCHK, CSSTATS2, CSSTATUS, GETADDR, GETNAME; CBSA CRDTAGY1-5, an explicit CHANNEL(CIPCREDCHANN)) |
 | X25 | COBOL layout | SYNCHRONIZED slack bytes in the layout model (GalaxyIR `record_layout`, `_storage_spans`): IBM Enterprise COBOL boundaries (halfword up to 4 digits, fullword above, the 8-byte binary S9(10)-S9(18) included; COMP-1 / INDEX / pointers fullword; COMP-2 doubleword) counted from the record, the table slack of IBM's rule; GnuCOBOL / Micro Focus may align an 8-byte binary on a doubleword | ASSUMED (IBM's fullword; z/OS is the target) | no (no committed case reaches an 8-byte SYNC binary) |
@@ -1615,8 +1615,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   READPREV, not for READ (GenApp LGICVS01 MOVEs the found key itself). Key order is the browse's (D1: the stub's byte
   order, the det port's cp037 order); keys mixing letters and digits in one position would order differently.
 - **Refused by name.** GTEQ with EQUAL and GENERIC without KEYLENGTH (the spec's option rules; both sides); a GENERIC
-  KEYLENGTH not shorter than the key (INVREQ 25) or not above zero (42; zero is undocumented): the translator when it
-  is a known constant, the stub at run time ("READ GENERIC KEYLENGTH ..."); a KEYLENGTH the translator cannot read as
+  KEYLENGTH of zero (IBM documents INVREQ 25 for one not shorter than the key and 42 for one below zero, both raised on
+  both runtimes, X52; zero is undocumented): the translator when it is a known constant, the stub at run time ("READ
+  GENERIC KEYLENGTH ..."); a KEYLENGTH the translator cannot read as
   a constant, or a partial one without GENERIC (INVREQ 26, as before); a RIDFLD shorter than the bytes searched (CICS
   would read the storage after it, which GnuCOBOL lays out unlike IBM's compiler, X6).
 - **#4771 (zECS ZECS000 / ZECS003): a file named at run time, and DELETE GENERIC.** zECS names its cache file by a data
@@ -1628,10 +1629,19 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   generic key with a length specified in the KEYLENGTH option"; KEYLENGTH and RIDFLD required with it; NOTFND RESP2 80
   "An attempt to delete a record based on the search argument provided is unsuccessful"; INVREQ 25 / 42 as READ's):
   every record whose key starts with RIDFLD's first KEYLENGTH bytes is deleted (the page's "same starting characters";
-  IBM: "delete a group of records with a single invocation"; ASSUMED: no record is locked by another task, so none is left behind (IBM's LOCKED / RECORDBUSY outcomes, a single-task run never meets them), and the generic delete is not a non-KSDS one, INVREQ RESP2 22, the stores being KSDS), NOTFND RESP2 80 when none.
+  IBM: "delete a group of records with a single invocation"; ASSUMED: no record is locked by another task, so none is left behind (IBM's LOCKED / RECORDBUSY outcomes, a single-task run never meets them)), NOTFND RESP2 80 when none.
   The stub: `GGCDELT` with GG-FLAGS `GENERIC`; the det port: `CicsTask.delete` over repeated `DetCics.Store.search` /
-  `remove`. Refused: a GENERIC KEYLENGTH not shorter than the key or not above zero (IBM: RESP2 25 at or above the full key; zero "unpredictable", RESP2 42 below zero) (here when the file is known, at
-  run time when it is named then), a KEYLENGTH that is no constant, NUMREC (no corpus program asks for the count).
+  `remove`. Refused: a GENERIC KEYLENGTH of zero (IBM is silent), a KEYLENGTH that is no constant, NUMREC (no corpus program asks for the count).
+  DELETE's INVREQ RESP2 (#5092): IBM (cics-ts 6.x, `summary-delete`, Conditions) 21, "DELETE is issued for a file that refers to a
+  VSAM ESDS"; 22, "A generic delete is issued for a file that is not a VSAM KSDS"; 25, KEYLENGTH with GENERIC "greater than or equal
+  to the length of a full key"; 42, KEYLENGTH with GENERIC "less than zero"; 26, KEYLENGTH without GENERIC not equal to the data set's
+  key length; 31, no RIDFLD and no READ UPDATE hold (X52). Modelled on both sides: `GGCDELT`; `CicsTask.delete` / `deleteGeneric` /
+  `deleteHeld` / `deleteToken` answer an ESDS, `CicsTask.deleteInvalid` 25 / 26 / 42, which the translator picks for a constant
+  KEYLENGTH on a known file (`Cics.delete_generic`, `Cics.file_update`) and the run time for a file named then. Order: a planned
+  fault, an ESDS (21; 22 with GENERIC), then 26 / 25 / 42; nothing is deleted or released. The harness names a given non-GENERIC
+  KEYLENGTH to the stub in GG-FLAGS (`KEYLENGTH`); before, a partial-key DELETE KEYLENGTH deleted by prefix on the stub. Assumed
+  never to arise: INVREQ 20 (delete "not allowed by the resource definition": `files.cfg` has no such attribute), 27 (BDAM), 44, 51,
+  55-57, 59 (options and file kinds the region refuses or does not have). Test: `tests/cics_crucible/test_delete_invreq_5092.py`.
   Pinned by `test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key`,
   `test_delete_generic_deletes_every_record_with_the_generic_key`, `test_a_delete_generic_is_named_to_the_stub` and the
   runtime tests (`test_the_stub_delete_generic_*`, `test_cics_task_delete_generic_*`). No case runs zECS's file yet: the

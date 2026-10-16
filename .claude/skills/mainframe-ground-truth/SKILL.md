@@ -37,6 +37,7 @@ python tests/tools/ground_truth_ledger.py check          # what CI runs
 - **`no longer reproduces`** means you fixed something. Ratchet it in with `update`. That's the point of the gate: improvements get locked in.
 - **`UNTRIAGED` after `update`**: `assign CAUSE 'corpus :: side | field | * | fp'` with `--kind defect --issue N` (something to fix) or `--kind deliberate --issue N` (by design; the issue records the decision). **Never mark a defect deliberate to get green.** The kind is visible in every report.
 - **`cause … is used by no mismatch`**: `update` drops it, or it happened because a merge kept a cause that both sides emptied.
+- **`pr_gates --ratchets` fact-crosscheck prints only the first 20 NEW rows** (#5236): run `fact_crosscheck.py check --json FILE` and diff the disagreement ids against the ledger before assigning a cause.
 
 ## Merging and rebasing: the ledger and snapshots are generated
 

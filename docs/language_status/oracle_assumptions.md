@@ -3689,7 +3689,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ### I5. DL/I beyond the modelled calls — REFUSED
 - **Refused by the det translator.**
-  - EXEC DLI stays a hole by name.
+  - EXEC DLI stays a hole by name. It is what holds CardDemo COPAUA0C (SCHD / GU / REPL / ISRT / TERM under CICS; its
+    MQ calls are modelled, W6), also CBPAUP0C, COPAUS0C and COPAUS1C.
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
@@ -3801,6 +3802,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   naming why; an MQI call from a batch program is a hole; a COMP-5 or halfword MQLONG is a hole (a native binary item
   is little-endian on the oracle). Every option bit outside the modelled set, Report options, and MQCLOSE options other
   than MQCO_NONE stop the run by name on both sides.
+- **Burned estates (#5278).** The MQI calls the burned programs make are MQOPEN, MQGET, MQPUT1 and MQCLOSE (CardDemo
+  CODATE01, COACCT01, COPAUA0C), all modelled; none calls MQINQ or MQSET (`test_det_mq.py`). COPAUA0C is held by
+  EXEC DLI under CICS (I5), not by MQ.
 
 ### W7. MQGMO_CONVERT — a no-op where the message is already as asked, refused otherwise
 - **IBM.** MQGMO_CONVERT converts the application data to the CodedCharSetId and Encoding the MQMD asks for, by the

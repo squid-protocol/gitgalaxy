@@ -99,6 +99,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
+| C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; refused by name | DIFFERS (oracle vs IBM) / REFUSED (the translator refuses such a statement by name) | no: CardDemo CODATE01's two INITIALIZE REPLACING statements name groups with no table |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every record charset, the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -195,6 +196,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
 | I5 | IMS | EXEC DLI, BMP / MPP / CICS DL/I programs, I/O and GSAM PCBs, other calls (CHKP, XRST, ROLB, ...), command codes, boolean SSAs, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
+| W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
+| W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
+| W3 | MQ | the queue manager and its local queues are case facts; MSGDLVSQ(PRIORITY), DEFPRTY / DEFPSIST stated (default 0 / NO) | ASSUMED | yes (carddemo-codate01, #4892) |
+| W4 | MQ | a generated MsgId is GGMQ + a 20-digit counter; a stated message's is GGMQSTATED + its number; handles 1, 2, 3 ... | ASSUMED | yes (carddemo-codate01, #4892) |
+| W5 | MQ | gets / puts under syncpoint joined to the CICS UOW (z/OS default: in it); BackoutCount counted; MQCMIT / MQBACK / MQBEGIN refused | ASSUMED | yes (carddemo-codate01, #4892) |
+| W6 | MQ | only MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program, Hconn MQHC_DEF_HCONN; every other MQI call refused by name | REFUSED | yes (carddemo-codate01, #4892) |
+| W7 | MQ | CONVERT with the message's own CCSID and encoding (MQCCSI_Q_MGR: the queue manager's, stated, default 37) is a no-op; any conversion refused | REFUSED | yes (carddemo-codate01, #4892) |
+| W8 | MQ | DEFAULT_CONTEXT: PutApplType MQAT_CICS, PutDate / PutTime the case clock as GMT, UserIdentifier / AccountingToken / PutApplName placeholders; NO_CONTEXT blank | ASSUMED | yes (carddemo-codate01, #4892) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
@@ -910,6 +919,19 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   out in a halfword, drop the guard and this entry).
 - **Reach.** None: no corpus and no case declares one (CardDemo's IMSFUNCS.cpy, the only COMP-5 in the corpora, is
   `PIC S9(05)`; the harness's SQLCA uses `S9(4)` and `S9(9)`).
+
+### C17. INITIALIZE ... REPLACING of a table — GnuCOBOL sets the first occurrence and copies it over the others (#4892)
+- **IBM.** With the REPLACING phrase, INITIALIZE sets only the elementary items of the categories named; every other
+  item keeps its value (Enterprise COBOL for z/OS Language Reference, INITIALIZE statement: "the REPLACING phrase ...
+  only for items of the category specified"). That holds for each occurrence of a table.
+- **The oracle.** GnuCOBOL 3.1.2 sets a table's first occurrence and copies it over the others, so an item of a
+  category REPLACING does not name takes the first occurrence's value in every other occurrence. Measured
+  (tests/cobol_mainframe/test_det_programs.py, #4892): after `MOVE 31 TO G-T(2)`, `INITIALIZE G REPLACING
+  ALPHANUMERIC BY 'XY'` left the port's `G-T(2)` at 31, as IBM says, and GnuCOBOL's at the first occurrence's 00.
+- **Refused.** The det translator refuses an INITIALIZE REPLACING whose target holds a table with an elementary item
+  of a category the statement does not name (a named hole, `det/gen.py` `initialize`), so no proof rests on the
+  oracle's copy. When every item of the table is of a named category, setting each one and copying the first agree,
+  and the statement translates (test_det_initialize_replacing.py, and INITREPL proves it against GnuCOBOL).
 
 ## Data and encoding
 
@@ -3642,6 +3664,106 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   must equal the segments read, 22 roots and 202 children. And every root's key and every child's two packed fields
   must decode as valid packed numbers, except one root whose key is spaces (I2). A file that does not match is refused,
   never seeded.
+
+## IBM MQ (ggmq.c)
+
+### W1. The MQ copybooks — GitGalaxy-written stand-ins of the version-1 structures and the modelled constants only
+- **What.** IBM's MQ copybooks (SCSQCOBC) are in no estate and are never shipped. The det translator ships
+  `det/copy/CMQV.cpy`, `CMQODV.cpy`, `CMQMDV.cpy`, `CMQGMOV.cpy`, `CMQPMOV.cpy` and `CMQTML.cpy`, written from IBM's
+  public documentation (each field's name, type, order and initial value), used only where the estate holds none of
+  its own, and shipped only together with the model behind them (owner, 2026-10-11): the det runtime's
+  `cobolrt/mq/QueueManager.java` and the oracle's `tests/equivalence/mq/ggmq.c`.
+- **What they declare.** The version-1 structure of each: MQOD (168 bytes), MQMD (324), MQGMO (72), MQPMO (128), MQTM
+  (684) -- IBM's MQ*_LENGTH_1 -- with IBM's initial values (MQMD Encoding MQENC_NATIVE = 785, z/OS). CMQV declares only
+  the constants the modelled calls give a meaning to (MQCC_*, the reason codes the models return, the MQOO_ / MQGMO_ /
+  MQPMO_ options modelled, MQCO_NONE, MQMI_NONE, MQCI_NONE, MQFMT_NONE / STRING, MQCCSI_Q_MGR, MQMT_*, MQOT_Q,
+  MQPER_*). A program naming any other constant, or a later structure version's field, does not compile: refused,
+  never guessed. Both models refuse a structure whose StrucId / Version is not the version-1 one.
+- **Assumed.** That the layouts and values are IBM's. `tests/cobol_mainframe/test_det_mq.py` checks each stand-in's
+  length against IBM's MQ*_LENGTH_1 and its VALUE clauses against IBM's initial-value tables, and CMQV's values
+  against IBM's constants.
+- **IBM references.** MQMD https://www.ibm.com/docs/en/ibm-mq/9.3?topic=mqi-mqmd-message-descriptor ; MQOD https://www.ibm.com/docs/en/ibm-mq/9.3?topic=mqi-mqod-object-descriptor ;
+  MQGMO https://www.ibm.com/docs/en/ibm-mq/9.3?topic=mqi-mqgmo-get-message-options ; MQPMO https://www.ibm.com/docs/en/ibm-mq/9.3?topic=mqi-mqpmo-put-message-options ;
+  MQTM https://www.ibm.com/docs/en/ibm-mq/9.3?topic=mqi-mqtm-trigger-message ; constants https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-constants
+
+### W2. MQGET WAIT — no other producer during the task: a wait on an empty queue ends with MQRC_NO_MSG_AVAILABLE at once
+- **IBM.** With MQGMO_WAIT the call waits up to WaitInterval for a suitable message, then fails with
+  MQRC_NO_MSG_AVAILABLE (2033).
+- **Assumed.** The case's queues are the whole world of the task: nothing else puts while it runs, so a wait that
+  finds no message ends the same way it would after the interval, and the models answer 2033 at once (the clock does
+  not move). A wait with MQWI_UNLIMITED on an empty queue would never end: refused by name, as is a negative
+  WaitInterval other than MQWI_UNLIMITED (IBM: MQRC_WAIT_INTERVAL_ERROR, not modelled).
+- **Not modelled.** A concurrent producer, MQGMO_SET_SIGNAL, and triggering itself (CKTI starting the transaction): a
+  case states the trigger message the task is started with instead (W8's neighbour: `start_data`, the MQTM).
+
+### W3. Queues — local queues the case states, delivered by priority then first in first out
+- **What.** A case's `"mq"` section states the queue manager (its name and CCSID) and its local queues with their
+  default priority and persistence and the messages each holds at the task's start (tests/tools/equivalence_mq.py),
+  given alike to both models as `mq.cfg`. Any other name is MQRC_UNKNOWN_OBJECT_NAME (2085). A message's MQMD fields
+  not stated are IBM's initial values, resolved as a put resolves them.
+- **Assumed.** MSGDLVSQ(PRIORITY), IBM's default: a get takes the highest priority first, first in first out within a
+  priority. DEFPRTY(0) and DEFPSIST(NO), the IBM defaults, unless the case states otherwise.
+- **Not modelled (refused by name).** Remote, alias, model and dynamic queues, a queue on another queue manager
+  (ObjectQMgrName), object types other than MQOT_Q, MQOO_BROWSE / INQUIRE / SET / SET_*_CONTEXT /
+  ALTERNATE_USER_AUTHORITY, a second input handle beside an MQOO_INPUT_EXCLUSIVE one (MQRC_OBJECT_IN_USE), queue
+  depth limits (MAXDEPTH, MAXMSGL), expiry.
+
+### W4. Identifiers the queue manager makes — MsgId and object handles, deterministic on both sides
+- **IBM.** A put with MsgId MQMI_NONE gets a unique MsgId from the queue manager, returned in the MQMD; its form is
+  the queue manager's own. An object handle is an opaque value.
+- **Assumed.** Both models make the MsgId `GGMQ` followed by a 20-digit counter (and a stated message with no MsgId
+  `GGMQSTATED` and its number), and the handles 1, 2, 3 ... in the order opened; MQCLOSE sets the handle to
+  MQHO_UNUSABLE_HOBJ (-1), as IBM documents. A program that depends on the form of either (rather than its identity)
+  would differ from z/OS; no modelled program does.
+- **Not modelled.** MQPMO_NEW_MSG_ID / NEW_CORREL_ID (refused by name), MsgId / CorrelId matching on MQGET (a get
+  whose MQMD carries an id other than MQMI_NONE / MQCI_NONE is refused), message groups and segments.
+
+### W5. The unit of work — MQ's is the CICS task's: SYNCPOINT commits, ROLLBACK and an abend back out, the task's end commits
+- **IBM.** Under CICS the MQ unit of work is the task's: EXEC CICS SYNCPOINT commits it, SYNCPOINT ROLLBACK and an
+  abend that ends the task back it out, and the task's normal end commits it. On z/OS a get or put with neither
+  SYNCPOINT option is within the unit of work. A message put in a unit of work is not available until it commits; one
+  got in it is restored by a backout with its MQMD BackoutCount raised by one.
+- **Modelled.** ggcics.c's `uow_end` (SYNCPOINT, ROLLBACK, abend backout) tells ggmq.c (`ggmq_uow_end`, a weak hook as
+  ggsql's); CicsTask tells its joined resource managers at the same three points (`withResource`, #4892); both
+  models commit at the task's normal end before the queues it leaves are compared (the `MQ-QUEUES` event).
+- **Assumed.** That the task's normal end is a commit for every program, as CICS documents for a task ending with
+  RETURN; a SYNCPOINT ROLLBACK after a SYNCPOINT stays refused by CicsTask as before.
+- **Not modelled (refused).** MQCMIT, MQBACK, MQBEGIN (an MQ unit of work of its own), MQGMO_SYNCPOINT_IF_PERSISTENT,
+  MQGMO_MARK_SKIP_BACKOUT, backout thresholds and requeueing.
+
+### W6. MQI outside the modelled calls — batch MQ, the other verbs, a connection handle
+- **Modelled.** MQOPEN, MQGET (destructive), MQPUT, MQPUT1 and MQCLOSE from a CICS program, every parameter BY
+  REFERENCE, each MQLONG a fullword BINARY item (`gitgalaxy/standards/mq.py`, `det/mq.py`). Under CICS no MQCONN is
+  needed and Hconn is MQHC_DEF_HCONN (0); any other Hconn is refused (it would come from MQCONN).
+- **Refused by name.** A CALL of MQCONN, MQCONNX, MQDISC (batch MQ: a connection of its own), MQBEGIN / MQCMIT /
+  MQBACK, MQINQ / MQSET, MQSUB / MQSUBRQ, MQCB / MQCTL, MQSTAT and the message-handle calls is a translation hole
+  naming why; an MQI call from a batch program is a hole; a COMP-5 or halfword MQLONG is a hole (a native binary item
+  is little-endian on the oracle). Every option bit outside the modelled set, Report options, and MQCLOSE options other
+  than MQCO_NONE stop the run by name on both sides.
+
+### W7. MQGMO_CONVERT — a no-op where the message is already as asked, refused otherwise
+- **IBM.** MQGMO_CONVERT converts the application data to the CodedCharSetId and Encoding the MQMD asks for, by the
+  message's Format; MQCCSI_Q_MGR is the queue manager's CCSID.
+- **Modelled.** When the message is already in the CCSID and encoding asked for there is nothing to convert. The queue
+  manager's CCSID is a case fact (default 37, the region's page, X-family default); a put with MQCCSI_Q_MGR stores the
+  message with it, as IBM does.
+- **Refused.** Any real conversion (another CCSID or encoding): data conversion exits and the built-in MQFMT_STRING
+  conversion are not modelled. Note the oracle's message bytes are in the case's data page (Latin-1), the CCSID is a
+  label both sides carry alike.
+
+### W8. Put context — PutDate / PutTime from the pinned clock, the identity fields placeholders
+- **IBM.** With MQPMO_DEFAULT_CONTEXT (also when no context option is given) the queue manager sets the message's
+  identity context (UserIdentifier, AccountingToken, ApplIdentityData) and origin context (PutApplType, PutApplName,
+  PutDate and PutTime in GMT, ApplOriginData) and returns them in the MQMD; with MQPMO_NO_CONTEXT both are blank.
+- **Modelled / assumed.** PutApplType is MQAT_CICS (1); PutDate / PutTime (YYYYMMDD, HHMMSSTH) are the case's pinned
+  clock, taken as GMT; ApplIdentityData and ApplOriginData blank. UserIdentifier (blanks), AccountingToken (nulls) and
+  PutApplName (blanks) are placeholders: on z/OS they are the task's user id, an accounting token and the CICS
+  application name, which the case does not state. A program that reads them after a put is judged against the
+  placeholders; no modelled program does. MQPMO Known/Unknown/InvalidDestCount are not written (IBM sets them for
+  distribution lists); ResolvedQName / ResolvedQMgrName are.
+- **Not modelled (refused).** MQPMO_PASS_*_CONTEXT and SET_*_CONTEXT on a put.
+- **The trigger message.** A triggered transaction's MQTM (RETRIEVE INTO the CMQTML layout) is a case fact
+  (`start_data`, #4892), given to both sides as the task's START data.
 
 ## The Java side
 

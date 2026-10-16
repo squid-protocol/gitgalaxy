@@ -17,12 +17,13 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 9 | yes |
+| MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-158 rules: 81 MATCHED, 23 DIFFERS, 10 REFUSED, 44 ASSUMED; 0 measured on z/OS (#4702).
+165 rules: 81 MATCHED, 23 DIFFERS, 11 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -257,6 +258,20 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
+
+## MQ: IBM MQ (MQI from CICS)
+
+The queue manager a CICS task's MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE reach, and the glue that joins it to the task (#4892).
+
+| id | rule | IBM | options | register (its status) | status | calibration |
+|---|---|---|---|---|---|---|
+| RT-MQ-QUEUE-MANAGER | The task's queue manager: local queues, CCSID and messages from the case's mq.cfg; a name it does not hold is MQRC_UNKNOWN_OBJECT_NAME | none: the queues are the case's facts, not a z/OS queue manager's | - | W1 (ASSUMED); W3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-CONNECTION | Only a CICS MQI call with Hconn MQHC_DEF_HCONN (0) is modelled; any other Hconn or MQI verb is refused by name | none: the runtime stops by name outside the modelled calls | - | W6 (REFUSED) | REFUSED | uncalibrated |
+| RT-MQ-OPEN | MQOPEN: resolves the object descriptor, makes the object handle (1, 2, 3 ... in the order opened) | none: the handle value is opaque in IBM's; the runtime's numbering is the oracle's | - | W3 (ASSUMED); W4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-CLOSE | MQCLOSE: the handle becomes MQHO_UNUSABLE_HOBJ (-1) | none: IBM documents the handle's reset; the options handled are those the model gives meaning to | - | W4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-GET | MQGET (destructive): highest priority first, first in first out within it; WAIT on an empty queue ends at once with 2033, MQWI_UNLIMITED refused; MQGMO_CONVERT a no-op where the message is as asked, refused otherwise | none: no concurrent producer is assumed; conversion beyond the identity is refused | - | W2 (ASSUMED); W3 (ASSUMED); W5 (ASSUMED); W7 (REFUSED) | ASSUMED | uncalibrated |
+| RT-MQ-PUT | MQPUT / MQPUT1: MsgId GGMQ + a counter, the put context (PutApplType, PutDate / PutTime from the pinned clock, identity placeholders), the message queued under the unit of work | none: the MsgId form and identity-context placeholders are the oracle's | - | W3 (ASSUMED); W4 (ASSUMED); W8 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-UNIT-OF-WORK | The MQ unit of work is the CICS task's: SYNCPOINT commits, SYNCPOINT ROLLBACK and an abend back out (BackoutCount raised), the task's end commits | none: IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed | - | W5 (ASSUMED) | ASSUMED | uncalibrated |
 
 ## DATA: items and storage
 

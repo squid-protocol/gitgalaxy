@@ -13,7 +13,7 @@ X44."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import CODEPAGE, NEEDS_ARGUMENT, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import NEEDS_ARGUMENT, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -26,6 +26,12 @@ from gitgalaxy.standards.cics.model import (
     one_of,
     required,
     requires,
+)
+
+# #4270 (X17): the IANA code-page names (FROMCODEPAGE / INTOCODEPAGE) are not modelled: they raise CODEPAGEERR, whose RESP2 values
+# are IBM's own list beside CCSIDERR's, and no corpus program uses them
+_CODEPAGE_NAME = Refusal(
+    "IANA code-page names are not modelled (CODEPAGEERR; no corpus program uses them): use the CCSID", "X17"
 )
 
 _NAME = Arg("name", width=16)  # "the name (1 - 16 characters)"
@@ -51,6 +57,34 @@ _DISPUTED_NAME = RuntimeRefusal(
     java="holds & < or a not sign: IBM's RUN ",
     c="holds & < or a not sign: IBM's RUN TRANSID",
 )
+# #4270 (X17): what the CHAR container conversion (FROMCCSID / INTOCCSID / CONVERTST, the region's 037) refuses while running
+_CCSID_REFUSALS = (
+    RuntimeRefusal(
+        "a CCSID other than 37, 500, 1140 and 1208 (IBM: CCSIDERR RESP2 1 outside the valid range, 2 for an unsupported pair)",
+        "X17",
+        java=": only the CCSIDs 37, 500, 1140 and 1208 are modelled",
+        c=": only the CCSIDs 37, 500, 1140 and 1208 are modelled",
+    ),
+    RuntimeRefusal(
+        "a character the target CCSID lacks (037 / 500 <-> 1140: the currency sign and the euro): CCSIDERR RESP2 4 replaces it "
+        "with a blank, and IBM does not say what FLENGTH or the stored data then are",
+        "X17",
+        java="code-page conversion of a character the target CCSID lacks",
+        c="code-page conversion of a character the target CCSID lacks",
+    ),
+    RuntimeRefusal(
+        "a CCSID 1208 byte beyond ASCII (a multibyte character changes the length)",
+        "X17",
+        java="code-page conversion of a CCSID 1208 byte beyond ASCII",
+        c="code-page conversion of a CCSID 1208 byte beyond ASCII",
+    ),
+    RuntimeRefusal(
+        "a character beyond ASCII converted to CCSID 1208 (a multibyte sequence changes the length)",
+        "X17",
+        java="code-page conversion to CCSID 1208 of a character beyond ASCII",
+        c="code-page conversion to CCSID 1208 of a character beyond ASCII",
+    ),
+)
 _CONTAINER_IMPL = {"translator": "Cics.container", "harness": "_container_command"}
 
 PUT_CONTAINER = Command(
@@ -64,14 +98,15 @@ PUT_CONTAINER = Command(
         "FROM": Arg("area_in"),
         "FLENGTH": Arg("value"),  # omitted: FROM's length
         "BIT": Arg("flag"),
-        "CHAR": Arg("flag"),  # in the region's CCSID both ways: never converted
+        "CHAR": Arg("flag"),  # in the region's CCSID (037) unless FROMCCSID says another
         "DATATYPE": Arg("cvda"),  # DFHVALUE(BIT | CHAR) only
+        # #4270 (X17): the data's CCSID (CHAR is implied): 037, 500, 1140 or 1208 (ASCII)
+        "FROMCCSID": Arg("value"),
         "APPEND": Arg("flag"),
         **RESP_OPTIONS,
     },
     refused={
-        "FROMCCSID": CODEPAGE,
-        "FROMCODEPAGE": CODEPAGE,
+        "FROMCODEPAGE": _CODEPAGE_NAME,
         "PREPEND": Refusal("not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
@@ -84,6 +119,8 @@ PUT_CONTAINER = Command(
         Outcome("INVREQ", 4, "no CHANNEL and no current channel"),
         Outcome("INVREQ", 1, "no CHANNEL and no current channel, with a data type named"),
         Outcome("LENGERR", 1, "FLENGTH below zero"),
+        Outcome("INVREQ", 2, "FROMCCSID with no CHANNEL and no current channel", raised_by=("FROMCCSID",)),
+        Outcome("INVREQ", 34, "BIT (or DATATYPE(BIT)) with FROMCCSID", raised_by=("FROMCCSID",)),
         Outcome(
             "CHANNELERR", 1, "the CHANNEL name contains an illegal character or combination", raised_by=("CHANNEL",)
         ),
@@ -112,6 +149,25 @@ PUT_CONTAINER = Command(
             c="PUT CONTAINER changing an existing container's data type",
         ),
         RuntimeRefusal("an FLENGTH past FROM's end", "X17", java="PUT CONTAINER FLENGTH "),
+        *_CCSID_REFUSALS,
+        RuntimeRefusal(
+            "FROMCCSID with a data type and no channel in scope: INVREQ RESP2 1 and RESP2 2 both fit, and IBM ranks neither",
+            "X17",
+            java="PUT CONTAINER FROMCCSID with a data type and no channel",
+            c="PUT CONTAINER FROMCCSID with a data type and no channel",
+        ),
+        RuntimeRefusal(
+            "FROMCCSID with a negative FLENGTH: which condition IBM raises first is not documented",
+            "X17",
+            java="PUT CONTAINER FROMCCSID with a negative FLENGTH",
+            c="PUT CONTAINER FROMCCSID with a negative FLENGTH",
+        ),
+        RuntimeRefusal(
+            "FROMCCSID onto an existing BIT container: IBM does not say",
+            "X17",
+            java="PUT CONTAINER FROMCCSID onto an existing BIT container",
+            c="PUT CONTAINER FROMCCSID onto an existing BIT container",
+        ),
     ),
     state=("channel_scope", "handle_table"),
     engine=EngineFacts(resource="CONTAINER", access="write"),
@@ -132,13 +188,15 @@ GET_CONTAINER = Command(
         "NODATA": Arg("flag"),
         # #5042 (X58): "the address of the retrieved data"; FLENGTH is then the output length
         "SET": Arg("pointer"),
+        # #4270 (X17): the CCSID the data comes back in (default: the region's, 037);
+        # CONVERTST(DFHVALUE(NOCONVERT)): the container's own; CCSID(fullword): the CCSID the data came back in (0: BIT)
+        "INTOCCSID": Arg("value"),
+        "CONVERTST": Arg("cvda"),
+        "CCSID": Arg("area_out", width=4, binary=True),
         **RESP_OPTIONS,
     },
     refused={
-        "INTOCCSID": CODEPAGE,
-        "INTOCODEPAGE": CODEPAGE,
-        "CONVERTST": CODEPAGE,
-        "CCSID": CODEPAGE,
+        "INTOCODEPAGE": _CODEPAGE_NAME,
         "BYTEOFFSET": Refusal("a partial GET is not modelled (no corpus program uses it)", "X17"),
     },
     groups=(
@@ -147,13 +205,29 @@ GET_CONTAINER = Command(
         requires(
             ("SET",), any_of=("FLENGTH",), msg="GET CONTAINER SET without FLENGTH(data-area): the length of the data"
         ),
+        at_most_one(
+            "INTOCCSID", "CONVERTST", msg="GET CONTAINER {}: one target code page (INTOCCSID, CONVERTST(NOCONVERT))"
+        ),
+        requires(
+            ("CCSID",),
+            any_of=("CONVERTST",),
+            msg="GET CONTAINER CCSID without CONVERTST(DFHVALUE(NOCONVERT)): IBM returns it only for the unconverted data",
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "FLENGTH")),
-        Outcome("LENGERR", 11, "the data is longer than INTO takes: truncated", writes=("INTO", "FLENGTH")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "FLENGTH", "CCSID")),
+        Outcome("LENGERR", 11, "the data is longer than INTO takes: truncated", writes=("INTO", "FLENGTH", "CCSID")),
         Outcome("CHANNELERR", 2, "the channel is not in the program's scope"),
         Outcome("INVREQ", 4, "no CHANNEL and no current channel"),
+        Outcome("INVREQ", 2, "INTOCCSID with no CHANNEL and no current channel", raised_by=("INTOCCSID",)),
         Outcome("CONTAINERERR", 10, "the channel has no such container"),
+        Outcome(
+            "CCSIDERR",
+            3,
+            "INTOCCSID on a BIT container: the data is returned without any code page conversion",
+            writes=("INTO",),
+            raised_by=("INTOCCSID",),
+        ),
     ),
     runtime_refusals=(
         _SCOPE,
@@ -164,6 +238,19 @@ GET_CONTAINER = Command(
             "X17",
             java="-byte INTO: not modelled",
             c="GET CONTAINER FLENGTH below zero",
+        ),
+        *_CCSID_REFUSALS,
+        RuntimeRefusal(
+            "INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins is not documented",
+            "X17",
+            java="GET CONTAINER INTOCCSID on a BIT container longer than INTO",
+            c="GET CONTAINER INTOCCSID on a BIT container longer than INTO",
+        ),
+        RuntimeRefusal(
+            "SET with INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say whether a block is acquired",
+            "X17",
+            java="GET CONTAINER SET INTOCCSID on a BIT container",
+            c="GET CONTAINER SET INTOCCSID on a BIT container",
         ),
     ),
     state=("channel_scope", "handle_table"),

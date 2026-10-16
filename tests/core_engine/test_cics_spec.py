@@ -88,6 +88,7 @@ IMPORTERS: set[str] = {
     "tests/tools/equivalence_cics.py",
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",
+    "gitgalaxy/tools/readiness/schema.py",  # #4726: the spec's command and option words are assess's CICS vocabulary
 }
 _IMPORTS_SPEC = re.compile(
     r"^\s*(?:from\s+gitgalaxy\.standards(?:\.cics\b|\s+import\s+cics\b)|import\s+gitgalaxy\.standards\.cics\b)", re.M

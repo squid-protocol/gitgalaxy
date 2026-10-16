@@ -22,6 +22,7 @@ Updates only lower: an entry drops to the new seconds, one at or under the thres
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 import sys
@@ -48,6 +49,59 @@ def load_times(path: Path) -> tuple[dict[str, float], dict[str, str]]:
         slow = dict(data.get("slow") or {})
         data = data["seconds"]
     return {k: float(v) for k, v in data.items() if not k.startswith(IGNORED)}, slow
+
+
+def _is_slow_mark(node: ast.expr) -> bool:
+    """`pytest.mark.slow` or `pytest.mark.slow(...)`, bare or called."""
+    if isinstance(node, ast.Call):
+        node = node.func
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "slow"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+    )
+
+
+def slow_marks_from_source(nodeids: list[str], root: Path = REPO) -> dict[str, str]:
+    """The slow marks `.test_durations` cannot carry: read from the test sources, as conftest.py reads them at run time.
+
+    A test is slow when its function, its class or its module (`pytestmark`) has `pytest.mark.slow`. The reason is the
+    marker's `reason=` text when it is a literal; conftest.py already refuses a mark without one.
+    """
+    found: dict[str, str] = {}
+    trees: dict[str, ast.Module | None] = {}
+    for nodeid in nodeids:
+        rel, _, name = nodeid.partition("::")
+        if rel not in trees:
+            try:
+                trees[rel] = ast.parse((root / rel).read_text(encoding="utf-8"))
+            except (OSError, SyntaxError, ValueError):
+                trees[rel] = None
+        tree = trees[rel]
+        if tree is None:
+            continue
+        func = name.split("[", 1)[0].split("::")[-1]
+        module_slow = any(
+            isinstance(n, ast.Assign)
+            and any(getattr(t, "id", "") == "pytestmark" for t in n.targets)
+            and any(
+                _is_slow_mark(e) for e in (n.value.elts if isinstance(n.value, (ast.List, ast.Tuple)) else [n.value])
+            )
+            for n in tree.body
+        )
+        hit = module_slow
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and any(
+                _is_slow_mark(d) for d in node.decorator_list
+            ):
+                if node.name == func or (
+                    isinstance(node, ast.ClassDef) and "::" in name and node.name == name.split("::")[0]
+                ):
+                    hit = True
+        if hit:
+            found[nodeid] = "slow-marked in source"
+    return found
 
 
 def load_many(paths: list[Path]) -> tuple[dict[str, float], dict[str, str]]:
@@ -129,6 +183,8 @@ def cmd_check(args: argparse.Namespace) -> int:
         print("no test times read: refusing to pass on nothing", file=sys.stderr)
         return 2
     baseline = load_baseline()["tests"]
+    if not args.times:  # the committed .test_durations has no slow marks; read them from the sources
+        slow = {**slow_marks_from_source([n for n, s in seconds.items() if s > FAIL_S and n not in baseline]), **slow}
     bad = check_tests(seconds, baseline, slow)
     warned = [(n, s) for n, s in tests_over_threshold(seconds, baseline, slow) if s <= FAIL_S]
     for line in bad:

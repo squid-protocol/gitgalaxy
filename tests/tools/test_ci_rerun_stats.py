@@ -65,6 +65,43 @@ def test_step_secs_picks_the_named_step_and_skips_skipped():
     assert s.step_secs([running], "x") == [0.0]  # an unfinished step is 0, not a crash
 
 
+_DB2 = _job("db2 4/4", "failure", steps=[("Wait for the background Db2 start", "failure")])
+
+
+@pytest.mark.parametrize(
+    ("logs", "want"),
+    [
+        ({"db2 4/4": f"Db2ImagePullError: {s.PULL_MARKER} the pinned Db2 image"}, "registry_pull"),
+        ({"db2 4/4": "Db2 did not become ready"}, "db2_start"),  # a start failure that is not a pull
+        ({"other job": s.PULL_MARKER}, "db2_start"),  # the marker is in a different job's log
+        ({}, "db2_start"),
+        (None, "db2_start"),
+    ],
+)
+def test_pull_marker_in_the_failed_jobs_log(logs, want):
+    assert s.classify([_DB2], logs=logs) == want
+
+
+def test_log_never_overrides_a_timeout_or_a_non_db2_step():
+    marker = {"ground-truth": s.PULL_MARKER, "det": s.PULL_MARKER}
+    assert s.classify([_job("ground-truth", "cancelled", 20 * 60 + 15)], {"ground-truth": 20}, marker) == "timeout"
+    assert s.classify([_job("det", "failure", steps=[("Run tests", "failure")])], logs=marker) == "test_failure"
+
+
+def test_db2_logs_reads_only_failed_db2_steps(monkeypatch):
+    calls = []
+
+    def fake_gh(path, *_flags):
+        calls.append(path)
+        return "log text"
+
+    monkeypatch.setattr(s, "_gh_text", fake_gh)
+    ok = {"id": 1, "name": "shard 1/6", "steps": [{"name": "Run tests", "conclusion": "failure"}]}
+    bad = {"id": 2, **_DB2}
+    assert s._db2_logs([ok, bad]) == {"db2 4/4": "log text"}
+    assert calls == [f"repos/{s.REPO}/actions/jobs/2/logs"]
+
+
 def test_cap_unknown_is_not_a_timeout():
     assert s.classify([_job("ground-truth", "cancelled", 20 * 60 + 15)]) == "other"
 

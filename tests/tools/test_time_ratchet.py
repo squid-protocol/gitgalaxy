@@ -120,3 +120,31 @@ def test_the_evidence_components_file_is_not_in_the_suite_time(tmp_path):
     p = tmp_path / "d.json"
     p.write_text(json.dumps({"tests/cobol_mainframe/test_evidence_components.py::t": 99.0, "x": 1.0}))
     assert tr.load_times(p)[0] == {"x": 1.0}
+
+
+def test_slow_marks_are_read_from_the_test_source_for_the_committed_durations(tmp_path):
+    (tmp_path / "t_a.py").write_text(
+        "import pytest\n"
+        "@pytest.mark.slow(reason='r')\n"
+        "def test_marked(): pass\n"
+        "def test_plain(): pass\n"
+        "@pytest.mark.slow(reason='r')\n"
+        "class TestK:\n"
+        "    def test_in(self): pass\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "t_m.py").write_text(
+        "import pytest\npytestmark = pytest.mark.slow(reason='r')\ndef test_x(): pass\n", encoding="utf-8"
+    )
+    ids = [
+        "t_a.py::test_marked[p1]",
+        "t_a.py::test_plain",
+        "t_a.py::TestK::test_in",
+        "t_m.py::test_x",
+        "gone.py::test_y",
+    ]
+    assert sorted(tr.slow_marks_from_source(ids, tmp_path)) == [
+        "t_a.py::TestK::test_in",
+        "t_a.py::test_marked[p1]",
+        "t_m.py::test_x",
+    ]

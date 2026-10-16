@@ -6,11 +6,14 @@ The port runs on its own (runProgram) with the standalone runtime; nothing of a 
 
 from __future__ import annotations
 
+import atexit
+import functools
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -1390,6 +1393,54 @@ def _cobol(src: str, work: Path, raw: bool = False, flags: str = "") -> str:
     return run.stdout
 
 
+def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
+    """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
+    from the batch forge's own templates, without Spring: what a det port with files runs on."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
+
+    for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
+        text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
+        text = text.replace("{record_charset}", charset)
+        text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
+        text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
+        (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
+
+
+@functools.cache
+def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-det-rt-"))
+    atexit.register(shutil.rmtree, base, True)
+    srcdir = base / "java"
+    runtime = {k: v for k, v in P.runtime_files(PKG, batch=batch).items() if not k.startswith("cobolrt/cics/")}
+    if batch:
+        runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
+        _batch_package(srcdir, charset)
+    for rel, text in runtime.items():
+        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / rel).write_text(text)
+    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
+    rec.parent.mkdir(parents=True, exist_ok=True)
+    cs_expr = (
+        "java.nio.charset.StandardCharsets.ISO_8859_1"
+        if not batch and charset == "ISO-8859-1"
+        else f'java.nio.charset.Charset.forName("{charset}")'
+    )
+    rec.write_text(
+        f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
+        f"Charset charset() {{\n        return {cs_expr};\n    }}\n}}\n"
+    )
+    jdk = _java()
+    classes = base / "classes"
+    files = [str(f) for f in srcdir.rglob("*.java")]
+    subprocess.run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True
+    )  # noqa: S603
+    return classes
+
+
 def _java_run(
     name: str,
     src: str,
@@ -1412,43 +1463,26 @@ def _java_run(
     r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
                     typed=typed, groups=groups, unit=unit)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(False, "ISO-8859-1")
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    # the runtime without its CICS boundary (it needs a generated CicsTask)
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=False).items() if not k.startswith("cobolrt/cics/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    # the generated project's record charset, as the harness runs it: ISO-8859-1
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
     trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
-    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
-                                      f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
+    main_java = srcdir / "Main.java"
+    main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
+                         f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
+    classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
-    )
-    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
                           encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
-
-
-def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
-    """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
-    from the batch forge's own templates, without Spring: what a det port with files runs on."""
-    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import _RUNTIME
-
-    for cls in ("CobolFiles", "DatasetResolver", "Dd", "MainframeClock", "Sysout", "CobolAbend"):
-        text = _RUNTIME[cls].replace("{pkg}", f"{PKG}.batch").replace("{zone}", "UTC")
-        text = text.replace("{record_charset}", charset)
-        text = re.sub(r"^import org\.springframework\..*\n|^@Component\n", "", text, flags=re.M)
-        text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
-        (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
 
 
 def _java_run_batch(
@@ -1472,32 +1506,29 @@ def _java_run_batch(
     r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
                     typed=typed, groups=groups)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(True, charset)
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=True).items() if not k.startswith("cobolrt/cics/")}
-    runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    _batch_package(srcdir, charset)
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.Charset.forName(\"" + charset + "\");\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     data = work / "datasets"
     data.mkdir()
     b = f"{PKG}.batch"
     dd_list = ", ".join(f'new {b}.Dd("{d}", "{d}", "NEW", "CATLG", null)' for d in dds)
-    (srcdir / "Main.java").write_text(
+    main_java = srcdir / "Main.java"
+    main_java.write_text(
         f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}("
         f'new {b}.DatasetResolver("{data}"), new {b}.CobolFiles("", ""), new {b}.MainframeClock("", "UTC"))'
         f".runBatch(java.util.List.of({dd_list}), null); }} }}\n"
     )
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
+    classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
-    )
-    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
                           encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 

@@ -40,7 +40,7 @@ REFUSED_BY_THE_PORT = ("RESETBR",)
 def _first(text: str) -> str | None:
     """The stub's leading statement for a command, when it is the EIBDS move."""
     try:
-        st = ec.translate_command(text)
+        st = ec.translate_command(text, eibds=True)
     except ec.Unsupported:
         return None
     return st[0] if st and st[0].endswith(" TO EIBDS") else None
@@ -59,6 +59,7 @@ def test_the_stub_names_the_file_before_every_file_control_command(form, spellin
         assert first is None
         return
     assert first == f"MOVE {operand} TO EIBDS"
+    assert not any("EIBDS" in x for x in ec.translate_command(text))  # a program that never reads it keeps its text
 
 
 @pytest.mark.parametrize(
@@ -73,7 +74,7 @@ def test_the_stub_names_the_file_before_every_file_control_command(form, spellin
 )
 def test_no_other_command_touches_eibds(text):
     try:
-        st = ec.translate_command(text)
+        st = ec.translate_command(text, eibds=True)
     except ec.Unsupported:
         return
     assert not any("EIBDS" in s for s in st)
@@ -149,3 +150,47 @@ def test_a_stub_program_that_reads_eibds_is_translated_whole():
     at = next(i for i, ln in enumerate(lines) if ln.strip() == "MOVE 'ACCT' TO EIBDS")
     assert any("GGCREAD" in ln for ln in lines[at + 1 :])  # the file is named before the request runs
     assert all(len(ln) <= 72 for ln in lines)
+    quiet, _ = ec.translate(prog.replace("MOVE EIBDS TO WS-DS", "MOVE SPACES TO WS-DS"))
+    assert "EIBDS" not in quiet  # a program that never reads EIBDS keeps its driver text
+
+
+@pytest.mark.parametrize(
+    ("line", "reads"),
+    [
+        ("           MOVE EIBDS TO WS-DS", True),
+        ("           MOVE EIBDS(1:8) TO WS-DS", True),
+        ("           MOVE EIBDS-NICE TO WS-DS", False),
+        ("           MOVE WS-EIBDS TO WS-DS", False),
+        ("           DISPLAY 'EIBDS: '", False),
+        ("      *    MOVE EIBDS TO WS-DS", False),
+    ],
+)
+def test_the_stub_scan_reads_whole_words_outside_comments_and_literals(line, reads):
+    assert ec.reads_eibds(["       PROCEDURE DIVISION.", line]) is reads
+
+
+@pytest.mark.parametrize("reads", [True, False])
+def test_the_translated_port_sets_eibds_only_in_a_program_that_reads_it(tmp_path, monkeypatch, reads):
+    """program._translate sets the gate from the statements: the READ's own port needs repositories this program does
+    not have, so its body is replaced by a comment while the wrapper (Cics.command) is the real one."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    monkeypatch.setattr(C.Cics, "_command", lambda self, text, ind: [f"{ind}// the command"])
+    (tmp_path / "T1.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T1.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01  WS-DS                 PIC X(8) VALUE SPACES.\n"
+        "       01  WS-F                  PIC X(8) VALUE 'ACCT'.\n       PROCEDURE DIVISION.\n"
+        "           EXEC CICS READ FILE(WS-F) END-EXEC\n"
+        + ("           MOVE EIBDS TO WS-DS\n" if reads else "           MOVE WS-F TO WS-DS\n")
+        + "           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T1Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T1.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    moves = [x for x in r.java.splitlines() if "Cobol.move(" in x and "EIBDS" in x]
+    assert len(moves) == (2 if reads else 0), r.java  # the program's own MOVE EIBDS and the READ's
+    assert ("// the command" in r.java) is True

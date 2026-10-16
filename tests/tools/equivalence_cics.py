@@ -1389,17 +1389,31 @@ EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "
                          "UNLOCK"})  # fmt: skip
 
 
-def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
-    """One EXEC CICS body -> the COBOL statements that replace it, led by `MOVE <file> TO EIBDS` for a file control
-    command (#5126, X64): set before the command runs, so a failed request leaves its file named, as the request
-    "referred to" it. See _translate_command for the rest."""
+def translate_command(
+    body: str, labels: list[str] | None = None, handle_aid: bool = False, eibds: bool = False
+) -> list[str]:
+    """One EXEC CICS body -> the COBOL statements that replace it. `eibds`: the program reads EIBDS, so a file control
+    command leads with `MOVE <file> TO EIBDS` (#5126, X64) -- set before the command runs, so a failed request leaves
+    its file named, as the request "referred to" it. See _translate_command for the rest."""
     lines = _translate_command(body, labels, handle_aid)
+    if not eibds:
+        return lines
     pairs = _options(body)
     opts = dict(pairs)
     file = opts.get("FILE") or opts.get("DATASET")
     if pairs and pairs[0][0] in EIBDS_VERBS and file:
         return [f"MOVE {file} TO EIBDS", *lines]
     return lines
+
+
+_EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(lines: list[str]) -> bool:
+    """#5126 (X64): does the source name EIBDS outside a comment line and a literal -- a whole word, not the front of
+    a hyphenated user name (EIBDS-X)? (The det port's scan is `det.cics.reads_eibds`: the same words, over statements.)"""
+    code = (ln[7:72].upper() for ln in lines if len(ln) > 6 and ln[6] not in "*/")
+    return any(_EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", ln)) for ln in code)
 
 
 def _translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
@@ -2293,6 +2307,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
+    eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []
     problems: list[str] = []
     features: list[str] = []
@@ -2304,7 +2319,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body, labels, handle_aid)
+            stmts = translate_command(body, labels, handle_aid, eibds)
         except Unsupported as e:
             msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
             problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC CICS ') else f'EXEC CICS {msg}'}")

@@ -243,9 +243,10 @@ docs/language_status/oracle_assumptions.md
 docs/language_status/cics_spec_status.md
 docs/language_status/cobolrt_rules.md
 docs/language_status/readiness_report.md
-# #5280: the progress page and its issues cache (tests/tools/progress_report.py)
+# #5280, #5286: the progress page, its slide and its issues cache (tests/tools/progress_report.py)
 docs/language_status/progress.md
 docs/language_status/progress.json
+docs/language_status/progress.svg
 docs/language_status/progress_issues_cache.json
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed

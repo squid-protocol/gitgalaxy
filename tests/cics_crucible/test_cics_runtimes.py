@@ -65,7 +65,9 @@ def _compiled_stub(main: str) -> Path:
     src = base / "main.c"
     src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
-    built = subprocess.run([CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True)  # noqa: S603
+    built = subprocess.run(
+        [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
+    )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
 
@@ -153,6 +155,9 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
 
 
 @needs_javac
+@pytest.mark.slow(
+    reason="1 s warm; on a loaded CI runner it was the first test in its worker and paid the cold javac of the shared CicsTask build (18 s, #4174 run 38903503168)"
+)
 def test_cics_task_ts_queues_follow_readq_and_writeq(tmp_path):
     out = _cics_task(
         tmp_path,

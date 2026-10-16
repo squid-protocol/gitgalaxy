@@ -121,6 +121,8 @@ MOVED = {
         "docs/language_status/cics_spec_status.md",
         "docs/language_status/cobolrt_rules.md",  # #4711
         "docs/language_status/readiness_report.md",  # #4725
+        "docs/language_status/progress.md",  # #5280
+        "docs/language_status/progress.json",  # #5280
     ],
 }
 

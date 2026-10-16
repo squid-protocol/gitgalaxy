@@ -8,11 +8,14 @@
 Each pins a CICS semantic the crucible's cases lean on, as IBM documents it (cited per test).
 """
 
+import atexit
+import functools
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -45,13 +48,30 @@ int main(int argc, char **argv) {
 """
 
 
-def _stub(tmp_path: Path, main: str) -> Path:
-    src = tmp_path / "main.c"
+@functools.cache
+def _stub_obj() -> Path:
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ggcics-obj-"))
+    atexit.register(shutil.rmtree, base, True)
+    obj = base / "ggcics.o"
+    built = subprocess.run([CC, "-c", str(STUB), "-o", str(obj)], check=False, capture_output=True, text=True)  # noqa: S603
+    assert built.returncode == 0, built.stderr
+    return obj
+
+
+@functools.cache
+def _compiled_stub(main: str) -> Path:
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ggcics-exe-"))
+    atexit.register(shutil.rmtree, base, True)
+    src = base / "main.c"
     src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
-    exe = tmp_path / "stub"
-    built = subprocess.run([CC, "-o", str(exe), str(src), str(STUB)], check=False, capture_output=True, text=True)  # noqa: S603
+    exe = base / ("stub.exe" if os.name == "nt" else "stub")
+    built = subprocess.run([CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True)  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
+
+
+def _stub(tmp_path: Path, main: str) -> Path:
+    return _compiled_stub(main)
 
 
 def _stub_base_env() -> dict[str, str]:
@@ -94,23 +114,40 @@ def test_the_stub_receive_returns_the_typed_text_once_and_truncates_with_lengerr
 
 
 # ---- the generated CicsTask ------------------------------------------------------------------------------
-def _cics_task(tmp_path: Path, main_body: str) -> str:
-    """Compile the generated CicsTask with a main whose body is `main_body`; its stdout."""
+@functools.cache
+def _cics_task_classes() -> tuple[Path, str]:
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
 
-    pkg = tmp_path / "src" / "t" / "cics"
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-cicstask-rt-"))
+    atexit.register(shutil.rmtree, base, True)
+    pkg = base / "src" / "t" / "cics"
     pkg.mkdir(parents=True)
     runtime = CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC")
     (pkg / "CicsTask.java").write_text(runtime, encoding="utf-8")
     (pkg / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("__PACKAGE__", "t"), encoding="utf-8")
-    (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
-                                   + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
-    classes = tmp_path / "classes"
+    classes = base / "classes"
     built = subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(classes), *map(str, pkg.glob("*.java"))], check=False,  # noqa: S603, S607
                            capture_output=True, text=True, encoding="utf-8")  # fmt: skip
     assert built.returncode == 0, built.stderr
+    return classes, runtime
+
+
+def _cics_task(tmp_path: Path, main_body: str) -> str:
+    """Compile the generated CicsTask with a main whose body is `main_body`; its stdout."""
+    rt_classes, runtime = _cics_task_classes()
+    pkg = tmp_path / "src" / "t" / "cics"
+    pkg.mkdir(parents=True)
+    (pkg / "CicsTask.java").write_text(runtime, encoding="utf-8")
+    main_java = pkg / "Main.java"
+    main_java.write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
+                         + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
+    classes = tmp_path / "classes"
+    built = subprocess.run(["javac", "-encoding", "UTF-8", "-cp", str(rt_classes), "-d", str(classes), str(main_java)], check=False,  # noqa: S603, S607
+                           capture_output=True, text=True, encoding="utf-8")  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
     # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
-    proc = subprocess.run(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(classes), "t.cics.Main"],  # noqa: S603, S607
+    proc = subprocess.run(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "t.cics.Main"],  # noqa: S603, S607
                           capture_output=True, check=True)  # fmt: skip
     return proc.stdout.decode("utf-8")
 

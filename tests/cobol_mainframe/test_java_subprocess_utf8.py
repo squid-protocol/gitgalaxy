@@ -63,6 +63,8 @@ def _is_tool_call(node: ast.expr) -> bool:
 
 def _java_calls(source: str) -> list[tuple[ast.expr, str, list[str]]]:
     """Every subprocess call in `source` that starts a java/javac: (call, kind, the constant argv strings)."""
+    if ("subprocess" not in source and ".tool" not in source) or "java" not in source:
+        return []
     found = []
     tree = ast.parse(source)
     for node in ast.walk(tree):
@@ -134,6 +136,8 @@ def _is_maven_launcher(node: ast.expr) -> bool:
 def _maven_calls(source: str) -> list[ast.Call]:
     """Every `subprocess.run/Popen/...` whose argv is a list starting with Maven (the `[mvn, *flags]` form too).
     Byte-capturing wrappers (`dp.run`) and file-redirecting callers are not matched: they never decode with the locale."""
+    if "subprocess" not in source or "mvn" not in source:
+        return []
     found = []
     for node in ast.walk(ast.parse(source)):
         if not (isinstance(node, ast.Call) and node.args):

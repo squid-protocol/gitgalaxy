@@ -1,0 +1,271 @@
+{
+ "commit": "cdaef0eed",
+ "components": {
+  "cics": {
+   "burned_commands": 68,
+   "modelled_both_runtimes": 60,
+   "not_modelled": 8,
+   "not_modelled_commands": [
+    "(unlisted) ASKTIME NOHANDLE",
+    "(unlisted) GET",
+    "(unlisted) INQUIRE",
+    "(unlisted) INQUIRE URIMAP",
+    "(unlisted) SET",
+    "(unlisted) SYNCPOINT NOHANDLE",
+    "(unparsed)",
+    "SOAPFAULT CREATE"
+   ],
+   "spec": {
+    "engine_only": 2,
+    "entries": 257,
+    "full": 100,
+    "name_only": 155
+   },
+   "unlisted_or_unparsed": 7
+  },
+  "cobolrt_rules": {
+   "measured_on_zos": 0,
+   "rules": 165,
+   "status": {
+    "ASSUMED": 50,
+    "DIFFERS": 23,
+    "MATCHED": 81,
+    "REFUSED": 11
+   }
+  },
+  "crucibles": {
+   "cics_crucible": {
+    "programs": 55,
+    "ref": "v0.9.0 (3ca75ae0)",
+    "scenarios": 157
+   },
+   "estate_crucible": {
+    "horrors": 60,
+    "pass": 60,
+    "ref": "v0.4.0"
+   }
+  },
+  "mutation": {
+   "adjusted_kill_pct": 91.1,
+   "adjusted_total": 642,
+   "killed": 585,
+   "ports": 20,
+   "raw_kill_pct": 69.6,
+   "raw_total": 840
+  },
+  "translator": {
+   "of": 129,
+   "whole": 110
+  }
+ },
+ "eras": {
+  "0": {
+   "l2_plus": 0,
+   "l4_plus": 0,
+   "programs": 0
+  },
+  "1": {
+   "l2_plus": 4,
+   "l4_plus": 0,
+   "programs": 9
+  },
+  "2": {
+   "l2_plus": 62,
+   "l4_plus": 20,
+   "programs": 70
+  },
+  "3": {
+   "l2_plus": 9,
+   "l4_plus": 0,
+   "programs": 16
+  },
+  "4": {
+   "l2_plus": 17,
+   "l4_plus": 9,
+   "programs": 21
+  },
+  "none": {
+   "l2_plus": 7,
+   "l4_plus": 7,
+   "programs": 13
+  }
+ },
+ "format": "gitgalaxy-progress/1",
+ "issues": {
+  "as_of": "2026-10-16T19:51:58Z",
+  "core": {
+   "closed": 17,
+   "open": 35,
+   "total": 52
+  },
+  "core_last_window": {
+   "closed": 1,
+   "net_closed": -9,
+   "opened": 10
+  },
+  "core_milestone": {
+   "closed": 3,
+   "number": 28,
+   "open": 23,
+   "total": 26
+  },
+  "eta": "not converging",
+  "frontier": {
+   "closed": 73,
+   "found_last_window": 14,
+   "open": 84,
+   "total": 157
+  },
+  "frontier_milestone": {
+   "closed": 0,
+   "number": 30,
+   "open": 43,
+   "total": 43
+  },
+  "infra": {
+   "closed": 33,
+   "open": 49,
+   "total": 82
+  },
+  "measured": true,
+  "sweep": {
+   "closed": 8,
+   "open": 21,
+   "total": 29
+  },
+  "window_days": 7
+ },
+ "ladder": {
+  "estates": {
+   "aws-mainframe-modernization-carddemo": {
+    "l2_plus": 29,
+    "l2_plus_pct": 65.9,
+    "l4_plus": 13,
+    "l4_plus_pct": 29.5,
+    "l5": 0,
+    "levels": {
+     "L0": 14,
+     "L1": 1,
+     "L2": 3,
+     "L3": 13,
+     "L4": 13,
+     "L5": 0
+    },
+    "programs": 44,
+    "translated_whole": 30
+   },
+   "cics-async-api-credit-card-application-example": {
+    "l2_plus": 10,
+    "l2_plus_pct": 100.0,
+    "l4_plus": 10,
+    "l4_plus_pct": 100.0,
+    "l5": 0,
+    "levels": {
+     "L0": 0,
+     "L1": 0,
+     "L2": 0,
+     "L3": 0,
+     "L4": 10,
+     "L5": 0
+    },
+    "programs": 10,
+    "translated_whole": 10
+   },
+   "cics-banking-sample-application-cbsa": {
+    "l2_plus": 24,
+    "l2_plus_pct": 77.4,
+    "l4_plus": 6,
+    "l4_plus_pct": 19.4,
+    "l5": 0,
+    "levels": {
+     "L0": 0,
+     "L1": 7,
+     "L2": 12,
+     "L3": 6,
+     "L4": 6,
+     "L5": 0
+    },
+    "programs": 31,
+    "translated_whole": 31
+   },
+   "cics-genapp": {
+    "l2_plus": 31,
+    "l2_plus_pct": 100.0,
+    "l4_plus": 5,
+    "l4_plus_pct": 16.1,
+    "l5": 0,
+    "levels": {
+     "L0": 0,
+     "L1": 0,
+     "L2": 13,
+     "L3": 13,
+     "L4": 5,
+     "L5": 0
+    },
+    "programs": 31,
+    "translated_whole": 31
+   },
+   "dbb-mortgage-application": {
+    "l2_plus": 2,
+    "l2_plus_pct": 33.3,
+    "l4_plus": 1,
+    "l4_plus_pct": 16.7,
+    "l5": 0,
+    "levels": {
+     "L0": 2,
+     "L1": 2,
+     "L2": 1,
+     "L3": 0,
+     "L4": 1,
+     "L5": 0
+    },
+    "programs": 6,
+    "translated_whole": 4
+   },
+   "zecs": {
+    "l2_plus": 3,
+    "l2_plus_pct": 42.9,
+    "l4_plus": 1,
+    "l4_plus_pct": 14.3,
+    "l5": 0,
+    "levels": {
+     "L0": 3,
+     "L1": 1,
+     "L2": 1,
+     "L3": 1,
+     "L4": 1,
+     "L5": 0
+    },
+    "programs": 7,
+    "translated_whole": 4
+   }
+  },
+  "total": {
+   "l2_plus": 99,
+   "l2_plus_pct": 76.7,
+   "l4_plus": 36,
+   "l4_plus_pct": 27.9,
+   "l5": 0,
+   "levels": {
+    "L0": 19,
+    "L1": 11,
+    "L2": 30,
+    "L3": 33,
+    "L4": 36,
+    "L5": 0
+   },
+   "programs": 129,
+   "translated_whole": 110
+  }
+ },
+ "oracle": "GnuCOBOL plus IBM documentation, not z/OS",
+ "sources": {
+  "cics": "docs/language_status/cics_spec_status.json (cics_spec_status.py)",
+  "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
+  "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
+  "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
+  "ladder": "docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch)",
+  "mutation": "docs/language_status/mutation_scores.json",
+  "rules": "docs/language_status/cobolrt_rules.json"
+ }
+}

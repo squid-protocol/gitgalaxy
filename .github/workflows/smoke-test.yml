@@ -209,6 +209,10 @@ jobs:
             cat sweep-plan.json
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          # #5166: on a PR, mainframe-ground-truth.yml runs all of tests/cobol_mainframe/ whenever a ground-truth input
+          # changed, and nothing it reads changed otherwise; main, nightly and manual runs keep them here. Through
+          # PYTEST_ADDOPTS so the pytest command line below stays as it is.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
 
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
         env:

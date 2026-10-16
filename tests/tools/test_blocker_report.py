@@ -129,7 +129,9 @@ def test_hashes_stable_for_same_salt_and_differ_for_other():
 def test_salt_file_created_once_and_never_written_to_reports(tmp_path):
     f = tmp_path / "private" / "salt"
     s1 = br.load_salt(f)
-    assert br.load_salt(f) == s1 and f.stat().st_mode & 0o077 == 0
+    assert br.load_salt(f) == s1
+    if os.name != "nt":  # chmod cannot clear group/other bits on Windows
+        assert f.stat().st_mode & 0o077 == 0
     assert br.load_salt(None) != br.load_salt(None)
     br.write_reports(result(GAPS), tmp_path / "out", s1)
     for p in (tmp_path / "out").iterdir():

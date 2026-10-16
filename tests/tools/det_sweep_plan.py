@@ -58,6 +58,8 @@ GENERATOR = tuple(
         "transaction_forge", "uow_forge",
     )
 )  # fmt: skip
+# #5274: the transaction forge's CicsTask family, split out of it
+GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",)
 
 
 def port_diff_input(path: str) -> bool:

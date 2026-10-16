@@ -383,7 +383,7 @@ jobs:
           pip install -e "./gitgalaxy"
 
       - name: Take the parts' results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: db2-part-*
           path: ${{ runner.temp }}/db2-in
@@ -865,7 +865,7 @@ jobs:
       - name: Take the Db2 job's results (#4733)
         id: db2_in
         if: needs.db2.result == 'success' || needs.db2.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: db2-results
           path: ${{ runner.temp }}/db2-in
@@ -885,7 +885,7 @@ jobs:
       - name: Take the record shards' results (#4744)
         id: records_in
         if: needs.records.result == 'success' || needs.records.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: refresh-records-*
           merge-multiple: true  # the shards' record sets are disjoint
@@ -908,7 +908,7 @@ jobs:
       - name: Take the det sweep shards' results (#4744)
         id: sweep_in
         if: needs.sweep.result == 'success' || needs.sweep.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: refresh-sweep-shard-*
           path: ${{ runner.temp }}/sweep-in
@@ -1084,7 +1084,7 @@ jobs:
           persist-credentials: true  # the publish step pushes to `generated` with this token; no PR code runs here
 
       - name: Download the rendered reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: evidence-report
           path: main/docs/language_status/evidence_report
@@ -1131,7 +1131,7 @@ jobs:
           pip install -e ./main
 
       - name: Take the refresh job's survey
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: blockers-survey
           path: ${{ runner.temp }}/blockers-survey

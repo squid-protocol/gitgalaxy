@@ -89,12 +89,14 @@ fails when a heavy PR workflow lacks the condition; its allowlist is the cheap a
 
 ## Critical path: ground-truth in 2 parts, evidence deltas apart (#5133)
 
-`ground-truth` (a required check) aggregates `ground-truth-part` 1/2 and 2/2, as `full-suite` aggregates its parts. Part 2 runs
-`test_evidence_components.py` and `test_det_nondigit_zoned.py` (corpus-free, about half the directory's test seconds); part 1
-runs the ledger gate and everything else in `tests/cobol_mainframe/`. A new file there lands in part 1; re-measure with
-`--durations=0` before moving more. The advisory evidence level deltas are the `evidence-deltas` job of `smoke-test.yml`
-(`continue-on-error`, not in `full-suite`'s needs). The parts balance by the newest nightly's durations cache (#4847); the committed
-`.test_durations` is only the cache-miss fallback and the OS-matrix gate's input.
+`ground-truth` (a required check) aggregates `ground-truth-part` 1/2 and 2/2, as `full-suite` aggregates its parts. pytest-split cuts
+`tests/cobol_mainframe/` between them (`--splits 2 --splitting-algorithm least_duration`, over the committed `.test_durations`, so
+both parts cut one split; no hand-listed files, a new test is placed by its recorded seconds). Part 2 also runs the ledger gate and
+the history append; the recorded seconds are level between the parts, so it is the longer one by the ledger's ~3 min. Refresh the
+ground-truth tests' seconds in `.test_durations` from the `test-times-ground-truth-part-N` artifacts of a main run
+(`tests/tools/merge_test_durations.py`): smoke runs have no corpora, so the corpus tests are recorded as skipped. The advisory evidence level deltas are the `evidence-deltas` job of `smoke-test.yml`
+(`continue-on-error`, not in `full-suite`'s needs). The smoke full-suite parts balance by the newest nightly's durations cache (#4847), falling back to the committed
+`.test_durations`, which the ground-truth parts and the OS-matrix gate always read.
 
 `ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
 

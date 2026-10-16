@@ -12,6 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import blocker_report as br
+from gitgalaxy.core.source_text import read_source
 
 SALT = bytes.fromhex("aa" * 32)
 OTHER = bytes.fromhex("bb" * 32)
@@ -182,7 +183,7 @@ def test_leak_free_on_burned_estate_names(estate):
     names: set[str] = set()
     for f in sorted(root.rglob("*"))[:4000]:
         if f.suffix.lower() in {".cbl", ".cob", ".cpy"} and f.stat().st_size < 400_000:
-            names.update(_NAME.findall(f.read_text(errors="replace")))
+            names.update(_NAME.findall(read_source(f).text))
             names.add(f.stem.upper())
     vocab = br.vocabulary()
     names = {n for n in names if n not in vocab and len(n) >= 4}

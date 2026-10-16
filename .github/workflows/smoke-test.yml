@@ -225,7 +225,9 @@ jobs:
           # a bare -m replaces addopts' `not golden_crucible`, so it is repeated; no plan output (a failed step) = the full sweep
           marks=()
           if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --group "$GROUP" "${store[@]}" "${marks[@]}"
+          # #5133: least_duration, not pytest-split's default duration_based_chunks (contiguous slices: all of tests/cobol_mainframe
+          # landed in part 1, 11.9 min against 4.8 and 3.5)
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
 
       # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
       # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.

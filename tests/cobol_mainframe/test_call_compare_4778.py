@@ -308,4 +308,8 @@ def test_every_case_map_resolves_and_bnk1cca_has_occurs():
                     occurs += 1
     if not seen:
         pytest.skip("no case's corpus is checked out")
-    assert occurs or not (eq.CASES / "cbsa-bnk1cca").is_dir() or not (root / "cics-banking-sample-application-cbsa").is_dir()
+    assert (
+        occurs
+        or not (eq.CASES / "cbsa-bnk1cca").is_dir()
+        or not (root / "cics-banking-sample-application-cbsa").is_dir()
+    )

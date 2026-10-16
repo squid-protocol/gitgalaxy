@@ -2574,11 +2574,11 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
 
 static long long container_seq = 0;
 
-/* #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 -- as CicsTask.convertContainer:
+/* #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140, and 1208 (UTF-8) for ASCII bytes only -- as CicsTask.convertContainer:
  * a program's byte is read as the region's page (037), and a conversion is the character-to-character map between the pages.
  * 500 permutes seven characters of 037's repertoire (the cent sign, the broken bar, the exclamation mark, the not sign, the
  * circumflex and the two square brackets); 1140 is 037 with the euro for the currency sign, so that character has no image in
- * 037 or 500 and nothing converts to or from it. */
+ * 037 or 500 and nothing converts to or from it; a 1208 byte or character beyond ASCII (multibyte) is refused. */
 #define REGION_CCSID 37
 static void ccsid_ok(int ccsid, const char *what) {
     char msg[96];

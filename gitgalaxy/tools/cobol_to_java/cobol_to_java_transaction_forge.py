@@ -3835,7 +3835,9 @@ public class CicsTask {
 
     /** GET CONTAINER ... INTOCCSID(intoCcsid) / INTOCODEPAGE (-1: none) | CONVERTST(NOCONVERT) (`noConvert`): the data as
      *  CCSID `intoCcsid` (else the region's; a CHAR container's own with NOCONVERT) -- "conversion applies only to character
-     *  data". A BIT container is returned as it is, which IBM reports as CCSIDERR RESP2 3 when INTOCCSID names a CCSID: refused.
+     *  data". A BIT container is returned as it is when INTOCCSID names a CCSID, with CCSIDERR RESP2 3 ("The data was returned
+     *  without any code page conversion"); FLENGTH is then left alone (ASSUMED: IBM does not say), and a BIT container longer than
+     *  INTO is refused (LENGERR or CCSIDERR first is not documented).
      *  The container's CCSID (0: BIT) is containerCcsid(). */
     public ContainerResult getContainer(String channel, String container, int maxLength, int intoCcsid,
                                         boolean noConvert) {

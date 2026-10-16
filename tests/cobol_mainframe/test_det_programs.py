@@ -1229,6 +1229,52 @@ def _all_data(items) -> list[str]:
 
 
 PROGRAMS["CMPALL"] = program("CMPALL", _all_data(ALL_ITEMS), _all_proc(ALL_ITEMS, ALL_LITERALS))
+# #4892 (CardDemo CODATE01): INITIALIZE ... REPLACING -- only the elementary items of each named category are set, as
+# by MOVE of the value (IBM Enterprise COBOL, INITIALIZE statement); the others, FILLER, a REDEFINES and a table's
+# other items are left as they are; an elementary target is set only when it is of a named category
+PROGRAMS["INITREPL"] = program(
+    "INITREPL",
+    [
+        "01 GRP.",
+        "   05 G-NAME PIC X(6) VALUE 'KEEP'.",
+        "   05 G-NUM PIC 9(4) VALUE 1234.",
+        "   05 G-RD REDEFINES G-NUM PIC X(4).",
+        "   05 G-PK PIC S9(5) COMP-3 VALUE -77.",
+        "   05 G-BIN PIC S9(4) COMP VALUE 12.",
+        "   05 G-ED PIC ZZ9.99 VALUE '  5.00'.",
+        "   05 G-AL PIC A(3) VALUE 'ABC'.",
+        "   05 FILLER PIC 9(2) VALUE 42.",
+        "01 TBL.",
+        "   05 G-TAB OCCURS 2.",
+        "      10 G-T PIC 9(2) VALUE 9.",
+        "      10 G-TX PIC X(2) VALUE 'TT'.",
+        "01 NUMS PIC 9(3) VALUE 5.",
+        "01 OUTP PIC -9(5).",
+        "01 OUTB PIC -9(4).",
+    ],
+    [
+        "INITIALIZE GRP REPLACING NUMERIC BY ZEROES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "MOVE 'KEEP' TO G-NAME",
+        "INITIALIZE GRP REPLACING ALPHANUMERIC DATA BY 'XY'",
+        "    NUMERIC-EDITED BY 7 ALPHABETIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "INITIALIZE GRP REPLACING NUMERIC BY 42 ALPHANUMERIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB ' [' G-ED ']'",
+        "MOVE 31 TO G-T(2) MOVE 'AB' TO G-TX(2)",
+        "INITIALIZE TBL REPLACING NUMERIC BY 5 ALPHANUMERIC BY 'Q'",
+        "DISPLAY G-T(1) G-TX(1) G-T(2) G-TX(2)",
+        "INITIALIZE NUMS REPLACING NUMERIC BY 9",
+        "DISPLAY NUMS",
+        "INITIALIZE NUMS REPLACING ALPHANUMERIC BY 'Q'",
+        "DISPLAY NUMS",
+    ],
+)
 # the same under a PROGRAM COLLATING SEQUENCE (EBCDIC; letters and spaces only, which IBM and GnuCOBOL order alike),
 # and with an ALSO alphabet where an equality consults the sequence too
 _ALL_LETTERS = [i for i in ALL_ITEMS if i[0][0] != "N"]
@@ -1265,7 +1311,7 @@ def _pscale_proc() -> list[str]:
                  f"COMPUTE {x} = {comp}", f"MOVE {x} TO E", f"DISPLAY '{x} C ' E",
                  f"ADD {add} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} A ' E",
                  f"COMPUTE {x} ROUNDED = {rnd}", f"MOVE {x} TO E", f"DISPLAY '{x} R ' E",
-                 f"COMPUTE W = {x} * 7", f"MOVE W TO E", f"DISPLAY '{x} O ' E",
+                 f"COMPUTE W = {x} * 7", "MOVE W TO E", f"DISPLAY '{x} O ' E",
                  f"IF {x} = {eq} DISPLAY '{x} EQ' ELSE DISPLAY '{x} NE' END-IF",
                  f"IF {x} > {gt} DISPLAY '{x} GT' ELSE DISPLAY '{x} LE' END-IF",
                  f"IF {x} < W DISPLAY '{x} LTW' ELSE DISPLAY '{x} GEW' END-IF",
@@ -1386,7 +1432,7 @@ def _java_run(
     files = [str(f) for f in srcdir.rglob("*.java")]
     subprocess.run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
-    )  # noqa: S603
+    )
     return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
                           encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
@@ -1450,7 +1496,7 @@ def _java_run_batch(
     files = [str(f) for f in srcdir.rglob("*.java")]
     subprocess.run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *files], check=True
-    )  # noqa: S603
+    )
     return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
                           encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 

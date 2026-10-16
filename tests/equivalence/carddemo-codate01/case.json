@@ -13,6 +13,7 @@
   "sysid": "CICA"
  },
  "commarea": null,
+ "screens": {},
  "mq": {
   "qmgr": "CSQ1",
   "ccsid": 37,

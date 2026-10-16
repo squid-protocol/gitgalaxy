@@ -102,6 +102,6 @@ Each feature is **supported and proven** (a program using it is at L2 or above),
 no refusal names it, no proof), **refused by name**, or **unknown / never seen** (only programs refused whole use it),
 with the conditions of "supported" (charter section 5) it does not meet yet. Per estate it also lists the refusals
 with their owners, the missing system copybooks (a configuration fix: name SCSQCOBC / SCEESAMP), the runtime APIs a
-program calls that are not modelled (MQ: translates, not provable), and what is unknown, for triage.
+program calls that are not modelled (MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892, register W), and what is unknown, for triage.
 `tests/cobol_mainframe/test_support_matrix.py` fails when a refusal or hole of a committed report matches no entry of
 `refusal_map.json` (or more than one): a new one after an evidence refresh is added there with its owner.

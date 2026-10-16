@@ -1731,6 +1731,15 @@ class Gen:
 
         def walk_occ(c: L.Item, k: int) -> None:
             # a table element: its own offset plus k strides, relative to the INITIALIZE target
+            if replacing is not None and k == 0:
+                # #4892 (register C17): GnuCOBOL sets a table's first occurrence and copies it over the others, so
+                # an item REPLACING does not name would take the first occurrence's value -- IBM leaves it as it is
+                other = sorted({_replacing_category(x) for x in c.walk() if not x.children} - set(replacing))
+                if other:
+                    raise Untranslatable(
+                        f"INITIALIZE REPLACING of the table {c.name}, which holds {', '.join(other)} "
+                        "items REPLACING does not name (the oracle copies its first occurrence: register C17)"
+                    )
             for leaf in c.walk():
                 if leaf.children or leaf.name == "FILLER" or leaf.redefines:
                     continue

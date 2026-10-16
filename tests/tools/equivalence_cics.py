@@ -2219,6 +2219,16 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         i = j + 1
 
 
+def _numbered(ln: str) -> str:
+    """DFHRESP(x) / DFHVALUE(x) replaced by their numbers in the line's code area only, padded back to column 72 when
+    columns 73-80 hold a sequence number (#4892: CardDemo app-vsam-mq numbers its lines there), so it stays there."""
+    head, tail = ln[:72], ln[72:]
+    new = _DFHVALUE.sub(
+        lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), head)
+    )
+    return (new.ljust(72) if tail and new != head else new) + tail
+
+
 def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
@@ -2271,15 +2281,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         features.append(f"DFHVALUE({name})")
     if problems:
         raise Unsupported("; ".join(problems), features)
-    text = (
-        "\n".join(
-            _DFHVALUE.sub(
-                lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln)
-            )
-            for ln in out
-        )
-        + "\n"
-    )
+    text = "\n".join(_numbered(ln) for ln in out) + "\n"
     # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
     # INQACC-COMMAREA BY DFHCOMMAREA)
     has_commarea = bool(
@@ -4644,10 +4646,10 @@ class EquivalenceRunTest {{
 
     /** #4173: the task's SQL fault plan, through the det runtime's DetSql (its statements' executions counted
      *  afresh): false when a fault is planned and the port has no DetSql to take it (the task is then not run). */
-    /** #4892: the task's queue manager (cobolrt.mq.Mqi, the stub's ggmq.c), from the scenario's mq.cfg. */
+    /** #4892: the task's queue manager (cobolrt.cics.DetMq, the stub's ggmq.c), from the scenario's mq.cfg. */
     static void mqAttach(CicsTask task, Path cfg) {{
         try {{
-            Class.forName("{pkg}.cobolrt.mq.Mqi").getMethod("attach", CicsTask.class, Path.class).invoke(null, task, cfg);
+            Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("attach", CicsTask.class, Path.class).invoke(null, task, cfg);
         }} catch (ReflectiveOperationException e) {{
             throw new IllegalStateException("a queue manager for a port with no cobolrt.mq", e);
         }}
@@ -4656,7 +4658,7 @@ class EquivalenceRunTest {{
     /** #4892: the queues the task left (null: it had no queue manager), its normal end committing it. */
     static Object mqEnd(CicsTask task) {{
         try {{
-            return Class.forName("{pkg}.cobolrt.mq.Mqi").getMethod("end", CicsTask.class).invoke(null, task);
+            return Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("end", CicsTask.class).invoke(null, task);
         }} catch (ClassNotFoundException e) {{
             return null;
         }} catch (ReflectiveOperationException e) {{
@@ -5897,6 +5899,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     import json
 
     import equivalence_cache
+
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
     ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)

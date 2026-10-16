@@ -299,8 +299,8 @@ def _ancestors(it: L.Item):
 def targets(gen, s: S.Stmt) -> list[str]:
     """`values`, each checked to be a program the port can call: an unknown value, a name no estate service or
     library routine answers to, or one the port does not match (blank, mixed case, over 8 characters) is refused by name."""
-    from gitgalaxy.tools.cobol_to_java.det.gen import LIBRARY, Untranslatable
     from gitgalaxy.standards.mq import CALLS as MQ_CALLS
+    from gitgalaxy.tools.cobol_to_java.det.gen import LIBRARY, Untranslatable
 
     ref = s.data["dynamic"]
     try:

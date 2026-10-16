@@ -1,8 +1,8 @@
-"""#4892: a CALL of an MQI routine (MQOPEN, MQGET, MQPUT, MQPUT1, MQCLOSE: gitgalaxy/standards/mq.py) on the det runtime's
-queue manager (cobolrt.mq.Mqi, the twin of tests/equivalence/mq/ggmq.c). Every parameter is passed BY REFERENCE as an
-item of the program's storage, each MQLONG a fullword BINARY item; a CICS program only (the task's queue manager,
-register W6). Anything else -- another MQI call, a batch program, a literal or BY CONTENT argument, a COMP-5 MQLONG -- is
-a translation hole that names why."""
+"""#4892: a CALL of an MQI routine (MQOPEN, MQGET, MQPUT, MQPUT1, MQCLOSE: gitgalaxy/standards/mq.py) on the det
+runtime's queue manager (cobolrt.cics.DetMq onto cobolrt.mq.QueueManager, the twin of tests/equivalence/mq/ggmq.c). Every
+parameter is passed BY REFERENCE as an item of the program's storage, each MQLONG a fullword BINARY item; a CICS program
+only (the task's queue manager, register W6). Anything else -- another MQI call, a batch program, a literal or BY
+CONTENT argument, a COMP-5 MQLONG -- is a translation hole that names why."""
 
 from __future__ import annotations
 
@@ -31,4 +31,4 @@ def call(gen, prog: str, args: list, ind: str) -> list[str]:
         if p in MQLONG and (it.usage != "BINARY" or it.size != 4 or a.refmod is not None):
             raise Untranslatable(f"CALL {prog}: {p} {a.name} is not a fullword BINARY item (PIC S9(9) BINARY)")
     refs = ", ".join(gen.field_expr(a) for _, a in args)
-    return [f"{ind}__PACKAGE__.cobolrt.mq.Mqi.{prog.lower()}(task, {refs});"]
+    return [f"{ind}__PACKAGE__.cobolrt.cics.DetMq.{prog.lower()}(task, {refs});"]

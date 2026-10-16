@@ -1,7 +1,8 @@
-package __PACKAGE__.cobolrt.mq;
+package __PACKAGE__.cobolrt.cics;
 
 import __PACKAGE__.cics.CicsTask;
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.mq.QueueManager;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -9,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 /** #4892: the MQI calls a deterministic port makes (`CALL 'MQGET' USING ...`, every item BY REFERENCE: det/mq.py), each
- *  on the queue manager of the CICS task (QueueManager, the twin of tests/equivalence/mq/ggmq.c). The queue manager is
+ *  on the queue manager of the CICS task (cobolrt.mq.QueueManager, the twin of tests/equivalence/mq/ggmq.c). The queue manager is
  *  the task's resource "mq", joined to its unit of work; a task with none refuses the call by name, as the stub does. */
-public final class Mqi {
-    private Mqi() {
+public final class DetMq {
+    private DetMq() {
     }
 
     /** The runner's: the task's queue manager, from the case's mq.cfg, committed and backed out with the task (W5). */

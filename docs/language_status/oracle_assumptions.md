@@ -188,6 +188,12 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
 | Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
 | Q10 | Db2 | A statement the driver fails with no Db2 SQLCODE (a blank timestamp host variable) | REFUSED (the task; an enumerated fault task not judged) | yes (GenApp LGTESTP4: its add's enumerated fault task `add--sql-lgapdb01-316` (SELECT LASTCHANGED faulted), not run) |
+| I1 | IMS | CBLTDLI GU GHU GN GHN GNP GHNP ISRT REPL DLET on a stated hierarchy (DBD / PSB sources, a seed), status codes from IBM's table, RETURN-CODE 0 after each call | ASSUMED | yes (CardDemo PAUDBUNL, carddemo-paudbunl, #4893) |
+| I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
+| I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
+| I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
+| I5 | IMS | EXEC DLI, BMP / MPP / CICS DL/I programs, I/O and GSAM PCBs, other calls (CHKP, XRST, ROLB, ...), command codes, boolean SSAs, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode | REFUSED | — |
+| I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | SQL faults: injected on both sides at a statement (#4173), the SQLCA as the stub sets it | MATCHED (ASSUMED SQLCA) | yes (17 Db2 cases) |
@@ -3470,6 +3476,128 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   native code -99999 (SQLSTATE 22007), IBM's JDBC driver its own -4220. What Db2 for z/OS answers is not known here,
   so the COBOL stub stops the task by name ("the CLI failed it in the client") instead of passing -99999 on as an
   SQLCODE: an enumerated fault task (M2) that reaches it is not judged; a declared scenario stops the case.
+
+## IMS DL/I (`equivalence_ims.py`, `ggdli.c`, `DetDli`)
+
+### I1. DL/I database calls through a DB PCB — the stated database model
+- **What is modelled** (#4893). A batch DL/I program: IMS enters it at ENTRY 'DLITCBL' with the PSB's DB PCBs (CMPAT=NO,
+  a DLI region), and it issues `CALL 'CBLTDLI' USING function pcb io-area [ssa ...]`. The COBOL side runs against
+  `tests/equivalence/ims/ggdli.c`, the det port against `cobolrt/dli/DetDli.java`: one rule set, one set of refusals.
+  The calls are GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET (IBM IMS Application Programming APIs, "DL/I calls
+  for database management").
+- **The database is stated, not connected.** The case names its DBD and PSB sources, which the engine's own macro
+  reader parses (`gitgalaxy/core/ims_gen.py`), and a seed: the corpus's own HD unload (I6), or segments the case writes.
+  Both sides read the same `dbd.cfg` / `psb.cfg` / `seed.<DBD>`, and each writes the database it ended with. The
+  harness compares those segment by segment, every field of the segment's copybook layout (`equivalence_ims.diff_db`).
+  The database is a hierarchy in hierarchic sequence: each parent's children by segment type in DBD order, and twins in
+  sequence-field order (I2). HIDAM, PHIDAM, HISAM and SHISAM are read alike. The HIDAM index is not a database here:
+  it only orders the roots by key, which the hierarchy already does.
+- **Status codes** (IMS Messages and Codes, Volume 4, "DL/I status codes"):
+  - blank: success.
+  - GA: an unqualified GN / GNP moved up a level. GK: it returned a segment of another type at the same level.
+  - GE: segment not found, or ISRT's parent not found. GB: GN reached the end of the database.
+  - GP: GNP with no parentage. II: ISRT of a segment whose key its twins already hold.
+  - DJ: REPL / DLET without a get-hold call just before. DA: REPL / DLET whose I/O area changed the sequence field.
+  - AC: SSA naming a segment the DBD lacks, or SSAs out of hierarchic order. AJ: invalid SSA (qualification start,
+    operator, end). AK: invalid field name. AD: invalid function. AM: function the PCB's PROCOPT does not allow.
+
+  Any other condition is refused (I5).
+- **RETURN-CODE after the call.** Each call returns 0: the C model returns 0 (GnuCOBOL stores it in RETURN-CODE), and
+  the det port stores 0. IBM does not document what the DL/I language interface leaves in register 15 for a COBOL
+  CALL. A program that reads RETURN-CODE after a DL/I call, or ends without setting it, relies on this assumption:
+  PAUDBUNL ends RETURN-CODE 0 after its last GN (GB).
+
+### I2. Sequence-field order and SSA comparison — the stored bytes, in the data page
+- **Order.** Twins sit in the order of their sequence field's bytes, compared unsigned, on both sides. That is
+  IMS's own order for the bytes it holds. The corpus is evidence: CardDemo's unload of DBPAUTP0 (HIDAM, ACCNTID TYPE=P)
+  holds a root whose key is EBCDIC spaces (X'404040404040') after every valid packed key, which is a logical
+  comparison, not a packed one. A seed not in that order is refused: the oracle's byte order would not be the
+  estate's.
+- **DIFFERS for text keys.** The harness's data page is ASCII-family (Latin-1), so a C key holding letters and digits
+  sorts in ASCII order on both sides, where z/OS sorts it in EBCDIC order (digits after letters). This is the
+  declared collation difference of indexed files (`COLLATION` in equivalence.py), here for twin order and for the GN /
+  GNP that walks it. No proven case reaches it.
+- **Qualification** (IMS Application Programming APIs, "SSA: relational operators"). The operators are EQ, GT, LT,
+  GE, LE and NE, and their symbolic forms (`=`, `>`, `<`, `>=` / `=>`, `<=` / `=<`, `¬=` / `=¬`, each with a blank to
+  fill two bytes). A C or X field compares bytes. A P field compares arithmetically in IMS; the model compares bytes
+  only when both operands are valid packed numbers with the same positive sign (C or F), where the two comparisons
+  agree, and refuses otherwise by name. Any other field type in a qualification (Z, H, F, ...) is refused.
+
+### I3. Current position and parentage after each call
+- **What is modelled** (IMS Application Programming, "Current position in the database after each call").
+  - A successful GU, GN or GNP sets position on the segment it returned. GU and GN also set parentage there; GNP
+    leaves parentage alone. An unqualified GN continues from position in hierarchic sequence, and GNP stays under
+    the parent.
+  - GB sets position to the start of the database, so the next GN returns the first root.
+  - GNP's GE, when it walked the parent's dependents to their end (unqualified SSAs, or none), leaves parentage, and
+    leaves position past the parent's last dependent. PAUDBUNL relies on this: its next GN of a root continues from
+    there.
+  - ISRT sets position on the segment inserted. DLET sets position just before where the deleted segment was, so the
+    next GN goes on past it. REPL leaves position alone. A hold lasts until the next call on that PCB.
+- **Left open, so refused.** IBM describes position after other unsuccessful calls in terms of IMS's own search:
+  after a GE from GU or ISRT, after II, or after a qualified GN / GNP that finds nothing, where the search stopped
+  depends on the access path. The model marks position (and, after GU, GN or ISRT, parentage) as open. A later
+  call that needs it (GN, GNP, an ISRT located by position) stops by name. The same applies after ISRT (parentage),
+  and on another PCB whose position or parentage a DLET removed.
+- **Not settled.** Whether a qualified GN that finds nothing answers GE or GB depends on IMS's sequence-field search
+  (it may stop early at a key past the qualification): refused by name.
+
+### I4. The DB PCB mask — layout from IBM, the initial contents and an unsuccessful call's feedback assumed
+- **Layout** (IMS Application Programming, "Specifying the DB PCB mask"):
+  - DBD name (8 bytes), segment level (2 characters), status code (2), processing options (4), reserved (fullword)
+  - segment name (8), key feedback length (fullword), number of sensitive segments (fullword), key feedback area
+- **No IBM copybook ships.** Neither the PCB mask macro nor an IBM copybook does. The program's own mask, CardDemo's
+  PAUTBPCB, is the estate's copybook, and the harness builds the area IMS would pass from the PSB (36 bytes and its
+  KEYLEN).
+- **Assumed.**
+  - At entry the mask holds the DBD name, level `00`, status blank, the PCB's PROCOPT, reserved 0, a blank segment
+    name, key feedback length 0, the number of sensitive segments, and X'00' through the key feedback area. Every byte
+    past it that the program's mask names is X'00' too: z/OS has the PCB control block there, which no program should
+    read.
+  - A successful get or ISRT sets the level, segment name and concatenated key of the segment, and the key feedback
+    length. Bytes past that length keep what they held.
+  - A GE from GU or ISRT gives the deepest segment along the SSAs' path that IMS could satisfy (level `00`, a blank
+    name and length 0 when none could). GNP's GE gives its parent, and II gives the parent of the segment ISRT tried
+    to insert. GB, REPL and DLET leave level, name and key feedback as they were.
+
+### I5. DL/I beyond the modelled calls — REFUSED
+- **Refused by the det translator.**
+  - EXEC DLI stays a hole by name.
+  - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
+  - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
+    phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
+- **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):
+  - HDAM and PHDAM: the root sequence is the randomizer's.
+  - GSAM, INDEX and LOGICAL databases.
+  - Logical relationships, variable-length segments, a non-unique or missing sequence field.
+  - CMPAT=YES (IMS passes an I/O PCB first: IMS TM), and an I/O, alternate or GSAM PCB.
+  - PROCSEQ (a secondary index), PROCOPT L / LS (load mode), a segment-level PROCOPT, and a PCB not sensitive to every
+    segment.
+  - An ENTRY 'DLITCBL' that does not name one area per PCB.
+- **Refused by both runtimes at run time** ("CBLTDLI: ... is not modelled"; exit 98 on the COBOL side):
+  - Any DL/I call but the nine modelled ones (CHKP, XRST, ROLB, SYNC, LOG, STAT, GSCD, FLD, POS, INQY, PCB, TERM and
+    the message calls).
+  - An SSA with command codes, and boolean qualification.
+  - SSAs that leave out a level (a GU or path ISRT not starting at the root, or a gap between two SSAs).
+  - REPL / DLET with SSAs, an ISRT with no SSA or a qualified last SSA, and get-hold under PROCOPT O.
+  - The open-position cases of I3 and the comparisons of I2.
+
+  An unknown function code is AD, as IBM answers it.
+
+### I6. The corpus's HD unload read as a seed — its record layout observed, checked against its trailer
+- **What.** CardDemo ships its pending-authorization database as an HD reorganization unload
+  (`data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat`). The harness reads it as the case's seed:
+  - Each record starts with a halfword length and a halfword of zeros, then the segment level and flag bytes.
+  - The segment's length (halfword) is at offset 8 and its name (8 bytes, EBCDIC) at offset 10.
+  - Its data is the `length` bytes before the record's last byte.
+  - The first record is the header and the last the trailer.
+  - Each segment is laid out by its copybook into the case's data page: text through CCSID 037, COMP / COMP-3 bytes as
+    they are.
+- **Assumed, and checked.** IBM documents the utility, not this record layout byte by byte. The layout above is the
+  one observed. It is checked twice. The trailer's per-segment counts (a fullword 32 bytes after each segment name)
+  must equal the segments read, 22 roots and 202 children. And every root's key and every child's two packed fields
+  must decode as valid packed numbers, except one root whose key is spaces (I2). A file that does not match is refused,
+  never seeded.
 
 ## The Java side
 

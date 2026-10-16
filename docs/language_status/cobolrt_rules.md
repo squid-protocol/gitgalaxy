@@ -12,16 +12,17 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 12 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
-| FUNC: intrinsic functions | `Funcs.java` | 10 | yes |
+| FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 11 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
+| DLI: IMS DL/I database calls | `dli/DetDli.java` | 9 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-148 rules: 80 MATCHED, 22 DIFFERS, 10 REFUSED, 36 ASSUMED; 0 measured on z/OS (#4702).
+158 rules: 81 MATCHED, 23 DIFFERS, 10 REFUSED, 44 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -34,6 +35,9 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `db2-app`: IBM Db2 for z/OS Application Programming and SQL Guide
 - `le-pr`: IBM z/OS Language Environment Programming Reference
 - `carddemo-cobdatft`: CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)
+- `ims-apis`: IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)
+- `ims-ap`: IBM IMS Application Programming (DB PCB masks, current position in the database)
+- `ims-codes`: IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)
 
 ## Options
 
@@ -165,6 +169,7 @@ The intrinsic functions the translator calls.
 | RT-FUNC-CURRENT-DATE | FUNCTION CURRENT-DATE where the project has no clock bean: YYYYMMDDHHMMSShh and the UTC offset of the run's clock | `cobol-lr` Intrinsic functions: CURRENT-DATE | - | X4 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-FUNC-RANDOM | FUNCTION RANDOM: one run unit's sequence (glibc random_r TYPE_3, as the oracle); the numbers differ from z/OS's, the interface as IBM documents it | `cobol-lr` Intrinsic functions: RANDOM | - | C12 (DIFFERS (the numbers) / ASSUMED (the interface)) | DIFFERS | uncalibrated |
 | RT-FUNC-DATE-INTEGER | FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) | `cobol-lr` Intrinsic functions: INTEGER-OF-DATE, DATE-OF-INTEGER | INTDATE | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-FUNC-ACCEPT-DATE | ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item | `cobol-lr` ACCEPT statement: Format 2 (system date and time) | - | - | MATCHED | uncalibrated |
 
 ## CICS: EXEC CICS data movement
 
@@ -236,6 +241,22 @@ The date / time services and COBDATFT, as the harness's C models do them.
 | RT-LE-CEEDAYS | CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused | `le-pr` CEEDAYS: convert date to Lilian format | - | L1 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEELOCT | CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form | `le-pr` CEELOCT: get current local date or time | - | L5 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-LE-COBDATFT | COBDATFT (CardDemo's assembler date routine): input type '2' to output type '2' modelled byte for byte; type '1' and the error path depend on the load module's literal pool: refused | `carddemo-cobdatft` COBDATFT.asm | - | A1 (MATCHED / REFUSED) | MATCHED | uncalibrated |
+
+## DLI: IMS DL/I database calls
+
+A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the twin of the harness's ggdli.c (register family I).
+
+| id | rule | IBM | options | register (its status) | status | calibration |
+|---|---|---|---|---|---|---|
+| RT-DLI-ENTRY | ENTRY 'DLITCBL': each DB PCB of the PSB bound to the area IMS passes, its mask filled (DBD name, level 00, blank status, PROCOPT, sensitive segments, key feedback zero) | `ims-ap` Specifying the DB PCB mask | - | I4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-STATE | The stated database: DBD / PSB configuration and seed loaded in hierarchic sequence (refused when out of order), new twins placed by segment type and sequence field, each database written at the step's end | `ims-ap` Hierarchic sequence | - | I1 (ASSUMED); I2 (DIFFERS); I6 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-SSA | SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused | `ims-apis` Segment search arguments (SSAs) | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-QUALIFY | A qualification compares the field's stored bytes (C / X); a P field only where packed and logical comparison agree (both valid, one positive sign) | `ims-apis` SSA relational operators | - | I2 (DIFFERS) | DIFFERS | uncalibrated |
+| RT-DLI-FEEDBACK | The PCB mask after a call: status code, segment level, segment name, concatenated key and its length | `ims-ap` Specifying the DB PCB mask | - | I4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-GET | GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call | `ims-apis` GU / GHU, GN / GHN, GNP / GHNP calls | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
 
 ## DATA: items and storage
 

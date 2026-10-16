@@ -501,19 +501,43 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
 def test_delete_generic_deletes_every_record_with_the_generic_key():
     """#4771 zECS (ZECS003 3100-DELETE; IBM, EXEC CICS DELETE, register X22): GENERIC deletes every record whose key
     starts with RIDFLD's first KEYLENGTH bytes (CicsTask.delete: NOTFND RESP2 80 when none); on a file named at run time
-    a KEYLENGTH not shorter than that file's key is refused then. INVREQ 25 / 42 and an unknown KEYLENGTH refused."""
+    a KEYLENGTH not shorter than that file's key is INVREQ 25 then (#5092: 25 / 42 are answered, CicsTask.deleteInvalid;
+    22 for a non-KSDS and 26 for a KEYLENGTH without GENERIC likewise). Zero and an unknown KEYLENGTH are refused."""
     out = _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
     assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
-    assert out[1] == "int resp1 = task.delete('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    assert (
+        out[1]
+        == "int resp1 = task.deleteGeneric('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    )
     assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
                       "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
     assert "OUTCOME(resp1, task.resp2());" in out
     rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
-    assert rt[1].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
-    assert "not shorter than the key of" in rt[1]
+    assert rt[1] == "int resp1;"
+    assert rt[2].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.strip(), true, 25);")
+    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.strip(), ")
+    for text, want in (
+        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),  # the key is 10
+        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),
+        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+    ):
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(want) and "OUTCOME(" in got[1], got
+    for text, resp2 in (
+        ("KEYLENGTH(6)", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(0)", 26),
+    ):  # not GENERIC, not the key's 10
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(f"task.deleteInvalid('KSDS'.strip(), false, {resp2});"), got
+    assert (
+        "task.delete('KSDS'.strip(),"
+        in _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) RESP(R)", "")[0]
+    )
     for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
                      ("DELETE FILE('KSDS') KEYLENGTH(6) GENERIC", "GENERIC without RIDFLD"),
-                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(0) GENERIC", "not above zero"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
                      ("DELETE FILE('KSDS') RIDFLD(SHORTKEY) KEYLENGTH(8) GENERIC", "shorter than the 8-byte"),

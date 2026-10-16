@@ -2959,43 +2959,53 @@ class Cics:
 
     def delete_generic(self, opts: dict, ind: str) -> list[str]:
         """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
-        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.delete). KEYLENGTH a known value above
-        zero and shorter than the file's key (IBM's INVREQ RESP2 25 / 42 refused by name: here for a file the port knows,
-        at run time for one named at run time)."""
+        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.deleteGeneric). #5092 (X22), IBM INVREQ
+        RESP2: 42 a KEYLENGTH below zero, 25 one "greater than or equal to the length of a full key" (here when the file is
+        known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
+        undocumented and refused by name."""
         for o in ("KEYLENGTH", "RIDFLD"):
             if not opts.get(o):
                 raise CicsError(_requires("DELETE", "GENERIC", o))
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal
+            n = -int(re.sub(r"\D", "", arg))
         if n is None:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
-        if n <= 0:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        if n == 0:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        g = self.g
+        r = g.tmpname("resp")
+        bad = 42 if n < 0 else None
+        if name is not None and bad is None:
+            mapped = self.gp.file(name)
+            if mapped is None:
+                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
+            if n >= self.gp.entity_key(mapped[1], mapped[2])[1]:
+                bad = 25
+        if bad is not None:  # INVREQ: nothing is read from RIDFLD nor deleted (CicsTask.deleteInvalid)
+            return [
+                f"{ind}int {r} = task.deleteInvalid({file}, true, {bad});",
+                *self.outcome(opts, r, "task.resp2()", ind),
+            ]
         rid = _arg(opts["RIDFLD"])
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        g = self.g
-        r, gk, found = g.tmpname("resp"), g.tmpname("generic"), g.tmpname("found")
+        gk, found = g.tmpname("generic"), g.tmpname("found")
         out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
-        if name is not None:
-            mapped = self.gp.file(name)
-            if mapped is None:
-                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
-            key = self.gp.entity_key(mapped[1], mapped[2])[1]
-            if n >= key:
-                raise CicsError(
-                    f"DELETE GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled"
-                )
-        elif self.gp.files:  # named at run time: the key of the store the name picks then
-            out.append(f'{ind}if ({n} >= {self._runtime_keylength(file)}) throw new UnsupportedOperationException('
-                       f'"DELETE GENERIC KEYLENGTH {n} not shorter than the key of " + {file} + ": not modelled");')  # fmt: skip
-        out += [f"{ind}int {r} = task.delete({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
+        call = [f"task.deleteGeneric({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
                 f"{ind}    java.util.Optional<byte[]> {found};",
                 f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
-                f"{ind}}});"]  # fmt: skip
+                f"{ind}}})"]  # fmt: skip
+        if name is None and self.gp.files:  # named at run time: the key of the store the name picks then
+            out += [f"{ind}int {r};",
+                    f"{ind}if ({n} >= {self._runtime_keylength(file)}) {r} = task.deleteInvalid({file}, true, 25);",
+                    f"{ind}else {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]  # fmt: skip
+        else:
+            out += [f"{ind}int {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
     def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
@@ -3032,7 +3042,16 @@ class Cics:
             file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
             return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
-        self._keylength(verb, opts)
+        if verb == "DELETE":
+            try:
+                self._keylength(verb, opts)
+            except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                r = self.g.tmpname("resp")
+                return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
+                        *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
+        else:
+            self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g

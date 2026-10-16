@@ -4744,6 +4744,37 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): IBM, EXEC CICS DELETE: INVREQ RESP2 21, a file that refers to a VSAM ESDS
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
+     *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
+    public int deleteGeneric(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 22);
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ (#5092, X22): `resp2` 25 / 42 (a GENERIC KEYLENGTH
+     *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
+     *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
+    public int deleteInvalid(String file, boolean generic, int resp2) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        return done(16, root().esds.containsKey(file) ? (generic ? 22 : 21) : resp2);
+    }
+
+    private int deleteRecord(String file, boolean exists, Runnable remove) {
         if (!exists) {
             return done(13, 80);
         }
@@ -4757,6 +4788,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         if (!root().held.remove(file)) {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
@@ -4812,6 +4846,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         Object[] t = spendToken(file, token);
         if (t == null) {

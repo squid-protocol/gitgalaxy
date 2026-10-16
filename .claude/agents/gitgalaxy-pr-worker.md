@@ -50,7 +50,7 @@ Run them all with ONE command: `tests/tools/box/heavy-run.sh python tests/tools/
 - [ ] `tests/estate_crucible/baseline.json`: `estate_crucible_gate.py --update-baseline`.
 - [ ] `tests/cobol_mainframe/fact_crosscheck_ledger.json`, two-way (new disagreements AND fixed ones): `fact_crosscheck.py update` (note #4472 about `--corpus`).
 - [ ] Ports Compile: `tests/tools/ports_compile_check.py`.
-- [ ] A new generated page: register it in `generated_docs.PAGES`, `.gitignore` AND the publish list of `.github/workflows/generated-docs.yml`; `test_generated_docs` checks only the first two (#5228). Also add it to the `MOVED` list in `tests/tools/test_generated_branch.py` (#5281).
+- [ ] A new generated page: register it in `generated_docs.PAGES`, `.gitignore` AND the publish list of `.github/workflows/generated-docs.yml`; `test_generated_docs` checks only the first two (#5228).
 - [ ] The det sweep: `det_port.py check` first, then sweep ONLY the ports your change changed (Db2 local). No full re-sweep after a main merge unless your changed ports changed again.
 
 A baseline refreshed right after `git merge origin/main` can absorb a regression (#3867). Run each check WITHOUT `--update-baseline` first, compare with main's baseline, and update only the moves your change explains.
@@ -79,7 +79,6 @@ Main holds no rendered evidence report (#5206): read levels with `python tests/t
 - `gh auth setup-git`, push, open ONE draft PR to main (a `WIP:` draft early is fine as a checkpoint). Edit its body later with `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...`.
 
 ## Hygiene
-- A `pgrep -f` wait loop matches its own shell and never ends: wait on a log marker. `pkill -f` kills the calling shell too; `pgrep -af`, then kill by PID (#5277, #5279).
 - Every issue you file (and the PR) gets labels (type: `bug`/`enhancement`/`documentation`; an area such as `core-engine`, `legacy-modernization`, `testing`, `ci-cd`, `data-integrity`; one `priority: ...`) and the current milestone. Skip them if denied.
 - GitHub API budget is 5,000/hr shared by ALL agents: no tight loops, no per-file calls, batch with `per_page=100`.
 

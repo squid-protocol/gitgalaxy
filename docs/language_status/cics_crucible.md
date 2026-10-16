@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 43 | 0 | 0 | 43 |
 | forge-compile | 43 | 0 | 0 | 43 |
-| cobol-stub | 116 | 8 | 32 | 156 |
+| cobol-stub | 118 | 8 | 30 | 156 |
 | java | 0 | 156 | 0 | 156 |
 | java-ported | 48 | 108 | 0 | 156 |
 | java-facade | 48 | 108 | 0 | 156 |
-| **all** | **298** | **380** | **32** | **710** |
+| **all** | **300** | **380** | **30** | **710** |
 
 ## By trap and case
 
@@ -28,7 +28,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-address-eib-commarea` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-address-twa-tctua` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-container-byteoffset` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-ccsid` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-getmain-pointer` | pass | pass | 0 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
@@ -78,6 +78,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-channel-containers` | CACHERR | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHSUB | 1 | 4/4 | 0/0 | 1/1 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-channel-containers` | CACHXB | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
+| `ca-container-byteoffset` | CABOFF | 1 | 4/4 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
+| `ca-container-byteoffset` | CABOFFX | 1 | 4/4 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-container-ccsid` | CACCBIT | 0 | 0/3 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
@@ -257,7 +259,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (32 unsupported)
+### cobol-stub (30 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
@@ -267,27 +269,25 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 4 | terminal RECEIVE (unformatted input) | 3 | 3 | 16 |
 | 5 | DELETEQ-TD event | 2 | 0 | 18 |
 | 6 | FREEMAIN DATA | 2 | 1 | 19 |
-| 7 | GET CONTAINER BYTEOFFSET | 2 | 1 | 20 |
-| 8 | GETMAIN | 1 | 0 | 21 |
-| 9 | PUT CONTAINER DATATYPE | 1 | 1 | 22 |
-| 10 | PUT CONTAINER PREPEND | 1 | 0 | 23 |
-| 11 | READ | 4 | 0 | 23 |
-| 12 | READNEXT | 4 | 0 | 23 |
-| 13 | READPREV | 4 | 0 | 24 |
-| 14 | ADDRESS TCTUA | 3 | 0 | 24 |
-| 15 | ADDRESS TWA | 3 | 0 | 27 |
-| 16 | ENDBR event | 3 | 0 | 27 |
-| 17 | STARTBR event | 3 | 0 | 27 |
-| 18 | READNEXT event | 2 | 0 | 29 |
-| 19 | READPREV event | 1 | 0 | 30 |
-| 20 | REWRITE event | 3 | 0 | 30 |
-| 21 | UNLOCK event | 2 | 0 | 31 |
-| 22 | WEB RECEIVE CHARACTERSET | 1 | 0 | 31 |
-| 23 | WEB RECEIVE HOSTCODEPAGE | 1 | 0 | 31 |
-| 24 | WEB SEND CHARACTERSET | 1 | 0 | 31 |
-| 25 | WEB SEND HOSTCODEPAGE | 1 | 0 | 31 |
-| 26 | WEB-RECEIVE event | 1 | 0 | 31 |
-| 27 | WEB-SEND event | 1 | 0 | 32 |
+| 7 | GETMAIN | 1 | 0 | 20 |
+| 8 | PUT CONTAINER DATATYPE | 1 | 1 | 21 |
+| 9 | READ | 4 | 0 | 21 |
+| 10 | READNEXT | 4 | 0 | 21 |
+| 11 | READPREV | 4 | 0 | 22 |
+| 12 | ADDRESS TCTUA | 3 | 0 | 22 |
+| 13 | ADDRESS TWA | 3 | 0 | 25 |
+| 14 | ENDBR event | 3 | 0 | 25 |
+| 15 | STARTBR event | 3 | 0 | 25 |
+| 16 | READNEXT event | 2 | 0 | 27 |
+| 17 | READPREV event | 1 | 0 | 28 |
+| 18 | REWRITE event | 3 | 0 | 28 |
+| 19 | UNLOCK event | 2 | 0 | 29 |
+| 20 | WEB RECEIVE CHARACTERSET | 1 | 0 | 29 |
+| 21 | WEB RECEIVE HOSTCODEPAGE | 1 | 0 | 29 |
+| 22 | WEB SEND CHARACTERSET | 1 | 0 | 29 |
+| 23 | WEB SEND HOSTCODEPAGE | 1 | 0 | 29 |
+| 24 | WEB-RECEIVE event | 1 | 0 | 29 |
+| 25 | WEB-SEND event | 1 | 0 | 30 |
 
 ### java (0 unsupported)
 
@@ -362,13 +362,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | stub: READNEXT event | 2 | READNEXT event |
 | stub: UNLOCK event | 2 | UNLOCK event |
 | translator: FREEMAIN DATA | 2 | FREEMAIN DATA |
-| translator: GET CONTAINER BYTEOFFSET | 2 | GET CONTAINER BYTEOFFSET |
 | stub: READPREV event | 1 | READPREV event |
 | stub: WEB-RECEIVE event | 1 | WEB-RECEIVE event |
 | stub: WEB-SEND event | 1 | WEB-SEND event |
 | translator: GETMAIN | 1 | GETMAIN |
 | translator: PUT CONTAINER DATATYPE | 1 | PUT CONTAINER DATATYPE |
-| translator: PUT CONTAINER PREPEND | 1 | PUT CONTAINER PREPEND |
 | translator: WEB RECEIVE CHARACTERSET | 1 | WEB RECEIVE CHARACTERSET |
 | translator: WEB RECEIVE HOSTCODEPAGE | 1 | WEB RECEIVE HOSTCODEPAGE |
 | translator: WEB SEND CHARACTERSET | 1 | WEB SEND CHARACTERSET |
@@ -482,11 +480,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-channel-containers/unhandled-containererr/java` | fail | task 1 (CA06) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-channel-containers/unhandled-containererr/java-facade` | fail | no port of any of its programs |
 | `ca-channel-containers/unhandled-containererr/java-ported` | fail | no port of any of its programs |
-| `ca-container-byteoffset/past-end/cobol-stub` | unsupported | translator: GET CONTAINER BYTEOFFSET |
 | `ca-container-byteoffset/past-end/java` | fail | task 1 (CA0A) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-byteoffset/past-end/java-facade` | fail | no port of any of its programs |
 | `ca-container-byteoffset/past-end/java-ported` | fail | no port of any of its programs |
-| `ca-container-byteoffset/read/cobol-stub` | unsupported | translator: PUT CONTAINER PREPEND; translator: GET CONTAINER BYTEOFFSET |
 | `ca-container-byteoffset/read/java` | fail | task 1 (CA09) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-byteoffset/read/java-facade` | fail | no port of any of its programs |
 | `ca-container-byteoffset/read/java-ported` | fail | no port of any of its programs |

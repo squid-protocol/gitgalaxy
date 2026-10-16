@@ -2726,6 +2726,8 @@ int GGCPUTC(gg_cics *c, char *from) {
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
     if (k && k->bit && from_ccsid >= 0) refuse("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
     chr = chr || from_ccsid >= 0;
+    int prepend = strstr(flags, "PREPEND") != NULL; /* #5005 (X17): BIT containers only */
+    if (prepend && (chr || (k && !k->bit))) refuse("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
     int fresh = k == NULL;
     if (!k) {
         k = container_named(&chans[ch - 1], name, 1);
@@ -2736,7 +2738,16 @@ int GGCPUTC(gg_cics *c, char *from) {
     if (!put) refuse("out of memory");
     memcpy(put, from, (size_t)c->len);
     if (!fresh && !k->bit) ccsid_convert(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER");
-    if (strstr(flags, "APPEND")) {
+    if (prepend && !fresh) {
+        char *joined = malloc((size_t)(k->len + c->len) + 1);
+        if (!joined) refuse("out of memory");
+        memcpy(joined, put, (size_t)c->len);
+        if (k->len > 0) memcpy(joined + c->len, k->data, (size_t)k->len);
+        free(k->data);
+        free(put);
+        k->data = joined;
+        k->len += c->len;
+    } else if (strstr(flags, "APPEND")) {
         char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
         if (!joined) refuse("out of memory");
         memcpy(joined + k->len, put, (size_t)c->len);
@@ -2751,7 +2762,7 @@ int GGCPUTC(gg_cics *c, char *from) {
     return 0;
 }
 
-/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH | NODATA (GG-FLAGS); GG-LEN in: the most INTO
+/* GET CONTAINER(GG-QNAME) [CHANNEL] INTO FLENGTH [BYTEOFFSET: GG-NUM] | NODATA (GG-FLAGS); GG-LEN in: the most INTO
  * takes; out: the container's length (NORMAL, LENGERR; else left as it came). CHANNELERR RESP2 2,
  * INVREQ RESP2 4, CONTAINERERR RESP2 10; longer data truncated, LENGERR RESP2 11. */
 int GGCGETC(gg_cics *c, char *into) {
@@ -2775,6 +2786,18 @@ int GGCGETC(gg_cics *c, char *into) {
         }
         c->num = 0;
         c->resp = CCSIDERR; c->resp2 = 3;
+        return 0;
+    }
+    if (strstr(flags, "BYTEOFFSET")) {
+        /* #5005 (X17), as CicsTask.getContainerAt: from the offset (below zero: zero); at or past the end LENGERR RESP2 12 with
+         * FLENGTH and INTO left alone (ASSUMED); FLENGTH set to the length returned */
+        if (!k->bit) refuse("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
+        if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
+        int at = c->num < 0 ? 0 : c->num, left = k->len - at;
+        if (at >= k->len) { c->resp = LENGERR; c->resp2 = 12; return 0; }
+        if (left > c->len) refuse("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length returned or the container's is not documented");
+        memcpy(into, k->data + at, (size_t)left);
+        c->len = left;
         return 0;
     }
     char *conv = malloc((size_t)k->len + 1);

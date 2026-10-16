@@ -2108,7 +2108,7 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC. The container's name in GG-QNAME, the
     channel's in GG-CHAN (GG-FLAGS 'CHANNEL'; none: the current channel), the data type, APPEND and NODATA in
     GG-FLAGS, FLENGTH in GG-LEN (PUT: the bytes FROM gives; GET: the most INTO takes, then the container's length,
-    set back on NORMAL / LENGERR). The CCSID options (code-page conversion), SET (a pointer), BYTEOFFSET and PREPEND
+    set back on NORMAL / LENGERR; BYTEOFFSET: GG-NUM, flag BYTEOFFSET, #5005). The CCSID options (code-page conversion) and SET (a pointer)
     are refused, as det/cics.py refuses them; so is an FLENGTH past FROM / INTO (storage GnuCOBOL lays out unlike
     IBM's compiler)."""
     feature = f"{verb} CONTAINER"
@@ -2139,7 +2139,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
             types.append(m.group(1).upper())
         if len(types) > 1:
             raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
-        flags += types + (["APPEND"] if "APPEND" in opts else [])
+        if "APPEND" in opts and "PREPEND" in opts:  # #5005 (X17)
+            raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "APPEND", "PREPEND"), [feature])
+        flags += types + (["APPEND"] if "APPEND" in opts else []) + (["PREPEND"] if "PREPEND" in opts else [])
         code = _container_ccsid(opts, "FROMCCSID")
         flags += ["FROMCCSID"] if code else []
         return (lines + code + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
@@ -2150,6 +2152,15 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
     if [bool(into), nodata, "SET" in opts].count(True) != 1:
         raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
     settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
+    if "BYTEOFFSET" in opts:  # #5005 (X17): GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
+        if not into:
+            need = next(
+                g.msg for g in SPEC["GET CONTAINER"].groups if g.kind == "requires" and g.options == ("BYTEOFFSET",)
+            )
+            raise Unsupported(need, [feature])
+        for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+            if other in opts:
+                raise Unsupported(_rule("GET CONTAINER", "at_most_one", "BYTEOFFSET", other), [feature])
     if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area) -> GGCGETS, a copy in a new block
         if not settable:
             raise Unsupported(_rule("GET CONTAINER", "requires", "SET"), [feature])
@@ -2162,6 +2173,9 @@ def _container_command(verb: str, opts: dict[str, str | None], labels: list[str]
         return (lines + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {flength}"] + _container_ccsid_out(opts)
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     flags += ["NODATA"] if nodata else []
+    if "BYTEOFFSET" in opts:  # GG-NUM carries the offset, as the CCSID options' GG-NUM does theirs
+        flags.append("BYTEOFFSET")
+        lines.append(f"MOVE {opts['BYTEOFFSET']} TO GG-NUM")
     lines += _container_get_options(opts, flags)
     lines += [
         f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",

@@ -278,6 +278,25 @@ def test_container_ccsid_options_become_stub_arguments():
     assert "MOVE 1140 TO GG-NUM" in sets and "CALL 'GGCGETS' USING GG-CICS" in "\n".join(sets)
 
 
+def test_container_byteoffset_and_prepend_become_stub_arguments():
+    """#5005 (X17): BYTEOFFSET travels in GG-NUM with the flag BYTEOFFSET (INTO only; no CCSID option, NODATA or SET); PREPEND is a
+    flag word (not with APPEND)."""
+    get = ec.translate_command("GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) FLENGTH(WS-N) BYTEOFFSET(WS-OFF)")
+    assert "MOVE 'CHANNEL BYTEOFFSET' TO GG-FLAGS" in get and "MOVE WS-OFF TO GG-NUM" in get
+    assert get.index("MOVE WS-OFF TO GG-NUM") < get.index("CALL 'GGCGETC' USING GG-CICS")
+    put = ec.translate_command("PUT CONTAINER(C) FROM(WS-A) BIT PREPEND")
+    assert "MOVE 'BIT PREPEND' TO GG-FLAGS" in put
+    for bad in (
+        "GET CONTAINER(C) NODATA BYTEOFFSET(4)",
+        "GET CONTAINER(C) SET(PTR) FLENGTH(WS-N) BYTEOFFSET(4)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) INTOCCSID(500)",
+        "GET CONTAINER(C) INTO(A) BYTEOFFSET(4) CONVERTST(DFHVALUE(NOCONVERT))",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
 def test_move_container_and_the_container_browse_call_the_stub():
     """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER / AS / CHANNEL / TOCHANNEL in GG-QNAME / GG-AS / GG-CHAN / GG-TOCHAN,
     GG-FLAGS naming the channels given), STARTBROWSE -> GGCSBRC (the token out of GG-NUM on NORMAL), GETNEXT -> GGCGNXC

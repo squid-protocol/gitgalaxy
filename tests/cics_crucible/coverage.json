@@ -59,6 +59,36 @@
     }
    }
   },
+  "ca-container-byteoffset/CABOFF": {
+   "live": 4,
+   "outcomes": 0,
+   "scenarios": {
+    "read": {
+     "units": [
+      "GET-AT",
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-container-byteoffset/CABOFFX": {
+   "live": 4,
+   "outcomes": 0,
+   "scenarios": {
+    "past-end": {
+     "units": [
+      "GET-AT",
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "ca-container-ccsid/CACCBIT": {
    "live": 3,
    "outcomes": 0,

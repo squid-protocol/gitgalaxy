@@ -1828,16 +1828,29 @@ class Cics:
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
             from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
+            if "PREPEND" in opts and "APPEND" in opts:  # #5005 (X17)
+                raise CicsError(_msg("PUT CONTAINER", "at_most_one", "APPEND", "PREPEND"))
+            tail = ""  # the trailing arguments: FROMCCSID (-1: none), then PREPEND
+            if "PREPEND" in opts:
+                tail = f", {from_ccsid or '-1'}, true"
+            elif from_ccsid:
+                tail = f", {from_ccsid}"
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()}{', ' + from_ccsid if from_ccsid else ''});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{tail});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            if "BYTEOFFSET" in opts:  # #5005 (X17): INTO only, a BIT container, the offset a fullword
+                if not into:
+                    raise CicsError(_requires("GET CONTAINER", "BYTEOFFSET", "INTO"))
+                for other in ("INTOCCSID", "CONVERTST", "CCSID"):
+                    if other in opts:
+                        raise CicsError(_msg("GET CONTAINER", "at_most_one", "BYTEOFFSET", other))
             into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
             convert = _convertst(opts)
             if convert and "INTOCCSID" in opts:
@@ -1857,8 +1870,14 @@ class Cics:
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
-                out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}){conv});"),
+                if "BYTEOFFSET" in opts:
+                    call = (
+                        f"task.getContainerAt({chan}, {name}, DetCics.containerLimit({target}, {most}), "
+                        f"{self.int_(_arg(opts['BYTEOFFSET']))})"
+                    )
+                else:
+                    call = f"task.getContainer({chan}, {name}, DetCics.containerLimit({target}, {most}){conv})"
+                out += [f"{ind}CicsTask.ContainerResult {r} = {call};",
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)

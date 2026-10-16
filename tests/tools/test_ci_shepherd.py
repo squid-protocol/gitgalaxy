@@ -118,7 +118,7 @@ def test_a_flake_is_rerun_once():
     gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
     gh.pr(1, runs=[("full-suite", "failure")])
     step(gh, state, failing("flake"))
-    state["seen"]["1"]["rerun:full-suite"][-1] -= cs.RETRY_GAP
+    state["seen"]["1"]["rerun:run:99"][-1] -= cs.RETRY_GAP
     step(gh, state, failing("flake"))
     assert len([c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]) == 1
 
@@ -255,3 +255,130 @@ def test_a_pass_that_would_be_silent_logs_the_pr_state(monkeypatch):
     step(gh, state)
     did = step(gh, state)
     assert did and did[0].startswith("#1 behind main, not updated"), did
+
+
+def test_matrix_legs_of_one_run_share_one_rerun_and_one_budget():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, runs=[("full-suite (1/2)", "failure"), ("full-suite (2/2)", "failure")])
+    two_legs = failing("infra")
+
+    def digest(n):
+        d = two_legs(n)
+        d["failed"] = [{**d["failed"][0], "check": f"full-suite ({i}/2)"} for i in (1, 2)]
+        return d
+
+    did = step(gh, state, digest)
+    assert [c[:4] for c in gh.calls if c[:3] == ["gh", "run", "rerun"]] == [["gh", "run", "rerun", "99"]]
+    assert any("shared run 99" in d for d in did)
+    assert len(state["seen"]["1"]["rerun:run:99"]) == 1
+
+
+def test_fixer_waits_for_a_green_box_but_the_digest_posts_at_once(monkeypatch, tmp_path):
+    gh, state, verdict, started = Gh(), {"queue": [1], "after": {}, "seen": {}}, ["RED"], []
+    gh.pr(1, runs=[("full-suite", "failure")])
+    monkeypatch.setenv("CI_SHEPHERD_FIXER", "fix-it")
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    monkeypatch.setattr(cs, "box_verdict", lambda: verdict[0])
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: started.append(argv))
+    did = step(gh, state, failing("real"))
+    assert any("digest posted" in d for d in did) and any("fixer deferred: box is RED" in d for d in did)
+    assert started == []
+    verdict[0] = "GREEN"
+    did = step(gh, state, failing("real"))
+    assert len(started) == 1 and started[0][:2] == ["fix-it", "1"]
+    assert not any("digest posted" in d for d in did)  # the comment is not repeated
+    step(gh, state, failing("real"))
+    assert len(started) == 1  # one fixer per head
+    assert [e["event"] for e in state["ledger"]] == ["real_failure", "fixer_deferred", "fixer_started"]
+
+
+def test_main_failures_keeps_the_last_known_verdict_while_main_tip_is_still_running():
+    ci_digest = cs.ci_digest
+
+    def run(name, conclusion=None):
+        return {"id": 1, "name": name, "status": "completed" if conclusion else "in_progress", "conclusion": conclusion}
+
+    docs = {
+        "main": {"sha": "t", "parents": [{"sha": "p"}]},
+        "t/check-runs": {"check_runs": [run("lint", "success"), run("full-suite")]},
+        "p": {"sha": "p", "parents": []},
+        "p/check-runs": {"check_runs": [run("lint", "failure"), run("full-suite", "failure")]},
+    }
+
+    def api(path):
+        return docs[path.split("/commits/", 1)[1].split("?")[0]]
+
+    assert ci_digest.main_failures(api) == {"full-suite"}  # lint passed on the tip: the tip's verdict wins
+
+
+def test_a_learned_flake_gets_one_rerun_on_its_first_attempt_only():
+    ci_digest = cs.ci_digest
+    attempt = [1]
+
+    def api(path):
+        if path.endswith("/commits/main"):
+            return {"sha": "m", "parents": []}
+        if "/commits/m/check-runs" in path:
+            return {"check_runs": []}
+        if "/check-runs" in path:
+            return {
+                "check_runs": [
+                    {
+                        "id": 1,
+                        "name": "smoke",
+                        "status": "completed",
+                        "conclusion": "failure",
+                        "details_url": "https://github.com/o/r/actions/runs/7/job/8",
+                    }
+                ]
+            }
+        if "/actions/jobs/8" in path:
+            return {"run_attempt": attempt[0]}
+        return {"head": {"sha": "h"}, "mergeable_state": "clean"}
+
+    def triage(flaky):
+        return ci_digest.digest(1, api, logs=lambda i: "FAILED tests/t.py::test_x", flaky=flaky)["failed"][0]["triage"]
+
+    assert triage(set()) == "real"
+    assert triage({"smoke"}) == "flake"
+    attempt[0] = 2  # the rerun failed too: real
+    assert triage({"smoke"}) == "real"
+
+
+def test_one_fixer_per_pass_and_the_pr_others_wait_on_goes_first(monkeypatch, tmp_path):
+    gh, started = Gh(), []
+    state = {"queue": [1, 2, 3], "after": {"3": 2}, "seen": {}}
+    for n in (1, 2):
+        gh.pr(n, sha=str(n) * 40, runs=[("full-suite", "failure")])
+    gh.pr(3, sha="3" * 40, runs=[("full-suite", None)])  # #3 waits on #2 (--after): #2 is the most useful fix
+    monkeypatch.setenv("CI_SHEPHERD_FIXER", "fix-it")
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    reads = []
+    monkeypatch.setattr(cs, "box_verdict", lambda: reads.append(1) or "GREEN")
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: started.append(argv[1]))
+    did = step(gh, state, failing("real"))
+    assert started == ["2"] and len(reads) == 1
+    assert any("#1 fixer queued" in d for d in did)
+    step(gh, state, failing("real"))
+    assert started == ["2", "1"]
+
+
+def test_a_stale_flake_cache_is_refreshed_in_the_background_at_most_hourly(monkeypatch, tmp_path):
+    spawned = []
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: spawned.append(argv))
+    state = {}
+    assert cs.learned_flakes(state, t=100_000.0) == set()
+    assert cs.learned_flakes(state, t=100_600.0) == set()
+    assert len(spawned) == 1 and "--refresh-only" in spawned[0]
+    (tmp_path / "flake_history.json").write_text('{"updated": 100700, "days": {"d": {"smoke": [2, 0]}}}')
+    assert cs.learned_flakes(state, t=110_000.0) == {"smoke"} and len(spawned) == 1
+
+
+def test_box_verdict_reads_gitgalaxy_box_status(monkeypatch):
+    import box_status
+
+    if not Path("/proc/meminfo").exists():
+        pytest.skip("no /proc/meminfo")
+    monkeypatch.setattr(box_status, "snapshot", lambda sample=0.1: {"verdict": "RED"})
+    assert cs.box_verdict() == "RED"

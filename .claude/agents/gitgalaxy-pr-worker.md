@@ -50,6 +50,7 @@ Run them all with ONE command: `tests/tools/box/heavy-run.sh python tests/tools/
 - [ ] `tests/estate_crucible/baseline.json`: `estate_crucible_gate.py --update-baseline`.
 - [ ] `tests/cobol_mainframe/fact_crosscheck_ledger.json`, two-way (new disagreements AND fixed ones): `fact_crosscheck.py update` (note #4472 about `--corpus`).
 - [ ] Ports Compile: `tests/tools/ports_compile_check.py`.
+- [ ] A new generated page: register it in `generated_docs.PAGES`, `.gitignore` AND the publish list of `.github/workflows/generated-docs.yml`; `test_generated_docs` checks only the first two (#5228).
 - [ ] The det sweep: `det_port.py check` first, then sweep ONLY the ports your change changed (Db2 local). No full re-sweep after a main merge unless your changed ports changed again.
 
 A baseline refreshed right after `git merge origin/main` can absorb a regression (#3867). Run each check WITHOUT `--update-baseline` first, compare with main's baseline, and update only the moves your change explains.
@@ -64,6 +65,8 @@ Main holds no rendered evidence report (#5206): read levels with `python tests/t
 
 ## Running
 - Use `gh api` REST, not `gh issue view` / `gh pr edit` (gh 2.45 fails on Projects-classic GraphQL). Keep API use low. No `jq` in loops; use `gh -q`. When computing stats from tabular `gh api` output, print a header row first: an empty column shifts fields silently (#5139). Never run `cat > file` without a heredoc in a compound command: it waits on stdin and hangs the worker (#5157). `commits/<sha>/check-runs` pages at 30: add `?per_page=100` (or `--paginate`), or you miss legs.
+- `gh api .../actions/jobs/ID/logs` needs `--allow-escape-sequences`, or it fails on the log's ANSI codes (#5224).
+- A `cat > file` without a heredoc in a compound command waits on stdin and hangs the shell until timeout: use the Write tool or a quoted heredoc (#5157, #5227).
 - Tests first: the narrowest failing test, then fix, then the language/extraction tests.
 - Golden: bless only via `golden-lock.sh python tests/tools/crucible_check.py --update --yes`, on BOTH legs (both modes it runs), only after a real-scan proof. Attribute every diff to your change (`scope_check.py --expect <lang>`); never bless a sibling's drift. REFUSE to bless if the run excluded files via timeouts (load-induced fake diffs, #4247); rerun when quieter.
 - Bless with `crucible_check.py --update --yes` ONLY (CI-matched venvs per leg), never `update_golden_master` from `~/venvs/galaxy_venv` (py3.12 vs CI pin gave ~2.9k phantom diffs, #4258). After a sibling merge that moved the golden masters, merge origin/main and re-bless (a sibling merge that did not is no reason to merge).

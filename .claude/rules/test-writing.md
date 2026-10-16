@@ -13,3 +13,7 @@
   test fails only over 15 s (`FAIL_S`); 10-15 s is a warning. Mark one `slow(reason=...)` up front only if it cannot be
   made faster (#5179). The "Per-test time ratchet" step lists every offender at once; match that list
   against a sibling PR's actual diff, not its title, since the list may leave files out (#5177).
+* **A test that runs `java`** passes `-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8` and decodes output as UTF-8:
+  `test_java_subprocess_utf8.py` scans every `tests/` file and the ground-truth CI job fails otherwise (#5232).
+* **`time_ratchet.py check --times .test_durations` skips the source slow-mark read** and false-fails tests whose cost is
+  a shared fixture; run it with no `--times` to check the committed file (#5255).

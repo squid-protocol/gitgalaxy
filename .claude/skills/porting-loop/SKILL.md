@@ -71,6 +71,8 @@ errors), not to smuggle in a specific answer.
 - `pkill -f <pattern>` also matches the background shell whose command line holds the pattern. It killed a sibling
   loop once. Kill by PID from `pgrep -fa`.
 - A reused `--keep` directory carries state (the crucible's TS queues). Use a fresh one per run.
+- A hex literal in a ported program is stored as that byte, but a TS write re-encodes it as 037, so a crucible case
+  observing ASCII built from a hex literal fails on stub and port alike (#4528 convention, #5227).
 - `gh pr edit` and `gh issue view` can fail on the Projects-classic GraphQL error. Use `gh api` (REST) instead.
 - Merging is blocked by the auto-mode permission check even with approval in chat. Ask Joe to merge, or to add a
   permission rule.

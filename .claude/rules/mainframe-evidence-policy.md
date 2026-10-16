@@ -16,6 +16,8 @@ The burned (development) estates are `estate4_draw.BURNED_NAMES` in `tests/tools
 GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card.
 * Never burn, pin or write cases for a non-burned census repo: those keep their first-contact numbers.
 * A program that is whole only in a non-burned repo is out of scope: list it, don't ask.
+* Before planning a "state it per case" box, grep the burned corpora (`.mainframe_corpora`) for the construct: if no
+  burned program reads it, there is nothing to prove (#5221).
 * Translation rankings (`cics_census.py blockers`, the blocker-slice skill's "non-burned first") still count
   non-burned programs automatically. Ranking by them is fine; reading, porting or writing cases for them is not.
 

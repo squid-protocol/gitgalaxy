@@ -439,7 +439,14 @@ class Generated:
 
     def screen_fields(self, cls: str) -> list[str]:
         text = self._file("dto/screen", cls).read_text(encoding="utf-8")
-        return re.findall(r'values\.put\("([A-Z0-9-]+)",', text)
+        return re.findall(r'values\.put\("([A-Z0-9-]+)"(?:,| \+ )', text)  # #5076: a repeated field: "NAME" + "." + i
+
+    def screen_occurs(self, cls: str) -> dict[str, int]:
+        """#5076: the BMS fields a map repeats (DFHMDF OCCURS=n), by name -> n, read off the screen class's LAYOUT
+        (`new ScreenField(name, ..., occurs, justify)`); a field without OCCURS is absent."""
+        text = self._file("dto/screen", cls).read_text(encoding="utf-8")
+        rows = re.findall(r'new ScreenField\("([A-Z0-9-]+)",.*, (\d+), (?:null|"[A-Z,]+")\)\)?[,;]?\s*$', text, re.M)
+        return {name: int(n) for name, n in rows if int(n) > 1}
 
     def screen_justify(self, cls: str) -> dict[str, str]:
         """#5082: a named field's DFHMDF JUSTIFY ("RIGHT", "RIGHT,ZERO", "LEFT,ZERO" ...), read off the screen class's
@@ -2485,17 +2492,18 @@ class Cics:
             )
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
-    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None) -> str | None:
-        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None."""
+    def symbolic(self, map_name: str, suffix: str, name: str, record: str | None, k: int | None = None) -> str | None:
+        """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None. #5076 `k`: occurrence k
+        of a repeated field (ACCOUNTO(3))."""
         for rec in [*([record] if record else []), map_name + "I", map_name + "O"]:
-            found = self._field_or_none(name + suffix, rec)
+            found = self._field_or_none(name + suffix, rec, k)
             if found is not None:
                 return found
         return None
 
-    def _field_or_none(self, name: str, rec: str) -> str | None:
+    def _field_or_none(self, name: str, rec: str, subscript: int | None = None) -> str | None:
         try:
-            return self.g.field_expr(E.Ref(name, [rec]))
+            return self.g.field_expr(E.Ref(name, [rec], [] if subscript is None else [E.Lit(E.NumLit(str(subscript)))]))
         except Exception:
             return None
 
@@ -2559,6 +2567,14 @@ class Cics:
                 f"{ind}if ({lbl} == null) throw abended();",
                 f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
 
+    def screen_slots(self, cls: str) -> list[tuple[str, int | None]]:
+        """#5076: a screen class's fields as (name, occurrence): a repeated field once per occurrence (ACCOUNT, 3), any
+        other once (COMPANY, None)."""
+        repeated = self.gp.screen_occurs(cls)
+        return [
+            (n, k) for n in self.gp.screen_fields(cls) for k in (range(1, repeated[n] + 1) if n in repeated else [None])
+        ]
+
     def no_screen(self, m: str) -> CicsError:
         """Why map `m` has no generated screen, by name (a map of no BMS source we hold)."""
         return CicsError(f"no generated screen for map {m}")
@@ -2576,15 +2592,16 @@ class Cics:
         v, sub, scr = self.g.tmpname("values"), self.g.tmpname("sub"), self.g.tmpname("screen")
         out = [*guard, f"{ind}java.util.Map<String, String> {v} = new java.util.LinkedHashMap<>();",
                f"{ind}CicsTask.MapSubfields {sub} = new CicsTask.MapSubfields();"]  # fmt: skip
-        for name in self.gp.screen_fields(cls):
-            o = self.symbolic(m, "O", name, frm)
+        for name, k in self.screen_slots(cls):  # #5076: a repeated field's every occurrence, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            o = self.symbolic(m, "O", name, frm, k)
             if o is None:
-                raise CicsError(f"map {m}: no {name}O")
-            out.append(f"{ind}{v}.put({G_jstr(name)}, Cobol.text({o}, CS));")
-            parts = [self.symbolic(m, s, name, None) for s in ("L", "A", "C", "H")]
+                raise CicsError(f"map {m}: no {name}O" + ("" if k is None else f"({k})"))
+            out.append(f"{ind}{v}.put({G_jstr(key)}, Cobol.text({o}, CS));")
+            parts = [self.symbolic(m, s, name, None, k) for s in ("L", "A", "C", "H")]
             if parts[1] is None:
-                parts[1] = self.symbolic(m, "F", name, None)
-            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(name)}, "
+                parts[1] = self.symbolic(m, "F", name, None, k)
+            out.append(f"{ind}DetCics.subfields({sub}, {G_jstr(key)}, "
                        f"{', '.join(p or 'null' for p in parts)}, CS);")  # fmt: skip
         if opts.get("CURSOR"):
             out.append(f"{ind}{sub}.cursorAt({self.int_(opts['CURSOR'])});")
@@ -2615,16 +2632,17 @@ class Cics:
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
         justify = self.gp.screen_justify(cls)
-        for name in self.gp.screen_fields(cls):
-            i = self.symbolic(m, "I", name, into.name)
-            ln = self.symbolic(m, "L", name, into.name)
+        for name, k in self.screen_slots(cls):  # #5076: every occurrence of a repeated field, keyed NAME.k
+            key = name if k is None else f"{name}.{k}"
+            i = self.symbolic(m, "I", name, into.name, k)
+            ln = self.symbolic(m, "L", name, into.name, k)
             if i is None:
                 continue
-            out.append(f"{ind}    if ({vals}.get({G_jstr(name)}) != null) {{")
+            out.append(f"{ind}    if ({vals}.get({G_jstr(key)}) != null) {{")
             # #5082: IBM DFHMDF JUSTIFY -- the input right-justified / zero-filled as the field says; none: as typed
             tail = f", {G_jstr(justify[name])}" if name in justify else ""
             call = f"{self.package}.cobolrt.cics.DetJustify.place" if name in justify else "DetCics.typed"
-            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(name)}), CS{tail});")
+            out.append(f"{ind}        {call}({i}, {ln or 'null'}, {vals}.get({G_jstr(key)}), CS{tail});")
             out.append(f"{ind}    }}")
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)

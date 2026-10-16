@@ -335,6 +335,7 @@ def planted(tmp_path_factory):
     return estate, before, runs[0], runs[1], _snapshot(estate)
 
 
+@pytest.mark.slow(reason="#4726: planted fixture runs two subprocess gitgalaxy assess scans (#5240)")
 def test_planted_text_never_reaches_the_report(planted):
     _estate, _before, plain, red, _after = planted
     for report in (plain, red):
@@ -353,11 +354,13 @@ def test_planted_text_never_reaches_the_report(planted):
     assert not any(w in red_text for w in ("PLANT", "MISSBOOK"))
 
 
+@pytest.mark.slow(reason="#4726: planted fixture runs two subprocess gitgalaxy assess scans (#5240)")
 def test_the_estate_is_read_only(planted):
     _estate, before, _plain, _red, after = planted
     assert after == before  # no file written, changed or touched; no directory (.gitgalaxy) created
 
 
+@pytest.mark.slow(reason="#4726: planted fixture runs two subprocess gitgalaxy assess scans (#5240)")
 def test_out_inside_the_estate_is_refused(planted):
     estate = planted[0]
     res = _assess(str(estate), "--out", str(estate / "report.json"))

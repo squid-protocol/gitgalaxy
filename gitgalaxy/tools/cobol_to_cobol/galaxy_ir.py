@@ -4483,53 +4483,63 @@ class GalaxyIR:
 
     # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
     _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
+    # #5154: a proc that wraps the assembler; its SYSIN is a job-level `//STEP.SYSIN` override DD.
+    _ASSEMBLER_PROCS = frozenset({"DFHAUPLE"})
 
     def job_macro_tables(self) -> list:
         """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
 
-        One entry per job step that runs an assembler and whose `SYSIN DD` is `DSN=lib(MEMBER)`:
-        `file` / `job` / `step` / `line` (the DD), `member`, and `resources`, the macro-table
-        rows (`source` "MACRO") of the one hlasm file whose name is the member, each row as
-        `csd_resources` gives it plus `defined_in`. `member_file` is None and `resources` empty
-        when no file, or more than one, is named that: a finding, not a guess. In-stream SYSIN is
-        the job's own `csd_resources`, and an override DD (`//STEP.SYSIN`) is not read.
+        One entry per `SYSIN DD DSN=lib(MEMBER)` of a job step that runs an assembler, or calls
+        a known assembler proc (`_ASSEMBLER_PROCS`: DFHAUPLE; its SYSIN is a `//PROCSTEP.SYSIN`
+        override DD, reported under the EXEC step). Unnamed DDs after the SYSIN (a concatenation) are each their own entry.
+        `file` / `job` / `step` / `line` (the DD), `member`, `member_file` and `resources`, the
+        macro-table rows (`source` "MACRO") of the one hlasm file whose name is the member, each
+        row as `csd_resources` gives it plus `defined_in`. `status`, always present: `joined`
+        (one file, with tables), `no_tables` (one file, no macro-table row: found, nothing to
+        join; `member_file` is set), `not_found` (no file) or `ambiguous` (several files;
+        `member_file` None, `resources` empty). A finding, not a guess. In-stream SYSIN is the
+        job's own `csd_resources`; any other wrapper proc is not read (REFUSED by name).
         """
         members: dict[str, list] = {}
         for f in self.files.values():
-            if any(r.source == "MACRO" for r in f.csd_resources):
+            if f.language == "hlasm" or any(r.source == "MACRO" for r in f.csd_resources):
                 members.setdefault(nfc(Path(f.file_path).stem.upper()), []).append(f)
         out = []
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             job = next((r for r in f.job_flow if r.kind == "JOB"), None)
             if job is None:
                 continue
-            step = None
+            assemblers: set[str | None] = set()
+            wrapper: tuple[str | None] | None = None  # the DFHAUPLE-style step in force: (its name,)
             for r in f.job_flow:
                 if r.in_proc:
                     continue
                 if r.kind == "STEP":
-                    step = r if (r.program or "").upper() in self._ASSEMBLER_PROGRAMS else None
-                elif r.kind == "DD" and step is not None and (r.dd_name or "").upper() == "SYSIN":
+                    prog, proc = (r.program or "").upper(), (r.proc or "").upper()
+                    wrapper = (r.step_name,) if not prog and proc in self._ASSEMBLER_PROCS else None
+                    if prog in self._ASSEMBLER_PROGRAMS:
+                        assemblers.add(r.step_name)
+                elif r.kind == "DD" and (r.dd_name or "").upper() == "SYSIN" and (wrapper or r.step_name in assemblers):
                     m = re.fullmatch(r"[^()]+\(([^()]+)\)", (r.dsn or "").strip())
                     if not m:
                         continue
                     member = m.group(1).upper()
                     hits = members.get(nfc(member), [])
                     mf = hits[0] if len(hits) == 1 else None
-                    member_path = mf.file_path if mf else None
+                    rows = [x for x in (mf.csd_resources if mf else []) if x.source == "MACRO"]
+                    status = (
+                        "ambiguous" if len(hits) > 1 else "not_found" if not hits else "joined" if rows else "no_tables"
+                    )
                     out.append(
                         {
                             "file": f.file_path,
                             "job": job.name,
-                            "step": step.step_name,
+                            "step": wrapper[0] if wrapper else r.step_name,
                             "line": r.line,
                             "member": member,
-                            "member_file": member_path,
-                            "resources": [
-                                {**x.__dict__, "defined_in": member_path}
-                                for x in (mf.csd_resources if mf else [])
-                                if x.source == "MACRO"
-                            ],
+                            "member_file": mf.file_path if mf else None,
+                            "status": status,
+                            "resources": [{**x.__dict__, "defined_in": mf.file_path if mf else None} for x in rows],
                         }
                     )
         return out

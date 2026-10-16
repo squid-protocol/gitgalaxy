@@ -135,6 +135,12 @@ REFUSED = {
         "DSNTIAC: Db2's message text is not modelled",
     ),
     "dsntiac-literal": (["01 X PIC X.", *ARG], ["CALL 'DSNTIAC' USING ARG"], "DSNTIAC: Db2's message text"),
+    "zuidstck": (
+        ["01 PGM PIC X(8) VALUE 'ZUIDSTCK'.", *ARG],
+        ["CALL PGM USING ARG"],
+        "ZUIDSTCK: an assembler store-clock wrapper",
+    ),
+    "zuidstck-literal": (["01 X PIC X.", *ARG], ["CALL 'ZUIDSTCK' USING ARG"], "ZUIDSTCK: an assembler store-clock"),
     "not-in-the-estate": (
         ["01 PGM PIC X(8) VALUE 'NOPROG'.", *ARG],
         ["CALL PGM USING ARG"],

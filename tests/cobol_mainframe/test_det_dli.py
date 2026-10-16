@@ -300,10 +300,10 @@ def _java_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
     jdk = _jdk()
     subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"),  # noqa: S603
                     *map(str, srcdir.rglob("*.java"))], check=True)  # fmt: skip
-    run = subprocess.run([str(jdk / "java"), f"-Dgitgalaxy.dli.dir={work / 'dli'}", f"-Dgitgalaxy.dli.out={work / 'dliout'}",  # noqa: S603
-                          "-cp", str(work / "classes"), "Main"], capture_output=True, text=True, encoding="latin-1",
-                         check=True)  # fmt: skip
-    return run.stdout, (work / "dliout" / "LVLDBD.out").read_bytes()
+    run = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",  # noqa: S603
+                          f"-Dgitgalaxy.dli.dir={work / 'dli'}", f"-Dgitgalaxy.dli.out={work / 'dliout'}",
+                          "-cp", str(work / "classes"), "Main"], capture_output=True, check=True)  # fmt: skip
+    return run.stdout.decode("utf-8"), (work / "dliout" / "LVLDBD.out").read_bytes()
 
 
 @E2E
@@ -334,7 +334,7 @@ def test_a_seed_out_of_sequence_is_refused_by_both_runtimes(tmp_path, seed, why)
         _cobol_side(tmp_path / "cobol", seed)
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_side(tmp_path / "java", seed)
-    assert why in (e.value.stderr or "")
+    assert why in (e.value.stderr or b"").decode("utf-8")
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
@@ -355,6 +355,6 @@ def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
     jdk = _jdk()
     subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
-                         check=True).stdout.split()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp",  # noqa: S603
+                          str(tmp_path / "classes"), "Main"], capture_output=True, check=True).stdout.decode("utf-8").split()  # fmt: skip
     assert out == ["240315", "20240315", "24075", "2024075", "14302512"]

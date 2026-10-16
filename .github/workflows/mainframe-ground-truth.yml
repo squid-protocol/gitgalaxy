@@ -195,13 +195,15 @@ jobs:
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
 
+      # #5133: runs on both parts so the corpus scans are warm before the timed tests; a cold scan landing inside one
+      # test fails the per-test time ratchet (part 1 paid 333 s in test_full_corpus_no_new_unexplained[dsf]). Only
+      # part 2 writes the summary and the history.
       - name: Gate against the ground-truth ledger
-        if: matrix.group == 2
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
-            --summary "$GITHUB_STEP_SUMMARY" \
-            ${{ (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
+            ${{ matrix.group == 2 && '--summary "$GITHUB_STEP_SUMMARY"' || '' }} \
+            ${{ matrix.group == 2 && (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
 
       - name: Full-corpus differential and answer-key tests
         env:

@@ -2008,6 +2008,8 @@ def read_ts(root: Path) -> dict[str, list[bytes]]:
     """#4002: every TS queue in the stub's store, its items as EBCDIC bytes (the `final` state)."""
     out: dict[str, list[bytes]] = {}
     for d in sorted(root.iterdir()) if root.is_dir() else []:
+        if d.name.startswith("td-"):
+            continue  # an intrapartition TD queue lives beside the TS queues (ggcics.c td_dir); `final` td_queues are not compared yet
         items, n = [], 1
         while (d / f"{n:06d}.bin").is_file():
             items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))

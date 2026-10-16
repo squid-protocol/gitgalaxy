@@ -4400,6 +4400,20 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         if (got == raw) {
             return true;
         }
+        if (raw instanceof byte[] wide && got != null && got.getClass() == type) {
+            // #4695: a RETURN with a LENGTH past the DTO passes the COMMAREA as bytes (the region's EBCDIC); the facade
+            // answers its own DTO, those bytes read through its layout in the port's page -- never a different record
+            try {
+                java.nio.charset.Charset page = (java.nio.charset.Charset) Class.forName("__PKG__.entity.vsam.CobolRecords")
+                        .getMethod("charset").invoke(null);
+                byte[] text = new String(wide, java.nio.charset.Charset.forName("IBM037")).getBytes(page);
+                Method bytes = type.getMethod("toCommarea");
+                Object expected = type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) text);
+                return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(expected));
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
+        }
         if (raw == null || got == null || type.isInstance(raw) || got.getClass() != type) {
             return false;
         }
@@ -4556,6 +4570,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
             for m, cls in screens.items()]  # fmt: skip
+    facade_java = FACADE_JAVA.replace("__PKG__", pkg)  # #4695: the page a facade's bytes answer is read in
     return f"""package {pkg};
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -4850,7 +4865,7 @@ class EquivalenceRunTest {{
     }}
 
 {db2_methods}
-{FACADE_JAVA}
+{facade_java}
     /** #4270: the scenario's TS queues, each item's text in the region's code page (DetCics.region). */
     static CicsTask.TempStorage tempStorage(JsonNode sc) {{
         CicsTask.TempStorage ts = new CicsTask.TempStorage();

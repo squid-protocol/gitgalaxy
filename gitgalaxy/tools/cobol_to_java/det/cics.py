@@ -476,6 +476,9 @@ class Cics(ContainerCommands):
         self.codecs: dict[str, list[str]] = {}  # DTO class -> its in / out methods
         self.stores: dict[str, str] = {}  # CICS file -> the Java Store expression
         self.repos: dict[str, str] = {}  # repository class -> field
+        self.passes_bytes = (
+            False  # #4695: a RETURN / XCTL passes its COMMAREA as bytes (commareaOut): a facade reads them
+        )
         self.used_screens: set[str] = set()
         # #4414: the program issues HANDLE AID (its input commands consult the keys' labels) / PUSH HANDLE (its
         # handler state is stacked); set by program._translate from the source before any statement is translated
@@ -818,10 +821,12 @@ class Cics(ContainerCommands):
             known = self.constant_int(opts["LENGTH"])
             if known is None or known > d.extent:
                 dto = f"DetCics.commareaOut({dto}, {f}, {length}, {d.extent}, CS)"
+                self.passes_bytes = True
         elif d.size > d.extent:
             # #4765: a DTO whose OCCURS fields appear once holds the first occurrence only: the record's bytes go, every
             # occurrence of the table (as a LINK's span, Dto.size); #4778: and a trailing FILLER's
             dto = f"DetCics.commareaOut({dto}, {f}, {d.size}, {d.extent}, CS)"
+            self.passes_bytes = True
         return dto, length
 
     def in_dfhcommarea(self, text: str) -> bool:

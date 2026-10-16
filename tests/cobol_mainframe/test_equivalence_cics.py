@@ -760,7 +760,8 @@ def test_the_generated_test_runs_runtask_unless_the_facade_side_is_asked_for(tmp
     assert 'if (facades) { region.enter("LINKED", t, ' in java and ".runTask(t); } return; }" in java
     linked = ec.cics_equivalence_test({**case, "linked": True}, tmp_path, [])
     assert 'new FacadeRegion(task, commarea, "PROG", true)' in linked
-    assert ec.FACADE_JAVA in java
+    pkg = java.split("package ", 1)[1].split(";", 1)[0]
+    assert ec.FACADE_JAVA.replace("__PKG__", pkg) in java  # #4695: the port's package names its page's class
 
 
 # ---- file updates: WRITE, REWRITE, READ UPDATE, SYNCPOINT (CardDemo's update programs) -----------------------

@@ -1505,6 +1505,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   is refused by name on `create-customer` / `born-in-the-future` until L1 is settled. Holes of the program: L1 (the
   CEEDAYS picture and date strings overrun their 8 bytes by 2), L4 (`FC` is 8 bytes, LE's token 12) and this
   entry's ASSUMED schedule. BNK1CCS, which LINKs CRECUST, is not proven while they stand.
+- **#4950: case-file channel names.** The harness (`scenario_channel`) refuses a channel or container name outside IBM's PUT CONTAINER set (A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - _; 1-16 characters, no blank) before either runtime sees it; `&`, `<` and the not sign, which RUN TRANSID's page allows and PUT CONTAINER's does not, are refused too (the pages disagree), as `ggcics.c` and the forge's `NAME_CHARS` do.
 
 ### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).

@@ -1618,10 +1618,53 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members + ca_whole, entry + facades(stub)
+    return members + ca_whole, entry + facades(stub, cx.passes_bytes)
 
 
-def facades(stub: str) -> list[str]:
+def answer_lines(ret: str, own: str | None) -> list[str]:
+    """#4695: the lines that answer handleTransaction of a program whose RETURN or XCTL can pass its COMMAREA as bytes
+    (a LENGTH past the DTO, #4679: DetCics.commareaOut). The answer is then the program's own DTO read from them
+    (wideAnswer: the layout of #4449, through the region page), the task keeping the bytes for the next one. Bytes no
+    layout reads (wideAnswer: null) are answered as before: an Object answer (the flows present several records) keeps
+    them, a typed one is refused by name by task.returned. An Object answer with no DTO of its own (`own` is None or
+    Object) has nothing to read them through."""
+    if ret == "Object" and own in (None, "Object"):
+        return ["        return task.returned(Object.class);"]
+    dto = own if ret == "Object" else ret
+    read = f"wideAnswer(wide, {dto}.class)"
+    if ret == "Object":
+        return ["        Object answer = task.returned(Object.class);",
+                "        if (answer instanceof byte[] wide) {",
+                f"            Object read = {read};",
+                "            return read != null ? read : answer;",
+                "        }",
+                "        return answer;"]  # fmt: skip
+    return ["        if (task.returned(Object.class) instanceof byte[] wide) {",
+            f"            {ret} read = {read};",
+            "            if (read != null) {",
+            "                return read;",
+            "            }",
+            "        }",
+            f"        return task.returned({ret}.class);"]  # fmt: skip
+
+
+WIDE_ANSWER = [
+    "    // @facade-helper: a handleTransaction answer read from the COMMAREA bytes a RETURN passed (#4695)",
+    "    /** #4695: the COMMAREA bytes a RETURN passed with a LENGTH past the DTO (the region's EBCDIC), read through",
+    "     *  `type`'s layout (fromCommarea, #4449) in this port's page; null when `type` has no layout or the bytes are",
+    "     *  shorter than its record. @facade-helper */",
+    "    private static <T> T wideAnswer(byte[] ebcdic, Class<T> type) {",
+    "        try {",
+    '            return type.cast(type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) DetCics.commareaIn(ebcdic, CS)));',
+    "        } catch (ReflectiveOperationException e) {",
+    "            return null;",
+    "        }",
+    "    }",
+    "",
+]
+
+
+def facades(stub: str, passes_bytes: bool = False) -> list[str]:
     """The stub's handleTransaction / handleLink, kept for their callers (#4465): each runs the program -- one task of
     it in the region, as the generator's own facades do (#4343: CicsTask.region(), region.transaction / region.linked,
     region.run(task, NAME, this::runTask)) -- and returns what the generated signature says: the COMMAREA its RETURN
@@ -1631,6 +1674,7 @@ def facades(stub: str) -> list[str]:
     entry stops by name rather than return as if the program had run (#4342: no generated entry that does nothing)."""
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
+    wide = False
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
@@ -1650,10 +1694,15 @@ def facades(stub: str) -> list[str]:
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":
                     body.append("        lastAnswerBytes = task.returnedBytes();")
-                if ret != "void":
+                if ret != "void" and meth == "handleTransaction" and passes_bytes:
+                    body += (lines := answer_lines(ret, req.group(1) if req else None))
+                    wide = wide or len(lines) > 1
+                elif ret != "void":
                     body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                                 else f"        return task.returned({ret}.class);")  # fmt: skip
             out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+    if wide:
+        out += WIDE_ANSWER
     # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
     if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
         out += ["    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",

@@ -4,7 +4,7 @@
     python tests/tools/det_sweep_measure.py --cut 2026-10-14T21:52:10Z --since 2026-10-10 --min-runs 10
 
 Takes the newest `pull_request` Det Sweep runs, uses each run's last attempt, and reports per side (before/after the
-cut) the median and p75 of: jobs per run, `det` wall time (run created to the `det` job completed, so queue wait counts),
+cut) the median and p75 of: jobs per run, `det` wall time (latest attempt started to the `det` job completed, so queue wait counts),
 and shard queue wait (job created to started). A run whose `det` job did not succeed is counted as `det_not_green`
 (`det` fails on a missing case, so a green `det` means missing_cases was empty); a cancelled or skipped `det` is dropped. The maths takes plain REST dicts, so
 it is tested offline.
@@ -13,6 +13,7 @@ it is tested offline.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import statistics
 import subprocess
@@ -47,7 +48,7 @@ def run_stats(run: dict, jobs: list[dict]) -> dict | None:
     queues = [q for j in jobs if (q := _gap(j.get("created_at"), j.get("started_at"))) is not None]
     return {
         "jobs": len(jobs),
-        "det_wall_s": _gap(run["created_at"], det["completed_at"]),
+        "det_wall_s": _gap(run.get("run_started_at") or run["created_at"], det["completed_at"]),
         "max_queue_s": max(queues) if queues else 0.0,
         "det_green": det.get("conclusion") == "success",
     }
@@ -96,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--since", required=True, help="YYYY-MM-DD, oldest run to read")
     ap.add_argument("--min-runs", type=int, default=10)
     ap.add_argument("--workflow", default="det-sweep.yml")
+    ap.add_argument("--full-jobs", type=int, default=10, help="jobs per run that mark a full sweep")
     ap.add_argument("--pages", type=int, default=5, help="pages of 100 runs to read")
     args = ap.parse_args(argv)
     runs: list[dict] = []
@@ -107,17 +109,22 @@ def main(argv: list[str] | None = None) -> int:
         runs += got
         if len(got) < 100:
             break
-    rows: list[tuple[str, dict]] = []
-    for run in runs:
-        if run.get("status") != "completed":
-            continue
+    done = [r for r in runs if r.get("status") == "completed"]
+
+    def one(run: dict) -> tuple[str, dict] | None:
         jobs = _gh(f"repos/{REPO}/actions/runs/{run['id']}/jobs?per_page=100&filter=latest")["jobs"]
         stats = run_stats(run, jobs)
-        if stats:
-            rows.append((run["created_at"], stats))
+        return (run["created_at"], stats) if stats else None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        rows = [r for r in pool.map(one, done) if r]
     before, after = split(rows, args.cut)
     print(_fmt("before", summarize(before)))
     print(_fmt("after", summarize(after)))
+    # a narrow plan (a few cases) starts one shard per PER_SHARD cases; a full sweep is the run the cut-over was for
+    full = args.full_jobs
+    print(_fmt(f"before, >={full} jobs", summarize([r for r in before if r["jobs"] >= full])))
+    print(_fmt(f"after, >={full} jobs", summarize([r for r in after if r["jobs"] >= full])))
     short = [n for n, side in (("before", before), ("after", after)) if len(side) < args.min_runs]
     if short:
         print(f"fewer than {args.min_runs} runs on: {', '.join(short)}")

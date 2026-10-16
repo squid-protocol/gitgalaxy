@@ -841,7 +841,7 @@ NULL is distinct.
   for line (51/51) and left the same database (`tests/cobol_mainframe/test_det_dli.py`, EQUIVALENCE_E2E=1).
 - **Proven.** CardDemo PAUDBUNL (`carddemo-paudbunl`) unloads the corpus's own DBPAUTP0 unload (22 roots, 202
   children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
-  paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`Funcs.accept`): the
+  paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`cobolrt/Accept.java`): the
   translator had emitted a call to a method the runtime did not have.
 - **Refused (register I5).** EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical

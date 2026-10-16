@@ -165,7 +165,8 @@
    "prefix": "FUNC",
    "title": "intrinsic functions",
    "files": [
-    "Funcs.java"
+    "Funcs.java",
+    "Accept.java"
    ],
    "done": true,
    "about": "The intrinsic functions the translator calls.",
@@ -1909,7 +1910,7 @@
    "family": "FUNC",
    "title": "ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item",
    "methods": [
-    "accept"
+    "from"
    ],
    "ibm": {
     "doc": "cobol-lr",

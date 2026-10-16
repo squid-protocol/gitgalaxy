@@ -349,7 +349,7 @@ def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
             (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
             (src / "t" / rel).write_text(text)
     forms = ["DATE", "DATE YYYYMMDD", "DAY", "DAY YYYYDDD", "TIME"]
-    calls = " ".join(f'System.out.println(t.cobolrt.Cobol.displayText(t.cobolrt.Funcs.accept("2024031514302512+0000", '
+    calls = " ".join(f'System.out.println(t.cobolrt.Cobol.displayText(t.cobolrt.Accept.from("2024031514302512+0000", '
                      f'"{f}"), java.nio.charset.StandardCharsets.ISO_8859_1));' for f in forms)  # fmt: skip
     (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {calls} }} }}\n")
     jdk = _jdk()

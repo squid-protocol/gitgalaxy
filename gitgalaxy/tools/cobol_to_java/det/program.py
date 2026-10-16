@@ -1268,6 +1268,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Funcs;\nimport {pkg}.cobolrt.Hfp;\n", 1
         )
+    if (
+        "Accept.from(" in java
+    ):  # #4893: ACCEPT FROM DATE / DAY / TIME, imported only where it is used (no other port changes)
+        java = java.replace(
+            f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Accept;\nimport {pkg}.cobolrt.Funcs;\n", 1
+        )
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
     return Result(with_trunc(java, trunc_mode(program, options, page), numproc_pfd(program, options, page)), service,

@@ -809,3 +809,42 @@ def test_a_resp_number_keeps_the_sequence_area_in_columns_73_to_80():
     out = ec._numbered(line)
     assert out[72:] == "01450012" and len(out) == 80 and out[:72].rstrip().endswith("=  0")
     assert ec._numbered("           IF X = DFHRESP(NOTFND)") == "           IF X = 13"  # no sequence area: as before
+
+
+# ---- #5278: the burned estates ---------------------------------------------------------------------------------------
+BURNED_CORPORA = (
+    "aws-mainframe-modernization-carddemo",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "zecs",
+    "dbb-mortgage-application",
+    "cics-async-api-credit-card-application-example",
+)
+MQ_CALL = re.compile(r"\bCALL\s+['\"](MQ[A-Z0-9]+)['\"]", re.IGNORECASE)
+
+
+def _burned_mq_calls() -> dict[str, set[str]]:
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    found: dict[str, set[str]] = {}
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() not in (".cbl", ".cob", ".cobol") or not p.is_file():
+                continue
+            for line in p.read_text(encoding="latin-1").splitlines():
+                if len(line) > 6 and line[6] not in "*/":  # a comment line names no call
+                    for m in MQ_CALL.finditer(line[6:72]):
+                        found.setdefault(p.stem.upper(), set()).add(m.group(1).upper())
+    return found
+
+
+def test_no_burned_program_calls_an_mq_routine_the_models_lack():
+    """The MQI calls the burned estates make are all modelled (MQINQ / MQSET, used by none, stay refused: #4892)."""
+    calls = _burned_mq_calls()
+    if not calls:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    assert {"CODATE01", "COACCT01", "COPAUA0C"} <= set(calls)
+    used = set().union(*calls.values())
+    assert used <= set(SPEC.CALLS), sorted(used - set(SPEC.CALLS))
+    assert not used & set(SPEC.UNMODELLED)
+    assert not used & {"MQINQ", "MQSET"}
+    assert calls["COPAUA0C"] == {"MQOPEN", "MQGET", "MQPUT1", "MQCLOSE"}

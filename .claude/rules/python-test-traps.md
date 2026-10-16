@@ -17,3 +17,7 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **`ruff format` reflows multi-line expressions even beside `# fmt: skip`.** After formatting, re-check any test that
   pins source text (#5173).
 * **CodeQL `py/uninitialized-local-variable`:** a local assigned inside one `if` and read under a later separate `if` must be initialised before the first block, even when the guards are identical (#5196).
+* **Never regex-scrub verdict words over a rendered report:** it mangles identifiers like `ported_unproven`; use word
+  boundaries that exclude `_` (#5231).
+* **A guard wrapping `socket.connect` also catches stdlib loopback plumbing** (Windows `socketpair` emulation): test
+  socket guards on a Windows leg (#5253).

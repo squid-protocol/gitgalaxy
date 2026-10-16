@@ -140,6 +140,7 @@ def test_entry_using_reads_the_dlitcbl_entry_only():
 
 def _unload(segments: list[tuple[str, bytes, int]], counts: dict[str, int]) -> bytes:
     """An HD unload as CardDemo's is laid out (register I6): header, segment records, trailer with counts."""
+
     def rec(level: int, name: str, body: bytes, length: int) -> bytes:
         head = bytes(4) + bytes([level, 0x80]) + b"\x00\x23" + length.to_bytes(2, "big") + name.ljust(8).encode("cp037")
         r = head + bytes(21) + body + b"\x00"
@@ -177,7 +178,10 @@ def test_diff_db_pairs_segments_and_names_the_ones_that_differ():
     case = {"ims": {"dbd": [], "psb": ""}}
     ei_definitions = ei.definitions
     try:
-        ei.definitions = lambda c, corpus: ({"X": {"segments": [{"name": "R", "bytes": 2}, {"name": "C", "bytes": 1}]}}, [])
+        ei.definitions = lambda c, corpus: (
+            {"X": {"segments": [{"name": "R", "bytes": 2}, {"name": "C", "bytes": 1}]}},
+            [],
+        )
         same = _segment("R", b"r1") + _segment("C", b"c")
         assert ei.diff_db(case, ROOT, "X", same, same) == {"records": 2, "equal": 2, "filler_differs": 0, "diffs": []}
         d = ei.diff_db(case, ROOT, "X", same, _segment("R", b"r2") + _segment("C", b"c"))
@@ -331,3 +335,26 @@ def test_a_seed_out_of_sequence_is_refused_by_both_runtimes(tmp_path, seed, why)
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_side(tmp_path / "java", seed)
     assert why in (e.value.stderr or "")
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
+    """ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME (PAUDBUNL's 1000-INITIALIZE): the clock's digits as
+    the unsigned integer item IBM names, the day of the year counted in a leap year."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    forms = ["DATE", "DATE YYYYMMDD", "DAY", "DAY YYYYDDD", "TIME"]
+    calls = " ".join(f'System.out.println(t.cobolrt.Cobol.displayText(t.cobolrt.Funcs.accept("2024031514302512+0000", '
+                     f'"{f}"), java.nio.charset.StandardCharsets.ISO_8859_1));' for f in forms)  # fmt: skip
+    (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {calls} }} }}\n")
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+                         check=True).stdout.split()  # fmt: skip
+    assert out == ["240315", "20240315", "24075", "2024075", "14302512"]

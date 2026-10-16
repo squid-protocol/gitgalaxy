@@ -1230,8 +1230,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "        } catch (Goback g) {",
                 "            // the program ended",
                 "        }",
-                *(["        DetDli.leave();  // the step ended: its databases, as it left them"]
-                  if gen.dli_pcbs is not None else []),
+                *(
+                    ["        DetDli.leave();  // the step ended: its databases, as it left them"]
+                    if gen.dli_pcbs is not None
+                    else []
+                ),
                 f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
                 "    }",
                 "",

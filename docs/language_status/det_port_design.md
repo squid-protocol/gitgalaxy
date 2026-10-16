@@ -458,7 +458,9 @@ Only generator output, never a test case:
   The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN, refused
   first by its COPY DATEWS collision until #4486, now translates. *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
   is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
-  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
+  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. Since #4893
+  `ENTRY 'DLITCBL'` as the first statement is the entry even when PROCEDURE DIVISION has a USING of its own (IMS
+  enters a DL/I program there, with that ENTRY's list): see "IMS DL/I" below. A reference
   modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to
   the grammar as an argument list of the same length; expr reads it as the reference modification, and gen takes the
   substring of an alphanumeric function's text (it had dropped the modification). Newly read: CardDemo DBUNLDGS,
@@ -819,6 +821,32 @@ NULL is distinct.
     caller's record dropped the bytes it does not name (ERROR-MSG's date, under CA-ERROR-MSG's FILLER). A LINK now
     reads to the end of the caller's record only (`Cobol.commarea`, register X10) and a det caller passes the bytes
     themselves (`CicsTask.link(..., area)`).
+
+## IMS DL/I (batch DL/I calls, #4893)
+
+**Slice 1: CALL 'CBLTDLI' through a DB PCB, proven on a stated database.** A batch DL/I program (IMS enters its
+`ENTRY 'DLITCBL' USING pcb ...`; CMPAT=NO, a DLI region) translates whole. Its CALLs run through the det runtime's
+`cobolrt/dli/DetDli` (det/dli.py emits them; RETURN-CODE 0 after each, register I1), and the oracle's through
+`tests/equivalence/ims/ggdli.c`, the same rules and refusals on both sides (register family I, rule family DLI).
+
+- **The database is stated, not connected.** A case's `"ims"` section names its DBD and PSB sources (read by the
+  engine's `core/ims_gen.py`) and a seed: the corpus's own HD unload, or segments the case writes
+  (`tests/tools/equivalence_ims.py`). Both sides start from it, and the database each leaves is compared segment by
+  segment, every field of the segment's layout.
+- **Modelled.** GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET; unqualified SSAs and SSAs qualified by one field;
+  the PCB mask's feedback; position and parentage; status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD and AM.
+- **The level fixture.** `tests/equivalence/ims/fixture` (LVLDBD, LVLPSB, DLILVL, expected.txt) is a three-level
+  database with every modelled call and status. Its expected output was written from IBM's documentation and
+  committed before either runtime ran it (policy: level estates first). On its first run both runtimes printed it line
+  for line (51/51) and left the same database (`tests/cobol_mainframe/test_det_dli.py`, EQUIVALENCE_E2E=1).
+- **Proven.** CardDemo PAUDBUNL (`carddemo-paudbunl`) unloads the corpus's own DBPAUTP0 unload (22 roots, 202
+  children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
+  paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`Funcs.accept`): the
+  translator had emitted a call to a method the runtime did not have.
+- **Refused (register I5).** EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
+  other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
+  relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
+  DBUNLDGS (GSAM PCBs), and CBPAUP0C, COPAUA0C, COPAUS0C, COPAUS1C (EXEC DLI).
 
 ## In port_runner
 

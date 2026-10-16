@@ -1,7 +1,7 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DLILVL.
       * #4893 level fixture: every modelled DL/I call and status code on
-      * LVLDBD through PSB LVLPSB. Its expected output, expected.txt, was
+      * LVLDBD through PSB LVLPSB. Its expected output (expected.txt) was
       * written from IBM's documentation before either runtime ran it;
       * each step's comment cites the rule (register I1-I5).
        DATA DIVISION.

@@ -3470,8 +3470,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   at the SYNCPOINT ROLLBACK and goes on in the same transaction, so the SQL that follows is committed with the task, as
   the COBOL side's Db2 commits it. Reached: CBSA INQACCCU's cursor failing inside CREACC's task (its SYNCPOINT
   ROLLBACK, then CREACC's CONTROL updates and INSERTs: cbsa-creacc, cbsa-bnk1cac). A recoverable FILE changed after a
-  SYNCPOINT ROLLBACK is still undone with the task on the Java side (the transaction is marked rollback-only): no case
-  reaches one, and it would show as a difference.
+  SYNCPOINT ROLLBACK is still undone with the task on the Java side (the transaction is marked rollback-only), and it
+  shows as a difference: CBSA DELCUS deleting the CUSTOMER record after INQACCCU's rollback (cbsa-delcus: customer 3's
+  NULL statement date, and the derived SQL faults at INQACCCU lines 246 and 466) -- listed in det_sweep_baseline.json,
+  every other output of those scenarios equal.
 - **CICS, EXEC SQL COMMIT / ROLLBACK.** IBM: both are invalid under CICS -- Db2 for z/OS answers -925 / -926 (SQLSTATE
   2D521; Db2 for z/OS Codes) and the task's unit of work is CICS's (SYNCPOINT). The det translator REFUSES a CICS
   program's ROLLBACK by name. A CICS program's COMMIT stays a reset of the SQLCA on the Java side and a real commit on

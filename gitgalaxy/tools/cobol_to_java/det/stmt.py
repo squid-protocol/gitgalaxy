@@ -807,8 +807,7 @@ def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
     # #4892: REPLACING category [DATA] BY value ... -- only the elementary items of a named category are set, each as
     # by MOVE value (IBM: "The REPLACING phrase ... only for items of the category specified")
     if p.accept("REPLACING"):
-        while not p.done() and p.up() in INITIALIZE_CATEGORIES:
-            cat = p.up()
+        while not p.done() and (cat := p.up()) is not None and cat in INITIALIZE_CATEGORIES:
             p.accept(cat)
             p.accept("DATA")
             if not p.accept("BY") or cat in replacing:

@@ -9,6 +9,8 @@ from __future__ import annotations
 import gitgalaxy.tools.cobol_to_java.det.expr as E
 from gitgalaxy.standards.mq import CALLS, MQLONG, UNMODELLED
 
+RUNTIME = "__PACKAGE__.cobolrt.cics.DetMq"  # the port's MQI calls (cobolrt/cics/DetMq.java)
+
 
 def handles(prog: str) -> bool:
     """The program name is an MQI call: modelled (CALLS) or refused by name (UNMODELLED)."""
@@ -30,5 +32,5 @@ def call(gen, prog: str, args: list, ind: str) -> list[str]:
         it = gen.resolve(a)
         if p in MQLONG and (it.usage != "BINARY" or it.size != 4 or a.refmod is not None):
             raise Untranslatable(f"CALL {prog}: {p} {a.name} is not a fullword BINARY item (PIC S9(9) BINARY)")
-    refs = ", ".join(gen.field_expr(a) for _, a in args)
-    return [f"{ind}__PACKAGE__.cobolrt.cics.DetMq.{prog.lower()}(task, {refs});"]
+    refs = ", ".join(["task", *(gen.field_expr(a) for _, a in args)])
+    return [ind + RUNTIME + "." + prog.lower() + "(" + refs + ");"]

@@ -65,9 +65,7 @@ def _compiled_stub(main: str) -> Path:
     src = base / "main.c"
     src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
-    built = subprocess.run(
-        [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
-    )  # noqa: S603
+    built = subprocess.run([CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True)  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
 

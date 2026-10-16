@@ -18,6 +18,7 @@ report as it stands. tests/tools/feature_inventory.py writes the burned estates'
 """
 
 import dataclasses
+import functools
 import re
 import sys
 from collections import defaultdict
@@ -253,8 +254,9 @@ def _asm_member_finder(estate_dir: Path):
     return find
 
 
-def _not_self(found, rel: str):
-    """A member never expands itself (a macro member's own name is not a call to another member)."""
+def _member_but(find, rel: str, name: str):
+    """`find(name)` except the member being read: it never expands itself."""
+    found = find(name)
     return None if found is None or found[0] == rel else found
 
 
@@ -424,7 +426,7 @@ def scan_estate(
         except Exception:  # noqa: S112 -- an unreadable member has no hit
             continue
         # #5195: era-tag the member with the COPY / macro members it pulls in (nested too); a refused expansion is marked
-        books, skip = asm_members(asm_text, lambda n, me=rel_asm: _not_self(find_member(n), me))
+        books, skip = asm_members(asm_text, functools.partial(_member_but, find_member, rel_asm))
         tag = tag_program(asm_text, books, asm=True)
         if skip:
             tag = mark_skipped(tag, skip)
